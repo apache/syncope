@@ -21,7 +21,6 @@ package org.apache.syncope.core.security;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;

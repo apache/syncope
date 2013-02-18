@@ -95,7 +95,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             throws WorkflowException {
 
         if (!user.checkToken(token)) {
-            throw new WorkflowException(new RuntimeException("Wrong token: " + token));
+            throw new WorkflowException(new IllegalArgumentException("Wrong token: " + token + " for " + user));
         }
 
         user.removeToken();

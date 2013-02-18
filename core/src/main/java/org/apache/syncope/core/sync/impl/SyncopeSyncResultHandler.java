@@ -430,7 +430,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             syncRule = attrUtil.getCorrelationRule(policySpec);
             altSearchSchemas = attrUtil.getAltSearchSchemas(policySpec);
         }
-        
+
         return syncRule == null ? altSearchSchemas == null
                 ? findByAccountIdItem(uid, attrUtil)
                 : findByAttributableSearch(connObj, altSearchSchemas, attrUtil)
@@ -594,14 +594,16 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         Boolean enabled = readEnabled(delta.getObject());
         if (enabled != null) {
-            WorkflowResult<Long> enableUpdate = null;
-
             SyncopeUser user = userDAO.find(id);
-            enableUpdate = user.isSuspended() == null
-                    ? uwfAdapter.activate(id, null)
-                    : enabled
-                    ? uwfAdapter.reactivate(id)
-                    : uwfAdapter.suspend(id);
+
+            WorkflowResult<Long> enableUpdate = null;
+            if (user.isSuspended() == null) {
+                enableUpdate = uwfAdapter.activate(id, null);
+            } else if (enabled && user.isSuspended()) {
+                enableUpdate = uwfAdapter.reactivate(id);
+            } else if (!enabled && !user.isSuspended()) {
+                enableUpdate = uwfAdapter.suspend(id);
+            }
 
             if (enableUpdate != null) {
                 if (enableUpdate.getPropByRes() != null) {

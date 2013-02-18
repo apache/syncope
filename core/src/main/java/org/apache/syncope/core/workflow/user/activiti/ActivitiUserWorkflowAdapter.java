@@ -53,6 +53,7 @@ import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
@@ -212,13 +213,18 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         final ProcessInstance processInstance;
         try {
-            processInstance = runtimeService.startProcessInstanceByKey("userWorkflow", variables);
+            processInstance = runtimeService.startProcessInstanceByKey(WF_PROCESS_ID, variables);
         } catch (ActivitiException e) {
-            throw new WorkflowException(e);
+            throw new WorkflowException("While starting " + WF_PROCESS_ID + " instance", e);
         }
 
         SyncopeUser user = (SyncopeUser) runtimeService.getVariable(processInstance.getProcessInstanceId(),
                 SYNCOPE_USER);
+
+        Boolean updatedEnabled = (Boolean) runtimeService.getVariable(processInstance.getProcessInstanceId(), ENABLED);
+        if (updatedEnabled != null) {
+            user.setSuspended(!updatedEnabled);
+        }
 
         // this will make SyncopeUserValidator not to consider password policies at all
         if (disablePwdPolicyCheck) {
@@ -277,7 +283,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             try {
                 taskService.complete(tasks.get(0).getId(), variables);
             } catch (ActivitiException e) {
-                throw new WorkflowException(e);
+                throw new WorkflowException("While completing task '" + tasks.get(0).getName() + "' for " + user, e);
             }
         } else {
             LOG.warn("Expected a single task, found {}", tasks.size());
@@ -362,7 +368,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     public WorkflowResult<Long> execute(final UserTO userTO, final String taskId)
-            throws UnauthorizedRoleException, NotFoundException, WorkflowException {
+            throws UnauthorizedRoleException, WorkflowException {
 
         SyncopeUser user = dataBinder.getUserFromId(userTO.getId());
 
@@ -376,17 +382,20 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return new WorkflowResult<Long>(updated.getId(), null, performedTasks);
     }
 
+    protected ProcessDefinition getProcessDefinition() {
+        try {
+            return repositoryService.createProcessDefinitionQuery().processDefinitionKey(
+                    ActivitiUserWorkflowAdapter.WF_PROCESS_ID).latestVersion().singleResult();
+        } catch (ActivitiException e) {
+            throw new WorkflowException("While accessing process " + ActivitiUserWorkflowAdapter.WF_PROCESS_ID, e);
+        }
+    }
+
     @Override
     public WorkflowDefinitionTO getDefinition()
             throws WorkflowException {
 
-        ProcessDefinition procDef;
-        try {
-            procDef = repositoryService.createProcessDefinitionQuery().processDefinitionKey(
-                    ActivitiUserWorkflowAdapter.WF_PROCESS_ID).latestVersion().singleResult();
-        } catch (ActivitiException e) {
-            throw new WorkflowException(e);
-        }
+        ProcessDefinition procDef = getProcessDefinition();
 
         InputStream procDefIS = repositoryService.getResourceAsStream(procDef.getDeploymentId(), WF_PROCESS_RESOURCE);
         Reader reader = null;
@@ -402,16 +411,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         } catch (IOException e) {
             LOG.error("While reading workflow definition {}", procDef.getKey(), e);
         } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-                if (procDefIS != null) {
-                    procDefIS.close();
-                }
-            } catch (IOException ioe) {
-                LOG.error("While closing input stream for {}", procDef.getKey(), ioe);
-            }
+            IOUtils.closeQuietly(reader);
+            IOUtils.closeQuietly(procDefIS);
         }
 
         WorkflowDefinitionTO definitionTO = new WorkflowDefinitionTO();
@@ -423,10 +424,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     public void updateDefinition(final WorkflowDefinitionTO definition)
-            throws NotFoundException, WorkflowException {
+            throws WorkflowException {
 
         if (!ActivitiUserWorkflowAdapter.WF_PROCESS_ID.equals(definition.getId())) {
-
             throw new NotFoundException("Workflow process id " + definition.getId());
         }
 
@@ -434,7 +434,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             repositoryService.createDeployment().addInputStream(ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE,
                     new ByteArrayInputStream(definition.getXmlDefinition().getBytes())).deploy();
         } catch (ActivitiException e) {
-            throw new WorkflowException(e);
+            throw new WorkflowException("While updating process " + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
         }
     }
 
@@ -444,13 +444,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         List<String> result = new ArrayList<String>();
 
-        ProcessDefinition procDef;
-        try {
-            procDef = repositoryService.createProcessDefinitionQuery().processDefinitionKey(
-                    ActivitiUserWorkflowAdapter.WF_PROCESS_ID).latestVersion().singleResult();
-        } catch (ActivitiException e) {
-            throw new WorkflowException(e);
-        }
+        ProcessDefinition procDef = getProcessDefinition();
 
         InputStream procDefIS = repositoryService.getResourceAsStream(procDef.getDeploymentId(), WF_PROCESS_RESOURCE);
 
@@ -467,13 +461,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 result.add(nodeList.item(i).getAttributes().getNamedItem("id").getNodeValue());
             }
         } catch (Exception e) {
-            throw new WorkflowException(e);
+            throw new WorkflowException("While reading defined tasks", e);
         } finally {
-            try {
-                procDefIS.close();
-            } catch (IOException ioe) {
-                LOG.error("While closing input stream for {}", procDef.getKey(), ioe);
-            }
+            IOUtils.closeQuietly(procDefIS);
         }
 
         return result;
@@ -560,7 +550,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         try {
             task = taskService.createTaskQuery().processInstanceId(workflowId).singleResult();
         } catch (ActivitiException e) {
-            throw new WorkflowException(e);
+            throw new WorkflowException("While reading form for workflow instance " + workflowId, e);
         }
 
         TaskFormData formData;
@@ -579,9 +569,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return result;
     }
 
-    private Map.Entry<Task, TaskFormData> checkTask(final String taskId, final String username)
-            throws NotFoundException {
-
+    private Map.Entry<Task, TaskFormData> checkTask(final String taskId, final String username) {
         Task task;
         try {
             task = taskService.createTaskQuery().taskId(taskId).singleResult();
@@ -608,14 +596,15 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     public WorkflowFormTO claimForm(final String taskId, final String username)
-            throws NotFoundException, WorkflowException {
+            throws WorkflowException {
 
         Map.Entry<Task, TaskFormData> checked = checkTask(taskId, username);
 
         if (!adminUser.equals(username)) {
             List<Task> tasksForUser = taskService.createTaskQuery().taskId(taskId).taskCandidateUser(username).list();
             if (tasksForUser.isEmpty()) {
-                throw new WorkflowException(new RuntimeException(username + " is not candidate for task " + taskId));
+                throw new WorkflowException(
+                        new IllegalArgumentException(username + " is not candidate for task " + taskId));
             }
         }
 
@@ -624,7 +613,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             taskService.setOwner(taskId, username);
             task = taskService.createTaskQuery().taskId(taskId).singleResult();
         } catch (ActivitiException e) {
-            throw new WorkflowException(e);
+            throw new WorkflowException("While reading task " + taskId, e);
         }
 
         return getFormTO(task, checked.getValue());
@@ -632,12 +621,12 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     public WorkflowResult<Map.Entry<Long, String>> submitForm(final WorkflowFormTO form, final String username)
-            throws NotFoundException, WorkflowException {
+            throws WorkflowException {
 
         Map.Entry<Task, TaskFormData> checked = checkTask(form.getTaskId(), username);
 
         if (!checked.getKey().getOwner().equals(username)) {
-            throw new WorkflowException(new RuntimeException("Task " + form.getTaskId() + " assigned to "
+            throw new WorkflowException(new IllegalArgumentException("Task " + form.getTaskId() + " assigned to "
                     + checked.getKey().getOwner() + " but submited by " + username));
         }
 
@@ -650,7 +639,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         try {
             formService.submitTaskFormData(form.getTaskId(), form.getPropertiesForSubmit());
         } catch (ActivitiException e) {
-            throw new WorkflowException(e);
+            throw new WorkflowException("While submitting form for task " + form.getTaskId(), e);
         }
 
         Set<String> postTasks = getPerformedTasks(user);

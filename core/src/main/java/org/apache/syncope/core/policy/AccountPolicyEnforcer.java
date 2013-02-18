@@ -19,7 +19,6 @@
 package org.apache.syncope.core.policy;
 
 import java.util.regex.Pattern;
-
 import org.apache.syncope.common.types.AccountPolicySpec;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;

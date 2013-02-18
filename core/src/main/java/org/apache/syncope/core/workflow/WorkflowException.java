@@ -21,8 +21,7 @@ package org.apache.syncope.core.workflow;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 
 /**
- * Wrapper for all workflow related exceptions. Original exceptions will depend
- * on UserWorkflowAdapter implementation.
+ * Wrapper for all workflow related exceptions. Original exceptions will depend on UserWorkflowAdapter implementation.
  *
  * @see UserWorkflowAdapter
  */
@@ -40,5 +39,15 @@ public class WorkflowException extends RuntimeException {
      */
     public WorkflowException(final Throwable cause) {
         super(cause);
+    }
+
+    /**
+     * Return a new instance wrapping the original workflow exception, additionally providing a local message.
+     *
+     * @param message local message
+     * @param cause original workflow exception
+     */
+    public WorkflowException(final String message, final Throwable cause) {
+        super(message, cause);
     }
 }

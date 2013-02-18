@@ -22,7 +22,6 @@ import java.util.Map;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.workflow.WorkflowAdapter;
 import org.apache.syncope.core.workflow.WorkflowException;
@@ -75,11 +74,9 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param taskId to be executed
      * @return user just updated
      * @throws UnauthorizedRoleException authorization exception
-     * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Long> execute(UserTO userTO, String taskId)
-            throws UnauthorizedRoleException, NotFoundException, WorkflowException;
+    WorkflowResult<Long> execute(UserTO userTO, String taskId) throws UnauthorizedRoleException, WorkflowException;
 
     /**
      * Activate an user.
@@ -88,11 +85,9 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param token to be verified for activation
      * @return user just updated
      * @throws UnauthorizedRoleException authorization exception
-     * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Long> activate(Long userId, String token)
-            throws UnauthorizedRoleException, NotFoundException, WorkflowException;
+    WorkflowResult<Long> activate(Long userId, String token) throws UnauthorizedRoleException, WorkflowException;
 
     /**
      * Update an user.
@@ -100,11 +95,10 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param userMod modification set to be performed
      * @return user just updated and propagations to be performed
      * @throws UnauthorizedRoleException authorization exception
-     * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
      */
     WorkflowResult<Map.Entry<Long, Boolean>> update(UserMod userMod)
-            throws UnauthorizedRoleException, NotFoundException, WorkflowException;
+            throws UnauthorizedRoleException, WorkflowException;
 
     /**
      * Suspend an user.
@@ -112,10 +106,9 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param userId user to be suspended
      * @return user just suspended
      * @throws UnauthorizedRoleException authorization exception
-     * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Long> suspend(Long userId) throws UnauthorizedRoleException, NotFoundException, WorkflowException;
+    WorkflowResult<Long> suspend(Long userId) throws UnauthorizedRoleException, WorkflowException;
 
     /**
      * Suspend an user.
@@ -133,18 +126,16 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param userId user to be reactivated
      * @return user just reactivated
      * @throws UnauthorizedRoleException authorization exception
-     * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Long> reactivate(Long userId) throws UnauthorizedRoleException, NotFoundException, WorkflowException;
+    WorkflowResult<Long> reactivate(Long userId) throws UnauthorizedRoleException, WorkflowException;
 
     /**
      * Delete an user.
      *
      * @param userId user to be deleted
      * @throws UnauthorizedRoleException authorization exception
-     * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
      */
-    void delete(Long userId) throws UnauthorizedRoleException, NotFoundException, WorkflowException;
+    void delete(Long userId) throws UnauthorizedRoleException, WorkflowException;
 }

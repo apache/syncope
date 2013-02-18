@@ -44,11 +44,11 @@ import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncActionClassTO;
+import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
@@ -327,6 +327,9 @@ public class TaskTestITCase extends AbstractTest {
             userTO = userService.read("test3");
             assertNotNull(userTO);
             assertEquals("active", userTO.getStatus());
+
+            // SYNCOPE-317
+            execSyncTask(SYNC_TASK_ID, 50, false);
         } finally {
             removeTestUsers();
         }

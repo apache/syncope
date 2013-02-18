@@ -24,10 +24,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
-
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.TaskService;
 import org.apache.syncope.common.to.JobClassTO;
@@ -39,7 +37,6 @@ import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.TaskTO;
-import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.springframework.http.HttpMethod;

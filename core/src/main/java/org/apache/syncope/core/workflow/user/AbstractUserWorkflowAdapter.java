@@ -23,7 +23,6 @@ import java.util.Map.Entry;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
@@ -58,7 +57,7 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
 
     @Override
     public WorkflowResult<Long> activate(final Long userId, final String token)
-            throws UnauthorizedRoleException, NotFoundException, WorkflowException {
+            throws UnauthorizedRoleException, WorkflowException {
 
         return doActivate(dataBinder.getUserFromId(userId), token);
     }
@@ -68,7 +67,7 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
 
     @Override
     public WorkflowResult<Map.Entry<Long, Boolean>> update(final UserMod userMod)
-            throws UnauthorizedRoleException, NotFoundException, WorkflowException {
+            throws UnauthorizedRoleException, WorkflowException {
 
         return doUpdate(dataBinder.getUserFromId(userMod.getId()), userMod);
     }
@@ -77,14 +76,13 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
 
     @Override
     public WorkflowResult<Long> suspend(final Long userId)
-            throws UnauthorizedRoleException, NotFoundException, WorkflowException {
+            throws UnauthorizedRoleException, WorkflowException {
 
         return suspend(dataBinder.getUserFromId(userId));
     }
 
     @Override
     public WorkflowResult<Long> suspend(final SyncopeUser user) throws UnauthorizedRoleException, WorkflowException {
-
         // set suspended flag
         user.setSuspended(Boolean.TRUE);
 
@@ -94,9 +92,7 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     protected abstract WorkflowResult<Long> doReactivate(SyncopeUser user) throws WorkflowException;
 
     @Override
-    public WorkflowResult<Long> reactivate(final Long userId)
-            throws UnauthorizedRoleException, NotFoundException, WorkflowException {
-
+    public WorkflowResult<Long> reactivate(final Long userId) throws UnauthorizedRoleException, WorkflowException {
         final SyncopeUser user = dataBinder.getUserFromId(userId);
 
         // reset failed logins
@@ -111,7 +107,7 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     protected abstract void doDelete(SyncopeUser user) throws WorkflowException;
 
     @Override
-    public void delete(final Long userId) throws UnauthorizedRoleException, NotFoundException, WorkflowException {
+    public void delete(final Long userId) throws UnauthorizedRoleException, WorkflowException {
         doDelete(dataBinder.getUserFromId(userId));
     }
 }
