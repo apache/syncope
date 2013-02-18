@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.util;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +28,7 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
@@ -198,24 +200,46 @@ public class AttributableUtil {
         return result;
     }
 
-    public <T extends AbstractMappingItem> List<T> getMappingItems(final ExternalResource resource) {
-        List<T> result = Collections.EMPTY_LIST;
+    public <T extends AbstractMappingItem> List<T> getMappingItems(
+            final ExternalResource resource, final MappingPurpose purpose) {
+        List<T> items = Collections.EMPTY_LIST;
 
         if (resource != null) {
             switch (type) {
                 case USER:
                     if (resource.getUmapping() != null) {
-                        result = resource.getUmapping().getItems();
+                        items = resource.getUmapping().getItems();
                     }
                     break;
                 case ROLE:
                     if (resource.getRmapping() != null) {
-                        result = resource.getRmapping().getItems();
+                        items = resource.getRmapping().getItems();
                     }
                     break;
                 case MEMBERSHIP:
                 default:
             }
+        }
+
+        final List<T> result = new ArrayList<T>();
+
+        switch (purpose) {
+            case SYNCHRONIZATION:
+                for (T item : items) {
+                    if (MappingPurpose.PROPAGATION != item.getPurpose()) {
+                        result.add(item);
+                    }
+                }
+                break;
+            case PROPAGATION:
+                for (T item : items) {
+                    if (MappingPurpose.SYNCHRONIZATION != item.getPurpose()) {
+                        result.add(item);
+                    }
+                }
+                break;
+            case BOTH:
+                result.addAll(items);
         }
 
         return result;

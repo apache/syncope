@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -101,6 +102,7 @@ public class ResourceTest extends AbstractDAOTest {
         accountId.setExtAttrName("username");
         accountId.setIntAttrName("fullname");
         accountId.setIntMappingType(IntMappingType.UserId);
+        accountId.setPurpose(MappingPurpose.BOTH);
         mapping.setAccountIdItem(accountId);
 
         ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();

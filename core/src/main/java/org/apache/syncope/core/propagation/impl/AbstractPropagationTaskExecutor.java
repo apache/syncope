@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TraceLevel;
@@ -446,7 +447,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     new ObjectClass(task.getObjectClassName()),
                     new Uid(accountId),
                     connector.getOperationOptions(AttributableUtil.getInstance(task.getSubjectType()).
-                    getMappingItems(task.getResource())));
+                    getMappingItems(task.getResource(), MappingPurpose.PROPAGATION)));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;

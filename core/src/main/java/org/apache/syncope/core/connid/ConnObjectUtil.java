@@ -37,6 +37,7 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
@@ -66,7 +67,7 @@ import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
+import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -235,7 +236,8 @@ public class ConnObjectUtil {
         final T attributableTO = attrUtil.newAttributableTO();
 
         // 1. fill with data from connector object
-        for (AbstractMappingItem item : attrUtil.getMappingItems(syncTask.getResource())) {
+        for (AbstractMappingItem item :
+                attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)) {
             Attribute attribute = obj.getAttributeByName(item.getExtAttrName());
 
             AttributeTO attributeTO;
@@ -294,7 +296,6 @@ public class ConnObjectUtil {
                     for (Object value : attribute == null || attribute.getValue() == null
                             ? Collections.emptyList()
                             : attribute.getValue()) {
-
                         if (value != null) {
                             attributeTO.addValue(value.toString());
                         }
@@ -334,6 +335,7 @@ public class ConnObjectUtil {
         // 2. add data from defined template (if any)
         AbstractAttributableTO template = AttributableType.USER == attrUtil.getType()
                 ? syncTask.getUserTemplate() : syncTask.getRoleTemplate();
+
         if (template != null) {
             if (template instanceof UserTO) {
                 if (StringUtils.isNotBlank(((UserTO) template).getUsername())) {
@@ -511,6 +513,8 @@ public class ConnObjectUtil {
             for (ExternalResource resource : getTargetResource(virAttr, type, attrUtil)) {
                 LOG.debug("Seach values into {}", resource.getName());
                 try {
+                    final List<AbstractMappingItem> mappings = attrUtil.getMappingItems(resource, MappingPurpose.BOTH);
+
                     final ConnectorObject connectorObject;
 
                     if (externalResources.containsKey(resource.getName())) {
@@ -526,31 +530,22 @@ public class ConnObjectUtil {
                             throw new IllegalArgumentException("No AccountId found for " + resource.getName());
                         }
 
-                        final Set<String> extAttrNames = new HashSet<String>();
-
-                        // retrieve all mapped virtual attribute values
-                        for (AbstractMappingItem item :
-                                MappingUtil.getMatchingMappingItems(attrUtil.getMappingItems(resource), type)) {
-                            extAttrNames.add(item.getExtAttrName());
-                        }
-
-                        LOG.debug("External attribute ({}) names to get '{}'", type, extAttrNames);
-
-                        final OperationOptionsBuilder oob = new OperationOptionsBuilder();
-                        oob.setAttributesToGet(extAttrNames);
-
                         final SyncopeConnector connector = connInstanceLoader.getConnector(resource);
-                        connectorObject = connector.getObject(fromAttributable(owner), new Uid(accountId), oob.build());
+
+                        final OperationOptions oo =
+                                connector.getOperationOptions(MappingUtil.getMatchingMappingItems(mappings, type));
+
+                        connectorObject = connector.getObject(fromAttributable(owner), new Uid(accountId), oo);
                         externalResources.put(resource.getName(), connectorObject);
                     }
 
                     if (connectorObject != null) {
                         // ask for searched virtual attribute value
-                        final List<AbstractMappingItem> mappings = MappingUtil.getMatchingMappingItems(
-                                attrUtil.getMappingItems(resource), schemaName, type);
+                        final List<AbstractMappingItem> virAttrMappings =
+                                MappingUtil.getMatchingMappingItems(mappings, schemaName, type);
 
                         // the same virtual attribute could be mapped with one or more external attribute 
-                        for (AbstractMappingItem mapping : mappings) {
+                        for (AbstractMappingItem mapping : virAttrMappings) {
                             final Attribute attribute = connectorObject.getAttributeByName(mapping.getExtAttrName());
 
                             if (attribute != null && attribute.getValue() != null) {
@@ -584,7 +579,8 @@ public class ConnObjectUtil {
 
         for (ExternalResource res : attr.getOwner().getResources()) {
             if (!MappingUtil.getMatchingMappingItems(
-                    attrUtil.getMappingItems(res), attr.getVirtualSchema().getName(), type).isEmpty()) {
+                    attrUtil.getMappingItems(res, MappingPurpose.BOTH),
+                    attr.getVirtualSchema().getName(), type).isEmpty()) {
 
                 resources.add(res);
             }

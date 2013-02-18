@@ -28,6 +28,7 @@ import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.ResourceSubCategory;
 import org.apache.syncope.common.types.AuditElements.Result;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
@@ -217,7 +218,7 @@ public class ResourceController extends AbstractController {
         final SyncopeConnector connector = connLoader.getConnector(resource);
 
         final ConnectorObject connectorObject = connector.getObject(objectClass, new Uid(objectId),
-                connector.getOperationOptions(attrUtil.getMappingItems(resource)));
+                connector.getOperationOptions(attrUtil.getMappingItems(resource, MappingPurpose.BOTH)));
         if (connectorObject == null) {
             throw new NotFoundException("Object " + objectId + " not found on resource " + resourceName);
         }

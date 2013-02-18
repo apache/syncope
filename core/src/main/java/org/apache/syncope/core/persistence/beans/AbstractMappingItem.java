@@ -27,6 +27,7 @@ import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.MappingPurpose;
 
 @MappedSuperclass
 @Cacheable
@@ -70,6 +71,13 @@ public abstract class AbstractMappingItem extends AbstractBaseBean {
     @Min(0)
     @Max(1)
     private Integer password;
+
+    /**
+     * Mapping purposes: SYNCHRONIZATION, PROPAGATION, BOTH.
+     */
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private MappingPurpose purpose;
 
     public AbstractMappingItem() {
         super();
@@ -161,5 +169,13 @@ public abstract class AbstractMappingItem extends AbstractBaseBean {
 
     public void setPassword(final boolean password) {
         this.password = getBooleanAsInteger(password);
+    }
+
+    public MappingPurpose getPurpose() {
+        return purpose;
+    }
+
+    public void setPurpose(MappingPurpose purpose) {
+        this.purpose = purpose;
     }
 }

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
@@ -112,6 +113,7 @@ public class ResourceTest extends AbstractDAOTest {
             item.setIntAttrName("nonexistent" + i);
             item.setIntMappingType(IntMappingType.UserSchema);
             item.setMandatoryCondition("false");
+            item.setPurpose(MappingPurpose.SYNCHRONIZATION);
             mapping.addItem(item);
             item.setMapping(mapping);
         }
@@ -119,6 +121,7 @@ public class ResourceTest extends AbstractDAOTest {
         accountId.setExtAttrName("username");
         accountId.setIntAttrName("username");
         accountId.setIntMappingType(IntMappingType.UserId);
+        accountId.setPurpose(MappingPurpose.PROPAGATION);
         mapping.setAccountIdItem(accountId);
         accountId.setMapping(mapping);
 
@@ -128,6 +131,7 @@ public class ResourceTest extends AbstractDAOTest {
         derived.setExtAttrName("fullname");
         derived.setIntAttrName("cn");
         derived.setIntMappingType(IntMappingType.UserDerivedSchema);
+        derived.setPurpose(MappingPurpose.PROPAGATION);
         mapping.addItem(derived);
         derived.setMapping(mapping);
 
@@ -246,6 +250,7 @@ public class ResourceTest extends AbstractDAOTest {
         UMappingItem newMapItem = new UMappingItem();
         newMapItem.setIntMappingType(IntMappingType.Username);
         newMapItem.setExtAttrName("TEST");
+        newMapItem.setPurpose(MappingPurpose.PROPAGATION);
         csv.getUmapping().addItem(newMapItem);
 
         resourceDAO.save(csv);

@@ -32,6 +32,7 @@ import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.core.AbstractNonDAOTest;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
@@ -119,6 +120,7 @@ public class ResourceDataTest extends AbstractNonDAOTest {
         item.setExtAttrName("campo1");
         item.setAccountid(true);
         item.setMandatoryCondition("false");
+        item.setPurpose(MappingPurpose.BOTH);
         mapping.setAccountIdItem(item);
 
         ExternalResource resource = resourceDataBinder.create(resourceTO);

@@ -856,6 +856,12 @@ public class TaskTestITCase extends AbstractTest {
         UserTO template = new UserTO();
         template.addResource("resource-db-virattr");
 
+        AttributeTO userId = attributeTO("userId", "'s307@apache.org'");
+        template.addAttribute(userId);
+
+        AttributeTO email = attributeTO("email", "'s307@apache.org'");
+        template.addAttribute(email);
+
         task.setUserTemplate(template);
 
         taskService.update(task.getId(), task);
@@ -872,6 +878,7 @@ public class TaskTestITCase extends AbstractTest {
                     "SELECT USERNAME FROM testsync WHERE ID=?", String.class, userTO.getId());
             assertEquals("virtualvalue", value);
         } catch (EmptyResultDataAccessException e) {
+            LOG.error("AAAAAAAAAAAAAAAAAAAAAAA", e);
             assertTrue(false);
         }
     }

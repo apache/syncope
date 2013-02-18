@@ -40,6 +40,7 @@ import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
@@ -84,6 +85,7 @@ public class ResourceTestITCase extends AbstractTest {
         item.setExtAttrName("uid");
         item.setIntAttrName("userId");
         item.setIntMappingType(IntMappingType.UserSchema);
+        item.setPurpose(MappingPurpose.BOTH);
         mapping.addItem(item);
 
         item = new MappingItemTO();
@@ -91,6 +93,7 @@ public class ResourceTestITCase extends AbstractTest {
         item.setIntAttrName("fullname");
         item.setIntMappingType(IntMappingType.UserId);
         item.setAccountid(true);
+        item.setPurpose(MappingPurpose.BOTH);
         mapping.setAccountIdItem(item);
 
         item = new MappingItemTO();
@@ -98,6 +101,7 @@ public class ResourceTestITCase extends AbstractTest {
         item.setIntAttrName("cn");
         item.setIntMappingType(IntMappingType.UserSchema);
         item.setAccountid(false);
+        item.setPurpose(MappingPurpose.BOTH);
         mapping.addItem(item);
 
         resourceTO.setName(resourceName);
@@ -138,6 +142,7 @@ public class ResourceTestITCase extends AbstractTest {
         MappingItemTO item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.UserId);
         item.setAccountid(true);
+        item.setPurpose(MappingPurpose.PROPAGATION);
         umapping.setAccountIdItem(item);
 
         resourceTO.setUmapping(umapping);
@@ -147,6 +152,7 @@ public class ResourceTestITCase extends AbstractTest {
         item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.RoleId);
         item.setAccountid(true);
+        item.setPurpose(MappingPurpose.SYNCHRONIZATION);
         rmapping.setAccountIdItem(item);
 
         resourceTO.setRmapping(rmapping);
@@ -159,6 +165,8 @@ public class ResourceTestITCase extends AbstractTest {
         assertNotNull(actual.getUmapping().getItems());
         assertNotNull(actual.getRmapping());
         assertNotNull(actual.getRmapping().getItems());
+        assertEquals(MappingPurpose.SYNCHRONIZATION, actual.getRmapping().getAccountIdItem().getPurpose());
+        assertEquals(MappingPurpose.PROPAGATION, actual.getUmapping().getAccountIdItem().getPurpose());
     }
 
     @Test
@@ -184,7 +192,7 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setUmapping(mapping);
 
         try {
-            createResource(resourceService,resourceTO);
+            createResource(resourceService, resourceTO);
             fail("Create should not have worked");
         } catch (SyncopeClientCompositeErrorException e) {
             SyncopeClientException requiredValueMissing = e
@@ -236,6 +244,7 @@ public class ResourceTestITCase extends AbstractTest {
         item.setIntAttrName("userId");
         item.setIntMappingType(IntMappingType.UserSchema);
         item.setAccountid(true);
+        item.setPurpose(MappingPurpose.BOTH);
         mapping.setAccountIdItem(item);
 
         resourceTO.setUmapping(mapping);
@@ -279,6 +288,7 @@ public class ResourceTestITCase extends AbstractTest {
         item.setExtAttrName("test3");
         item.setIntAttrName("fullname");
         item.setIntMappingType(IntMappingType.UserSchema);
+        item.setPurpose(MappingPurpose.BOTH);
         mapping.addItem(item);
 
         // Update defining new mappings
@@ -287,6 +297,7 @@ public class ResourceTestITCase extends AbstractTest {
             item.setExtAttrName("test" + i);
             item.setIntAttrName("fullname");
             item.setIntMappingType(IntMappingType.UserSchema);
+            item.setPurpose(MappingPurpose.BOTH);
             mapping.addItem(item);
         }
         item = new MappingItemTO();
@@ -294,6 +305,7 @@ public class ResourceTestITCase extends AbstractTest {
         item.setIntAttrName("fullname");
         item.setIntMappingType(IntMappingType.UserId);
         item.setAccountid(true);
+        item.setPurpose(MappingPurpose.BOTH);
         mapping.setAccountIdItem(item);
 
         resourceTO.setUmapping(mapping);
@@ -388,6 +400,7 @@ public class ResourceTestITCase extends AbstractTest {
         item.setExtAttrName("uid");
         item.setIntAttrName("userId");
         item.setIntMappingType(IntMappingType.UserSchema);
+        item.setPurpose(MappingPurpose.BOTH);
         mapping.addItem(item);
 
         item = new MappingItemTO();
@@ -395,6 +408,7 @@ public class ResourceTestITCase extends AbstractTest {
         item.setIntAttrName("fullname");
         item.setIntMappingType(IntMappingType.UserId);
         item.setAccountid(true);
+        item.setPurpose(MappingPurpose.BOTH);
         mapping.setAccountIdItem(item);
 
         item = new MappingItemTO();
@@ -402,10 +416,10 @@ public class ResourceTestITCase extends AbstractTest {
         item.setIntAttrName("cn");
         item.setIntMappingType(IntMappingType.UserSchema);
         item.setAccountid(false);
+        item.setPurpose(MappingPurpose.BOTH);
         mapping.addItem(item);
 
         resourceTO.setUmapping(mapping);
         return resourceTO;
     }
-
 }

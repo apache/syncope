@@ -2023,6 +2023,27 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals("virtualupdated", actual.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
     }
+    
+    @Test
+    public void mappingPurpose() {
+        UserTO userTO = getUniqueSampleTO("mpurpose@apache.org");
+        
+        AttributeTO csvuserid = new AttributeTO();
+        csvuserid.setSchema("csvuserid");
+        userTO.addDerivedAttribute(csvuserid);
+
+        userTO.getResources().clear();
+        userTO.addResource("resource-csv");
+
+        UserTO actual = createUser(userTO);
+        assertNotNull(actual);
+        
+        final ConnObjectTO connObjectTO = resourceService.getConnector(
+                "resource-csv", 
+                AttributableType.USER, actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
+        
+        assertNull(connObjectTO.getAttributeMap().get("email"));
+    }
 
     private boolean getBooleanAttribute(ConnObjectTO connObjectTO, String attrName) {
         return Boolean.parseBoolean(getStringAttribute(connObjectTO, attrName));

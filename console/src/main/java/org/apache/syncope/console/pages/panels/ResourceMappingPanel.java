@@ -31,6 +31,7 @@ import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.pages.panels.ResourceConnConfPanel.ConnConfModEvent;
 import org.apache.syncope.console.rest.ConnectorRestClient;
@@ -402,6 +403,16 @@ public class ResourceMappingPanel extends Panel {
                 if (AttributableType.USER != ResourceMappingPanel.this.attrType) {
                     password.setVisible(false);
                 }
+
+                final AjaxDropDownChoicePanel purpose = new AjaxDropDownChoicePanel<String>(
+                        "purpose",
+                        new ResourceModel("purpose", "purpose").getObject(),
+                        new PropertyModel(mapItem, "purpose"), 
+                        false);
+                ((AjaxDropDownChoicePanel) purpose).setChoices(Arrays.asList(MappingPurpose.values()));
+                purpose.setStyleSheet(FIELD_STYLE);
+                
+                item.add(purpose);
 
                 typesPanel.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
 

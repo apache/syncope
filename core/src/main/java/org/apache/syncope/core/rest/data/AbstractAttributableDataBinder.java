@@ -35,6 +35,7 @@ import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
@@ -221,7 +222,7 @@ public abstract class AbstractAttributableDataBinder {
         boolean result = false;
 
         final List<AbstractMappingItem> mappings = MappingUtil.getMatchingMappingItems(
-                attrUtil.getMappingItems(resource), intAttrName, intMappingType);
+                attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION), intAttrName, intMappingType);
         for (Iterator<AbstractMappingItem> itor = mappings.iterator(); itor.hasNext() && !result;) {
             final AbstractMappingItem mapping = itor.next();
             result |= evaluateMandatoryCondition(mapping.getMandatoryCondition(), attributable);
@@ -310,7 +311,7 @@ public abstract class AbstractAttributableDataBinder {
                 }
 
                 for (ExternalResource resource : resourceDAO.findAll()) {
-                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource)) {
+                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
                         if (virSchema.getName().equals(mapItem.getIntAttrName())
                                 && mapItem.getIntMappingType() == attrUtil.virIntMappingType()
                                 && attributable.getResources().contains(resource)) {
@@ -334,7 +335,7 @@ public abstract class AbstractAttributableDataBinder {
             AbstractVirSchema virSchema = getVirtualSchema(vAttrToBeUpdated.getSchema(), attrUtil.virSchemaClass());
             if (virSchema != null) {
                 for (ExternalResource resource : resourceDAO.findAll()) {
-                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource)) {
+                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
                         if (virSchema.getName().equals(mapItem.getIntAttrName())
                                 && mapItem.getIntMappingType() == attrUtil.virIntMappingType()
                                 && attributable.getResources().contains(resource)) {
@@ -422,7 +423,7 @@ public abstract class AbstractAttributableDataBinder {
                 }
 
                 for (ExternalResource resource : resourceDAO.findAll()) {
-                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource)) {
+                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
                         if (schema.getName().equals(mapItem.getIntAttrName())
                                 && mapItem.getIntMappingType() == attrUtil.intMappingType()
                                 && attributable.getResources().contains(resource)) {
@@ -448,7 +449,7 @@ public abstract class AbstractAttributableDataBinder {
             AbstractSchema schema = getSchema(attributeMod.getSchema(), attrUtil.schemaClass());
             if (schema != null) {
                 for (ExternalResource resource : resourceDAO.findAll()) {
-                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource)) {
+                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
                         if (schema.getName().equals(mapItem.getIntAttrName())
                                 && mapItem.getIntMappingType() == attrUtil.intMappingType()
                                 && attributable.getResources().contains(resource)) {
@@ -522,7 +523,7 @@ public abstract class AbstractAttributableDataBinder {
                 }
 
                 for (ExternalResource resource : resourceDAO.findAll()) {
-                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource)) {
+                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
                         if (derSchema.getName().equals(mapItem.getIntAttrName())
                                 && mapItem.getIntMappingType() == attrUtil.derIntMappingType()
                                 && attributable.getResources().contains(resource)) {
@@ -548,7 +549,7 @@ public abstract class AbstractAttributableDataBinder {
             AbstractDerSchema derSchema = getDerivedSchema(derAttrToBeAdded, attrUtil.derSchemaClass());
             if (derSchema != null) {
                 for (ExternalResource resource : resourceDAO.findAll()) {
-                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource)) {
+                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
                         if (derSchema.getName().equals(mapItem.getIntAttrName())
                                 && mapItem.getIntMappingType() == attrUtil.derIntMappingType()
                                 && attributable.getResources().contains(resource)) {

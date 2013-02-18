@@ -30,6 +30,7 @@ import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.connid.PasswordGenerator;
@@ -450,7 +451,7 @@ public class PropagationManager {
         String accountId = null;
 
         final AttributableUtil attrUtil = AttributableUtil.getInstance(subject);
-        for (AbstractMappingItem mapping : attrUtil.getMappingItems(resource)) {
+        for (AbstractMappingItem mapping : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
             LOG.debug("Processing schema {}", mapping.getIntAttrName());
 
             try {

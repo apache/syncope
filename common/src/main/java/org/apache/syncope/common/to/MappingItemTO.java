@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.MappingPurpose;
 
 @XmlRootElement(name = "mappingItem")
 @XmlType
@@ -62,6 +63,11 @@ public class MappingItemTO extends AbstractBaseBean {
      * Specify if the mapped target resource's field is nullable.
      */
     private String mandatoryCondition = "false";
+
+    /**
+     * Mapping purposes: SYNCHRONIZATION, PROPAGATION, BOTH.
+     */
+    private MappingPurpose purpose;
 
     public boolean isAccountid() {
         return accountid;
@@ -117,5 +123,13 @@ public class MappingItemTO extends AbstractBaseBean {
 
     public void setIntMappingType(IntMappingType intMappingType) {
         this.intMappingType = intMappingType;
+    }
+
+    public MappingPurpose getPurpose() {
+        return purpose;
+    }
+
+    public void setPurpose(MappingPurpose purpose) {
+        this.purpose = purpose;
     }
 }

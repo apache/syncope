@@ -40,6 +40,7 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ConflictResolutionAction;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.core.connid.ConnObjectUtil;
@@ -345,7 +346,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         final Map<String, Attribute> extValues = new HashMap<String, Attribute>();
 
-        for (AbstractMappingItem item : attrUtil.getMappingItems(syncTask.getResource())) {
+        for (AbstractMappingItem item :
+                attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)) {
             extValues.put(item.getIntAttrName(), connObj.getAttributeByName(item.getExtAttrName()));
         }
 
@@ -443,8 +445,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         final AttributableUtil attrUtil = AttributableUtil.getInstance(objectClass);
 
         final List<ConnectorObject> found = connector.search(objectClass,
-                new EqualsFilter(new Name(name)),
-                connector.getOperationOptions(attrUtil.getMappingItems(syncTask.getResource())));
+                new EqualsFilter(new Name(name)), connector.getOperationOptions(
+                attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", objectClass, syncTask.getResource(), name);
