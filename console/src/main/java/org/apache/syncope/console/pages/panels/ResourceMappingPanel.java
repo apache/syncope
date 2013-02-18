@@ -139,7 +139,6 @@ public class ResourceMappingPanel extends Panel {
      *
      * @param panelid panel id
      * @param resourceTO external resource
-     * @param pageRef caller page reference
      */
     public ResourceMappingPanel(final String panelid, final ResourceTO resourceTO) {
         super(panelid);
