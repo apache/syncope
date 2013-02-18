@@ -442,12 +442,7 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <unzip src="${project.build.directory}/${project.build.finalName}.war" dest="${cargo.run.dir}">
-                  <patternset>
-                    <exclude name="**/content.xml"/>
-                    <exclude name="**/persistence.properties"/>
-                  </patternset>
-                </unzip>
+                <unzip src="${project.build.directory}/${project.build.finalName}.war" dest="${cargo.run.dir}"/>
                 <copy file="${project.build.directory}/test-classes/org/apache/syncope/core/sync/TestSyncActions.class" 
                       todir="${cargo.run.dir}/WEB-INF/classes/org/apache/syncope/core/sync"/>
                 <copy file="${project.build.directory}/test-classes/org/apache/syncope/core/sync/TestSyncRule.class" 

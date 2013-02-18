@@ -195,13 +195,7 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <unzip src="${project.build.directory}/${project.build.finalName}.war"
-                       dest="${cargo.run.dir}">
-                  <patternset>
-                    <exclude name="**/content.xml"/>
-                    <exclude name="**/persistence.properties"/>
-                  </patternset>
-                </unzip>
+                <unzip src="${project.build.directory}/${project.build.finalName}.war" dest="${cargo.run.dir}"/>
                 <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}"/>
                 <copy todir="${cargo.run.dir}/WEB-INF/classes" includeEmptyDirs="false">
                   <fileset dir="${project.build.directory}/test-classes"/>
