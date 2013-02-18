@@ -42,17 +42,17 @@ public class SelectOnlyUserSearchResultPanel extends UserSearchResultPanel {
 
     private static final long serialVersionUID = 2146781496050131930L;
 
-    private final PageReference callerRef;
+    private final PageReference pageRef;
 
     private final ModalWindow window;
 
     public <T extends AbstractAttributableTO> SelectOnlyUserSearchResultPanel(final String id, final boolean filtered,
-            final NodeCond searchCond, final PageReference callerRef, final ModalWindow window,
+            final NodeCond searchCond, final PageReference pageRef, final ModalWindow window,
             final UserRestClient restClient) {
 
-        super(id, filtered, searchCond, callerRef, restClient);
+        super(id, filtered, searchCond, pageRef, restClient);
 
-        this.callerRef = callerRef;
+        this.pageRef = pageRef;
         this.window = window;
 
         container.get("reload").setEnabled(false);
@@ -78,7 +78,7 @@ public class SelectOnlyUserSearchResultPanel extends UserSearchResultPanel {
             public void populateItem(final Item<ICellPopulator<AbstractAttributableTO>> cellItem,
                     final String componentId, final IModel<AbstractAttributableTO> rowModel) {
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, rowModel);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, rowModel, pageRef);
 
                 panel.add(new ActionLink() {
 
@@ -86,7 +86,7 @@ public class SelectOnlyUserSearchResultPanel extends UserSearchResultPanel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        send(callerRef.getPage(), Broadcast.BREADTH, new RoleDetailsPanel.UserOwnerSelectPayload(
+                        send(pageRef.getPage(), Broadcast.BREADTH, new RoleDetailsPanel.UserOwnerSelectPayload(
                                 rowModel.getObject().getId()));
                         window.close(target);
                     }

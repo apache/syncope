@@ -25,11 +25,11 @@ import org.apache.syncope.console.pages.panels.MembershipsPanel;
 import org.apache.syncope.console.pages.panels.ResourcesPanel;
 import org.apache.syncope.console.pages.panels.UserDetailsPanel;
 import org.apache.syncope.console.pages.panels.VirtualAttributesPanel;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -53,7 +53,7 @@ public abstract class UserModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = 5002005009737457667L;
 
-    protected final PageReference callerPageRef;
+    protected final PageReference pageRef;
 
     protected final ModalWindow window;
 
@@ -70,7 +70,7 @@ public abstract class UserModalPage extends BaseModalPage {
 
         super();
 
-        this.callerPageRef = callerPageRef;
+        this.pageRef = callerPageRef;
         this.window = window;
         this.userTO = userTO;
         this.mode = mode;
@@ -122,13 +122,13 @@ public abstract class UserModalPage extends BaseModalPage {
         //--------------------------------
         // Derived attributes panel
         //--------------------------------
-        form.add(new DerivedAttributesPanel("derivedAttributes", userTO));
+        form.add(new DerivedAttributesPanel("derivedAttributes", userTO, pageRef));
         //--------------------------------
 
         //--------------------------------
         // Virtual attributes panel
         //--------------------------------
-        form.add(new VirtualAttributesPanel("virtualAttributes", userTO, mode == Mode.TEMPLATE));
+        form.add(new VirtualAttributesPanel("virtualAttributes", userTO, mode == Mode.TEMPLATE, pageRef));
         //--------------------------------
 
         //--------------------------------
@@ -140,7 +140,7 @@ public abstract class UserModalPage extends BaseModalPage {
         //--------------------------------
         // Roles panel
         //--------------------------------
-        form.add(new MembershipsPanel("memberships", userTO, mode == Mode.TEMPLATE, null));
+        form.add(new MembershipsPanel("memberships", userTO, mode == Mode.TEMPLATE, null, pageRef));
         //--------------------------------
 
         final AjaxButton submit = getOnSubmit();
@@ -176,17 +176,17 @@ public abstract class UserModalPage extends BaseModalPage {
     }
 
     protected AjaxButton getOnSubmit() {
-        return new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
+        return new ClearIndicatingAjaxButton("apply", new ResourceModel("submit"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 try {
                     submitAction(target, form);
 
-                    if (callerPageRef.getPage() instanceof BasePage) {
-                        ((BasePage) callerPageRef.getPage()).setModalResult(true);
+                    if (pageRef.getPage() instanceof BasePage) {
+                        ((BasePage) pageRef.getPage()).setModalResult(true);
                     }
 
                     closeAction(target, form);
@@ -199,7 +199,6 @@ public abstract class UserModalPage extends BaseModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
                 target.add(feedbackPanel);
             }
         };

@@ -32,6 +32,7 @@ import org.apache.syncope.console.pages.Tasks;
 import org.apache.syncope.console.pages.Tasks.TasksProvider;
 import org.apache.syncope.console.pages.UserTemplateModalPage;
 import org.apache.syncope.console.rest.TaskRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
@@ -43,7 +44,6 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -89,7 +89,7 @@ public class SyncTasks extends Panel {
 
     private AjaxFallbackDefaultDataTable<TaskTO, String> table;
 
-    public SyncTasks(String id, final PageReference callerPageRef) {
+    public SyncTasks(final String id, final PageReference pageRef) {
         super(id);
 
         container = new WebMarkupContainer("container");
@@ -103,7 +103,7 @@ public class SyncTasks extends Panel {
         window.setCookieName("view-task-win");
         add(window);
 
-        ((Tasks) callerPageRef.getPage()).setWindowClosedCallback(window, container);
+        ((Tasks) pageRef.getPage()).setWindowClosedCallback(window, container);
 
         paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_SYNC_TASKS_PAGINATOR_ROWS);
 
@@ -139,7 +139,7 @@ public class SyncTasks extends Panel {
 
                 final SyncTaskTO taskTO = (SyncTaskTO) model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, pageRef);
 
                 panel.add(new ActionLink() {
 
@@ -154,7 +154,7 @@ public class SyncTasks extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new SyncTaskModalPage(window, taskTO, callerPageRef);
+                                return new SyncTaskModalPage(window, taskTO, pageRef);
                             }
                         });
 
@@ -175,7 +175,7 @@ public class SyncTasks extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new UserTemplateModalPage(callerPageRef, window, taskTO);
+                                return new UserTemplateModalPage(pageRef, window, taskTO);
                             }
                         });
 
@@ -196,7 +196,7 @@ public class SyncTasks extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new RoleTemplateModalPage(callerPageRef, window, taskTO);
+                                return new RoleTemplateModalPage(pageRef, window, taskTO);
                             }
                         });
 
@@ -269,12 +269,12 @@ public class SyncTasks extends Panel {
 
         container.add(table);
 
-        final AjaxLink reload = new IndicatingAjaxLink("reload") {
+        final AjaxLink reload = new ClearIndicatingAjaxLink("reload", pageRef) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(AjaxRequestTarget target) {
+            protected void onClickInternal(AjaxRequestTarget target) {
                 if (target != null) {
                     target.add(table);
                 }
@@ -287,7 +287,6 @@ public class SyncTasks extends Panel {
 
             @Override
             public void onComponentTag(final Component component, final ComponentTag tag) {
-
                 if (table.getRowCount() > paginatorRows) {
                     tag.remove("class");
                     tag.put("class", "settingsPosMultiPage");
@@ -328,19 +327,19 @@ public class SyncTasks extends Panel {
         add(paginatorForm);
 
         // create new user
-        AjaxLink createLink = new IndicatingAjaxLink("createLink") {
+        AjaxLink createLink = new ClearIndicatingAjaxLink("createLink", pageRef) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
+            protected void onClickInternal(final AjaxRequestTarget target) {
                 window.setPageCreator(new ModalWindow.PageCreator() {
 
                     private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
                     public Page createPage() {
-                        return new SyncTaskModalPage(window, new SyncTaskTO(), callerPageRef);
+                        return new SyncTaskModalPage(window, new SyncTaskTO(), pageRef);
                     }
                 });
 

@@ -31,6 +31,7 @@ import org.apache.syncope.console.commons.RoleUtils;
 import org.apache.syncope.console.commons.StatusUtils;
 import org.apache.syncope.console.pages.MembershipModalPage;
 import org.apache.syncope.console.pages.UserModalPage;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.apache.syncope.console.wicket.markup.html.tree.DefaultMutableTreeNodeExpansion;
 import org.apache.syncope.console.wicket.markup.html.tree.DefaultMutableTreeNodeExpansionModel;
@@ -40,7 +41,6 @@ import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.tree.DefaultNestedTree;
 import org.apache.wicket.extensions.markup.html.repeater.tree.ITreeProvider;
@@ -73,7 +73,7 @@ public class MembershipsPanel extends Panel {
     private final NestedTree<DefaultMutableTreeNode> tree;
 
     public MembershipsPanel(final String id, final UserTO userTO, final boolean templateMode,
-            final StatusPanel statusPanel) {
+            final StatusPanel statusPanel, final PageReference pageRef) {
 
         super(id);
         this.userTO = userTO;
@@ -160,12 +160,12 @@ public class MembershipsPanel extends Panel {
                 item.add(new Label("roleId", new Model<Long>(membershipTO.getRoleId())));
                 item.add(new Label("roleName", new Model<String>(membershipTO.getRoleName())));
 
-                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
+                AjaxLink editLink = new ClearIndicatingAjaxLink("editLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
+                    protected void onClickInternal(final AjaxRequestTarget target) {
                         membWin.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = -7834632442532690940L;
@@ -182,12 +182,12 @@ public class MembershipsPanel extends Panel {
                 };
                 item.add(editLink);
 
-                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink("deleteLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
+                    protected void onClickInternal(final AjaxRequestTarget target) {
                         userTO.removeMembership(membershipTO);
                         target.add(membershipsContainer);
 

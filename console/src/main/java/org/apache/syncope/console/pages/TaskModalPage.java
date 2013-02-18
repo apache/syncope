@@ -31,16 +31,17 @@ import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.rest.TaskRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -71,15 +72,14 @@ public abstract class TaskModalPage extends BaseModalPage {
 
     @SpringBean
     protected TaskRestClient taskRestClient;
-    
+
     protected WebMarkupContainer profile;
 
     protected WebMarkupContainer executions;
 
     protected Form form;
-    
-    public TaskModalPage(final TaskTO taskTO) {
 
+    public TaskModalPage(final TaskTO taskTO, final PageReference pageRef) {
         final ModalWindow taskExecMessageWin = new ModalWindow("taskExecMessageWin");
         taskExecMessageWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         taskExecMessageWin.setCookieName("task-exec-message-win-modal");
@@ -105,7 +105,7 @@ public abstract class TaskModalPage extends BaseModalPage {
 
         id.setEnabled(false);
         profile.add(id);
-        
+
         final List<IColumn> columns = new ArrayList<IColumn>();
         columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
 
@@ -130,7 +130,7 @@ public abstract class TaskModalPage extends BaseModalPage {
 
                 final TaskExecTO taskExecutionTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
 
                 panel.add(new ActionLink() {
 
@@ -182,23 +182,25 @@ public abstract class TaskModalPage extends BaseModalPage {
 
         executions.add(table);
 
-        final AjaxLink reload = new IndicatingAjaxLink("reload") {
+        final AjaxLink reload = new ClearIndicatingAjaxLink("reload", pageRef) {
+
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(AjaxRequestTarget target) {
+            protected void onClickInternal(final AjaxRequestTarget target) {
                 if (target != null) {
-                    final AjaxFallbackDefaultDataTable currentTable = 
+                    final AjaxFallbackDefaultDataTable currentTable =
                             new AjaxFallbackDefaultDataTable("executionsTable", columns,
                             new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
                     currentTable.setOutputMarkupId(true);
                     target.add(currentTable);
-                    executions.addOrReplace(currentTable);   
+                    executions.addOrReplace(currentTable);
                 }
             }
         };
-        
+
         reload.add(new Behavior() {
+
             private static final long serialVersionUID = 1469628524240283489L;
 
             @Override
@@ -239,7 +241,7 @@ public abstract class TaskModalPage extends BaseModalPage {
 
             Collections.sort(list, comparator);
 
-            return list.subList((int)first, (int)first + (int)count).iterator();
+            return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override

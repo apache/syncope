@@ -19,7 +19,6 @@
 package org.apache.syncope.console.rest;
 
 import java.util.List;
-
 import org.apache.syncope.common.services.UserWorkflowService;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.springframework.stereotype.Component;

@@ -33,6 +33,7 @@ import org.apache.syncope.console.commons.SchemaModalPageFactory;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.rest.SchemaRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
@@ -41,7 +42,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -731,7 +731,7 @@ public class Schema extends BasePage {
 
                 final AbstractBaseBean schemaTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
 
                 panel.add(new ActionLink() {
 
@@ -823,13 +823,12 @@ public class Schema extends BasePage {
             final AttributableType attributableType, final SchemaModalPageFactory.SchemaType schemaType,
             final String winLinkName, final String winName, final String createPermissions) {
 
-        AjaxLink createSchemaWinLink = new IndicatingAjaxLink(winLinkName) {
+        AjaxLink createSchemaWinLink = new ClearIndicatingAjaxLink(winLinkName, getPageReference()) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
-
+            protected void onClickInternal(final AjaxRequestTarget target) {
                 createSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
 
                     private static final long serialVersionUID = -7834632442532690940L;

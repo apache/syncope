@@ -50,7 +50,7 @@ public class ResourceModalPage extends BaseModalPage {
     @SpringBean
     private ResourceRestClient restClient;
 
-    public ResourceModalPage(final PageReference pageref, final ModalWindow window, final ResourceTO resourceTO,
+    public ResourceModalPage(final PageReference pageRef, final ModalWindow window, final ResourceTO resourceTO,
             final boolean createFlag) {
 
         super();
@@ -76,14 +76,14 @@ public class ResourceModalPage extends BaseModalPage {
         //--------------------------------
         // Resource mapping panels
         //--------------------------------
-        form.add(new ResourceMappingPanel("umapping", resourceTO, AttributableType.USER));
-        form.add(new ResourceMappingPanel("rmapping", resourceTO, AttributableType.ROLE));
+        form.add(new ResourceMappingPanel("umapping", resourceTO, AttributableType.USER, pageRef));
+        form.add(new ResourceMappingPanel("rmapping", resourceTO, AttributableType.ROLE, pageRef));
         //--------------------------------
 
         //--------------------------------
         // Resource mapping panel
         //--------------------------------
-        form.add(new ResourceConnConfPanel("connconf", resourceTO, createFlag));
+        form.add(new ResourceConnConfPanel("connconf", resourceTO, createFlag, pageRef));
         //--------------------------------
 
         //--------------------------------
@@ -137,7 +137,7 @@ public class ResourceModalPage extends BaseModalPage {
                             restClient.update(resourceTO);
                         }
 
-                        ((Resources) pageref.getPage()).setModalResult(true);
+                        ((Resources) pageRef.getPage()).setModalResult(true);
                         window.close(target);
                     } catch (Exception e) {
                         LOG.error("Failure managing resource {}", resourceTO, e);

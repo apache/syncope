@@ -24,12 +24,12 @@ import org.apache.syncope.console.pages.panels.RoleSearchPanel;
 import org.apache.syncope.console.pages.panels.RoleSearchResultPanel;
 import org.apache.syncope.console.pages.panels.RoleSummaryPanel;
 import org.apache.syncope.console.rest.RoleRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeRolePanel;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
@@ -112,12 +112,12 @@ public class Roles extends BasePage {
         final RoleSearchPanel searchPanel = new RoleSearchPanel("searchPanel");
         searchForm.add(searchPanel);
 
-        searchForm.add(new IndicatingAjaxButton("search", new ResourceModel("search")) {
+        searchForm.add(new ClearIndicatingAjaxButton("search", new ResourceModel("search"), getPageReference()) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 final NodeCond searchCond = searchPanel.buildSearchCond();
                 LOG.debug("Node condition {}", searchCond);
 

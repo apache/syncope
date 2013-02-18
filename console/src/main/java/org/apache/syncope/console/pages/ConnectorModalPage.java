@@ -96,9 +96,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
     private List<ConnConfProperty> properties;
 
-    public ConnectorModalPage(final PageReference callerPageRef, final ModalWindow window,
-            final ConnInstanceTO connectorTO) {
-
+    public ConnectorModalPage(final PageReference pageRef, final ModalWindow window, final ConnInstanceTO connectorTO) {
         super();
 
         selectedCapabilities = new ArrayList<ConnectorCapability>(connectorTO.getId() == 0
@@ -355,12 +353,12 @@ public class ConnectorModalPage extends BaseModalPage {
                         restClient.update(conn);
                     }
 
-                    ((Resources) callerPageRef.getPage()).setModalResult(true);
+                    ((Resources) pageRef.getPage()).setModalResult(true);
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
                     error(getString("error") + ":" + e.getMessage());
                     target.add(feedbackPanel);
-                    ((Resources) callerPageRef.getPage()).setModalResult(false);
+                    ((Resources) pageRef.getPage()).setModalResult(false);
                     LOG.error("While creating or updating connector {}", conn, e);
                 }
             }

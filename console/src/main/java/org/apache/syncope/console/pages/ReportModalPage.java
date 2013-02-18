@@ -35,6 +35,8 @@ import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.markup.html.CrontabContainer;
 import org.apache.syncope.console.rest.ReportRestClient;
 import org.apache.syncope.console.wicket.ajax.form.AbstractAjaxDownloadBehavior;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
@@ -47,9 +49,8 @@ import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -130,39 +131,40 @@ public class ReportModalPage extends BaseModalPage {
                 "cronExpression"), reportTO.getCronExpression());
         form.add(crontab);
 
-        final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("apply")) {
+        final AjaxButton submit =
+                new ClearIndicatingAjaxButton("apply", new ResourceModel("apply"), getPageReference()) {
 
-            private static final long serialVersionUID = -958724007591692537L;
+                    private static final long serialVersionUID = -958724007591692537L;
 
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                ReportTO reportTO = (ReportTO) form.getModelObject();
-                reportTO.setCronExpression(StringUtils.hasText(reportTO.getCronExpression())
-                        ? crontab.getCronExpression()
-                        : null);
+                    @Override
+                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                        ReportTO reportTO = (ReportTO) form.getModelObject();
+                        reportTO.setCronExpression(StringUtils.hasText(reportTO.getCronExpression())
+                                ? crontab.getCronExpression()
+                                : null);
 
-                try {
-                    if (reportTO.getId() > 0) {
-                        restClient.update(reportTO);
-                    } else {
-                        restClient.create(reportTO);
+                        try {
+                            if (reportTO.getId() > 0) {
+                                restClient.update(reportTO);
+                            } else {
+                                restClient.create(reportTO);
+                            }
+
+                            ((BasePage) callerPageRef.getPage()).setModalResult(true);
+
+                            window.close(target);
+                        } catch (SyncopeClientCompositeErrorException e) {
+                            LOG.error("While creating or updating report", e);
+                            error(getString("error") + ":" + e.getMessage());
+                            target.add(feedbackPanel);
+                        }
                     }
 
-                    ((BasePage) callerPageRef.getPage()).setModalResult(true);
-
-                    window.close(target);
-                } catch (SyncopeClientCompositeErrorException e) {
-                    LOG.error("While creating or updating report", e);
-                    error(getString("error") + ":" + e.getMessage());
-                    target.add(feedbackPanel);
-                }
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(feedbackPanel);
-            }
-        };
+                    @Override
+                    protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                        target.add(feedbackPanel);
+                    }
+                };
 
         if (reportTO.getId() > 0) {
             MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getAllAllowedRoles("Reports",
@@ -174,19 +176,16 @@ public class ReportModalPage extends BaseModalPage {
 
         form.add(submit);
 
-        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel =
+                new ClearIndicatingAjaxButton("cancel", new ResourceModel("cancel"), getPageReference()) {
 
-            private static final long serialVersionUID = -958724007591692537L;
+                    private static final long serialVersionUID = -958724007591692537L;
 
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                window.close(target);
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-            }
-        };
+                    @Override
+                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                        window.close(target);
+                    }
+                };
 
         cancel.setDefaultFormProcessing(false);
         form.add(cancel);
@@ -465,7 +464,7 @@ public class ReportModalPage extends BaseModalPage {
 
                 final ReportExecTO taskExecutionTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
 
                 panel.add(new ActionLink() {
 
@@ -537,12 +536,12 @@ public class ReportModalPage extends BaseModalPage {
                 new ReportExecutionsProvider(reportTO), 10);
         executions.add(table);
 
-        final AjaxLink reload = new IndicatingAjaxLink("reload") {
+        final AjaxLink reload = new ClearIndicatingAjaxLink("reload", getPageReference()) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(AjaxRequestTarget target) {
+            protected void onClickInternal(final AjaxRequestTarget target) {
                 if (target != null) {
                     final ReportTO currentReportTO = reportTO.getId() == 0
                             ? reportTO

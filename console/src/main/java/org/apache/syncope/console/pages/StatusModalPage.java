@@ -25,10 +25,10 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.StatusBean;
 import org.apache.syncope.console.pages.panels.StatusPanel;
 import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.ResourceModel;
@@ -41,7 +41,7 @@ public class StatusModalPage extends BaseModalPage {
     @SpringBean
     private UserRestClient userRestClient;
 
-    public StatusModalPage(final PageReference callerPageRef, final ModalWindow window,
+    public StatusModalPage(final PageReference pageRef, final ModalWindow window,
             final AbstractAttributableTO attributable) {
 
         super();
@@ -56,18 +56,17 @@ public class StatusModalPage extends BaseModalPage {
 
         final AjaxButton disable;
         if (attributable instanceof UserTO) {
-            disable = new IndicatingAjaxButton("disable", new ResourceModel("disable", "Disable")) {
+            disable = new ClearIndicatingAjaxButton("disable", new ResourceModel("disable", "Disable"), pageRef) {
 
                 private static final long serialVersionUID = -958724007591692537L;
 
                 @Override
-                protected void onSubmit(final AjaxRequestTarget target, final Form form) {
-
+                protected void onSubmitInternal(final AjaxRequestTarget target, final Form form) {
                     try {
                         userRestClient.suspend(attributable.getId(), statuses);
 
-                        if (callerPageRef.getPage() instanceof BasePage) {
-                            ((BasePage) callerPageRef.getPage()).setModalResult(true);
+                        if (pageRef.getPage() instanceof BasePage) {
+                            ((BasePage) pageRef.getPage()).setModalResult(true);
                         }
 
                         window.close(target);
@@ -95,17 +94,16 @@ public class StatusModalPage extends BaseModalPage {
 
         final AjaxButton enable;
         if (attributable instanceof UserTO) {
-            enable = new IndicatingAjaxButton("enable", new ResourceModel("enable", "Enable")) {
+            enable = new ClearIndicatingAjaxButton("enable", new ResourceModel("enable", "Enable"), pageRef) {
 
                 private static final long serialVersionUID = -958724007591692537L;
 
                 @Override
-                protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
+                protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                     try {
                         userRestClient.reactivate(attributable.getId(), statuses);
 
-                        ((BasePage) callerPageRef.getPage()).setModalResult(true);
+                        ((BasePage) pageRef.getPage()).setModalResult(true);
 
                         window.close(target);
                     } catch (Exception e) {
@@ -131,17 +129,13 @@ public class StatusModalPage extends BaseModalPage {
         }
         form.add(enable);
 
-        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new ClearIndicatingAjaxButton("cancel", new ResourceModel("cancel"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form form) {
                 window.close(target);
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form form) {
             }
         };
         cancel.setDefaultFormProcessing(false);

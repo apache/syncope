@@ -30,9 +30,10 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.rest.SchemaRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Check;
@@ -160,7 +161,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
     private final List<String> selectedDerSchemas;
 
-    public DisplayAttributesModalPage(final PageReference callerPageRef, final ModalWindow window) {
+    public DisplayAttributesModalPage(final PageReference pageRef, final ModalWindow window) {
 
         super();
 
@@ -265,18 +266,16 @@ public class DisplayAttributesModalPage extends BaseModalPage {
             selectedDerSchemas.clear();
         }
 
-        final IndicatingAjaxButton submit = new IndicatingAjaxButton("submit", new ResourceModel("submit")) {
+        final AjaxButton submit = new ClearIndicatingAjaxButton("submit", new ResourceModel("submit"), pageRef) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                if (selectedDetails.size() + selectedSchemas.size() + selectedVirSchemas.size()
+                        + selectedDerSchemas.size() > MAX_SELECTIONS) {
 
-                if (selectedDetails.size() + selectedSchemas.size() + selectedVirSchemas.size() + selectedDerSchemas.
-                        size()
-                        > MAX_SELECTIONS) {
-
-                    error(getString("tooMuchSelections"));
+                    error(getString("tooManySelections"));
                     onError(target, form);
                 } else {
                     final Map<String, List<String>> prefs = new HashMap<String, List<String>>();
@@ -291,7 +290,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
                     prefMan.setList(getRequest(), getResponse(), prefs);
 
-                    ((BasePage) callerPageRef.getPage()).setModalResult(true);
+                    ((BasePage) pageRef.getPage()).setModalResult(true);
 
                     window.close(target);
                 }
@@ -305,17 +304,13 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
         form.add(submit);
 
-        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new ClearIndicatingAjaxButton("cancel", new ResourceModel("cancel"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 window.close(target);
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
 

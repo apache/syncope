@@ -25,14 +25,14 @@ import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel.EventDa
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
 import org.apache.syncope.console.pages.panels.UserSearchResultPanel;
 import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.ResourceModel;
@@ -70,12 +70,12 @@ public class Users extends BasePage {
         add(listResult);
 
         // create new user
-        final AjaxLink createLink = new IndicatingAjaxLink("createLink") {
+        final AjaxLink createLink = new ClearIndicatingAjaxLink("createLink", getPageReference()) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
+            protected void onClickInternal(final AjaxRequestTarget target) {
                 editModalWin.setPageCreator(new ModalWindow.PageCreator() {
 
                     private static final long serialVersionUID = -7834632442532690940L;
@@ -101,13 +101,12 @@ public class Users extends BasePage {
         final UserSearchPanel searchPanel = new UserSearchPanel("searchPanel");
         searchForm.add(searchPanel);
 
-        searchForm.add(new IndicatingAjaxButton("search", new ResourceModel("search")) {
+        searchForm.add(new ClearIndicatingAjaxButton("search", new ResourceModel("search"), getPageReference()) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 final NodeCond searchCond = searchPanel.buildSearchCond();
                 LOG.debug("Node condition " + searchCond);
 

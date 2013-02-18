@@ -19,21 +19,21 @@
 package org.apache.syncope.console.wicket.ajax.markup.html;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.model.IModel;
 
-public abstract class IndicatingDeleteOnConfirmAjaxLink<T> extends IndicatingAjaxLink<T> {
+public abstract class IndicatingDeleteOnConfirmAjaxLink<T> extends ClearIndicatingAjaxLink<T> {
 
     private static final long serialVersionUID = 2228670850922265663L;
 
-    public IndicatingDeleteOnConfirmAjaxLink(final String id, final IModel<T> model) {
-        super(id, model);
+    public IndicatingDeleteOnConfirmAjaxLink(final String id, final PageReference pageRef) {
+        super(id, pageRef);
     }
 
-    public IndicatingDeleteOnConfirmAjaxLink(final String id) {
-        super(id);
+    public IndicatingDeleteOnConfirmAjaxLink(final String id, final IModel<T> model, final PageReference pageRef) {
+        super(id, model, pageRef);
     }
 
     @Override
@@ -41,7 +41,7 @@ public abstract class IndicatingDeleteOnConfirmAjaxLink<T> extends IndicatingAja
         super.updateAjaxAttributes(attributes);
 
         final AjaxCallListener ajaxCallListener = new AjaxCallListener() {
-            
+
             private static final long serialVersionUID = 7160235486520935153L;
 
             @Override

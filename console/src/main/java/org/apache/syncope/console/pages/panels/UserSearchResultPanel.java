@@ -114,7 +114,7 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
             public void populateItem(final Item<ICellPopulator<AbstractAttributableTO>> cellItem,
                     final String componentId, final IModel<AbstractAttributableTO> model) {
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, page.getPageReference());
 
                 panel.add(new ActionLink() {
 

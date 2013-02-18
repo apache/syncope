@@ -50,8 +50,8 @@ public class Tasks extends BasePage {
     public Tasks(final PageParameters parameters) {
         super();
 
-        add(new PropagationTasks("propagation"));
-        add(new NotificationTasks("notification"));
+        add(new PropagationTasks("propagation", getPageReference()));
+        add(new NotificationTasks("notification", getPageReference()));
         add(new SchedTasks("sched", getPageReference()));
         add(new SyncTasks("sync", getPageReference()));
     }

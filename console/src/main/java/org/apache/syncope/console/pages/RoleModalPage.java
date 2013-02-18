@@ -25,11 +25,11 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.console.pages.panels.RolePanel;
 import org.apache.syncope.console.rest.RoleRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -54,7 +54,7 @@ public class RoleModalPage extends BaseModalPage {
     @SpringBean
     private RoleRestClient roleRestClient;
 
-    protected final PageReference callerPageRef;
+    protected final PageReference pageRef;
 
     protected final ModalWindow window;
 
@@ -70,16 +70,14 @@ public class RoleModalPage extends BaseModalPage {
         this(null, window, roleTO, Mode.ADMIN);
     }
 
-    public RoleModalPage(final PageReference callerPageRef, final ModalWindow window, final RoleTO roleTO) {
-        this(callerPageRef, window, roleTO, Mode.ADMIN);
+    public RoleModalPage(final PageReference pageRef, final ModalWindow window, final RoleTO roleTO) {
+        this(pageRef, window, roleTO, Mode.ADMIN);
     }
 
-    public RoleModalPage(final PageReference callerPageRef, final ModalWindow window, final RoleTO roleTO,
-            final Mode mode) {
-
+    public RoleModalPage(final PageReference pageRef, final ModalWindow window, final RoleTO roleTO, final Mode mode) {
         super();
 
-        this.callerPageRef = callerPageRef;
+        this.pageRef = pageRef;
         this.window = window;
         this.mode = mode;
 
@@ -94,20 +92,20 @@ public class RoleModalPage extends BaseModalPage {
 
         form.setModel(new CompoundPropertyModel(roleTO));
 
-        this.rolePanel = new RolePanel("rolePanel", form, roleTO, mode);
+        this.rolePanel = new RolePanel("rolePanel", form, roleTO, mode, pageRef);
         form.add(rolePanel);
 
-        final AjaxButton submit = new IndicatingAjaxButton("submit", new ResourceModel("submit")) {
+        final AjaxButton submit = new ClearIndicatingAjaxButton("submit", new ResourceModel("submit"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 try {
                     submitAction(target, form);
 
-                    if (callerPageRef.getPage() instanceof BasePage) {
-                        ((BasePage) callerPageRef.getPage()).setModalResult(true);
+                    if (pageRef.getPage() instanceof BasePage) {
+                        ((BasePage) pageRef.getPage()).setModalResult(true);
                     }
 
                     closeAction(target, form);
@@ -123,17 +121,13 @@ public class RoleModalPage extends BaseModalPage {
             }
         };
 
-        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new ClearIndicatingAjaxButton("cancel", new ResourceModel("cancel"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 closeAction(target, form);
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
 

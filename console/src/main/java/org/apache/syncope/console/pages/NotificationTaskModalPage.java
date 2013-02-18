@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import org.apache.syncope.common.to.NotificationTaskTO;
 import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.form.ListMultipleChoice;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.PropertyModel;
@@ -30,8 +31,8 @@ public class NotificationTaskModalPage extends TaskModalPage {
 
     private static final long serialVersionUID = -4399606755452034216L;
 
-    public NotificationTaskModalPage(final TaskTO taskTO) {
-        super(taskTO);
+    public NotificationTaskModalPage(final TaskTO taskTO, final PageReference pageRef) {
+        super(taskTO, pageRef);
 
         final AjaxTextFieldPanel sender = new AjaxTextFieldPanel("sender", getString("sender"),
                 new PropertyModel<String>(taskTO, "sender"));

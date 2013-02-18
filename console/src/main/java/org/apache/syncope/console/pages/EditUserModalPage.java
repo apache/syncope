@@ -52,8 +52,8 @@ public class EditUserModalPage extends UserModalPage {
 
     private StatusPanel statusPanel;
 
-    public EditUserModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO) {
-        super(callerPageRef, window, userTO, Mode.ADMIN, true);
+    public EditUserModalPage(final PageReference pageRef, final ModalWindow window, final UserTO userTO) {
+        super(pageRef, window, userTO, Mode.ADMIN, true);
 
         this.initialUserTO = AttributableOperations.clone(userTO);
 
@@ -71,7 +71,7 @@ public class EditUserModalPage extends UserModalPage {
 
             form.addOrReplace(new ResourcesPanel("resources", userTO, statusPanel));
 
-            form.addOrReplace(new MembershipsPanel("memberships", userTO, false, statusPanel));
+            form.addOrReplace(new MembershipsPanel("memberships", userTO, false, statusPanel, pageRef));
         }
     }
 

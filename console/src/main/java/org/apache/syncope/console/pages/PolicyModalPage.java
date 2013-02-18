@@ -30,9 +30,12 @@ import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.console.pages.panels.PolicyBeanPanel;
 import org.apache.syncope.console.rest.PolicyRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -51,8 +54,7 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
     @SpringBean
     private PolicyRestClient policyRestClient;
 
-    public PolicyModalPage(final ModalWindow window, final T policyTO) {
-
+    public PolicyModalPage(final ModalWindow window, final T policyTO, final PageReference pageRef) {
         super();
 
         final Form form = new Form("form");
@@ -101,13 +103,12 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
 
         form.add(new PolicyBeanPanel("panel", policy));
 
-        final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("apply")) {
+        final AjaxButton submit = new ClearIndicatingAjaxButton("apply", new ResourceModel("apply"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 setPolicySpecification(policyTO, policy);
 
                 try {

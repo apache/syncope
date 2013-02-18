@@ -26,17 +26,16 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.annotation.FormAttributeField;
 import org.apache.syncope.common.report.AbstractReportletConf;
-import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
 import org.apache.syncope.console.rest.ReportRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
@@ -51,7 +50,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -86,16 +84,19 @@ public class ReportletConfModalPage extends BaseModalPage {
 
     private AbstractReportletConf reportletConf;
 
-    final AjaxTextFieldPanel name;
+    private final PageReference pageRef;
+
+    private final AjaxTextFieldPanel name;
 
     private WebMarkupContainer propertiesContainer;
 
     private ListView<String> propView;
 
     public ReportletConfModalPage(final AbstractReportletConf reportletConf, final ModalWindow window,
-            final PageReference callerPageRef) {
+            final PageReference pageRef) {
 
         this.reportletConf = reportletConf;
+        this.pageRef = pageRef;
 
         Form form = new Form("form");
         add(form);
@@ -179,7 +180,7 @@ public class ReportletConfModalPage extends BaseModalPage {
                     }
                 }
 
-                ((ReportModalPage) callerPageRef.getPage())
+                ((ReportModalPage) pageRef.getPage())
                         .setModalReportletConf(ReportletConfModalPage.this.reportletConf);
                 window.close(target);
             }
@@ -191,17 +192,13 @@ public class ReportletConfModalPage extends BaseModalPage {
         };
         form.add(submit);
 
-        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new ClearIndicatingAjaxButton("cancel", new ResourceModel("cancel"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 window.close(target);
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
 
@@ -268,8 +265,8 @@ public class ReportletConfModalPage extends BaseModalPage {
                 try {
                     field = ReportletConfModalPage.this.reportletConf.getClass().getDeclaredField(fieldName);
                 } catch (Exception e) {
-                    LOG.error("Could not find field {} in class {}", fieldName,
-                            ReportletConfModalPage.this.reportletConf.getClass(), e);
+                    LOG.error("Could not find field {} in class {}", new Object[]{fieldName,
+                                ReportletConfModalPage.this.reportletConf.getClass(), e});
                 }
                 if (field == null) {
                     return;

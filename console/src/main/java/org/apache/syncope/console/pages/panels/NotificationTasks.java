@@ -30,15 +30,16 @@ import org.apache.syncope.console.pages.NotificationTaskModalPage;
 import org.apache.syncope.console.pages.Tasks;
 import org.apache.syncope.console.pages.Tasks.TasksProvider;
 import org.apache.syncope.console.rest.TaskRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -86,7 +87,7 @@ public class NotificationTasks extends Panel {
 
     private AjaxFallbackDefaultDataTable<TaskTO, String> table;
 
-    public NotificationTasks(String id) {
+    public NotificationTasks(final String id, final PageReference pageRef) {
         super(id);
 
         container = new WebMarkupContainer("container");
@@ -122,7 +123,7 @@ public class NotificationTasks extends Panel {
 
                 final TaskTO taskTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, pageRef);
 
                 panel.add(new ActionLink() {
 
@@ -137,7 +138,7 @@ public class NotificationTasks extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new NotificationTaskModalPage(taskTO);
+                                return new NotificationTaskModalPage(taskTO, pageRef);
                             }
                         });
 
@@ -192,11 +193,12 @@ public class NotificationTasks extends Panel {
 
         container.add(table);
 
-        final AjaxLink reload = new IndicatingAjaxLink("reload") {
+        final AjaxLink reload = new ClearIndicatingAjaxLink("reload", pageRef) {
+
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(AjaxRequestTarget target) {
+            public void onClickInternal(final AjaxRequestTarget target) {
                 if (target != null) {
                     target.add(table);
                 }
@@ -204,7 +206,7 @@ public class NotificationTasks extends Panel {
         };
 
         reload.add(new Behavior() {
-            
+
             private static final long serialVersionUID = 1469628524240283489L;
 
             @Override
@@ -222,6 +224,7 @@ public class NotificationTasks extends Panel {
 
         container.add(reload);
         window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
             private static final long serialVersionUID = 8804221891699487139L;
 
             @Override
@@ -256,10 +259,10 @@ public class NotificationTasks extends Panel {
 
                 table = Tasks.updateTaskTable(
                         columns,
-                        new TasksProvider<NotificationTaskTO>(restClient, paginatorRows,
-                        getId(), NotificationTaskTO.class),
+                        new TasksProvider<NotificationTaskTO>(restClient, paginatorRows, getId(),
+                        NotificationTaskTO.class),
                         container,
-                        table == null ? 0 : (int)table.getCurrentPage());
+                        table == null ? 0 : (int) table.getCurrentPage());
 
                 target.add(container);
             }

@@ -30,6 +30,7 @@ import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -39,7 +40,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -64,8 +64,9 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
     }
 
     @Override
-    public void setSchemaModalPage(final PageReference callerPageRef, final ModalWindow window,
+    public void setSchemaModalPage(final PageReference pageRef, final ModalWindow window,
             AbstractBaseBean schemaTO, final boolean createFlag) {
+
         final SchemaTO schema;
         if (schemaTO != null && schemaTO instanceof SchemaTO) {
             schema = (SchemaTO) schemaTO;
@@ -88,6 +89,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                 getString("conversionPattern"), new PropertyModel<String>(schema, "conversionPattern"));
 
         final IModel<List<String>> validatorsList = new LoadableDetachableModel<List<String>>() {
+
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
@@ -102,13 +104,14 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         ((DropDownChoice) validatorClass.getField()).setNullValid(true);
         validatorClass.setChoices(validatorsList.getObject());
 
-        final AjaxDropDownChoicePanel<AttributeSchemaType> type = new AjaxDropDownChoicePanel<AttributeSchemaType>("type",
+        final AjaxDropDownChoicePanel<AttributeSchemaType> type = new AjaxDropDownChoicePanel<AttributeSchemaType>(
+                "type",
                 getString("type"), new PropertyModel(schema, "type"));
         type.setChoices(Arrays.asList(AttributeSchemaType.values()));
         type.addRequiredLabel();
 
-        final AjaxTextFieldPanel enumerationValuesPanel = 
-            new AjaxTextFieldPanel("panel", "enumerationValues", new Model<String>(null));
+        final AjaxTextFieldPanel enumerationValuesPanel =
+                new AjaxTextFieldPanel("panel", "enumerationValues", new Model<String>(null));
         final MultiValueSelectorPanel<String> enumerationValues =
                 new MultiValueSelectorPanel<String>("enumerationValues",
                 new Model(),
@@ -135,6 +138,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         }
 
         type.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
@@ -170,6 +174,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         });
 
         final AutoCompleteTextField mandatoryCondition = new AutoCompleteTextField("mandatoryCondition") {
+
             private static final long serialVersionUID = -2428903969518079100L;
 
             @Override
@@ -192,6 +197,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         };
 
         mandatoryCondition.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
@@ -208,12 +214,12 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         final AjaxCheckBoxPanel uniqueConstraint = new AjaxCheckBoxPanel("uniqueConstraint",
                 getString("uniqueConstraint"), new PropertyModel<Boolean>(schema, "uniqueConstraint"));
 
-        final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
+        final AjaxButton submit = new ClearIndicatingAjaxButton("apply", new ResourceModel("submit"), pageRef) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 final SchemaTO schemaTO = (SchemaTO) form.getDefaultModelObject();
 
                 schemaTO.setEnumerationValues(getEnumValuesAsString(enumerationValues.getView().getModelObject()));
@@ -231,8 +237,8 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                     } else {
                         restClient.updateSchema(kind, schemaTO);
                     }
-                    if (callerPageRef.getPage() instanceof BasePage) {
-                        ((BasePage) callerPageRef.getPage()).setModalResult(true);
+                    if (pageRef.getPage() instanceof BasePage) {
+                        ((BasePage) pageRef.getPage()).setModalResult(true);
                     }
 
                     window.close(target);
@@ -244,24 +250,20 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
                 target.add(feedbackPanel);
             }
         };
 
-        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new ClearIndicatingAjaxButton("cancel", new ResourceModel("cancel"), pageRef) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 window.close(target);
             }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-            }
         };
-        
+
         cancel.setDefaultFormProcessing(false);
 
         String allowedRoles;

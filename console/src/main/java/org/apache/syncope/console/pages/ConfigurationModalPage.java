@@ -50,12 +50,12 @@ public class ConfigurationModalPage extends BaseModalPage {
     /**
      * ConfigurationModalPage constructor.
      *
-     * @param callPageRef base
+     * @param pageRef base
      * @param window
      * @param configurationTO
      * @param createFlag true for CREATE and false for UPDATE operation
      */
-    public ConfigurationModalPage(final PageReference callPageRef, final ModalWindow window,
+    public ConfigurationModalPage(final PageReference pageRef, final ModalWindow window,
             final ConfigurationTO configurationTO, final boolean createFlag) {
 
         Form form = new Form("form", new CompoundPropertyModel(configurationTO));
@@ -70,6 +70,7 @@ public class ConfigurationModalPage extends BaseModalPage {
         form.add(value);
 
         submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -81,7 +82,7 @@ public class ConfigurationModalPage extends BaseModalPage {
                         configurationsRestClient.updateConfiguration(configurationTO);
                     }
 
-                    Configuration callerPage = (Configuration) callPageRef.getPage();
+                    Configuration callerPage = (Configuration) pageRef.getPage();
                     callerPage.setModalResult(true);
 
                     window.close(target);
@@ -103,6 +104,7 @@ public class ConfigurationModalPage extends BaseModalPage {
         };
 
         final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override

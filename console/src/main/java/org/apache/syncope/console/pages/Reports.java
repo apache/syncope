@@ -36,6 +36,7 @@ import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.pages.panels.JQueryTabbedPanel;
 import org.apache.syncope.console.rest.LoggerRestClient;
 import org.apache.syncope.console.rest.ReportRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
@@ -47,7 +48,6 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -153,7 +153,7 @@ public class Reports extends BasePage {
 
                 final ReportTO reportTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model);
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
 
                 panel.add(new ActionLink() {
 
@@ -189,7 +189,7 @@ public class Reports extends BasePage {
                             error(scce.getMessage());
                         }
 
-                        target.add(getPage().get("feedback"));
+                        target.add(feedbackPanel);
                         target.add(reportContainer);
                     }
                 }, ActionLink.ActionType.EXECUTE, "Reports", "execute");
@@ -207,7 +207,7 @@ public class Reports extends BasePage {
                             error(scce.getMessage());
                         }
                         target.add(reportContainer);
-                        target.add(getPage().get("feedback"));
+                        target.add(feedbackPanel);
                     }
                 }, ActionLink.ActionType.DELETE, "Reports", "delete");
 
@@ -221,12 +221,12 @@ public class Reports extends BasePage {
         reportContainer.add(reportTable);
         reportContainer.setOutputMarkupId(true);
 
-        final AjaxLink reload = new IndicatingAjaxLink("reload") {
+        final AjaxLink reload = new ClearIndicatingAjaxLink("reload", getPageReference()) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(AjaxRequestTarget target) {
+            protected void onClickInternal(final AjaxRequestTarget target) {
                 if (target != null) {
                     target.add(reportTable);
                 }
@@ -279,12 +279,12 @@ public class Reports extends BasePage {
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
 
-        AjaxLink createLink = new IndicatingAjaxLink("createLink") {
+        AjaxLink createLink = new ClearIndicatingAjaxLink("createLink", getPageReference()) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
+            protected void onClickInternal(final AjaxRequestTarget target) {
                 window.setPageCreator(new ModalWindow.PageCreator() {
 
                     private static final long serialVersionUID = -7834632442532690940L;

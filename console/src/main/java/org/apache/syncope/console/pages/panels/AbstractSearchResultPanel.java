@@ -29,6 +29,7 @@ import org.apache.syncope.console.pages.AbstractBasePage;
 import org.apache.syncope.console.pages.DisplayAttributesModalPage;
 import org.apache.syncope.console.rest.AbstractAttributableRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
@@ -40,7 +41,6 @@ import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSource;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -165,13 +165,13 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
     protected final AbstractBasePage page;
 
     protected <T extends AbstractAttributableTO> AbstractSearchResultPanel(final String id, final boolean filtered,
-            final NodeCond searchCond, final PageReference callerRef, final AbstractAttributableRestClient restClient) {
+            final NodeCond searchCond, final PageReference pageRef, final AbstractAttributableRestClient restClient) {
 
         super(id);
 
         setOutputMarkupId(true);
 
-        this.page = (AbstractBasePage) callerRef.getPage();
+        this.page = (AbstractBasePage) pageRef.getPage();
 
         this.filtered = filtered;
         this.filter = searchCond;
@@ -215,13 +215,12 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
             // ---------------------------
             // Link to select schemas/columns to be shown (User)
             // ---------------------------
-            displayAttrsLink = new IndicatingAjaxLink("displayAttrsLink") {
+            displayAttrsLink = new ClearIndicatingAjaxLink("displayAttrsLink", pageRef) {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
                 @Override
-                public void onClick(final AjaxRequestTarget target) {
-
+                protected void onClickInternal(final AjaxRequestTarget target) {
                     displaymodal.setPageCreator(new ModalWindow.PageCreator() {
 
                         private static final long serialVersionUID = -7834632442532690940L;
@@ -258,6 +257,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
                     displayAttrsLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "changeView"));
         } else {
             displayAttrsLink = new AjaxLink("displayAttrsLink") {
+
                 private static final long serialVersionUID = -7978723352517770644L;
 
                 @Override
@@ -268,12 +268,12 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
         }
         container.add(displayAttrsLink);
 
-        final AjaxLink reload = new IndicatingAjaxLink("reload") {
+        final AjaxLink reload = new ClearIndicatingAjaxLink("reload", pageRef) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
+            protected void onClickInternal(final AjaxRequestTarget target) {
                 if (target != null) {
                     target.add(resultTable);
                 }

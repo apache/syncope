@@ -29,7 +29,7 @@ public abstract class BaseModalPage extends AbstractBasePage {
 
     public BaseModalPage() {
         super();
-        
+
         add(new CloseOnESCBehavior("keyup"));
     }
 }

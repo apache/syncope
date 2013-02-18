@@ -23,11 +23,12 @@ import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.DateFormatROModel;
 import org.apache.syncope.console.markup.html.CrontabContainer;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.PropertyModel;
@@ -44,9 +45,9 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
     protected CrontabContainer crontab;
 
     public AbstractSchedTaskModalPage(final ModalWindow window, final SchedTaskTO taskTO,
-            final PageReference callerPageRef) {
+            final PageReference pageRef) {
 
-        super(taskTO);
+        super(taskTO, pageRef);
 
         crontab = new CrontabContainer("crontab", new PropertyModel<String>(taskTO, "cronExpression"),
                 taskTO.getCronExpression());
@@ -72,13 +73,12 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
         nextExec.setEnabled(false);
         profile.add(nextExec);
 
-        final IndicatingAjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("apply")) {
+        final AjaxButton submit = new ClearIndicatingAjaxButton("apply", new ResourceModel("apply"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 SchedTaskTO taskTO = (SchedTaskTO) form.getModelObject();
                 taskTO.setCronExpression(!StringUtils.hasText(taskTO.getCronExpression())
                         ? null
@@ -99,7 +99,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
                         }
                     }
 
-                    ((BasePage) callerPageRef.getPage()).setModalResult(true);
+                    ((BasePage) pageRef.getPage()).setModalResult(true);
 
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
@@ -111,22 +111,17 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
                 target.add(feedbackPanel);
             }
         };
 
-        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new ClearIndicatingAjaxButton("cancel", new ResourceModel("cancel"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 window.close(target);
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
 

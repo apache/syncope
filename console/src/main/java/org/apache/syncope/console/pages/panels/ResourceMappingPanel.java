@@ -35,12 +35,14 @@ import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.pages.panels.ResourceConnConfPanel.ConnConfModEvent;
 import org.apache.syncope.console.rest.ConnectorRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.apache.wicket.Component;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
@@ -48,7 +50,6 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -164,7 +165,8 @@ public class ResourceMappingPanel extends Panel {
      * @param resourceTO external resource
      * @param attrType USER / ROLE
      */
-    public ResourceMappingPanel(final String panelid, final ResourceTO resourceTO, final AttributableType attrType) {
+    public ResourceMappingPanel(final String panelid, final ResourceTO resourceTO, final AttributableType attrType,
+            final PageReference pageRef) {
 
         super(panelid);
         setOutputMarkupId(true);
@@ -369,7 +371,7 @@ public class ResourceMappingPanel extends Panel {
                         extAttrName.setModelObject(null);
                         extAttrName.setRequired(!accountId.getModelObject());
                         target.add(extAttrName);
-                        
+
                         if (accountId.getModelObject()) {
                             mapItem.setMandatoryCondition("true");
                             mandatory.setEnabled(false);
@@ -426,19 +428,14 @@ public class ResourceMappingPanel extends Panel {
         mappings.setReuseItems(true);
         mappingContainer.add(mappings);
 
-        addMappingBtn = new IndicatingAjaxButton("addMappingBtn", new ResourceModel("add")) {
+        addMappingBtn = new ClearIndicatingAjaxButton("addMappingBtn", new ResourceModel("add"), pageRef) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 getMapping().getItems().add(new MappingItemTO());
                 target.add(ResourceMappingPanel.this);
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                // ignore errors
             }
         };
         addMappingBtn.setDefaultFormProcessing(false);

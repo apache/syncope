@@ -43,9 +43,9 @@ public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
     @SpringBean
     private ResourceRestClient resourceRestClient;
 
-    public SyncTaskModalPage(final ModalWindow window, final SyncTaskTO taskTO, final PageReference callerPageRef) {
+    public SyncTaskModalPage(final ModalWindow window, final SyncTaskTO taskTO, final PageReference pageRef) {
 
-        super(window, taskTO, callerPageRef);
+        super(window, taskTO, pageRef);
 
         final IModel<List<String>> allResources = new LoadableDetachableModel<List<String>>() {
 
