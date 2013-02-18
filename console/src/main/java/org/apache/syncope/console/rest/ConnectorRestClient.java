@@ -91,7 +91,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
     }
 
     public List<ConnBundleTO> getAllBundles() {
-        List<ConnBundleTO> bundles = null;
+        List<ConnBundleTO> bundles = Collections.<ConnBundleTO>emptyList();
 
         try {
             bundles = Arrays.asList(SyncopeSession.get().getRestTemplate().getForObject(
