@@ -80,7 +80,7 @@ public class ResourceModalPage extends BaseModalPage {
         //--------------------------------
         // Resource mapping panle
         //--------------------------------
-        form.add(new ResourceConnConfPanel("connconf", resourceTO, createFlag, pageref));
+        form.add(new ResourceConnConfPanel("connconf", resourceTO, createFlag));
         //--------------------------------
 
         //--------------------------------

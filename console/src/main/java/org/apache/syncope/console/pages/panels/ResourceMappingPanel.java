@@ -138,11 +138,11 @@ public class ResourceMappingPanel extends Panel {
     /**
      * Attribute Mapping Panel.
      *
-     * @param panelid panel id.
-     * @param resourceTO external resource.
+     * @param panelid panel id
+     * @param resourceTO external resource
+     * @param pageRef caller page reference
      */
     public ResourceMappingPanel(final String panelid, final ResourceTO resourceTO, final PageReference pageRef) {
-
         super(panelid);
         setOutputMarkupId(true);
 
