@@ -30,7 +30,6 @@ import org.apache.syncope.client.to.SchemaMappingTO;
 import org.apache.syncope.console.pages.panels.ResourceConnConfPanel.ConnConfModEvent;
 import org.apache.syncope.console.rest.ConnectorRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
-import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -39,13 +38,13 @@ import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.ConnConfProperty;
 import org.apache.syncope.types.IntMappingType;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.event.IEvent;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -142,7 +141,7 @@ public class ResourceMappingPanel extends Panel {
      * @param resourceTO external resource
      * @param pageRef caller page reference
      */
-    public ResourceMappingPanel(final String panelid, final ResourceTO resourceTO, final PageReference pageRef) {
+    public ResourceMappingPanel(final String panelid, final ResourceTO resourceTO) {
         super(panelid);
         setOutputMarkupId(true);
 
@@ -354,12 +353,12 @@ public class ResourceMappingPanel extends Panel {
         mappings.setReuseItems(true);
         mappingContainer.add(mappings);
 
-        addMappingBtn = new ClearIndicatingAjaxButton("addUserSchemaMappingBtn", new ResourceModel("add"), pageRef) {
+        addMappingBtn = new IndicatingAjaxButton("addUserSchemaMappingBtn", new ResourceModel("add")) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 resourceTO.getMappings().add(new SchemaMappingTO());
                 target.add(mappingContainer);
             }
