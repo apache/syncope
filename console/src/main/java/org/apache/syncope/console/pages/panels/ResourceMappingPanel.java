@@ -164,10 +164,10 @@ public class ResourceMappingPanel extends Panel {
      * @param panelid panel id
      * @param resourceTO external resource
      * @param attrType USER / ROLE
+     * @param pageRef caller page reference
      */
     public ResourceMappingPanel(final String panelid, final ResourceTO resourceTO, final AttributableType attrType,
             final PageReference pageRef) {
-
         super(panelid);
         setOutputMarkupId(true);
 
