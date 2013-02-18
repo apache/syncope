@@ -153,7 +153,7 @@ public class ConnectorRestClient extends BaseRestClient {
         ConnInstanceTO toBeChecked = new ConnInstanceTO();
         BeanUtils.copyProperties(connectorTO, toBeChecked, new String[]{"configuration"});
         toBeChecked.setConfiguration(filterProperties(connectorTO.getConfiguration()));
-        
+
         boolean check = false;
         try {
             check = getService(ConnectorService.class).check(toBeChecked);
@@ -189,12 +189,13 @@ public class ConnectorRestClient extends BaseRestClient {
             for (SchemaTO schema : response) {
                 schemaNames.add(schema.getName());
             }
-            // re-order schema names list
-            Collections.sort(schemaNames);
         } catch (Exception e) {
             LOG.error("While getting resource schema names", e);
-            schemaNames = null;
+        } finally {
+            // re-order schema names list
+            Collections.sort(schemaNames);
         }
+
         return schemaNames;
     }
 }

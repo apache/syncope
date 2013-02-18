@@ -76,8 +76,8 @@ public class ResourceModalPage extends BaseModalPage {
         //--------------------------------
         // Resource mapping panels
         //--------------------------------
-        form.add(new ResourceMappingPanel("umapping", resourceTO, AttributableType.USER, pageRef));
-        form.add(new ResourceMappingPanel("rmapping", resourceTO, AttributableType.ROLE, pageRef));
+        form.add(new ResourceMappingPanel("umapping", resourceTO, AttributableType.USER));
+        form.add(new ResourceMappingPanel("rmapping", resourceTO, AttributableType.ROLE));
         //--------------------------------
 
         //--------------------------------
