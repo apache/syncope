@@ -562,7 +562,7 @@ public class ConnObjectUtil {
                             }
                         }
                     }
-                    
+
                     LOG.debug("Retrieved values {}", virAttr.getValues());
                 } catch (Exception e) {
                     LOG.error("Error reading connector object from {}", resource.getName(), e);
@@ -595,23 +595,27 @@ public class ConnObjectUtil {
 
     private void fillFromTemplate(final AbstractAttributableTO attributableTO, final AbstractAttributableTO template) {
         Map<String, AttributeTO> currentAttrMap = attributableTO.getAttributeMap();
-        for (AttributeTO attrTO : template.getAttributes()) {
-            if (!currentAttrMap.containsKey(attrTO.getSchema())) {
-                attributableTO.addAttribute(evaluateAttrTemplate(attributableTO, attrTO));
+        for (AttributeTO templateAttr : template.getAttributes()) {
+            if (!currentAttrMap.containsKey(templateAttr.getSchema())
+                    || currentAttrMap.get(templateAttr.getSchema()).getValues().isEmpty()) {
+
+                attributableTO.addAttribute(evaluateAttrTemplate(attributableTO, templateAttr));
             }
         }
 
         currentAttrMap = attributableTO.getDerivedAttributeMap();
-        for (AttributeTO attrTO : template.getDerivedAttributes()) {
-            if (!currentAttrMap.containsKey(attrTO.getSchema())) {
-                attributableTO.addDerivedAttribute(attrTO);
+        for (AttributeTO templateDerAttr : template.getDerivedAttributes()) {
+            if (!currentAttrMap.containsKey(templateDerAttr.getSchema())) {
+                attributableTO.addDerivedAttribute(templateDerAttr);
             }
         }
 
         currentAttrMap = attributableTO.getVirtualAttributeMap();
-        for (AttributeTO attrTO : template.getDerivedAttributes()) {
-            if (!currentAttrMap.containsKey(attrTO.getSchema())) {
-                attributableTO.addVirtualAttribute(evaluateAttrTemplate(attributableTO, attrTO));
+        for (AttributeTO templateVirAttr : template.getDerivedAttributes()) {
+            if (!currentAttrMap.containsKey(templateVirAttr.getSchema())
+                    || currentAttrMap.get(templateVirAttr.getSchema()).getValues().isEmpty()) {
+
+                attributableTO.addVirtualAttribute(evaluateAttrTemplate(attributableTO, templateVirAttr));
             }
         }
     }

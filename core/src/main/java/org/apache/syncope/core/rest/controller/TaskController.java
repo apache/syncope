@@ -22,9 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
@@ -158,7 +156,7 @@ public class TaskController extends AbstractController {
 
         SchedTask task = taskDAO.find(taskTO.getId());
         if (task == null) {
-            throw new NotFoundException("Task " + String.valueOf(taskTO.getId()));
+            throw new NotFoundException("Task " + taskTO.getId());
         }
 
         TaskUtil taskUtil = getTaskUtil(task);
