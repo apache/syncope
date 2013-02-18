@@ -143,7 +143,6 @@ public final class AuditElements {
     public enum ReportSubCategory {
 
         list,
-        listExecutions,
         create,
         read,
         readExecution,
@@ -213,7 +212,6 @@ public final class AuditElements {
         read,
         update,
         delete,
-        listExecutions,
         getJobClasses,
         getSyncActionsClasses,
         readExecution,

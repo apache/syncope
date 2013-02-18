@@ -18,15 +18,9 @@
  */
 package org.apache.syncope.console.rest;
 
-import java.util.List;
-
-import org.apache.syncope.common.to.AbstractExecTO;
-
 public interface ExecutionRestClient {
 
-    List<? extends AbstractExecTO> listExecutions();
+    void startExecution(long executionCollectorId);
 
-    void startExecution(final Long executionCollectorId);
-
-    void deleteExecution(final Long executionId);
+    void deleteExecution(long executionId);
 }

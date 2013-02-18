@@ -22,11 +22,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.List;
-
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
-
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.services.ReportletConfClasses;
@@ -80,11 +78,6 @@ public class ReportServiceImpl implements ReportService, ContextAware {
     }
 
     @Override
-    public List<ReportExecTO> listExecutions() {
-        return reportController.listExecutions();
-    }
-
-    @Override
     public ReportletConfClasses getReportletConfClasses() {
         return new ReportletConfClasses(reportController.getReportletConfClassesInternal());
     }
@@ -104,15 +97,17 @@ public class ReportServiceImpl implements ReportService, ContextAware {
         final ReportExecExportFormat format = (fmt == null) ? ReportExecExportFormat.XML : fmt;
         final ReportExec reportExec = reportController.getAndCheckReportExecInternal(executionId);
         StreamingOutput sout = new StreamingOutput() {
+
             @Override
             public void write(final OutputStream os) throws IOException {
                 reportController.exportExecutionResultInternal(os, reportExec, format);
             }
         };
-        String disposition = "attachment; filename=" + reportExec.getReport().getName() + "." + format.name().toLowerCase();
-		return Response.ok(sout)
-				.header(SyncopeConstants.CONTENT_DISPOSITION_HEADER, disposition)
-				.build();
+        String disposition = "attachment; filename=" + reportExec.getReport().getName() + "." + format.name().
+                toLowerCase();
+        return Response.ok(sout)
+                .header(SyncopeConstants.CONTENT_DISPOSITION_HEADER, disposition)
+                .build();
     }
 
     @Override
@@ -134,5 +129,4 @@ public class ReportServiceImpl implements ReportService, ContextAware {
     public void setUriInfo(final UriInfo uriInfo) {
         this.uriInfo = uriInfo;
     }
-
 }

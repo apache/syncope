@@ -65,11 +65,6 @@ public class ReportServiceProxy extends SpringServiceProxy implements ReportServ
     }
 
     @Override
-    public List<ReportExecTO> listExecutions() {
-        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "report/execution/list", ReportExecTO[].class));
-    }
-
-    @Override
     public ReportletConfClasses getReportletConfClasses() {
         List<String> confClasses = Arrays.asList(getRestTemplate().getForObject(
                 baseUrl + "report/reportletConfClasses.json", String[].class));

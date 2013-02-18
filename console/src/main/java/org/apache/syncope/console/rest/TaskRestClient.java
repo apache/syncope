@@ -19,9 +19,7 @@
 package org.apache.syncope.console.rest;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-
 import org.apache.syncope.common.services.TaskService;
 import org.apache.syncope.common.to.JobClassTO;
 import org.apache.syncope.common.to.NotificationTaskTO;
@@ -29,7 +27,6 @@ import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.SyncTaskTO;
-import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.CollectionWrapper;
@@ -90,9 +87,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      */
     @SuppressWarnings("unchecked")
     public <T extends TaskTO> List<T> listTasks(final Class<T> reference, final int page, final int size) {
-        List<T> result = Collections.emptyList();
-        result = (List<T>) getService(TaskService.class).list(getTaskType(reference), page, size);
-        return result;
+        return (List<T>) getService(TaskService.class).list(getTaskType(reference), page, size);
     }
 
     private TaskType getTaskType(final Class<?> reference) {
@@ -118,20 +113,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     public <T extends SchedTaskTO> T readSchedTask(final Class<T> reference, final Long taskId) {
-            return getService(TaskService.class).read(getTaskType(reference), taskId);
-    }
-
-    /**
-     * Get all executions.
-     *
-     * @return list of all executions
-     */
-    @Override
-    public List<TaskExecTO> listExecutions() {
-        throw new UnsupportedOperationException("You need to specify type of executed tasks to be listed");
-//        return getService(TaskService.class).listExecutions();
-//                Arrays.asList(SyncopeSession.get().getRestTemplate()
-//                .getForObject(baseURL + "task/execution/list", TaskExecTO[].class)); FIXME interface?
+        return getService(TaskService.class).read(getTaskType(reference), taskId);
     }
 
     /**
@@ -144,7 +126,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     @Override
-    public void startExecution(final Long taskId) {
+    public void startExecution(final long taskId) {
         startExecution(taskId, false);
     }
 
@@ -153,7 +135,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      *
      * @param taskId task id
      */
-    public void startExecution(final Long taskId, final boolean dryRun) {
+    public void startExecution(final long taskId, final boolean dryRun) {
         getService(TaskService.class).execute(taskId, dryRun);
     }
 
@@ -163,7 +145,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      * @param taskExecId task execution id
      */
     @Override
-    public void deleteExecution(final Long taskExecId) {
+    public void deleteExecution(final long taskExecId) {
         getService(TaskService.class).deleteExecution(taskExecId);
     }
 

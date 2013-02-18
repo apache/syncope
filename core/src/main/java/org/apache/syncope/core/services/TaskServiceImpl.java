@@ -21,11 +21,9 @@ package org.apache.syncope.core.services;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
-
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.TaskService;
 import org.apache.syncope.common.to.JobClassTO;
@@ -124,11 +122,6 @@ public class TaskServiceImpl implements TaskService, ContextAware {
         return taskController.list(taskType.toString(), page, size);
     }
 
-    @Override
-    public List<TaskExecTO> listExecutions(final TaskType taskType) {
-        return taskController.listExecutions(taskType.toString());
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public <T extends TaskTO> T read(final TaskType taskType, final Long taskId) {
@@ -161,5 +154,4 @@ public class TaskServiceImpl implements TaskService, ContextAware {
     public void setUriInfo(final UriInfo ui) {
         this.uriInfo = ui;
     }
-
 }

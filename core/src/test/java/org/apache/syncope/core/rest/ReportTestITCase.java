@@ -76,16 +76,6 @@ public class ReportTestITCase extends AbstractTest {
     }
 
     @Test
-    public void listExecutions() {
-        List<ReportExecTO> executions = reportService.listExecutions();
-        assertNotNull(executions);
-        assertFalse(executions.isEmpty());
-        for (ReportExecTO execution : executions) {
-            assertNotNull(execution);
-        }
-    }
-
-    @Test
     public void read() {
         ReportTO reportTO = reportService.read(1L);
 

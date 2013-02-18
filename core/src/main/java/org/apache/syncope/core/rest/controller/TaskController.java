@@ -231,22 +231,6 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/execution/list")
-    public List<TaskExecTO> listExecutions(@PathVariable("kind") final String kind) {
-
-        List<TaskExec> executions = taskExecDAO.findAll(getTaskUtil(kind).taskClass());
-        List<TaskExecTO> executionTOs = new ArrayList<TaskExecTO>(executions.size());
-        for (TaskExec execution : executions) {
-            executionTOs.add(binder.getTaskExecTO(execution));
-        }
-
-        auditManager.audit(Category.task, TaskSubCategory.listExecutions, Result.success,
-                "Successfully listed all task executions: " + executionTOs.size() + "/" + kind);
-
-        return executionTOs;
-    }
-
-    @PreAuthorize("hasRole('TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/jobClasses")
     public ModelAndView getJobClasses() {
         Set<String> jobClasses = classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.JOB);

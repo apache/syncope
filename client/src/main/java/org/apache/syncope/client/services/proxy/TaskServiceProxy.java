@@ -61,8 +61,8 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
         String subTypeString = (taskTO instanceof SyncTaskTO)
                 ? "sync"
                 : (taskTO instanceof SchedTaskTO)
-                        ? "sched"
-                        : "";
+                ? "sched"
+                : "";
 
         TaskTO task = getRestTemplate().postForObject(baseUrl + "task/create/{type}", taskTO, taskTO.getClass(),
                 subTypeString);
@@ -167,12 +167,6 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
     }
 
     @Override
-    public List<TaskExecTO> listExecutions(final TaskType type) {
-        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "task/{type}/execution/list.json",
-                TaskExecTO[].class, type));
-    }
-
-    @Override
     public <T extends TaskTO> T read(final TaskType type, final Long taskId) {
         return (T) getRestTemplate().getForObject(baseUrl + "task/read/{taskId}.json", getTOClass(type), taskId);
     }
@@ -195,8 +189,8 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
         String path = (taskTO instanceof SyncTaskTO)
                 ? "sync"
                 : (taskTO instanceof SchedTaskTO)
-                        ? "sched"
-                        : null;
+                ? "sched"
+                : null;
         if (path == null) {
             throw new IllegalArgumentException("Task can only be instance of SchedTaskTO or SyncTaskTO");
         }

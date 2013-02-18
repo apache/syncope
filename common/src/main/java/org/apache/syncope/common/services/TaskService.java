@@ -114,14 +114,6 @@ public interface TaskService {
             @QueryParam("size") @DefaultValue("25") int size);
 
     /**
-     * @param taskType Type of task executions to be listed
-     * @return Returns list of task executions where executed task matches type
-     */
-    @GET
-    @Path("{type}/executions")
-    List<TaskExecTO> listExecutions(@PathParam("type") TaskType taskType);
-
-    /**
      * @param taskType Type of task to be read
      * @param taskId Id of task to be read
      * @return Returns task with matching id
@@ -154,5 +146,4 @@ public interface TaskService {
     @PUT
     @Path("{taskId}")
     void update(@PathParam("taskId") Long taskId, TaskTO taskTO);
-
 }

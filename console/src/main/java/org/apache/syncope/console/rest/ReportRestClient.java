@@ -23,7 +23,6 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.services.ReportletConfClasses;
-import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
@@ -85,7 +84,7 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
      * @param reportId report id
      */
     @Override
-    public void startExecution(final Long reportId) {
+    public void startExecution(final long reportId) {
         getService(ReportService.class).execute(reportId);
     }
 
@@ -95,18 +94,8 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
      * @param reportExecId report execution id
      */
     @Override
-    public void deleteExecution(final Long reportExecId) {
+    public void deleteExecution(final long reportExecId) {
         getService(ReportService.class).deleteExecution(reportExecId);
-    }
-
-    /**
-     * Get all executions.
-     *
-     * @return list of all executions
-     */
-    @Override
-    public List<ReportExecTO> listExecutions() {
-        return getService(ReportService.class).listExecutions();
     }
 
     public Response exportExecutionResult(final Long executionId, final ReportExecExportFormat fmt) {

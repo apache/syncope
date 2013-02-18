@@ -180,16 +180,6 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public void listExecutions() {
-        List<TaskExecTO> executions = taskService.listExecutions(TaskType.PROPAGATION);
-        assertNotNull(executions);
-        assertFalse(executions.isEmpty());
-        for (TaskExecTO execution : executions) {
-            assertNotNull(execution);
-        }
-    }
-
-    @Test
     public void read() {
         PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, 3L);
 

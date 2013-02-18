@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
 import java.util.List;
-
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditLoggerName;
@@ -88,7 +87,7 @@ public class LoggerTestITCase extends AbstractTest {
     @Test
     public void enableDisableAudit() {
         AuditLoggerName auditLoggerName = new AuditLoggerName(AuditElements.Category.report,
-                AuditElements.ReportSubCategory.listExecutions, AuditElements.Result.failure);
+                AuditElements.ReportSubCategory.deleteExecution, AuditElements.Result.failure);
 
         List<AuditLoggerName> audits = CollectionWrapper.wrapLogger(loggerService.list(LoggerType.AUDIT));
         assertNotNull(audits);

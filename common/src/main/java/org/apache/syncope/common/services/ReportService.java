@@ -104,13 +104,6 @@ public interface ReportService {
             @QueryParam("size") @DefaultValue("25") int size);
 
     /**
-     * @return Returns list of all previous executions
-     */
-    @GET
-    @Path("executions")
-    List<ReportExecTO> listExecutions();
-
-    /**
      * @param reportId ID of report to be read
      * @return Report with matching ID
      */

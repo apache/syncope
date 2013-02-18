@@ -202,21 +202,6 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/execution/list")
-    public List<ReportExecTO> listExecutions() {
-        List<ReportExec> executions = reportExecDAO.findAll();
-        List<ReportExecTO> executionTOs = new ArrayList<ReportExecTO>(executions.size());
-        for (ReportExec execution : executions) {
-            executionTOs.add(binder.getReportExecTO(execution));
-        }
-
-        auditManager.audit(Category.report, ReportSubCategory.listExecutions, Result.success,
-                "Successfully listed all report executions: " + executionTOs.size());
-
-        return executionTOs;
-    }
-
-    @PreAuthorize("hasRole('REPORT_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/reportletConfClasses")
     public ModelAndView getReportletConfClasses() {
         Set<String> reportletConfClasses = getReportletConfClassesInternal();
