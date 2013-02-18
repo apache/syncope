@@ -185,16 +185,16 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
     }
 
     public List<String> getSchemaNames(final ConnInstanceTO connectorTO) {
-        List<String> schemaNames = null;
+        List<String> schemaNames = new ArrayList<String>();
 
         try {
-            schemaNames = Arrays.asList(SyncopeSession.get().getRestTemplate().postForObject(
-                    baseURL + "connector/schema/list", connectorTO, String[].class));
-
-            // re-order schema names list
-            Collections.sort(schemaNames);
+            schemaNames.addAll(Arrays.asList(SyncopeSession.get().getRestTemplate().postForObject(
+                    baseURL + "connector/schema/list", connectorTO, String[].class)));
         } catch (Exception e) {
             LOG.error("While getting resource schema names", e);
+        } finally {
+            // re-order schema names list
+            Collections.sort(schemaNames);
         }
 
         return schemaNames;
