@@ -92,7 +92,7 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public List<ConnBundleTO> getAllBundles() {
-        List<ConnBundleTO> bundles = null;
+        List<ConnBundleTO> bundles = Collections.<ConnBundleTO>emptyList();
 
         try {
             bundles = getService(ConnectorService.class).getBundles(SyncopeSession.get().getLocale().toString());
