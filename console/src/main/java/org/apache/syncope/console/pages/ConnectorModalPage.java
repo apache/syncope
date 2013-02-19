@@ -234,10 +234,12 @@ public class ConnectorModalPage extends BaseModalPage {
                 }
 
                 field.setTitle(property.getSchema().getHelpMessage());
+                
+                if (required) {
+                    field.addRequiredLabel();
+                }
 
                 if (isArray) {
-                    field.removeRequiredLabel();
-
                     if (property.getValues().isEmpty()) {
                         property.getValues().add(null);
                     }
@@ -245,10 +247,6 @@ public class ConnectorModalPage extends BaseModalPage {
                     item.add(new MultiValueSelectorPanel<String>(
                             "panel", new PropertyModel<List<String>>(property, "values"), field));
                 } else {
-                    if (required) {
-                        field.addRequiredLabel();
-                    }
-
                     field.setNewModel(property.getValues());
                     item.add(field);
                 }
