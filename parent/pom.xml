@@ -297,7 +297,7 @@ under the License.
 
     <apacheds.version>1.5.7</apacheds.version>
 
-    <tomcat.version>7.0.35</tomcat.version>
+    <tomcat.version>7.0.37</tomcat.version>
  
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
     <log.directory>${project.build.directory}/log</log.directory>
@@ -911,7 +911,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.3.2</version>
+          <version>1.3.3</version>
           <configuration>
             <container>
               <containerId>tomcat7x</containerId>
