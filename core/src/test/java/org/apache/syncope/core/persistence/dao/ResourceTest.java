@@ -201,18 +201,21 @@ public class ResourceTest extends AbstractDAOTest {
         UMappingItem item = new UMappingItem();
         item.setIntAttrName("fullname");
         item.setIntMappingType(IntMappingType.UserSchema);
+        item.setPurpose(MappingPurpose.BOTH);
         mapping.setAccountIdItem(item);
 
         item = new UMappingItem();
         item.setIntAttrName("icon");
         item.setExtAttrName("icon");
         item.setIntMappingType(IntMappingType.RoleSchema);
+        item.setPurpose(MappingPurpose.BOTH);
         mapping.addItem(item);
 
         item = new UMappingItem();
         item.setIntAttrName("mderiveddata");
         item.setExtAttrName("mderiveddata");
         item.setIntMappingType(IntMappingType.MembershipDerivedSchema);
+        item.setPurpose(MappingPurpose.BOTH);
         mapping.addItem(item);
 
         // save the resource

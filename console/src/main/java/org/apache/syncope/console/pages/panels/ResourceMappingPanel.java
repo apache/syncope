@@ -411,6 +411,7 @@ public class ResourceMappingPanel extends Panel {
                         false);
                 ((AjaxDropDownChoicePanel) purpose).setChoices(Arrays.asList(MappingPurpose.values()));
                 purpose.setStyleSheet(FIELD_STYLE);
+                purpose.setRequired(true);
                 
                 item.add(purpose);
 

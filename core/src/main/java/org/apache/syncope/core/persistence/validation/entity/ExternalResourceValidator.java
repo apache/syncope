@@ -49,6 +49,13 @@ public class ExternalResourceValidator extends AbstractValidator implements
 
             return false;
         }
+        
+        if (item.getPurpose() == null) {
+            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidMapping.toString())
+                    .addNode(item + ".purpose is null").addConstraintViolation();
+
+            return false;
+        }
 
         return true;
     }
