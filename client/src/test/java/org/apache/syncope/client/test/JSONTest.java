@@ -18,31 +18,31 @@
  */
 package org.apache.syncope.client.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.junit.Test;
 import org.apache.syncope.common.report.UserReportletConf;
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.MembershipCond;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.ReportTO;
-import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditLoggerName;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.junit.Test;
 
 public class JSONTest {
 
     @Test
     public void testSearchCondition() throws IOException {
-
         final AttributeCond usernameCond = new AttributeCond(AttributeCond.Type.LIKE);
         usernameCond.setSchema("username");
         usernameCond.setExpression("%o%");
@@ -66,7 +66,6 @@ public class JSONTest {
 
     @Test
     public void testLists() throws IOException {
-
         List<ConfigurationTO> confList = new ArrayList<ConfigurationTO>();
         ConfigurationTO configuration = new ConfigurationTO();
         configuration.setKey("key1");
@@ -91,7 +90,6 @@ public class JSONTest {
 
     @Test
     public void testMap() throws IOException {
-
         WorkflowFormPropertyTO prop = new WorkflowFormPropertyTO();
         prop.putEnumValue("key1", "value1");
         prop.putEnumValue("key2", "value2");
@@ -107,7 +105,6 @@ public class JSONTest {
 
     @Test
     public void testReportletConfImplementations() throws IOException {
-
         ReportTO report = new ReportTO();
         report.setName("testReportForCreate");
         report.addReportletConf(new UserReportletConf("first"));

@@ -55,27 +55,35 @@ public class PolicyServiceProxy extends SpringServiceProxy implements PolicyServ
         getRestTemplate().getForObject(baseUrl + "policy/delete/{id}", getTOClass(type), policyId);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends PolicyTO> List<T> list(final PolicyType type) {
+        List<T> result = null;
+
         switch (type) {
             case ACCOUNT:
             case GLOBAL_ACCOUNT:
-                return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "policy/{kind}/list",
+                result = (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "policy/{kind}/list",
                         AccountPolicyTO[].class, type));
+                break;
 
             case PASSWORD:
             case GLOBAL_PASSWORD:
-                return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "policy/{kind}/list",
+                result = (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "policy/{kind}/list",
                         PasswordPolicyTO[].class, type));
+                break;
 
             case SYNC:
             case GLOBAL_SYNC:
-                return (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "policy/{kind}/list",
+                result = (List<T>) Arrays.asList(getRestTemplate().getForObject(baseUrl + "policy/{kind}/list",
                         SyncPolicyTO[].class, type));
+                break;
 
             default:
                 throw new IllegalArgumentException("Policy Type not supported: " + type);
         }
+
+        return result;
     }
 
     @Override
@@ -95,46 +103,56 @@ public class PolicyServiceProxy extends SpringServiceProxy implements PolicyServ
                 typeToUrl(policyTO.getType()));
     }
 
-    private Class<? extends PolicyTO> getTOClass(final PolicyType type) {
+    @SuppressWarnings("unchecked")
+    private <T extends PolicyTO> Class<T> getTOClass(final PolicyType type) {
+        Class<T> result = null;
+
         switch (type) {
             case ACCOUNT:
             case GLOBAL_ACCOUNT:
-                return AccountPolicyTO.class;
+                result = (Class<T>) AccountPolicyTO.class;
+                break;
 
             case PASSWORD:
             case GLOBAL_PASSWORD:
-                return PasswordPolicyTO.class;
+                result = (Class<T>) PasswordPolicyTO.class;
+                break;
 
             case SYNC:
             case GLOBAL_SYNC:
-                return SyncPolicyTO.class;
+                result = (Class<T>) SyncPolicyTO.class;
+                break;
 
             default:
                 throw new IllegalArgumentException("Policy Type not supported: " + type);
         }
+
+        return result;
     }
 
     private String typeToUrl(final PolicyType type) {
         String url = type.name().toLowerCase();
-        int index = url.indexOf("_");
-        if (index != -1) {
-            return url.substring(index + 1);
-        } else {
-            return url;
-        }
+        int index = url.indexOf('_');
+        return index == -1 ? url : url.substring(index + 1);
     }
 
     @Override
     public Set<CorrelationRuleClassTO> getCorrelationRuleClasses(final PolicyType type) {
+        Set<CorrelationRuleClassTO> result = null;
+
         switch (type) {
             case SYNC:
             case GLOBAL_SYNC:
                 final Set<String> classes = new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(
                         baseUrl + "policy/correlationRuleClasses.json", String[].class)));
 
-                return CollectionWrapper.wrapCorrelationRuleClasses(classes);
+                result = CollectionWrapper.wrapCorrelationRuleClasses(classes);
+                break;
+
             default:
                 throw new NotFoundException();
         }
+
+        return result;
     }
 }

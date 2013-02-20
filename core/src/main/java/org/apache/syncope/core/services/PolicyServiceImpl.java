@@ -21,19 +21,16 @@ package org.apache.syncope.core.services;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
-
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.PolicyService;
 import org.apache.syncope.common.to.AccountPolicyTO;
+import org.apache.syncope.common.to.CorrelationRuleClassTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
-import org.apache.syncope.common.to.CorrelationRuleClassTO;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.rest.controller.PolicyController;
@@ -60,37 +57,42 @@ public class PolicyServiceImpl implements PolicyService, ContextAware {
         policyController.delete(policyId);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T extends PolicyTO> List<T> list(final PolicyType type) {
-        return (List<T>) policyController.listByType(type.toString());
+        return policyController.listByType(type.toString());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T extends PolicyTO> T read(final PolicyType type, final Long policyId) {
-        return (T) policyController.read(policyId);
+        return policyController.read(policyId);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T extends PolicyTO> T readGlobal(final PolicyType type) {
+        T result = null;
+
         switch (type) {
             case ACCOUNT:
             case GLOBAL_ACCOUNT:
-                return (T) policyController.getGlobalAccountPolicy();
+                result = (T) policyController.getGlobalAccountPolicy();
+                break;
 
             case PASSWORD:
             case GLOBAL_PASSWORD:
-                return (T) policyController.getGlobalPasswordPolicy();
+                result = (T) policyController.getGlobalPasswordPolicy();
+                break;
 
             case SYNC:
             case GLOBAL_SYNC:
-                return (T) policyController.getGlobalSyncPolicy();
+                result = (T) policyController.getGlobalSyncPolicy();
+                break;
 
             default:
                 throw new BadRequestException();
         }
+
+        return result;
     }
 
     @Override
@@ -122,18 +124,23 @@ public class PolicyServiceImpl implements PolicyService, ContextAware {
     }
 
     @Override
-    public Set<CorrelationRuleClassTO> getCorrelationRuleClasses(PolicyType type) {
+    public Set<CorrelationRuleClassTO> getCorrelationRuleClasses(final PolicyType type) {
+        Set<CorrelationRuleClassTO> result = null;
+
         switch (type) {
             case SYNC:
             case GLOBAL_SYNC:
 
                 @SuppressWarnings("unchecked")
-                final Set<String> classes =
-                        (Set<String>) policyController.getCorrelationRuleClasses().getModel().values().iterator().next();
-                return CollectionWrapper.wrapCorrelationRuleClasses(classes);
+                final Set<String> classes = (Set<String>) policyController.getCorrelationRuleClasses().getModel().
+                        values().iterator().next();
+                result = CollectionWrapper.wrapCorrelationRuleClasses(classes);
+                break;
 
             default:
-                throw new NotFoundException();
+                throw new BadRequestException();
         }
+
+        return result;
     }
 }

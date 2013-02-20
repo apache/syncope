@@ -32,7 +32,6 @@ import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.PolicySubCategory;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.PolicyType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
@@ -69,26 +68,23 @@ public class PolicyController extends AbstractController {
 
     @PreAuthorize("hasRole('POLICY_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/password/create")
-    public PasswordPolicyTO create(final HttpServletResponse response, @RequestBody final PasswordPolicyTO policyTO)
-            throws SyncopeClientCompositeErrorException {
-        return (PasswordPolicyTO) createInternal(policyTO);
+    public PasswordPolicyTO create(final HttpServletResponse response, @RequestBody final PasswordPolicyTO policyTO) {
+        return createInternal(policyTO);
     }
 
     @PreAuthorize("hasRole('POLICY_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/account/create")
-    public AccountPolicyTO create(final HttpServletResponse response, @RequestBody final AccountPolicyTO policyTO)
-            throws SyncopeClientCompositeErrorException {
-        return (AccountPolicyTO) createInternal(policyTO);
+    public AccountPolicyTO create(final HttpServletResponse response, @RequestBody final AccountPolicyTO policyTO) {
+        return createInternal(policyTO);
     }
 
     @PreAuthorize("hasRole('POLICY_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/sync/create")
-    public SyncPolicyTO create(final HttpServletResponse response, @RequestBody final SyncPolicyTO policyTO)
-            throws SyncopeClientCompositeErrorException {
-        return (SyncPolicyTO) createInternal(policyTO);
+    public SyncPolicyTO create(final HttpServletResponse response, @RequestBody final SyncPolicyTO policyTO) {
+        return createInternal(policyTO);
     }
 
-    public PolicyTO createInternal(final PolicyTO policyTO) {
+    public <T extends PolicyTO> T createInternal(final T policyTO) {
         LOG.debug("Creating policy " + policyTO);
 
         final Policy policy = binder.getPolicy(null, policyTO);
@@ -100,7 +96,6 @@ public class PolicyController extends AbstractController {
     }
 
     private <T extends PolicyTO, K extends Policy> T update(final T policyTO, final K policy) {
-
         LOG.debug("Updating policy " + policyTO);
 
         binder.getPolicy(policy, policyTO);
@@ -114,9 +109,7 @@ public class PolicyController extends AbstractController {
 
     @PreAuthorize("hasRole('POLICY_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/password/update")
-    public PasswordPolicyTO update(@RequestBody final PasswordPolicyTO policyTO)
-            throws NotFoundException {
-
+    public PasswordPolicyTO update(@RequestBody final PasswordPolicyTO policyTO) {
         Policy policy = policyDAO.find(policyTO.getId());
         if (!(policy instanceof PasswordPolicy)) {
             throw new NotFoundException("PasswordPolicy with id " + policyTO.getId());
@@ -127,9 +120,7 @@ public class PolicyController extends AbstractController {
 
     @PreAuthorize("hasRole('POLICY_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/account/update")
-    public AccountPolicyTO update(@RequestBody final AccountPolicyTO policyTO)
-            throws NotFoundException, SyncopeClientCompositeErrorException {
-
+    public AccountPolicyTO update(@RequestBody final AccountPolicyTO policyTO) {
         Policy policy = policyDAO.find(policyTO.getId());
         if (!(policy instanceof AccountPolicy)) {
             throw new NotFoundException("AccountPolicy with id " + policyTO.getId());
@@ -140,9 +131,7 @@ public class PolicyController extends AbstractController {
 
     @PreAuthorize("hasRole('POLICY_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/sync/update")
-    public SyncPolicyTO update(@RequestBody final SyncPolicyTO policyTO)
-            throws NotFoundException, SyncopeClientCompositeErrorException {
-
+    public SyncPolicyTO update(@RequestBody final SyncPolicyTO policyTO) {
         Policy policy = policyDAO.find(policyTO.getId());
         if (!(policy instanceof SyncPolicy)) {
             throw new NotFoundException("SyncPolicy with id " + policyTO.getId());
@@ -153,14 +142,13 @@ public class PolicyController extends AbstractController {
 
     @PreAuthorize("hasRole('POLICY_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
-    public List<PolicyTO> listByType(@PathVariable("kind") final String kind) {
-
+    public <T extends PolicyTO> List<T> listByType(@PathVariable("kind") final String kind) {
         LOG.debug("Listing policies");
         List<? extends Policy> policies = policyDAO.find(PolicyType.valueOf(kind.toUpperCase(Locale.ENGLISH)));
 
-        final List<PolicyTO> policyTOs = new ArrayList<PolicyTO>();
+        final List<T> policyTOs = new ArrayList<T>();
         for (Policy policy : policies) {
-            policyTOs.add(binder.getPolicyTO(policy));
+            policyTOs.add((T) binder.getPolicyTO(policy));
         }
 
         auditManager.audit(Category.policy, PolicySubCategory.list, Result.success,
@@ -171,9 +159,7 @@ public class PolicyController extends AbstractController {
 
     @PreAuthorize("hasRole('POLICY_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/password/global/read")
-    public PasswordPolicyTO getGlobalPasswordPolicy()
-            throws NotFoundException {
-
+    public PasswordPolicyTO getGlobalPasswordPolicy() {
         LOG.debug("Reading global password policy");
 
         PasswordPolicy policy = policyDAO.getGlobalPasswordPolicy();
@@ -189,9 +175,7 @@ public class PolicyController extends AbstractController {
 
     @PreAuthorize("hasRole('POLICY_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/account/global/read")
-    public AccountPolicyTO getGlobalAccountPolicy()
-            throws NotFoundException {
-
+    public AccountPolicyTO getGlobalAccountPolicy() {
         LOG.debug("Reading global account policy");
 
         AccountPolicy policy = policyDAO.getGlobalAccountPolicy();
@@ -207,9 +191,7 @@ public class PolicyController extends AbstractController {
 
     @PreAuthorize("hasRole('POLICY_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/sync/global/read")
-    public SyncPolicyTO getGlobalSyncPolicy()
-            throws NotFoundException {
-
+    public SyncPolicyTO getGlobalSyncPolicy() {
         LOG.debug("Reading global sync policy");
 
         SyncPolicy policy = policyDAO.getGlobalSyncPolicy();
@@ -225,9 +207,7 @@ public class PolicyController extends AbstractController {
 
     @PreAuthorize("hasRole('POLICY_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{id}")
-    public PolicyTO read(@PathVariable("id") final Long id)
-            throws NotFoundException {
-
+    public <T extends PolicyTO> T read(@PathVariable("id") final Long id) {
         LOG.debug("Reading policy with id {}", id);
 
         Policy policy = policyDAO.find(id);
@@ -243,8 +223,7 @@ public class PolicyController extends AbstractController {
 
     @PreAuthorize("hasRole('POLICY_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{id}")
-    public PolicyTO delete(@PathVariable("id") final Long id)
-            throws NotFoundException {
+    public PolicyTO delete(@PathVariable("id") final Long id) {
         Policy policy = policyDAO.find(id);
         if (policy == null) {
             throw new NotFoundException("Policy " + id + " not found");

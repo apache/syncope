@@ -37,6 +37,8 @@ public interface PolicyService {
     /**
      * @param type Creates a new policy with given type
      * @param policyTO Policy to be created (needs to match type)
+     * @param <T> response type (extending PolicyTO)
+     * @see PolicyTO
      * @return Response containing URI location for created resource
      */
     @POST
@@ -45,6 +47,8 @@ public interface PolicyService {
     /**
      * @param type Deletes policy with given type
      * @param policyId Deletes policy with given id
+     * @param <T> response type (extending PolicyTO)
+     * @see PolicyTO
      */
     @DELETE
     @Path("{policyId}")
@@ -52,6 +56,8 @@ public interface PolicyService {
 
     /**
      * @param type Type selector for requested policies
+     * @param <T> response type (extending PolicyTO)
+     * @see PolicyTO
      * @return List of policies with matching type.
      */
     @GET
@@ -60,6 +66,8 @@ public interface PolicyService {
     /**
      * @param type Request for policy with given type
      * @param policyId ID of requested policy
+     * @param <T> response type (extending PolicyTO)
+     * @see PolicyTO
      * @return Returns policy with matching id and type
      */
     @GET
@@ -68,6 +76,8 @@ public interface PolicyService {
 
     /**
      * @param type PolicyType to read global policy from
+     * @param <T> response type (extending PolicyTO)
+     * @see PolicyTO
      * @return Global Policy for matching type
      */
     @GET
@@ -78,6 +88,8 @@ public interface PolicyService {
      * @param type PolicyType to be updated.
      * @param policyId ID of policy to be updated
      * @param policyTO Policy to replace existing policy
+     * @param <T> response type (extending PolicyTO)
+     * @see PolicyTO
      */
     @PUT
     @Path("{policyId}")

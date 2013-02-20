@@ -84,7 +84,7 @@ public class ImplementationClassNamesLoader {
                 ClassMetadata metadata = factory.getMetadataReader(resource).getClassMetadata();
 
                 try {
-                    Class clazz = ClassUtils.forName(metadata.getClassName(), ClassUtils.getDefaultClassLoader());
+                    Class<?> clazz = ClassUtils.forName(metadata.getClassName(), ClassUtils.getDefaultClassLoader());
                     Set<Class> interfaces = ClassUtils.getAllInterfacesForClassAsSet(clazz);
 
                     if (interfaces.contains(Reportlet.class) && !metadata.isAbstract()) {
@@ -102,7 +102,7 @@ public class ImplementationClassNamesLoader {
                     if (interfaces.contains(SyncActions.class) && !metadata.isAbstract()) {
                         classNames.get(Type.SYNC_ACTIONS).add(metadata.getClassName());
                     }
-                    
+
                     if (interfaces.contains(SyncRule.class) && !metadata.isAbstract()) {
                         classNames.get(Type.SYNC_CORRELATION_RULES).add(metadata.getClassName());
                     }
@@ -121,7 +121,7 @@ public class ImplementationClassNamesLoader {
                 }
             }
         } catch (IOException e) {
-            LOG.error("While searching for class implementing {}", Reportlet.class.getName(), e);
+            LOG.error("While searching for implementatiom classes", e);
         }
 
         classNames = Collections.unmodifiableMap(classNames);
