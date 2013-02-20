@@ -121,6 +121,7 @@ public interface ConnectorService {
     /**
      * Reload all connector bundles and instances.
      */
-    @PUT
+    @POST
+    @Path("reload")
     void reload();
 }

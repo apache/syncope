@@ -385,7 +385,7 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_RELOAD')")
-    @RequestMapping(method = RequestMethod.PUT, value = "/reload")
+    @RequestMapping(method = RequestMethod.POST, value = "/reload")
     @Transactional(readOnly = true)
     public void reload() {
         connFactory.unload();

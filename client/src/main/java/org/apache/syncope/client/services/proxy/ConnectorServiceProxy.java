@@ -117,6 +117,6 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
 
     @Override
     public void reload() {
-        getRestTemplate().put(baseUrl + "connector/reload", null);
+        getRestTemplate().postForLocation(baseUrl + "connector/reload", null);
     }
 }
