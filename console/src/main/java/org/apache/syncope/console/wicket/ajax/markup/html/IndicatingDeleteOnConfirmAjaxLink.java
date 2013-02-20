@@ -37,7 +37,7 @@ public abstract class IndicatingDeleteOnConfirmAjaxLink<T> extends ClearIndicati
     }
 
     @Override
-    protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
+    protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
         super.updateAjaxAttributes(attributes);
 
         final AjaxCallListener ajaxCallListener = new AjaxCallListener() {

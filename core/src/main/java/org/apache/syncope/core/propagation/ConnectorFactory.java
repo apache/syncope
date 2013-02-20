@@ -19,28 +19,47 @@
 package org.apache.syncope.core.propagation;
 
 import java.util.Set;
-
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.springframework.beans.BeansException;
 
+/**
+ * Entry point for creating and destroying connectors for external resources.
+ *
+ * @see org.apache.syncope.core.propagation.Connector
+ */
 public interface ConnectorFactory {
 
-    SyncopeConnector createConnectorBean(ConnInstance connInstance, Set<ConnConfProperty> configuration)
-            throws NotFoundException;
+    /**
+     * Create connector from given connector instance and configuration properties.
+     *
+     * @param connInstance connector instance
+     * @param configuration configuration properties
+     * @return connector
+     */
+    Connector createConnector(ConnInstance connInstance, Set<ConnConfProperty> configuration);
 
     /**
-     * Get a live connector bean that is registered with the given resource.
+     * Get existing connector for the given resource.
      *
      * @param resource the resource.
      * @return live connector bran for given resource
      * @throws BeansException if there is any problem with Spring
-     * @throws NotFoundException if the connector is not registered in the context
      */
-    SyncopeConnector getConnector(ExternalResource resource)
-            throws BeansException, NotFoundException;
+    Connector getConnector(ExternalResource resource) throws BeansException;
 
+    /**
+     * Load connectors for all existing resources.
+     *
+     * @see ExternalResource
+     */
     void load();
+
+    /**
+     * Unload connectors for all existing resources.
+     *
+     * @see ExternalResource
+     */
+    void unload();
 }

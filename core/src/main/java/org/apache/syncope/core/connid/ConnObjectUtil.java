@@ -53,7 +53,7 @@ import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.propagation.ConnectorFactory;
-import org.apache.syncope.core.propagation.SyncopeConnector;
+import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
@@ -474,7 +474,7 @@ public class ConnObjectUtil {
      */
     public void retrieveVirAttrValues(final AbstractAttributable owner, final AttributableUtil attrUtil) {
         final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
-        final ConnectorFactory connInstanceLoader = context.getBean(ConnectorFactory.class);
+        final ConnectorFactory connFactory = context.getBean(ConnectorFactory.class);
 
         final IntMappingType type = attrUtil.getType() == AttributableType.USER
                 ? IntMappingType.UserVirtualSchema : attrUtil.getType() == AttributableType.ROLE
@@ -488,7 +488,7 @@ public class ConnObjectUtil {
         for (AbstractVirAttr virAttr : owner.getVirtualAttributes()) {
             // reset value set
             if (virAttr.getValues().isEmpty()) {
-                retrieveVirAttrValue(owner, virAttr, attrUtil, type, externalResources, connInstanceLoader);
+                retrieveVirAttrValue(owner, virAttr, attrUtil, type, externalResources, connFactory);
             }
         }
         // -----------------------
@@ -500,7 +500,7 @@ public class ConnObjectUtil {
             final AttributableUtil attrUtil,
             final IntMappingType type,
             final Map<String, ConnectorObject> externalResources,
-            final ConnectorFactory connInstanceLoader) {
+            final ConnectorFactory connFactory) {
 
         final String schemaName = virAttr.getVirtualSchema().getName();
         final List<String> values = virAttrCache.get(attrUtil.getType(), owner.getId(), schemaName);
@@ -530,7 +530,7 @@ public class ConnObjectUtil {
                             throw new IllegalArgumentException("No AccountId found for " + resource.getName());
                         }
 
-                        final SyncopeConnector connector = connInstanceLoader.getConnector(resource);
+                        final Connector connector = connFactory.getConnector(resource);
 
                         final OperationOptions oo =
                                 connector.getOperationOptions(MappingUtil.getMatchingMappingItems(mappings, type));

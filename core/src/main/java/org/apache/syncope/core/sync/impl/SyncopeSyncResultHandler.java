@@ -63,7 +63,7 @@ import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidatio
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.propagation.SyncopeConnector;
+import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
@@ -179,7 +179,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
     /**
      * Syncing connector.
      */
-    private SyncopeConnector connector;
+    private Connector connector;
 
     /**
      * SyncJob actions.
@@ -196,11 +196,11 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
     private Map<Long, String> roleOwnerMap = new HashMap<Long, String>();
 
-    public SyncopeConnector getConnector() {
+    public Connector getConnector() {
         return connector;
     }
 
-    public void setConnector(final SyncopeConnector connector) {
+    public void setConnector(final Connector connector) {
         this.connector = connector;
     }
 

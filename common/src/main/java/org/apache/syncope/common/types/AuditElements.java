@@ -102,7 +102,8 @@ public final class AuditElements {
         getSchemaNames,
         getConfigurationProperties,
         check,
-        readConnectorBean
+        readConnectorBean,
+        reload
 
     }
 

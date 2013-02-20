@@ -43,7 +43,7 @@ import org.apache.syncope.core.propagation.PropagationActions;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationHandler;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.propagation.SyncopeConnector;
+import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.propagation.TimeoutException;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
@@ -122,7 +122,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     protected void createOrUpdate(final PropagationTask task, final ConnectorObject beforeObj,
-            final SyncopeConnector connector, final Set<String> propagationAttempted) {
+            final Connector connector, final Set<String> propagationAttempted) {
 
         // set of attributes to be propagated
         final Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
@@ -230,7 +230,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     protected void delete(final PropagationTask task, final ConnectorObject beforeObj,
-            final SyncopeConnector connector, final Set<String> propagationAttempted) {
+            final Connector connector, final Set<String> propagationAttempted) {
 
         if (beforeObj == null) {
             LOG.debug("{} not found on external resource: ignoring delete", task.getAccountId());
@@ -281,7 +281,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         ConnectorObject beforeObj = null;
         ConnectorObject afterObj = null;
 
-        SyncopeConnector connector = null;
+        Connector connector = null;
         try {
             connector = connLoader.getConnector(task.getResource());
 
@@ -433,7 +433,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      * @param latest 'FALSE' to retrieve object using old accountId if not null.
      * @return remote connector object.
      */
-    protected ConnectorObject getRemoteObject(final PropagationTask task, final SyncopeConnector connector,
+    protected ConnectorObject getRemoteObject(final PropagationTask task, final Connector connector,
             final boolean latest) {
 
         String accountId = latest || task.getOldAccountId() == null

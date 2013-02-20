@@ -34,7 +34,10 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 
-public interface SyncopeConnector {
+/**
+ * Entry point for making requests on underlying connector bundles.
+ */
+public interface Connector {
 
     /**
      * Create user on a connector instance.
@@ -185,8 +188,12 @@ public interface SyncopeConnector {
      */
     ConnInstance getActiveConnInstance();
 
+    /**
+     * Build options for requesting all mapped connector attributes.
+     *
+     * @param mapItems mapping items
+     * @return options for requesting all mapped connector attributes
+     * @see OperationOptions
+     */
     OperationOptions getOperationOptions(Collection<AbstractMappingItem> mapItems);
-
-    @Override
-    String toString();
 }

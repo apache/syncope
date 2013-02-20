@@ -22,10 +22,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.apache.syncope.core.AbstractNonDAOTest;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
-import org.apache.syncope.core.propagation.SyncopeConnector;
+import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
-import org.apache.syncope.core.util.ConnBundleManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,28 +34,24 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ConnInstanceLoaderTest extends AbstractNonDAOTest {
 
-    private ConnInstanceLoader cil;
+    private ConnectorManager cil;
 
     @Autowired
     private ResourceDAO resourceDAO;
-
-    @Autowired
-    private ConnBundleManager connBundleManager;
 
     @Autowired
     private ResourceDataBinder resourceDataBinder;
 
     @Before
     public void before() {
-        cil = new ConnInstanceLoader();
+        cil = new ConnectorManager();
         ReflectionTestUtils.setField(cil, "resourceDAO", resourceDAO);
-        ReflectionTestUtils.setField(cil, "connBundleManager", connBundleManager);
         ReflectionTestUtils.setField(cil, "resourceDataBinder", resourceDataBinder);
 
         // Remove any other connector instance bean set up by
         // standard ConnInstanceLoader.load()
         for (String bean : ApplicationContextProvider.getApplicationContext().
-                getBeanNamesForType(SyncopeConnector.class)) {
+                getBeanNamesForType(Connector.class)) {
 
             cil.unregisterConnector(bean);
         }
@@ -68,6 +63,6 @@ public class ConnInstanceLoaderTest extends AbstractNonDAOTest {
 
         assertEquals(resourceDAO.findAll().size(),
                 ApplicationContextProvider.getApplicationContext().
-                getBeanNamesForType(SyncopeConnector.class, false, true).length);
+                getBeanNamesForType(Connector.class, false, true).length);
     }
 }

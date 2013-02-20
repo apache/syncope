@@ -54,7 +54,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
     private RoleDAO roleDAO;
 
     @Autowired
-    private ConnectorRegistry connInstanceLoader;
+    private ConnectorRegistry connRegistry;
 
     @Override
     public ExternalResource find(final String name) {
@@ -101,7 +101,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
     public ExternalResource save(final ExternalResource resource) {
         ExternalResource merged = entityManager.merge(resource);
         try {
-            connInstanceLoader.registerConnector(merged);
+            connRegistry.registerConnector(merged);
         } catch (NotFoundException e) {
             LOG.error("While registering connector for resource", e);
         }

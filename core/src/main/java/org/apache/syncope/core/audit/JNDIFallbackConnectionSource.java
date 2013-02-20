@@ -18,28 +18,23 @@
  */
 package org.apache.syncope.core.audit;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.rmi.PortableRemoteObject;
-import javax.sql.DataSource;
-
 import ch.qos.logback.core.db.ConnectionSource;
 import ch.qos.logback.core.db.ConnectionSourceBase;
 import ch.qos.logback.core.db.DataSourceConnectionSource;
 import ch.qos.logback.core.db.JNDIConnectionSource;
 import ch.qos.logback.core.db.dialect.SQLDialectCode;
 import ch.qos.logback.core.spi.ContextAwareBase;
+import java.sql.Connection;
+import java.sql.SQLException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.rmi.PortableRemoteObject;
+import javax.sql.DataSource;
 
 /**
- * The <id>FallbackConnectionSource</id> is an implementation of
- * {@link ConnectionSource} that attempts at first to obtain a {@link javax.sql.DataSource} from a JNDI provider and, if
- * not found, from a provided {@link javax.sql.DataSource DataSource}.
- *
- * @author <a href="mailto:rdecampo@twcny.rr.com">Ray DeCampo</a>
+ * Implementation of {@link ConnectionSource} that attempts at first to obtain a {@link javax.sql.DataSource} from a
+ * JNDI provider and, if not found, from a provided {@link javax.sql.DataSource DataSource}.
  */
 public class JNDIFallbackConnectionSource extends ContextAwareBase implements ConnectionSource {
 

@@ -20,10 +20,24 @@ package org.apache.syncope.core.persistence.dao;
 
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 
+/**
+ * Manage Spring beans lifecycle for connectors.
+ *
+ * @see org.apache.syncope.core.propagation.Connector
+ */
 public interface ConnectorRegistry {
 
-    void registerConnector(ExternalResource resource)
-            throws NotFoundException;
+    /**
+     * Create and register into Spring context a bean for the given resource.
+     *
+     * @param resource external resource
+     */
+    void registerConnector(ExternalResource resource);
 
+    /**
+     * Removes the Spring bean for the given id from the context.
+     *
+     * @param id Spring bean id
+     */
     void unregisterConnector(String id);
 }

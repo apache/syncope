@@ -39,7 +39,7 @@ import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.propagation.ConnectorFactory;
-import org.apache.syncope.core.propagation.SyncopeConnector;
+import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -215,7 +215,7 @@ public class ResourceController extends AbstractController {
         AttributableUtil attrUtil = AttributableUtil.getInstance(type);
         ObjectClass objectClass = AttributableType.USER == type ? ObjectClass.ACCOUNT : ObjectClass.GROUP;
 
-        final SyncopeConnector connector = connLoader.getConnector(resource);
+        final Connector connector = connLoader.getConnector(resource);
 
         final ConnectorObject connectorObject = connector.getObject(objectClass, new Uid(objectId),
                 connector.getOperationOptions(attrUtil.getMappingItems(resource, MappingPurpose.BOTH)));
@@ -245,7 +245,7 @@ public class ResourceController extends AbstractController {
 
         final ConnInstance connInstance = binder.getConnInstance(resourceTO);
 
-        final SyncopeConnector connector = connLoader.createConnectorBean(connInstance, connInstance.getConfiguration());
+        final Connector connector = connLoader.createConnector(connInstance, connInstance.getConfiguration());
 
         boolean result;
         try {

@@ -18,33 +18,9 @@
  */
 package org.apache.syncope.console;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ConnInstanceTestITCase extends AbstractTest {
-
-    private static String connidSoapVersion;
-
-    @BeforeClass
-    public static void init() throws IOException {
-        Properties props = new Properties();
-        InputStream propStream = null;
-        try {
-            propStream = ConnInstanceTestITCase.class.getResourceAsStream("/bundles.properties");
-            props.load(propStream);
-            connidSoapVersion = props.getProperty("connid.soap.version");
-        } catch (Exception e) {
-            LOG.error("Could not load bundles.properties", e);
-        } finally {
-            if (propStream != null) {
-                propStream.close();
-            }
-        }
-        assertNotNull(connidSoapVersion);
-    }
 
     @Test
     public void browseCreateModal() {

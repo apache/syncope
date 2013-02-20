@@ -18,22 +18,20 @@
  */
 package org.apache.syncope.core.init;
 
-import javax.servlet.ServletContext;
 import org.apache.syncope.core.persistence.dao.impl.ContentLoader;
 import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.ServletContextAware;
 
 /**
  * Take care of all initializations needed by Syncope to run up and safe.
  */
 @Component
-public class SpringContextInitializer implements ServletContextAware, InitializingBean {
+public class SpringContextInitializer implements InitializingBean {
 
     @Autowired
-    private ConnectorFactory connInstanceLoader;
+    private ConnectorFactory connFactory;
 
     @Autowired
     private ContentLoader contentLoader;
@@ -51,13 +49,9 @@ public class SpringContextInitializer implements ServletContextAware, Initializi
     private WorkflowAdapterLoader workflowAdapterLoader;
 
     @Override
-    public void setServletContext(final ServletContext servletContext) {
-    }
-
-    @Override
     public void afterPropertiesSet() throws Exception {
         contentLoader.load(workflowAdapterLoader.getInitSQLStatements());
-        connInstanceLoader.load();
+        connFactory.load();
         jobInstanceLoader.load();
         loggerLoader.load();
         classNamesLoader.load();

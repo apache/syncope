@@ -19,7 +19,6 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -30,7 +29,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.SchemaTO;
@@ -40,85 +38,89 @@ import org.apache.syncope.common.types.ConnConfProperty;
 public interface ConnectorService {
 
     /**
-     * Creates a new connector instance.
+     * Create a new connector instance.
      *
-     * @param connectorTO Connector to be created.
-     * @return Response containing URI location for created resource.
+     * @param connInstanceTO connector instance to be created
+     * @return response containing URI location for created resource
      */
     @POST
-    Response create(ConnInstanceTO connectorTO);
+    Response create(ConnInstanceTO connInstanceTO);
 
     /**
-     * @param connectorId Deletes connector with matching id.
+     * @param connInstanceId connector instance id to be deleted
      */
     @DELETE
-    @Path("{connectorId}")
-    void delete(@PathParam("connectorId") Long connectorId);
+    @Path("{connInstanceId}")
+    void delete(@PathParam("connInstanceId") Long connInstanceId);
 
     /**
-     * @param lang Language to select bundles from. Default language is English.
-     * @return Returns known bundles in selected language.
+     * @param lang language to select property keys; default language is English
+     * @return available connector bundles with property keys in selected language
      */
     @GET
     @Path("bundles")
     List<ConnBundleTO> getBundles(@QueryParam("lang") String lang);
 
     /**
-     * @param connectorId ConnectorID to read configuration from.
-     * @return Returns configuration for selected connector.
+     * @param connInstanceId connector instance id to read configuration from
+     * @return configuration for selected connector instance
      */
     @GET
-    @Path("{connectorId}/configuration")
-    List<ConnConfProperty> getConfigurationProperties(@PathParam("connectorId") Long connectorId);
+    @Path("{connInstanceId}/configuration")
+    List<ConnConfProperty> getConfigurationProperties(@PathParam("connInstanceId") Long connInstanceId);
 
     /**
-     * @param connectorId ConnectorID to be used for schema lookup.
-     * @param connectorTO Connector object to provide special configuration properties.
-     * @param showAll If set to true, all schema names will be shown, including special ones like '__PASSWORD__'.
-     * Default is false.
-     * @return Returns schema names for matching connector.
+     * @param connInstanceId connector instance id to be used for schema lookup
+     * @param connInstanceTO connector instance object to provide special configuration properties
+     * @param showAll if set to true, special schema names (like '__PASSWORD__') will be included; default is false
+     * @return schema names for connector bundle matching the given connector instance id
      */
     @POST
-    @Path("{connectorId}/schemas")
-    List<SchemaTO> getSchemaNames(@PathParam("connectorId") Long connectorId, ConnInstanceTO connectorTO,
+    @Path("{connInstanceId}/schemas")
+    List<SchemaTO> getSchemaNames(@PathParam("connInstanceId") Long connInstanceId, ConnInstanceTO connInstanceTO,
             @QueryParam("showAll") @DefaultValue("false") boolean showAll);
 
     /**
-     * @param lang Language to select connectors for. Default language is English.
-     * @return Returns a list of all connectors with matching language.
+     * @param lang language to select property keys; default language is English
+     * @return list of all connector instances with property keys in the matching language
      */
     @GET
     List<ConnInstanceTO> list(@QueryParam("lang") String lang);
 
     /**
-     * @param connectorId ConnectorID to be read.
-     * @return Returns connector with matching id.
+     * @param connInstanceId connector instance id to be read
+     * @return connector instance with matching id
      */
     @GET
-    @Path("{connectorId}")
-    ConnInstanceTO read(@PathParam("connectorId") Long connectorId);
+    @Path("{connInstanceId}")
+    ConnInstanceTO read(@PathParam("connInstanceId") Long connInstanceId);
 
     /**
-     * @param resourceName Resource name to be used for connector lookup.
-     * @return Returns connector for matching resourceName.
+     * @param resourceName resource name to be used for connector lookup
+     * @return connector instance for matching resource
      */
     @GET
-    ConnInstanceTO readConnectorBean(@MatrixParam("resourceName") String resourceName);
+    ConnInstanceTO readByResource(@MatrixParam("resourceName") String resourceName);
 
     /**
-     * @param connectorId Overwrites connector with matching key.
-     * @param connectorTO Connector to be stored.
+     * @param connInstanceId connector instance id to be updated
+     * @param connInstaceTO connector instance to be stored
      */
     @PUT
-    @Path("{connectorId}")
-    void update(@PathParam("connectorId") Long connectorId, ConnInstanceTO connectorTO);
+    @Path("{connInstanceId}")
+    void update(@PathParam("connInstanceId") Long connInstanceId, ConnInstanceTO connInstaceTO);
 
     /**
-     * @param connectorTO ConnectorTO to be used for connection check
-     * @return True is connection could be established.
+     * @param connInstaceTO connector instance to be used for connection check
+     * @return true if connection could be established
      */
     @POST
     @Path("check")
-    boolean check(ConnInstanceTO connectorTO);
+    boolean check(ConnInstanceTO connInstaceTO);
 
+    /**
+     * Reload all connector bundles and instances.
+     */
+    @PUT
+    void reload();
 }

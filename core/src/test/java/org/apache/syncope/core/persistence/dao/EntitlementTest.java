@@ -23,7 +23,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.junit.Test;
@@ -42,8 +41,7 @@ public class EntitlementTest extends AbstractDAOTest {
     @Test
     public void findAll() {
         List<Entitlement> list = entitlementDAO.findAll();
-        // 69 real entitlements + 9 role entitlements
-        assertEquals("did not get expected number of entitlements ", 83, list.size());
+        assertEquals("did not get expected number of entitlements ", 84, list.size());
     }
 
     @Test

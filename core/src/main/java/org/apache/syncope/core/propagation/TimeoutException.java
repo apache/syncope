@@ -18,17 +18,16 @@
  */
 package org.apache.syncope.core.propagation;
 
-/**
- *
- * @author fabio
- */
 public class TimeoutException extends RuntimeException {
+
+    private static final long serialVersionUID = -6577300049818278323L;
 
     /**
      * Creates a new instance of
      * <code>TimeoutException</code> without detail message.
      */
     public TimeoutException() {
+        super();
     }
 
     /**
@@ -37,7 +36,7 @@ public class TimeoutException extends RuntimeException {
      *
      * @param msg the detail message.
      */
-    public TimeoutException(String msg) {
+    public TimeoutException(final String msg) {
         super(msg);
     }
 }

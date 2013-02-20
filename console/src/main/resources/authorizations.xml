@@ -159,6 +159,11 @@ under the License.
     <action id="delete">
       <entitlement>CONNECTOR_DELETE</entitlement>
     </action>
+    
+    <action id="reload">
+      <entitlement>CONNECTOR_RELOAD</entitlement>
+    </action>
+
   </page>
 
   <page id="Approval">

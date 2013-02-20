@@ -22,9 +22,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.services.ConnectorService;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
@@ -39,22 +37,22 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
     }
 
     @Override
-    public Response create(final ConnInstanceTO connectorTO) {
-        ConnInstanceTO response = getRestTemplate().postForObject(baseUrl + "connector/create.json", connectorTO,
+    public Response create(final ConnInstanceTO connInstanceTO) {
+        ConnInstanceTO response = getRestTemplate().postForObject(baseUrl + "connector/create.json", connInstanceTO,
                 ConnInstanceTO.class);
         URI location = URI.create(baseUrl + "connector/read/" + response.getId() + ".json");
         return Response.created(location).build();
     }
 
     @Override
-    public void update(final Long connectorId, final ConnInstanceTO connectorTO) {
-        getRestTemplate().postForObject(baseUrl + "connector/update.json", connectorTO, ConnInstanceTO.class);
+    public void update(final Long connInstanceId, final ConnInstanceTO connInstanceTO) {
+        getRestTemplate().postForObject(baseUrl + "connector/update.json", connInstanceTO, ConnInstanceTO.class);
     }
 
     @Override
-    public void delete(final Long connectorId) {
-        getRestTemplate().getForObject(baseUrl + "connector/delete/{connectorId}.json", ConnInstanceTO.class,
-                connectorId);
+    public void delete(final Long connInstanceId) {
+        getRestTemplate().getForObject(baseUrl + "connector/delete/{connInstanceId}.json", ConnInstanceTO.class,
+                connInstanceId);
     }
 
     @Override
@@ -68,9 +66,9 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
     }
 
     @Override
-    public ConnInstanceTO read(final Long connectorId) {
-        return getRestTemplate().getForObject(baseUrl + "connector/read/{connectorId}", ConnInstanceTO.class,
-                connectorId);
+    public ConnInstanceTO read(final Long connInstanceId) {
+        return getRestTemplate().getForObject(baseUrl + "connector/read/{connInstanceId}", ConnInstanceTO.class,
+                connInstanceId);
     }
 
     @Override
@@ -84,12 +82,12 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
     }
 
     @Override
-    public List<SchemaTO> getSchemaNames(final Long connectorId, final ConnInstanceTO connectorTO,
+    public List<SchemaTO> getSchemaNames(final Long connInstanceId, final ConnInstanceTO connInstanceTO,
             final boolean showall) {
         final String queryString = "?showall=" + showall;
 
         List<String> response = Arrays.asList(getRestTemplate().postForObject(
-                baseUrl + "connector/schema/list" + queryString, connectorTO, String[].class));
+                baseUrl + "connector/schema/list" + queryString, connInstanceTO, String[].class));
         List<SchemaTO> schemaNames = new ArrayList<SchemaTO>();
         for (String name : response) {
             SchemaTO schemaTO = new SchemaTO();
@@ -100,19 +98,25 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
     }
 
     @Override
-    public List<ConnConfProperty> getConfigurationProperties(final Long connectorId) {
+    public List<ConnConfProperty> getConfigurationProperties(final Long connInstanceId) {
         return Arrays.asList(getRestTemplate().getForObject(
-                baseUrl + "connector/{connectorId}/configurationProperty/list", ConnConfProperty[].class, connectorId));
+                baseUrl + "connector/{connInstanceId}/configurationProperty/list", ConnConfProperty[].class,
+                connInstanceId));
     }
 
     @Override
-    public boolean check(final ConnInstanceTO connectorTO) {
-        return getRestTemplate().postForObject(baseUrl + "connector/check.json", connectorTO, Boolean.class);
+    public boolean check(final ConnInstanceTO connInstanceTO) {
+        return getRestTemplate().postForObject(baseUrl + "connector/check.json", connInstanceTO, Boolean.class);
     }
 
     @Override
-    public ConnInstanceTO readConnectorBean(final String resourceName) {
-        return getRestTemplate().getForObject(baseUrl + "connector/{resourceName}/connectorBean", ConnInstanceTO.class,
-                resourceName);
+    public ConnInstanceTO readByResource(final String resourceName) {
+        return getRestTemplate().getForObject(baseUrl + "connector/{resourceName}/readByResource",
+                ConnInstanceTO.class, resourceName);
+    }
+
+    @Override
+    public void reload() {
+        getRestTemplate().put(baseUrl + "connector/reload", null);
     }
 }

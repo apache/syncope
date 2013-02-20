@@ -34,8 +34,11 @@ import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLin
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
+import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -103,7 +106,41 @@ public class Resources extends BasePage {
         add(createConnectorWin = new ModalWindow("createConnectorWin"));
         add(editConnectorWin = new ModalWindow("editConnectorWin"));
 
-        add(feedbackPanel);
+        AjaxLink<Void> reloadLink = new ClearIndicatingAjaxLink<Void>("reloadLink", getPageReference()) {
+
+            private static final long serialVersionUID = 3109256773218160485L;
+
+            @Override
+            protected void onClickInternal(final AjaxRequestTarget target) {
+                try {
+                    connectorRestClient.reload();
+                    info(getString("operation_succeeded"));
+                } catch (Exception e) {
+                    error(getString("error") + ": " + e.getMessage());
+                }
+                target.add(feedbackPanel);
+            }
+
+            @Override
+            protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
+                super.updateAjaxAttributes(attributes);
+
+                final AjaxCallListener ajaxCallListener = new AjaxCallListener() {
+
+                    private static final long serialVersionUID = 7160235486520935153L;
+
+                    @Override
+                    public CharSequence getPrecondition(final Component component) {
+                        return "if (!confirm('" + getString("confirmReloadConnectors") + "')) "
+                                + "{return false;} else {return true;}";
+                    }
+                };
+                attributes.getAjaxCallListeners().add(ajaxCallListener);
+            }
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(reloadLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
+                "Connectors", "reload"));
+        add(reloadLink);
 
         resourcePaginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_RESOURCES_PAGINATOR_ROWS);
         connectorPaginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_CONNECTORS_PAGINATOR_ROWS);

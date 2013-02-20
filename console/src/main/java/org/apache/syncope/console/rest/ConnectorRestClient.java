@@ -198,4 +198,8 @@ public class ConnectorRestClient extends BaseRestClient {
 
         return schemaNames;
     }
+
+    public void reload() {
+        getService(ConnectorService.class).reload();
+    }
 }

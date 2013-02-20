@@ -37,7 +37,7 @@ import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.propagation.SyncopeConnector;
+import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
 import org.apache.syncope.core.sync.DefaultSyncActions;
 import org.apache.syncope.core.sync.SyncResult;
@@ -151,7 +151,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * @return value of attribute returned by getGroupMembershipAttrName()
      * @see getGroupMembershipAttrName()
      */
-    protected List<Object> getMembAttrValues(final SyncDelta delta, final SyncopeConnector connector) {
+    protected List<Object> getMembAttrValues(final SyncDelta delta, final Connector connector) {
         List<Object> result = Collections.<Object>emptyList();
 
         // first, try to read the configured attribute from delta, returned by the ongoing synchronization
@@ -212,7 +212,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
 
         final SyncTask task = handler.getSyncTask();
         final ExternalResource resource = task.getResource();
-        final SyncopeConnector connector = handler.getConnector();
+        final Connector connector = handler.getConnector();
 
         for (Object membValue : getMembAttrValues(delta, connector)) {
             Long userId = handler.findMatchingAttributableId(ObjectClass.ACCOUNT, membValue.toString());

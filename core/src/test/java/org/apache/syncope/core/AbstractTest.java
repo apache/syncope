@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.core.util.ConnIdBundleManager;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,20 +41,21 @@ public abstract class AbstractTest {
     protected static String bundlesDirectory;
 
     @BeforeClass
-    public static void setUpIdentityConnectorsBundles() throws IOException {
-        Properties props = new Properties();
+    public static void setUpConnIdBundles() throws IOException {
         InputStream propStream = null;
         try {
-            propStream = AbstractTest.class.getResourceAsStream("/bundles.properties");
+            propStream = AbstractTest.class.getResourceAsStream(ConnIdBundleManager.CONNID_PROPS);
+            Properties props = new Properties();
             props.load(propStream);
-            connidSoapVersion = props.getProperty("connid.soap.version");
+
             bundlesDirectory = props.getProperty("bundles.directory");
+            connidSoapVersion = props.getProperty("connid.soap.version");
         } catch (Exception e) {
-            LOG.error("Could not load bundles.properties", e);
+            LOG.error("Could not load {}", ConnIdBundleManager.CONNID_PROPS, e);
         } finally {
             IOUtils.closeQuietly(propStream);
         }
-        assertNotNull(connidSoapVersion);
         assertNotNull(bundlesDirectory);
+        assertNotNull(connidSoapVersion);
     }
 }

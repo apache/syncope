@@ -38,7 +38,7 @@ public class ConnInstanceDAOImpl extends AbstractDAOImpl implements ConnInstance
     private ResourceDAO resourceDAO;
 
     @Autowired
-    private ConnectorRegistry connInstanceLoader;
+    private ConnectorRegistry connRegistry;
 
     @Override
     public ConnInstance find(final Long id) {
@@ -58,7 +58,7 @@ public class ConnInstanceDAOImpl extends AbstractDAOImpl implements ConnInstance
 
         for (ExternalResource resource : merged.getResources()) {
             try {
-                connInstanceLoader.registerConnector(resource);
+                connRegistry.registerConnector(resource);
             } catch (NotFoundException e) {
                 LOG.error("While registering connector for resource", e);
             }
@@ -84,6 +84,6 @@ public class ConnInstanceDAOImpl extends AbstractDAOImpl implements ConnInstance
 
         entityManager.remove(connInstance);
 
-        connInstanceLoader.unregisterConnector(id.toString());
+        connRegistry.unregisterConnector(id.toString());
     }
 }

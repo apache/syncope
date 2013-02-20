@@ -18,7 +18,6 @@ specific language governing permissions and limitations
 under the License.
 -->
 <dataset>
-  <SyncopeConf confKey="connid.bundles.directory" confValue="${bundles.directory}"/>
   <SyncopeConf confKey="password.cipher.algorithm" confValue="SHA1"/>
   <SyncopeConf confKey="smtp.host" confValue="not-existing"/>
   <SyncopeConf confKey="smtp.port" confValue="25"/>
@@ -56,6 +55,7 @@ under the License.
   <Entitlement name="CONNECTOR_READ"/>
   <Entitlement name="CONNECTOR_UPDATE"/>
   <Entitlement name="CONNECTOR_DELETE"/>
+  <Entitlement name="CONNECTOR_RELOAD"/>
   <Entitlement name="CONFIGURATION_LIST"/>
   <Entitlement name="CONFIGURATION_CREATE"/>
   <Entitlement name="CONFIGURATION_READ"/>

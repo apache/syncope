@@ -35,9 +35,9 @@ import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
-import org.apache.syncope.core.propagation.SyncopeConnector;
+import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.propagation.TimeoutException;
-import org.apache.syncope.core.util.ConnBundleManager;
+import org.apache.syncope.core.util.ConnIdBundleManager;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.APIConfiguration;
@@ -69,7 +69,7 @@ import org.springframework.util.ClassUtils;
  * Intercept calls to ConnectorFacade's methods and check if the corresponding connector instance has been configured to
  * allow every single operation: if not, simply do nothing.
  */
-public class ConnectorFacadeProxy implements SyncopeConnector {
+public class ConnectorFacadeProxy implements Connector {
 
     /**
      * Logger.
@@ -82,9 +82,7 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
     private final ConnectorFacade connector;
 
     /**
-     * Active Connector instance.
-     *
-     * @see ConnInstance
+     * Active connector instance.
      */
     private final ConnInstance activeConnInstance;
 
@@ -95,32 +93,29 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
      * Use the passed connector instance to build a ConnectorFacade that will be used to make all wrapped calls.
      *
      * @param connInstance the connector instance configuration
-     * @param connBundleManager connector bundle loader
-     * @throws NotFoundException when not able to fetch all the required data
      * @see ConnectorKey
      * @see ConnectorInfo
      * @see APIConfiguration
      * @see ConfigurationProperties
      * @see ConnectorFacade
      */
-    public ConnectorFacadeProxy(final ConnInstance connInstance, final ConnBundleManager connBundleManager)
-            throws NotFoundException {
-
+    public ConnectorFacadeProxy(final ConnInstance connInstance) {
         this.activeConnInstance = connInstance;
 
         // specify a connector.
-        ConnectorKey key = new ConnectorKey(connInstance.getBundleName(), connInstance.getVersion(), connInstance.
-                getConnectorName());
+        ConnectorKey key = new ConnectorKey(
+                connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName());
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("\nBundle name: " + key.getBundleName() + "\nBundle version: " + key.getBundleVersion()
+            LOG.debug("Bundle name: " + key.getBundleName()
+                    + "\nBundle version: " + key.getBundleVersion()
                     + "\nBundle class: " + key.getConnectorName());
         }
 
         // get the specified connector.
         ConnectorInfo info;
         try {
-            info = connBundleManager.getConnectorManager().findConnectorInfo(key);
+            info = ConnIdBundleManager.getConnManager().findConnectorInfo(key);
             if (info == null) {
                 throw new NotFoundException("Connector Info for key " + key);
             }
@@ -143,8 +138,8 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         // Print out what the properties are (not necessary)
         if (LOG.isDebugEnabled()) {
             for (String propName : properties.getPropertyNames()) {
-                LOG.debug("\nProperty Name: {}\nProperty Type: {}", properties.getProperty(propName).getName(),
-                        properties.getProperty(propName).getType());
+                LOG.debug("Property Name: {}\nProperty Type: {}",
+                        properties.getProperty(propName).getName(), properties.getProperty(propName).getType());
             }
         }
 
@@ -166,9 +161,6 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         connector.validate();
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#create(PropagationMode, ObjectClass, Set, OperationOptions, Set)
-     */
     @Override
     public Uid create(final PropagationMode propagationMode, final ObjectClass objectClass, final Set<Attribute> attrs,
             final OperationOptions options, final Set<String> propagationAttempted) {
@@ -203,9 +195,6 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         return result;
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#update(PropagationMode, ObjectClass, Uid, Set, OperationOptions, Set)
-     */
     @Override
     public Uid update(final PropagationMode propagationMode, final ObjectClass objectClass, final Uid uid,
             final Set<Attribute> attrs, final OperationOptions options, final Set<String> propagationAttempted) {
@@ -242,9 +231,6 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         return result;
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#delete(PropagationMode, ObjectClass, Uid, OperationOptions, Set)
-     */
     @Override
     public void delete(final PropagationMode propagationMode, final ObjectClass objectClass, final Uid uid,
             final OperationOptions options, final Set<String> propagationAttempted) {
@@ -276,9 +262,6 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         }
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#sync(ObjectClass, SyncToken, SyncResultsHandler, OperationOptions)
-     */
     @Override
     public void sync(final ObjectClass objectClass, final SyncToken token, final SyncResultsHandler handler,
             final OperationOptions options) {
@@ -291,9 +274,6 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         }
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#getLatestSyncToken(ObjectClass)
-     */
     @Override
     public SyncToken getLatestSyncToken(final ObjectClass objectClass) {
         SyncToken result = null;
@@ -322,17 +302,11 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         return result;
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#getObject(ObjectClass, Uid, OperationOptions)
-     */
     @Override
     public ConnectorObject getObject(final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
         return getObject(null, null, objectClass, uid, options);
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#getObject(PropagationMode, ResourceOperation, ObjectClass, Uid, OperationOptions)
-     */
     @Override
     public ConnectorObject getObject(final PropagationMode propagationMode, final ResourceOperation operationType,
             final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
@@ -388,12 +362,9 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         }
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#search(ObjectClass, filter.Filter, OperationOptions)
-     */
     @Override
-    public List<ConnectorObject> search(
-            final ObjectClass objectClass, final Filter filter, final OperationOptions options) {
+    public List<ConnectorObject> search(final ObjectClass objectClass, final Filter filter,
+            final OperationOptions options) {
 
         final List<ConnectorObject> result = new ArrayList<ConnectorObject>();
 
@@ -408,9 +379,6 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         return result;
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#getAllObjects(ObjectClass, SyncResultsHandler, OperationOptions)
-     */
     @Override
     public void getAllObjects(
             final ObjectClass objectClass, final SyncResultsHandler handler, final OperationOptions options) {
@@ -430,12 +398,10 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         }, options);
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#getObjectAttribute(ObjectClass, Uid, OperationOptions, String)
-     */
     @Override
     public Attribute getObjectAttribute(final ObjectClass objectClass, final Uid uid, final OperationOptions options,
             final String attributeName) {
+
         final Future<Attribute> future = asyncFacade.getObjectAttribute(connector, objectClass, uid, options,
                 attributeName);
         try {
@@ -453,12 +419,10 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         }
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#getObjectAttributes(ObjectClass, Uid, OperationOptions)
-     */
     @Override
     public Set<Attribute> getObjectAttributes(final ObjectClass objectClass, final Uid uid,
             final OperationOptions options) {
+
         final Future<Set<Attribute>> future = asyncFacade.getObjectAttributes(connector, objectClass, uid, options);
         try {
             return future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
@@ -475,9 +439,6 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         }
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#getSchema(boolean)
-     */
     @Override
     public Set<String> getSchema(final boolean showall) {
         final Future<Set<String>> future = asyncFacade.getSchema(connector, showall);
@@ -496,9 +457,6 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         }
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#validate()
-     */
     @Override
     public void validate() {
         final Future<String> future = asyncFacade.test(connector);
@@ -517,9 +475,6 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         }
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#test()
-     */
     @Override
     public void test() {
         final Future<String> future = asyncFacade.test(connector);
@@ -553,17 +508,11 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         }
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#getActiveConnInstance()
-     */
     @Override
     public ConnInstance getActiveConnInstance() {
         return activeConnInstance;
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#getOperationOptions(Collection)
-     */
     @Override
     public OperationOptions getOperationOptions(final Collection<AbstractMappingItem> mapItems) {
         // -------------------------------------
@@ -625,9 +574,6 @@ public class ConnectorFacadeProxy implements SyncopeConnector {
         return value;
     }
 
-    /* (non-Javadoc)
-     * @see SyncopeConnector#toString()
-     */
     @Override
     public String toString() {
         return "ConnectorFacadeProxy{"

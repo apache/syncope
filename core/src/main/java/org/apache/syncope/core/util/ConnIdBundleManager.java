@@ -19,13 +19,13 @@
 package org.apache.syncope.core.util;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.syncope.core.persistence.beans.SyncopeConf;
-import org.apache.syncope.core.persistence.dao.ConfDAO;
-import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
+import java.util.Properties;
+import org.apache.commons.io.IOUtils;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.identityconnectors.common.IOUtil;
 import org.identityconnectors.framework.api.APIConfiguration;
@@ -36,60 +36,95 @@ import org.identityconnectors.framework.api.ConnectorInfoManagerFactory;
 import org.identityconnectors.framework.api.ConnectorKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
-public class ConnBundleManager {
+/**
+ * Manage information about ConnId connector bundles.
+ */
+public final class ConnIdBundleManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConnBundleManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConnIdBundleManager.class);
 
-    @Autowired
-    private ConfDAO confDAO;
+    /**
+     * Where to find conf properties for ConnId.
+     */
+    public static final String CONNID_PROPS = "/connid.properties";
 
-    public ConnectorInfoManager getConnectorManager() throws NotFoundException, MissingConfKeyException {
-        // 1. Bundles directory
-        SyncopeConf connectorBundleDir = confDAO.find("connid.bundles.directory");
+    /**
+     * Directory path containing ConnId bundles.
+     */
+    private static String connIdBundlesDir;
 
-        // 2. Find bundles inside that directory
-        File bundleDirectory = new File(connectorBundleDir.getValue());
+    /**
+     * Lock for operating on ConnectorInfoManager shared instance.
+     */
+    private static final Object LOCK = new Object();
+
+    /**
+     * ConnectorInfoManager shared instance.
+     */
+    private static ConnectorInfoManager connManager;
+
+    static {
+        InputStream propStream = null;
+        try {
+            propStream = ConnIdBundleManager.class.getResourceAsStream(CONNID_PROPS);
+            Properties props = new Properties();
+            props.load(propStream);
+            connIdBundlesDir = props.getProperty("bundles.directory");
+        } catch (Exception e) {
+            LOG.error("Could not load {}", CONNID_PROPS, e);
+        } finally {
+            IOUtils.closeQuietly(propStream);
+        }
+    }
+
+    private static void initConnManager() {
+        // 1. Find bundles inside connidBundlesDir
+        File bundleDirectory = new File(connIdBundlesDir);
         String[] bundleFiles = bundleDirectory.list();
         if (bundleFiles == null) {
-            throw new NotFoundException("Bundles from dir " + connectorBundleDir.getValue());
+            throw new NotFoundException("Connector bundles directory " + connIdBundlesDir);
         }
 
         List<URL> bundleFileURLs = new ArrayList<URL>();
         for (String file : bundleFiles) {
             try {
                 bundleFileURLs.add(IOUtil.makeURL(bundleDirectory, file));
-            } catch (Exception ignore) {
+            } catch (IOException ignore) {
                 // ignore exception and don't add bundle
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(bundleDirectory.toString() + "/" + file + "\"" + " is not a valid connector bundle.",
-                            ignore);
-                }
+                LOG.debug("{}/{} is not a valid connector bundle", bundleDirectory.toString(), file, ignore);
             }
         }
+
         if (bundleFileURLs.isEmpty()) {
-            throw new NotFoundException("Bundles from dir " + connectorBundleDir.getValue());
+            LOG.warn("No connector bundles found in {}", connIdBundlesDir);
         }
         LOG.debug("Bundle file URLs: {}", bundleFileURLs);
 
-        // 3. Get connector info manager
+        // 2. Get connector info manager
         ConnectorInfoManager manager = ConnectorInfoManagerFactory.getInstance().getLocalManager(
                 bundleFileURLs.toArray(new URL[bundleFileURLs.size()]));
         if (manager == null) {
             throw new NotFoundException("Connector Info Manager");
         }
 
-        return manager;
+        connManager = manager;
     }
 
-    public ConfigurationProperties getConfigurationProperties(final String bundleName, final String version,
-            final String connectorName) throws NotFoundException {
+    public static ConnectorInfoManager getConnManager() {
+        synchronized (LOCK) {
+            if (connManager == null) {
+                initConnManager();
+            }
+        }
+        return connManager;
+    }
 
-        //Create key for search all properties
-        final ConnectorKey key = new ConnectorKey(bundleName, version, connectorName);
+    public static ConfigurationProperties getConfProps(
+            final String bundleName, final String bundleVersion, final String connectorName) {
+
+        // create key for search all properties
+        final ConnectorKey key = new ConnectorKey(bundleName, bundleVersion, connectorName);
         if (key == null) {
             throw new NotFoundException("Connector Key");
         }
@@ -100,21 +135,16 @@ public class ConnBundleManager {
                     + "\nBundle class: " + key.getConnectorName());
         }
 
-        //get the specified connector.
-        ConnectorInfo info;
-        try {
-            info = getConnectorManager().findConnectorInfo(key);
-            if (info == null) {
-                throw new NotFoundException("Connector Info for key " + key);
-            }
-        } catch (MissingConfKeyException e) {
-            throw new NotFoundException("Connector Info for key " + key, e);
+        // get the specified connector
+        ConnectorInfo info = getConnManager().findConnectorInfo(key);
+        if (info == null) {
+            throw new NotFoundException("Connector Info for key " + key);
         }
 
-        return getConfigurationProperties(info);
+        return getConfProps(info);
     }
 
-    public ConfigurationProperties getConfigurationProperties(final ConnectorInfo info) throws NotFoundException {
+    public static ConfigurationProperties getConfProps(final ConnectorInfo info) {
         if (info == null) {
             throw new NotFoundException("Invalid: connector info is null");
         }
@@ -131,14 +161,17 @@ public class ConnBundleManager {
             throw new NotFoundException("Configuration properties");
         }
 
-        // Print out what the properties are (not necessary)
         if (LOG.isDebugEnabled()) {
             for (String propName : properties.getPropertyNames()) {
-                LOG.debug("\nProperty Name: " + properties.getProperty(propName).getName()
-                        + "\nProperty Type: " + properties.getProperty(propName).getType());
+                LOG.debug("Property Name: {}\nProperty Type: {}",
+                        properties.getProperty(propName).getName(), properties.getProperty(propName).getType());
             }
         }
 
         return properties;
+    }
+
+    private ConnIdBundleManager() {
+        // Empty constructor for static utility class.
     }
 }

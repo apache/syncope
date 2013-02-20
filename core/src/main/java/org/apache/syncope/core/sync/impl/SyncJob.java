@@ -37,10 +37,8 @@ import org.apache.syncope.core.persistence.beans.user.UMapping;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
-import org.apache.syncope.core.persistence.dao.RoleDAO;
-import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.propagation.ConnectorFactory;
-import org.apache.syncope.core.propagation.SyncopeConnector;
+import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.quartz.AbstractTaskJob;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.sync.SyncActions;
@@ -72,7 +70,7 @@ public class SyncJob extends AbstractTaskJob {
      * ConnInstance loader.
      */
     @Autowired
-    private ConnectorFactory connInstanceLoader;
+    private ConnectorFactory connFactory;
 
     /**
      * Resource DAO.
@@ -85,18 +83,6 @@ public class SyncJob extends AbstractTaskJob {
      */
     @Autowired
     private EntitlementDAO entitlementDAO;
-
-    /**
-     * Role DAO.
-     */
-    @Autowired
-    private UserDAO userDAO;
-
-    /**
-     * Role DAO.
-     */
-    @Autowired
-    private RoleDAO roleDAO;
 
     /**
      * Role workflow adapter.
@@ -366,9 +352,9 @@ public class SyncJob extends AbstractTaskJob {
         }
         final SyncTask syncTask = (SyncTask) this.task;
 
-        SyncopeConnector connector;
+        Connector connector;
         try {
-            connector = connInstanceLoader.getConnector(syncTask.getResource());
+            connector = connFactory.getConnector(syncTask.getResource());
         } catch (Exception e) {
             final String msg = String.format("Connector instance bean for resource %s and connInstance %s not found",
                     syncTask.getResource(), syncTask.getResource().getConnector());

@@ -25,15 +25,14 @@ import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ConnectorRegistry;
-import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
+import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.propagation.ConnectorFactory;
-import org.apache.syncope.core.propagation.SyncopeConnector;
 import org.apache.syncope.core.propagation.impl.ConnectorFacadeProxy;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
-import org.apache.syncope.core.util.ConnBundleManager;
 import org.identityconnectors.common.l10n.CurrentLocale;
+import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -45,15 +44,12 @@ import org.springframework.transaction.annotation.Transactional;
  * Load ConnId connector instances.
  */
 @Component
-class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
+class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConnInstanceLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConnectorManager.class);
 
     @Autowired
     private ResourceDAO resourceDAO;
-
-    @Autowired
-    private ConnBundleManager connBundleManager;
 
     @Autowired
     private ResourceDataBinder resourceDataBinder;
@@ -62,58 +58,32 @@ class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
         return String.format("connInstance-%d-%s", resource.getConnector().getId(), resource.getName());
     }
 
-    /* (non-Javadoc)
-     * @see ConnectorFactory#getConnector(org.apache.syncope.core.persistence.beans.ExternalResource)
-     */
     @Override
-    public SyncopeConnector getConnector(final ExternalResource resource)
-            throws BeansException, NotFoundException {
+    public Connector getConnector(final ExternalResource resource)
+            throws BeansException {
 
         // Try to re-create connector bean from underlying resource (useful for managing failover scenarios)
         if (!ApplicationContextProvider.getBeanFactory().containsBean(getBeanName(resource))) {
             registerConnector(resource);
         }
 
-        return (SyncopeConnector) ApplicationContextProvider.getBeanFactory().getBean(getBeanName(resource));
+        return (Connector) ApplicationContextProvider.getBeanFactory().getBean(getBeanName(resource));
     }
 
-    public SyncopeConnector createConnectorBean(final ExternalResource resource)
-            throws NotFoundException {
-
-        final ConnInstance connInstanceClone = resourceDataBinder.getConnInstance(resource);
-        return createConnectorBean(resource.getConnector(), connInstanceClone.getConfiguration());
-    }
-
-    /**
-     * Create connector bean starting from connector instance and configuration properties. This method must be used to
-     * create a connector instance without any linked external resource.
-     *
-     * @param connInstance connector instance.
-     * @param configuration configuration properties.
-     * @return connector facade proxy.
-     * @throws NotFoundException when not able to fetch all the required data.
-     */
     @Override
-    public SyncopeConnector createConnectorBean(final ConnInstance connInstance,
-            final Set<ConnConfProperty> configuration)
-            throws NotFoundException {
-
+    public Connector createConnector(final ConnInstance connInstance, final Set<ConnConfProperty> configuration) {
         final ConnInstance connInstanceClone = (ConnInstance) SerializationUtils.clone(connInstance);
 
         connInstanceClone.setConfiguration(configuration);
 
         return ApplicationContextProvider.getBeanFactory().getBean(
-                "connectorFacadeProxy", ConnectorFacadeProxy.class, connInstanceClone, connBundleManager);
+                "connectorFacadeProxy", ConnectorFacadeProxy.class, connInstanceClone);
     }
 
-    /* (non-Javadoc)
-     * @see ConnectorRegistry#registerConnector(org.apache.syncope.core.persistence.beans.ExternalResource)
-     */
     @Override
-    public void registerConnector(final ExternalResource resource)
-            throws NotFoundException {
-
-        final SyncopeConnector connector = createConnectorBean(resource);
+    public void registerConnector(final ExternalResource resource) {
+        final ConnInstance connInstance = resourceDataBinder.getConnInstance(resource);
+        final Connector connector = createConnector(resource.getConnector(), connInstance.getConfiguration());
         LOG.debug("Connector to be registered: {}", connector);
 
         final String beanName = getBeanName(resource);
@@ -126,9 +96,6 @@ class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
         LOG.debug("Successfully registered bean {}", beanName);
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.syncope.core.init.ConnectorRegistry#unregisterConnector(java.lang.String)
-     */
     @Override
     public void unregisterConnector(final String id) {
         ApplicationContextProvider.getBeanFactory().destroySingleton(id);
@@ -142,15 +109,34 @@ class ConnInstanceLoader implements ConnectorRegistry, ConnectorFactory {
 
         // Next load all resource-specific connectors.
         for (ExternalResource resource : resourceDAO.findAll()) {
+            LOG.info("Registering resource-connector pair {}-{}", resource, resource.getConnector());
             try {
-                LOG.info("Registering resource-connector pair {}-{}", resource, resource.getConnector());
                 registerConnector(resource);
             } catch (Exception e) {
                 LOG.error("While registering resource-connector pair {}-{}", resource, resource.getConnector(), e);
             }
         }
 
-        LOG.info("Done loading {} connectors.", ApplicationContextProvider.getBeanFactory().getBeansOfType(
+        LOG.info("Done loading {} connectors", ApplicationContextProvider.getBeanFactory().getBeansOfType(
                 ConnectorFacadeProxy.class, false, true).size());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public void unload() {
+        int connectors = 0;
+        for (ExternalResource resource : resourceDAO.findAll()) {
+            final String beanName = getBeanName(resource);
+            if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
+                LOG.info("Unegistering resource-connector pair {}-{}", resource, resource.getConnector());
+                unregisterConnector(beanName);
+                connectors++;
+            }
+        }
+
+        LOG.info("Done unloading {} connectors", connectors);
+
+        ConnectorFacadeFactory.getInstance().dispose();
+        LOG.info("All connector resources disposed");
     }
 }

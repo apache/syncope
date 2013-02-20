@@ -32,9 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
 import javax.ws.rs.core.Response;
-
+import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.MappingItemTO;
@@ -46,6 +45,7 @@ import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.core.util.ConnIdBundleManager;
 import org.identityconnectors.common.security.GuardedString;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -64,25 +64,25 @@ public class ConnInstanceTestITCase extends AbstractTest {
     private static String bundlesDirectory;
 
     @BeforeClass
-    public static void init()
-            throws IOException {
-        Properties props = new Properties();
+    public static void setUpConnIdBundles() throws IOException {
         InputStream propStream = null;
         try {
-            propStream = ConnInstanceTestITCase.class.getResourceAsStream("/bundles.properties");
+            Properties props = new Properties();
+            propStream = org.apache.syncope.core.AbstractTest.class.
+                    getResourceAsStream(ConnIdBundleManager.CONNID_PROPS);
             props.load(propStream);
+
+            bundlesDirectory = props.getProperty("bundles.directory");
             connidSoapVersion = props.getProperty("connid.soap.version");
             connidDbTableVersion = props.getProperty("connid.db.table.version");
-            bundlesDirectory = props.getProperty("bundles.directory");
         } catch (Exception e) {
-            LOG.error("Could not load bundles.properties", e);
+            LOG.error("Could not load {}", ConnIdBundleManager.CONNID_PROPS, e);
         } finally {
-            if (propStream != null) {
-                propStream.close();
-            }
+            IOUtils.closeQuietly(propStream);
         }
-        assertNotNull(connidSoapVersion);
         assertNotNull(bundlesDirectory);
+        assertNotNull(connidSoapVersion);
+        assertNotNull(connidDbTableVersion);
     }
 
     @Test(expected = SyncopeClientCompositeErrorException.class)
@@ -155,7 +155,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertEquals(actual.getConnectorName(), connectorTO.getConnectorName());
         assertEquals(actual.getVersion(), connectorTO.getVersion());
         assertEquals("Display name", actual.getDisplayName());
-        assertEquals(new Integer(15), actual.getConnRequestTimeout());
+        assertEquals(Integer.valueOf(15), actual.getConnRequestTimeout());
         assertEquals(connectorTO.getCapabilities(), actual.getCapabilities());
 
         Throwable t = null;
@@ -249,7 +249,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertEquals(actual.getBundleName(), connectorTO.getBundleName());
         assertEquals(actual.getConnectorName(), connectorTO.getConnectorName());
         assertEquals(actual.getVersion(), connectorTO.getVersion());
-        assertEquals(new Integer(20), actual.getConnRequestTimeout());
+        assertEquals(Integer.valueOf(20), actual.getConnRequestTimeout());
     }
 
     @Test
@@ -313,7 +313,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // ----------------------------------
         // Check for spring bean.
         // ----------------------------------
-        ConnInstanceTO connInstanceBean = connectorService.readConnectorBean(resourceTO.getName());
+        ConnInstanceTO connInstanceBean = connectorService.readByResource(resourceTO.getName());
 
         assertNotNull(connInstanceBean);
         assertTrue(connInstanceBean.getCapabilities().isEmpty());
@@ -331,7 +331,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertFalse(connInstanceTO.getCapabilities().isEmpty());
 
         // check for spring bean update
-        connInstanceBean = connectorService.readConnectorBean(resourceTO.getName());
+        connInstanceBean = connectorService.readByResource(resourceTO.getName());
 
         assertFalse(connInstanceBean.getCapabilities().isEmpty());
         // ----------------------------------
@@ -582,8 +582,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         keyColumnSchema.setRequired(true);
         ConnConfProperty servicename = new ConnConfProperty();
         servicename.setSchema(keyColumnSchema);
-        servicename
-                .setValues(Collections.singletonList("org.connid.bundles.soap.provisioning.interfaces.Provisioning"));
+        servicename.setValues(
+                Collections.singletonList("org.connid.bundles.soap.provisioning.interfaces.Provisioning"));
         servicename.setOverridable(false);
 
         conf.add(endpoint);
@@ -640,5 +640,10 @@ public class ConnInstanceTestITCase extends AbstractTest {
             // Remove connector from db to make test re-runnable
             connectorService.delete(connectorTO.getId());
         }
+    }
+
+    @Test
+    public void reload() {
+        connectorService.reload();
     }
 }
