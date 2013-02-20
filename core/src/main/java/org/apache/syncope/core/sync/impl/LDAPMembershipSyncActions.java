@@ -20,6 +20,7 @@ package org.apache.syncope.core.sync.impl;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +29,9 @@ import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.core.notification.NotificationManager;
+import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
@@ -84,10 +87,23 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     /**
      * Allows easy subclassing for the ConnId AD connector bundle.
      *
+     * @param connector A Connector instance to query for the groupMemberAttribute property name
      * @return the name of the attribute used to keep track of group memberships
      */
-    protected String getGroupMembershipAttrName() {
-        return "uniquemember";
+    protected String getGroupMembershipAttrName(final Connector connector) {
+        ConnInstance connInstance = connector.getActiveConnInstance();
+        Iterator<ConnConfProperty> propertyIterator = connInstance.getConfiguration().iterator();
+        String groupMembershipName = "uniquemember";
+        while (propertyIterator.hasNext()) {
+            ConnConfProperty property = propertyIterator.next();
+            if ("groupMemberAttribute".equals(property.getSchema().getName())
+                && property.getValues() != null && !property.getValues().isEmpty()) {
+                groupMembershipName = (String)property.getValues().get(0);
+                break;
+            }
+        }
+        
+        return groupMembershipName;
     }
 
     /**
@@ -144,7 +160,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
 
     /**
      * Read values of attribute returned by getGroupMembershipAttrName(); if not present in the given delta, perform an
-     * additioanl read on the underlying connector.
+     * additional read on the underlying connector.
      *
      * @param delta representing the synchronizing role
      * @param connector associated to the current resource
@@ -153,15 +169,15 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      */
     protected List<Object> getMembAttrValues(final SyncDelta delta, final Connector connector) {
         List<Object> result = Collections.<Object>emptyList();
-
+        String groupMemberName = getGroupMembershipAttrName(connector);
+        
         // first, try to read the configured attribute from delta, returned by the ongoing synchronization
-        Attribute membAttr = delta.getObject().getAttributeByName(getGroupMembershipAttrName());
+        Attribute membAttr = delta.getObject().getAttributeByName(groupMemberName);
         // if not found, perform an additional read on the underlying connector for the same connector object
         if (membAttr == null) {
             final OperationOptionsBuilder oob = new OperationOptionsBuilder();
-            oob.setAttributesToGet(getGroupMembershipAttrName());
-            membAttr = connector.getObjectAttribute(ObjectClass.GROUP, delta.getUid(), oob.build(),
-                    getGroupMembershipAttrName());
+            oob.setAttributesToGet(groupMemberName);
+            membAttr = connector.getObjectAttribute(ObjectClass.GROUP, delta.getUid(), oob.build(), groupMemberName);
         }
         if (membAttr != null && membAttr.getValue() != null) {
             result = membAttr.getValue();
