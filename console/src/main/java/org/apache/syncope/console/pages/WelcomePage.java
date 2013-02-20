@@ -34,12 +34,9 @@ public class WelcomePage extends WebPage {
     @SpringBean
     private XMLRolesReader xmlRolesReader;
 
-    @SpringBean(name = "version")
-    private String version;
-
     public WelcomePage(final PageParameters parameters) {
         super(parameters);
 
-        ((SyncopeApplication) getApplication()).setupNavigationPanel(this, xmlRolesReader, false, version);
+        ((SyncopeApplication) getApplication()).setupNavigationPanel(this, xmlRolesReader, false);
     }
 }

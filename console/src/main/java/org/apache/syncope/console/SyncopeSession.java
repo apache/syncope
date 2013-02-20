@@ -70,7 +70,7 @@ public class SyncopeSession extends WebSession {
 
     private String userId;
 
-    private String coreVersion;
+    private String version;
 
     private Roles roles = new Roles();
 
@@ -131,12 +131,12 @@ public class SyncopeSession extends WebSession {
         this.userId = userId;
     }
 
-    public String getCoreVersion() {
-        return coreVersion;
+    public String getVersion() {
+        return version;
     }
 
-    public void setCoreVersion(String coreVersion) {
-        this.coreVersion = coreVersion;
+    public void setVersion(final String version) {
+        this.version = version;
     }
 
     public void setEntitlements(final String[] entitlements) {

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.syncope.console.SyncopeSession;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -32,12 +33,11 @@ public class InfoModalPage extends BaseModalPage {
     @SpringBean(name = "license")
     private String licenseUrl;
 
-    public InfoModalPage(final String version, final String coreVersion) {
+    public InfoModalPage() {
         super();
 
         add(new ExternalLink("syncopeLink", siteUrl));
         add(new ExternalLink("licenseLink", licenseUrl));
-        add(new Label("consoleVersion", version));
-        add(new Label("coreVersion", coreVersion));
+        add(new Label("version", SyncopeSession.get().getVersion()));
     }
 }

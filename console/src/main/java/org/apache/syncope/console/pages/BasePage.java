@@ -50,9 +50,6 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
     @SpringBean
     private UserRestClient userRestClient;
 
-    @SpringBean(name = "version")
-    private String version;
-
     public BasePage() {
         super();
 
@@ -66,7 +63,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
     }
 
     private void pageSetup() {
-        ((SyncopeApplication) getApplication()).setupNavigationPanel(this, xmlRolesReader, true, version);
+        ((SyncopeApplication) getApplication()).setupNavigationPanel(this, xmlRolesReader, true);
 
         final String kind = getClass().getSimpleName().toLowerCase();
         final BookmarkablePageLink kindLink = (BookmarkablePageLink) get(kind);
@@ -116,6 +113,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
                         : new UserTO();
 
                 editProfileModalWin.setPageCreator(new ModalWindow.PageCreator() {
+
                     private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override

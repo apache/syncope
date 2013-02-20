@@ -55,10 +55,6 @@ under the License.
     <constructor-arg value="${scheme}://${host}:${port}${rootPath}"/>
   </bean>
 
-  <bean id="version" class="java.lang.String">
-    <constructor-arg value="${version}"/>
-  </bean>
-  
   <bean id="site" class="java.lang.String">
     <constructor-arg value="${project.parent.url}"/>
   </bean>

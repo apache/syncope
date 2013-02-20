@@ -34,8 +34,6 @@ import org.apache.syncope.common.to.EntitlementTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.console.SyncopeSession;
-import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
-import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
 import org.apache.wicket.Page;
@@ -118,7 +116,7 @@ public class Login extends WebPage {
 
                     SyncopeSession.get().setUserId(userIdField.getRawInput());
                     SyncopeSession.get().setEntitlements(entitlements);
-                    SyncopeSession.get().setCoreVersion(getCoreVersion());
+                    SyncopeSession.get().setVersion(getSyncopeVersion());
 
                     setResponsePage(WelcomePage.class, parameters);
                 } catch (HttpClientErrorException e) {
@@ -210,7 +208,7 @@ public class Login extends WebPage {
                 : result.booleanValue();
     }
 
-    private String getCoreVersion() {
+    private String getSyncopeVersion() {
         final RestTemplate restTemplate = SyncopeSession.get().getRestTemplate();
 
         PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
@@ -222,7 +220,7 @@ public class Login extends WebPage {
             HttpResponse response = requestFactory.getHttpClient().execute(get);
             version = EntityUtils.toString(response.getEntity()).trim();
         } catch (Exception e) {
-            LOG.error("While fetching core version", e);
+            LOG.error("While fetching version from core", e);
             getSession().error(e.getMessage());
         }
 
