@@ -29,7 +29,6 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.VirtualSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.rest.SchemaRestClient;
-import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
@@ -40,6 +39,7 @@ import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -101,13 +101,13 @@ public class VirtualAttributesPanel extends Panel {
         attributesContainer.setOutputMarkupId(true);
         add(attributesContainer);
 
-        AjaxButton addAttributeBtn = new ClearIndicatingAjaxButton("addAttributeBtn",
-                new ResourceModel("addAttributeBtn"), pageRef) {
+        AjaxButton addAttributeBtn = new IndicatingAjaxButton("addAttributeBtn",
+                new ResourceModel("addAttributeBtn")) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 entityTO.addVirtualAttribute(new AttributeTO());
                 target.add(attributesContainer);
             }

@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.AbstractAttributableTO;
@@ -87,7 +88,7 @@ public class AttributesPanel extends Panel {
                     schemaTOs = schemaRestClient.getSchemas(AttributableType.MEMBERSHIP);
                 }
 
-                final Map<String, SchemaTO> schemas = new HashMap<String, SchemaTO>();
+                final Map<String, SchemaTO> schemas = new TreeMap<String, SchemaTO>();
 
                 for (SchemaTO schemaTO : schemaTOs) {
                     schemas.put(schemaTO.getName(), schemaTO);
