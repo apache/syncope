@@ -16,32 +16,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:head>
-  <style type="text/css">
-    /* Style for autocomplete field */
-    div.wicket-aa {
-      font-family: "Lucida Grande","Lucida Sans Unicode",Tahoma,Verdana;
-      font-size: 12px;
-      background-color: white;
-      border-width: 1px;
-      border-color: #cccccc;
-      border-style: solid;
-      padding: 2px;
-      margin: 1px 0 0 0;
-      text-align:left;
-    }
-    div.wicket-aa ul {
-      list-style:none;
-      padding: 2px;
-      margin:0;
-    }
-    div.wicket-aa ul li.selected {
-      background-color: #FFFF00;
-      padding: 2px;
-      margin:0;
-    }
-  </style>
-</wicket:head>
 <wicket:extend>
   <div style="margin:10px">
     <p class="ui-widget ui-corner-all ui-widget-header">
@@ -51,7 +25,7 @@ under the License.
     <form wicket:id="form">
       <div id="tabs">
         <ul>
-          <li  class="tabs-selected"><a href="#resource"><span><wicket:message key="resource"/></span></a></li>
+          <li class="tabs-selected"><a href="#resource"><span><wicket:message key="resource"/></span></a></li>
           <li><a href="#umapping"><span><wicket:message key="umapping"/></span></a></li>
           <li><a href="#rmapping"><span><wicket:message key="rmapping"/></span></a></li>
           <li><a href="#connectorProperties"><span><wicket:message key="connectorProperties"/></span></a></li>
@@ -72,12 +46,6 @@ under the License.
         <div id="security">
           <span wicket:id="security">[security]</span>
         </div>
-
-        <script type="text/javascript">
-          $(function() {
-            $('div#security div#formtable div.tablerow:even').addClass("alt");
-          });
-        </script>
       </div>
 
       <div style="margin: 20px 10px 0">

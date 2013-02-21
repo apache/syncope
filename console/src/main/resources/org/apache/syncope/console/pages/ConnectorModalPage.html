@@ -16,19 +16,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:head>
-  <style type="text/css">
-    table.palette td.header {
-      background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
-        repeat-x scroll 50% 50% #E6E6E6 !important;
-    }
-
-    table.palette td.header {
-      background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
-        repeat-x scroll 50% 50% #E6E6E6 !important;
-    }
-  </style>
-</wicket:head>
 <wicket:extend>
   <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
 <div style="margin:10px">
@@ -41,7 +28,7 @@ under the License.
       </ul>
       <div id="tabs-1">
         <div id="formtable">
-          <div class="tablerow">
+          <div class="tablerow alt">
             <div class="tablecolumn_label short_dynamicsize">
               <label for="displayName"><wicket:message key="displayName"/></label>
             </div>
@@ -59,7 +46,7 @@ under the License.
             </div>
           </div>
 
-          <div class="tablerow">
+          <div class="tablerow alt">
             <div class="tablecolumn_label short_dynamicsize">
               <label for="version"><wicket:message key="version"/></label>
             </div>
@@ -76,12 +63,6 @@ under the License.
             </div>
           </div>
         </div>
-        <!-- inside the container in order to re-process javascript -->
-        <script type="text/javascript">
-          $(function() {
-            $('#tabs-1 #formtable div.tablerow:even').addClass("alt");
-          });
-        </script>
       </div>
       <div id="tabs-2">
         <div id="formtable">
@@ -105,17 +86,12 @@ under the License.
                 </div>
               </div>
               <div>
-                <label style="position: absolute; top: 10px; right:55px;"><wicket:message key="check"/></label>
                 <a style="position: absolute; top: 2px; right:20px;" wicket:id="check">
-                  <img src="img/ping.png" width="30" height="30" /></a>
+                  <img src="img/ping.png"width="30" height="30"
+                       alt="ping" title="title" wicket:message="title:check"/>
+                </a>
               </div>
             </form>
-            <!-- inside the container in order to re-process javascript -->
-            <script type="text/javascript">
-              $(function() {
-                $('#tabs-2 #formtable div.tablerow:even').addClass("alt");
-              });
-            </script>
           </span>
         </div>
       </div>
