@@ -148,7 +148,7 @@ public class PolicyController extends AbstractController {
 
         final List<T> policyTOs = new ArrayList<T>();
         for (Policy policy : policies) {
-            policyTOs.add((T) binder.getPolicyTO(policy));
+            policyTOs.add(binder.<T>getPolicyTO(policy));
         }
 
         auditManager.audit(Category.policy, PolicySubCategory.list, Result.success,

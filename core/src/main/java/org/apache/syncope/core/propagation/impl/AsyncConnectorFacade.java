@@ -24,6 +24,7 @@ import java.util.concurrent.Future;
 import org.identityconnectors.framework.api.ConnectorFacade;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeInfo;
+import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
@@ -139,24 +140,21 @@ public class AsyncConnectorFacade {
     }
 
     @Async
-    public Future<Set<String>> getSchema(
-            final ConnectorFacade connector,
-            final boolean showall) {
+    public Future<Set<String>> getSchema(final ConnectorFacade connector, final boolean showall) {
         final Set<String> resourceSchemaNames = new HashSet<String>();
 
-        final Schema schema = connector.schema();
-
         try {
+            final Schema schema = connector.schema();
             for (ObjectClassInfo info : schema.getObjectClassInfo()) {
                 for (AttributeInfo attrInfo : info.getAttributeInfo()) {
-                    if (showall || !isSpecialName(attrInfo.getName())) {
+                    if (showall || !AttributeUtil.isSpecialName(attrInfo.getName())) {
                         resourceSchemaNames.add(attrInfo.getName());
                     }
                 }
             }
         } catch (Exception e) {
             // catch exception in order to manage unpredictable behaviors
-            LOG.debug("Unsupported operation {}", e);
+            LOG.debug("While reading schema on connector {}", connector, e);
         }
 
         return new AsyncResult<Set<String>>(resourceSchemaNames);
@@ -172,9 +170,5 @@ public class AsyncConnectorFacade {
     public Future<String> test(final ConnectorFacade connector) {
         connector.test();
         return new AsyncResult<String>("OK");
-    }
-
-    private boolean isSpecialName(final String name) {
-        return (name.startsWith("__") && name.endsWith("__"));
     }
 }

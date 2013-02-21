@@ -119,6 +119,7 @@ public class Resources extends BasePage {
                     error(getString("error") + ": " + e.getMessage());
                 }
                 target.add(feedbackPanel);
+                target.add(connectorContainer);
             }
 
             @Override

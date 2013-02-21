@@ -43,20 +43,16 @@ public class ConnectorRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -6870366819966266617L;
 
-    /**
-     * Get all connectors.
-     *
-     * @return ConnectorInstanceTOs
-     */
     public List<ConnInstanceTO> getAllConnectors() {
-        return getService(ConnectorService.class).list(SyncopeSession.get().getLocale().toString());
+        List<ConnInstanceTO> connectors = Collections.<ConnInstanceTO>emptyList();
+        try {
+            connectors = getService(ConnectorService.class).list(SyncopeSession.get().getLocale().toString());
+        } catch (Exception e) {
+            LOG.error("While reading connectors", e);
+        }
+        return connectors;
     }
 
-    /**
-     * Create new connector.
-     *
-     * @param connectorTO
-     */
     public void create(final ConnInstanceTO connectorTO) {
         connectorTO.setConfiguration(filterProperties(connectorTO.getConfiguration()));
         getService(ConnectorService.class).create(connectorTO);
@@ -164,12 +160,6 @@ public class ConnectorRestClient extends BaseRestClient {
         return check;
     }
 
-    /**
-     * Test resource connection.
-     *
-     * @param resourceTO resource
-     * @return Connection status
-     */
     public boolean check(final ResourceTO resourceTO) {
         boolean check = false;
         try {

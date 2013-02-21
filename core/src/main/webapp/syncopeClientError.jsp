@@ -135,8 +135,8 @@ under the License.
         statusCode = HttpServletResponse.SC_BAD_REQUEST;
     } else if (ex instanceof ConfigurationException) {
         response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                SyncopeClientExceptionType.InvalidExternalResource.getHeaderValue());
-        response.setHeader(SyncopeClientExceptionType.InvalidExternalResource.getElementHeaderName(),
+                SyncopeClientExceptionType.InvalidConnIdConf.getHeaderValue());
+        response.setHeader(SyncopeClientExceptionType.InvalidConnIdConf.getElementHeaderName(),
                 ex.getCause() == null ? ex.getMessage() : ex.getCause().getMessage());
 
         statusCode = HttpServletResponse.SC_BAD_REQUEST;

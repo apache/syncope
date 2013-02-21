@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.init;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import org.apache.commons.lang.SerializationUtils;
@@ -31,11 +32,12 @@ import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.propagation.impl.ConnectorFacadeProxy;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
+import org.apache.syncope.core.util.ConnIdBundleManager;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
+import org.identityconnectors.framework.api.ConnectorInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,9 +61,7 @@ class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
     }
 
     @Override
-    public Connector getConnector(final ExternalResource resource)
-            throws BeansException {
-
+    public Connector getConnector(final ExternalResource resource) {
         // Try to re-create connector bean from underlying resource (useful for managing failover scenarios)
         if (!ApplicationContextProvider.getBeanFactory().containsBean(getBeanName(resource))) {
             registerConnector(resource);
@@ -76,8 +76,10 @@ class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
 
         connInstanceClone.setConfiguration(configuration);
 
-        return ApplicationContextProvider.getBeanFactory().getBean(
-                "connectorFacadeProxy", ConnectorFacadeProxy.class, connInstanceClone);
+        Connector connector = new ConnectorFacadeProxy(connInstanceClone);
+        ApplicationContextProvider.getBeanFactory().autowireBean(connector);
+
+        return connector;
     }
 
     @Override
@@ -104,21 +106,30 @@ class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
     @Transactional(readOnly = true)
     @Override
     public void load() {
-        // This is needed to avoid encoding problems when sending error messages via REST
+        // This is needed in order to avoid encoding problems when sending error messages via REST
         CurrentLocale.set(Locale.ENGLISH);
 
-        // Next load all resource-specific connectors.
+        // Init ConnIdBundleManager
+        List<ConnectorInfo> connInfos = ConnIdBundleManager.getConnManager().getConnectorInfos();
+        if (LOG.isDebugEnabled()) {
+            for (ConnectorInfo connInfo : connInfos) {
+                LOG.debug("Found connector bundle {}", connInfo.getConnectorDisplayName());
+            }
+        }
+
+        // Next load all resource-specific connectors
+        int connectors = 0;
         for (ExternalResource resource : resourceDAO.findAll()) {
             LOG.info("Registering resource-connector pair {}-{}", resource, resource.getConnector());
             try {
                 registerConnector(resource);
+                connectors++;
             } catch (Exception e) {
                 LOG.error("While registering resource-connector pair {}-{}", resource, resource.getConnector(), e);
             }
         }
 
-        LOG.info("Done loading {} connectors", ApplicationContextProvider.getBeanFactory().getBeansOfType(
-                ConnectorFacadeProxy.class, false, true).size());
+        LOG.info("Done loading {} connectors", connectors);
     }
 
     @Transactional(readOnly = true)
@@ -137,6 +148,7 @@ class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
         LOG.info("Done unloading {} connectors", connectors);
 
         ConnectorFacadeFactory.getInstance().dispose();
+        ConnIdBundleManager.resetConnManager();
         LOG.info("All connector resources disposed");
     }
 }

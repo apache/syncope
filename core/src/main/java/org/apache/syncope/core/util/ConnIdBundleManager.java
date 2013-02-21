@@ -111,6 +111,12 @@ public final class ConnIdBundleManager {
         connManager = manager;
     }
 
+    public static void resetConnManager() {
+        synchronized (LOCK) {
+            connManager = null;
+        }
+    }
+
     public static ConnectorInfoManager getConnManager() {
         synchronized (LOCK) {
             if (connManager == null) {

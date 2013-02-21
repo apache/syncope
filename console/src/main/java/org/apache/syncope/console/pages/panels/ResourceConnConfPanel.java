@@ -49,7 +49,6 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,14 +86,13 @@ public class ResourceConnConfPanel extends Panel {
 
     private WebMarkupContainer connConfPropContainer;
 
-    private AjaxLink check;
+    private AjaxLink<Void> check;
 
     private boolean createFlag;
 
     private ResourceTO resourceTO;
 
     public ResourceConnConfPanel(final String id, final ResourceTO resourceTO, final boolean createFlag) {
-
         super(id);
         setOutputMarkupId(true);
 
@@ -107,7 +105,7 @@ public class ResourceConnConfPanel extends Panel {
         connConfPropContainer.setOutputMarkupId(true);
         add(connConfPropContainer);
 
-        check = new IndicatingAjaxLink("check", new ResourceModel("check")) {
+        check = new IndicatingAjaxLink<Void>("check") {
 
             private static final long serialVersionUID = -4199438518229098169L;
 

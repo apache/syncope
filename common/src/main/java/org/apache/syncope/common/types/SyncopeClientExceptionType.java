@@ -29,6 +29,7 @@ public enum SyncopeClientExceptionType {
     GenericPersistence("Syncope.GenericPersistence", "Syncope.GenericPersistence.cause"),
     InvalidLogger("Syncope.InvalidLogger", "Syncope.InvalidLogger.message"),
     InvalidConnInstance("Syncope.InvalidConnInstance", "Syncope.InvalidConnInstance.message"),
+    InvalidConnIdConf("Syncope.InvalidConnIdConf", "Syncope.InvalidConnIdConf.message"),
     InvalidPasswordPolicy("Syncope.InvalidPasswordPolicy", "Syncope.InvalidPasswordPolicy.reason"),
     InvalidAccountPolicy("Syncope.InvalidAccountPolicy", "Syncope.InvalidAccountPolicy.reason"),
     InvalidSyncPolicy("Syncope.InvalidSyncPolicy", "Syncope.InvalidSyncPolicy.reason"),
@@ -38,8 +39,8 @@ public enum SyncopeClientExceptionType {
     InvalidSchemaDefinition("Syncope.InvalidSchemaDefinition", ""),
     InvalidSearchCondition("Syncope.InvalidSearchCondition", ""),
     InvalidPropagationTaskExecReport(
-            "Syncope.InvalidPropagationTaskExecReport",
-            "Syncope.InvalidPropagationTaskExecReport.element"),
+    "Syncope.InvalidPropagationTaskExecReport",
+    "Syncope.InvalidPropagationTaskExecReport.element"),
     InvalidUSchema("Syncope.InvalidUSchemaUpdate", "Syncope.InvalidUSchemaUpdate.name"),
     InvalidUDerSchema("Syncope.InvalidUDerSchemaUpdate", "Syncope.InvalidUDerSchemaUpdate.name"),
     InvalidUVirSchema("Syncope.InvalidUVirSchemaUpdate", "Syncope.InvalidUVirSchemaUpdate.name"),
@@ -70,14 +71,12 @@ public enum SyncopeClientExceptionType {
 
     private String elementHeaderName;
 
-    private SyncopeClientExceptionType(String headerValue, String elementHeaderName) {
-
+    private SyncopeClientExceptionType(final String headerValue, final String elementHeaderName) {
         this.headerValue = headerValue;
         this.elementHeaderName = elementHeaderName;
     }
 
-    public static SyncopeClientExceptionType getFromHeaderValue(String exceptionTypeHeaderValue) {
-
+    public static SyncopeClientExceptionType getFromHeaderValue(final String exceptionTypeHeaderValue) {
         SyncopeClientExceptionType result = null;
         for (SyncopeClientExceptionType syncopeClientExceptionType : values()) {
             if (exceptionTypeHeaderValue.equals(syncopeClientExceptionType.getHeaderValue())) {
