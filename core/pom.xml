@@ -285,11 +285,11 @@ under the License.
 
     <dependency>
       <groupId>org.connid</groupId>
-      <artifactId>framework</artifactId>
+      <artifactId>connid-framework</artifactId>
     </dependency>
     <dependency>
       <groupId>org.connid</groupId>
-      <artifactId>framework-internal</artifactId>
+      <artifactId>connid-framework-internal</artifactId>
     </dependency>
     
     <dependency>

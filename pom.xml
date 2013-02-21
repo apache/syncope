@@ -406,12 +406,12 @@ under the License.
 
       <dependency>
         <groupId>org.connid</groupId>
-        <artifactId>framework</artifactId>
+        <artifactId>connid-framework</artifactId>
         <version>${connid.version}</version>
       </dependency>
       <dependency>
         <groupId>org.connid</groupId>
-        <artifactId>framework-internal</artifactId>
+        <artifactId>connid-framework-internal</artifactId>
         <version>${connid.version}</version>
       </dependency>
 
