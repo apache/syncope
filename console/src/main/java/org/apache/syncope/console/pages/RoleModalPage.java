@@ -66,7 +66,7 @@ public class RoleModalPage extends BaseModalPage {
 
         form.setModel(new CompoundPropertyModel(roleTO));
 
-        final RoleAttributesPanel attributesPanel = new RoleAttributesPanel("attributesPanel", form, roleTO, pageRef);
+        final RoleAttributesPanel attributesPanel = new RoleAttributesPanel("attributesPanel", form, roleTO);
 
         form.add(attributesPanel);
 

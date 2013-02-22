@@ -24,15 +24,14 @@ import org.apache.syncope.client.to.AttributeTO;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.rest.SchemaRestClient;
-import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.apache.syncope.types.AttributableType;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -61,9 +60,7 @@ public class DerivedAttributesPanel extends Panel {
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
-    public <T extends AbstractAttributableTO> DerivedAttributesPanel(final String id, final T entityTO,
-            final PageReference pageRef) {
-
+    public <T extends AbstractAttributableTO> DerivedAttributesPanel(final String id, final T entityTO) {
         super(id);
         setOutputMarkupId(true);
 
@@ -88,13 +85,12 @@ public class DerivedAttributesPanel extends Panel {
         attributesContainer.setOutputMarkupId(true);
         add(attributesContainer);
 
-        AjaxButton addAttributeBtn = new ClearIndicatingAjaxButton("addAttributeBtn",
-                new ResourceModel("addAttributeBtn"), pageRef) {
+        AjaxButton addAttributeBtn = new IndicatingAjaxButton("addAttributeBtn", new ResourceModel("addAttributeBtn")) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 entityTO.getDerivedAttributes().add(new AttributeTO());
                 target.add(attributesContainer);
             }

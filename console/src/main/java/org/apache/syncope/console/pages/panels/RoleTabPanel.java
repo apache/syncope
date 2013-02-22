@@ -53,7 +53,7 @@ public class RoleTabPanel extends Panel {
         form.setModel(new CompoundPropertyModel(roleTO));
         form.setOutputMarkupId(true);
 
-        final RoleAttributesPanel attributesPanel = new RoleAttributesPanel("attributesPanel", form, roleTO, pageRef);
+        final RoleAttributesPanel attributesPanel = new RoleAttributesPanel("attributesPanel", form, roleTO);
 
         attributesPanel.setEnabled(false);
 
@@ -67,19 +67,19 @@ public class RoleTabPanel extends Panel {
         userListContainer.add(
                 new ClearIndicatingAjaxButton("search", new ResourceModel("search"), pageRef) {
 
-                    private static final long serialVersionUID = -958724007591692537L;
+            private static final long serialVersionUID = -958724007591692537L;
 
-                    @Override
-                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                        final MembershipCond membershipCond = new MembershipCond();
-                        membershipCond.setRoleName(roleTO.getName());
-                        NodeCond cond = NodeCond.getLeafCond(membershipCond);
+            @Override
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                final MembershipCond membershipCond = new MembershipCond();
+                membershipCond.setRoleName(roleTO.getName());
+                NodeCond cond = NodeCond.getLeafCond(membershipCond);
 
-                        userListContainer.replace(new ResultSetPanel("userList", true, cond, pageRef));
+                userListContainer.replace(new ResultSetPanel("userList", true, cond, pageRef));
 
-                        target.add(userListContainer);
-                    }
-                });
+                target.add(userListContainer);
+            }
+        });
 
         form.add(userListContainer);
         add(form);

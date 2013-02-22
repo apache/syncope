@@ -23,7 +23,6 @@ import org.apache.syncope.console.commons.SelectChoiceRenderer;
 import org.apache.syncope.console.rest.EntitlementRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -40,7 +39,7 @@ public class RoleAttributesPanel extends Panel {
 
     final Palette<String> entitlementsPalette;
 
-    public RoleAttributesPanel(final String id, final Form form, final RoleTO roleTO, final PageReference pageRef) {
+    public RoleAttributesPanel(final String id, final Form form, final RoleTO roleTO) {
         super(id);
 
         //--------------------------------
@@ -61,7 +60,7 @@ public class RoleAttributesPanel extends Panel {
         //--------------------------------
         // Derived attributes container
         //--------------------------------
-        this.add(new DerivedAttributesPanel("derivedAttributes", roleTO, pageRef));
+        this.add(new DerivedAttributesPanel("derivedAttributes", roleTO));
 
         final AjaxCheckBoxPanel inhDerivedAttributes = new AjaxCheckBoxPanel("inheritDerivedAttributes",
                 "inheritDerivedAttributes", new PropertyModel<Boolean>(roleTO, "inheritDerivedAttributes"));
@@ -72,7 +71,7 @@ public class RoleAttributesPanel extends Panel {
         //--------------------------------
         // Virtual attributes container
         //--------------------------------
-        this.add(new VirtualAttributesPanel("virtualAttributes", roleTO, false, pageRef));
+        this.add(new VirtualAttributesPanel("virtualAttributes", roleTO, false));
 
         final AjaxCheckBoxPanel inhVirtualAttributes = new AjaxCheckBoxPanel("inheritVirtualAttributes",
                 "inheritVirtualAttributes", new PropertyModel<Boolean>(roleTO, "inheritVirtualAttributes"));

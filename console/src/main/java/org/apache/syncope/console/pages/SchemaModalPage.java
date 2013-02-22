@@ -28,7 +28,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.client.AbstractBaseBean;
 import org.apache.syncope.client.to.SchemaTO;
 import org.apache.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -40,6 +39,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -203,12 +203,12 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         final AjaxCheckBoxPanel uniqueConstraint = new AjaxCheckBoxPanel("uniqueConstraint",
                 getString("uniqueConstraint"), new PropertyModel<Boolean>(schema, "uniqueConstraint"));
 
-        final AjaxButton submit = new ClearIndicatingAjaxButton("apply", new ResourceModel("submit"), pageRef) {
+        final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 final SchemaTO schemaTO = (SchemaTO) form.getDefaultModelObject();
 
                 schemaTO.setEnumerationValues(getEnumValuesAsString(enumerationValues.getView().getModelObject()));
