@@ -20,7 +20,9 @@ package org.apache.syncope.core.rest.controller;
 
 import java.util.List;
 import java.util.Set;
+import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -29,6 +31,9 @@ import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.ResourceSubCategory;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.MappingPurpose;
+import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
@@ -48,6 +53,7 @@ import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,12 +90,25 @@ public class ResourceController extends AbstractController {
     private ConnObjectUtil connObjectUtil;
 
     @Autowired
-    private ConnectorFactory connLoader;
+    private ConnectorFactory connFactory;
 
     @PreAuthorize("hasRole('RESOURCE_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
     public ResourceTO create(final HttpServletResponse response, @RequestBody final ResourceTO resourceTO) {
         LOG.debug("Resource creation: {}", resourceTO);
+
+        if (StringUtils.isBlank(resourceTO.getName())) {
+            SyncopeClientCompositeErrorException sccee =
+                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
+            sce.addElement("Resource name");
+            sccee.addException(sce);
+            throw sccee;
+        }
+
+        if (resourceDAO.find(resourceTO.getName()) != null) {
+            throw new EntityExistsException("Resource '" + resourceTO.getName() + "'");
+        }
 
         ExternalResource resource = resourceDAO.save(binder.create(resourceTO));
 
@@ -203,7 +222,7 @@ public class ResourceController extends AbstractController {
         AttributableUtil attrUtil = AttributableUtil.getInstance(type);
         ObjectClass objectClass = AttributableType.USER == type ? ObjectClass.ACCOUNT : ObjectClass.GROUP;
 
-        final Connector connector = connLoader.getConnector(resource);
+        final Connector connector = connFactory.getConnector(resource);
 
         final ConnectorObject connectorObject = connector.getObject(objectClass, new Uid(objectId),
                 connector.getOperationOptions(attrUtil.getMappingItems(resource, MappingPurpose.BOTH)));
@@ -231,7 +250,7 @@ public class ResourceController extends AbstractController {
     public ModelAndView check(@RequestBody final ResourceTO resourceTO) {
         final ConnInstance connInstance = binder.getConnInstance(resourceTO);
 
-        final Connector connector = connLoader.createConnector(connInstance, connInstance.getConfiguration());
+        final Connector connector = connFactory.createConnector(connInstance, connInstance.getConfiguration());
 
         boolean result;
         try {

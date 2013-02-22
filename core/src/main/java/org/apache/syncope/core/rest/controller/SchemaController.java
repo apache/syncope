@@ -20,11 +20,16 @@ package org.apache.syncope.core.rest.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.SchemaSubCategory;
+import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
@@ -32,6 +37,7 @@ import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.rest.data.SchemaDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -57,7 +63,23 @@ public class SchemaController extends AbstractController {
     public SchemaTO create(final HttpServletResponse response, @RequestBody final SchemaTO schemaTO,
             @PathVariable("kind") final String kind) {
 
-        AbstractSchema schema = getAttributableUtil(kind).newSchema();
+        if (StringUtils.isBlank(schemaTO.getName())) {
+            SyncopeClientCompositeErrorException sccee =
+                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
+            sce.addElement("Schema name");
+            sccee.addException(sce);
+            throw sccee;
+        }
+
+        AttributableUtil attrUtil = getAttributableUtil(kind);
+
+        if (schemaDAO.find(schemaTO.getName(), attrUtil.schemaClass()) != null) {
+            throw new EntityExistsException(attrUtil.schemaClass().getSimpleName()
+                    + " '" + schemaTO.getName() + "'");
+        }
+
+        AbstractSchema schema = attrUtil.newSchema();
         binder.create(schemaTO, schema);
         schema = schemaDAO.save(schema);
 
@@ -65,7 +87,7 @@ public class SchemaController extends AbstractController {
                 "Successfully created schema: " + kind + "/" + schema.getName());
 
         response.setStatus(HttpServletResponse.SC_CREATED);
-        return binder.getSchemaTO(schema, getAttributableUtil(kind));
+        return binder.getSchemaTO(schema, attrUtil);
     }
 
     @PreAuthorize("hasRole('SCHEMA_DELETE')")

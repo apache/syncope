@@ -164,8 +164,7 @@ public class SchemaTestITCase extends AbstractTest {
         SchemaTO schemaTO = schemaService.read(AttributableType.ROLE, SchemaType.NORMAL, "icon");
         assertNotNull(schemaTO);
 
-        schemaService.update(AttributableType.ROLE, SchemaType.NORMAL,
-                schemaTO.getName(), schemaTO);
+        schemaService.update(AttributableType.ROLE, SchemaType.NORMAL, schemaTO.getName(), schemaTO);
         SchemaTO updatedTO = schemaService.read(AttributableType.ROLE, SchemaType.NORMAL, "icon");
         assertEquals(schemaTO, updatedTO);
 
@@ -251,6 +250,29 @@ public class SchemaTestITCase extends AbstractTest {
         } catch (SyncopeClientCompositeErrorException scce) {
             SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidUSchema);
             assertNotNull(sce);
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE323() {
+        SchemaTO actual = schemaService.read(AttributableType.ROLE, SchemaType.NORMAL, "icon");
+        assertNotNull(actual);
+
+        try {
+            createSchema(AttributableType.ROLE, SchemaType.NORMAL, actual);
+            fail();
+        } catch (SyncopeClientCompositeErrorException scce) {
+            assertEquals(HttpStatus.CONFLICT, scce.getStatusCode());
+            assertTrue(scce.hasException(SyncopeClientExceptionType.EntityExists));
+        }
+
+        actual.setName(null);
+        try {
+            createSchema(AttributableType.ROLE, SchemaType.NORMAL, actual);
+            fail();
+        } catch (SyncopeClientCompositeErrorException scce) {
+            assertEquals(HttpStatus.BAD_REQUEST, scce.getStatusCode());
+            assertTrue(scce.hasException(SyncopeClientExceptionType.RequiredValuesMissing));
         }
     }
 

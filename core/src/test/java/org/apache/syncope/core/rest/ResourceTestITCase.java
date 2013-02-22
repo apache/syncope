@@ -346,7 +346,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        String resourceName = "ws-target-resource-delete";
+        String resourceName = "tobedeleted";
 
         ResourceTO resource = buildResourceTO(resourceName);
         Response response = resourceService.create(resource);
@@ -384,8 +384,30 @@ public class ResourceTestITCase extends AbstractTest {
     @Test
     public void read() {
         ResourceTO actual = resourceService.read("resource-testdb");
-
         assertNotNull(actual);
+    }
+
+    @Test
+    public void issueSYNCOPE323() {
+        ResourceTO actual = resourceService.read("resource-testdb");
+        assertNotNull(actual);
+
+        try {
+            createResource(resourceService, actual);
+            fail();
+        } catch (SyncopeClientCompositeErrorException scce) {
+            assertEquals(HttpStatus.CONFLICT, scce.getStatusCode());
+            assertTrue(scce.hasException(SyncopeClientExceptionType.EntityExists));
+        }
+
+        actual.setName(null);
+        try {
+            createResource(resourceService, actual);
+            fail();
+        } catch (SyncopeClientCompositeErrorException scce) {
+            assertEquals(HttpStatus.BAD_REQUEST, scce.getStatusCode());
+            assertTrue(scce.hasException(SyncopeClientExceptionType.RequiredValuesMissing));
+        }
     }
 
     private ResourceTO buildResourceTO(String resourceName) {

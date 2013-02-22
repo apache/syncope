@@ -21,12 +21,13 @@ package org.apache.syncope.core.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.http.HttpStatus;
 import org.apache.syncope.common.to.DerivedSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
@@ -35,6 +36,7 @@ import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.springframework.http.HttpStatus;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class DerivedSchemaTestITCase extends AbstractTest {
@@ -91,7 +93,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
             // Recreate schema to make test re-runnable
             Response response = createSchema(AttributableType.ROLE, SchemaType.DERIVED, schema);
             assertNotNull(response);
-            assertEquals(HttpStatus.SC_CREATED, response.getStatus());
+            assertEquals(HttpStatus.CREATED.value(), response.getStatus());
         }
         assertNotNull(t);
     }
@@ -116,6 +118,29 @@ public class DerivedSchemaTestITCase extends AbstractTest {
             schema.setExpression("mderived_sx + '-' + mderived_dx");
             schemaService.update(AttributableType.MEMBERSHIP, SchemaType.DERIVED,
                     schema.getName(), schema);
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE323() {
+        DerivedSchemaTO actual = schemaService.read(AttributableType.ROLE, SchemaType.DERIVED, "rderiveddata");
+        assertNotNull(actual);
+
+        try {
+            createSchema(AttributableType.ROLE, SchemaType.DERIVED, actual);
+            fail();
+        } catch (SyncopeClientCompositeErrorException scce) {
+            assertEquals(HttpStatus.CONFLICT, scce.getStatusCode());
+            assertTrue(scce.hasException(SyncopeClientExceptionType.EntityExists));
+        }
+
+        actual.setName(null);
+        try {
+            createSchema(AttributableType.ROLE, SchemaType.DERIVED, actual);
+            fail();
+        } catch (SyncopeClientCompositeErrorException scce) {
+            assertEquals(HttpStatus.BAD_REQUEST, scce.getStatusCode());
+            assertTrue(scce.hasException(SyncopeClientExceptionType.RequiredValuesMissing));
         }
     }
 }

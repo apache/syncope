@@ -142,7 +142,6 @@ public class ConnInstanceController extends AbstractController {
     @PreAuthorize("hasRole('CONNECTOR_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{connInstanceId}")
     public ConnInstanceTO delete(@PathVariable("connInstanceId") final Long connInstanceId) {
-
         ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connInstanceId + "'");
@@ -152,13 +151,13 @@ public class ConnInstanceController extends AbstractController {
             SyncopeClientCompositeErrorException scce =
                     new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
-            SyncopeClientException invalidConnInstance = new SyncopeClientException(
-                    SyncopeClientExceptionType.ExistingResource);
+            SyncopeClientException associatedResources =
+                    new SyncopeClientException(SyncopeClientExceptionType.AssociatedResources);
             for (ExternalResource resource : connInstance.getResources()) {
-                invalidConnInstance.addElement(resource.getName());
+                associatedResources.addElement(resource.getName());
             }
 
-            scce.addException(invalidConnInstance);
+            scce.addException(associatedResources);
             throw scce;
         }
 

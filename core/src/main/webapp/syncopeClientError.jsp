@@ -17,13 +17,12 @@ specific language governing permissions and limitations
 under the License.
 --%>
 <%@page isErrorPage="true" session="false" contentType="application/json" pageEncoding="UTF-8"%>
-<%@page import="org.springframework.orm.jpa.JpaSystemException"%>
-<%@page import="org.apache.syncope.common.types.EntityViolationType"%>
 <%@page import="java.util.Set"%>
 <%@page import="java.util.Map"%>
-<%@page import="org.apache.syncope.core.persistence.validation.entity.InvalidEntityException"%>
+<%@page import="javax.persistence.EntityExistsException"%>
 <%@page import="javax.persistence.PersistenceException"%>
-<%@page import="org.springframework.dao.DataIntegrityViolationException"%>
+<%@page import="org.apache.syncope.common.types.EntityViolationType"%>
+<%@page import="org.apache.syncope.core.persistence.validation.entity.InvalidEntityException"%>
 <%@page import="org.apache.syncope.common.services.InvalidSearchConditionException"%>
 <%@page import="org.apache.syncope.core.rest.controller.UnauthorizedRoleException"%>
 <%@page import="org.apache.syncope.core.persistence.dao.MissingConfKeyException"%>
@@ -35,9 +34,11 @@ under the License.
 <%@page import="org.apache.syncope.core.persistence.dao.NotFoundException"%>
 <%@page import="org.identityconnectors.framework.common.exceptions.ConfigurationException"%>
 <%@page import="org.apache.syncope.common.validation.SyncopeClientErrorHandler"%>
+<%@page import="org.apache.syncope.core.rest.controller.AbstractController"%>
 <%@page import="org.slf4j.LoggerFactory"%>
 <%@page import="org.slf4j.Logger"%>
-<%@page import="org.apache.syncope.core.rest.controller.AbstractController"%>
+<%@page import="org.springframework.dao.DataIntegrityViolationException"%>
+<%@page import="org.springframework.orm.jpa.JpaSystemException"%>
 
 <%!    static final Logger LOG = LoggerFactory.getLogger(AbstractController.class);%>
 
@@ -54,8 +55,8 @@ under the License.
 
         response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER, exType.getHeaderValue());
 
-        for (Map.Entry<Class, Set<EntityViolationType>> violation :
-                ((InvalidEntityException) ex).getViolations().entrySet()) {
+        for (Map.Entry<Class, Set<EntityViolationType>> violation : ((InvalidEntityException) ex).getViolations().
+                entrySet()) {
 
             for (EntityViolationType violationType : violation.getValue()) {
                 response.addHeader(exType.getElementHeaderName(),
@@ -70,6 +71,12 @@ under the License.
         response.setHeader(SyncopeClientExceptionType.NotFound.getElementHeaderName(), ex.getMessage());
 
         statusCode = HttpServletResponse.SC_NOT_FOUND;
+    } else if (ex instanceof EntityExistsException) {
+        response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+                SyncopeClientExceptionType.EntityExists.getHeaderValue());
+        response.setHeader(SyncopeClientExceptionType.EntityExists.getElementHeaderName(), ex.getMessage());
+
+        statusCode = HttpServletResponse.SC_CONFLICT;
     } else if (ex instanceof WorkflowException) {
         response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                 SyncopeClientExceptionType.Workflow.getHeaderValue());

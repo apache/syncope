@@ -20,6 +20,7 @@ package org.apache.syncope.core.rest.utils;
 
 import java.util.Map;
 import java.util.Set;
+import javax.persistence.EntityExistsException;
 import javax.persistence.PersistenceException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.HttpHeaders;
@@ -73,6 +74,12 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         if (ex instanceof UnauthorizedRoleException) {
             return buildResponse(Response.status(Response.Status.FORBIDDEN),
                     SyncopeClientExceptionType.UnauthorizedRole,
+                    getExMessage(ex));
+        }
+
+        if (ex instanceof EntityExistsException) {
+            return buildResponse(Response.status(Response.Status.CONFLICT),
+                    SyncopeClientExceptionType.EntityExists,
                     getExMessage(ex));
         }
 
@@ -168,8 +175,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
             responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER, exType.getHeaderValue());
 
-            for (@SuppressWarnings("rawtypes") Map.Entry<Class, Set<EntityViolationType>> violation :
-                    ((InvalidEntityException) ex).getViolations().entrySet()) {
+            for (@SuppressWarnings("rawtypes") Map.Entry<Class, Set<EntityViolationType>> violation
+                    : ((InvalidEntityException) ex).getViolations().entrySet()) {
 
                 for (EntityViolationType violationType : violation.getValue()) {
                     responseBuilder.header(exType.getElementHeaderName(),

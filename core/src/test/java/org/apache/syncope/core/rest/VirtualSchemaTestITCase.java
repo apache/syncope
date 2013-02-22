@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
@@ -33,6 +36,7 @@ import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.springframework.http.HttpStatus;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class VirtualSchemaTestITCase extends AbstractTest {
@@ -40,7 +44,8 @@ public class VirtualSchemaTestITCase extends AbstractTest {
     @Test
     public void list() {
         @SuppressWarnings("unchecked")
-        List<VirtualSchemaTO> vSchemas = (List<VirtualSchemaTO>) schemaService.list(AttributableType.USER, SchemaType.VIRTUAL);
+        List<VirtualSchemaTO> vSchemas = (List<VirtualSchemaTO>) schemaService.list(AttributableType.USER,
+                SchemaType.VIRTUAL);
         assertFalse(vSchemas.isEmpty());
         for (VirtualSchemaTO vSchemaTO : vSchemas) {
             assertNotNull(vSchemaTO);
@@ -84,5 +89,28 @@ public class VirtualSchemaTestITCase extends AbstractTest {
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
         }
         assertNotNull(t);
+    }
+
+    @Test
+    public void issueSYNCOPE323() {
+        VirtualSchemaTO actual = schemaService.read(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, "mvirtualdata");
+        assertNotNull(actual);
+
+        try {
+            createSchema(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, actual);
+            fail();
+        } catch (SyncopeClientCompositeErrorException scce) {
+            assertEquals(HttpStatus.CONFLICT, scce.getStatusCode());
+            assertTrue(scce.hasException(SyncopeClientExceptionType.EntityExists));
+        }
+
+        actual.setName(null);
+        try {
+            createSchema(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, actual);
+            fail();
+        } catch (SyncopeClientCompositeErrorException scce) {
+            assertEquals(HttpStatus.BAD_REQUEST, scce.getStatusCode());
+            assertTrue(scce.hasException(SyncopeClientExceptionType.RequiredValuesMissing));
+        }
     }
 }

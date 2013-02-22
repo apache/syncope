@@ -27,6 +27,8 @@ import org.springframework.web.client.HttpClientErrorException;
 
 public class SyncopeClientCompositeErrorException extends HttpClientErrorException {
 
+    private static final long serialVersionUID = 7882118041134372129L;
+
     private Set<SyncopeClientException> exceptions;
 
     public SyncopeClientCompositeErrorException(HttpStatus statusCode) {
@@ -43,11 +45,9 @@ public class SyncopeClientCompositeErrorException extends HttpClientErrorExcepti
     }
 
     public SyncopeClientException getException(SyncopeClientExceptionType exceptionType) {
-
         boolean found = false;
         SyncopeClientException syncopeClientException = null;
         for (Iterator<SyncopeClientException> itor = exceptions.iterator(); itor.hasNext() && !found;) {
-
             syncopeClientException = itor.next();
             if (syncopeClientException.getType().equals(exceptionType)) {
                 found = true;

@@ -39,7 +39,9 @@ public class SyncopeClientErrorHandler extends DefaultResponseErrorHandler {
      */
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeClientErrorHandler.class);
 
-    private static final HttpStatus[] MANAGED_STATUSES = {HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND};
+    private static final HttpStatus[] MANAGED_STATUSES = {
+        HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND, HttpStatus.CONFLICT
+    };
 
     @Override
     public void handleError(final ClientHttpResponse response) throws IOException {

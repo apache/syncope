@@ -23,9 +23,10 @@ import javax.xml.bind.annotation.XmlEnum;
 @XmlEnum
 public enum SyncopeClientExceptionType {
 
+    AssociatedResources("Syncope.AssociatedResources", "Syncope.AssociatedResources.name"),
     Deadlock("Syncope.Deadlock", ""),
     DataIntegrityViolation("Syncope.DataIntegrityViolation", "Syncope.DataIntegrityViolation.name"),
-    ExistingResource("Syncope.ExistingResource", "Syncope.ExistingResource.name"),
+    EntityExists("Syncope.EntityExists", "Syncope.EntityExists.name"),
     GenericPersistence("Syncope.GenericPersistence", "Syncope.GenericPersistence.cause"),
     InvalidLogger("Syncope.InvalidLogger", "Syncope.InvalidLogger.message"),
     InvalidConnInstance("Syncope.InvalidConnInstance", "Syncope.InvalidConnInstance.message"),

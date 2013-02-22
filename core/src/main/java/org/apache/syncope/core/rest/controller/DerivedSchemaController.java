@@ -20,12 +20,16 @@ package org.apache.syncope.core.rest.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.to.DerivedSchemaTO;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.SchemaSubCategory;
+import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
@@ -33,6 +37,7 @@ import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.rest.data.DerivedSchemaDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -56,11 +61,26 @@ public class DerivedSchemaController extends AbstractController {
     @PreAuthorize("hasRole('SCHEMA_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/create")
     public DerivedSchemaTO create(final HttpServletResponse response,
-            @RequestBody final DerivedSchemaTO derivedSchemaTO, @PathVariable("kind") final String kind)
-            throws SyncopeClientCompositeErrorException {
+            @RequestBody final DerivedSchemaTO derSchemaTO, @PathVariable("kind") final String kind) {
 
-        AbstractDerSchema derivedSchema = derSchemaDAO.save(
-                binder.create(derivedSchemaTO, getAttributableUtil(kind).newDerSchema()));
+
+        if (StringUtils.isBlank(derSchemaTO.getName())) {
+            SyncopeClientCompositeErrorException sccee =
+                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
+            sce.addElement("Derived schema name");
+            sccee.addException(sce);
+            throw sccee;
+        }
+
+        AttributableUtil attrUtil = getAttributableUtil(kind);
+
+        if (derSchemaDAO.find(derSchemaTO.getName(), attrUtil.derSchemaClass()) != null) {
+            throw new EntityExistsException(attrUtil.schemaClass().getSimpleName()
+                    + " '" + derSchemaTO.getName() + "'");
+        }
+
+        AbstractDerSchema derivedSchema = derSchemaDAO.save(binder.create(derSchemaTO, attrUtil.newDerSchema()));
 
         auditManager.audit(Category.schema, SchemaSubCategory.createDerived, Result.success,
                 "Successfully created derived schema: " + kind + "/" + derivedSchema.getName());
@@ -72,7 +92,7 @@ public class DerivedSchemaController extends AbstractController {
     @PreAuthorize("hasRole('SCHEMA_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/delete/{schema}")
     public DerivedSchemaTO delete(@PathVariable("kind") final String kind,
-            @PathVariable("schema") final String derivedSchemaName) throws NotFoundException {
+            @PathVariable("schema") final String derivedSchemaName) {
 
         Class<? extends AbstractDerSchema> reference = getAttributableUtil(kind).derSchemaClass();
         AbstractDerSchema derivedSchema = derSchemaDAO.find(derivedSchemaName, reference);
@@ -109,7 +129,7 @@ public class DerivedSchemaController extends AbstractController {
     @PreAuthorize("hasRole('SCHEMA_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/read/{derivedSchema}")
     public DerivedSchemaTO read(@PathVariable("kind") final String kind,
-            @PathVariable("derivedSchema") final String derivedSchemaName) throws NotFoundException {
+            @PathVariable("derivedSchema") final String derivedSchemaName) {
 
         Class<? extends AbstractDerSchema> reference = getAttributableUtil(kind).derSchemaClass();
         AbstractDerSchema derivedSchema = derSchemaDAO.find(derivedSchemaName, reference);
@@ -126,7 +146,7 @@ public class DerivedSchemaController extends AbstractController {
     @PreAuthorize("hasRole('SCHEMA_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/update")
     public DerivedSchemaTO update(@RequestBody final DerivedSchemaTO derivedSchemaTO,
-            @PathVariable("kind") final String kind) throws NotFoundException {
+            @PathVariable("kind") final String kind) {
 
         Class<? extends AbstractDerSchema> reference = getAttributableUtil(kind).derSchemaClass();
         AbstractDerSchema derivedSchema = derSchemaDAO.find(derivedSchemaTO.getName(), reference);
