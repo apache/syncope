@@ -387,8 +387,8 @@ td.action{
 
 .role-tree {
   width: 30%;
-  display:block;
-  float:left;
+  display: block;
+  float: left;
 }
 
 .roleTable {
@@ -397,6 +397,13 @@ td.action{
 
 .tree-folder-other {
   padding-top: 2px;
+  display: block;
+  height: 18px;
+}
+
+.tree-folder-open {
+  display: block;
+  height: 18px;
 }
 
 #versionMP {
