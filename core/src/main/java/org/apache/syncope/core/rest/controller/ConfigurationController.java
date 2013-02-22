@@ -64,7 +64,7 @@ public class ConfigurationController extends AbstractController {
     private ConfDAO confDAO;
 
     @Autowired
-    private ConfigurationDataBinder configurationDataBinder;
+    private ConfigurationDataBinder binder;
 
     @Autowired
     private ImportExport importExport;
@@ -84,7 +84,7 @@ public class ConfigurationController extends AbstractController {
             @RequestBody final ConfigurationTO configurationTO) {
         LOG.debug("Configuration create called with parameters {}", configurationTO);
 
-        SyncopeConf conf = configurationDataBinder.createSyncopeConfiguration(configurationTO);
+        SyncopeConf conf = binder.create(configurationTO);
         conf = confDAO.save(conf);
 
         auditManager.audit(Category.configuration, ConfigurationSubCategory.create, Result.success,
@@ -92,15 +92,14 @@ public class ConfigurationController extends AbstractController {
 
         response.setStatus(HttpServletResponse.SC_CREATED);
 
-        return configurationDataBinder.getConfigurationTO(conf);
+        return binder.getConfigurationTO(conf);
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{key}")
-    public ConfigurationTO delete(@PathVariable("key") final String key) throws MissingConfKeyException {
-
+    public ConfigurationTO delete(@PathVariable("key") final String key) {
         SyncopeConf conf = confDAO.find(key);
-        ConfigurationTO confToDelete = configurationDataBinder.getConfigurationTO(conf);
+        ConfigurationTO confToDelete = binder.getConfigurationTO(conf);
         confDAO.delete(key);
 
         auditManager.audit(Category.configuration, ConfigurationSubCategory.delete, Result.success,
@@ -115,7 +114,7 @@ public class ConfigurationController extends AbstractController {
         List<ConfigurationTO> configurationTOs = new ArrayList<ConfigurationTO>(configurations.size());
 
         for (SyncopeConf configuration : configurations) {
-            configurationTOs.add(configurationDataBinder.getConfigurationTO(configuration));
+            configurationTOs.add(binder.getConfigurationTO(configuration));
         }
 
         auditManager.audit(Category.configuration, ConfigurationSubCategory.list, Result.success,
@@ -126,13 +125,12 @@ public class ConfigurationController extends AbstractController {
 
     @PreAuthorize("hasRole('CONFIGURATION_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{key}")
-    public ConfigurationTO read(final HttpServletResponse response, @PathVariable("key") final String key)
-            throws MissingConfKeyException {
+    public ConfigurationTO read(final HttpServletResponse response, @PathVariable("key") final String key) {
 
         ConfigurationTO result;
         try {
             SyncopeConf conf = confDAO.find(key);
-            result = configurationDataBinder.getConfigurationTO(conf);
+            result = binder.getConfigurationTO(conf);
 
             auditManager.audit(Category.configuration, ConfigurationSubCategory.read, Result.success,
                     "Successfully read conf: " + key);
@@ -151,16 +149,14 @@ public class ConfigurationController extends AbstractController {
 
     @PreAuthorize("hasRole('CONFIGURATION_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public ConfigurationTO update(final HttpServletResponse response, @RequestBody final ConfigurationTO configurationTO)
-            throws MissingConfKeyException {
-
+    public ConfigurationTO update(@RequestBody final ConfigurationTO configurationTO) {
         SyncopeConf conf = confDAO.find(configurationTO.getKey());
         conf.setValue(configurationTO.getValue());
 
         auditManager.audit(Category.configuration, ConfigurationSubCategory.update, Result.success,
                 "Successfully updated conf: " + conf.getKey());
 
-        return configurationDataBinder.getConfigurationTO(conf);
+        return binder.getConfigurationTO(conf);
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_LIST')")
@@ -182,7 +178,6 @@ public class ConfigurationController extends AbstractController {
 
         try {
             for (Resource resource : resResolver.getResources("classpath:/mailTemplates/*.vm")) {
-
                 String template = resource.getURL().toExternalForm();
                 if (template.endsWith(".html.vm")) {
                     htmlTemplates.add(

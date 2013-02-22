@@ -42,16 +42,16 @@ import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.impl.DefaultPropagationHandler;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
-import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -65,7 +65,12 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/role")
-public class RoleController extends AbstractController {
+public class RoleController {
+
+    /**
+     * Logger.
+     */
+    protected static final Logger LOG = LoggerFactory.getLogger(RoleController.class);
 
     @Autowired
     private AuditManager auditManager;
@@ -80,7 +85,7 @@ public class RoleController extends AbstractController {
     private AttributableSearchDAO searchDAO;
 
     @Autowired
-    private RoleDataBinder dataBinder;
+    private RoleDataBinder binder;
 
     @Autowired
     private RoleWorkflowAdapter rwfAdapter;
@@ -100,10 +105,8 @@ public class RoleController extends AbstractController {
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{roleId}")
     @Transactional(readOnly = true)
-    public RoleTO read(@PathVariable("roleId") final Long roleId)
-            throws NotFoundException, UnauthorizedRoleException {
-
-        SyncopeRole role = dataBinder.getRoleFromId(roleId);
+    public RoleTO read(@PathVariable("roleId") final Long roleId) {
+        SyncopeRole role = binder.getRoleFromId(roleId);
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
         if (!allowedRoleIds.contains(role.getId())) {
@@ -113,16 +116,14 @@ public class RoleController extends AbstractController {
         auditManager.audit(Category.role, RoleSubCategory.read, Result.success,
                 "Successfully read role: " + role.getId());
 
-        return dataBinder.getRoleTO(role);
+        return binder.getRoleTO(role);
     }
 
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(method = RequestMethod.GET, value = "/selfRead/{roleId}")
     @Transactional(readOnly = true)
-    public RoleTO selfRead(@PathVariable("roleId") final Long roleId)
-            throws NotFoundException, UnauthorizedRoleException {
-
-        // Explicit search instead of using dataBinder.getRoleFromId() in order to bypass auth checks - will do here
+    public RoleTO selfRead(@PathVariable("roleId") final Long roleId) {
+        // Explicit search instead of using binder.getRoleFromId() in order to bypass auth checks - will do here
         SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
             throw new NotFoundException("Role " + roleId);
@@ -145,16 +146,14 @@ public class RoleController extends AbstractController {
         auditManager.audit(Category.role, RoleSubCategory.selfRead, Result.success,
                 "Successfully read own role: " + role.getId());
 
-        return dataBinder.getRoleTO(role);
+        return binder.getRoleTO(role);
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/parent/{roleId}")
     @Transactional(readOnly = true)
-    public RoleTO parent(@PathVariable("roleId") final Long roleId)
-            throws NotFoundException, UnauthorizedRoleException {
-
-        SyncopeRole role = dataBinder.getRoleFromId(roleId);
+    public RoleTO parent(@PathVariable("roleId") final Long roleId) {
+        SyncopeRole role = binder.getRoleFromId(roleId);
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
         if (role.getParent() != null && !allowedRoleIds.contains(role.getParent().getId())) {
@@ -163,7 +162,7 @@ public class RoleController extends AbstractController {
 
         RoleTO result = role.getParent() == null
                 ? null
-                : dataBinder.getRoleTO(role.getParent());
+                : binder.getRoleTO(role.getParent());
 
         auditManager.audit(Category.role, RoleSubCategory.parent, Result.success,
                 result == null
@@ -176,10 +175,8 @@ public class RoleController extends AbstractController {
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/children/{roleId}")
     @Transactional(readOnly = true)
-    public List<RoleTO> children(@PathVariable("roleId") final Long roleId)
-            throws NotFoundException, UnauthorizedRoleException {
-
-        SyncopeRole role = dataBinder.getRoleFromId(roleId);
+    public List<RoleTO> children(@PathVariable("roleId") final Long roleId) {
+        SyncopeRole role = binder.getRoleFromId(roleId);
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
 
@@ -187,7 +184,7 @@ public class RoleController extends AbstractController {
         List<RoleTO> childrenTOs = new ArrayList<RoleTO>(children.size());
         for (SyncopeRole child : children) {
             if (allowedRoleIds.contains(child.getId())) {
-                childrenTOs.add(dataBinder.getRoleTO(child));
+                childrenTOs.add(binder.getRoleTO(child));
             }
         }
 
@@ -226,7 +223,7 @@ public class RoleController extends AbstractController {
 
         final List<RoleTO> result = new ArrayList<RoleTO>(matchingRoles.size());
         for (SyncopeRole role : matchingRoles) {
-            result.add(dataBinder.getRoleTO(role));
+            result.add(binder.getRoleTO(role));
         }
 
         auditManager.audit(Category.role, AuditElements.RoleSubCategory.read, Result.success,
@@ -258,7 +255,7 @@ public class RoleController extends AbstractController {
 
         List<RoleTO> roleTOs = new ArrayList<RoleTO>(roles.size());
         for (SyncopeRole role : roles) {
-            roleTOs.add(dataBinder.getRoleTO(role));
+            roleTOs.add(binder.getRoleTO(role));
         }
 
         auditManager.audit(Category.role, RoleSubCategory.list, Result.success,
@@ -269,9 +266,7 @@ public class RoleController extends AbstractController {
 
     @PreAuthorize("hasRole('ROLE_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
-    public RoleTO create(final HttpServletResponse response, @RequestBody final RoleTO roleTO)
-            throws UnauthorizedRoleException, WorkflowException, NotFoundException, PropagationException {
-
+    public RoleTO create(final HttpServletResponse response, @RequestBody final RoleTO roleTO) {
         LOG.debug("Role create called with parameters {}", roleTO);
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
@@ -288,7 +283,7 @@ public class RoleController extends AbstractController {
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
         taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
 
-        final RoleTO savedTO = dataBinder.getRoleTO(created.getResult());
+        final RoleTO savedTO = binder.getRoleTO(created.getResult());
         savedTO.setPropagationStatusTOs(propagations);
 
         LOG.debug("About to return created role\n{}", savedTO);
@@ -302,12 +297,10 @@ public class RoleController extends AbstractController {
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public RoleTO update(@RequestBody final RoleMod roleMod)
-            throws NotFoundException, UnauthorizedRoleException, WorkflowException, PropagationException {
-
+    public RoleTO update(@RequestBody final RoleMod roleMod) {
         LOG.debug("Role update called with {}", roleMod);
 
-        SyncopeRole role = dataBinder.getRoleFromId(roleMod.getId());
+        SyncopeRole role = binder.getRoleFromId(roleMod.getId());
 
         WorkflowResult<Long> updated = rwfAdapter.update(roleMod);
 
@@ -317,7 +310,7 @@ public class RoleController extends AbstractController {
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
         taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
 
-        final RoleTO updatedTO = dataBinder.getRoleTO(updated.getResult());
+        final RoleTO updatedTO = binder.getRoleTO(updated.getResult());
         updatedTO.setPropagationStatusTOs(propagations);
 
         auditManager.audit(Category.role, RoleSubCategory.update, Result.success,
@@ -330,17 +323,15 @@ public class RoleController extends AbstractController {
 
     @PreAuthorize("hasRole('ROLE_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{roleId}")
-    public RoleTO delete(@PathVariable("roleId") final Long roleId)
-            throws NotFoundException, UnauthorizedRoleException, WorkflowException, PropagationException {
-
-        SyncopeRole role = dataBinder.getRoleFromId(roleId);
-
-        RoleTO roleTO = dataBinder.getRoleTO(role);
-
+    public RoleTO delete(@PathVariable("roleId") final Long roleId) {
         List<PropagationTask> tasks = propagationManager.getRoleDeleteTaskIds(roleId);
+
+        RoleTO roleTO = new RoleTO();
+        roleTO.setId(roleId);
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
         taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+        roleTO.setPropagationStatusTOs(propagations);
 
         rwfAdapter.delete(roleId);
 

@@ -370,8 +370,7 @@ public abstract class AbstractAttributableDataBinder {
 
     protected PropagationByResource fill(final AbstractAttributable attributable,
             final AbstractAttributableMod attributableMod, final AttributableUtil attrUtil,
-            final SyncopeClientCompositeErrorException scce)
-            throws SyncopeClientCompositeErrorException {
+            final SyncopeClientCompositeErrorException scce) {
 
         PropagationByResource propByRes = new PropagationByResource();
 
@@ -580,8 +579,7 @@ public abstract class AbstractAttributableDataBinder {
             scce.addException(requiredValuesMissing);
         }
 
-        // Throw composite exception if there is at least one element set
-        // in the composing exceptions
+        // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
             throw scce;
         }
@@ -617,8 +615,7 @@ public abstract class AbstractAttributableDataBinder {
     }
 
     protected void fill(final AbstractAttributable attributable, final AbstractAttributableTO attributableTO,
-            final AttributableUtil attributableUtil, final SyncopeClientCompositeErrorException scce)
-            throws SyncopeClientCompositeErrorException {
+            final AttributableUtil attributableUtil, final SyncopeClientCompositeErrorException scce) {
 
         // 1. attributes
         SyncopeClientException invalidValues = new SyncopeClientException(SyncopeClientExceptionType.InvalidValues);

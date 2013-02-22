@@ -41,5 +41,4 @@ public abstract class AbstractSchemaTO extends AbstractBaseBean {
     public void setName(final String name) {
         this.name = name;
     }
-
 }

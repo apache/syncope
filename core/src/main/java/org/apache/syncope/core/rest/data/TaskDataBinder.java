@@ -64,7 +64,7 @@ public class TaskDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
-    private static final String[] IGNORE_TASK_PROPERTIES = {"latestExecStatus", "executions", "resource",};
+    private static final String[] IGNORE_TASK_PROPERTIES = {"executions", "resource",};
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {"id", "task"};
 
@@ -143,9 +143,7 @@ public class TaskDataBinder {
         task.setActionsClassName(taskTO.getActionsClassName());
     }
 
-    public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtil taskUtil)
-            throws NotFoundException {
-
+    public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtil taskUtil) {
         SchedTask task = taskUtil.newTask();
         task.setCronExpression(taskTO.getCronExpression());
         task.setName(taskTO.getName());

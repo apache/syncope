@@ -93,13 +93,11 @@ public class ResourceServiceImpl implements ResourceService, ContextAware {
 
     @Override
     public boolean check(final ResourceTO resourceTO) {
-        return (Boolean) resourceController.check(new DummyHTTPServletResponse(), resourceTO).getModel().values()
-                    .iterator().next();
+        return (Boolean) resourceController.check(resourceTO).getModel().values().iterator().next();
     }
 
     @Override
     public void setUriInfo(final UriInfo ui) {
         this.uriInfo = ui;
     }
-
 }

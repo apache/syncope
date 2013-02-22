@@ -45,17 +45,14 @@ import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
-import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
-import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.impl.DefaultPropagationHandler;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
-import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.slf4j.Logger;
@@ -97,7 +94,7 @@ public class UserController {
     protected AttributableSearchDAO searchDAO;
 
     @Autowired
-    protected UserDataBinder dataBinder;
+    protected UserDataBinder binder;
 
     @Autowired
     protected UserWorkflowAdapter uwfAdapter;
@@ -121,16 +118,15 @@ public class UserController {
     @RequestMapping(method = RequestMethod.GET, value = "/verifyPassword/{username}")
     @Transactional(readOnly = true)
     public ModelAndView verifyPassword(@PathVariable("username") String username,
-            @RequestParam("password") final String password)
-            throws NotFoundException, UnauthorizedRoleException {
+            @RequestParam("password") final String password) {
+
         return new ModelAndView().addObject(verifyPasswordInternal(username, password));
     }
 
-    public Boolean verifyPasswordInternal(String username,
-            final String password) {
+    public Boolean verifyPasswordInternal(final String username, final String password) {
         auditManager.audit(Category.user, UserSubCategory.create, Result.success,
                 "Verified password for: " + username);
-        return dataBinder.verifyPassword(username, password);
+        return binder.verifyPassword(username, password);
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
@@ -142,8 +138,7 @@ public class UserController {
 
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public int countInternal() {
-        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-        return userDAO.count(adminRoleIds);
+        return userDAO.count(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()));
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -151,6 +146,7 @@ public class UserController {
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public ModelAndView searchCount(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
+
         return new ModelAndView().addObject(searchCountInternal(searchCondition));
     }
 
@@ -172,7 +168,7 @@ public class UserController {
 
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
-            userTOs.add(dataBinder.getUserTO(user));
+            userTOs.add(binder.getUserTO(user));
         }
 
         auditManager.audit(Category.user, UserSubCategory.list, Result.success,
@@ -190,7 +186,7 @@ public class UserController {
         List<SyncopeUser> users = userDAO.findAll(adminRoleIds, page, size);
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
-            userTOs.add(dataBinder.getUserTO(user));
+            userTOs.add(binder.getUserTO(user));
         }
 
         auditManager.audit(Category.user, UserSubCategory.list, Result.success,
@@ -202,10 +198,8 @@ public class UserController {
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{userId}")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
-    public UserTO read(@PathVariable("userId") final Long userId)
-            throws NotFoundException, UnauthorizedRoleException {
-
-        UserTO result = dataBinder.getUserTO(userId);
+    public UserTO read(@PathVariable("userId") final Long userId) {
+        UserTO result = binder.getUserTO(userId);
 
         auditManager.audit(Category.user, UserSubCategory.read, Result.success,
                 "Successfully read user: " + userId);
@@ -216,10 +210,9 @@ public class UserController {
     @PreAuthorize("#username == authentication.name or hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/readByUsername/{username}")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
-    public UserTO read(@PathVariable final String username)
-            throws NotFoundException, UnauthorizedRoleException {
+    public UserTO read(@PathVariable final String username) {
 
-        UserTO result = dataBinder.getUserTO(username);
+        UserTO result = binder.getUserTO(username);
 
         auditManager.audit(Category.user, UserSubCategory.read, Result.success,
                 "Successfully read user: " + username);
@@ -230,8 +223,8 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(method = RequestMethod.GET, value = "/read/self")
     @Transactional(readOnly = true)
-    public UserTO read() throws NotFoundException {
-        UserTO userTO = dataBinder.getAuthenticatedUserTO();
+    public UserTO read() {
+        UserTO userTO = binder.getAuthenticatedUserTO();
 
         auditManager.audit(Category.user, UserSubCategory.read, Result.success,
                 "Successfully read own data: " + userTO.getUsername());
@@ -268,7 +261,7 @@ public class UserController {
 
         final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.add(dataBinder.getUserTO(user));
+            result.add(binder.getUserTO(user));
         }
 
         auditManager.audit(Category.user, UserSubCategory.read, Result.success,
@@ -279,8 +272,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
-    public UserTO create(final HttpServletResponse response, @RequestBody final UserTO userTO)
-            throws PropagationException, UnauthorizedRoleException, WorkflowException, NotFoundException {
+    public UserTO create(final HttpServletResponse response, @RequestBody final UserTO userTO) {
         UserTO savedTO = createInternal(userTO);
         response.setStatus(HttpServletResponse.SC_CREATED);
         return savedTO;
@@ -310,7 +302,7 @@ public class UserController {
 
         notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
 
-        final UserTO savedTO = dataBinder.getUserTO(created.getResult().getKey());
+        final UserTO savedTO = binder.getUserTO(created.getResult().getKey());
         savedTO.setPropagationStatusTOs(propagations);
 
         LOG.debug("About to return created user\n{}", savedTO);
@@ -323,9 +315,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public UserTO update(@RequestBody final UserMod userMod)
-            throws NotFoundException, PropagationException, UnauthorizedRoleException, WorkflowException {
-
+    public UserTO update(@RequestBody final UserMod userMod) {
         LOG.debug("User update called with {}", userMod);
 
         final String changedPwd = userMod.getPassword();
@@ -349,7 +339,7 @@ public class UserController {
             origPropByRes.merge(updated.getPropByRes());
 
             Set<String> pwdResourceNames = userMod.getPwdPropRequest().getResources();
-            SyncopeUser user = dataBinder.getUserFromId(updated.getResult().getKey());
+            SyncopeUser user = binder.getUserFromId(updated.getResult().getKey());
             pwdResourceNames.retainAll(user.getResourceNames());
             final PropagationByResource pwdPropByRes = new PropagationByResource();
             pwdPropByRes.addAll(ResourceOperation.UPDATE, pwdResourceNames);
@@ -381,7 +371,7 @@ public class UserController {
         notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
 
         // 4. prepare result, including propagation status on external resources
-        final UserTO updatedTO = dataBinder.getUserTO(updated.getResult().getKey());
+        final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey());
         updatedTO.setPropagationStatusTOs(propagations);
 
         auditManager.audit(Category.user, UserSubCategory.update, Result.success,
@@ -395,10 +385,8 @@ public class UserController {
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.GET, value = "/activate/{userId}")
     @Transactional(rollbackFor = {Throwable.class})
-    public UserTO activate(
-            @PathVariable("userId") final Long userId,
-            @RequestParam(required = true) final String token)
-            throws WorkflowException, NotFoundException, UnauthorizedRoleException, PropagationException {
+    public UserTO activate(@PathVariable("userId") final Long userId,
+            @RequestParam(required = true) final String token) {
 
         return activate(userId, token, null);
     }
@@ -406,15 +394,13 @@ public class UserController {
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/activate/{userId}")
     @Transactional(rollbackFor = {Throwable.class})
-    public UserTO activate(
-            @PathVariable("userId") final Long userId,
+    public UserTO activate(@PathVariable("userId") final Long userId,
             @RequestParam(required = true) final String token,
-            @RequestBody final PropagationRequestTO propagationRequestTO)
-            throws WorkflowException, NotFoundException, UnauthorizedRoleException, PropagationException {
+            @RequestBody final PropagationRequestTO propagationRequestTO) {
 
         LOG.debug("About to activate " + userId);
 
-        SyncopeUser user = dataBinder.getUserFromId(userId);
+        SyncopeUser user = binder.getUserFromId(userId);
 
         return setStatus(user, token, propagationRequestTO, true, "activate");
     }
@@ -422,10 +408,8 @@ public class UserController {
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.GET, value = "/activateByUsername/{username}")
     @Transactional(rollbackFor = {Throwable.class})
-    public UserTO activate(
-            @PathVariable("username") final String username,
-            @RequestParam(required = true) final String token)
-            throws WorkflowException, NotFoundException, UnauthorizedRoleException, PropagationException {
+    public UserTO activate(@PathVariable("username") final String username,
+            @RequestParam(required = true) final String token) {
 
         return activate(username, token, null);
     }
@@ -433,15 +417,13 @@ public class UserController {
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/activateByUsername/{username}")
     @Transactional(rollbackFor = {Throwable.class})
-    public UserTO activate(
-            @PathVariable("username") final String username,
+    public UserTO activate(@PathVariable("username") final String username,
             @RequestParam(required = true) final String token,
-            @RequestBody final PropagationRequestTO propagationRequestTO)
-            throws WorkflowException, NotFoundException, UnauthorizedRoleException, PropagationException {
+            @RequestBody final PropagationRequestTO propagationRequestTO) {
 
         LOG.debug("About to activate " + username);
 
-        SyncopeUser user = dataBinder.getUserFromUsername(username);
+        SyncopeUser user = binder.getUserFromUsername(username);
 
         return setStatus(user, token, propagationRequestTO, true, "activate");
     }
@@ -449,8 +431,7 @@ public class UserController {
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.GET, value = "/suspend/{userId}")
     @Transactional(rollbackFor = {Throwable.class})
-    public UserTO suspend(@PathVariable("userId") final Long userId)
-            throws NotFoundException, WorkflowException, UnauthorizedRoleException, PropagationException {
+    public UserTO suspend(@PathVariable("userId") final Long userId) {
 
         return suspend(userId, null);
     }
@@ -459,12 +440,11 @@ public class UserController {
     @RequestMapping(method = RequestMethod.POST, value = "/suspend/{userId}")
     @Transactional(rollbackFor = {Throwable.class})
     public UserTO suspend(@PathVariable("userId") final Long userId,
-            @RequestBody final PropagationRequestTO propagationRequestTO)
-            throws NotFoundException, WorkflowException, UnauthorizedRoleException, PropagationException {
+            @RequestBody final PropagationRequestTO propagationRequestTO) {
 
         LOG.debug("About to suspend " + userId);
 
-        SyncopeUser user = dataBinder.getUserFromId(userId);
+        SyncopeUser user = binder.getUserFromId(userId);
 
         return setStatus(user, null, propagationRequestTO, false, "suspend");
     }
@@ -472,8 +452,7 @@ public class UserController {
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.GET, value = "/suspendByUsername/{username}")
     @Transactional(rollbackFor = {Throwable.class})
-    public UserTO suspend(@PathVariable("username") final String username)
-            throws NotFoundException, WorkflowException, UnauthorizedRoleException, PropagationException {
+    public UserTO suspend(@PathVariable("username") final String username) {
 
         return suspend(username, null);
     }
@@ -482,12 +461,11 @@ public class UserController {
     @RequestMapping(method = RequestMethod.POST, value = "/suspendByUsername/{username}")
     @Transactional(rollbackFor = {Throwable.class})
     public UserTO suspend(@PathVariable("username") final String username,
-            @RequestBody final PropagationRequestTO propagationRequestTO)
-            throws NotFoundException, WorkflowException, UnauthorizedRoleException, PropagationException {
+            @RequestBody final PropagationRequestTO propagationRequestTO) {
 
         LOG.debug("About to suspend " + username);
 
-        SyncopeUser user = dataBinder.getUserFromUsername(username);
+        SyncopeUser user = binder.getUserFromUsername(username);
 
         return setStatus(user, null, propagationRequestTO, false, "suspend");
     }
@@ -495,8 +473,7 @@ public class UserController {
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.GET, value = "/reactivate/{userId}")
     @Transactional(rollbackFor = {Throwable.class})
-    public UserTO reactivate(final @PathVariable("userId") Long userId)
-            throws NotFoundException, WorkflowException, UnauthorizedRoleException, PropagationException {
+    public UserTO reactivate(@PathVariable("userId") final Long userId) {
 
         return reactivate(userId, null);
     }
@@ -504,21 +481,19 @@ public class UserController {
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/reactivate/{userId}")
     @Transactional(rollbackFor = {Throwable.class})
-    public UserTO reactivate(final @PathVariable("userId") Long userId,
-            @RequestBody final PropagationRequestTO propagationRequestTO)
-            throws NotFoundException, WorkflowException, UnauthorizedRoleException, PropagationException {
+    public UserTO reactivate(@PathVariable("userId") final Long userId,
+            @RequestBody final PropagationRequestTO propagationRequestTO) {
 
         LOG.debug("About to reactivate " + userId);
 
-        SyncopeUser user = dataBinder.getUserFromId(userId);
+        SyncopeUser user = binder.getUserFromId(userId);
 
         return setStatus(user, null, propagationRequestTO, true, "reactivate");
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/reactivateByUsername/{username}")
     @Transactional(rollbackFor = {Throwable.class})
-    public UserTO reactivate(final @PathVariable("username") String username)
-            throws NotFoundException, WorkflowException, UnauthorizedRoleException, PropagationException {
+    public UserTO reactivate(@PathVariable("username") final String username) {
 
         return reactivate(username, null);
     }
@@ -526,22 +501,19 @@ public class UserController {
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/reactivateByUsername/{username}")
     @Transactional(rollbackFor = {Throwable.class})
-    public UserTO reactivate(final @PathVariable("username") String username,
-            @RequestBody final PropagationRequestTO propagationRequestTO)
-            throws NotFoundException, WorkflowException, UnauthorizedRoleException, PropagationException {
+    public UserTO reactivate(@PathVariable("username") final String username,
+            @RequestBody final PropagationRequestTO propagationRequestTO) {
 
         LOG.debug("About to reactivate " + username);
 
-        SyncopeUser user = dataBinder.getUserFromUsername(username);
+        SyncopeUser user = binder.getUserFromUsername(username);
 
         return setStatus(user, null, propagationRequestTO, true, "reactivate");
     }
 
     @PreAuthorize("hasRole('USER_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{userId}")
-    public UserTO delete(@PathVariable("userId") final Long userId)
-            throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
-
+    public UserTO delete(@PathVariable("userId") final Long userId) {
         LOG.debug("User delete called with {}", userId);
 
         return doDelete(userId);
@@ -549,12 +521,10 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/deleteByUsername/{username}")
-    public UserTO delete(@PathVariable final String username)
-            throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
-
+    public UserTO delete(@PathVariable final String username) {
         LOG.debug("User delete called with {}", username);
 
-        UserTO result = dataBinder.getUserTO(username);
+        UserTO result = binder.getUserTO(username);
         long userId = result.getId();
 
         return doDelete(userId);
@@ -562,9 +532,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/execute/workflow/{taskId}")
-    public UserTO executeWorkflow(@RequestBody final UserTO userTO, @PathVariable("taskId") final String taskId)
-            throws WorkflowException, NotFoundException, UnauthorizedRoleException, PropagationException {
-
+    public UserTO executeWorkflow(@RequestBody final UserTO userTO, @PathVariable("taskId") final String taskId) {
         LOG.debug("About to execute {} on {}", taskId, userTO.getId());
 
         WorkflowResult<Long> updated = uwfAdapter.execute(userTO, taskId);
@@ -577,7 +545,7 @@ public class UserController {
 
         notificationManager.createTasks(updated.getResult(), updated.getPerformedTasks());
 
-        final UserTO savedTO = dataBinder.getUserTO(updated.getResult());
+        final UserTO savedTO = binder.getUserTO(updated.getResult());
 
         LOG.debug("About to return updated user\n{}", savedTO);
 
@@ -602,10 +570,8 @@ public class UserController {
     @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/workflow/form/{userId}")
     @Transactional(rollbackFor = {Throwable.class})
-    public WorkflowFormTO getFormForUser(@PathVariable("userId") final Long userId)
-            throws UnauthorizedRoleException, NotFoundException, WorkflowException {
-
-        SyncopeUser user = dataBinder.getUserFromId(userId);
+    public WorkflowFormTO getFormForUser(@PathVariable("userId") final Long userId) {
+        SyncopeUser user = binder.getUserFromId(userId);
         WorkflowFormTO result = uwfAdapter.getForm(user.getWorkflowId());
 
         auditManager.audit(Category.user, UserSubCategory.getFormForUser, Result.success,
@@ -617,9 +583,7 @@ public class UserController {
     @PreAuthorize("hasRole('WORKFLOW_FORM_CLAIM')")
     @RequestMapping(method = RequestMethod.GET, value = "/workflow/form/claim/{taskId}")
     @Transactional(rollbackFor = {Throwable.class})
-    public WorkflowFormTO claimForm(@PathVariable("taskId") final String taskId)
-            throws NotFoundException, WorkflowException {
-
+    public WorkflowFormTO claimForm(@PathVariable("taskId") final String taskId) {
         WorkflowFormTO result = uwfAdapter.claimForm(taskId,
                 SecurityContextHolder.getContext().getAuthentication().getName());
 
@@ -632,9 +596,7 @@ public class UserController {
     @PreAuthorize("hasRole('WORKFLOW_FORM_SUBMIT')")
     @RequestMapping(method = RequestMethod.POST, value = "/workflow/form/submit")
     @Transactional(rollbackFor = {Throwable.class})
-    public UserTO submitForm(@RequestBody final WorkflowFormTO form)
-            throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
-
+    public UserTO submitForm(@RequestBody final WorkflowFormTO form) {
         LOG.debug("About to process form {}", form);
 
         WorkflowResult<Map.Entry<Long, String>> updated = uwfAdapter.submitForm(form,
@@ -652,7 +614,7 @@ public class UserController {
                 null);
         taskExecutor.execute(tasks);
 
-        final UserTO savedTO = dataBinder.getUserTO(updated.getResult().getKey());
+        final UserTO savedTO = binder.getUserTO(updated.getResult().getKey());
 
         auditManager.audit(Category.user, UserSubCategory.submitForm, Result.success,
                 "Successfully submitted workflow form for user: " + savedTO.getUsername());
@@ -663,8 +625,7 @@ public class UserController {
     }
 
     protected UserTO setStatus(final SyncopeUser user, final String token,
-            final PropagationRequestTO propagationRequestTO, final boolean status, final String task)
-            throws NotFoundException, WorkflowException, UnauthorizedRoleException, PropagationException {
+            final PropagationRequestTO propagationRequestTO, final boolean status, final String task) {
 
         LOG.debug("About to set status of {}" + user);
 
@@ -686,7 +647,7 @@ public class UserController {
 
         notificationManager.createTasks(updated.getResult(), updated.getPerformedTasks());
 
-        final UserTO savedTO = dataBinder.getUserTO(updated.getResult());
+        final UserTO savedTO = binder.getUserTO(updated.getResult());
 
         auditManager.audit(Category.user, UserSubCategory.setStatus, Result.success,
                 "Successfully changed status to " + savedTO.getStatus() + " for user: " + savedTO.getUsername());
@@ -708,9 +669,7 @@ public class UserController {
         return updated;
     }
 
-    protected UserTO doDelete(final Long userId)
-            throws NotFoundException, WorkflowException, PropagationException, UnauthorizedRoleException {
-
+    protected UserTO doDelete(final Long userId) {
         // Note here that we can only notify about "delete", not any other
         // task defined in workflow process definition: this because this
         // information could only be available after uwfAdapter.delete(), which

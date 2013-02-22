@@ -99,16 +99,13 @@ public class TaskController extends AbstractController {
 
     @PreAuthorize("hasRole('TASK_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create/sync")
-    public TaskTO createSyncTask(final HttpServletResponse response, @RequestBody final SyncTaskTO taskTO)
-            throws NotFoundException {
-
+    public TaskTO createSyncTask(final HttpServletResponse response, @RequestBody final SyncTaskTO taskTO) {
         return createSchedTask(response, taskTO);
     }
 
     @PreAuthorize("hasRole('TASK_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create/sched")
-    public TaskTO createSchedTask(final HttpServletResponse response, @RequestBody final SchedTaskTO taskTO)
-            throws NotFoundException {
+    public TaskTO createSchedTask(final HttpServletResponse response, @RequestBody final SchedTaskTO taskTO) {
         TaskTO createdTaskTO = createSchedTaskInternal(taskTO);
         response.setStatus(HttpServletResponse.SC_CREATED);
         return createdTaskTO;
@@ -143,15 +140,13 @@ public class TaskController extends AbstractController {
 
     @PreAuthorize("hasRole('TASK_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/update/sync")
-    public TaskTO updateSync(@RequestBody final SyncTaskTO taskTO) throws NotFoundException {
-
+    public TaskTO updateSync(@RequestBody final SyncTaskTO taskTO) {
         return updateSched(taskTO);
     }
 
     @PreAuthorize("hasRole('TASK_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/update/sched")
-    public TaskTO updateSched(@RequestBody final SchedTaskTO taskTO) throws NotFoundException {
-
+    public TaskTO updateSched(@RequestBody final SchedTaskTO taskTO) {
         LOG.debug("Task update called with parameter {}", taskTO);
 
         SchedTask task = taskDAO.find(taskTO.getId());
@@ -254,8 +249,7 @@ public class TaskController extends AbstractController {
 
     @PreAuthorize("hasRole('TASK_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{taskId}")
-    public TaskTO read(@PathVariable("taskId") final Long taskId) throws NotFoundException {
-
+    public TaskTO read(@PathVariable("taskId") final Long taskId) {
         Task task = taskDAO.find(taskId);
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
@@ -270,8 +264,7 @@ public class TaskController extends AbstractController {
 
     @PreAuthorize("hasRole('TASK_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/execution/read/{executionId}")
-    public TaskExecTO readExecution(@PathVariable("executionId") final Long executionId) throws NotFoundException {
-
+    public TaskExecTO readExecution(@PathVariable("executionId") final Long executionId) {
         TaskExec taskExec = taskExecDAO.find(executionId);
         if (taskExec == null) {
             throw new NotFoundException("Task execution " + executionId);
@@ -286,7 +279,7 @@ public class TaskController extends AbstractController {
     @PreAuthorize("hasRole('TASK_EXECUTE')")
     @RequestMapping(method = RequestMethod.POST, value = "/execute/{taskId}")
     public TaskExecTO execute(@PathVariable("taskId") final Long taskId,
-            @RequestParam(value = "dryRun", defaultValue = "false") final boolean dryRun) throws NotFoundException {
+            @RequestParam(value = "dryRun", defaultValue = "false") final boolean dryRun) {
 
         Task task = taskDAO.find(taskId);
         if (task == null) {
@@ -352,8 +345,7 @@ public class TaskController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET, value = "/execution/report/{executionId}")
     public TaskExecTO report(@PathVariable("executionId") final Long executionId,
             @RequestParam("executionStatus") final PropagationTaskExecStatus status,
-            @RequestParam("message") final String message)
-            throws NotFoundException, SyncopeClientCompositeErrorException {
+            @RequestParam("message") final String message) {
 
         TaskExec exec = taskExecDAO.find(executionId);
         if (exec == null) {
@@ -410,9 +402,7 @@ public class TaskController extends AbstractController {
 
     @PreAuthorize("hasRole('TASK_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{taskId}")
-    public TaskTO delete(@PathVariable("taskId") final Long taskId)
-            throws NotFoundException, SyncopeClientCompositeErrorException {
-
+    public TaskTO delete(@PathVariable("taskId") final Long taskId) {
         Task task = taskDAO.find(taskId);
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
@@ -435,9 +425,7 @@ public class TaskController extends AbstractController {
 
     @PreAuthorize("hasRole('TASK_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/execution/delete/{executionId}")
-    public TaskExecTO deleteExecution(@PathVariable("executionId") final Long executionId)
-            throws NotFoundException, SyncopeClientCompositeErrorException {
-
+    public TaskExecTO deleteExecution(@PathVariable("executionId") final Long executionId) {
         TaskExec taskExec = taskExecDAO.find(executionId);
         if (taskExec == null) {
             throw new NotFoundException("Task execution " + executionId);

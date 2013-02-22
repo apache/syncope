@@ -40,7 +40,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConnInstanceDataBinder {
 
-    private static final String[] IGNORE_PROPERTIES = {"id", "resources"};
+    private static final String[] IGNORE_PROPERTIES = {"id"};
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;

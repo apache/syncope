@@ -44,19 +44,16 @@ public class SchemaDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(SchemaDataBinder.class);
 
-    private static final String[] IGNORE_SCHEMA_PROPERTIES = {"derivedSchemas", "attributes"};
-
     @Autowired
     private SchemaDAO schemaDAO;
 
     @Autowired
     private JexlUtil jexlUtil;
 
-    private <T extends AbstractDerSchema> void populate(final AbstractSchema schema, final SchemaTO schemaTO)
-            throws SyncopeClientCompositeErrorException {
-
+    private <T extends AbstractDerSchema> void populate(final AbstractSchema schema, final SchemaTO schemaTO) {
         if (!jexlUtil.isExpressionValid(schemaTO.getMandatoryCondition())) {
-            SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
             SyncopeClientException invalidMandatoryCondition = new SyncopeClientException(
                     SyncopeClientExceptionType.InvalidValues);
@@ -66,18 +63,14 @@ public class SchemaDataBinder {
             throw scce;
         }
 
-        BeanUtils.copyProperties(schemaTO, schema, IGNORE_SCHEMA_PROPERTIES);
+        BeanUtils.copyProperties(schemaTO, schema);
     }
 
-    public void create(final SchemaTO schemaTO, final AbstractSchema schema)
-            throws SyncopeClientCompositeErrorException {
-
+    public void create(final SchemaTO schemaTO, final AbstractSchema schema) {
         populate(schema, schemaTO);
     }
 
-    public void update(final SchemaTO schemaTO, final AbstractSchema schema, final AttributableUtil attributableUtil)
-            throws SyncopeClientCompositeErrorException {
-
+    public void update(final SchemaTO schemaTO, final AbstractSchema schema, final AttributableUtil attributableUtil) {
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
         List<AbstractAttr> attrs = schemaDAO.getAttributes(schema, attributableUtil.attrClass());
@@ -106,9 +99,8 @@ public class SchemaDataBinder {
     }
 
     public <T extends AbstractSchema> SchemaTO getSchemaTO(final T schema, final AttributableUtil attributableUtil) {
-
         SchemaTO schemaTO = new SchemaTO();
-        BeanUtils.copyProperties(schema, schemaTO, IGNORE_SCHEMA_PROPERTIES);
+        BeanUtils.copyProperties(schema, schemaTO);
 
         return schemaTO;
     }

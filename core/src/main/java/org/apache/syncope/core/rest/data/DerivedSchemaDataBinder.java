@@ -23,7 +23,6 @@ import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.util.JexlUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,16 +32,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class DerivedSchemaDataBinder {
 
-    private static final String[] ignoreDerivedSchemaProperties = { "schemas", "derivedAttributes" };
-
     @Autowired
     private JexlUtil jexlUtil;
 
-    private <T extends AbstractSchema> AbstractDerSchema populate(final AbstractDerSchema derivedSchema,
-            final DerivedSchemaTO derivedSchemaTO, final SyncopeClientCompositeErrorException scce)
-            throws SyncopeClientCompositeErrorException {
+    private AbstractDerSchema populate(final AbstractDerSchema derSchema, final DerivedSchemaTO derSchemaTO) {
+        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
-        if (derivedSchemaTO.getExpression() == null) {
+        if (derSchemaTO.getExpression() == null) {
             SyncopeClientException requiredValuesMissing = new SyncopeClientException(
                     SyncopeClientExceptionType.RequiredValuesMissing);
             requiredValuesMissing.addElement("expression");
@@ -50,10 +46,10 @@ public class DerivedSchemaDataBinder {
             scce.addException(requiredValuesMissing);
         }
 
-        if (!jexlUtil.isExpressionValid(derivedSchemaTO.getExpression())) {
+        if (!jexlUtil.isExpressionValid(derSchemaTO.getExpression())) {
             SyncopeClientException invalidMandatoryCondition = new SyncopeClientException(
                     SyncopeClientExceptionType.InvalidValues);
-            invalidMandatoryCondition.addElement(derivedSchemaTO.getExpression());
+            invalidMandatoryCondition.addElement(derSchemaTO.getExpression());
 
             scce.addException(invalidMandatoryCondition);
         }
@@ -62,29 +58,23 @@ public class DerivedSchemaDataBinder {
             throw scce;
         }
 
-        BeanUtils.copyProperties(derivedSchemaTO, derivedSchema, ignoreDerivedSchemaProperties);
+        BeanUtils.copyProperties(derSchemaTO, derSchema);
 
-        return derivedSchema;
+        return derSchema;
     }
 
-    public <T extends AbstractSchema> AbstractDerSchema create(final DerivedSchemaTO derivedSchemaTO,
-            final AbstractDerSchema derivedSchema) {
-
-        return populate(derivedSchema, derivedSchemaTO,
-                new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST));
+    public AbstractDerSchema create(final DerivedSchemaTO derSchemaTO, final AbstractDerSchema derSchema) {
+        return populate(derSchema, derSchemaTO);
     }
 
-    public AbstractDerSchema update(final DerivedSchemaTO derivedSchemaTO, final AbstractDerSchema derivedSchema) {
-
-        return populate(derivedSchema, derivedSchemaTO,
-                new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST));
+    public AbstractDerSchema update(final DerivedSchemaTO derSchemaTO, final AbstractDerSchema derSchema) {
+        return populate(derSchema, derSchemaTO);
     }
 
-    public <T extends AbstractDerSchema> DerivedSchemaTO getDerivedSchemaTO(final T derivedSchema) {
+    public <T extends AbstractDerSchema> DerivedSchemaTO getDerivedSchemaTO(final T derSchema) {
+        DerivedSchemaTO derSchemaTO = new DerivedSchemaTO();
+        BeanUtils.copyProperties(derSchema, derSchemaTO);
 
-        DerivedSchemaTO derivedSchemaTO = new DerivedSchemaTO();
-        BeanUtils.copyProperties(derivedSchema, derivedSchemaTO, ignoreDerivedSchemaProperties);
-
-        return derivedSchemaTO;
+        return derSchemaTO;
     }
 }

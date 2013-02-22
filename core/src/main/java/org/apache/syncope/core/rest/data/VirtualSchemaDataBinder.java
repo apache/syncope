@@ -19,52 +19,30 @@
 package org.apache.syncope.core.rest.data;
 
 import org.apache.syncope.common.to.VirtualSchemaTO;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
 public class VirtualSchemaDataBinder {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(VirtualSchemaDataBinder.class);
+    private AbstractVirSchema populate(final AbstractVirSchema virSchema, final VirtualSchemaTO virSchemaTO) {
+        BeanUtils.copyProperties(virSchemaTO, virSchema);
 
-    private static final String[] ignoreVirtualSchemaProperties = { "schemas", "virtualAttributes" };
-
-    private <T extends AbstractSchema> AbstractVirSchema populate(AbstractVirSchema virtualSchema,
-            final VirtualSchemaTO virtualSchemaTO, final Class<T> reference,
-            final SyncopeClientCompositeErrorException scce) throws SyncopeClientCompositeErrorException {
-
-        BeanUtils.copyProperties(virtualSchemaTO, virtualSchema, ignoreVirtualSchemaProperties);
-
-        return virtualSchema;
+        return virSchema;
     }
 
-    public <T extends AbstractSchema> AbstractVirSchema create(final VirtualSchemaTO virtualSchemaTO,
-            AbstractVirSchema virtualSchema, final Class<T> reference) {
-
-        return populate(virtualSchema, virtualSchemaTO, reference, new SyncopeClientCompositeErrorException(
-                HttpStatus.BAD_REQUEST));
+    public AbstractVirSchema create(final VirtualSchemaTO virSchemaTO, final AbstractVirSchema virSchema) {
+        return populate(virSchema, virSchemaTO);
     }
 
-    public <K extends AbstractSchema> AbstractVirSchema update(final VirtualSchemaTO virtualSchemaTO,
-            AbstractVirSchema virtualSchema, final Class<K> reference) {
-
-        return populate(virtualSchema, virtualSchemaTO, reference, new SyncopeClientCompositeErrorException(
-                HttpStatus.BAD_REQUEST));
+    public AbstractVirSchema update(final VirtualSchemaTO virSchemaTO, final AbstractVirSchema virSchema) {
+        return populate(virSchema, virSchemaTO);
     }
 
-    public <T extends AbstractVirSchema> VirtualSchemaTO getVirtualSchemaTO(final T virtualSchema) {
-
+    public <T extends AbstractVirSchema> VirtualSchemaTO getVirtualSchemaTO(final T virSchema) {
         VirtualSchemaTO virtualSchemaTO = new VirtualSchemaTO();
-        BeanUtils.copyProperties(virtualSchema, virtualSchemaTO, ignoreVirtualSchemaProperties);
+        BeanUtils.copyProperties(virSchema, virtualSchemaTO);
 
         return virtualSchemaTO;
     }

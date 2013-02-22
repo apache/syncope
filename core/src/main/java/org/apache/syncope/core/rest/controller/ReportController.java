@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import org.apache.cocoon.optional.pipeline.components.sax.fop.FopSerializer;
@@ -135,8 +134,7 @@ public class ReportController extends AbstractController {
 
     @PreAuthorize("hasRole('REPORT_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public ReportTO update(@RequestBody final ReportTO reportTO) throws NotFoundException {
-
+    public ReportTO update(@RequestBody final ReportTO reportTO) {
         LOG.debug("Report update called with parameter {}", reportTO);
 
         Report report = reportDAO.find(reportTO.getId());
@@ -226,8 +224,7 @@ public class ReportController extends AbstractController {
 
     @PreAuthorize("hasRole('REPORT_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{reportId}")
-    public ReportTO read(@PathVariable("reportId") final Long reportId) throws NotFoundException {
-
+    public ReportTO read(@PathVariable("reportId") final Long reportId) {
         Report report = reportDAO.find(reportId);
         if (report == null) {
             throw new NotFoundException("Report " + reportId);
@@ -242,8 +239,7 @@ public class ReportController extends AbstractController {
     @PreAuthorize("hasRole('REPORT_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/execution/read/{executionId}")
     @Transactional(readOnly = true)
-    public ReportExecTO readExecution(@PathVariable("executionId") final Long executionId) throws NotFoundException {
-
+    public ReportExecTO readExecution(@PathVariable("executionId") final Long executionId) {
         ReportExec reportExec = reportExecDAO.find(executionId);
         if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionId);
@@ -260,9 +256,9 @@ public class ReportController extends AbstractController {
     @Transactional(readOnly = true)
     public void exportExecutionResult(final HttpServletResponse response,
             @PathVariable("executionId") final Long executionId,
-            @RequestParam(value = "fmt", required = false) final ReportExecExportFormat fmt) throws NotFoundException {
+            @RequestParam(value = "fmt", required = false) final ReportExecExportFormat fmt) {
 
-        ServletOutputStream os;
+        OutputStream os;
         try {
             os = response.getOutputStream();
         } catch (IOException e) {
@@ -342,9 +338,7 @@ public class ReportController extends AbstractController {
                 "Successfully exported report execution: " + reportExec.getId());
     }
 
-    public ReportExec getAndCheckReportExecInternal(final Long executionId)
-            throws NotFoundException {
-
+    public ReportExec getAndCheckReportExecInternal(final Long executionId) {
         ReportExec reportExec = reportExecDAO.find(executionId);
         if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionId);
@@ -364,7 +358,7 @@ public class ReportController extends AbstractController {
 
     @PreAuthorize("hasRole('REPORT_EXECUTE')")
     @RequestMapping(method = RequestMethod.POST, value = "/execute/{reportId}")
-    public ReportExecTO execute(@PathVariable("reportId") final Long reportId) throws NotFoundException {
+    public ReportExecTO execute(@PathVariable("reportId") final Long reportId) {
         Report report = reportDAO.find(reportId);
         if (report == null) {
             throw new NotFoundException("Report " + reportId);
@@ -407,9 +401,7 @@ public class ReportController extends AbstractController {
 
     @PreAuthorize("hasRole('REPORT_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{reportId}")
-    public ReportTO delete(@PathVariable("reportId") final Long reportId)
-            throws NotFoundException, SyncopeClientCompositeErrorException {
-
+    public ReportTO delete(@PathVariable("reportId") final Long reportId) {
         Report report = reportDAO.find(reportId);
         if (report == null) {
             throw new NotFoundException("Report " + reportId);
@@ -429,9 +421,7 @@ public class ReportController extends AbstractController {
 
     @PreAuthorize("hasRole('REPORT_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/execution/delete/{executionId}")
-    public ReportExecTO deleteExecution(@PathVariable("executionId") final Long executionId)
-            throws NotFoundException, SyncopeClientCompositeErrorException {
-
+    public ReportExecTO deleteExecution(@PathVariable("executionId") final Long executionId) {
         ReportExec reportExec = reportExecDAO.find(executionId);
         if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionId);

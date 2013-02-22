@@ -20,7 +20,6 @@ package org.apache.syncope.core.services;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
@@ -53,26 +52,25 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
     public Response create(final ConfigurationTO configurationTO) {
         ConfigurationTO created = configurationController.create(new DummyHTTPServletResponse(), configurationTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
-        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, created.getKey()).build();
+        return Response.created(location).
+                header(SyncopeConstants.REST_HEADER_ID, created.getKey()).
+                build();
     }
 
     @Override
     public Response dbExport() {
-    	StreamingOutput sout = new StreamingOutput() {
+        StreamingOutput sout = new StreamingOutput() {
 
             @Override
             public void write(final OutputStream os) throws IOException {
-            	PrintStream ps = new PrintStream(os);
-            	ps.println("Test");
                 configurationController.dbExportInternal(os);
             }
         };
         return Response.ok(sout)
-        		.type(MediaType.TEXT_XML)
-        		.header(SyncopeConstants.CONTENT_DISPOSITION_HEADER, 
-        				"attachment; filename=" + ImportExport.CONTENT_FILE)
-
-        		.build();
+                .type(MediaType.TEXT_XML)
+                .header(SyncopeConstants.CONTENT_DISPOSITION_HEADER,
+                "attachment; filename=" + ImportExport.CONTENT_FILE)
+                .build();
     }
 
     @Override
@@ -103,7 +101,7 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
 
     @Override
     public void update(final String key, final ConfigurationTO configurationTO) {
-        configurationController.update(null, configurationTO);
+        configurationController.update(configurationTO);
     }
 
     @Override

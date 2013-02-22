@@ -25,7 +25,6 @@ import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.WorkflowSubCategory;
 import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.workflow.WorkflowAdapter;
 import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
@@ -75,9 +74,7 @@ public class WorkflowController extends AbstractController {
         return getDefinition(rwfAdapter);
     }
 
-    private void updateDefinition(final WorkflowAdapter adapter, final WorkflowDefinitionTO definition)
-            throws NotFoundException, WorkflowException {
-
+    private void updateDefinition(final WorkflowAdapter adapter, final WorkflowDefinitionTO definition) {
         adapter.updateDefinition(definition);
 
         auditManager.audit(Category.workflow, WorkflowSubCategory.updateDefinition, Result.success,
@@ -86,21 +83,17 @@ public class WorkflowController extends AbstractController {
 
     @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
     @RequestMapping(method = RequestMethod.PUT, value = "/definition/user")
-    public void updateUserDefinition(@RequestBody final WorkflowDefinitionTO definition)
-            throws NotFoundException, WorkflowException {
-
+    public void updateUserDefinition(@RequestBody final WorkflowDefinitionTO definition) {
         updateDefinition(uwfAdapter, definition);
     }
 
     @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
     @RequestMapping(method = RequestMethod.PUT, value = "/definition/role")
-    public void updateRoleDefinition(@RequestBody final WorkflowDefinitionTO definition)
-            throws NotFoundException, WorkflowException {
-
+    public void updateRoleDefinition(@RequestBody final WorkflowDefinitionTO definition) {
         updateDefinition(rwfAdapter, definition);
     }
 
-    private List<String> getDefinedTasks(final WorkflowAdapter adapter) throws WorkflowException {
+    private List<String> getDefinedTasks(final WorkflowAdapter adapter) {
         List<String> definedTasks = adapter.getDefinedTasks();
 
         auditManager.audit(Category.workflow, WorkflowSubCategory.getDefinedTasks, Result.success,
@@ -111,13 +104,13 @@ public class WorkflowController extends AbstractController {
 
     @PreAuthorize("hasRole('WORKFLOW_TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/tasks/user")
-    public ModelAndView getDefinedUserTasks() throws WorkflowException {
+    public ModelAndView getDefinedUserTasks() {
         return new ModelAndView().addObject(getDefinedTasks(uwfAdapter));
     }
 
     @PreAuthorize("hasRole('WORKFLOW_TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/tasks/role")
-    public ModelAndView getDefinedRoleTasks() throws WorkflowException {
+    public ModelAndView getDefinedRoleTasks() {
         return new ModelAndView().addObject(getDefinedTasks(rwfAdapter));
     }
 }

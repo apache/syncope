@@ -50,7 +50,7 @@ public class SchemaController extends AbstractController {
     private SchemaDAO schemaDAO;
 
     @Autowired
-    private SchemaDataBinder schemaDataBinder;
+    private SchemaDataBinder binder;
 
     @PreAuthorize("hasRole('SCHEMA_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/create")
@@ -58,14 +58,14 @@ public class SchemaController extends AbstractController {
             @PathVariable("kind") final String kind) {
 
         AbstractSchema schema = getAttributableUtil(kind).newSchema();
-        schemaDataBinder.create(schemaTO, schema);
+        binder.create(schemaTO, schema);
         schema = schemaDAO.save(schema);
 
         auditManager.audit(Category.schema, SchemaSubCategory.create, Result.success,
                 "Successfully created schema: " + kind + "/" + schema.getName());
 
         response.setStatus(HttpServletResponse.SC_CREATED);
-        return schemaDataBinder.getSchemaTO(schema, getAttributableUtil(kind));
+        return binder.getSchemaTO(schema, getAttributableUtil(kind));
     }
 
     @PreAuthorize("hasRole('SCHEMA_DELETE')")
@@ -79,7 +79,7 @@ public class SchemaController extends AbstractController {
             throw new NotFoundException("Schema '" + schemaName + "'");
         }
 
-        SchemaTO schemaToDelete = schemaDataBinder.getSchemaTO(schema, getAttributableUtil(kind));
+        SchemaTO schemaToDelete = binder.getSchemaTO(schema, getAttributableUtil(kind));
 
         schemaDAO.delete(schemaName, getAttributableUtil(kind));
 
@@ -96,7 +96,7 @@ public class SchemaController extends AbstractController {
 
         List<SchemaTO> schemaTOs = new ArrayList<SchemaTO>(schemas.size());
         for (AbstractSchema schema : schemas) {
-            schemaTOs.add(schemaDataBinder.getSchemaTO(schema, attributableUtil));
+            schemaTOs.add(binder.getSchemaTO(schema, attributableUtil));
         }
 
         auditManager.audit(Category.schema, SchemaSubCategory.list, Result.success,
@@ -119,7 +119,7 @@ public class SchemaController extends AbstractController {
         auditManager.audit(Category.schema, SchemaSubCategory.read, Result.success,
                 "Successfully read schema: " + kind + "/" + schema.getName());
 
-        return schemaDataBinder.getSchemaTO(schema, attributableUtil);
+        return binder.getSchemaTO(schema, attributableUtil);
     }
 
     @PreAuthorize("hasRole('SCHEMA_UPDATE')")
@@ -133,12 +133,12 @@ public class SchemaController extends AbstractController {
             throw new NotFoundException("Schema '" + schemaTO.getName() + "'");
         }
 
-        schemaDataBinder.update(schemaTO, schema, attributableUtil);
+        binder.update(schemaTO, schema, attributableUtil);
         schema = schemaDAO.save(schema);
 
         auditManager.audit(Category.schema, SchemaSubCategory.update, Result.success,
                 "Successfully updated schema: " + kind + "/" + schema.getName());
 
-        return schemaDataBinder.getSchemaTO(schema, attributableUtil);
+        return binder.getSchemaTO(schema, attributableUtil);
     }
 }

@@ -55,8 +55,7 @@ public class NotificationController extends AbstractController {
 
     @PreAuthorize("hasRole('NOTIFICATION_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{notificationId}")
-    public NotificationTO read(@PathVariable("notificationId") final Long notificationId) throws NotFoundException {
-
+    public NotificationTO read(@PathVariable("notificationId") final Long notificationId) {
         Notification notification = notificationDAO.find(notificationId);
         if (notification == null) {
             LOG.error("Could not find notification '" + notificationId + "'");
@@ -70,7 +69,6 @@ public class NotificationController extends AbstractController {
     @PreAuthorize("hasRole('NOTIFICATION_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/list")
     public List<NotificationTO> list() {
-
         List<Notification> notifications = notificationDAO.findAll();
 
         List<NotificationTO> notificationTOs = new ArrayList<NotificationTO>();
@@ -86,15 +84,13 @@ public class NotificationController extends AbstractController {
 
     @PreAuthorize("hasRole('NOTIFICATION_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
-    public NotificationTO create(final HttpServletResponse response, @RequestBody final NotificationTO notificationTO)
-            throws NotFoundException {
+    public NotificationTO create(final HttpServletResponse response, @RequestBody final NotificationTO notificationTO) {
         NotificationTO savedNotificationTO = createInternal(notificationTO);
         response.setStatus(HttpServletResponse.SC_CREATED);
         return savedNotificationTO;
     }
 
-    public NotificationTO createInternal(final NotificationTO notificationTO)
-            throws NotFoundException {
+    public NotificationTO createInternal(final NotificationTO notificationTO) {
         LOG.debug("Notification create called with parameter {}", notificationTO);
         Notification notification = notificationDAO.save(binder.createNotification(notificationTO));
         auditManager.audit(Category.notification, NotificationSubCategory.create, Result.success,
@@ -104,8 +100,7 @@ public class NotificationController extends AbstractController {
 
     @PreAuthorize("hasRole('NOTIFICATION_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public NotificationTO update(@RequestBody final NotificationTO notificationTO) throws NotFoundException {
-
+    public NotificationTO update(@RequestBody final NotificationTO notificationTO) {
         LOG.debug("ConnNotificationtor update called with parameter {}", notificationTO);
 
         Notification notification = notificationDAO.find(notificationTO.getId());
@@ -126,7 +121,7 @@ public class NotificationController extends AbstractController {
 
     @PreAuthorize("hasRole('CONNECTOR_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{notificationId}")
-    public NotificationTO delete(@PathVariable("notificationId") final Long notificationId) throws NotFoundException {
+    public NotificationTO delete(@PathVariable("notificationId") final Long notificationId) {
 
         Notification notification = notificationDAO.find(notificationId);
         if (notification == null) {
@@ -134,14 +129,14 @@ public class NotificationController extends AbstractController {
 
             throw new NotFoundException(String.valueOf(notificationId));
         }
-        
+
         NotificationTO notificationToDelete = binder.getNotificationTO(notification);
 
         auditManager.audit(Category.notification, NotificationSubCategory.delete, Result.success,
                 "Successfully deleted notification: " + notification.getId());
 
         notificationDAO.delete(notificationId);
-        
+
         return notificationToDelete;
     }
 }

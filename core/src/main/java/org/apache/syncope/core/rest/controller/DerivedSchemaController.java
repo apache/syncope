@@ -48,10 +48,10 @@ public class DerivedSchemaController extends AbstractController {
     private AuditManager auditManager;
 
     @Autowired
-    private DerSchemaDAO derivedSchemaDAO;
+    private DerSchemaDAO derSchemaDAO;
 
     @Autowired
-    private DerivedSchemaDataBinder derivedSchemaDataBinder;
+    private DerivedSchemaDataBinder binder;
 
     @PreAuthorize("hasRole('SCHEMA_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/create")
@@ -59,14 +59,14 @@ public class DerivedSchemaController extends AbstractController {
             @RequestBody final DerivedSchemaTO derivedSchemaTO, @PathVariable("kind") final String kind)
             throws SyncopeClientCompositeErrorException {
 
-        AbstractDerSchema derivedSchema = derivedSchemaDAO.save(
-                derivedSchemaDataBinder.create(derivedSchemaTO, getAttributableUtil(kind).newDerSchema()));
+        AbstractDerSchema derivedSchema = derSchemaDAO.save(
+                binder.create(derivedSchemaTO, getAttributableUtil(kind).newDerSchema()));
 
         auditManager.audit(Category.schema, SchemaSubCategory.createDerived, Result.success,
                 "Successfully created derived schema: " + kind + "/" + derivedSchema.getName());
 
         response.setStatus(HttpServletResponse.SC_CREATED);
-        return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
+        return binder.getDerivedSchemaTO(derivedSchema);
     }
 
     @PreAuthorize("hasRole('SCHEMA_DELETE')")
@@ -75,14 +75,14 @@ public class DerivedSchemaController extends AbstractController {
             @PathVariable("schema") final String derivedSchemaName) throws NotFoundException {
 
         Class<? extends AbstractDerSchema> reference = getAttributableUtil(kind).derSchemaClass();
-        AbstractDerSchema derivedSchema = derivedSchemaDAO.find(derivedSchemaName, reference);
+        AbstractDerSchema derivedSchema = derSchemaDAO.find(derivedSchemaName, reference);
         if (derivedSchema == null) {
             throw new NotFoundException("Derived schema '" + derivedSchemaName + "'");
         }
 
-        DerivedSchemaTO schemaToDelete = derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
+        DerivedSchemaTO schemaToDelete = binder.getDerivedSchemaTO(derivedSchema);
 
-        derivedSchemaDAO.delete(derivedSchemaName, getAttributableUtil(kind));
+        derSchemaDAO.delete(derivedSchemaName, getAttributableUtil(kind));
 
         auditManager.audit(Category.schema, SchemaSubCategory.deleteDerived, Result.success,
                 "Successfully deleted derived schema: " + kind + "/" + derivedSchema.getName());
@@ -93,11 +93,11 @@ public class DerivedSchemaController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
     public List<DerivedSchemaTO> list(@PathVariable("kind") final String kind) {
         AttributableUtil attributableUtil = getAttributableUtil(kind);
-        List<AbstractDerSchema> derivedAttributeSchemas = derivedSchemaDAO.findAll(attributableUtil.derSchemaClass());
+        List<AbstractDerSchema> derivedAttributeSchemas = derSchemaDAO.findAll(attributableUtil.derSchemaClass());
 
         List<DerivedSchemaTO> derivedSchemaTOs = new ArrayList<DerivedSchemaTO>(derivedAttributeSchemas.size());
         for (AbstractDerSchema derivedSchema : derivedAttributeSchemas) {
-            derivedSchemaTOs.add(derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema));
+            derivedSchemaTOs.add(binder.getDerivedSchemaTO(derivedSchema));
         }
 
         auditManager.audit(Category.schema, SchemaSubCategory.listDerived, Result.success,
@@ -112,7 +112,7 @@ public class DerivedSchemaController extends AbstractController {
             @PathVariable("derivedSchema") final String derivedSchemaName) throws NotFoundException {
 
         Class<? extends AbstractDerSchema> reference = getAttributableUtil(kind).derSchemaClass();
-        AbstractDerSchema derivedSchema = derivedSchemaDAO.find(derivedSchemaName, reference);
+        AbstractDerSchema derivedSchema = derSchemaDAO.find(derivedSchemaName, reference);
         if (derivedSchema == null) {
             throw new NotFoundException("Derived schema '" + derivedSchemaName + "'");
         }
@@ -120,7 +120,7 @@ public class DerivedSchemaController extends AbstractController {
         auditManager.audit(Category.schema, SchemaSubCategory.readDerived, Result.success,
                 "Successfully read derived schema: " + kind + "/" + derivedSchema.getName());
 
-        return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
+        return binder.getDerivedSchemaTO(derivedSchema);
     }
 
     @PreAuthorize("hasRole('SCHEMA_UPDATE')")
@@ -129,17 +129,17 @@ public class DerivedSchemaController extends AbstractController {
             @PathVariable("kind") final String kind) throws NotFoundException {
 
         Class<? extends AbstractDerSchema> reference = getAttributableUtil(kind).derSchemaClass();
-        AbstractDerSchema derivedSchema = derivedSchemaDAO.find(derivedSchemaTO.getName(), reference);
+        AbstractDerSchema derivedSchema = derSchemaDAO.find(derivedSchemaTO.getName(), reference);
         if (derivedSchema == null) {
             throw new NotFoundException("Derived schema '" + derivedSchemaTO.getName() + "'");
         }
 
-        derivedSchema = derivedSchemaDataBinder.update(derivedSchemaTO, derivedSchema);
-        derivedSchema = derivedSchemaDAO.save(derivedSchema);
+        derivedSchema = binder.update(derivedSchemaTO, derivedSchema);
+        derivedSchema = derSchemaDAO.save(derivedSchema);
 
         auditManager.audit(Category.schema, SchemaSubCategory.updateDerived, Result.success,
                 "Successfully updated derived schema: " + kind + "/" + derivedSchema.getName());
 
-        return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
+        return binder.getDerivedSchemaTO(derivedSchema);
     }
 }

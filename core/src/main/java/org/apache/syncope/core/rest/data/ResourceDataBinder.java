@@ -75,15 +75,11 @@ public class ResourceDataBinder {
     @Autowired
     private PolicyDAO policyDAO;
 
-    public ExternalResource create(final ResourceTO resourceTO)
-            throws SyncopeClientCompositeErrorException {
-
+    public ExternalResource create(final ResourceTO resourceTO) {
         return update(new ExternalResource(), resourceTO);
     }
 
-    public ExternalResource update(final ExternalResource resource, final ResourceTO resourceTO)
-            throws SyncopeClientCompositeErrorException {
-
+    public ExternalResource update(final ExternalResource resource, final ResourceTO resourceTO) {
         if (resourceTO == null) {
             return null;
         }
@@ -178,9 +174,7 @@ public class ResourceDataBinder {
         return items;
     }
 
-    private AbstractMappingItem getMappingItem(final MappingItemTO itemTO, final AbstractMappingItem prototype)
-            throws SyncopeClientCompositeErrorException {
-
+    private AbstractMappingItem getMappingItem(final MappingItemTO itemTO, final AbstractMappingItem prototype) {
         if (itemTO == null || itemTO.getIntMappingType() == null) {
             LOG.error("Null mappingTO provided");
             return null;
@@ -232,9 +226,7 @@ public class ResourceDataBinder {
         return getConnInstance(connInstanceClone, resource.getConfiguration());
     }
 
-    public ConnInstance getConnInstance(final ResourceTO resourceTO)
-            throws NotFoundException {
-
+    public ConnInstance getConnInstance(final ResourceTO resourceTO) {
         ConnInstance connInstance = connInstanceDAO.find(resourceTO.getConnectorId());
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + resourceTO.getConnectorId() + "'");

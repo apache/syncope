@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.data;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.syncope.common.report.AbstractReportletConf;
@@ -53,7 +52,7 @@ public class ReportDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(ReportDataBinder.class);
 
-    private static final String[] IGNORE_REPORT_PROPERTIES = {"id", "reportlets", "executions", "latestExecStatus"};
+    private static final String[] IGNORE_REPORT_PROPERTIES = {"id", "reportlets", "executions"};
 
     private static final String[] IGNORE_REPORT_EXECUTION_PROPERTIES = {"id", "report", "execResult"};
 
@@ -66,7 +65,7 @@ public class ReportDataBinder {
     @Autowired
     private ImplementationClassNamesLoader classNamesLoader;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public Set<Class<Reportlet>> getAllReportletClasses() {
         Set<Class<Reportlet>> reportletClasses = new HashSet<Class<Reportlet>>();
 
@@ -156,7 +155,7 @@ public class ReportDataBinder {
         return reportTO;
     }
 
-    private void copyReportletConfs(Report report, ReportTO reportTO) {
+    private void copyReportletConfs(final Report report, final ReportTO reportTO) {
         reportTO.getReportletConfs().clear();
         for (ReportletConf reportletConf : report.getReportletConfs()) {
             reportTO.getReportletConfs().add((AbstractReportletConf) reportletConf);

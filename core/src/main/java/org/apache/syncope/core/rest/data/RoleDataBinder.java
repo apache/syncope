@@ -58,9 +58,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
     private EntitlementDAO entitlementDAO;
 
     @Transactional(readOnly = true)
-    public SyncopeRole getRoleFromId(final Long roleId)
-            throws NotFoundException, UnauthorizedRoleException {
-
+    public SyncopeRole getRoleFromId(final Long roleId) {
         if (roleId == null) {
             throw new NotFoundException("Null role id");
         }
@@ -77,9 +75,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         return role;
     }
 
-    public SyncopeRole create(final SyncopeRole role, final RoleTO roleTO)
-            throws SyncopeClientCompositeErrorException {
-
+    public SyncopeRole create(final SyncopeRole role, final RoleTO roleTO) {
         role.setInheritOwner(roleTO.isInheritOwner());
 
         role.setInheritAttributes(roleTO.isInheritAttributes());
@@ -164,9 +160,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         return role;
     }
 
-    public PropagationByResource update(final SyncopeRole role, final RoleMod roleMod)
-            throws SyncopeClientCompositeErrorException {
-
+    public PropagationByResource update(final SyncopeRole role, final RoleMod roleMod) {
         PropagationByResource propByRes = new PropagationByResource();
 
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
@@ -318,9 +312,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
     }
 
     @Transactional(readOnly = true)
-    public RoleTO getRoleTO(final Long roleId)
-            throws NotFoundException, UnauthorizedRoleException {
-
+    public RoleTO getRoleTO(final Long roleId) {
         return getRoleTO(getRoleFromId(roleId));
     }
 }

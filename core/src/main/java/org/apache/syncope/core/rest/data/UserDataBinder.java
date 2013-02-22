@@ -72,9 +72,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     private ConnObjectUtil connObjectUtil;
 
     @Transactional(readOnly = true)
-    public SyncopeUser getUserFromId(final Long userId)
-            throws NotFoundException, UnauthorizedRoleException {
-
+    public SyncopeUser getUserFromId(final Long userId) {
         if (userId == null) {
             throw new NotFoundException("Null user id");
         }
@@ -97,29 +95,23 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     }
 
     @Transactional(readOnly = true)
-    public UserTO getAuthenticatedUserTO() throws NotFoundException {
+    public UserTO getAuthenticatedUserTO() {
         SyncopeUser authUser = userDAO.find(SecurityContextHolder.getContext().getAuthentication().getName());
         return getUserTO(authUser);
     }
 
     @Transactional(readOnly = true)
-    public boolean verifyPassword(final String username, final String password)
-            throws NotFoundException, UnauthorizedRoleException {
-
+    public boolean verifyPassword(final String username, final String password) {
         return verifyPassword(getUserFromUsername(username), password);
     }
 
     @Transactional(readOnly = true)
-    public boolean verifyPassword(final SyncopeUser user, final String password)
-            throws NotFoundException, UnauthorizedRoleException {
-
+    public boolean verifyPassword(final SyncopeUser user, final String password) {
         return PasswordEncoder.verify(password, user.getCipherAlgorithm(), user.getPassword());
     }
 
     @Transactional(readOnly = true)
-    public SyncopeUser getUserFromUsername(final String username)
-            throws NotFoundException, UnauthorizedRoleException {
-
+    public SyncopeUser getUserFromUsername(final String username) {
         if (username == null) {
             throw new NotFoundException("Null username");
         }
@@ -146,8 +138,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
      * @return cipher algorithm.
      * @throws NotFoundException in case of algorithm not included into <code>CipherAlgorithm</code>.
      */
-    private CipherAlgorithm getPredefinedCipherAlgoritm()
-            throws NotFoundException {
+    private CipherAlgorithm getPredefinedCipherAlgoritm() {
 
         final String algorithm = confDAO.find("password.cipher.algorithm", "AES").getValue();
 
@@ -158,9 +149,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
     }
 
-    public void create(final SyncopeUser user, final UserTO userTO)
-            throws SyncopeClientCompositeErrorException {
-
+    public void create(final SyncopeUser user, final UserTO userTO) {
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
         // memberships
@@ -236,9 +225,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
      * @throws SyncopeClientCompositeErrorException if anything goes wrong
      * @see PropagationByResource
      */
-    public PropagationByResource update(final SyncopeUser user, final UserMod userMod)
-            throws SyncopeClientCompositeErrorException {
-
+    public PropagationByResource update(final SyncopeUser user, final UserMod userMod) {
         PropagationByResource propByRes = new PropagationByResource();
 
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
@@ -447,16 +434,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     }
 
     @Transactional(readOnly = true)
-    public UserTO getUserTO(final String username)
-            throws NotFoundException, UnauthorizedRoleException {
-
+    public UserTO getUserTO(final String username) {
         return getUserTO(getUserFromUsername(username));
     }
 
     @Transactional(readOnly = true)
-    public UserTO getUserTO(final Long userId)
-            throws NotFoundException, UnauthorizedRoleException {
-
+    public UserTO getUserTO(final Long userId) {
         return getUserTO(getUserFromId(userId));
     }
 }

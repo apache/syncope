@@ -67,7 +67,7 @@ public class UserRequestController {
     private UserRequestDAO userRequestDAO;
 
     @Autowired
-    private UserRequestDataBinder dataBinder;
+    private UserRequestDataBinder binder;
 
     public Boolean isCreateAllowedByConf() {
         final SyncopeConf createRequestAllowed = confDAO.find("createRequest.allowed", "false");
@@ -85,7 +85,7 @@ public class UserRequestController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/create")
-    public UserRequestTO create(@RequestBody final UserTO userTO) throws UnauthorizedRoleException {
+    public UserRequestTO create(@RequestBody final UserTO userTO) {
         if (!isCreateAllowedByConf()) {
             LOG.error("Create requests are not allowed");
 
@@ -95,7 +95,7 @@ public class UserRequestController {
         LOG.debug("Request user create called with {}", userTO);
 
         try {
-            dataBinder.testCreate(userTO);
+            binder.testCreate(userTO);
         } catch (RollbackException e) {
             LOG.debug("Testing create - ignore exception");
         }
@@ -107,18 +107,16 @@ public class UserRequestController {
         auditManager.audit(Category.userRequest, UserRequestSubCategory.create, Result.success,
                 "Successfully created user request for " + request.getUserTO().getUsername());
 
-        return dataBinder.getUserRequestTO(request);
+        return binder.getUserRequestTO(request);
     }
 
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public UserRequestTO update(@RequestBody final UserMod userMod)
-            throws NotFoundException, UnauthorizedRoleException {
-
+    public UserRequestTO update(@RequestBody final UserMod userMod) {
         LOG.debug("Request user update called with {}", userMod);
 
         try {
-            dataBinder.testUpdate(userMod);
+            binder.testUpdate(userMod);
         } catch (RollbackException e) {
             LOG.debug("Testing update - ignore exception");
         }
@@ -130,30 +128,7 @@ public class UserRequestController {
         auditManager.audit(Category.userRequest, UserRequestSubCategory.update, Result.success,
                 "Successfully updated user request for " + request.getUserMod().getUsername());
 
-        return dataBinder.getUserRequestTO(request);
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    @RequestMapping(method = RequestMethod.GET, value = "/delete/{userId}")
-    public UserRequestTO delete(@PathVariable("userId") final Long userId) throws NotFoundException,
-            UnauthorizedRoleException {
-
-        LOG.debug("Request user delete called with {}", userId);
-
-        try {
-            dataBinder.testDelete(userId);
-        } catch (RollbackException e) {
-            LOG.debug("Testing delete - ignore exception");
-        }
-
-        UserRequest request = new UserRequest();
-        request.setUserId(userId);
-        request = userRequestDAO.save(request);
-
-        auditManager.audit(Category.userRequest, UserRequestSubCategory.delete, Result.success,
-                "Successfully deleted user request for user" + userId);
-
-        return dataBinder.getUserRequestTO(request);
+        return binder.getUserRequestTO(request);
     }
 
     @PreAuthorize("hasRole('USER_REQUEST_LIST')")
@@ -163,7 +138,7 @@ public class UserRequestController {
         List<UserRequestTO> result = new ArrayList<UserRequestTO>();
 
         for (UserRequest request : userRequestDAO.findAll()) {
-            result.add(dataBinder.getUserRequestTO(request));
+            result.add(binder.getUserRequestTO(request));
         }
 
         auditManager.audit(Category.userRequest, UserRequestSubCategory.list, Result.success,
@@ -175,7 +150,7 @@ public class UserRequestController {
     @PreAuthorize("hasRole('USER_REQUEST_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{requestId}")
     @Transactional(readOnly = true)
-    public UserRequestTO read(@PathVariable("requestId") final Long requestId) throws NotFoundException {
+    public UserRequestTO read(@PathVariable("requestId") final Long requestId) {
         UserRequest request = userRequestDAO.find(requestId);
         if (request == null) {
             throw new NotFoundException("User request " + requestId);
@@ -184,18 +159,39 @@ public class UserRequestController {
         auditManager.audit(Category.userRequest, UserRequestSubCategory.read, Result.success,
                 "Successfully read user request for " + request.getUserTO().getUsername());
 
-        return dataBinder.getUserRequestTO(request);
+        return binder.getUserRequestTO(request);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(method = RequestMethod.GET, value = "/delete/{userId}")
+    public UserRequestTO delete(@PathVariable("userId") final Long userId) {
+        LOG.debug("Request user delete called with {}", userId);
+
+        try {
+            binder.testDelete(userId);
+        } catch (RollbackException e) {
+            LOG.debug("Testing delete - ignore exception");
+        }
+
+        UserRequest request = new UserRequest();
+        request.setUserId(userId);
+        request = userRequestDAO.save(request);
+
+        auditManager.audit(Category.userRequest, UserRequestSubCategory.delete, Result.success,
+                "Successfully deleted user request for user" + userId);
+
+        return binder.getUserRequestTO(request);
     }
 
     @PreAuthorize("hasRole('USER_REQUEST_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/deleteRequest/{requestId}")
-    public UserRequestTO deleteRequest(@PathVariable("requestId") final Long requestId) throws NotFoundException {
+    public UserRequestTO deleteRequest(@PathVariable("requestId") final Long requestId) {
         UserRequest request = userRequestDAO.find(requestId);
         if (request == null) {
             throw new NotFoundException("User request " + requestId);
         }
 
-        UserRequestTO requestToDelete = dataBinder.getUserRequestTO(request);
+        UserRequestTO requestToDelete = binder.getUserRequestTO(request);
 
         auditManager.audit(Category.userRequest, UserRequestSubCategory.delete, Result.success,
                 "Successfully deleted user request for user" + request.getUserId());
