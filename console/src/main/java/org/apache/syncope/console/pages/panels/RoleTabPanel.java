@@ -59,7 +59,7 @@ public class RoleTabPanel extends Panel {
         form.setModel(new CompoundPropertyModel(roleTO));
         form.setOutputMarkupId(true);
 
-        final RolePanel rolePanel = new RolePanel("rolePanel", form, roleTO, RoleModalPage.Mode.ADMIN, pageRef);
+        final RolePanel rolePanel = new RolePanel("rolePanel", form, roleTO, RoleModalPage.Mode.ADMIN);
         rolePanel.setEnabled(false);
         form.add(rolePanel);
 

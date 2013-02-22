@@ -23,7 +23,6 @@ import org.apache.syncope.console.commons.SelectChoiceRenderer;
 import org.apache.syncope.console.pages.RoleModalPage;
 import org.apache.syncope.console.rest.AuthRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -40,9 +39,7 @@ public class RolePanel extends Panel {
 
     private final Palette<String> entitlementsPalette;
 
-    public RolePanel(final String id, final Form form, final RoleTO roleTO, final RoleModalPage.Mode mode,
-            final PageReference pageRef) {
-
+    public RolePanel(final String id, final Form form, final RoleTO roleTO, final RoleModalPage.Mode mode) {
         super(id);
 
         this.add(new RoleDetailsPanel("details", roleTO, form, mode == RoleModalPage.Mode.TEMPLATE));
@@ -60,7 +57,7 @@ public class RolePanel extends Panel {
         //--------------------------------
         // Derived attributes container
         //--------------------------------
-        this.add(new DerivedAttributesPanel("derivedAttributes", roleTO, pageRef));
+        this.add(new DerivedAttributesPanel("derivedAttributes", roleTO));
 
         final AjaxCheckBoxPanel inhDerivedAttributes = new AjaxCheckBoxPanel("inheritDerivedAttributes",
                 "inheritDerivedAttributes", new PropertyModel<Boolean>(roleTO, "inheritDerivedAttributes"));
@@ -72,7 +69,7 @@ public class RolePanel extends Panel {
         //--------------------------------
         // Virtual attributes container
         //--------------------------------
-        this.add(new VirtualAttributesPanel("virtualAttributes", roleTO, mode == RoleModalPage.Mode.TEMPLATE, pageRef));
+        this.add(new VirtualAttributesPanel("virtualAttributes", roleTO, mode == RoleModalPage.Mode.TEMPLATE));
 
         final AjaxCheckBoxPanel inhVirtualAttributes = new AjaxCheckBoxPanel("inheritVirtualAttributes",
                 "inheritVirtualAttributes", new PropertyModel<Boolean>(roleTO, "inheritVirtualAttributes"));

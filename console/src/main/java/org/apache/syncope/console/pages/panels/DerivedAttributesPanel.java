@@ -27,7 +27,6 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.apache.wicket.Component;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
@@ -63,9 +62,7 @@ public class DerivedAttributesPanel extends Panel {
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
-    public <T extends AbstractAttributableTO> DerivedAttributesPanel(final String id, final T entityTO,
-            final PageReference pageRef) {
-
+    public <T extends AbstractAttributableTO> DerivedAttributesPanel(final String id, final T entityTO) {
         super(id);
         setOutputMarkupId(true);
 
@@ -90,8 +87,7 @@ public class DerivedAttributesPanel extends Panel {
         attributesContainer.setOutputMarkupId(true);
         add(attributesContainer);
 
-        AjaxButton addAttributeBtn = new IndicatingAjaxButton("addAttributeBtn",
-                new ResourceModel("addAttributeBtn")) {
+        AjaxButton addAttributeBtn = new IndicatingAjaxButton("addAttributeBtn", new ResourceModel("addAttributeBtn")) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 

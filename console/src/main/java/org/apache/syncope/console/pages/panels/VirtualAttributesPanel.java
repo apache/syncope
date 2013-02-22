@@ -33,7 +33,6 @@ import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
 import org.apache.wicket.Component;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
@@ -62,7 +61,7 @@ public class VirtualAttributesPanel extends Panel {
     private SchemaRestClient schemaRestClient;
 
     public <T extends AbstractAttributableTO> VirtualAttributesPanel(final String id, final T entityTO,
-            final boolean templateMode, final PageReference pageRef) {
+            final boolean templateMode) {
 
         super(id);
 
@@ -71,28 +70,28 @@ public class VirtualAttributesPanel extends Panel {
         final IModel<Map<String, VirtualSchemaTO>> schemas =
                 new LoadableDetachableModel<Map<String, VirtualSchemaTO>>() {
 
-                    private static final long serialVersionUID = -5489981430516587774L;
+            private static final long serialVersionUID = -5489981430516587774L;
 
-                    @Override
-                    protected Map<String, VirtualSchemaTO> load() {
-                        final List<VirtualSchemaTO> schemaTOs;
-                        if (entityTO instanceof RoleTO) {
-                            schemaTOs = schemaRestClient.getVirtualSchemas(AttributableType.ROLE);
-                        } else if (entityTO instanceof UserTO) {
-                            schemaTOs = schemaRestClient.getVirtualSchemas(AttributableType.USER);
-                        } else {
-                            schemaTOs = schemaRestClient.getVirtualSchemas(AttributableType.MEMBERSHIP);
-                        }
+            @Override
+            protected Map<String, VirtualSchemaTO> load() {
+                final List<VirtualSchemaTO> schemaTOs;
+                if (entityTO instanceof RoleTO) {
+                    schemaTOs = schemaRestClient.getVirtualSchemas(AttributableType.ROLE);
+                } else if (entityTO instanceof UserTO) {
+                    schemaTOs = schemaRestClient.getVirtualSchemas(AttributableType.USER);
+                } else {
+                    schemaTOs = schemaRestClient.getVirtualSchemas(AttributableType.MEMBERSHIP);
+                }
 
-                        final Map<String, VirtualSchemaTO> schemas = new HashMap<String, VirtualSchemaTO>();
+                final Map<String, VirtualSchemaTO> schemas = new HashMap<String, VirtualSchemaTO>();
 
-                        for (VirtualSchemaTO schemaTO : schemaTOs) {
-                            schemas.put(schemaTO.getName(), schemaTO);
-                        }
+                for (VirtualSchemaTO schemaTO : schemaTOs) {
+                    schemas.put(schemaTO.getName(), schemaTO);
+                }
 
-                        return schemas;
-                    }
-                };
+                return schemas;
+            }
+        };
 
         final List<String> virtualSchemaNames = new ArrayList<String>(schemas.getObject().keySet());
 
@@ -101,8 +100,7 @@ public class VirtualAttributesPanel extends Panel {
         attributesContainer.setOutputMarkupId(true);
         add(attributesContainer);
 
-        AjaxButton addAttributeBtn = new IndicatingAjaxButton("addAttributeBtn",
-                new ResourceModel("addAttributeBtn")) {
+        AjaxButton addAttributeBtn = new IndicatingAjaxButton("addAttributeBtn", new ResourceModel("addAttributeBtn")) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
@@ -184,17 +182,17 @@ public class VirtualAttributesPanel extends Panel {
                         new PropertyModel<String>(attributeTO, "schema"), virtualSchemaNames,
                         new ChoiceRenderer<String>() {
 
-                            private static final long serialVersionUID = 3109256773218160485L;
+                    private static final long serialVersionUID = 3109256773218160485L;
 
-                            @Override
-                            public Object getDisplayValue(final String object) {
-                                final StringBuilder text = new StringBuilder(object);
-                                if (templateMode) {
-                                    text.append(" (JEXL)");
-                                }
-                                return text.toString();
-                            }
-                        });
+                    @Override
+                    public Object getDisplayValue(final String object) {
+                        final StringBuilder text = new StringBuilder(object);
+                        if (templateMode) {
+                            text.append(" (JEXL)");
+                        }
+                        return text.toString();
+                    }
+                });
 
                 schemaChoice.add(new AjaxFormComponentUpdatingBehavior("onblur") {
 

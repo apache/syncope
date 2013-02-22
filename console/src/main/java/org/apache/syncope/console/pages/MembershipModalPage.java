@@ -95,13 +95,13 @@ public class MembershipModalPage extends BaseModalPage {
         //--------------------------------
         // Derived attributes container
         //--------------------------------
-        form.add(new DerivedAttributesPanel("derivedAttributes", membershipTO, pageRef));
+        form.add(new DerivedAttributesPanel("derivedAttributes", membershipTO));
         //--------------------------------
 
         //--------------------------------
         // Virtual attributes container
         //--------------------------------
-        form.add(new VirtualAttributesPanel("virtualAttributes", membershipTO, templateMode, pageRef));
+        form.add(new VirtualAttributesPanel("virtualAttributes", membershipTO, templateMode));
         //--------------------------------
 
         add(form);

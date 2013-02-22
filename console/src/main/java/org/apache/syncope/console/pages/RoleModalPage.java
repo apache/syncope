@@ -92,7 +92,7 @@ public class RoleModalPage extends BaseModalPage {
 
         form.setModel(new CompoundPropertyModel(roleTO));
 
-        this.rolePanel = new RolePanel("rolePanel", form, roleTO, mode, pageRef);
+        this.rolePanel = new RolePanel("rolePanel", form, roleTO, mode);
         form.add(rolePanel);
 
         final AjaxButton submit = new ClearIndicatingAjaxButton("submit", new ResourceModel("submit"), pageRef) {

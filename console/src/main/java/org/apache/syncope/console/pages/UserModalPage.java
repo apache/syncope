@@ -122,13 +122,13 @@ public abstract class UserModalPage extends BaseModalPage {
         //--------------------------------
         // Derived attributes panel
         //--------------------------------
-        form.add(new DerivedAttributesPanel("derivedAttributes", userTO, pageRef));
+        form.add(new DerivedAttributesPanel("derivedAttributes", userTO));
         //--------------------------------
 
         //--------------------------------
         // Virtual attributes panel
         //--------------------------------
-        form.add(new VirtualAttributesPanel("virtualAttributes", userTO, mode == Mode.TEMPLATE, pageRef));
+        form.add(new VirtualAttributesPanel("virtualAttributes", userTO, mode == Mode.TEMPLATE));
         //--------------------------------
 
         //--------------------------------
