@@ -42,15 +42,15 @@ under the License.
   <Policy DTYPE="SyncPolicy" id="9" description="sync policy for java rule" type="SYNC" specification="%3Corg.apache.syncope.common.types.SyncPolicySpec%3E%0A++%3CconflictResolutionAction%3EIGNORE%3C/conflictResolutionAction%3E%0A%3C/org.apache.syncope.common.types.SyncPolicySpec%3E"/>
     
   <SyncopeUser id="1" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
-               username="user1" creationDate="2010-10-20 11:00:00" suspended="0"/>
+               username="rossini" creationDate="2010-10-20 11:00:00" suspended="0"/>
   <SyncopeUser id="2" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
-               username="user2" creationDate="2010-10-20 11:00:00" suspended="0"/>
+               username="verdi" creationDate="2010-10-20 11:00:00" suspended="0"/>
   <SyncopeUser id="3" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
-               username="user3" creationDate="2010-10-20 11:00:00" suspended="0"/>
+               username="vivaldi" creationDate="2010-10-20 11:00:00" suspended="0"/>
   <SyncopeUser id="4" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
-               username="user4" creationDate="2010-10-20 11:00:00" suspended="0"/>
+               username="bellini" creationDate="2010-10-20 11:00:00" suspended="0"/>
   <SyncopeUser id="5" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
-               username="user5" creationDate="2010-10-20 11:00:00" suspended="0"/>
+               username="puccini" creationDate="2010-10-20 11:00:00" suspended="0"/>
 
   <SyncopeRole id="1" name="root"/>
   <SyncopeRole id="2" name="child" parent_id="1"/>
@@ -155,27 +155,58 @@ under the License.
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
   <UAttr id="100" owner_id="1" schema_name="fullname"/>
-  <UAttrUniqueValue id="10" attribute_id="100" schema_name="fullname" stringValue="chicchiricco"/>
-  <UAttr id="200" owner_id="1" schema_name="loginDate"/>
-  <UAttrValue attribute_id="200" id="20" dateValue="2009-05-26"/>
-  <UAttrValue attribute_id="200" id="21" dateValue="2010-05-26 15:40:04"/>
+  <UAttrUniqueValue id="10" attribute_id="100" schema_name="fullname" stringValue="Gioacchino Rossini"/>
+  <UAttr id="101" owner_id="1" schema_name="firstname"/>
+  <UAttrValue id="11" attribute_id="101" stringValue="Gioacchino"/>
+  <UAttr id="102" owner_id="1" schema_name="surname"/>
+  <UAttrValue id="12" attribute_id="102" stringValue="Rossini"/>
+  <UAttr id="103" owner_id="1" schema_name="userId"/>
+  <UAttrUniqueValue id="13" attribute_id="103" schema_name="userId" stringValue="rossini@apache.org"/>
+  <UAttr id="104" owner_id="1" schema_name="loginDate"/>
+  <UAttrValue id="14" attribute_id="104" dateValue="2009-05-26"/>
+  <UAttrValue id="15" attribute_id="104" dateValue="2010-05-26 15:40:04"/>
 
-  <UAttr id="300" owner_id="2" schema_name="fullname"/>
-  <UAttrUniqueValue id="11" attribute_id="300" schema_name="fullname" stringValue="fabio.martelli"/>
+  <UAttr id="105" owner_id="2" schema_name="fullname"/>
+  <UAttrUniqueValue id="16" attribute_id="105" schema_name="fullname" stringValue="Giuseppe Verdi"/>
+  <UAttr id="106" owner_id="2" schema_name="firstname"/>
+  <UAttrValue id="17" attribute_id="106" stringValue="Giuseppe"/>
+  <UAttr id="107" owner_id="2" schema_name="surname"/>
+  <UAttrValue id="18" attribute_id="107" stringValue="Verdi"/>
+  <UAttr id="108" owner_id="2" schema_name="userId"/>
+  <UAttrUniqueValue id="19" attribute_id="108" schema_name="userId" stringValue="verdi@apache.org"/>
 
-  <UAttr id="400" owner_id="3" schema_name="firstname"/>
-  <UAttrValue attribute_id="400" id="30" stringValue="John"/>
-  <UAttr id="500" owner_id="3" schema_name="surname"/>
-  <UAttrValue attribute_id="500" id="31" stringValue="Doe"/>
-  <UAttr id="540" owner_id="3" schema_name="fullname"/>
-  <UAttrUniqueValue id="12" attribute_id="540" schema_name="fullname" stringValue="testUsername"/>
+  <UAttr id="109" owner_id="3" schema_name="firstname"/>
+  <UAttrValue id="20" attribute_id="109" stringValue="Antonio"/>
+  <UAttr id="110" owner_id="3" schema_name="surname"/>
+  <UAttrValue id="21" attribute_id="110" stringValue="Vivaldi"/>
+  <UAttr id="111" owner_id="3" schema_name="fullname"/>
+  <UAttrUniqueValue id="22" attribute_id="111" schema_name="fullname" stringValue="Antonio Vivaldi"/>
+  <UAttr id="112" owner_id="3" schema_name="userId"/>
+  <UAttrUniqueValue id="23" attribute_id="112" schema_name="userId" stringValue="vivaldi@apache.org"/>
 
-  <UAttr id="550" owner_id="4" schema_name="loginDate"/>
-  <UAttrValue attribute_id="550" id="22" dateValue="2009-06-24"/>
-  <UAttr id="560" owner_id="4" schema_name="cool"/>
-  <UAttrValue attribute_id="560" id="23" booleanValue="1"/>
-  <UAttr id="561" owner_id="4" schema_name="gender"/>
-  <UAttrValue attribute_id="561" id="24" stringValue="M"/>
+  <UAttr id="113" owner_id="4" schema_name="firstname"/>
+  <UAttrValue id="24" attribute_id="113" stringValue="Vincenzo"/>
+  <UAttr id="114" owner_id="4" schema_name="surname"/>
+  <UAttrValue id="25" attribute_id="114" stringValue="Bellini"/>
+  <UAttr id="115" owner_id="4" schema_name="fullname"/>
+  <UAttrUniqueValue id="26" attribute_id="115" schema_name="fullname" stringValue="Vincenzo Bellini"/>
+  <UAttr id="116" owner_id="4" schema_name="userId"/>
+  <UAttrUniqueValue id="27" attribute_id="116" schema_name="userId" stringValue="bellini@apache.org"/>
+  <UAttr id="117" owner_id="4" schema_name="loginDate"/>
+  <UAttrValue id="28" attribute_id="117" dateValue="2009-06-24"/>
+  <UAttr id="118" owner_id="4" schema_name="cool"/>
+  <UAttrValue id="29" attribute_id="118" booleanValue="1"/>
+  <UAttr id="119" owner_id="4" schema_name="gender"/>
+  <UAttrValue id="30" attribute_id="119" stringValue="M"/>
+  
+  <UAttr id="120" owner_id="5" schema_name="firstname"/>
+  <UAttrValue id="31" attribute_id="120" stringValue="Giacomo"/>
+  <UAttr id="121" owner_id="5" schema_name="surname"/>
+  <UAttrValue id="32" attribute_id="121" stringValue="Puccini"/>
+  <UAttr id="122" owner_id="5" schema_name="fullname"/>
+  <UAttrUniqueValue id="33" attribute_id="122" schema_name="fullname" stringValue="Giacomo Puccini"/>
+  <UAttr id="123" owner_id="5" schema_name="userId"/>
+  <UAttrUniqueValue id="34" attribute_id="123" schema_name="userId" stringValue="puccini@apache.org"/>
     
   <RAttr id="600" owner_id="1" schema_name="icon"/>
   <RAttr id="700" owner_id="2" schema_name="icon"/>

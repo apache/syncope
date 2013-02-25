@@ -160,7 +160,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         UserTO readUserTO = userService2.read(1L);
         assertNotNull(readUserTO);
 
-        UserService userService3 = setupCredentials(userService, UserService.class, "user2", ADMIN_PWD);
+        UserService userService3 = setupCredentials(userService, UserService.class, "verdi", ADMIN_PWD);
 
         SyncopeClientException exception = null;
         try {
@@ -205,7 +205,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         }
         assertTrue(userIds.contains(1L));
 
-        UserService userService3 = setupCredentials(userService, UserService.class, "user2", "password");
+        UserService userService3 = setupCredentials(userService, UserService.class, "verdi", "password");
 
         matchedUsers = userService3.search(searchCondition);
 

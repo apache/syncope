@@ -191,7 +191,7 @@ public class DerAttrTest extends AbstractDAOTest {
         String value = derAttr.getValue(owner.getAttributes());
         assertNotNull(value);
         assertFalse(value.isEmpty());
-        assertTrue(value.startsWith("active - user3 - 2010-10-20"));
+        assertTrue(value.startsWith("active - vivaldi - 2010-10-20"));
         assertTrue(value.endsWith("[]"));
     }
 

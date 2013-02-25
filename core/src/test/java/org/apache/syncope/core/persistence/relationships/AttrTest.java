@@ -74,26 +74,26 @@ public class AttrTest extends AbstractDAOTest {
 
     @Test
     public void deleteAttribute() {
-        attrDAO.delete(550L, UAttr.class);
+        attrDAO.delete(117L, UAttr.class);
 
         attrDAO.flush();
 
-        assertNull(attrDAO.find(550L, UAttr.class));
-        assertNull(attrValueDAO.find(22L, UAttrValue.class));
+        assertNull(attrDAO.find(117L, UAttr.class));
+        assertNull(attrValueDAO.find(28L, UAttrValue.class));
     }
 
     @Test
     public void deleteAttributeValue() {
-        UAttrValue value = attrValueDAO.find(20L, UAttrValue.class);
+        UAttrValue value = attrValueDAO.find(14L, UAttrValue.class);
         int attributeValueNumber = value.getAttribute().getValues().size();
 
-        attrValueDAO.delete(20L, UAttrValue.class);
+        attrValueDAO.delete(value.getId(), UAttrValue.class);
 
         attrValueDAO.flush();
 
-        assertNull(attrValueDAO.find(20L, UAttrValue.class));
+        assertNull(attrValueDAO.find(value.getId(), UAttrValue.class));
 
-        UAttr attribute = attrDAO.find(200L, UAttr.class);
+        UAttr attribute = attrDAO.find(104L, UAttr.class);
         assertEquals(attribute.getValues().size(), attributeValueNumber - 1);
     }
 
@@ -156,7 +156,7 @@ public class AttrTest extends AbstractDAOTest {
         String value = derAttr.getValue(owner.getAttributes());
         assertNotNull(value);
         assertFalse(value.isEmpty());
-        assertTrue(value.startsWith("user3 - 2010-10-20"));
+        assertTrue(value.startsWith("vivaldi - 2010-10-20"));
         assertTrue(value.endsWith("[]"));
     }
 }

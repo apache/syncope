@@ -112,7 +112,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void selfRead() {
-        UserService userService2 = setupCredentials(userService, UserService.class, "user1", ADMIN_PWD);
+        UserService userService2 = setupCredentials(userService, UserService.class, "rossini", ADMIN_PWD);
 
         try {
             userService2.read(1L);
@@ -125,7 +125,7 @@ public class UserTestITCase extends AbstractTest {
         }
 
         UserTO userTO = userService2.readSelf();
-        assertEquals("user1", userTO.getUsername());
+        assertEquals("rossini", userTO.getUsername());
     }
 
     @Test
@@ -564,8 +564,9 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(form.getTaskId());
         assertNull(form.getOwner());
 
-        // 3. claim task from user1, not in role 7 (designated for approval in workflow definition): fail
-        UserWorkflowService userService2 = setupCredentials(userWorkflowService, UserWorkflowService.class, "user1", ADMIN_PWD);
+        // 3. claim task from rossini, not in role 7 (designated for approval in workflow definition): fail
+        UserWorkflowService userService2 = 
+                setupCredentials(userWorkflowService, UserWorkflowService.class, "rossini", ADMIN_PWD);
 
         try {
             userService2.claimForm(form.getTaskId());
@@ -574,8 +575,9 @@ public class UserTestITCase extends AbstractTest {
             assertNotNull(scce.getException(SyncopeClientExceptionType.Workflow));
         }
 
-        // 4. claim task from user4, in role 7
-        UserWorkflowService userService3 = setupCredentials(userWorkflowService, UserWorkflowService.class, "user4", ADMIN_PWD);
+        // 4. claim task from bellini, in role 7
+        UserWorkflowService userService3 = 
+                setupCredentials(userWorkflowService, UserWorkflowService.class, "bellini", ADMIN_PWD);
 
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);

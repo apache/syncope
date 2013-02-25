@@ -54,14 +54,14 @@ public class AttrTest extends AbstractDAOTest {
     @Test
     public void findAll() {
         List<UAttr> list = attrDAO.findAll(UAttr.class);
-        assertEquals("did not get expected number of attributes ", 9, list.size());
+        assertEquals("did not get expected number of attributes ", 24, list.size());
     }
 
     @Test
     public void findById() {
         UAttr attribute = attrDAO.find(100L, UAttr.class);
         assertNotNull("did not find expected attribute schema", attribute);
-        attribute = attrDAO.find(200L, UAttr.class);
+        attribute = attrDAO.find(104L, UAttr.class);
         assertNotNull("did not find expected attribute schema", attribute);
     }
 
@@ -190,7 +190,7 @@ public class AttrTest extends AbstractDAOTest {
 
     @Test
     public void delete() {
-        UAttr attribute = attrDAO.find(200L, UAttr.class);
+        UAttr attribute = attrDAO.find(104L, UAttr.class);
         String attrSchemaName = attribute.getSchema().getName();
 
         attrDAO.delete(attribute.getId(), UAttr.class);

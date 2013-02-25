@@ -82,7 +82,7 @@ public class UserTest extends AbstractDAOTest {
     @Test
     public void findByDerAttributeValue()
             throws InvalidSearchConditionException {
-        final List<SyncopeUser> list = userDAO.findByDerAttrValue("cn", "Doe, John");
+        final List<SyncopeUser> list = userDAO.findByDerAttrValue("cn", "Vivaldi, Antonio");
         assertEquals("did not get expected number of users ", 1, list.size());
     }
 
@@ -101,7 +101,7 @@ public class UserTest extends AbstractDAOTest {
     @Test
     public void findByAttributeValue() {
         final UAttrValue fullnameValue = new UAttrValue();
-        fullnameValue.setStringValue("chicchiricco");
+        fullnameValue.setStringValue("Gioacchino Rossini");
 
         final List<SyncopeUser> list = userDAO.findByAttrValue("fullname", fullnameValue);
         assertEquals("did not get expected number of users ", 1, list.size());
@@ -128,9 +128,9 @@ public class UserTest extends AbstractDAOTest {
 
     @Test
     public void findByUsername() {
-        SyncopeUser user = userDAO.find("user1");
+        SyncopeUser user = userDAO.find("rossini");
         assertNotNull("did not find expected user", user);
-        user = userDAO.find("user3");
+        user = userDAO.find("vivaldi");
         assertNotNull("did not find expected user", user);
         user = userDAO.find("user6");
         assertNull("found user but did not expect it", user);

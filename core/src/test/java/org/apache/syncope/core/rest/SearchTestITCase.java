@@ -87,7 +87,7 @@ public class SearchTestITCase extends AbstractTest {
     public void searchByUsernameAndId() throws InvalidSearchConditionException {
         final AttributableCond usernameLeafCond = new AttributableCond(AttributableCond.Type.EQ);
         usernameLeafCond.setSchema("username");
-        usernameLeafCond.setExpression("user1");
+        usernameLeafCond.setExpression("rossini");
 
         final AttributableCond idRightCond = new AttributableCond(AttributableCond.Type.LT);
         idRightCond.setSchema("id");
@@ -102,7 +102,7 @@ public class SearchTestITCase extends AbstractTest {
 
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.size());
-        assertEquals("user1", matchingUsers.iterator().next().getUsername());
+        assertEquals("rossini", matchingUsers.iterator().next().getUsername());
         assertEquals(1L, matchingUsers.iterator().next().getId());
     }
 

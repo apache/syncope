@@ -878,7 +878,6 @@ public class TaskTestITCase extends AbstractTest {
                     "SELECT USERNAME FROM testsync WHERE ID=?", String.class, userTO.getId());
             assertEquals("virtualvalue", value);
         } catch (EmptyResultDataAccessException e) {
-            LOG.error("AAAAAAAAAAAAAAAAAAAAAAA", e);
             assertTrue(false);
         }
     }
