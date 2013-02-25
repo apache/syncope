@@ -173,6 +173,7 @@ public abstract class UserModalPage extends BaseModalPage {
 
         fragment.add(form);
         form.add(submit);
+        form.setDefaultButton(submit);
 
         return form;
     }

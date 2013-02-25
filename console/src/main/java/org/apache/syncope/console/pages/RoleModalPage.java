@@ -113,6 +113,7 @@ public class RoleModalPage extends BaseModalPage {
                 : "update"));
 
         form.add(submit);
+        form.setDefaultButton(submit);
 
         add(form);
     }

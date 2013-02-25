@@ -136,6 +136,8 @@ public class ResourceModalPage extends BaseModalPage {
         };
 
         form.add(submit);
+        form.setDefaultButton(submit);
+        
         add(form);
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Resources",
