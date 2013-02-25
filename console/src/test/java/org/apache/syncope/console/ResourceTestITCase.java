@@ -31,7 +31,7 @@ public class ResourceTestITCase extends AbstractTest {
         selenium.click("//div[3]/div/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");", "30000");
+                + "\"//form/div[3]/div/span/div/div/div/label[text()='Name']\");", "30000");
 
         selenium.click("css=a.w_close");
     }
@@ -45,7 +45,7 @@ public class ResourceTestITCase extends AbstractTest {
         selenium.click("//td[5]/div/span[9]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");", "30000");
+                + "\"//form/div[3]/div/span/div/div/div/label[text()='Name']\");", "30000");
 
         selenium.click("//li[2]/a");
 
@@ -78,7 +78,7 @@ public class ResourceTestITCase extends AbstractTest {
         selenium.click("//td[5]/div/span[9]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");", "30000");
+                + "\"//form/div[3]/div/span/div/div/div/label[text()='Name']\");", "30000");
 
         selenium.click("//li[4]/a");
 
@@ -100,13 +100,13 @@ public class ResourceTestITCase extends AbstractTest {
         selenium.click("//*[@id=\"users-contain\"]//*[div=\"ws-target-resource-delete\"]/../td[5]/div/span[9]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/span/div/div/div/label[text()='Name']\");", "30000");
+                + "\"//form/div[3]/div/span/div/div/div/label[text()='Name']\");", "30000");
 
         selenium.click("//li[3]/a");
 
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//span[text()='endpoint']\");", "30000");
 
-        selenium.click("//div[2]/form/div[2]/div[4]/span/span/div[2]/a");
+        selenium.click("//div[2]/form/div[3]/div[4]/span/span/div[2]/a");
 
         selenium.waitForCondition(
                 "selenium.isElementPresent(\"//div/ul/li/span[contains(text(), 'Successful connection')]\");", "30000");
