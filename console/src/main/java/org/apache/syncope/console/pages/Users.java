@@ -101,27 +101,31 @@ public class Users extends BasePage {
         final UserSearchPanel searchPanel = new UserSearchPanel("searchPanel");
         searchForm.add(searchPanel);
 
-        searchForm.add(new ClearIndicatingAjaxButton("search", new ResourceModel("search"), getPageReference()) {
+        final ClearIndicatingAjaxButton searchButton =
+                new ClearIndicatingAjaxButton("search", new ResourceModel("search"), getPageReference()) {
 
-            private static final long serialVersionUID = -958724007591692537L;
+                    private static final long serialVersionUID = -958724007591692537L;
 
-            @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                final NodeCond searchCond = searchPanel.buildSearchCond();
-                LOG.debug("Node condition " + searchCond);
+                    @Override
+                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                        final NodeCond searchCond = searchPanel.buildSearchCond();
+                        LOG.debug("Node condition " + searchCond);
 
-                doSearch(target, searchCond, searchResult);
+                        doSearch(target, searchCond, searchResult);
 
-                Session.get().getFeedbackMessages().clear();
-                target.add(searchPanel.getSearchFeedback());
-            }
+                        Session.get().getFeedbackMessages().clear();
+                        target.add(searchPanel.getSearchFeedback());
+                    }
 
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                    @Override
+                    protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
-                target.add(searchPanel.getSearchFeedback());
-            }
-        });
+                        target.add(searchPanel.getSearchFeedback());
+                    }
+                };
+
+        searchForm.add(searchButton);
+        searchForm.setDefaultButton(searchButton);
     }
 
     private void doSearch(final AjaxRequestTarget target, final NodeCond searchCond,

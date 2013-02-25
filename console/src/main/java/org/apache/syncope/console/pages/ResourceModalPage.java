@@ -155,6 +155,7 @@ public class ResourceModalPage extends BaseModalPage {
         };
 
         form.add(submit);
+        form.setDefaultButton(submit);
 
         final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
 

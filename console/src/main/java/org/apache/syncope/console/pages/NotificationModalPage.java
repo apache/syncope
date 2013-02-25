@@ -247,6 +247,8 @@ class NotificationModalPage extends BaseModalPage {
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 
         form.add(submit);
+        form.setDefaultButton(submit);
+        
         form.add(cancel);
 
         add(form);

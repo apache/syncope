@@ -154,6 +154,7 @@ public abstract class UserModalPage extends BaseModalPage {
 
         fragment.add(form);
         form.add(submit);
+        form.setDefaultButton(submit);
 
         final AjaxButton cancel = new AjaxButton("cancel", new ResourceModel("cancel")) {
 
