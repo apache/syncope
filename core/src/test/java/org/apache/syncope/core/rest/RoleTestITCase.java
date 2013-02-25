@@ -296,7 +296,7 @@ public class RoleTestITCase extends AbstractTest {
         roleMod.setId(roleTO.getId());
         roleMod.setName("Managing Director");
 
-        // 3. try to update as user3, not owner of role 7 - fail
+        // 3. try to update as verdi, not owner of role 7 - fail
         RoleService roleService2 = setupCredentials(roleService, RoleService.class, "verdi", ADMIN_PWD);
 
         try {
@@ -308,7 +308,7 @@ public class RoleTestITCase extends AbstractTest {
             assertNotNull(e);
         }
 
-        // 4. update as user5, owner of role 7 because owner of role 6 with
+        // 4. update as puccini, owner of role 7 because owner of role 6 with
         // inheritance - success
         RoleService roleService3 = setupCredentials(roleService, RoleService.class, "puccini", ADMIN_PWD);
 

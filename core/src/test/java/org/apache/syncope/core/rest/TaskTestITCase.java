@@ -237,8 +237,8 @@ public class TaskTestITCase extends AbstractTest {
         inUserTO.addAttribute(attributeTO("surname", "cognome"));
         inUserTO.addAttribute(attributeTO("type", "a type"));
         inUserTO.addAttribute(attributeTO("fullname", "nome cognome"));
-        inUserTO.addAttribute(attributeTO("userId", "user5@syncope.apache.org"));
-        inUserTO.addAttribute(attributeTO("email", "user5@syncope.apache.org"));
+        inUserTO.addAttribute(attributeTO("userId", "puccini@syncope.apache.org"));
+        inUserTO.addAttribute(attributeTO("email", "puccini@syncope.apache.org"));
         inUserTO.addDerivedAttribute(attributeTO("csvuserid", null));
 
         inUserTO = createUser(inUserTO);

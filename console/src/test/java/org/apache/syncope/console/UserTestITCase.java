@@ -49,12 +49,12 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        //Edit user3
+        //Edit vivaldi
         selenium.click("//*[@id=\"users-contain\"]//*[div=3]/../td[4]/div/span[9]/a");
 
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='testUsername']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='Antonio Vivaldi']\");", "30000");
 
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='Doe']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='Vivaldi']\");", "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
