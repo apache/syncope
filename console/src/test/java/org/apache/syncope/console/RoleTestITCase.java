@@ -57,14 +57,14 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.selectFrame("relative=up");
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[2]/form/div[2]/ul/li[1]/a/span\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[2]/form/div[3]/ul/li[1]/a/span\");", "30000");
 
-        selenium.click("//div[2]/form/div[2]/ul/li[1]/a/span");
-        selenium.click("//div[2]/form/div[2]/ul/li[2]/a/span");
-        selenium.click("//div[2]/form/div[2]/ul/li[3]/a/span");
-        selenium.click("//div[2]/form/div[2]/ul/li[4]/a/span");
-        selenium.click("//div[2]/form/div[2]/ul/li[5]/a/span");
-        selenium.click("//div[2]/form/div[2]/ul/li[6]/a/span");
+        selenium.click("//div[2]/form/div[3]/ul/li[1]/a/span");
+        selenium.click("//div[2]/form/div[3]/ul/li[2]/a/span");
+        selenium.click("//div[2]/form/div[3]/ul/li[3]/a/span");
+        selenium.click("//div[2]/form/div[3]/ul/li[4]/a/span");
+        selenium.click("//div[2]/form/div[3]/ul/li[5]/a/span");
+        selenium.click("//div[2]/form/div[3]/ul/li[6]/a/span");
 
         selenium.click("css=a.w_close");
     }
@@ -86,14 +86,14 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.selectFrame("relative=up");
 
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//div[2]/form/div[2]/ul/li[1]/a/span\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//div[2]/form/div[3]/ul/li[1]/a/span\");", "30000");
 
-        selenium.click("//div[2]/form/div[2]/ul/li[1]/a/span");
-        selenium.click("//div[2]/form/div[2]/ul/li[2]/a/span");
-        selenium.click("//div[2]/form/div[2]/ul/li[3]/a/span");
-        selenium.click("//div[2]/form/div[2]/ul/li[4]/a/span");
-        selenium.click("//div[2]/form/div[2]/ul/li[5]/a/span");
-        selenium.click("//div[2]/form/div[2]/ul/li[6]/a/span");
+        selenium.click("//div[2]/form/div[3]/ul/li[1]/a/span");
+        selenium.click("//div[2]/form/div[3]/ul/li[2]/a/span");
+        selenium.click("//div[2]/form/div[3]/ul/li[3]/a/span");
+        selenium.click("//div[2]/form/div[3]/ul/li[4]/a/span");
+        selenium.click("//div[2]/form/div[3]/ul/li[5]/a/span");
+        selenium.click("//div[2]/form/div[3]/ul/li[6]/a/span");
 
         selenium.click("css=a.w_close");
     }
@@ -134,7 +134,7 @@ public class RoleTestITCase extends AbstractTest {
                 + "[2]/div[2]/div/div/span/div/table/tbody/tr/td[4]/span/span[7]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/span/div/div/div[contains(text(),'Username')]\");", "30000");
+                + "\"//form/div[3]/div/span/div/div/div[contains(text(),'Username')]\");", "30000");
 
         selenium.selectFrame("relative=up");
         selenium.click("css=a.w_close");
