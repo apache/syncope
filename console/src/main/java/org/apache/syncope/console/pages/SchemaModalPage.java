@@ -30,6 +30,7 @@ import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -37,11 +38,13 @@ import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPane
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -89,7 +92,6 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                 getString("conversionPattern"), new PropertyModel<String>(schema, "conversionPattern"));
 
         final IModel<List<String>> validatorsList = new LoadableDetachableModel<List<String>>() {
-
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
@@ -138,7 +140,6 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         }
 
         type.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
@@ -174,7 +175,6 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         });
 
         final AutoCompleteTextField mandatoryCondition = new AutoCompleteTextField("mandatoryCondition") {
-
             private static final long serialVersionUID = -2428903969518079100L;
 
             @Override
@@ -197,13 +197,18 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         };
 
         mandatoryCondition.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(AjaxRequestTarget art) {
             }
         });
+
+        final WebMarkupContainer pwdJexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
+        schemaForm.add(pwdJexlHelp);
+
+        final AjaxLink pwdQuestionMarkJexlHelp = JexlHelpUtil.getAjaxLink(pwdJexlHelp, "questionMarkJexlHelp");
+        schemaForm.add(pwdQuestionMarkJexlHelp);
 
         final AjaxCheckBoxPanel multivalue = new AjaxCheckBoxPanel("multivalue", getString("multivalue"),
                 new PropertyModel<Boolean>(schema, "multivalue"));
@@ -215,7 +220,6 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                 getString("uniqueConstraint"), new PropertyModel<Boolean>(schema, "uniqueConstraint"));
 
         final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
-
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -255,7 +259,6 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         };
 
         final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
-
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
