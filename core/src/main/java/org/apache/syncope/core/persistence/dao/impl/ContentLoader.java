@@ -56,7 +56,12 @@ public class ContentLoader {
     private ImportExport importExport;
 
     @Transactional
-    public void load(final String[] wfInitSQLStatements) {
+    public void wfInit(final String[] wfInitSQLStatements) {
+        importExport.setWfInitSQLStatements(wfInitSQLStatements);
+    }
+
+    @Transactional
+    public void load() {
         Connection conn = null;
         try {
             conn = DataSourceUtils.getConnection(dataSource);
@@ -67,9 +72,9 @@ public class ContentLoader {
             } else {
                 LOG.info("Empty database found, loading default content");
 
-                createViews(conn);
+                loadDefaultContent();
                 createIndexes(conn);
-                loadDefaultContent(wfInitSQLStatements);
+                createViews(conn);
             }
         } finally {
             DataSourceUtils.releaseConnection(conn, dataSource);
@@ -172,13 +177,11 @@ public class ContentLoader {
         }
     }
 
-    private void loadDefaultContent(final String[] wfInitSQLStatements) {
+    private void loadDefaultContent() {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         InputStream in = null;
         try {
             in = getClass().getResourceAsStream("/" + ImportExport.CONTENT_FILE);
-
-            importExport.setWfInitSQLStatements(wfInitSQLStatements);
 
             SAXParser parser = factory.newSAXParser();
             parser.parse(in, importExport);

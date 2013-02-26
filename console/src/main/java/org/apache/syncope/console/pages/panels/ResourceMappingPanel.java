@@ -407,12 +407,18 @@ public class ResourceMappingPanel extends Panel {
                 final AjaxDropDownChoicePanel purpose = new AjaxDropDownChoicePanel<String>(
                         "purpose",
                         new ResourceModel("purpose", "purpose").getObject(),
-                        new PropertyModel(mapItem, "purpose"), 
+                        new PropertyModel(mapItem, "purpose"),
                         false);
                 ((AjaxDropDownChoicePanel) purpose).setChoices(Arrays.asList(MappingPurpose.values()));
                 purpose.setStyleSheet(FIELD_STYLE);
                 purpose.setRequired(true);
-                
+                purpose.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+
+                    @Override
+                    protected void onUpdate(AjaxRequestTarget art) {
+                    }
+                });
+
                 item.add(purpose);
 
                 typesPanel.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {

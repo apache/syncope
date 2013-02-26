@@ -24,5 +24,5 @@ public interface WorkflowInstanceLoader {
 
     String getTablePrefix();
 
-    String[] getInitSQLStatements();
+    void init();
 }

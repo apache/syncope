@@ -63,7 +63,7 @@ public class DerAttrTest extends AbstractDAOTest {
     @Test
     public void findAll() {
         List<UDerAttr> list = derAttrDAO.findAll(UDerAttr.class);
-        assertEquals("did not get expected number of derived attributes ", 1, list.size());
+        assertEquals("did not get expected number of derived attributes ", 2, list.size());
     }
 
     @Test

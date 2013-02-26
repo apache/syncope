@@ -69,9 +69,11 @@ public class WorkflowAdapterLoader implements BeanFactoryAware {
         return wfLoader == null ? null : wfLoader.getTablePrefix();
     }
 
-    public String[] getInitSQLStatements() {
+    public void init() {
         lazyInit();
-        return wfLoader == null ? null : wfLoader.getInitSQLStatements();
+        if (wfLoader != null) {
+            wfLoader.init();
+        }
     }
 
     public void load() {

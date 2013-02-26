@@ -41,15 +41,15 @@ under the License.
   <Policy DTYPE="PasswordPolicy" id="8" description="sample password policy" type="PASSWORD" specification="%3Corg.apache.syncope.common.types.PasswordPolicySpec%3E%0A++%3ChistoryLength%3E0%3C%2FhistoryLength%3E%0A++%3CmaxLength%3E0%3C%2FmaxLength%3E%0A++%3CminLength%3E10%3C%2FminLength%3E%0A++%3CnonAlphanumericRequired%3Etrue%3C%2FnonAlphanumericRequired%3E%0A++%3CalphanumericRequired%3Efalse%3C%2FalphanumericRequired%3E%0A++%3CdigitRequired%3Etrue%3C%2FdigitRequired%3E%0A++%3ClowercaseRequired%3Etrue%3C%2FlowercaseRequired%3E%0A++%3CuppercaseRequired%3Etrue%3C%2FuppercaseRequired%3E%0A++%3CmustStartWithDigit%3Etrue%3C%2FmustStartWithDigit%3E%0A++%3CmustntStartWithDigit%3Efalse%3C%2FmustntStartWithDigit%3E%0A++%3CmustEndWithDigit%3Etrue%3C%2FmustEndWithDigit%3E%0A++%3CmustntEndWithDigit%3Efalse%3C%2FmustntEndWithDigit%3E%0A++%3CmustStartWithNonAlpha%3Efalse%3C%2FmustStartWithNonAlpha%3E%0A++%3CmustStartWithAlpha%3Efalse%3C%2FmustStartWithAlpha%3E%0A++%3CmustntStartWithNonAlpha%3Efalse%3C%2FmustntStartWithNonAlpha%3E%0A++%3CmustntStartWithAlpha%3Efalse%3C%2FmustntStartWithAlpha%3E%0A++%3CmustEndWithNonAlpha%3Efalse%3C%2FmustEndWithNonAlpha%3E%0A++%3CmustEndWithAlpha%3Efalse%3C%2FmustEndWithAlpha%3E%0A++%3CmustntEndWithNonAlpha%3Efalse%3C%2FmustntEndWithNonAlpha%3E%0A++%3CmustntEndWithAlpha%3Efalse%3C%2FmustntEndWithAlpha%3E%0A++%3CprefixesNotPermitted%3E%0A++++%3Cstring%3Enotpermitted1%3C%2Fstring%3E%0A++++%3Cstring%3Enotpermitted2%3C%2Fstring%3E%0A++%3C%2FprefixesNotPermitted%3E%0A%3C%2Forg.apache.syncope.common.types.PasswordPolicySpec%3E"/>
   <Policy DTYPE="SyncPolicy" id="9" description="sync policy for java rule" type="SYNC" specification="%3Corg.apache.syncope.common.types.SyncPolicySpec%3E%0A++%3CconflictResolutionAction%3EIGNORE%3C/conflictResolutionAction%3E%0A%3C/org.apache.syncope.common.types.SyncPolicySpec%3E"/>
     
-  <SyncopeUser id="1" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+  <SyncopeUser id="1" workflowId="4" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                username="rossini" creationDate="2010-10-20 11:00:00" suspended="0"/>
-  <SyncopeUser id="2" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+  <SyncopeUser id="2" workflowId="6" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                username="verdi" creationDate="2010-10-20 11:00:00" suspended="0"/>
-  <SyncopeUser id="3" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+  <SyncopeUser id="3" workflowId="8" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                username="vivaldi" creationDate="2010-10-20 11:00:00" suspended="0"/>
-  <SyncopeUser id="4" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+  <SyncopeUser id="4" workflowId="10" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                username="bellini" creationDate="2010-10-20 11:00:00" suspended="0"/>
-  <SyncopeUser id="5" workflowId="0" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+  <SyncopeUser id="5" workflowId="12" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                username="puccini" creationDate="2010-10-20 11:00:00" suspended="0"/>
 
   <SyncopeRole id="1" name="root"/>
@@ -154,6 +154,8 @@ under the License.
   <MSchema name="postalAddress" type="String"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
+  <UAttr id="99" owner_id="1" schema_name="type"/>
+  <UAttrValue id="9" attribute_id="99" stringValue="G"/>
   <UAttr id="100" owner_id="1" schema_name="fullname"/>
   <UAttrUniqueValue id="10" attribute_id="100" schema_name="fullname" stringValue="Gioacchino Rossini"/>
   <UAttr id="101" owner_id="1" schema_name="firstname"/>
@@ -207,6 +209,13 @@ under the License.
   <UAttrUniqueValue id="33" attribute_id="122" schema_name="fullname" stringValue="Giacomo Puccini"/>
   <UAttr id="123" owner_id="5" schema_name="userId"/>
   <UAttrUniqueValue id="34" attribute_id="123" schema_name="userId" stringValue="puccini@apache.org"/>
+  
+  <UAttr id="124" owner_id="2" schema_name="email"/>
+  <UAttrValue id="35" attribute_id="124" stringValue="verdi@syncope.org"/>
+  <UAttr id="125" owner_id="3" schema_name="email"/>
+  <UAttrValue id="36" attribute_id="125" stringValue="vivaldi@syncope.org"/>
+  <UAttr id="126" owner_id="3" schema_name="type"/>
+  <UAttrValue id="37" attribute_id="126" stringValue="F"/>
     
   <RAttr id="600" owner_id="1" schema_name="icon"/>
   <RAttr id="700" owner_id="2" schema_name="icon"/>
@@ -267,6 +276,7 @@ under the License.
 
   <UDerSchema name="cn" expression="surname + ', ' + firstname"/>
   <UDerAttr id="100" derivedSchema_name="cn" owner_id="3"/>
+  <UDerAttr id="101" derivedSchema_name="cn" owner_id="1"/>
 
   <UDerSchema name="noschema" expression="surname + ', ' + notfound"/>
 
@@ -498,7 +508,7 @@ under the License.
                 accountid="0" password="0" purpose="PROPAGATION"/>
   <UMappingItem id="113" extAttrName="userId" mapping_id="2"
                 intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="false"
-                accountid="0" password="0" purpose="PROPAGATION"/>
+                accountid="1" password="0" purpose="PROPAGATION"/>
   <UMappingItem id="114" extAttrName="test3" mapping_id="2" 
                 intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="false"
                 accountid="0" password="0" purpose="PROPAGATION"/>
@@ -653,6 +663,11 @@ under the License.
                 extAttrName="__NAME__" intAttrName="fullname" intMappingType="UserSchema"
                 mandatoryCondition="true" purpose="PROPAGATION"/>
   
+  <UMapping id="19" resource_name="ws-target-resource-delete"/>
+  <UMappingItem id="334" mapping_id="19" extAttrName="__NAME__" 
+                intMappingType="Username" mandatoryCondition="true"
+                accountid="1" password="0" purpose="PROPAGATION"/>
+  
   <Task DTYPE="PropagationTask" id="1" propagationMode="TWO_PHASES" propagationOperation="UPDATE"
         objectClassName="__ACCOUNT__" resource_name="ws-target-resource-2" subjectType="USER" subjectId="1"
         xmlAttributes="%3Cset%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3E__PASSWORD__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Corg.identityconnectors.common.security.GuardedString%3E%0A++++++++++%3Creadonly%3Efalse%3C%2Freadonly%3E%0A++++++++++%3Cdisposed%3Efalse%3C%2Fdisposed%3E%0A++++++++++%3CencryptedBytes%3Em9nh2US0Sa6m%2BcXccCq0Xw%3D%3D%3C%2FencryptedBytes%3E%0A++++++++%3C%2Forg.identityconnectors.common.security.GuardedString%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Name%3E%0A++++%3Cname%3E__NAME__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3EuserId%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Name%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Efullname%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Efullname%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Etype%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Etype%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A%3C%2Fset%3E"/>
@@ -806,4 +821,20 @@ under the License.
   <ReportExec Report_id="1" id="1" status="SUCCESS" startDate="2012-02-26 15:40:04" endDate="2012-02-26 15:41:04"/>
   
   <SyncopeLogger logName="syncope.audit.authentication.getEntitlements.success" logLevel="DEBUG" logType="AUDIT"/>
+
+  <ACT_RU_EXECUTION ID_="4" REV_="2" PROC_INST_ID_="4" PROC_DEF_ID_="userWorkflow:1:3" ACT_ID_="active" IS_ACTIVE_="1" IS_CONCURRENT_="0" IS_SCOPE_="1" IS_EVENT_SCOPE_="0" SUSPENSION_STATE_="1"/>
+  <ACT_RU_TASK ID_="5" REV_="2" EXECUTION_ID_="4" PROC_INST_ID_="4" PROC_DEF_ID_="userWorkflow:1:3" NAME_="Active" TASK_DEF_KEY_="active" PRIORITY_="50" CREATE_TIME_="2013-02-25T17:19:03+0100"/>
+ 
+  <ACT_RU_EXECUTION ID_="6" REV_="2" PROC_INST_ID_="6" PROC_DEF_ID_="userWorkflow:1:3" ACT_ID_="active" IS_ACTIVE_="1" IS_CONCURRENT_="0" IS_SCOPE_="1" IS_EVENT_SCOPE_="0" SUSPENSION_STATE_="1"/>
+  <ACT_RU_TASK ID_="7" REV_="2" EXECUTION_ID_="6" PROC_INST_ID_="6" PROC_DEF_ID_="userWorkflow:1:3" NAME_="Active" TASK_DEF_KEY_="active" PRIORITY_="50" CREATE_TIME_="2013-02-25T17:19:03+0100"/>
+ 
+  <ACT_RU_EXECUTION ID_="8" REV_="2" PROC_INST_ID_="8" PROC_DEF_ID_="userWorkflow:1:3" ACT_ID_="active" IS_ACTIVE_="1" IS_CONCURRENT_="0" IS_SCOPE_="1" IS_EVENT_SCOPE_="0" SUSPENSION_STATE_="1"/>
+  <ACT_RU_TASK ID_="9" REV_="2" EXECUTION_ID_="8" PROC_INST_ID_="8" PROC_DEF_ID_="userWorkflow:1:3" NAME_="Active" TASK_DEF_KEY_="active" PRIORITY_="50" CREATE_TIME_="2013-02-25T17:19:03+0100"/>
+ 
+  <ACT_RU_EXECUTION ID_="10" REV_="2" PROC_INST_ID_="10" PROC_DEF_ID_="userWorkflow:1:3" ACT_ID_="active" IS_ACTIVE_="1" IS_CONCURRENT_="0" IS_SCOPE_="1" IS_EVENT_SCOPE_="0" SUSPENSION_STATE_="1"/>
+  <ACT_RU_TASK ID_="11" REV_="2" EXECUTION_ID_="10" PROC_INST_ID_="10" PROC_DEF_ID_="userWorkflow:1:3" NAME_="Active" TASK_DEF_KEY_="active" PRIORITY_="50" CREATE_TIME_="2013-02-25T17:19:03+0100"/>
+ 
+  <ACT_RU_EXECUTION ID_="12" REV_="2" PROC_INST_ID_="12" PROC_DEF_ID_="userWorkflow:1:3" ACT_ID_="active" IS_ACTIVE_="1" IS_CONCURRENT_="0" IS_SCOPE_="1" IS_EVENT_SCOPE_="0" SUSPENSION_STATE_="1"/>
+  <ACT_RU_TASK ID_="13" REV_="2" EXECUTION_ID_="12" PROC_INST_ID_="12" PROC_DEF_ID_="userWorkflow:1:3" NAME_="Active" TASK_DEF_KEY_="active" PRIORITY_="50" CREATE_TIME_="2013-02-25T17:19:03+0100"/>
+  
 </dataset>

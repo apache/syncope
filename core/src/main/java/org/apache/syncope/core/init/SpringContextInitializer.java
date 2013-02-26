@@ -50,11 +50,13 @@ public class SpringContextInitializer implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        contentLoader.load(workflowAdapterLoader.getInitSQLStatements());
+        workflowAdapterLoader.load();
+        contentLoader.load();
         connFactory.load();
         jobInstanceLoader.load();
         loggerLoader.load();
         classNamesLoader.load();
-        workflowAdapterLoader.load();
+
+        workflowAdapterLoader.init();
     }
 }

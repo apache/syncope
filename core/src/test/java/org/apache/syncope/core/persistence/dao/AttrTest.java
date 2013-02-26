@@ -54,7 +54,7 @@ public class AttrTest extends AbstractDAOTest {
     @Test
     public void findAll() {
         List<UAttr> list = attrDAO.findAll(UAttr.class);
-        assertEquals("did not get expected number of attributes ", 24, list.size());
+        assertEquals("did not get expected number of attributes ", 28, list.size());
     }
 
     @Test

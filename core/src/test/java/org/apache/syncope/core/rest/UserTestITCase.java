@@ -565,7 +565,7 @@ public class UserTestITCase extends AbstractTest {
         assertNull(form.getOwner());
 
         // 3. claim task from rossini, not in role 7 (designated for approval in workflow definition): fail
-        UserWorkflowService userService2 = 
+        UserWorkflowService userService2 =
                 setupCredentials(userWorkflowService, UserWorkflowService.class, "rossini", ADMIN_PWD);
 
         try {
@@ -576,7 +576,7 @@ public class UserTestITCase extends AbstractTest {
         }
 
         // 4. claim task from bellini, in role 7
-        UserWorkflowService userService3 = 
+        UserWorkflowService userService3 =
                 setupCredentials(userWorkflowService, UserWorkflowService.class, "bellini", ADMIN_PWD);
 
         form = userService3.claimForm(form.getTaskId());
@@ -2025,11 +2025,11 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals("virtualupdated", actual.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
     }
-    
+
     @Test
     public void mappingPurpose() {
         UserTO userTO = getUniqueSampleTO("mpurpose@apache.org");
-        
+
         AttributeTO csvuserid = new AttributeTO();
         csvuserid.setSchema("csvuserid");
         userTO.addDerivedAttribute(csvuserid);
@@ -2039,12 +2039,29 @@ public class UserTestITCase extends AbstractTest {
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
-        
+
         final ConnObjectTO connObjectTO = resourceService.getConnector(
-                "resource-csv", 
+                "resource-csv",
                 AttributableType.USER, actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
-        
+
         assertNull(connObjectTO.getAttributeMap().get("email"));
+    }
+
+    public void issueSYNCOPE265() {
+        for (long i = 1; i <= 5; i++) {
+            UserMod userMod = new UserMod();
+            userMod.setId(i);
+
+            AttributeMod attributeMod = new AttributeMod();
+            attributeMod.setSchema("type");
+            attributeMod.addValueToBeAdded("a type");
+
+            userMod.addAttributeToBeRemoved("type");
+            userMod.addAttributeToBeUpdated(attributeMod);
+
+            UserTO userTO = userService.update(i, userMod);
+            assertEquals("a type", userTO.getAttributeMap().get("type").getValues().get(0));
+        }
     }
 
     private boolean getBooleanAttribute(ConnObjectTO connObjectTO, String attrName) {

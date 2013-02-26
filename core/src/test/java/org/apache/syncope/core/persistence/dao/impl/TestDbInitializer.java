@@ -33,6 +33,6 @@ public class TestDbInitializer implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        contentLoader.load(null);
+        contentLoader.load();
     }
 }

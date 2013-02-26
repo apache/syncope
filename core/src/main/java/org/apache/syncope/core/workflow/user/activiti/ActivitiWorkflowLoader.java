@@ -19,12 +19,11 @@
 package org.apache.syncope.core.workflow.user.activiti;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.apache.syncope.core.workflow.WorkflowInstanceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,24 +36,20 @@ public class ActivitiWorkflowLoader implements WorkflowInstanceLoader {
     @Autowired
     private RepositoryService repositoryService;
 
+    @Autowired
+    private SpringProcessEngineConfiguration springProcessEngineConfiguration;
+
     @Override
     public String getTablePrefix() {
         return "ACT_";
     }
 
     @Override
-    public String[] getInitSQLStatements() {
-        final List<String> initSQLStatements = new ArrayList<String>();
-
-        initSQLStatements.add("DELETE FROM ACT_GE_PROPERTY");
-        initSQLStatements.add("INSERT INTO ACT_GE_PROPERTY(NAME_, VALUE_, REV_) "
-                + "VALUES('schema.version', '" + ActivitiDetector.getActivitiVersion() + "', 1)");
-        initSQLStatements.add("INSERT INTO ACT_GE_PROPERTY(NAME_, VALUE_, REV_) "
-                + "VALUES('schema.history', 'create(" + ActivitiDetector.getActivitiVersion() + ")', 1)");
-        initSQLStatements.add("INSERT INTO ACT_GE_PROPERTY(NAME_, VALUE_, REV_) VALUES('next.dbid', '1', 1)");
-        initSQLStatements.add("INSERT INTO ACT_GE_PROPERTY(NAME_, VALUE_, REV_) VALUES('historyLevel', '1', 1)");
-
-        return initSQLStatements.toArray(new String[initSQLStatements.size()]);
+    public void init() {
+        // jump to the next ID block
+        for (int i = 0; i < springProcessEngineConfiguration.getIdBlockSize(); i++) {
+            springProcessEngineConfiguration.getIdGenerator().getNextId();
+        }
     }
 
     @Override
@@ -67,8 +62,8 @@ public class ActivitiWorkflowLoader implements WorkflowInstanceLoader {
         if (processes.isEmpty()) {
             InputStream wfDefinitionStream = null;
             try {
-                wfDefinitionStream = getClass().getResourceAsStream(
-                        "/" + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE);
+                wfDefinitionStream =
+                        getClass().getResourceAsStream("/" + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE);
 
                 repositoryService.createDeployment().addInputStream(
                         ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, wfDefinitionStream).deploy();
