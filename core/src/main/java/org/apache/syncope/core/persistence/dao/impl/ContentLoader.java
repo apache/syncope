@@ -56,11 +56,6 @@ public class ContentLoader {
     private ImportExport importExport;
 
     @Transactional
-    public void wfInit(final String[] wfInitSQLStatements) {
-        importExport.setWfInitSQLStatements(wfInitSQLStatements);
-    }
-
-    @Transactional
     public void load() {
         Connection conn = null;
         try {

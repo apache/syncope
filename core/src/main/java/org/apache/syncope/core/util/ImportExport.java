@@ -54,7 +54,6 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.syncope.common.SyncopeConstants;
@@ -106,14 +105,6 @@ public class ImportExport extends DefaultHandler {
             Collections.singletonMap("SYNCOPEROLE", Collections.singleton("USEROWNER_ID"));
 
     private String[] wfInitSQLStatements;
-
-    public void setWfInitSQLStatements(final String[] wfInitSQLStatements) {
-        if (wfInitSQLStatements == null) {
-            this.wfInitSQLStatements = new String[0];
-        } else {
-            this.wfInitSQLStatements = (String[]) SerializationUtils.clone(wfInitSQLStatements);
-        }
-    }
 
     private String readSchema() {
         String schema = null;
