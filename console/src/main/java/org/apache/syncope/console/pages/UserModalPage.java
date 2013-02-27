@@ -25,11 +25,11 @@ import org.apache.syncope.console.pages.panels.MembershipsPanel;
 import org.apache.syncope.console.pages.panels.ResourcesPanel;
 import org.apache.syncope.console.pages.panels.UserDetailsPanel;
 import org.apache.syncope.console.pages.panels.VirtualAttributesPanel;
-import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -177,12 +177,12 @@ public abstract class UserModalPage extends BaseModalPage {
     }
 
     protected AjaxButton getOnSubmit() {
-        return new ClearIndicatingAjaxButton("apply", new ResourceModel("submit"), pageRef) {
+        return new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 try {
                     submitAction(target, form);
 
