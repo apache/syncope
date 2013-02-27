@@ -2,6 +2,27 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.0.6
+================================================================================
+** Bug
+    * [SYNCOPE-294] - User data not refreshed before edit
+    * [SYNCOPE-301] - Status is not updated when synchronizing existing users
+    * [SYNCOPE-307] - Virtual Attributes don't propagated in case of update during synchronization
+    * [SYNCOPE-308] - When trying to update an user in status 'rejected', an error 500 is returned
+    * [SYNCOPE-309] - Enter key not bound to user form submit
+    * [SYNCOPE-310] - Palette elements get translated
+    * [SYNCOPE-314] - User list sort based on username fails 
+    * [SYNCOPE-315] - "Persistent" feedback messages
+    * [SYNCOPE-316] - Exception when creating connector instances with no bundles available
+    * [SYNCOPE-325] - Stacktrace when accessing the Configuration page on JBoss
+
+
+
+** Improvement
+    * [SYNCOPE-154] - Virtual attribute cache
+    * [SYNCOPE-299] - Add "row to display" selector in resources
+    * [SYNCOPE-311] - View user details during approval
+
 Release Notes - Syncope - Version 1.0.5
 ================================================================================
 ** Bug
