@@ -116,9 +116,12 @@ under the License.
                 <copy file="${settings.localRepository}/org/codehaus/groovy/groovy-all/${groovy.version}/groovy-all-${groovy.version}.jar"
                       todir="${work.dir}/apache-tomcat-${tomcat.version}/lib"/>
                 
+                <copy file="../core/target/test-classes/context.xml"
+                      todir="${work.dir}/apache-tomcat-${tomcat.version}/conf" overwrite="true"/>
+                
                 <copy file="src/main/resources/setenv.sh"
-                      todir="${work.dir}/apache-tomcat-${tomcat.version}/bin"/>
-				<copy file="src/main/resources/setenv.bat"
+                    todir="${work.dir}/apache-tomcat-${tomcat.version}/bin"/>
+                <copy file="src/main/resources/setenv.bat"
                       todir="${work.dir}/apache-tomcat-${tomcat.version}/bin"/>
                 <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" 
                          token="8080" value="${cargo.servlet.port}"/>

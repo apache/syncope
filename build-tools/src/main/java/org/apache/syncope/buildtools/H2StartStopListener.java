@@ -34,8 +34,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * Utility serlvet context listener managing H2 test server instance (to be used
- * as external resource).
+ * Utility serlvet context listener managing H2 test server instance (to be used as external resource).
  */
 public class H2StartStopListener implements ServletContextListener {
 
@@ -48,11 +47,11 @@ public class H2StartStopListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(final ServletContextEvent sce) {
-        ServletContext context = sce.getServletContext();
+        final ServletContext context = sce.getServletContext();
 
-        File workDir = (File) sce.getServletContext().getAttribute("javax.servlet.context.tempdir");
+        final File workDir = (File) sce.getServletContext().getAttribute("javax.servlet.context.tempdir");
         try {
-            Server h2TestDb = new Server();
+            final Server h2TestDb = new Server();
             h2TestDb.runTool("-baseDir", workDir.getAbsolutePath(), "-tcp", "-tcpDaemon", "-web", "-webDaemon",
                     "-webPort", sce.getServletContext().getInitParameter("testdb.webport"));
 
@@ -61,8 +60,8 @@ public class H2StartStopListener implements ServletContextListener {
             LOG.error("Could not start H2 test db", e);
         }
 
-        WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(context);
-        DataSource datasource = ctx.getBean(DataSource.class);
+        final WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(context);
+        final DataSource datasource = ctx.getBean(DataSource.class);
 
         Connection conn = null;
         Statement stmt = null;
@@ -91,9 +90,9 @@ public class H2StartStopListener implements ServletContextListener {
 
     @Override
     public void contextDestroyed(final ServletContextEvent sce) {
-        ServletContext context = sce.getServletContext();
+        final ServletContext context = sce.getServletContext();
 
-        Server h2TestDb = (Server) context.getAttribute(H2_TESTDB);
+        final Server h2TestDb = (Server) context.getAttribute(H2_TESTDB);
         if (h2TestDb != null) {
             h2TestDb.shutdown();
         }
