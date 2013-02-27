@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.util.multiparent;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 public class MultiParentNodeOp {
@@ -26,13 +26,13 @@ public class MultiParentNodeOp {
     private MultiParentNodeOp() {
     }
 
-    public static <T> void traverseTree(final Set<MultiParentNode<T>> roots, final List<T> objects) {
+    public static <T> void traverseTree(final Set<MultiParentNode<T>> roots, final Collection<T> objects) {
         for (MultiParentNode<T> root : roots) {
             traverseTree(root, objects);
         }
     }
 
-    public static <T> void traverseTree(final MultiParentNode<T> root, final List<T> objects) {
+    public static <T> void traverseTree(final MultiParentNode<T> root, final Collection<T> objects) {
 
         root.setExploited(true);
 

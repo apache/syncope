@@ -214,7 +214,7 @@ public class JobInstanceLoader {
     }
 
     @SuppressWarnings("unchecked")
-    @Transactional(readOnly = true)
+    @Transactional
     public void load() {
         // 1. jobs for SchedTasks
         Set<SchedTask> tasks = new HashSet(taskDAO.findAll(SchedTask.class));

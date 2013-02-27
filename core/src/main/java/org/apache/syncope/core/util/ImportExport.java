@@ -21,6 +21,7 @@ package org.apache.syncope.core.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.String;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -43,6 +44,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
@@ -93,15 +95,15 @@ public class ImportExport extends DefaultHandler {
     @Autowired
     private DataSource dataSource;
 
-    private final Set<String> tablePrefixesToBeExcluded = new HashSet<String>(
-            Arrays.asList(new String[]{"QRTZ_", "LOGGING", "REPORTEXEC", "TASKEXEC",
+    private final static Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED =
+            new HashSet<String>(Arrays.asList(new String[]{"QRTZ_", "LOGGING", "REPORTEXEC", "TASKEXEC",
                 "SYNCOPEUSER", "UATTR", "UATTRVALUE", "UATTRUNIQUEVALUE", "UDERATTR", "UVIRATTR",
-                "MEMBERSHIP", "MATTR", "MATTRVALUE", "MATTRUNIQUEVALUE", "MDERATTR", "MVIRATTR"}));
+                "MEMBERSHIP", "MATTR", "MATTRVALUE", "MATTRUNIQUEVALUE", "MDERATTR", "MVIRATTR", "USERREQUEST"}));
 
-    private final Map<String, String> tablesTobeFiltered =
+    private final static Map<String, String> TABLES_TO_BE_FILTERED =
             Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask'");
 
-    private final Map<String, Set<String>> columnsToBeNullified =
+    private final static Map<String, Set<String>> COLUMNS_TO_BE_NULLIFIED =
             Collections.singletonMap("SYNCOPEROLE", Collections.singleton("USEROWNER_ID"));
 
     private String[] wfInitSQLStatements;
@@ -305,6 +307,8 @@ public class ImportExport extends DefaultHandler {
     private void doExportTable(final TransformerHandler handler, final Connection conn, final String tableName,
             final String whereClause) throws SQLException, SAXException {
 
+        LOG.debug("Export table {}", tableName);
+
         AttributesImpl attrs = new AttributesImpl();
 
         PreparedStatement stmt = null;
@@ -352,8 +356,8 @@ public class ImportExport extends DefaultHandler {
 
                     // Retrieve value taking care of binary values.
                     String value = getValues(rs, columnName, columnType);
-                    if (value != null && (!columnsToBeNullified.containsKey(tableName)
-                            || !columnsToBeNullified.get(tableName).contains(columnName))) {
+                    if (value != null && (!COLUMNS_TO_BE_NULLIFIED.containsKey(tableName)
+                            || !COLUMNS_TO_BE_NULLIFIED.get(tableName).contains(columnName))) {
 
                         attrs.addAttribute("", "", columnName, "CDATA", value);
                     }
@@ -361,6 +365,8 @@ public class ImportExport extends DefaultHandler {
 
                 handler.startElement("", "", tableName, attrs);
                 handler.endElement("", "", tableName);
+
+                LOG.debug("Add record {}", attrs);
             }
         } finally {
             if (rs != null) {
@@ -448,16 +454,20 @@ public class ImportExport extends DefaultHandler {
         final List<String> sortedTableNames = new ArrayList<String>(tableNames.size());
         MultiParentNodeOp.traverseTree(roots, sortedTableNames);
 
-        Collections.reverse(sortedTableNames);
         // remove from sortedTableNames any table possibly added during lookup 
         // but matching some item in this.tablePrefixesToBeExcluded
         sortedTableNames.retainAll(tableNames);
+
+        LOG.debug("Tables after retainAll {}", sortedTableNames);
+
+        Collections.reverse(sortedTableNames);
+
         return sortedTableNames;
     }
 
     private boolean isTableAllowed(final String tableName) {
         boolean allowed = true;
-        for (String prefix : tablePrefixesToBeExcluded) {
+        for (String prefix : TABLE_PREFIXES_TO_BE_EXCLUDED) {
             if (tableName.toUpperCase().startsWith(prefix)) {
                 allowed = false;
             }
@@ -469,7 +479,7 @@ public class ImportExport extends DefaultHandler {
             throws SAXException, TransformerConfigurationException {
 
         if (StringUtils.isNotBlank(wfTablePrefix)) {
-            tablePrefixesToBeExcluded.add(wfTablePrefix);
+            TABLE_PREFIXES_TO_BE_EXCLUDED.add(wfTablePrefix);
         }
 
         StreamResult streamResult = new StreamResult(os);
@@ -493,18 +503,25 @@ public class ImportExport extends DefaultHandler {
 
             rs = meta.getTables(null, schema, null, new String[]{"TABLE"});
 
-            final Set<String> tableNames = new HashSet<String>();
+            final Set<String> tableNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 
             while (rs.next()) {
                 String tableName = rs.getString("TABLE_NAME");
+                LOG.debug("Found table {}", tableName);
                 if (isTableAllowed(tableName)) {
                     tableNames.add(tableName);
                 }
             }
 
+            LOG.debug("Tables to be exported {}", tableNames);
+
             // then sort tables based on foreign keys and dump
             for (String tableName : sortByForeignKeys(conn, tableNames, schema)) {
-                doExportTable(handler, conn, tableName, tablesTobeFiltered.get(tableName.toUpperCase()));
+                try {
+                    doExportTable(handler, conn, tableName, TABLES_TO_BE_FILTERED.get(tableName.toUpperCase()));
+                } catch (Exception e) {
+                    LOG.error("Failure exporting table {}", tableName, e);
+                }
             }
         } catch (SQLException e) {
             LOG.error("While exporting database content", e);
