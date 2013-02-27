@@ -51,7 +51,7 @@ import org.springframework.security.access.AccessDeniedException;
 @Provider
 public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, ResponseExceptionMapper<Exception> {
 
-    private static final String BASIC_REALM_UNAUTHORIZED = "Basic realm=\"Spring Security Application\"";
+    private static final String BASIC_REALM_UNAUTHORIZED = "Basic realm=\"Apache Syncope authentication\"";
 
     private static final Logger LOG = LoggerFactory.getLogger(RestServiceExceptionMapper.class);
 
