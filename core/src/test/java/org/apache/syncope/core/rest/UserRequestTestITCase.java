@@ -19,11 +19,11 @@
 package org.apache.syncope.core.rest;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.security.AccessControlException;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
@@ -33,6 +33,7 @@ import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.UserRequestService;
+import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.UserTO;
@@ -140,16 +141,29 @@ public class UserRequestTestITCase extends AbstractTest {
         super.resetRestTemplate();
 
         // 7. user password has not changed yet
-        Boolean verify = userService.verifyPassword(userTO.getUsername(), userMod.getPassword());
-        assertFalse(verify);
+        UserService userService1 = super.setupCredentials(userService, UserService.class, userTO.getUsername(),
+                userMod.getPassword());
+        try {
+            userService1.readSelf();
+            fail("Credentials are not updated yet, thus request should raise AccessControlException");
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
+        resetRestTemplate();
 
         // 8. actually update user
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
 
         // 9. user password has now changed
-        verify = userService.verifyPassword(userTO.getUsername(), userMod.getPassword());
-        assertTrue(verify);
+        UserService userService2 = super.setupCredentials(userService, UserService.class, userTO.getUsername(),
+                userMod.getPassword());
+        try {
+            UserTO user = userService2.readSelf();
+            assertNotNull(user);
+        } catch (AccessControlException e) {
+            fail("Credentials should be valid and not cause AccessControlException");
+        }
     }
 
     @Test

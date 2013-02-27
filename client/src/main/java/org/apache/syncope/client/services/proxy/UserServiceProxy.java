@@ -39,13 +39,6 @@ public class UserServiceProxy extends SpringServiceProxy implements UserService 
     }
 
     @Override
-    public Boolean verifyPassword(final String username, final String password) {
-        return getRestTemplate().getForObject(
-                baseUrl + "user/verifyPassword/{username}.json?password={password}", Boolean.class,
-                username, password);
-    }
-
-    @Override
     public int count() {
         return getRestTemplate().getForObject(baseUrl + "user/count.json", Integer.class);
     }

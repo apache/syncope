@@ -33,7 +33,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import javax.ws.rs.core.Response;
+
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -470,11 +472,24 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
 
         // 3. verify password
-        Boolean verify = userService.verifyPassword(newUserTO.getUsername(), "password123");
-        assertTrue(verify);
+        UserService userService1 = super.setupCredentials(userService, UserService.class, newUserTO.getUsername(),
+                "password123");
+        try {
+            UserTO user = userService1.readSelf();
+            assertNotNull(user);
+        } catch (AccessControlException e) {
+            fail("Credentials should be valid and not cause AccessControlException");
+        }
 
-        verify = userService.verifyPassword(newUserTO.getUsername(), "passwordXX");
-        assertFalse(verify);
+        UserService userService2 = super.setupCredentials(userService, UserService.class, newUserTO.getUsername(),
+                "passwordXX");
+        try {
+            userService2.readSelf();
+            fail("Credentials are invalid, thus request should raise AccessControlException");
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
+        resetRestTemplate();
 
         // 4. try (and fail) to create another user with same (unique) values
         userTO = getSampleTO(userTO.getUsername());
@@ -1136,7 +1151,7 @@ public class UserTestITCase extends AbstractTest {
         String userName = userTO.getUsername();
         long userId = userTO.getId();
 
-        // Suspend with effect on syncope, ldap and db => user should be suspended in syncope and all resources 
+        // Suspend with effect on syncope, ldap and db => user should be suspended in syncope and all resources
         PropagationRequestTO propagationRequestTO = new PropagationRequestTO();
         propagationRequestTO.setOnSyncope(true);
         propagationRequestTO.addResource(RESOURCE_NAME_TESTDB);

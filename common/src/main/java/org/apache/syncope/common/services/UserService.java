@@ -132,7 +132,4 @@ public interface UserService {
     @Path("{userId}")
     UserTO update(@PathParam("userId") Long userId, UserMod userMod);
 
-    @GET
-    Boolean verifyPassword(@QueryParam("username") String username, @QueryParam("pwd") String password);
-
- }
+}

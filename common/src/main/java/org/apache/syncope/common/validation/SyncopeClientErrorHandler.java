@@ -19,6 +19,7 @@
 package org.apache.syncope.common.validation;
 
 import java.io.IOException;
+import java.security.AccessControlException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,13 +41,18 @@ public class SyncopeClientErrorHandler extends DefaultResponseErrorHandler {
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeClientErrorHandler.class);
 
     private static final HttpStatus[] MANAGED_STATUSES = {
-        HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND, HttpStatus.CONFLICT
+        HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND, HttpStatus.CONFLICT, HttpStatus.UNAUTHORIZED
     };
 
     @Override
     public void handleError(final ClientHttpResponse response) throws IOException {
         if (!ArrayUtils.contains(MANAGED_STATUSES, response.getStatusCode())) {
             super.handleError(response);
+        }
+
+        // Mapped 401 Unauthorized Exception
+        if (response.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+            throw new AccessControlException("Remote unauthorized exception");
         }
 
         List<String> exceptionTypesInHeaders = response.getHeaders().get(EXCEPTION_TYPE_HEADER);

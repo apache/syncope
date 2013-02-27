@@ -71,9 +71,7 @@ public class UserServiceImpl implements UserService, ContextAware {
     public Response create(final UserTO userTO) {
         UserTO created = userController.createInternal(userTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getId() + "").build();
-        return Response.created(location)
-                .header(SyncopeConstants.REST_HEADER_ID, created.getId())
-                .entity(created)
+        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, created.getId()).entity(created)
                 .build();
     }
 
@@ -133,7 +131,8 @@ public class UserServiceImpl implements UserService, ContextAware {
     }
 
     @Override
-    public List<UserTO> search(final NodeCond searchCondition, final int page, final int size) throws InvalidSearchConditionException {
+    public List<UserTO> search(final NodeCond searchCondition, final int page, final int size)
+            throws InvalidSearchConditionException {
         return userController.search(searchCondition, page, size);
     }
 
@@ -165,11 +164,6 @@ public class UserServiceImpl implements UserService, ContextAware {
     @Override
     public UserTO update(final Long userId, final UserMod userMod) {
         return userController.update(userMod);
-    }
-
-    @Override
-    public Boolean verifyPassword(final String username, final String password) {
-        return userController.verifyPasswordInternal(username, password);
     }
 
     @Override
