@@ -24,7 +24,7 @@ under the License.
                              http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          version="2.5">
 
-  <display-name>Syncope</display-name>
+  <display-name>Apache Syncope core</display-name>
 
   <context-param>
     <param-name>contextConfigLocation</param-name>
@@ -34,19 +34,16 @@ under the License.
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
+  
   <servlet>
     <servlet-name>CXFServlet</servlet-name>
-    <servlet-class>
-       org.apache.cxf.transport.servlet.CXFServlet
-    </servlet-class>
+    <servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
     <load-on-startup>1</load-on-startup> 
   </servlet>
-
   <servlet-mapping>
     <servlet-name>CXFServlet</servlet-name>
     <url-pattern>/cxf/*</url-pattern>
   </servlet-mapping>
-  
 
   <servlet>
     <servlet-name>syncope-core-rest</servlet-name>
@@ -55,10 +52,8 @@ under the License.
       <param-name>contextConfigLocation</param-name>
       <param-value></param-value>
     </init-param>
-
     <load-on-startup>1</load-on-startup>
   </servlet>
-
   <servlet-mapping>
     <servlet-name>syncope-core-rest</servlet-name>
     <url-pattern>/rest/*</url-pattern>

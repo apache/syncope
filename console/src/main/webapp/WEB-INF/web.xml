@@ -23,7 +23,7 @@ under the License.
                              http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          version="2.5">
             
-  <display-name>Syncope console</display-name>
+  <display-name>Apache Syncope console</display-name>
   
   <context-param>
     <param-name>contextConfigLocation</param-name>
