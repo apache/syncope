@@ -21,9 +21,6 @@ package org.apache.syncope.core.persistence.beans;
 import static javax.persistence.EnumType.STRING;
 
 import java.lang.reflect.Constructor;
-import java.text.DecimalFormat;
-import java.text.Format;
-import java.text.SimpleDateFormat;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Enumerated;
@@ -207,40 +204,5 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         }
 
         this.conversionPattern = conversionPattern;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends Format> T getFormatter() {
-        T result = null;
-
-        if (getConversionPattern() != null) {
-            switch (getType()) {
-                case Long:
-                    DecimalFormat longFormatter = DECIMAL_FORMAT.get();
-                    longFormatter.applyPattern(getConversionPattern());
-
-                    result = (T) longFormatter;
-                    break;
-
-                case Double:
-                    DecimalFormat doubleFormatter = DECIMAL_FORMAT.get();
-                    doubleFormatter.applyPattern(getConversionPattern());
-
-                    result = (T) doubleFormatter;
-                    break;
-
-                case Date:
-                    SimpleDateFormat dateFormatter = DATE_FORMAT.get();
-                    dateFormatter.applyPattern(getConversionPattern());
-                    dateFormatter.setLenient(false);
-
-                    result = (T) dateFormatter;
-                    break;
-
-                default:
-            }
-        }
-
-        return result;
     }
 }

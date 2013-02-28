@@ -44,6 +44,7 @@ import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
+import org.apache.syncope.core.util.DataFormat;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.ContentHandler;
@@ -164,7 +165,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                     }
                 } else {
                     LOG.debug("{} not found for {}[{}]", attrName,
-                                attributableTO.getClass().getSimpleName(), attributableTO.getId());
+                            attributableTO.getClass().getSimpleName(), attributableTO.getId());
                 }
 
                 handler.endElement("", "", "derivedAttribute");
@@ -190,7 +191,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                     }
                 } else {
                     LOG.debug("{} not found for {}[{}]", attrName,
-                                attributableTO.getClass().getSimpleName(), attributableTO.getId());
+                            attributableTO.getClass().getSimpleName(), attributableTO.getId());
                 }
 
                 handler.endElement("", "", "virtualAttribute");
@@ -234,21 +235,21 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                         type = XSD_DATETIME;
                         value = user.getCreationDate() == null
                                 ? ""
-                                : DATE_FORMAT.get().format(user.getCreationDate());
+                                : DataFormat.format(user.getCreationDate());
                         break;
 
                     case lastLoginDate:
                         type = XSD_DATETIME;
                         value = user.getLastLoginDate() == null
                                 ? ""
-                                : DATE_FORMAT.get().format(user.getLastLoginDate());
+                                : DataFormat.format(user.getLastLoginDate());
                         break;
 
                     case changePwdDate:
                         type = XSD_DATETIME;
                         value = user.getChangePwdDate() == null
                                 ? ""
-                                : DATE_FORMAT.get().format(user.getChangePwdDate());
+                                : DataFormat.format(user.getChangePwdDate());
                         break;
 
                     case passwordHistorySize:

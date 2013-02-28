@@ -19,6 +19,7 @@
 package org.apache.syncope.core.report;
 
 import org.apache.syncope.common.report.StaticReportletConf;
+import org.apache.syncope.core.util.DataFormat;
 import org.springframework.util.StringUtils;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -51,7 +52,7 @@ public class StaticReportlet extends AbstractReportlet<StaticReportletConf> {
 
         if (conf.getDateField() != null) {
             handler.startElement("", "", "date", null);
-            String printed = DATE_FORMAT.get().format(conf.getDateField());
+            String printed = DataFormat.format(conf.getDateField());
             handler.characters(printed.toCharArray(), 0, printed.length() - 1);
             handler.endElement("", "", "date");
         }

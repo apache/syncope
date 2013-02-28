@@ -33,7 +33,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
-import org.apache.syncope.core.persistence.beans.AbstractBaseBean;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.slf4j.Logger;
@@ -110,7 +109,7 @@ public class JexlUtil {
                     context.set(fieldName, fieldValue == null
                             ? ""
                             : (field.getType().equals(Date.class)
-                            ? ((AbstractBaseBean) attributable).getDateFormatter().format(fieldValue)
+                            ? DataFormat.format((Date) fieldValue, false)
                             : fieldValue));
 
                     LOG.debug("Add field {} with value {}", fieldName, fieldValue);

@@ -21,14 +21,11 @@ package org.apache.syncope.core.persistence.beans;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.syncope.common.SyncopeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -40,29 +37,7 @@ public abstract class AbstractBaseBean implements Serializable {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractBaseBean.class);
 
-    protected static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
-
-        @Override
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN);
-        }
-    };
-
-    protected static final ThreadLocal<DecimalFormat> DECIMAL_FORMAT = new ThreadLocal<DecimalFormat>() {
-
-        @Override
-        protected DecimalFormat initialValue() {
-            return new DecimalFormat();
-        }
-    };
-
     private static final long serialVersionUID = -9017214159540857901L;
-
-    public final SimpleDateFormat getDateFormatter() {
-        final SimpleDateFormat dateFormatter = DATE_FORMAT.get();
-        dateFormatter.setLenient(false);
-        return dateFormatter;
-    }
 
     /**
      * @param property the integer representing a boolean value

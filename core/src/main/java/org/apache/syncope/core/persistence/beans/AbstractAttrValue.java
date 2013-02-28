@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
-import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.MappedSuperclass;
@@ -29,11 +27,10 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.apache.commons.lang.time.DateUtils;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.persistence.validation.entity.AttrValueCheck;
+import org.apache.syncope.core.util.DataFormat;
 
 @MappedSuperclass
 @AttrValueCheck
@@ -118,12 +115,9 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
 
             case Long:
                 try {
-                    if (schema.getFormatter() == null) {
-                        this.setLongValue(Long.valueOf(value));
-                    } else {
-                        this.setLongValue(Long.valueOf(
-                                ((DecimalFormat) schema.getFormatter()).parse(value).longValue()));
-                    }
+                    this.setLongValue(schema.getConversionPattern() == null
+                            ? Long.valueOf(value)
+                            : DataFormat.parseNumber(value, schema.getConversionPattern()).longValue());
                 } catch (Exception pe) {
                     exception = pe;
                 }
@@ -131,12 +125,9 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
 
             case Double:
                 try {
-                    if (schema.getFormatter() == null) {
-                        this.setDoubleValue(Double.valueOf(value));
-                    } else {
-                        this.setDoubleValue(Double.valueOf(
-                                ((DecimalFormat) schema.getFormatter()).parse(value).doubleValue()));
-                    }
+                    this.setDoubleValue(schema.getConversionPattern() == null
+                            ? Double.valueOf(value)
+                            : DataFormat.parseNumber(value, schema.getConversionPattern()).doubleValue());
                 } catch (Exception pe) {
                     exception = pe;
                 }
@@ -144,11 +135,9 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
 
             case Date:
                 try {
-                    if (schema.getFormatter() == null) {
-                        this.setDateValue(DateUtils.parseDate(value, SyncopeConstants.DATE_PATTERNS));
-                    } else {
-                        this.setDateValue(new Date(((DateFormat) schema.getFormatter()).parse(value).getTime()));
-                    }
+                    this.setDateValue(schema.getConversionPattern() == null
+                            ? DataFormat.parseDate(value)
+                            : new Date(DataFormat.parseDate(value, schema.getConversionPattern()).getTime()));
                 } catch (Exception pe) {
                     exception = pe;
                 }
@@ -195,27 +184,21 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
                 break;
 
             case Long:
-                if (getAttribute().getSchema().getFormatter() == null) {
-                    result = getLongValue().toString();
-                } else {
-                    result = getAttribute().getSchema().getFormatter().format(getLongValue());
-                }
+                result = getAttribute().getSchema().getConversionPattern() == null
+                        ? getLongValue().toString()
+                        : DataFormat.format(getLongValue(), getAttribute().getSchema().getConversionPattern());
                 break;
 
             case Double:
-                if (getAttribute().getSchema().getFormatter() == null) {
-                    result = getDoubleValue().toString();
-                } else {
-                    result = getAttribute().getSchema().getFormatter().format(getDoubleValue());
-                }
+                result = getAttribute().getSchema().getConversionPattern() == null
+                        ? getDoubleValue().toString()
+                        : DataFormat.format(getDoubleValue(), getAttribute().getSchema().getConversionPattern());
                 break;
 
             case Date:
-                if (getAttribute().getSchema().getFormatter() == null) {
-                    result = DATE_FORMAT.get().format(getDateValue());
-                } else {
-                    result = getAttribute().getSchema().getFormatter().format(getDateValue());
-                }
+                result = getAttribute().getSchema().getConversionPattern() == null
+                        ? DataFormat.format(getDateValue())
+                        : DataFormat.format(getDateValue(), false, getAttribute().getSchema().getConversionPattern());
                 break;
 
             default:

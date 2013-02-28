@@ -23,9 +23,6 @@ import static org.apache.syncope.core.report.ReportXMLConst.ATTR_NAME;
 import static org.apache.syncope.core.report.ReportXMLConst.ELEMENT_REPORTLET;
 import static org.apache.syncope.core.report.ReportXMLConst.XSD_STRING;
 
-import java.text.SimpleDateFormat;
-
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.report.AbstractReportletConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,14 +37,6 @@ public abstract class AbstractReportlet<T extends AbstractReportletConf> impleme
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractReportlet.class);
-
-    protected static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
-
-        @Override
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN);
-        }
-    };
 
     protected T conf;
 

@@ -21,7 +21,6 @@ package org.apache.syncope.core.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.String;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -32,7 +31,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,7 +55,6 @@ import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.core.util.multiparent.MultiParentNode;
 import org.apache.syncope.core.util.multiparent.MultiParentNodeOp;
@@ -81,14 +78,6 @@ public class ImportExport extends DefaultHandler {
 
     private static final String ROOT_ELEMENT = "dataset";
 
-    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
-
-        @Override
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN);
-        }
-    };
-
     @Autowired
     private EntityManager entityManager;
 
@@ -97,8 +86,8 @@ public class ImportExport extends DefaultHandler {
 
     private final static Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED =
             new HashSet<String>(Arrays.asList(new String[]{"QRTZ_", "LOGGING", "REPORTEXEC", "TASKEXEC",
-                "SYNCOPEUSER", "UATTR", "UATTRVALUE", "UATTRUNIQUEVALUE", "UDERATTR", "UVIRATTR",
-                "MEMBERSHIP", "MATTR", "MATTRVALUE", "MATTRUNIQUEVALUE", "MDERATTR", "MVIRATTR", "USERREQUEST"}));
+        "SYNCOPEUSER", "UATTR", "UATTRVALUE", "UATTRUNIQUEVALUE", "UDERATTR", "UVIRATTR",
+        "MEMBERSHIP", "MATTR", "MATTRVALUE", "MATTRUNIQUEVALUE", "MDERATTR", "MVIRATTR", "USERREQUEST"}));
 
     private final static Map<String, String> TABLES_TO_BE_FILTERED =
             Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask'");
@@ -229,8 +218,7 @@ public class ImportExport extends DefaultHandler {
                 case Types.TIME:
                 case Types.TIMESTAMP:
                     try {
-                        query.setParameter(i + 1, DateUtils.parseDate(
-                                attrs.getValue(i), SyncopeConstants.DATE_PATTERNS), TemporalType.TIMESTAMP);
+                        query.setParameter(i + 1, DataFormat.parseDate(attrs.getValue(i)), TemporalType.TIMESTAMP);
                     } catch (ParseException e) {
                         LOG.error("Unparsable Date '{}'", attrs.getValue(i));
                         query.setParameter(i + 1, attrs.getValue(i));
@@ -587,7 +575,7 @@ public class ImportExport extends DefaultHandler {
                 case Types.TIMESTAMP:
                     final Timestamp timestamp = rs.getTimestamp(columnName);
                     if (timestamp != null) {
-                        res = DATE_FORMAT.get().format(new Date(timestamp.getTime()));
+                        res = DataFormat.format(new Date(timestamp.getTime()));
                     }
                     break;
 

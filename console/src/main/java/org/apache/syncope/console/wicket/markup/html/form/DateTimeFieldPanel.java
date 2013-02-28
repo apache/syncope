@@ -18,12 +18,8 @@
  */
 package org.apache.syncope.console.wicket.markup.html.form;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
-
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -41,14 +37,6 @@ public class DateTimeFieldPanel extends DateFieldPanel {
     private static final long serialVersionUID = -428975732068281726L;
 
     private Form form = null;
-
-    protected static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
-
-        @Override
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN, Locale.getDefault());
-        }
-    };
 
     public DateTimeFieldPanel(final String id, final String name, final IModel<Date> model, final String datePattern) {
 
