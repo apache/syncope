@@ -31,17 +31,16 @@ import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.rest.TaskRestClient;
-import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -79,7 +78,7 @@ public abstract class TaskModalPage extends BaseModalPage {
 
     protected Form form;
 
-    public TaskModalPage(final TaskTO taskTO, final PageReference pageRef) {
+    public TaskModalPage(final TaskTO taskTO) {
         final ModalWindow taskExecMessageWin = new ModalWindow("taskExecMessageWin");
         taskExecMessageWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         taskExecMessageWin.setCookieName("task-exec-message-win-modal");
@@ -182,12 +181,12 @@ public abstract class TaskModalPage extends BaseModalPage {
 
         executions.add(table);
 
-        final AjaxLink reload = new ClearIndicatingAjaxLink("reload", pageRef) {
+        final AjaxLink<Void> reload = new IndicatingAjaxLink<Void>("reload") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            protected void onClickInternal(final AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 if (target != null) {
                     final AjaxFallbackDefaultDataTable currentTable =
                             new AjaxFallbackDefaultDataTable("executionsTable", columns,

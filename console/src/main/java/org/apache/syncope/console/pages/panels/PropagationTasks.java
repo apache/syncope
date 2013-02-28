@@ -153,7 +153,7 @@ public class PropagationTasks extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new PropagationTaskModalPage(taskTO, pageRef);
+                                return new PropagationTaskModalPage(taskTO);
                             }
                         });
 

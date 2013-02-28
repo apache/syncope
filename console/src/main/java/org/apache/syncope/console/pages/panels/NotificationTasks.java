@@ -138,7 +138,7 @@ public class NotificationTasks extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new NotificationTaskModalPage(taskTO, pageRef);
+                                return new NotificationTaskModalPage(taskTO);
                             }
                         });
 

@@ -24,9 +24,6 @@ import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 
-/**
- * Workaround for WICKET-5029 to be removed when upgrading Wicket to 1.5.10 / 6.6.0.
- */
 public class NonI18nPalette<T> extends Palette<T> {
 
     private static final long serialVersionUID = 2659070187837941889L;
