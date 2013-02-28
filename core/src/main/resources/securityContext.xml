@@ -27,17 +27,18 @@ under the License.
 
   <security:global-method-security pre-post-annotations="enabled"/>
   
-  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-    <property name="targetClass" value="org.springframework.security.core.context.SecurityContextHolder"/>
-    <property name="targetMethod" value="setStrategyName"/> 
-    <property name="arguments">
-      <list>
-        <value>MODE_INHERITABLETHREADLOCAL</value>
-      </list>
-    </property>
+  <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
+    <security:filter-chain-map path-type="ant">
+      <security:filter-chain pattern="/**" filters="securityContextPersistenceFilter"/>
+    </security:filter-chain-map>
   </bean>
-
+  
   <bean id="securityContextRepository" class='org.springframework.security.web.context.NullSecurityContextRepository'/>
+
+  <bean id="securityContextPersistenceFilter"
+        class="org.springframework.security.web.context.SecurityContextPersistenceFilter">
+    <property name="securityContextRepository" ref="securityContextRepository"/>
+  </bean>
 
   <security:http security-context-repository-ref="securityContextRepository">
     <security:http-basic/>

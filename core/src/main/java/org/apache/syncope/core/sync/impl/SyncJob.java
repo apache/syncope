@@ -44,7 +44,6 @@ import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.sync.SyncActions;
 import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.ApplicationContextProvider;
-import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.quartz.JobExecutionException;
@@ -298,22 +297,6 @@ public class SyncJob extends AbstractTaskJob {
         return report.toString();
     }
 
-    /**
-     * Used to simulate authentication in order to perform updates through AbstractUserWorkflowAdapter.
-     */
-    private void setupSecurity() {
-        final List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-
-        for (Entitlement entitlement : entitlementDAO.findAll()) {
-            authorities.add(new SimpleGrantedAuthority(entitlement.getName()));
-        }
-
-        final UserDetails userDetails = new User("admin", "FAKE_PASSWORD", true, true, true, true, authorities);
-
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(userDetails, "FAKE_PASSWORD", authorities));
-    }
-
     protected void setRoleOwners(final SyncopeSyncResultHandler handler)
             throws UnauthorizedRoleException, NotFoundException {
 
@@ -342,11 +325,27 @@ public class SyncJob extends AbstractTaskJob {
 
     @Override
     protected String doExecute(final boolean dryRun) throws JobExecutionException {
-        // get all entitlements to perform updates
-        if (EntitlementUtil.getOwnedEntitlementNames().isEmpty()) {
-            setupSecurity();
+        // PRE: grant all authorities (i.e. setup the SecurityContextHolder)
+        final List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+
+        for (Entitlement entitlement : entitlementDAO.findAll()) {
+            authorities.add(new SimpleGrantedAuthority(entitlement.getName()));
         }
 
+        final UserDetails userDetails = new User("admin", "FAKE_PASSWORD", true, true, true, true, authorities);
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(userDetails, "FAKE_PASSWORD", authorities));
+
+        try {
+            return executeWithSecurityContext(dryRun);
+        } finally {
+            // POST: clean up the SecurityContextHolder
+            SecurityContextHolder.clearContext();
+        }
+    }
+
+    protected String executeWithSecurityContext(final boolean dryRun) throws JobExecutionException {
         if (!(task instanceof SyncTask)) {
             throw new JobExecutionException("Task " + taskId + " isn't a SyncTask");
         }
