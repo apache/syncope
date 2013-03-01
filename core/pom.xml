@@ -226,6 +226,14 @@ under the License.
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>fop</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.avalon.framework</groupId>
+      <artifactId>avalon-framework-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avalon.framework</groupId>
+      <artifactId>avalon-framework-impl</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId> 
@@ -376,25 +384,6 @@ under the License.
             <goals>
               <goal>enhance</goal>
             </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.gmaven</groupId>
-        <artifactId>gmaven-plugin</artifactId>
-        <inherited>true</inherited>
-        <executions>
-          <execution>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <source>
-                project.properties['urlencoded.csvdir.path'] = java.net.URLEncoder.encode(project.properties['test.csvdir.path'])
-              </source>
-            </configuration>
           </execution>
         </executions>
       </plugin>

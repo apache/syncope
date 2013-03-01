@@ -139,26 +139,6 @@ under the License.
     <plugins>
       
       <plugin>
-        <groupId>org.codehaus.gmaven</groupId>
-        <artifactId>gmaven-plugin</artifactId>
-        <inherited>true</inherited>
-        <executions>
-          <execution>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <source>
-                project.properties['urlencoded.csvdir.path'] = java.net.URLEncoder.encode(project.properties['test.csvdir.path'])
-                project.properties['licenseUrl'] = project.parent.licenses[0].url
-              </source>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <inherited>true</inherited>

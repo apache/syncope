@@ -57,16 +57,12 @@ public final class DataFormat {
     }
 
     public static String format(final Date date, final boolean lenient, final String conversionPattern) {
-        try {
-            SimpleDateFormat sdf = DATE_FORMAT.get();
-            if (conversionPattern != null) {
-                sdf.applyPattern(conversionPattern);
-            }
-            sdf.setLenient(lenient);
-            return sdf.format(date);
-        } finally {
-            DATE_FORMAT.remove();
+        SimpleDateFormat sdf = DATE_FORMAT.get();
+        if (conversionPattern != null) {
+            sdf.applyPattern(conversionPattern);
         }
+        sdf.setLenient(lenient);
+        return sdf.format(date);
     }
 
     public static String format(final long number) {
@@ -74,15 +70,11 @@ public final class DataFormat {
     }
 
     public static String format(final long number, final String conversionPattern) {
-        try {
-            DecimalFormat df = DECIMAL_FORMAT.get();
-            if (conversionPattern != null) {
-                df.applyPattern(conversionPattern);
-            }
-            return df.format(number);
-        } finally {
-            DECIMAL_FORMAT.remove();
+        DecimalFormat df = DECIMAL_FORMAT.get();
+        if (conversionPattern != null) {
+            df.applyPattern(conversionPattern);
         }
+        return df.format(number);
     }
 
     public static String format(final double number) {
@@ -90,15 +82,11 @@ public final class DataFormat {
     }
 
     public static String format(final double number, final String conversionPattern) {
-        try {
-            DecimalFormat df = DECIMAL_FORMAT.get();
-            if (conversionPattern != null) {
-                df.applyPattern(conversionPattern);
-            }
-            return df.format(number);
-        } finally {
-            DECIMAL_FORMAT.remove();
+        DecimalFormat df = DECIMAL_FORMAT.get();
+        if (conversionPattern != null) {
+            df.applyPattern(conversionPattern);
         }
+        return df.format(number);
     }
 
     public static Date parseDate(final String source) throws ParseException {
@@ -106,24 +94,21 @@ public final class DataFormat {
     }
 
     public static Date parseDate(final String source, final String conversionPattern) throws ParseException {
-        try {
-            SimpleDateFormat sdf = DATE_FORMAT.get();
-            sdf.applyPattern(conversionPattern);
-            sdf.setLenient(false);
-            return sdf.parse(source);
-        } finally {
-            DATE_FORMAT.remove();
-        }
+        SimpleDateFormat sdf = DATE_FORMAT.get();
+        sdf.applyPattern(conversionPattern);
+        sdf.setLenient(false);
+        return sdf.parse(source);
     }
 
     public static Number parseNumber(final String source, final String conversionPattern) throws ParseException {
-        try {
-            DecimalFormat df = DECIMAL_FORMAT.get();
-            df.applyPattern(conversionPattern);
-            return df.parse(source);
-        } finally {
-            DECIMAL_FORMAT.remove();
-        }
+        DecimalFormat df = DECIMAL_FORMAT.get();
+        df.applyPattern(conversionPattern);
+        return df.parse(source);
+    }
+
+    public static void clear() {
+        DATE_FORMAT.remove();
+        DECIMAL_FORMAT.remove();
     }
 
     private DataFormat() {

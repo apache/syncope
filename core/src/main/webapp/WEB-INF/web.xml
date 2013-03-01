@@ -34,6 +34,9 @@ under the License.
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
+  <listener>
+    <listener-class>org.apache.syncope.core.init.ThreadLocalCleanupListener</listener-class>
+  </listener>
   
   <servlet>
     <servlet-name>CXFServlet</servlet-name>
