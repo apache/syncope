@@ -109,15 +109,14 @@ class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
         // This is needed in order to avoid encoding problems when sending error messages via REST
         CurrentLocale.set(Locale.ENGLISH);
 
-        // Init ConnIdBundleManager
-        List<ConnectorInfo> connInfos = ConnIdBundleManager.getConnManager().getConnectorInfos();
         if (LOG.isDebugEnabled()) {
+            List<ConnectorInfo> connInfos = ConnIdBundleManager.getConnManager().getConnectorInfos();
             for (ConnectorInfo connInfo : connInfos) {
                 LOG.debug("Found connector bundle {}", connInfo.getConnectorDisplayName());
             }
         }
 
-        // Next load all resource-specific connectors
+        // Load all resource-specific connectors
         int connectors = 0;
         for (ExternalResource resource : resourceDAO.findAll()) {
             LOG.info("Registering resource-connector pair {}-{}", resource, resource.getConnector());
