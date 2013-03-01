@@ -24,8 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import org.apache.syncope.common.types.AttributableType;
 
 /**
@@ -44,72 +42,56 @@ public final class VirAttrCache {
     private final int maxCacheSize;
 
     /**
-     * Clean period.
-     */
-    private final int cleanPeriod;
-
-    /**
      * Cache entries.
      */
     private final Map<VirAttrCacheKey, VirAttrCacheValue> cache = new HashMap<VirAttrCacheKey, VirAttrCacheValue>();
 
-    public VirAttrCache(final int ttl, final int maxCacheSize, final int cleanPeriod) {
+    public VirAttrCache(final int ttl, final int maxCacheSize) {
         this.ttl = ttl;
         this.maxCacheSize = maxCacheSize;
-        this.cleanPeriod = cleanPeriod;
-
-        Executors.newScheduledThreadPool(1).scheduleWithFixedDelay(
-                new Runnable() {
-
-                    @Override
-                    public void run() {
-                        synchronized (cache) {
-                            freeCacheSpace(false);
-                        }
-                    }
-                }, cleanPeriod, cleanPeriod, TimeUnit.MINUTES);
     }
 
     /**
      * Cache virtual attribute values.
      *
-     * @param userId user id.
-     * @param schemaName virtual attribute name.
-     * @param values virtual attribute values.
+     * @param type user or role
+     * @param id user or role id
+     * @param schemaName virtual attribute name
+     * @param values virtual attribute values
      */
-    public void put(
-            final AttributableType type, final Long userId, final String schemaName, final List<String> values) {
+    public void put(final AttributableType type, final Long id, final String schemaName, final List<String> values) {
         synchronized (cache) {
             // this operations (retrieve cache space and put entry on) have to be thread safe.
-
-            if (cache.size() >= maxCacheSize) {
-                freeCacheSpace(true);
+            if (this.cache.size() >= this.maxCacheSize) {
+                free();
             }
 
-            cache.put(new VirAttrCacheKey(type, userId, schemaName), new VirAttrCacheValue(values));
+            cache.put(new VirAttrCacheKey(type, id, schemaName), new VirAttrCacheValue(values));
         }
     }
 
     /**
      * Retrieve cached value. Return null in case of virtual attribute not cached.
      *
-     * @param userId user id.
+     * @param type user or role
+     * @param id user or role id
      * @param schemaName virtual attribute schema name.
      * @return cached values or null in case of virtual attribute not found.
      */
-    public List<String> get(final AttributableType type, final Long userId, final String schemaName) {
-        final VirAttrCacheValue value = cache.get(new VirAttrCacheKey(type, userId, schemaName));
+    public List<String> get(final AttributableType type, final Long id, final String schemaName) {
+        final VirAttrCacheValue value = cache.get(new VirAttrCacheKey(type, id, schemaName));
         return isValidEntry(value) ? value.getValues() : null;
     }
 
     /**
      * Force entry expiring.
      *
-     * @param userId user id.
-     * @param schemaName virtual attribute schema name.
+     * @param type user or role
+     * @param id user or role id
+     * @param schemaName virtual attribute schema name
      */
-    public void expire(final AttributableType type, final Long userId, final String schemaName) {
-        final VirAttrCacheValue value = cache.get(new VirAttrCacheKey(type, userId, schemaName));
+    public void expire(final AttributableType type, final Long id, final String schemaName) {
+        final VirAttrCacheValue value = cache.get(new VirAttrCacheKey(type, id, schemaName));
         if (isValidEntry(value)) {
             synchronized (cache) {
                 value.forceExpiring();
@@ -120,10 +102,8 @@ public final class VirAttrCache {
     /**
      * Remove expired entries if exist. If required, one entry at least (the latest recently used) will be taken off.
      * This method is not thread safe: the caller have to take care to synchronize the call.
-     *
-     * @param forceEscape if TRUE the latest recently used entry at least will be taken off.
      */
-    private void freeCacheSpace(final boolean forceEscape) {
+    private void free() {
         final Set<VirAttrCacheKey> toBeRemoved = new HashSet<VirAttrCacheKey>();
 
         Map.Entry<VirAttrCacheKey, VirAttrCacheValue> latest = null;
@@ -139,11 +119,11 @@ public final class VirAttrCache {
             }
         }
 
-        if (toBeRemoved.isEmpty() && forceEscape) {
-            // remove the oldest entry.
+        if (toBeRemoved.isEmpty() && latest != null) {
+            // remove the oldest entry
             cache.remove(latest.getKey());
         } else {
-            // remove expired entries.
+            // remove expired entries
             cache.keySet().removeAll(toBeRemoved);
         }
     }

@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.core.util;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.syncope.common.types.AttributableType;
 
 /**
@@ -38,36 +42,38 @@ public class VirAttrCacheKey {
     /**
      * Virtual attribute schema name.
      */
-    private final transient String virAttrSchema;
+    private final transient String virSchema;
 
-    public VirAttrCacheKey(final AttributableType type, final Long id, final String virAttrSchema) {
+    public VirAttrCacheKey(final AttributableType type, final Long id, final String virSchema) {
         this.type = type;
         this.id = id;
-        this.virAttrSchema = virAttrSchema;
+        this.virSchema = virSchema;
+    }
+
+    public AttributableType getType() {
+        return type;
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getVirAttrSchema() {
-        return virAttrSchema;
+    public String getVirSchema() {
+        return virSchema;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 
     @Override
     public int hashCode() {
-        return 31 * (31 * (31
-                + (id == null ? 0 : id.hashCode()))
-                + (virAttrSchema == null ? 0 : virAttrSchema.hashCode()))
-                + (type == null ? 0 : type.hashCode());
+        return HashCodeBuilder.reflectionHashCode(this);
     }
 
     @Override
-    public boolean equals(Object o) {
-        return o != null && o instanceof VirAttrCacheKey
-                && ((id == null && ((VirAttrCacheKey) o).getId() == null)
-                || id.equals(((VirAttrCacheKey) o).getId()))
-                && ((virAttrSchema == null && ((VirAttrCacheKey) o).getVirAttrSchema() == null)
-                || virAttrSchema.equals(((VirAttrCacheKey) o).getVirAttrSchema()));
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 }

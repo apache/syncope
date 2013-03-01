@@ -94,6 +94,5 @@ under the License.
   <bean id="virAttrCache" class="org.apache.syncope.core.util.VirAttrCache" scope="singleton">
     <constructor-arg value="60"/>
     <constructor-arg value="5000"/>
-    <constructor-arg value="5"/>
   </bean>
 </beans>
