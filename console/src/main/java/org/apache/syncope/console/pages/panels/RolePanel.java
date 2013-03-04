@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
 import org.apache.syncope.console.pages.RoleModalPage;
@@ -94,7 +97,11 @@ public class RolePanel extends Panel {
 
         ListModel<String> selectedEntitlements = new ListModel<String>(roleTO.getEntitlements());
 
-        ListModel<String> availableEntitlements = new ListModel<String>(entitlementRestClient.getAllEntitlements());
+        List<String> allEntitlements = entitlementRestClient.getAllEntitlements();
+        if (allEntitlements != null && !allEntitlements.isEmpty()) {
+            Collections.sort(allEntitlements);
+        }
+        ListModel<String> availableEntitlements = new ListModel<String>(allEntitlements);
 
         entitlementsPalette = new Palette<String>("entitlementsPalette", selectedEntitlements, availableEntitlements,
                 new SelectChoiceRenderer(), 20, false);
