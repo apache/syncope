@@ -140,7 +140,7 @@ public abstract class UserModalPage extends BaseModalPage {
         //--------------------------------
         // Roles panel
         //--------------------------------
-        form.add(new MembershipsPanel("memberships", userTO, mode == Mode.TEMPLATE, null, pageRef));
+        form.add(new MembershipsPanel("memberships", userTO, mode == Mode.TEMPLATE, null, getPageReference()));
         //--------------------------------
 
         final AjaxButton submit = getOnSubmit();

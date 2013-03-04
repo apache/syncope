@@ -71,7 +71,7 @@ public class EditUserModalPage extends UserModalPage {
 
             form.addOrReplace(new ResourcesPanel("resources", userTO, statusPanel));
 
-            form.addOrReplace(new MembershipsPanel("memberships", userTO, false, statusPanel, pageRef));
+            form.addOrReplace(new MembershipsPanel("memberships", userTO, false, statusPanel, getPageReference()));
         }
     }
 
