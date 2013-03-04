@@ -16,7 +16,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
 <document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
@@ -42,17 +41,22 @@ under the License.
     </section>
     
     <section name="Prerequisites">
+      <subsection name="Apache Subversion">
+        <p>Install Apache Subversion 1.7.0 or higher; 
+          <a href="http://subversion.apache.org/packages.html">binary packages</a> for various platforms are available.
+        </p>
+      </subsection>
+      
       <subsection name="GPG">
-        Install/Configure 
-        <code>GPG</code> - The artifacts that are deployed to the ASF central repository need to
+        <p>Install/Configure GPG - The artifacts that are deployed to the ASF central repository need to
         be signed. To do this you will need to have a public and private keypair. There is a very good
         <a href="http://www.sonatype.com/people/2010/01/how-to-generate-pgp-signatures-with-maven/">guide</a> that 
-        will walk you though this.
+        will walk you though this.</p>
       </subsection>
 
       <subsection name="Apache Maven">
         <p>Install Apache Maven 3.0.3 or higher; we strongly encourage our committers to install 
-          <a href="http://maven.apache.org/download.html">Apache Maven 3.0.4</a>.
+          <a href="http://maven.apache.org/download.html">Apache Maven 3.0.5</a>.
         </p>
       
         <p>Maven allows you to encrypt your servers' passwords. We highly recommend that you follow this
