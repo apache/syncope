@@ -34,8 +34,8 @@ public class UserAttrColumn extends AbstractColumn<UserTO> {
     public enum SchemaType {
 
         schema,
-        virtualSchema,
-        derivedSchema;
+        derivedSchema,
+        virtualSchema
 
     };
 
@@ -44,8 +44,9 @@ public class UserAttrColumn extends AbstractColumn<UserTO> {
     private final SchemaType schemaType;
 
     public UserAttrColumn(final String name, final SchemaType schemaType) {
-
-        super(new ResourceModel(name, name), name);
+        // set sortProperty to schematype#name (e.g. derivedSchema#cn, 
+        // for use with SortableUserProviderComparator.AttrModel#getObject)
+        super(new ResourceModel(name, name), schemaType.name() + "#" + name);
         this.name = name;
         this.schemaType = schemaType;
     }

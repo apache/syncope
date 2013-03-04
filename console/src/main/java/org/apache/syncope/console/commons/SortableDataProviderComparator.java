@@ -24,19 +24,18 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
-public class SortableDataProviderComparator<T> implements Comparator<T>, Serializable {
+public class SortableDataProviderComparator<T extends Object> implements Comparator<T>, Serializable {
 
     private static final long serialVersionUID = -8897687699977460543L;
 
     protected final SortableDataProvider<T> provider;
 
     public SortableDataProviderComparator(final SortableDataProvider<T> provider) {
-
         this.provider = provider;
     }
 
+    @SuppressWarnings("unchecked")
     protected int compare(final IModel<Comparable> model1, IModel<Comparable> model2) {
-
         int result;
 
         if (model1.getObject() == null && model2.getObject() == null) {
@@ -56,10 +55,11 @@ public class SortableDataProviderComparator<T> implements Comparator<T>, Seriali
         return result;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
-    public int compare(final T o1, final T o2) {
-        IModel<Comparable> model1 = new PropertyModel<Comparable>(o1, provider.getSort().getProperty());
-        IModel<Comparable> model2 = new PropertyModel<Comparable>(o2, provider.getSort().getProperty());
+    public int compare(final T object1, final T object2) {
+        IModel<Comparable> model1 = new PropertyModel<Comparable>(object1, provider.getSort().getProperty());
+        IModel<Comparable> model2 = new PropertyModel<Comparable>(object2, provider.getSort().getProperty());
 
         return compare(model1, model2);
     }

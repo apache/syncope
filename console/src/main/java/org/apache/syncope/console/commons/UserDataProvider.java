@@ -44,17 +44,16 @@ public class UserDataProvider extends SortableDataProvider<UserTO> {
     private UserRestClient restClient;
 
     public UserDataProvider(final UserRestClient restClient, final int paginatorRows, final boolean filtered) {
-
         super();
 
         this.restClient = restClient;
         this.filtered = filtered;
         this.paginatorRows = paginatorRows;
 
-        //Default sorting
+        // Default sorting
         setSort("id", SortOrder.ASCENDING);
 
-        comparator = new SortableUserProviderComparator(this);
+        this.comparator = new SortableUserProviderComparator(this);
     }
 
     public void setSearchCond(final NodeCond searchCond) {
@@ -67,7 +66,7 @@ public class UserDataProvider extends SortableDataProvider<UserTO> {
 
         if (filtered) {
             users = filter == null
-                    ? Collections.EMPTY_LIST
+                    ? Collections.<UserTO>emptyList()
                     : restClient.search(filter, (first / paginatorRows) + 1, paginatorRows);
         } else {
             users = restClient.list((first / paginatorRows) + 1, paginatorRows);

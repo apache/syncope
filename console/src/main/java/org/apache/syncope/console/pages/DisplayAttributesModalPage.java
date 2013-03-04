@@ -30,11 +30,11 @@ import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.rest.SchemaRestClient;
-import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Check;
@@ -62,7 +62,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
      */
     private static final int MAX_SELECTIONS = 9;
 
-    private static final String[] ATTRIBUTES_TO_HIDE = new String[]{
+    private static final String[] ATTRIBUTES_TO_HIDE = {
         "attributes", "derivedAttributes", "virtualAttributes", "memberships", "resources",
         "serialVersionUID", "password", "propagationTOs"};
 
@@ -267,12 +267,12 @@ public class DisplayAttributesModalPage extends BaseModalPage {
             selectedDerSchemas.clear();
         }
 
-        final AjaxButton submit = new ClearIndicatingAjaxButton("submit", new ResourceModel("submit"), pageRef) {
+        final AjaxButton submit = new IndicatingAjaxButton("submit", new ResourceModel("submit")) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 if (selectedDetails.size() + selectedSchemas.size() + selectedVirSchemas.size()
                         + selectedDerSchemas.size() > MAX_SELECTIONS) {
 
