@@ -21,32 +21,25 @@ package org.apache.syncope.common.types;
 import javax.xml.bind.annotation.XmlEnum;
 
 @XmlEnum
-public
-enum SchemaType {
+public enum SchemaType {
 
     /**
      * Derived schema calculated based on other attributes.
      */
     DERIVED("derivedSchema"),
-
     /**
      * Standard schema for normal attributes to be stored within syncope.
      */
     NORMAL("schema"),
-
     /**
      * Virtual schema for attributes fetched from remote resources only.
      */
     VIRTUAL("virtualSchema");
 
-    public static SchemaType fromString(String value) {
-        return SchemaType.valueOf(value.toUpperCase());
-    }
-
     // TODO remove name once CXF migration is complete
     private final String name;
 
-    private SchemaType(String name) {
+    private SchemaType(final String name) {
         this.name = name;
     }
 

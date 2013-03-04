@@ -95,7 +95,8 @@ public class RoleModalPage extends BaseModalPage {
         this.rolePanel = new RolePanel("rolePanel", form, roleTO, mode);
         form.add(rolePanel);
 
-        final AjaxButton submit = new ClearIndicatingAjaxButton("submit", new ResourceModel("submit"), pageRef) {
+        final AjaxButton submit = new ClearIndicatingAjaxButton("submit", new ResourceModel("submit"),
+                getPageReference()) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -140,7 +141,7 @@ public class RoleModalPage extends BaseModalPage {
 
         form.add(submit);
         form.setDefaultButton(submit);
-        
+
         form.add(cancel);
 
         add(form);

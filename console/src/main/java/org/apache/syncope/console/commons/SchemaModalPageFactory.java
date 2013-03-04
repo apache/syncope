@@ -19,6 +19,7 @@
 package org.apache.syncope.console.commons;
 
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.console.pages.AbstractSchemaModalPage;
 import org.apache.syncope.console.pages.BaseModalPage;
 import org.apache.syncope.console.pages.DerivedSchemaModalPage;
@@ -37,14 +38,6 @@ abstract public class SchemaModalPageFactory extends BaseModalPage {
     @SpringBean
     protected SchemaRestClient restClient;
 
-    public enum SchemaType {
-
-        NORMAL,
-        DERIVED,
-        VIRTUAL
-
-    };
-
     public static AbstractSchemaModalPage getSchemaModalPage(AttributableType entity, SchemaType schemaType) {
 
         AbstractSchemaModalPage page;
@@ -53,9 +46,11 @@ abstract public class SchemaModalPageFactory extends BaseModalPage {
             case DERIVED:
                 page = new DerivedSchemaModalPage(entity);
                 break;
+
             case VIRTUAL:
                 page = new VirtualSchemaModalPage(entity);
                 break;
+
             default:
                 page = new SchemaModalPage(entity);
                 break;

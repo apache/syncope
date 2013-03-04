@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.DisplayAttributesModalPage;
@@ -81,15 +82,15 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
         }
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
-            columns.add(new AttrColumn(name, AttrColumn.SchemaType.schema));
+            columns.add(new AttrColumn(name, SchemaType.NORMAL));
         }
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW)) {
-            columns.add(new AttrColumn(name, AttrColumn.SchemaType.derivedSchema));
+            columns.add(new AttrColumn(name, SchemaType.DERIVED));
         }
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW)) {
-            columns.add(new AttrColumn(name, AttrColumn.SchemaType.virtualSchema));
+            columns.add(new AttrColumn(name, SchemaType.VIRTUAL));
         }
 
         // Add defaults in case of no selection
@@ -104,6 +105,8 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
         }
 
         columns.add(new AbstractColumn<AbstractAttributableTO, String>(new ResourceModel("actions", "")) {
+
+            private static final long serialVersionUID = -3503023501954863131L;
 
             @Override
             public String getCssClass() {

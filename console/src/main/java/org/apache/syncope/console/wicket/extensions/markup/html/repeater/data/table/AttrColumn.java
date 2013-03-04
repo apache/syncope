@@ -21,6 +21,7 @@ package org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.t
 import java.util.List;
 
 import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.markup.html.basic.Label;
@@ -32,21 +33,14 @@ public class AttrColumn extends AbstractColumn<AbstractAttributableTO, String> {
 
     private static final long serialVersionUID = 2624734332447371372L;
 
-    public enum SchemaType {
-
-        schema,
-        virtualSchema,
-        derivedSchema;
-
-    };
-
     private final String name;
 
     private final SchemaType schemaType;
 
     public AttrColumn(final String name, final SchemaType schemaType) {
-
-        super(new ResourceModel(name, name), name);
+        // set sortProperty to schematype#name (e.g. derivedSchema#cn, 
+        // for use with SortableUserProviderComparator.AttrModel#getObject)
+        super(new ResourceModel(name, name), schemaType.name() + "#" + name);
         this.name = name;
         this.schemaType = schemaType;
     }
@@ -58,20 +52,20 @@ public class AttrColumn extends AbstractColumn<AbstractAttributableTO, String> {
         List<String> values = null;
 
         switch (schemaType) {
-            case schema:
+            case NORMAL:
                 if (rowModel.getObject().getAttributeMap().containsKey(name)) {
                     values = rowModel.getObject().getAttributeMap().get(name).getValues();
                 }
                 break;
 
-            case virtualSchema:
+            case VIRTUAL:
                 if (rowModel.getObject().getVirtualAttributeMap().containsKey(name)) {
 
                     values = rowModel.getObject().getVirtualAttributeMap().get(name).getValues();
                 }
                 break;
 
-            case derivedSchema:
+            case DERIVED:
                 if (rowModel.getObject().getDerivedAttributeMap().containsKey(name)) {
 
                     values = rowModel.getObject().getDerivedAttributeMap().get(name).getValues();

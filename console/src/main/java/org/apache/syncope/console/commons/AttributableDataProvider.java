@@ -56,10 +56,10 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
         this.filtered = filtered;
         this.paginatorRows = paginatorRows;
 
-        //Default sorting
+        // default sorting
         setSort("id", SortOrder.ASCENDING);
 
-        comparator = new SortableAttributableProviderComparator(this);
+        this.comparator = new SortableAttributableProviderComparator(this);
     }
 
     public void setSearchCond(final NodeCond searchCond) {
