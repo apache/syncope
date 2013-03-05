@@ -50,12 +50,14 @@ import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
+import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
@@ -97,6 +99,12 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeSyncResultHandler.class);
+
+    /**
+     * Policy DAO.
+     */
+    @Autowired
+    private PolicyDAO policyDAO;
 
     /**
      * Entitlement DAO.
@@ -420,18 +428,25 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
      * @param attrUtil attributable util
      * @return list of matching users / roles
      */
-    public List<Long> findExisting(final String uid, final ConnectorObject connObj, final AttributableUtil attrUtil) {
-        SyncPolicySpec policySpec = null;
-        if (syncTask.getResource().getSyncPolicy() != null) {
-            policySpec = (SyncPolicySpec) syncTask.getResource().getSyncPolicy().getSpecification();
+    protected List<Long> findExisting(final String uid, final ConnectorObject connObj,
+            final AttributableUtil attrUtil) {
+
+        SyncPolicySpec syncPolicySpec = null;
+        if (syncTask.getResource().getSyncPolicy() == null) {
+            SyncPolicy globalSP = policyDAO.getGlobalSyncPolicy();
+            if (globalSP != null) {
+                syncPolicySpec = globalSP.<SyncPolicySpec>getSpecification();
+            }
+        } else {
+            syncPolicySpec = syncTask.getResource().getSyncPolicy().<SyncPolicySpec>getSpecification();
         }
 
         SyncRule syncRule = null;
         List<String> altSearchSchemas = null;
 
-        if (policySpec != null) {
-            syncRule = attrUtil.getCorrelationRule(policySpec);
-            altSearchSchemas = attrUtil.getAltSearchSchemas(policySpec);
+        if (syncPolicySpec != null) {
+            syncRule = attrUtil.getCorrelationRule(syncPolicySpec);
+            altSearchSchemas = attrUtil.getAltSearchSchemas(syncPolicySpec);
         }
 
         return syncRule == null ? altSearchSchemas == null
@@ -809,30 +824,30 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         final String uid = delta.getPreviousUid() == null
                 ? delta.getUid().getUidValue()
                 : delta.getPreviousUid().getUidValue();
-        final List<Long> subjects = findExisting(uid, delta.getObject(), attrUtil);
+        final List<Long> subjectIds = findExisting(uid, delta.getObject(), attrUtil);
 
         if (SyncDeltaType.CREATE_OR_UPDATE == delta.getDeltaType()) {
-            if (subjects.isEmpty()) {
+            if (subjectIds.isEmpty()) {
                 results.addAll(create(delta, attrUtil, dryRun));
-            } else if (subjects.size() == 1) {
-                results.addAll(update(delta, subjects.subList(0, 1), attrUtil, dryRun));
+            } else if (subjectIds.size() == 1) {
+                results.addAll(update(delta, subjectIds.subList(0, 1), attrUtil, dryRun));
             } else {
                 switch (resAct) {
                     case IGNORE:
-                        LOG.error("More than one match {}", subjects);
+                        LOG.error("More than one match {}", subjectIds);
                         break;
 
                     case FIRSTMATCH:
-                        results.addAll(update(delta, subjects.subList(0, 1), attrUtil, dryRun));
+                        results.addAll(update(delta, subjectIds.subList(0, 1), attrUtil, dryRun));
                         break;
 
                     case LASTMATCH:
-                        results.addAll(update(delta, subjects.subList(subjects.size() - 1, subjects.size()), attrUtil,
-                                dryRun));
+                        results.addAll(update(delta, subjectIds.subList(subjectIds.size() - 1, subjectIds.size()),
+                                attrUtil, dryRun));
                         break;
 
                     case ALL:
-                        results.addAll(update(delta, subjects, attrUtil, dryRun));
+                        results.addAll(update(delta, subjectIds, attrUtil, dryRun));
                         break;
 
                     default:
@@ -841,27 +856,28 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         }
 
         if (SyncDeltaType.DELETE == delta.getDeltaType()) {
-            if (subjects.isEmpty()) {
+            if (subjectIds.isEmpty()) {
                 LOG.debug("No match found for deletion");
-            } else if (subjects.size() == 1) {
-                results.addAll(delete(delta, subjects, attrUtil, dryRun));
+            } else if (subjectIds.size() == 1) {
+                results.addAll(delete(delta, subjectIds, attrUtil, dryRun));
             } else {
                 switch (resAct) {
                     case IGNORE:
-                        LOG.error("More than one match {}", subjects);
+                        LOG.error("More than one match {}", subjectIds);
                         break;
 
                     case FIRSTMATCH:
-                        results.addAll(delete(delta, subjects.subList(0, 1), attrUtil, dryRun));
+                        results.addAll(delete(delta, subjectIds.subList(0, 1), attrUtil, dryRun));
                         break;
 
                     case LASTMATCH:
-                        results.addAll(delete(delta, subjects.subList(subjects.size() - 1, subjects.size()), attrUtil,
+                        results.addAll(delete(delta, subjectIds.subList(subjectIds.size() - 1, subjectIds.size()),
+                                attrUtil,
                                 dryRun));
                         break;
 
                     case ALL:
-                        results.addAll(delete(delta, subjects, attrUtil, dryRun));
+                        results.addAll(delete(delta, subjectIds, attrUtil, dryRun));
                         break;
 
                     default:

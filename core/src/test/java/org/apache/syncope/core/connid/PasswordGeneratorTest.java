@@ -49,7 +49,7 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
         SyncopeUser user = userDAO.find(5L);
         String password = "";
         try {
-            password = passwordGenerator.generateUserPassword(user);
+            password = passwordGenerator.generate(user);
         } catch (InvalidPasswordPolicySpecException ex) {
             fail(ex.getMessage());
         }
@@ -67,7 +67,7 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
 
         String password = "";
         try {
-            password = passwordGenerator.generateUserPassword(user);
+            password = passwordGenerator.generate(user);
 
         } catch (InvalidPasswordPolicySpecException ex) {
             fail(ex.getMessage());
@@ -89,7 +89,7 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
         List<PasswordPolicySpec> passwordPolicySpecs = new ArrayList<PasswordPolicySpec>();
         passwordPolicySpecs.add(passwordPolicySpec);
         passwordPolicySpecs.add(passwordPolicySpec2);
-        String generatedPassword = passwordGenerator.generatePasswordFromPwdSpec(passwordPolicySpecs);
+        String generatedPassword = passwordGenerator.generate(passwordPolicySpecs);
         assertTrue(Character.isDigit(generatedPassword.charAt(0)));
         assertTrue(Character.isDigit(generatedPassword.charAt(generatedPassword.length() - 1)));
     }
@@ -106,7 +106,7 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
         List<PasswordPolicySpec> passwordPolicySpecs = new ArrayList<PasswordPolicySpec>();
         passwordPolicySpecs.add(passwordPolicySpec);
         passwordPolicySpecs.add(passwordPolicySpec2);
-        String generatedPassword = passwordGenerator.generatePasswordFromPwdSpec(passwordPolicySpecs);
+        String generatedPassword = passwordGenerator.generate(passwordPolicySpecs);
         assertTrue(Character.isDigit(generatedPassword.charAt(0)));
         assertTrue(Character.isLetter(generatedPassword.charAt(generatedPassword.length() - 1)));
     }
@@ -123,7 +123,7 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
         List<PasswordPolicySpec> passwordPolicySpecs = new ArrayList<PasswordPolicySpec>();
         passwordPolicySpecs.add(passwordPolicySpec);
         passwordPolicySpecs.add(passwordPolicySpec2);
-        String generatedPassword = passwordGenerator.generatePasswordFromPwdSpec(passwordPolicySpecs);
+        String generatedPassword = passwordGenerator.generate(passwordPolicySpecs);
         assertTrue(PolicyPattern.NON_ALPHANUMERIC.matcher(generatedPassword).matches());
         assertTrue(Character.isLetter(generatedPassword.charAt(generatedPassword.length() - 1)));
     }
@@ -141,7 +141,7 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
         List<PasswordPolicySpec> passwordPolicySpecs = new ArrayList<PasswordPolicySpec>();
         passwordPolicySpecs.add(passwordPolicySpec);
         passwordPolicySpecs.add(passwordPolicySpec2);
-        passwordGenerator.generatePasswordFromPwdSpec(passwordPolicySpecs);
+        passwordGenerator.generate(passwordPolicySpecs);
     }
 
     private PasswordPolicySpec createBasePasswordPolicySpec() {

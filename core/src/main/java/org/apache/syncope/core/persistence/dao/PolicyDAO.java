@@ -30,9 +30,9 @@ public interface PolicyDAO extends DAO {
 
     Policy find(Long id);
 
-    PasswordPolicy getGlobalPasswordPolicy();
-
     List<? extends Policy> find(PolicyType type);
+
+    PasswordPolicy getGlobalPasswordPolicy();
 
     AccountPolicy getGlobalAccountPolicy();
 

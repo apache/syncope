@@ -44,6 +44,7 @@ import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
@@ -133,7 +134,7 @@ public class ConnObjectUtil {
     }
 
     /**
-     * Build an UserTO out of connector object attributes and schema mapping.
+     * Build a UserTO / RoleTO out of connector object attributes and schema mapping.
      *
      * @param obj connector object
      * @param syncTask synchronization task
@@ -147,37 +148,44 @@ public class ConnObjectUtil {
 
         T subjectTO = getAttributableTOFromConnObject(obj, syncTask, attrUtil);
 
-        // if password was not set above, generate
-        if (AttributableType.USER == attrUtil.getType() && StringUtils.isBlank(((UserTO) subjectTO).getPassword())) {
-            List<PasswordPolicySpec> ppSpecs = new ArrayList<PasswordPolicySpec>();
-            ppSpecs.add((PasswordPolicySpec) policyDAO.getGlobalPasswordPolicy().getSpecification());
+        // (for users) if password was not set above, generate
+        if (subjectTO instanceof UserTO && StringUtils.isBlank(((UserTO) subjectTO).getPassword())) {
+            final UserTO userTO = (UserTO) subjectTO;
 
-            for (MembershipTO memb : ((UserTO) subjectTO).getMemberships()) {
+            List<PasswordPolicySpec> ppSpecs = new ArrayList<PasswordPolicySpec>();
+
+            PasswordPolicy globalPP = policyDAO.getGlobalPasswordPolicy();
+            if (globalPP != null && globalPP.getSpecification() != null) {
+                ppSpecs.add(globalPP.<PasswordPolicySpec>getSpecification());
+            }
+
+            for (MembershipTO memb : userTO.getMemberships()) {
                 SyncopeRole role = roleDAO.find(memb.getRoleId());
                 if (role != null && role.getPasswordPolicy() != null
                         && role.getPasswordPolicy().getSpecification() != null) {
 
-                    ppSpecs.add((PasswordPolicySpec) role.getPasswordPolicy().getSpecification());
+                    ppSpecs.add(role.getPasswordPolicy().<PasswordPolicySpec>getSpecification());
                 }
             }
-            for (String resName : subjectTO.getResources()) {
+
+            for (String resName : userTO.getResources()) {
                 ExternalResource resource = resourceDAO.find(resName);
                 if (resource != null && resource.getPasswordPolicy() != null
                         && resource.getPasswordPolicy().getSpecification() != null) {
 
-                    ppSpecs.add((PasswordPolicySpec) resource.getPasswordPolicy().getSpecification());
+                    ppSpecs.add(resource.getPasswordPolicy().<PasswordPolicySpec>getSpecification());
                 }
             }
 
             String password;
             try {
-                password = pwdGen.generatePasswordFromPwdSpec(ppSpecs);
+                password = pwdGen.generate(ppSpecs);
             } catch (InvalidPasswordPolicySpecException e) {
-                LOG.error("Could not generate policy-compliant random password for {}", subjectTO, e);
+                LOG.error("Could not generate policy-compliant random password for {}", userTO, e);
 
                 password = RandomStringUtils.randomAlphanumeric(16);
             }
-            ((UserTO) subjectTO).setPassword(password);
+            userTO.setPassword(password);
         }
 
         return subjectTO;
@@ -236,8 +244,7 @@ public class ConnObjectUtil {
         final T attributableTO = attrUtil.newAttributableTO();
 
         // 1. fill with data from connector object
-        for (AbstractMappingItem item :
-                attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)) {
+        for (AbstractMappingItem item : attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)) {
             Attribute attribute = obj.getAttributeByName(item.getExtAttrName());
 
             AttributeTO attributeTO;

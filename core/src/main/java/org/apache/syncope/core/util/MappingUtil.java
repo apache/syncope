@@ -219,7 +219,7 @@ public final class MappingUtil {
                     }
                 } else if (resource.isRandomPwdIfNotProvided()) {
                     try {
-                        passwordAttrValue = passwordGenerator.generateUserPassword(user);
+                        passwordAttrValue = passwordGenerator.generate(user);
                     } catch (InvalidPasswordPolicySpecException e) {
                         LOG.error("Could not generate policy-compliant random password for {}", user, e);
 

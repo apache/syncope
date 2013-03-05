@@ -19,84 +19,76 @@
 package org.apache.syncope.core.connid;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.policy.PolicyPattern;
 import org.apache.syncope.core.util.InvalidPasswordPolicySpecException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * Generate random passwords according to given policies.
+ *
+ * @see PasswordPolicy
+ */
 @Component
 public class PasswordGenerator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PasswordGenerator.class);
-
-    private static final String[] SPECIAL_CHAR = {"", "!", "£", "%", "&", "(", ")", "?", "#", "_", "$"};
+    private static final String[] SPECIAL_CHARS = {"", "!", "£", "%", "&", "(", ")", "?", "#", "_", "$"};
 
     @Autowired
     private PolicyDAO policyDAO;
 
-    public String generatePasswordFromPwdSpec(final List<PasswordPolicySpec> passwordPolicySpecs)
+    public String generate(final List<PasswordPolicySpec> ppSpecs)
             throws InvalidPasswordPolicySpecException {
 
-        PasswordPolicySpec policySpec = mergePolicySpecs(passwordPolicySpecs);
+        PasswordPolicySpec policySpec = merge(ppSpecs);
 
-        evaluateFinalPolicySpec(policySpec);
+        check(policySpec);
 
-        return generatePassword(policySpec);
+        return generate(policySpec);
     }
 
-    public String generateUserPassword(final SyncopeUser user)
+    public String generate(final SyncopeUser user)
             throws InvalidPasswordPolicySpecException {
 
-        List<PasswordPolicySpec> userPasswordPolicies = new ArrayList<PasswordPolicySpec>();
-        PasswordPolicySpec passwordPolicySpec = policyDAO.getGlobalPasswordPolicy().getSpecification();
+        List<PasswordPolicySpec> ppSpecs = new ArrayList<PasswordPolicySpec>();
 
-        userPasswordPolicies.add(passwordPolicySpec);
+        PasswordPolicy globalPP = policyDAO.getGlobalPasswordPolicy();
+        if (globalPP != null && globalPP.getSpecification() != null) {
+            ppSpecs.add(globalPP.<PasswordPolicySpec>getSpecification());
+        }
 
-        PasswordPolicySpec rolePasswordPolicySpec;
-        if ((user.getRoles() != null) || (!user.getRoles().isEmpty())) {
-            for (Iterator<SyncopeRole> rolesIterator = user.getRoles().iterator(); rolesIterator.hasNext();) {
-                SyncopeRole syncopeRole = rolesIterator.next();
-                rolePasswordPolicySpec = syncopeRole.getPasswordPolicy().getSpecification();
-                userPasswordPolicies.add(rolePasswordPolicySpec);
+        for (SyncopeRole role : user.getRoles()) {
+            if (role.getPasswordPolicy() != null && role.getPasswordPolicy().getSpecification() != null) {
+                ppSpecs.add(role.getPasswordPolicy().<PasswordPolicySpec>getSpecification());
             }
         }
 
-        PasswordPolicySpec resourcePasswordPolicySpec;
-
-        if ((user.getResources() != null) || (!user.getResources().isEmpty())) {
-            for (Iterator<ExternalResource> resourcesIterator = user.getResources().iterator();
-                    resourcesIterator.hasNext();) {
-                ExternalResource externalResource = resourcesIterator.next();
-                if (externalResource.getPasswordPolicy() != null) {
-                    resourcePasswordPolicySpec = externalResource.getPasswordPolicy().getSpecification();
-                    userPasswordPolicies.add(resourcePasswordPolicySpec);
-                }
+        for (ExternalResource resource : user.getResources()) {
+            if (resource.getPasswordPolicy() != null && resource.getPasswordPolicy().getSpecification() != null) {
+                ppSpecs.add(resource.getPasswordPolicy().<PasswordPolicySpec>getSpecification());
             }
         }
 
-        PasswordPolicySpec policySpec = mergePolicySpecs(userPasswordPolicies);
-        evaluateFinalPolicySpec(policySpec);
-        return generatePassword(policySpec);
+        PasswordPolicySpec policySpec = merge(ppSpecs);
+        check(policySpec);
+        return generate(policySpec);
     }
 
-    private PasswordPolicySpec mergePolicySpecs(final List<PasswordPolicySpec> userPasswordPolicies) {
+    private PasswordPolicySpec merge(final List<PasswordPolicySpec> ppSpecs) {
         PasswordPolicySpec fpps = new PasswordPolicySpec();
         fpps.setMinLength(0);
         fpps.setMaxLength(1000);
 
-        for (Iterator<PasswordPolicySpec> it = userPasswordPolicies.iterator(); it.hasNext();) {
-            PasswordPolicySpec policySpec = it.next();
+        for (PasswordPolicySpec policySpec : ppSpecs) {
             if (policySpec.getMinLength() > fpps.getMinLength()) {
                 fpps.setMinLength(policySpec.getMinLength());
             }
@@ -164,7 +156,7 @@ public class PasswordGenerator {
         return fpps;
     }
 
-    private void evaluateFinalPolicySpec(final PasswordPolicySpec policySpec)
+    private void check(final PasswordPolicySpec policySpec)
             throws InvalidPasswordPolicySpecException {
 
         if (policySpec.getMinLength() == 0) {
@@ -208,7 +200,7 @@ public class PasswordGenerator {
         }
     }
 
-    private String generatePassword(final PasswordPolicySpec policySpec) {
+    private String generate(final PasswordPolicySpec policySpec) {
         String[] generatedPassword = new String[policySpec.getMinLength()];
 
         for (int i = 0; i < generatedPassword.length; i++) {
@@ -289,35 +281,38 @@ public class PasswordGenerator {
     private void checkRequired(final String[] generatedPassword, final PasswordPolicySpec policySpec) {
         if (policySpec.isDigitRequired()
                 && !PolicyPattern.DIGIT.matcher(StringUtils.join(generatedPassword)).matches()) {
+
             generatedPassword[firstEmptyChar(generatedPassword)] = RandomStringUtils.randomNumeric(1);
         }
 
         if (policySpec.isUppercaseRequired()
                 && !PolicyPattern.ALPHA_UPPERCASE.matcher(StringUtils.join(generatedPassword)).matches()) {
+
             generatedPassword[firstEmptyChar(generatedPassword)] = RandomStringUtils.randomAlphabetic(1).toUpperCase();
         }
 
         if (policySpec.isLowercaseRequired()
                 && !PolicyPattern.ALPHA_LOWERCASE.matcher(StringUtils.join(generatedPassword)).matches()) {
+
             generatedPassword[firstEmptyChar(generatedPassword)] = RandomStringUtils.randomAlphabetic(1).toLowerCase();
         }
 
         if (policySpec.isNonAlphanumericRequired()
                 && !PolicyPattern.NON_ALPHANUMERIC.matcher(StringUtils.join(generatedPassword)).matches()) {
-            generatedPassword[firstEmptyChar(generatedPassword)] = SPECIAL_CHAR[randomNumber(SPECIAL_CHAR.length - 1)];
+
+            generatedPassword[firstEmptyChar(generatedPassword)] =
+                    SPECIAL_CHARS[randomNumber(SPECIAL_CHARS.length - 1)];
         }
     }
 
     private void checkPrefixAndSuffix(final String[] generatedPassword, final PasswordPolicySpec policySpec) {
-        for (Iterator<String> it = policySpec.getPrefixesNotPermitted().iterator(); it.hasNext();) {
-            String prefix = it.next();
+        for (String prefix : policySpec.getPrefixesNotPermitted()) {
             if (StringUtils.join(generatedPassword).startsWith(prefix)) {
                 checkStartChar(generatedPassword, policySpec);
             }
         }
 
-        for (Iterator<String> it = policySpec.getSuffixesNotPermitted().iterator(); it.hasNext();) {
-            String suffix = it.next();
+        for (String suffix : policySpec.getSuffixesNotPermitted()) {
             if (StringUtils.join(generatedPassword).endsWith(suffix)) {
                 checkEndChar(generatedPassword, policySpec);
             }

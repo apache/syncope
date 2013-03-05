@@ -40,7 +40,7 @@ import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.Policy;
+import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.membership.MAttr;
 import org.apache.syncope.core.persistence.beans.membership.MDerAttr;
 import org.apache.syncope.core.persistence.beans.membership.MVirAttr;
@@ -136,16 +136,35 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
      * Get predefined password cipher algorithm from SyncopeConf.
      *
      * @return cipher algorithm.
-     * @throws NotFoundException in case of algorithm not included into <code>CipherAlgorithm</code>.
      */
     private CipherAlgorithm getPredefinedCipherAlgoritm() {
-
         final String algorithm = confDAO.find("password.cipher.algorithm", "AES").getValue();
 
         try {
             return CipherAlgorithm.valueOf(algorithm);
         } catch (IllegalArgumentException e) {
             throw new NotFoundException("Cipher algorithm " + algorithm);
+        }
+    }
+
+    private void setPassword(final SyncopeUser user, final String password,
+            final SyncopeClientCompositeErrorException scce) {
+
+        int passwordHistorySize = 0;
+        PasswordPolicy policy = policyDAO.getGlobalPasswordPolicy();
+        if (policy != null && policy.getSpecification() != null) {
+            passwordHistorySize = policy.<PasswordPolicySpec>getSpecification().getHistoryLength();
+        }
+
+        try {
+            user.setPassword(password, getPredefinedCipherAlgoritm(), passwordHistorySize);
+        } catch (NotFoundException e) {
+            final SyncopeClientException invalidCiperAlgorithm =
+                    new SyncopeClientException(SyncopeClientExceptionType.NotFound);
+            invalidCiperAlgorithm.addElement(e.getMessage());
+            scce.addException(invalidCiperAlgorithm);
+
+            throw scce;
         }
     }
 
@@ -184,29 +203,10 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         fill(user, userTO, AttributableUtil.getInstance(AttributableType.USER), scce);
 
         // set password
-        int passwordHistorySize = 0;
-
-        try {
-            Policy policy = policyDAO.getGlobalPasswordPolicy();
-            PasswordPolicySpec passwordPolicy = policy.getSpecification();
-            passwordHistorySize = passwordPolicy.getHistoryLength();
-        } catch (Exception ignore) {
-            // ignore exceptions
-        }
-
-        if (userTO.getPassword() == null || userTO.getPassword().isEmpty()) {
+        if (StringUtils.isBlank(userTO.getPassword())) {
             LOG.error("No password provided");
         } else {
-            try {
-                user.setPassword(userTO.getPassword(), getPredefinedCipherAlgoritm(), passwordHistorySize);
-            } catch (NotFoundException e) {
-                final SyncopeClientException invalidAlgorith =
-                        new SyncopeClientException(SyncopeClientExceptionType.NotFound);
-                invalidAlgorith.addElement(e.getMessage());
-                scce.addException(invalidAlgorith);
-
-                throw scce;
-            }
+            setPassword(user, userTO.getPassword(), scce);
         }
 
         // set username
@@ -222,7 +222,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
      * @param user to be updated
      * @param userMod bean containing update request
      * @return updated user + propagation by resource
-     * @throws SyncopeClientCompositeErrorException if anything goes wrong
      * @see PropagationByResource
      */
     public PropagationByResource update(final SyncopeUser user, final UserMod userMod) {
@@ -236,26 +235,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         Set<String> currentResources = user.getResourceNames();
 
         // password
-        if (userMod.getPassword() != null) {
-            int passwordHistorySize = 0;
-            try {
-                Policy policy = policyDAO.getGlobalPasswordPolicy();
-                PasswordPolicySpec passwordPolicy = policy.getSpecification();
-                passwordHistorySize = passwordPolicy.getHistoryLength();
-            } catch (Exception ignore) {
-                // ignore exceptions
-            }
-
-            try {
-                user.setPassword(userMod.getPassword(), getPredefinedCipherAlgoritm(), passwordHistorySize);
-            } catch (NotFoundException e) {
-                final SyncopeClientException invalidAlgorith =
-                        new SyncopeClientException(SyncopeClientExceptionType.NotFound);
-                invalidAlgorith.addElement(e.getMessage());
-                scce.addException(invalidAlgorith);
-
-                throw scce;
-            }
+        if (StringUtils.isNotBlank(userMod.getPassword())) {
+            setPassword(user, userMod.getPassword(), scce);
 
             user.setChangePwdDate(new Date());
 
