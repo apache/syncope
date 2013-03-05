@@ -97,6 +97,10 @@ under the License.
     <action id="delete">
       <entitlement>RESOURCE_DELETE</entitlement>
     </action>
+
+    <action id="getConnectorObject">
+      <entitlement>RESOURCE_GETCONNECTOROBJECT</entitlement>
+    </action>
   </page>
 
   <page id="Reports">

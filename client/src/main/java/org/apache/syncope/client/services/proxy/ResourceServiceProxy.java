@@ -54,9 +54,9 @@ public class ResourceServiceProxy extends SpringServiceProxy implements Resource
                     + "resource/read/"
                     + URLEncoder.encode(resource.getName(), SyncopeConstants.DEFAULT_ENCODING)
                     + ".json");
-            return Response.created(location)
-                    .header(SyncopeConstants.REST_HEADER_ID, resource.getName())
-                    .build();
+            return Response.created(location).
+                    header(SyncopeConstants.REST_HEADER_ID, resource.getName()).
+                    build();
         } catch (UnsupportedEncodingException e) {
             throw new InternalServerErrorException(e);
         }
@@ -93,23 +93,21 @@ public class ResourceServiceProxy extends SpringServiceProxy implements Resource
 
     @Override
     public List<ResourceTO> list(final Long connInstanceId) {
-        if (connInstanceId == null) {
-            return list();
-        }
-
-        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "resource/list.json?connInstanceId={connId}",
+        return connInstanceId == null
+                ? list()
+                : Arrays.asList(getRestTemplate().getForObject(baseUrl + "resource/list.json?connInstanceId={connId}",
                 ResourceTO[].class, connInstanceId));
     }
 
     @Override
-    public ConnObjectTO getConnector(final String resourceName, final AttributableType type, final String objectId) {
-        return getRestTemplate().getForObject(baseUrl + "resource/{resourceName}/read/{type}/{objectId}.json",
-                ConnObjectTO.class, resourceName, type.name(), objectId);
+    public ConnObjectTO getConnectorObject(final String resourceName, final AttributableType type, final Long id) {
+        return getRestTemplate().getForObject(baseUrl + "resource/{resourceName}/read/{type}/{id}.json",
+                ConnObjectTO.class, resourceName, type.name(), id);
     }
 
     @Override
     public boolean check(final ResourceTO resourceTO) {
-        return getRestTemplate().postForObject(baseUrl + "resource/check.json", resourceTO, Boolean.class)
-                .booleanValue();
+        return getRestTemplate().postForObject(baseUrl + "resource/check.json", resourceTO, Boolean.class).
+                booleanValue();
     }
 }

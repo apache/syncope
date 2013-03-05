@@ -87,8 +87,8 @@ public class ResourceServiceImpl implements ResourceService, ContextAware {
     }
 
     @Override
-    public ConnObjectTO getConnector(final String resourceName, final AttributableType type, final String objectId) {
-        return resourceController.getObject(resourceName, type, objectId);
+    public ConnObjectTO getConnectorObject(final String resourceName, final AttributableType type, final Long id) {
+        return resourceController.getConnectorObject(resourceName, type, id);
     }
 
     @Override

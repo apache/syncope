@@ -74,6 +74,10 @@ public class RoleTestITCase extends AbstractTest {
         return roleTO;
     }
 
+    private ConnObjectTO readConnectorObject(final String resourceName, final Long roleId) {
+        return resourceService.getConnectorObject(resourceName, AttributableType.ROLE, roleId);
+    }
+
     @Test
     public void createWithException() {
         RoleTO newRoleTO = new RoleTO();
@@ -109,8 +113,7 @@ public class RoleTestITCase extends AbstractTest {
 
         assertTrue(roleTO.getResources().contains("resource-ldap"));
 
-        ConnObjectTO connObjectTO = resourceService.getConnector("resource-ldap", AttributableType.ROLE,
-                roleTO.getName());
+        ConnObjectTO connObjectTO = readConnectorObject("resource-ldap", roleTO.getId());
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getAttributeMap().get("owner"));
     }

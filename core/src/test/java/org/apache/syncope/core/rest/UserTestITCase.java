@@ -85,8 +85,8 @@ public class UserTestITCase extends AbstractTest {
 
     private static final String RESOURCE_NAME_TESTDB = "resource-testdb";
 
-    private ConnObjectTO readUserConnObj(final String resourceName, final String userId) {
-        return resourceService.getConnector(resourceName, AttributableType.USER, userId);
+    private ConnObjectTO readConnectorObject(final String resourceName, final Long userId) {
+        return resourceService.getConnectorObject(resourceName, AttributableType.USER, userId);
     }
 
     public static UserTO getUniqueSampleTO(final String email) {
@@ -1148,7 +1148,6 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(ActivitiDetector.isActivitiEnabledForUsers()
                 ? "active"
                 : "created", userTO.getStatus());
-        String userName = userTO.getUsername();
         long userId = userTO.getId();
 
         // Suspend with effect on syncope, ldap and db => user should be suspended in syncope and all resources
@@ -1160,10 +1159,10 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        ConnObjectTO connObjectTO = readUserConnObj(RESOURCE_NAME_TESTDB, userName);
+        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_TESTDB, userId);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
-        connObjectTO = readUserConnObj(RESOURCE_NAME_LDAP, userName);
+        connObjectTO = readConnectorObject(RESOURCE_NAME_LDAP, userId);
         assertNotNull(connObjectTO);
 
         // Suspend and reactivate only on ldap => db and syncope should still show suspended
@@ -1175,7 +1174,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO = readUserConnObj(RESOURCE_NAME_TESTDB, userName);
+        connObjectTO = readConnectorObject(RESOURCE_NAME_TESTDB, userId);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
         // Reactivate on syncope and db => syncope and db should show the user as active
@@ -1187,7 +1186,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO = readUserConnObj(RESOURCE_NAME_TESTDB, userName);
+        connObjectTO = readConnectorObject(RESOURCE_NAME_TESTDB, userId);
         assertTrue(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
     }
 
@@ -1387,12 +1386,10 @@ public class UserTestITCase extends AbstractTest {
         userTO.addResource("resource-csv");
 
         UserTO actual = createUser(userTO);
-
         assertNotNull(actual);
         assertNotNull(actual.getDerivedAttributeMap().get("csvuserid"));
 
-        String userId = actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0);
-        ConnObjectTO connObjectTO = readUserConnObj("resource-csv", userId);
+        ConnObjectTO connObjectTO = readConnectorObject("resource-csv", actual.getId());
         assertNotNull(connObjectTO);
         assertEquals("sx-dx", connObjectTO.getAttributeMap().get("ROLE").getValues().get(0));
     }
@@ -1416,12 +1413,10 @@ public class UserTestITCase extends AbstractTest {
         userTO.addResource("resource-csv");
 
         UserTO actual = createUser(userTO);
-
         assertNotNull(actual);
         assertNotNull(actual.getDerivedAttributeMap().get("csvuserid"));
 
-        String userId = actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0);
-        ConnObjectTO connObjectTO = readUserConnObj("resource-csv", userId);
+        ConnObjectTO connObjectTO = readConnectorObject("resource-csv", actual.getId());
         assertNotNull(connObjectTO);
         assertEquals("sx-dx", connObjectTO.getAttributeMap().get("MEMBERSHIP").getValues().get(0));
     }
@@ -1480,13 +1475,11 @@ public class UserTestITCase extends AbstractTest {
         userTO.addResource("resource-csv");
 
         UserTO actual = createUser(userTO);
-
         assertNotNull(actual);
         assertEquals(2, actual.getMemberships().size());
         assertEquals(1, actual.getResources().size());
 
-        String userId = actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0);
-        ConnObjectTO connObjectTO = readUserConnObj("resource-csv", userId);
+        ConnObjectTO connObjectTO = readConnectorObject("resource-csv", actual.getId());
         assertNotNull(connObjectTO);
 
         // -----------------------------------
@@ -1501,7 +1494,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals(1, actual.getMemberships().size());
 
-        connObjectTO = readUserConnObj("resource-csv", userId);
+        connObjectTO = readConnectorObject("resource-csv", actual.getId());
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1518,7 +1511,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, actual.getMemberships().size());
         assertFalse(actual.getResources().isEmpty());
 
-        connObjectTO = readUserConnObj("resource-csv", userId);
+        connObjectTO = readConnectorObject("resource-csv", actual.getId());
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1536,7 +1529,7 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            readUserConnObj("resource-csv", userId);
+            readConnectorObject("resource-csv", actual.getId());
             fail("Read should not succeeed");
         } catch (SyncopeClientCompositeErrorException e) {
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
@@ -1567,7 +1560,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals(2, actual.getMemberships().size());
 
-        ConnObjectTO connObjectTO = readUserConnObj(RESOURCE_NAME_LDAP, userTO.getUsername());
+        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_LDAP, actual.getId());
         assertNotNull(connObjectTO);
 
         AttributeTO postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
@@ -1596,7 +1589,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals(1, actual.getMemberships().size());
 
-        connObjectTO = readUserConnObj(RESOURCE_NAME_LDAP, userTO.getUsername());
+        connObjectTO = readConnectorObject(RESOURCE_NAME_LDAP, actual.getId());
         assertNotNull(connObjectTO);
 
         postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
@@ -1628,7 +1621,7 @@ public class UserTestITCase extends AbstractTest {
 
         // 3. try (and fail) to find this user on the external LDAP resource
         try {
-            readUserConnObj(RESOURCE_NAME_LDAP, userTO.getUsername());
+            readConnectorObject(RESOURCE_NAME_LDAP, userTO.getId());
             fail("This entry should not be present on this resource");
         } catch (SyncopeClientCompositeErrorException sccee) {
             SyncopeClientException sce = sccee.getException(SyncopeClientExceptionType.NotFound);
@@ -1680,7 +1673,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        ConnObjectTO connObjectTO = readUserConnObj("ws-target-resource-2", userTO.getUsername());
+        ConnObjectTO connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
         // ----------------------------------
@@ -1704,7 +1697,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        connObjectTO = readUserConnObj("ws-target-resource-2", userTO.getUsername());
+        connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
         // ----------------------------------
@@ -1715,7 +1708,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.suspend(userTO.getId());
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO = readUserConnObj("ws-target-resource-2", userTO.getUsername());
+        connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
         assertNotNull(connObjectTO);
         assertFalse(connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
         assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
@@ -1723,7 +1716,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.reactivate(userTO.getId());
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO = readUserConnObj("ws-target-resource-2", userTO.getUsername());
+        connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
         assertNotNull(connObjectTO);
         assertFalse(connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
         assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
@@ -1748,7 +1741,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        connObjectTO = readUserConnObj("ws-target-resource-2", userTO.getUsername());
+        connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("Surname2", connObjectTO.getAttributeMap().get("SURNAME").getValues().get(0));
 
@@ -1771,7 +1764,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        connObjectTO = readUserConnObj("ws-target-resource-2", userTO.getUsername());
+        connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
         assertNotNull(connObjectTO);
 
         // attribute "name" mapped on virtual attribute "virtualdata" should be reset
@@ -1795,7 +1788,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("resource-db-virattr", userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        ConnObjectTO connObjectTO = readUserConnObj("resource-db-virattr", String.valueOf(userTO.getId()));
+        ConnObjectTO connObjectTO = readConnectorObject("resource-db-virattr", userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue", connObjectTO.getAttributeMap().get("USERNAME").getValues().get(0));
         // ----------------------------------
@@ -1856,7 +1849,7 @@ public class UserTestITCase extends AbstractTest {
         final String pwdOnSyncope = userTO.getPassword();
 
         ConnObjectTO userOnDb =
-                resourceService.getConnector(RESOURCE_NAME_TESTDB, AttributableType.USER, userTO.getUsername());
+                resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, AttributableType.USER, userTO.getId());
         final AttributeTO pwdOnTestDbAttr = userOnDb.getAttributeMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDbAttr);
         assertNotNull(pwdOnTestDbAttr.getValues());
@@ -1864,7 +1857,7 @@ public class UserTestITCase extends AbstractTest {
         final String pwdOnTestDb = pwdOnTestDbAttr.getValues().iterator().next();
 
         ConnObjectTO userOnDb2 =
-                resourceService.getConnector("resource-testdb2", AttributableType.USER, userTO.getUsername());
+                resourceService.getConnectorObject("resource-testdb2", AttributableType.USER, userTO.getId());
         final AttributeTO pwdOnTestDb2Attr = userOnDb2.getAttributeMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDb2Attr);
         assertNotNull(pwdOnTestDb2Attr.getValues());
@@ -1890,7 +1883,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(pwdOnSyncope, userTO.getPassword());
 
         // 3c. verify that password *has* changed on testdb
-        userOnDb = resourceService.getConnector(RESOURCE_NAME_TESTDB, AttributableType.USER, userTO.getUsername());
+        userOnDb = resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, AttributableType.USER, userTO.getId());
         final AttributeTO pwdOnTestDbAttrAfter = userOnDb.getAttributeMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDbAttrAfter);
         assertNotNull(pwdOnTestDbAttrAfter.getValues());
@@ -1898,7 +1891,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotEquals(pwdOnTestDb, pwdOnTestDbAttrAfter.getValues().iterator().next());
 
         // 3d. verify that password hasn't changed on testdb2
-        userOnDb2 = resourceService.getConnector("resource-testdb2", AttributableType.USER, userTO.getUsername());
+        userOnDb2 = resourceService.getConnectorObject("resource-testdb2", AttributableType.USER, userTO.getId());
         final AttributeTO pwdOnTestDb2AttrAfter = userOnDb2.getAttributeMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDb2AttrAfter);
         assertNotNull(pwdOnTestDb2AttrAfter.getValues());
@@ -2055,10 +2048,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
 
-        final ConnObjectTO connObjectTO = resourceService.getConnector(
-                "resource-csv",
-                AttributableType.USER, actual.getDerivedAttributeMap().get("csvuserid").getValues().get(0));
-
+        final ConnObjectTO connObjectTO = readConnectorObject("resource-csv", actual.getId());
         assertNull(connObjectTO.getAttributeMap().get("email"));
     }
 

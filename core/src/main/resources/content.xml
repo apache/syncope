@@ -49,7 +49,7 @@ under the License.
   <Entitlement name="RESOURCE_READ"/>
   <Entitlement name="RESOURCE_UPDATE"/>
   <Entitlement name="RESOURCE_DELETE"/>
-  <Entitlement name="RESOURCE_GETOBJECT"/>
+  <Entitlement name="RESOURCE_GETCONNECTOROBJECT"/>
   <Entitlement name="CONNECTOR_LIST"/>
   <Entitlement name="CONNECTOR_CREATE"/>
   <Entitlement name="CONNECTOR_READ"/>

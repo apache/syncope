@@ -37,15 +37,19 @@ import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
+import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
+import org.apache.syncope.core.persistence.dao.RoleDAO;
+import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
+import org.apache.syncope.core.util.MappingUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -76,6 +80,12 @@ public class ResourceController extends AbstractController {
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
+
+    @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
 
     @Autowired
     private ResourceDataBinder binder;
@@ -205,29 +215,48 @@ public class ResourceController extends AbstractController {
         return result;
     }
 
-    @PreAuthorize("hasRole('RESOURCE_GETOBJECT')")
+    @PreAuthorize("hasRole('RESOURCE_GETCONNECTOROBJECT')")
     @Transactional(readOnly = true)
-    @RequestMapping(method = RequestMethod.GET, value = "/{resourceName}/read/{type}/{objectId}")
-    public ConnObjectTO getObject(@PathVariable("resourceName") final String resourceName,
-            @PathVariable("type") final AttributableType type, @PathVariable("objectId") final String objectId) {
+    @RequestMapping(method = RequestMethod.GET, value = "/{resourceName}/read/{type}/{id}")
+    public ConnObjectTO getConnectorObject(@PathVariable("resourceName") final String resourceName,
+            @PathVariable("type") final AttributableType type, @PathVariable("id") final Long id) {
 
         ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceName + "'");
         }
 
-        if (AttributableType.MEMBERSHIP == type) {
-            throw new IllegalArgumentException("getObject() not supported for MEMBERSHIP");
+        AbstractAttributable attributable = null;
+        switch (type) {
+            case USER:
+                attributable = userDAO.find(id);
+                break;
+
+            case ROLE:
+                attributable = roleDAO.find(id);
+                break;
+
+            case MEMBERSHIP:
+            default:
+                throw new IllegalArgumentException("Not supported for MEMBERSHIP");
         }
-        AttributableUtil attrUtil = AttributableUtil.getInstance(type);
-        ObjectClass objectClass = AttributableType.USER == type ? ObjectClass.ACCOUNT : ObjectClass.GROUP;
+        if (attributable == null) {
+            throw new NotFoundException(type + " '" + id + "'");
+        }
+
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(type);
+
+        final String accountIdValue =
+                MappingUtil.getAccountIdValue(attributable, resource, attrUtil.getAccountIdItem(resource));
+
+        final ObjectClass objectClass = AttributableType.USER == type ? ObjectClass.ACCOUNT : ObjectClass.GROUP;
 
         final Connector connector = connFactory.getConnector(resource);
-
-        final ConnectorObject connectorObject = connector.getObject(objectClass, new Uid(objectId),
+        final ConnectorObject connectorObject = connector.getObject(objectClass, new Uid(accountIdValue),
                 connector.getOperationOptions(attrUtil.getMappingItems(resource, MappingPurpose.BOTH)));
         if (connectorObject == null) {
-            throw new NotFoundException("Object " + objectId + " not found on resource " + resourceName);
+            throw new NotFoundException("Object " + accountIdValue + " with class " + objectClass
+                    + "not found on resource " + resourceName);
         }
 
         final Set<Attribute> attributes = connectorObject.getAttributes();
@@ -239,7 +268,8 @@ public class ResourceController extends AbstractController {
         }
 
         auditManager.audit(Category.resource, ResourceSubCategory.getObject, Result.success,
-                "Successfully read object " + objectId + " from resource " + resourceName);
+                "Successfully read object " + accountIdValue + " with class " + objectClass
+                + " from resource " + resourceName);
 
         return connObjectUtil.getConnObjectTO(connectorObject);
     }

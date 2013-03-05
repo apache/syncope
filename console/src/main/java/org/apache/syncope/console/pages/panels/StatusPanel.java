@@ -32,7 +32,6 @@ import org.apache.syncope.console.commons.StatusBean;
 import org.apache.syncope.console.commons.StatusUtils;
 import org.apache.syncope.console.commons.StatusUtils.Status;
 import org.apache.syncope.console.markup.html.list.AltListView;
-import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.Component;
@@ -61,9 +60,6 @@ public class StatusPanel extends Panel {
     private static final long serialVersionUID = -4064294905566247728L;
 
     @SpringBean
-    private ResourceRestClient resourceRestClient;
-
-    @SpringBean
     private UserRestClient userRestClient;
 
     @SpringBean
@@ -81,8 +77,7 @@ public class StatusPanel extends Panel {
             final List<StatusBean> selectedResources) {
 
         super(id);
-        statusUtils = new StatusUtils(resourceRestClient,
-                (attributable instanceof UserTO ? userRestClient : roleRestClient));
+        statusUtils = new StatusUtils((attributable instanceof UserTO ? userRestClient : roleRestClient));
 
         final List<StatusBean> statusBeans = new ArrayList<StatusBean>();
 

@@ -34,9 +34,10 @@ public abstract class AbstractAttributableRestClient extends BaseRestClient {
 
     public abstract Integer searchCount(NodeCond searchCond) throws InvalidSearchConditionException;
 
-    public abstract List<? extends AbstractAttributableTO> search(NodeCond searchCond, int page, int size) throws InvalidSearchConditionException;
+    public abstract List<? extends AbstractAttributableTO> search(NodeCond searchCond, int page, int size)
+            throws InvalidSearchConditionException;
 
-    public abstract ConnObjectTO getRemoteObject(String resourceName, String objectId);
+    public abstract ConnObjectTO getConnectorObject(String resourceName, Long id);
 
     public abstract AbstractAttributableTO delete(Long id);
 }

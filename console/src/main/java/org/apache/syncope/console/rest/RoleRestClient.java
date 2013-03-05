@@ -60,13 +60,15 @@ public class RoleRestClient extends AbstractAttributableRestClient {
     }
 
     @Override
-    public List<RoleTO> search(final NodeCond searchCond, final int page, final int size) throws InvalidSearchConditionException {
+    public List<RoleTO> search(final NodeCond searchCond, final int page, final int size)
+            throws InvalidSearchConditionException {
+
         return getService(RoleService.class).search(searchCond, page, size);
     }
 
     @Override
-    public ConnObjectTO getRemoteObject(final String resourceName, final String objectId) {
-        return getService(ResourceService.class).getConnector(resourceName, AttributableType.ROLE, objectId);
+    public ConnObjectTO getConnectorObject(final String resourceName, final Long id) {
+        return getService(ResourceService.class).getConnectorObject(resourceName, AttributableType.ROLE, id);
     }
 
     public RoleTO create(final RoleTO roleTO) {

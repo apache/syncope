@@ -32,7 +32,6 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.console.commons.StatusUtils;
-import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -61,9 +60,6 @@ public class ResultStatusModalPage extends BaseModalPage {
     private static final long serialVersionUID = 2646115294319713723L;
 
     @SpringBean
-    private ResourceRestClient resourceRestClient;
-
-    @SpringBean
     private UserRestClient userRestClient;
 
     private final AbstractAttributableTO attributable;
@@ -87,7 +83,7 @@ public class ResultStatusModalPage extends BaseModalPage {
 
         super();
         this.attributable = attributable;
-        statusUtils = new StatusUtils(resourceRestClient, userRestClient);
+        statusUtils = new StatusUtils(this.userRestClient);
 
         final BaseModalPage page = this;
 

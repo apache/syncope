@@ -19,7 +19,6 @@
 package org.apache.syncope.console.commons;
 
 import java.io.Serializable;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,16 +28,9 @@ import java.util.Map;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConnObjectTO;
-import org.apache.syncope.common.to.MappingItemTO;
-import org.apache.syncope.common.to.MappingTO;
 import org.apache.syncope.common.to.PropagationRequestTO;
-import org.apache.syncope.common.to.ResourceTO;
-import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.console.pages.panels.StatusPanel;
 import org.apache.syncope.console.rest.AbstractAttributableRestClient;
-import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,12 +58,9 @@ public class StatusUtils implements Serializable {
      */
     private static final Logger LOG = LoggerFactory.getLogger(StatusUtils.class);
 
-    private final ResourceRestClient resourceRestClient;
-
     private final AbstractAttributableRestClient restClient;
 
-    public StatusUtils(final ResourceRestClient resourceRestClient, final AbstractAttributableRestClient restClient) {
-        this.resourceRestClient = resourceRestClient;
+    public StatusUtils(final AbstractAttributableRestClient restClient) {
         this.restClient = restClient;
     }
 
@@ -79,66 +68,11 @@ public class StatusUtils implements Serializable {
         final List<StatusBean> statuses = new ArrayList<StatusBean>();
 
         for (String resouceName : attributable.getResources()) {
-            final ResourceTO resource = resourceRestClient.read(resouceName);
-
-            String objectId = null;
-
-            final Map.Entry<IntMappingType, String> accountId = getAccountId(resource, attributable);
-            switch (accountId.getKey()) {
-
-                case UserId:
-                case RoleId:
-                    objectId = String.valueOf(attributable.getId());
-                    break;
-
-                case Username:
-                    if (attributable instanceof UserTO) {
-                        objectId = ((UserTO) attributable).getUsername();
-                    }
-                    break;
-
-                case RoleName:
-                    if (attributable instanceof RoleTO) {
-                        objectId = ((RoleTO) attributable).getName();
-                    }
-                    break;
-
-                case UserSchema:
-                case RoleSchema:
-                    AttributeTO attributeTO = attributable.getAttributeMap().get(accountId.getValue());
-                    objectId = attributeTO != null && attributeTO.getValues() != null
-                            && !attributeTO.getValues().isEmpty()
-                            ? attributeTO.getValues().get(0)
-                            : null;
-                    break;
-
-                case UserDerivedSchema:
-                case RoleDerivedSchema:
-                    attributeTO = attributable.getDerivedAttributeMap().get(accountId.getValue());
-                    objectId = attributeTO != null && attributeTO.getValues() != null
-                            && !attributeTO.getValues().isEmpty()
-                            ? attributeTO.getValues().get(0)
-                            : null;
-                    break;
-
-                case UserVirtualSchema:
-                case RoleVirtualSchema:
-                    attributeTO = attributable.getVirtualAttributeMap().get(accountId.getValue());
-                    objectId = attributeTO != null && attributeTO.getValues() != null
-                            && !attributeTO.getValues().isEmpty()
-                            ? attributeTO.getValues().get(0)
-                            : null;
-                    break;
-
-                default:
-            }
-
             ConnObjectTO objectTO = null;
-
             try {
-                objectTO = restClient.getRemoteObject(resouceName, objectId);
+                objectTO = restClient.getConnectorObject(resouceName, attributable.getId());
             } catch (Exception e) {
-                LOG.warn("ConnObject '{}' not found on resource '{}'", objectId, resouceName);
+                LOG.warn("ConnObject '{}' not found on resource '{}'", attributable.getId(), resouceName);
             }
 
             final StatusBean statusBean = getRemoteStatus(objectTO);
@@ -150,7 +84,6 @@ public class StatusUtils implements Serializable {
     }
 
     public StatusBean getRemoteStatus(final ConnObjectTO objectTO) {
-
         final StatusBean statusBean = new StatusBean();
 
         if (objectTO != null) {
@@ -195,29 +128,6 @@ public class StatusUtils implements Serializable {
         return name != null && name.getValues() != null && !name.getValues().isEmpty()
                 ? name.getValues().get(0)
                 : null;
-    }
-
-    private Map.Entry<IntMappingType, String> getAccountId(final ResourceTO resource,
-            final AbstractAttributableTO attributable) {
-
-        Map.Entry<IntMappingType, String> accountId = null;
-
-        MappingTO mapping = attributable instanceof UserTO ? resource.getUmapping() : resource.getRmapping();
-        IntMappingType idType = attributable instanceof UserTO ? IntMappingType.UserId : IntMappingType.RoleId;
-
-        if (mapping != null) {
-            for (MappingItemTO item : mapping.getItems()) {
-                if (item.isAccountid()) {
-                    accountId = new AbstractMap.SimpleEntry<IntMappingType, String>(
-                            item.getIntMappingType(), item.getIntAttrName());
-                }
-            }
-        }
-        if (accountId == null) {
-            accountId = new AbstractMap.SimpleEntry<IntMappingType, String>(idType, null);
-        }
-
-        return accountId;
     }
 
     public static PropagationRequestTO buildPropagationRequestTO(final Collection<StatusBean> statuses) {

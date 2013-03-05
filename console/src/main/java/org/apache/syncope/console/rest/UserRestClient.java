@@ -102,13 +102,15 @@ public class UserRestClient extends AbstractAttributableRestClient {
     }
 
     @Override
-    public List<UserTO> search(final NodeCond searchCond, final int page, final int size) throws InvalidSearchConditionException {
+    public List<UserTO> search(final NodeCond searchCond, final int page, final int size)
+            throws InvalidSearchConditionException {
+
         return getService(UserService.class).search(searchCond, page, size);
     }
 
     @Override
-    public ConnObjectTO getRemoteObject(final String resourceName, final String objectId) {
-        return getService(ResourceService.class).getConnector(resourceName, AttributableType.USER, objectId);
+    public ConnObjectTO getConnectorObject(final String resourceName, final Long id) {
+        return getService(ResourceService.class).getConnectorObject(resourceName, AttributableType.USER, id);
     }
 
     public UserTO suspend(final long userId, final List<StatusBean> statuses) {

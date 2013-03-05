@@ -60,15 +60,15 @@ public interface ResourceService {
     void delete(@PathParam("resourceName") String resourceName);
 
     /**
-     * @param resourceName Name of resource to get connector from
-     * @param type
-     * @param objectId
-     * @return Returns connector for matching parameters
+     * @param resourceName Name of resource to read connector object from
+     * @param type user / role
+     * @param id user id / role id
+     * @return connector object from the external resource, for the given type and id
      */
     @GET
-    @Path("{resourceName}/{type}/{objectId}")
-    ConnObjectTO getConnector(@PathParam("resourceName") String resourceName,
-            @PathParam("type") AttributableType type, @PathParam("objectId") String objectId);
+    @Path("{resourceName}/{type}/{id}")
+    ConnObjectTO getConnectorObject(@PathParam("resourceName") String resourceName,
+            @PathParam("type") AttributableType type, @PathParam("id") Long id);
 
     /**
      * @return Returns PropagationActionsClasses
