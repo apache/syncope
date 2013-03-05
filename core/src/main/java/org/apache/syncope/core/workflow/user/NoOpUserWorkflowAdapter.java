@@ -78,6 +78,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                     ? "active"
                     : "suspended";
             propagateEnable = enabled;
+            user.setSuspended(!enabled);
         }
 
         user.setStatus(status);

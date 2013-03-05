@@ -234,6 +234,10 @@ under the License.
       <groupId>org.apache.avalon.framework</groupId>
       <artifactId>avalon-framework-impl</artifactId>
     </dependency>
+    <dependency>
+      <groupId>xalan</groupId>
+      <artifactId>xalan</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId> 
@@ -877,6 +881,42 @@ under the License.
       <build>
         <defaultGoal>clean verify</defaultGoal>
         
+        <plugins>
+          <!-- Strip Activiti-related entries from content.xml -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>xml-maven-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <phase>process-test-resources</phase>
+                <goals>
+                  <goal>transform</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <forceCreation>true</forceCreation>
+              <transformationSets>
+                <transformationSet>
+                  <dir>${project.build.directory}/test-classes</dir>
+                  <includes>
+                    <include>content.xml</include>
+                  </includes>
+                  <outputDir>${project.build.directory}/test-classes/</outputDir>
+                  <stylesheet>${basedir}/src/test/resources/noopworkflow/stripActivitiFromContent.xsl</stylesheet>
+                  <outputProperties>
+                    <outputProperty>
+                      <name>indent</name>
+                      <value>yes</value>
+                    </outputProperty>
+                  </outputProperties>
+                </transformationSet>
+              </transformationSets>
+            </configuration>
+          </plugin>
+        </plugins>
+        
         <testResources>
           <testResource>
             <directory>src/test/resources</directory>
@@ -889,6 +929,10 @@ under the License.
           <testResource>
             <directory>src/test/resources/noopworkflow</directory>
             <filtering>true</filtering>
+            <includes>
+              <include>workflowContext.xml</include>
+              <include>workflow.properties</include>
+            </includes>
           </testResource>
         </testResources>
       </build>

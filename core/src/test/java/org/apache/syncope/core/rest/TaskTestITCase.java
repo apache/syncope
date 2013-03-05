@@ -58,6 +58,7 @@ import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.core.sync.TestSyncActions;
 import org.apache.syncope.core.sync.TestSyncRule;
 import org.apache.syncope.core.sync.impl.SyncJob;
+import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -282,7 +283,7 @@ public class TaskTestITCase extends AbstractTest {
             UserTO userTO = userService.read(inUserTO.getId());
             assertNotNull(userTO);
             assertEquals("test9", userTO.getUsername());
-            assertEquals("active", userTO.getStatus());
+            assertEquals(ActivitiDetector.isActivitiEnabledForUsers() ? "active" : "created", userTO.getStatus());
             assertEquals("test9@syncope.apache.org", userTO.getAttributeMap().get("email").getValues().get(0));
             assertEquals("test9@syncope.apache.org", userTO.getAttributeMap().get("userId").getValues().get(0));
             assertTrue(Integer.valueOf(userTO.getAttributeMap().get("fullname").getValues().get(0)) <= 10);

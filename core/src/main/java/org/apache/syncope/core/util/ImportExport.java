@@ -95,8 +95,6 @@ public class ImportExport extends DefaultHandler {
     private final static Map<String, Set<String>> COLUMNS_TO_BE_NULLIFIED =
             Collections.singletonMap("SYNCOPEROLE", Collections.singleton("USEROWNER_ID"));
 
-    private String[] wfInitSQLStatements;
-
     private String readSchema() {
         String schema = null;
 
@@ -261,14 +259,8 @@ public class ImportExport extends DefaultHandler {
     public void startElement(final String uri, final String localName, final String qName, final Attributes atts)
             throws SAXException {
 
-        // skip root element and perform workflow init statements
+        // skip root element
         if (ROOT_ELEMENT.equals(qName)) {
-            if (wfInitSQLStatements != null) {
-                for (String wfInitSQLStmt : wfInitSQLStatements) {
-                    Query query = entityManager.createNativeQuery(wfInitSQLStmt);
-                    query.executeUpdate();
-                }
-            }
             return;
         }
 
@@ -381,7 +373,7 @@ public class ImportExport extends DefaultHandler {
         }
     }
 
-    private List<String> sortByForeignKeys(final Connection conn, final Set<String> tableNames, final String schema)
+    private List<String> sortByForeignKeys(final Connection conn, final Set<String> tableNames)
             throws SQLException {
 
         Set<MultiParentNode<String>> roots = new HashSet<MultiParentNode<String>>();
@@ -504,7 +496,7 @@ public class ImportExport extends DefaultHandler {
             LOG.debug("Tables to be exported {}", tableNames);
 
             // then sort tables based on foreign keys and dump
-            for (String tableName : sortByForeignKeys(conn, tableNames, schema)) {
+            for (String tableName : sortByForeignKeys(conn, tableNames)) {
                 try {
                     doExportTable(handler, conn, tableName, TABLES_TO_BE_FILTERED.get(tableName.toUpperCase()));
                 } catch (Exception e) {

@@ -668,6 +668,10 @@ under the License.
             <groupId>org.apache.avalon.framework</groupId>
             <artifactId>avalon-framework-impl</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>            
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -680,7 +684,12 @@ under the License.
         <artifactId>avalon-framework-impl</artifactId>
         <version>4.3.1</version>
       </dependency>
-        
+      <dependency>
+        <groupId>xalan</groupId>
+        <artifactId>xalan</artifactId>
+        <version>2.7.1</version>
+      </dependency>
+
       <!-- Wicket -->
       <dependency>
         <groupId>org.apache.wicket</groupId>
@@ -874,6 +883,13 @@ under the License.
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>xml-maven-plugin</artifactId>
           <version>1.0</version>
+          <dependencies>
+            <dependency>
+              <groupId>xalan</groupId>
+              <artifactId>xalan</artifactId>
+              <version>2.7.1</version>              
+            </dependency>
+          </dependencies>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
