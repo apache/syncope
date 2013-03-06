@@ -288,7 +288,7 @@ under the License.
         
     <httpcomponents.version>4.2.3</httpcomponents.version>
 
-    <activiti.version>5.12</activiti.version>
+    <activiti.version>5.11</activiti.version>
 
     <cxf.version>2.7.3</cxf.version>	
     <spring.version>3.2.1.RELEASE</spring.version>

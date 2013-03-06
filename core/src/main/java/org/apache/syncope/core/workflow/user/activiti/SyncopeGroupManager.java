@@ -25,14 +25,14 @@ import org.activiti.engine.identity.Group;
 import org.activiti.engine.identity.GroupQuery;
 import org.activiti.engine.impl.interceptor.Session;
 import org.activiti.engine.impl.persistence.entity.GroupEntity;
-import org.activiti.engine.impl.persistence.entity.GroupEntityManager;
+import org.activiti.engine.impl.persistence.entity.GroupManager;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class SyncopeGroupManager extends GroupEntityManager implements SyncopeSession {
+public class SyncopeGroupManager extends GroupManager implements SyncopeSession {
 
     @Autowired
     private UserDAO userDAO;
@@ -42,7 +42,7 @@ public class SyncopeGroupManager extends GroupEntityManager implements SyncopeSe
 
     @Override
     public Class<? extends Session> getType() {
-        return GroupEntityManager.class;
+        return GroupManager.class;
     }
 
     @Override
