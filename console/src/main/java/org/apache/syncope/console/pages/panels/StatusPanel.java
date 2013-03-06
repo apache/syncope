@@ -20,11 +20,12 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
@@ -32,11 +33,21 @@ import org.apache.syncope.console.commons.StatusBean;
 import org.apache.syncope.console.commons.StatusUtils;
 import org.apache.syncope.console.commons.StatusUtils.Status;
 import org.apache.syncope.console.markup.html.list.AltListView;
+import org.apache.syncope.console.pages.ConnObjectModalPage;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Component;
+import org.apache.wicket.Page;
+import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.head.CssContentHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Check;
 import org.apache.wicket.markup.html.form.CheckGroup;
@@ -45,12 +56,13 @@ import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StatusPanel extends Panel {
+public class StatusPanel extends Panel implements IHeaderContributor {
 
     /**
      * Logger.
@@ -59,13 +71,21 @@ public class StatusPanel extends Panel {
 
     private static final long serialVersionUID = -4064294905566247728L;
 
+    private static final int CONNOBJECT_WIN_HEIGHT = 400;
+
+    private static final int CONNOBJECT_WIN_WIDTH = 600;
+
     @SpringBean
     private UserRestClient userRestClient;
 
     @SpringBean
     private RoleRestClient roleRestClient;
 
-    private final StatusUtils statusUtils;
+    private final ModalWindow connObjectWin;
+
+    private final AbstractAttributableTO attributable;
+
+    private final Map<String, ConnObjectTO> connObjects;
 
     private final Map<String, StatusBean> initialStatusBeanMap;
 
@@ -74,12 +94,17 @@ public class StatusPanel extends Panel {
     private final ListView<StatusBean> statusBeansListView;
 
     public <T extends AbstractAttributableTO> StatusPanel(final String id, final AbstractAttributableTO attributable,
-            final List<StatusBean> selectedResources) {
+            final List<StatusBean> selectedResources, final PageReference pageref) {
 
         super(id);
-        statusUtils = new StatusUtils((attributable instanceof UserTO ? userRestClient : roleRestClient));
+        this.attributable = attributable;
 
-        final List<StatusBean> statusBeans = new ArrayList<StatusBean>();
+        connObjectWin = new ModalWindow("connObjectWin");
+        connObjectWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        connObjectWin.setInitialHeight(CONNOBJECT_WIN_HEIGHT);
+        connObjectWin.setInitialWidth(CONNOBJECT_WIN_WIDTH);
+        connObjectWin.setCookieName("connobject-modal");
+        add(connObjectWin);
 
         final StatusBean syncope = new StatusBean();
         syncope.setResourceName("Syncope");
@@ -103,23 +128,22 @@ public class StatusPanel extends Panel {
             syncope.setStatus(Status.ACTIVE);
         }
 
-        statusBeans.add(syncope);
-        statusBeans.addAll(statusUtils.getRemoteStatuses(attributable));
+        StatusUtils statusUtils = new StatusUtils((attributable instanceof UserTO ? userRestClient : roleRestClient));
 
-        initialStatusBeanMap = new HashMap<String, StatusBean>(statusBeans.size());
-        for (StatusBean statusBean : statusBeans) {
-            initialStatusBeanMap.put(statusBean.getResourceName(), statusBean);
+        connObjects = statusUtils.getConnectorObjects(attributable);
+
+        List<StatusBean> statusBeans = new ArrayList<StatusBean>(connObjects.size() + 1);
+        statusBeans.add(syncope);
+        initialStatusBeanMap = new LinkedHashMap<String, StatusBean>(connObjects.size() + 1);
+        initialStatusBeanMap.put(syncope.getResourceName(), syncope);
+        for (Map.Entry<String, ConnObjectTO> entry : connObjects.entrySet()) {
+            final StatusBean statusBean = statusUtils.getStatusBean(entry.getKey(), entry.getValue());
+
+            initialStatusBeanMap.put(entry.getKey(), statusBean);
+            statusBeans.add(statusBean);
         }
 
-        checkGroup = new CheckGroup<StatusBean>("group", selectedResources) {
-
-            private static final long serialVersionUID = 4085912362037539780L;
-
-            @Override
-            protected boolean wantOnSelectionChangedNotifications() {
-                return true;
-            }
-        };
+        checkGroup = new CheckGroup<StatusBean>("group", selectedResources);
         checkGroup.setOutputMarkupId(true);
         add(checkGroup);
 
@@ -179,6 +203,7 @@ public class StatusPanel extends Panel {
                         tag.put("title", title);
                     }
                 });
+                item.add(image);
 
                 final Check<StatusBean> check = new Check<StatusBean>("check", item.getModel(), checkGroup);
                 check.setEnabled(checkVisibility);
@@ -195,7 +220,38 @@ public class StatusPanel extends Panel {
                     item.add(new Label("accountLink", ""));
                 }
 
-                item.add(image);
+                if (pageref != null
+                        && connObjects.containsKey(item.getModelObject().getResourceName())
+                        && connObjects.get(item.getModelObject().getResourceName()) != null) {
+
+                    final ConnObjectTO connObjectTO = connObjects.get(item.getModelObject().getResourceName());
+
+                    ActionLinksPanel connObject = new ActionLinksPanel("connObject", new Model(), pageref);
+
+                    connObject.add(new ActionLink() {
+
+                        private static final long serialVersionUID = -3722207913631435501L;
+
+                        @Override
+                        public void onClick(final AjaxRequestTarget target) {
+                            connObjectWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                                private static final long serialVersionUID = -7834632442532690940L;
+
+                                @Override
+                                public Page createPage() {
+                                    return new ConnObjectModalPage(connObjectTO);
+                                }
+                            });
+
+                            connObjectWin.show(target);
+                        }
+                    }, ActionLink.ActionType.SEARCH, "Resources", "getConnectorObject");
+
+                    item.add(connObject);
+                } else {
+                    item.add(new Label("connObject", new Model<String>()));
+                }
             }
         };
         statusBeansListView.setReuseItems(true);
@@ -233,6 +289,19 @@ public class StatusPanel extends Panel {
 
                 checkGroup.getModelObject().add(statusBean);
             }
+        }
+    }
+
+    @Override
+    public void renderHead(final IHeaderResponse response) {
+        if (this.attributable instanceof RoleTO) {
+            response.render(new CssContentHeaderItem(
+                    "div#check{"
+                    + "display:none;"
+                    + "}"
+                    + "div#status{"
+                    + "display:none;"
+                    + "}", null, null));
         }
     }
 }

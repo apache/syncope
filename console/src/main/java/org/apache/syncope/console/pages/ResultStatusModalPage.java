@@ -252,8 +252,8 @@ public class ResultStatusModalPage extends BaseModalPage {
                 final Fragment beforeValue;
                 final Fragment afterValue;
                 if ("__ENABLE__".equals(name)) {
-                    beforeValue = getStatusIcon("beforeValue", before);
-                    afterValue = getStatusIcon("afterValue", after);
+                    beforeValue = getStatusIcon("beforeValue", propTO.getResource(), before);
+                    afterValue = getStatusIcon("afterValue", propTO.getResource(), after);
                 } else {
                     beforeValue = getLabelValue("beforeValue", name, beforeAttrMap);
                     afterValue = getLabelValue("afterValue", name, afterAttrMap);
@@ -311,14 +311,15 @@ public class ResultStatusModalPage extends BaseModalPage {
     /**
      * Get fragment for user status icon.
      *
-     * @param id component id to be replaced with the fragment content.
-     * @param objectTO connector object TO.
+     * @param id component id to be replaced with the fragment content
+     * @param resourceName resource name
+     * @param objectTO connector object TO
      * @return fragment.
      */
-    private Fragment getStatusIcon(final String id, final ConnObjectTO objectTO) {
+    private Fragment getStatusIcon(final String id, final String resourceName, final ConnObjectTO objectTO) {
         final Image image;
         final String alt, title;
-        switch (statusUtils.getRemoteStatus(objectTO).getStatus()) {
+        switch (statusUtils.getStatusBean(resourceName, objectTO).getStatus()) {
 
             case ACTIVE:
                 image = new Image("status", "statuses/active.png");

@@ -25,11 +25,11 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.console.pages.panels.RolePanel;
 import org.apache.syncope.console.rest.RoleRestClient;
-import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -92,16 +92,15 @@ public class RoleModalPage extends BaseModalPage {
 
         form.setModel(new CompoundPropertyModel(roleTO));
 
-        this.rolePanel = new RolePanel("rolePanel", form, roleTO, mode);
+        this.rolePanel = new RolePanel("rolePanel", form, roleTO, mode, getPageReference());
         form.add(rolePanel);
 
-        final AjaxButton submit = new ClearIndicatingAjaxButton("submit", new ResourceModel("submit"),
-                getPageReference()) {
+        final AjaxButton submit = new IndicatingAjaxButton("submit", new ResourceModel("submit")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 try {
                     submitAction(target, form);
 
@@ -122,12 +121,12 @@ public class RoleModalPage extends BaseModalPage {
             }
         };
 
-        final AjaxButton cancel = new ClearIndicatingAjaxButton("cancel", new ResourceModel("cancel"), pageRef) {
+        final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 closeAction(target, form);
             }
         };

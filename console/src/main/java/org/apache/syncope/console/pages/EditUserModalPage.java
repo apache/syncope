@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
+import static org.apache.wicket.Component.RENDER;
 import java.util.ArrayList;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
@@ -30,6 +31,7 @@ import org.apache.syncope.console.pages.panels.StatusPanel;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -63,8 +65,10 @@ public class EditUserModalPage extends UserModalPage {
         if (userTO.getId() != 0) {
             form.addOrReplace(new Label("pwdChangeInfo", new ResourceModel("pwdChangeInfo")));
 
-            statusPanel = new StatusPanel("statuspanel", userTO, new ArrayList<StatusBean>());
+            statusPanel = new StatusPanel("statuspanel", userTO, new ArrayList<StatusBean>(), getPageReference());
             statusPanel.setOutputMarkupId(true);
+            MetaDataRoleAuthorizationStrategy.authorize(
+                    statusPanel, RENDER, xmlRolesReader.getAllAllowedRoles("Resources", "getConnectorObject"));
             form.addOrReplace(statusPanel);
 
             form.addOrReplace(new AccountInformationPanel("accountinformation", userTO));

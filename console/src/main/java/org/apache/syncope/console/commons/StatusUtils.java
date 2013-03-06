@@ -22,8 +22,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
@@ -64,8 +64,8 @@ public class StatusUtils implements Serializable {
         this.restClient = restClient;
     }
 
-    public List<StatusBean> getRemoteStatuses(final AbstractAttributableTO attributable) {
-        final List<StatusBean> statuses = new ArrayList<StatusBean>();
+    public Map<String, ConnObjectTO> getConnectorObjects(final AbstractAttributableTO attributable) {
+        final Map<String, ConnObjectTO> objects = new HashMap<String, ConnObjectTO>();
 
         for (String resouceName : attributable.getResources()) {
             ConnObjectTO objectTO = null;
@@ -75,16 +75,15 @@ public class StatusUtils implements Serializable {
                 LOG.warn("ConnObject '{}' not found on resource '{}'", attributable.getId(), resouceName);
             }
 
-            final StatusBean statusBean = getRemoteStatus(objectTO);
-            statusBean.setResourceName(resouceName);
-            statuses.add(statusBean);
+            objects.put(resouceName, objectTO);
         }
 
-        return statuses;
+        return objects;
     }
 
-    public StatusBean getRemoteStatus(final ConnObjectTO objectTO) {
+    public StatusBean getStatusBean(final String resourceName, final ConnObjectTO objectTO) {
         final StatusBean statusBean = new StatusBean();
+        statusBean.setResourceName(resourceName);
 
         if (objectTO != null) {
             final Boolean enabled = isEnabled(objectTO);

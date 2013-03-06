@@ -18,15 +18,23 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import static org.apache.wicket.Component.RENDER;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
+import org.apache.syncope.console.commons.StatusBean;
+import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.RoleModalPage;
 import org.apache.syncope.console.rest.AuthRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.wicket.PageReference;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
@@ -40,12 +48,31 @@ public class RolePanel extends Panel {
     @SpringBean
     private AuthRestClient entitlementRestClient;
 
+    @SpringBean
+    private XMLRolesReader xmlRolesReader;
+
     private final Palette<String> entitlementsPalette;
 
     public RolePanel(final String id, final Form form, final RoleTO roleTO, final RoleModalPage.Mode mode) {
+        this(id, form, roleTO, mode, null);
+    }
+
+    public RolePanel(final String id, final Form form, final RoleTO roleTO, final RoleModalPage.Mode mode,
+            final PageReference pageref) {
+
         super(id);
 
         this.add(new RoleDetailsPanel("details", roleTO, form, mode == RoleModalPage.Mode.TEMPLATE));
+
+        if (pageref == null || roleTO.getId() == 0) {
+            this.add(new Label("statuspanel", ""));
+        } else {
+            StatusPanel statusPanel = new StatusPanel("statuspanel", roleTO, new ArrayList<StatusBean>(), pageref);
+            statusPanel.setOutputMarkupId(true);
+            MetaDataRoleAuthorizationStrategy.authorize(
+                    statusPanel, RENDER, xmlRolesReader.getAllAllowedRoles("Resources", "getConnectorObject"));
+            this.add(statusPanel);
+        }
 
         //--------------------------------
         // Attributes panel

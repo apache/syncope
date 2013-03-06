@@ -88,79 +88,81 @@ public class ApprovalModalPage extends BaseModalPage {
         final ListView<WorkflowFormPropertyTO> propView =
                 new AltListView<WorkflowFormPropertyTO>("propView", formProps) {
 
-                    private static final long serialVersionUID = 9101744072914090143L;
+            private static final long serialVersionUID = 9101744072914090143L;
 
-                    @Override
-                    protected void populateItem(final ListItem<WorkflowFormPropertyTO> item) {
-                        final WorkflowFormPropertyTO prop = item.getModelObject();
+            @Override
+            @SuppressWarnings("unchecked")
+            protected void populateItem(final ListItem<WorkflowFormPropertyTO> item) {
+                final WorkflowFormPropertyTO prop = item.getModelObject();
 
-                        Label label = new Label("key", prop.getName() == null
-                                ? prop.getId()
-                                : prop.getName());
-                        item.add(label);
+                Label label = new Label("key", prop.getName() == null
+                        ? prop.getId()
+                        : prop.getName());
+                item.add(label);
 
-                        FieldPanel field;
-                        switch (prop.getType()) {
-                            case Boolean:
-                                field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(),
-                                        new Model(Boolean.valueOf(prop.getValue()))).setChoices(Arrays.asList(
-                                        new String[]{"Yes", "No"}));
-                                break;
+                FieldPanel field;
+                switch (prop.getType()) {
+                    case Boolean:
+                        field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(),
+                                new Model(Boolean.valueOf(prop.getValue()))).setChoices(Arrays.asList(
+                                new String[]{"Yes", "No"}));
+                        break;
 
-                            case Date:
-                                SimpleDateFormat df = StringUtils.isNotBlank(prop.getDatePattern())
-                                        ? new SimpleDateFormat(prop.getDatePattern())
-                                        : new SimpleDateFormat();
-                                Date parsedDate = null;
-                                if (StringUtils.isNotBlank(prop.getValue())) {
-                                    try {
-                                        parsedDate = df.parse(prop.getValue());
-                                    } catch (ParseException e) {
-                                        LOG.error("Unparsable date: {}", prop.getValue(), e);
-                                    }
-                                }
-
-                                field = new DateTimeFieldPanel("value", label.getDefaultModelObjectAsString(),
-                                        new Model(parsedDate), df.toLocalizedPattern());
-                                break;
-
-                            case Enum:
-                                MapChoiceRenderer<String, String> enumCR =
-                                        new MapChoiceRenderer<String, String>(prop.getEnumValues());
-
-                                field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(),
-                                        new Model(prop.getValue())).setChoiceRenderer(enumCR).setChoices(new Model() {
-
-                                    private static final long serialVersionUID = -858521070366432018L;
-
-                                    @Override
-                                    public Serializable getObject() {
-                                        return new ArrayList(prop.getEnumValues().keySet());
-                                    }
-                                });
-                                break;
-
-                            case Long:
-                                field = new AjaxNumberFieldPanel("value", label.getDefaultModelObjectAsString(),
-                                        new Model(Long.valueOf(prop.getValue())), Long.class);
-                                break;
-
-                            case String:
-                            default:
-                                field = new AjaxTextFieldPanel("value", PARENT_PATH, new Model(prop.getValue()));
-                                break;
+                    case Date:
+                        SimpleDateFormat df = StringUtils.isNotBlank(prop.getDatePattern())
+                                ? new SimpleDateFormat(prop.getDatePattern())
+                                : new SimpleDateFormat();
+                        Date parsedDate = null;
+                        if (StringUtils.isNotBlank(prop.getValue())) {
+                            try {
+                                parsedDate = df.parse(prop.getValue());
+                            } catch (ParseException e) {
+                                LOG.error("Unparsable date: {}", prop.getValue(), e);
+                            }
                         }
 
-                        field.setReadOnly(!prop.isWritable());
-                        if (prop.isRequired()) {
-                            field.addRequiredLabel();
-                        }
+                        field = new DateTimeFieldPanel("value", label.getDefaultModelObjectAsString(),
+                                new Model(parsedDate), df.toLocalizedPattern());
+                        break;
 
-                        item.add(field);
-                    }
-                };
+                    case Enum:
+                        MapChoiceRenderer<String, String> enumCR =
+                                new MapChoiceRenderer<String, String>(prop.getEnumValues());
 
-        final AjaxButton userDetails = new IndicatingAjaxButton("userDetails", new Model(getString("userDetails"))) {
+                        field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(),
+                                new Model(prop.getValue())).setChoiceRenderer(enumCR).setChoices(new Model() {
+
+                            private static final long serialVersionUID = -858521070366432018L;
+
+                            @Override
+                            public Serializable getObject() {
+                                return new ArrayList(prop.getEnumValues().keySet());
+                            }
+                        });
+                        break;
+
+                    case Long:
+                        field = new AjaxNumberFieldPanel("value", label.getDefaultModelObjectAsString(),
+                                new Model(Long.valueOf(prop.getValue())), Long.class);
+                        break;
+
+                    case String:
+                    default:
+                        field = new AjaxTextFieldPanel("value", PARENT_PATH, new Model(prop.getValue()));
+                        break;
+                }
+
+                field.setReadOnly(!prop.isWritable());
+                if (prop.isRequired()) {
+                    field.addRequiredLabel();
+                }
+
+                item.add(field);
+            }
+        };
+
+        final AjaxButton userDetails = new IndicatingAjaxButton("userDetails",
+                new Model<String>(getString("userDetails"))) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
@@ -174,6 +176,8 @@ public class ApprovalModalPage extends BaseModalPage {
                     public Page createPage() {
                         return new ViewUserModalPage(ApprovalModalPage.this.getPageReference(), editUserWin,
                                 userRestClient.read(formTO.getUserId())) {
+
+                            private static final long serialVersionUID = -2819994749866481607L;
 
                             @Override
                             protected void closeAction(final AjaxRequestTarget target, final Form form) {
@@ -189,7 +193,7 @@ public class ApprovalModalPage extends BaseModalPage {
         MetaDataRoleAuthorizationStrategy.authorize(userDetails, ENABLE,
                 xmlRolesReader.getAllAllowedRoles("Users", "read"));
 
-        final AjaxButton submit = new IndicatingAjaxButton("apply", new Model(getString("submit"))) {
+        final AjaxButton submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -199,6 +203,7 @@ public class ApprovalModalPage extends BaseModalPage {
                 Map<String, WorkflowFormPropertyTO> props = formTO.getPropertyMap();
 
                 for (int i = 0; i < propView.size(); i++) {
+                    @SuppressWarnings("unchecked")
                     ListItem<WorkflowFormPropertyTO> item = (ListItem<WorkflowFormPropertyTO>) propView.get(i);
                     String input = ((FieldPanel) item.get("value")).getField().getInput();
 
@@ -253,6 +258,7 @@ public class ApprovalModalPage extends BaseModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form form) {
+                // nothing
             }
         };
 

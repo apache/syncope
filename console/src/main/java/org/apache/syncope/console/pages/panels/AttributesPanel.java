@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,7 +131,7 @@ public class AttributesPanel extends Panel {
                     item.add(panel);
                 } else {
                     item.add(new MultiValueSelectorPanel<String>(
-                            "panel", new PropertyModel(attributeTO, "values"), panel));
+                            "panel", new PropertyModel<List<String>>(attributeTO, "values"), panel));
                 }
             }
         };
@@ -168,54 +169,53 @@ public class AttributesPanel extends Panel {
         return entityData;
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private FieldPanel getFieldPanel(final SchemaTO schemaTO, final Form form, final AttributeTO attributeTO) {
-
-        final FieldPanel panel;
-
         final boolean required = templateMode ? false : schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
 
         final boolean readOnly = templateMode ? false : schemaTO.isReadonly();
 
         final AttributeSchemaType type = templateMode ? AttributeSchemaType.String : schemaTO.getType();
 
+        final FieldPanel panel;
         switch (type) {
             case Boolean:
-                panel = new AjaxCheckBoxPanel("panel", schemaTO.getName(), new Model());
+                panel = new AjaxCheckBoxPanel("panel", schemaTO.getName(), new Model<Boolean>());
                 panel.setRequired(required);
                 break;
 
             case Date:
-                final String dataPattern = schemaTO.getConversionPattern() != null
-                        ? schemaTO.getConversionPattern()
-                        : SyncopeConstants.DEFAULT_DATE_PATTERN;
+                final String dataPattern = schemaTO.getConversionPattern() == null
+                        ? SyncopeConstants.DEFAULT_DATE_PATTERN
+                        : schemaTO.getConversionPattern();
 
-                if (!dataPattern.contains("H")) {
-                    panel = new DateTextFieldPanel("panel", schemaTO.getName(), new Model(), dataPattern);
-
-                    if (required) {
-                        panel.addRequiredLabel();
-                    }
-                } else {
-                    panel = new DateTimeFieldPanel("panel", schemaTO.getName(), new Model(), dataPattern);
+                if (dataPattern.contains("H")) {
+                    panel = new DateTimeFieldPanel("panel", schemaTO.getName(), new Model<Date>(), dataPattern);
 
                     if (required) {
                         panel.addRequiredLabel();
                         ((DateTimeFieldPanel) panel).setFormValidator(form);
                     }
                     panel.setStyleSheet("ui-widget-content ui-corner-all");
+                } else {
+                    panel = new DateTextFieldPanel("panel", schemaTO.getName(), new Model<Date>(), dataPattern);
+
+                    if (required) {
+                        panel.addRequiredLabel();
+                    }
                 }
                 break;
 
             case Enum:
                 panel = new AjaxDropDownChoicePanel<String>("panel", schemaTO.getName(), new Model<String>());
-                ((AjaxDropDownChoicePanel) panel).setChoices(getEnumeratedValues(schemaTO));
+                ((AjaxDropDownChoicePanel<String>) panel).setChoices(getEnumeratedValues(schemaTO));
 
                 if (StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {
                     ((AjaxDropDownChoicePanel) panel).setChoiceRenderer(new IChoiceRenderer<String>() {
 
                         private static final long serialVersionUID = -3724971416312135885L;
 
-                        final Map<String, String> valueMap = getEnumeratedKeyValues(schemaTO);
+                        private final Map<String, String> valueMap = getEnumeratedKeyValues(schemaTO);
 
                         @Override
                         public String getDisplayValue(final String value) {
@@ -223,7 +223,7 @@ public class AttributesPanel extends Panel {
                         }
 
                         @Override
-                        public String getIdValue(final String value, int i) {
+                        public String getIdValue(final String value, final int i) {
                             return value;
                         }
                     });
@@ -236,7 +236,7 @@ public class AttributesPanel extends Panel {
                 break;
 
             default:
-                panel = new AjaxTextFieldPanel("panel", schemaTO.getName(), new Model());
+                panel = new AjaxTextFieldPanel("panel", schemaTO.getName(), new Model<String>());
                 if (required) {
                     panel.addRequiredLabel();
                 }

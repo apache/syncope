@@ -46,7 +46,15 @@ under the License.
     div#status{
       margin-top: 3px;
       height: 25px;
-      width: 10%;
+      width: 5%;
+      float: left;
+      text-align: center;
+    }
+
+    div#connObject{
+      margin-top: 3px;
+      height: 25px;
+      width: 5%;
       float: left;
       text-align: center;
     }
@@ -88,6 +96,8 @@ under the License.
             <wicket:message key="statusheader"/>
           </span>
         </div>
+        <div id="connObject">
+        </div>
       </div>
 
       <span wicket:id="group">
@@ -106,10 +116,14 @@ under the License.
           <div id="status">
             <img wicket:id="icon"/>
           </div>
+          <div id="connObject">
+            <span wicket:id="connObject">[connObject]</span>
+          </div>
         </div>
       </span>
     </div>
 
   </div>
 
+  <div wicket:id="connObjectWin">[Show modal window for showing connector object]</div>
 </wicket:panel>
