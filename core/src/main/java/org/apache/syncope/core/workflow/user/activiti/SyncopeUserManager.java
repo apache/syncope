@@ -28,14 +28,14 @@ import org.activiti.engine.impl.interceptor.Session;
 import org.activiti.engine.impl.persistence.entity.GroupEntity;
 import org.activiti.engine.impl.persistence.entity.IdentityInfoEntity;
 import org.activiti.engine.impl.persistence.entity.UserEntity;
-import org.activiti.engine.impl.persistence.entity.UserManager;
+import org.activiti.engine.impl.persistence.entity.UserEntityManager;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class SyncopeUserManager extends UserManager implements SyncopeSession {
+public class SyncopeUserManager extends UserEntityManager implements SyncopeSession {
 
     @Autowired
     private UserDAO userDAO;
@@ -48,7 +48,7 @@ public class SyncopeUserManager extends UserManager implements SyncopeSession {
 
     @Override
     public Class<? extends Session> getType() {
-        return UserManager.class;
+        return UserEntityManager.class;
     }
 
     @Override
