@@ -288,7 +288,7 @@ under the License.
         
     <httpcomponents.version>4.2.3</httpcomponents.version>
 
-    <activiti.version>5.11</activiti.version>
+    <activiti.version>5.12</activiti.version>
 
     <cxf.version>2.7.3</cxf.version>	
     <spring.version>3.2.1.RELEASE</spring.version>
@@ -684,12 +684,18 @@ under the License.
         <artifactId>avalon-framework-impl</artifactId>
         <version>4.3.1</version>
       </dependency>
+      
       <dependency>
         <groupId>xalan</groupId>
         <artifactId>xalan</artifactId>
         <version>2.7.1</version>
       </dependency>
-
+      <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xercesImpl</artifactId>
+        <version>2.10.0</version>
+      </dependency>
+    
       <!-- Wicket -->
       <dependency>
         <groupId>org.apache.wicket</groupId>
