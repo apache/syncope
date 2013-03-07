@@ -142,13 +142,13 @@ public class PolicyController extends AbstractController {
 
     @PreAuthorize("hasRole('POLICY_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
-    public <T extends PolicyTO> List<T> listByType(@PathVariable("kind") final String kind) {
+    public List<PolicyTO> list(@PathVariable("kind") final String kind) {
         LOG.debug("Listing policies");
         List<? extends Policy> policies = policyDAO.find(PolicyType.valueOf(kind.toUpperCase(Locale.ENGLISH)));
 
-        final List<T> policyTOs = new ArrayList<T>();
+        final List<PolicyTO> policyTOs = new ArrayList<PolicyTO>();
         for (Policy policy : policies) {
-            policyTOs.add(binder.<T>getPolicyTO(policy));
+            policyTOs.add(binder.getPolicyTO(policy));
         }
 
         auditManager.audit(Category.policy, PolicySubCategory.list, Result.success,

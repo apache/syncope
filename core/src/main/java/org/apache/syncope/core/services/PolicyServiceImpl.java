@@ -58,8 +58,9 @@ public class PolicyServiceImpl implements PolicyService, ContextAware {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends PolicyTO> List<T> list(final PolicyType type) {
-        return policyController.listByType(type.toString());
+        return (List<T>) policyController.list(type.toString());
     }
 
     @Override
