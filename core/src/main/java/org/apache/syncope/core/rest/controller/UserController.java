@@ -557,7 +557,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/workflow/form/list")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = {Throwable.class})
     public List<WorkflowFormTO> getForms() {
         List<WorkflowFormTO> forms = uwfAdapter.getForms();
 
