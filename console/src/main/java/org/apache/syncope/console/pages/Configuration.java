@@ -255,7 +255,7 @@ public class Configuration extends BasePage {
 
                         editConfigWin.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Configuration", "read");
+                }, ActionLink.ActionType.EDIT, "Configuration");
 
                 panel.add(new ActionLink() {
 
@@ -276,7 +276,7 @@ public class Configuration extends BasePage {
 
                         target.add(confContainer);
                     }
-                }, ActionLink.ActionType.DELETE, "Configuration", "delete");
+                }, ActionLink.ActionType.DELETE, "Configuration");
 
                 cellItem.add(panel);
             }
@@ -424,7 +424,7 @@ public class Configuration extends BasePage {
 
                         editNotificationWin.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Notification", "read");
+                }, ActionLink.ActionType.EDIT, "Notification");
 
                 panel.add(new ActionLink() {
 
@@ -445,7 +445,7 @@ public class Configuration extends BasePage {
 
                         target.add(notificationContainer);
                     }
-                }, ActionLink.ActionType.DELETE, "Notification", "delete");
+                }, ActionLink.ActionType.DELETE, "Notification");
 
                 cellItem.add(panel);
             }

@@ -21,6 +21,7 @@ package org.apache.syncope.console.pages.panels;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.common.search.NodeCond;
@@ -39,6 +40,7 @@ import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.ta
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
@@ -56,6 +58,8 @@ import org.springframework.util.ReflectionUtils;
 public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
     private static final long serialVersionUID = -905187144506842332L;
+
+    private final static String PAGEID = "Users";
 
     public <T extends AbstractAttributableTO> UserSearchResultPanel(final String id, final boolean filtered,
             final NodeCond searchCond, final PageReference callerRef, final AbstractAttributableRestClient restClient) {
@@ -137,7 +141,7 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
                         statusmodal.show(target);
                     }
-                }, ActionLink.ActionType.ENABLE, "Users", "update");
+                }, ActionLink.ActionType.ENABLE, PAGEID);
 
                 panel.add(new ActionLink() {
 
@@ -159,7 +163,7 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
                         editmodal.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Users", "read");
+                }, ActionLink.ActionType.EDIT, PAGEID);
 
                 panel.add(new ActionLink() {
 
@@ -188,12 +192,28 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
                             target.add(feedbackPanel);
                         }
                     }
-                }, ActionLink.ActionType.DELETE, "Users", "delete");
+                }, ActionLink.ActionType.DELETE, PAGEID);
 
                 cellItem.add(panel);
             }
         });
 
         return columns;
+    }
+
+    @Override
+    protected <T extends AbstractAttributableTO> Collection<ActionType> getBulkActions() {
+        final List<ActionType> bulkActions = new ArrayList<ActionType>();
+
+        bulkActions.add(ActionType.DELETE);
+        bulkActions.add(ActionType.SUSPEND);
+        bulkActions.add(ActionType.REACTIVATE);
+
+        return bulkActions;
+    }
+
+    @Override
+    protected String getPageId() {
+        return PAGEID;
     }
 }

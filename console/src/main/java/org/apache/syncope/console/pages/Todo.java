@@ -153,7 +153,7 @@ public class Todo extends BasePage {
                         target.add(feedbackPanel);
                         target.add(approvalContainer);
                     }
-                }, ActionLink.ActionType.CLAIM, "Approval", "claim");
+                }, ActionLink.ActionType.CLAIM, "Approval");
 
                 panel.add(new ActionLink() {
 
@@ -173,7 +173,7 @@ public class Todo extends BasePage {
 
                         editApprovalWin.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Approval", "read",
+                }, ActionLink.ActionType.EDIT, "Approval",
                         SyncopeSession.get().getUserId().equals(formTO.getOwner()));
 
                 cellItem.add(panel);
@@ -269,7 +269,7 @@ public class Todo extends BasePage {
 
                         editUserRequestWin.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "UserRequest", "read",
+                }, ActionLink.ActionType.EDIT, "UserRequest",
                         model.getObject().getType() != UserRequestType.DELETE);
 
                 panel.add(new ActionLink() {
@@ -292,7 +292,7 @@ public class Todo extends BasePage {
 
                         target.add(userRequestContainer);
                     }
-                }, ActionLink.ActionType.DELETE, "Users", "delete",
+                }, ActionLink.ActionType.DELETE, "Users",
                         model.getObject().getType() == UserRequestType.DELETE);
 
                 panel.add(new ActionLink() {
@@ -314,7 +314,7 @@ public class Todo extends BasePage {
 
                         target.add(userRequestContainer);
                     }
-                }, ActionLink.ActionType.DELETE, "UserRequest", "delete");
+                }, ActionLink.ActionType.DELETE, "UserRequest");
 
                 cellItem.add(panel);
             }

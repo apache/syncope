@@ -90,7 +90,7 @@ public class SelectOnlyUserSearchResultPanel extends UserSearchResultPanel {
                                 rowModel.getObject().getId()));
                         window.close(target);
                     }
-                }, ActionLink.ActionType.SELECT, "Users", "read");
+                }, ActionLink.ActionType.SELECT, "Users");
 
                 cellItem.add(panel);
             }

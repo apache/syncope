@@ -483,7 +483,7 @@ public class ReportModalPage extends BaseModalPage {
                         });
                         reportExecMessageWin.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Reports", "read", StringUtils.hasText(model.getObject().getMessage()));
+                }, ActionLink.ActionType.EDIT, "Reports", StringUtils.hasText(model.getObject().getMessage()));
 
                 panel.add(new ActionLink() {
 
@@ -504,7 +504,7 @@ public class ReportModalPage extends BaseModalPage {
                         });
                         reportExecExportWin.show(target);
                     }
-                }, ActionLink.ActionType.EXPORT, "Reports", "read", ReportExecStatus.SUCCESS.name().equals(
+                }, ActionLink.ActionType.EXPORT, "Reports", ReportExecStatus.SUCCESS.name().equals(
                         model.getObject().getStatus()));
 
                 panel.add(new ActionLink() {
@@ -526,7 +526,7 @@ public class ReportModalPage extends BaseModalPage {
                         target.add(feedbackPanel);
                         target.add(executions);
                     }
-                }, ActionLink.ActionType.DELETE, "Reports", "delete");
+                }, ActionLink.ActionType.DELETE, "Reports");
 
                 cellItem.add(panel);
             }

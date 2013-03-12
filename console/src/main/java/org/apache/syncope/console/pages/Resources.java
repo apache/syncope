@@ -238,7 +238,7 @@ public class Resources extends BasePage {
 
                         editResourceWin.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Resources", "read");
+                }, ActionLink.ActionType.EDIT, "Resources");
 
                 panel.add(new ActionLink() {
 
@@ -260,7 +260,7 @@ public class Resources extends BasePage {
                         target.add(feedbackPanel);
                         target.add(resourceContainer);
                     }
-                }, ActionLink.ActionType.DELETE, "Resources", "delete");
+                }, ActionLink.ActionType.DELETE, "Resources");
 
                 cellItem.add(panel);
             }
@@ -387,7 +387,7 @@ public class Resources extends BasePage {
 
                         editConnectorWin.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Connectors", "read");
+                }, ActionLink.ActionType.EDIT, "Connectors");
 
                 panel.add(new ActionLink() {
 
@@ -407,7 +407,7 @@ public class Resources extends BasePage {
                         target.add(connectorContainer);
                         target.add(feedbackPanel);
                     }
-                }, ActionLink.ActionType.DELETE, "Connectors", "delete");
+                }, ActionLink.ActionType.DELETE, "Connectors");
 
                 cellItem.add(panel);
             }

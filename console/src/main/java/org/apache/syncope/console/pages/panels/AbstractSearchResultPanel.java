@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
@@ -30,6 +31,7 @@ import org.apache.syncope.console.pages.DisplayAttributesModalPage;
 import org.apache.syncope.console.rest.AbstractAttributableRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
@@ -42,7 +44,6 @@ import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSource;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -137,7 +138,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
     /**
      * Result table.
      */
-    private AjaxFallbackDefaultDataTable<AbstractAttributableTO, String> resultTable;
+    private AjaxDataTablePanel<AbstractAttributableTO, String> resultTable;
 
     /**
      * Data provider used to search for users.
@@ -353,8 +354,16 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
                 : (int) resultTable.getCurrentPage())
                 : 0;
 
-        resultTable = new AjaxFallbackDefaultDataTable<AbstractAttributableTO, String>(
-                "resultTable", getColumns(), dataProvider, rows);
+        resultTable = new AjaxDataTablePanel<AbstractAttributableTO, String>(
+                "resultTable",
+                getColumns(),
+                dataProvider,
+                rows,
+                getBulkActions(),
+                restClient,
+                "id",
+                getPageId(),
+                page.getPageReference());
 
         resultTable.setCurrentPage(currentPage);
 
@@ -437,4 +446,8 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
             this.rows = rows;
         }
     }
+
+    protected abstract <T extends AbstractAttributableTO> Collection<ActionLink.ActionType> getBulkActions();
+
+    protected abstract String getPageId();
 }

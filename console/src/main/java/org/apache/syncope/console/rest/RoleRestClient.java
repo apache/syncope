@@ -27,6 +27,8 @@ import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.services.RoleService;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -87,5 +89,10 @@ public class RoleRestClient extends AbstractAttributableRestClient {
     @Override
     public RoleTO delete(final Long id) {
         return getService(RoleService.class).delete(id);
+    }
+
+    @Override
+    public BulkActionRes bulkAction(final BulkAction action) {
+        return getService(RoleRestClient.class).bulkAction(action);
     }
 }

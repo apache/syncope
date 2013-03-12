@@ -169,7 +169,7 @@ public class PoliciesPanel extends Panel {
 
                         mwindow.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Policies", "read");
+                }, ActionLink.ActionType.EDIT, "Policies");
 
                 panel.add(new ActionLink() {
 
@@ -192,7 +192,7 @@ public class PoliciesPanel extends Panel {
                         target.add(container);
                         target.add(getPage().get("feedback"));
                     }
-                }, ActionLink.ActionType.DELETE, "Policies", "delete");
+                }, ActionLink.ActionType.DELETE, "Policies");
 
                 cellItem.add(panel);
             }

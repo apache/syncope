@@ -734,7 +734,7 @@ public class Schema extends BasePage {
 
                 final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
 
-                panel.add(new ActionLink() {
+                panel.addWithRoles(new ActionLink() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
 
@@ -759,7 +759,7 @@ public class Schema extends BasePage {
                     }
                 }, ActionType.EDIT, readPermissions);
 
-                panel.add(new ActionLink() {
+                panel.addWithRoles(new ActionLink() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
 

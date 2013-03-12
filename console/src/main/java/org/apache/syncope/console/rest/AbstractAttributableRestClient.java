@@ -22,6 +22,8 @@ import java.util.List;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnObjectTO;
 
 public abstract class AbstractAttributableRestClient extends BaseRestClient {
@@ -40,4 +42,6 @@ public abstract class AbstractAttributableRestClient extends BaseRestClient {
     public abstract ConnObjectTO getConnectorObject(String resourceName, Long id);
 
     public abstract AbstractAttributableTO delete(Long id);
+
+    public abstract BulkActionRes bulkAction(BulkAction action);
 }

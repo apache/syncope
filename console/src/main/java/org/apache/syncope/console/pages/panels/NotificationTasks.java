@@ -144,7 +144,7 @@ public class NotificationTasks extends Panel {
 
                         window.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Tasks", "read");
+                }, ActionLink.ActionType.EDIT, "Tasks");
 
                 panel.add(new ActionLink() {
 
@@ -162,7 +162,7 @@ public class NotificationTasks extends Panel {
                         target.add(getPage().get("feedback"));
                         target.add(container);
                     }
-                }, ActionLink.ActionType.EXECUTE, "Tasks", "execute");
+                }, ActionLink.ActionType.EXECUTE, "Tasks");
 
                 panel.add(new ActionLink() {
 
@@ -179,7 +179,7 @@ public class NotificationTasks extends Panel {
                         target.add(container);
                         target.add(getPage().get("feedback"));
                     }
-                }, ActionLink.ActionType.DELETE, "Tasks", "delete");
+                }, ActionLink.ActionType.DELETE, "Tasks");
 
                 cellItem.add(panel);
             }

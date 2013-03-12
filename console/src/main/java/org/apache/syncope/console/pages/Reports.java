@@ -174,7 +174,7 @@ public class Reports extends BasePage {
 
                         window.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Reports", "read");
+                }, ActionLink.ActionType.EDIT, "Reports");
 
                 panel.add(new ActionLink() {
 
@@ -192,7 +192,7 @@ public class Reports extends BasePage {
                         target.add(feedbackPanel);
                         target.add(reportContainer);
                     }
-                }, ActionLink.ActionType.EXECUTE, "Reports", "execute");
+                }, ActionLink.ActionType.EXECUTE, "Reports");
 
                 panel.add(new ActionLink() {
 
@@ -209,7 +209,7 @@ public class Reports extends BasePage {
                         target.add(reportContainer);
                         target.add(feedbackPanel);
                     }
-                }, ActionLink.ActionType.DELETE, "Reports", "delete");
+                }, ActionLink.ActionType.DELETE, "Reports");
 
                 cellItem.add(panel);
             }

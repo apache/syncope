@@ -17,53 +17,53 @@ specific language governing permissions and limitations
 under the License.
 -->
 <wicket:head>
-    <style>
-        .settingsPos{
-            position:relative; 
-            top:34px;
-            left:93.2%;
-            width:10px;
-            text-decoration: none;
-        }
+  <style>
+    .settingsPos{
+      position:relative; 
+      top:34px;
+      left:93.2%;
+      width:10px;
+      text-decoration: none;
+    }
 
-        .settingsPosMultiPage{
-            position:relative; 
-            top:64px;
-            left:93.2%;
-            width:10px;
-            text-decoration: none;
-        }
-    </style>
+    .settingsPosMultiPage{
+      position:relative; 
+      top:64px;
+      left:93.2%;
+      width:10px;
+      text-decoration: none;
+    }
+  </style>
 </wicket:head>
 <html>
-    <wicket:panel>
+  <wicket:panel>
 
-        <div wicket:id="container">
-            <a wicket:id="reload">
-                <img src="img/reload.png" alt="reload" class="drop_button" />
-            </a>
-            <a wicket:id="displayAttrsLink">
-                <img src="img/settings-icon.png" alt="settings icon" class="drop_button" />
-            </a>
+    <div wicket:id="container">
+      <a wicket:id="reload">
+        <img src="img/reload.png" alt="reload" class="drop_button" />
+      </a>
+      <a wicket:id="displayAttrsLink">
+        <img src="img/settings-icon.png" alt="settings icon" class="drop_button" />
+      </a>
 
-            <table class="ui-widget ui-widget-content table-hover" wicket:id="resultTable"/>
+      <span wicket:id="resultTable">[Table]</span>
 
-            <span style="float:right">
-                <form wicket:id="paginator" style="display:inline">
-                    <label><wicket:message key="displayRows"/></label>
-                    <select class="text ui-widget-content ui-corner-all" wicket:id="rowsChooser"/>
-                </form>
-            </span>
-        </div>
+      <span style="float:right">
+        <form wicket:id="paginator" style="display:inline">
+          <label><wicket:message key="displayRows"/></label>
+          <select class="text ui-widget-content ui-corner-all" wicket:id="rowsChooser"/>
+        </form>
+      </span>
+    </div>
 
-        <div wicket:id="editModal">
-        </div>
+    <div wicket:id="editModal">
+    </div>
 
-        <div wicket:id="displayModal">
-        </div>
+    <div wicket:id="displayModal">
+    </div>
 
-        <div wicket:id="statusModal">
-        </div>
+    <div wicket:id="statusModal">
+    </div>
 
-    </wicket:panel>
+  </wicket:panel>
 </html>

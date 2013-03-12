@@ -27,20 +27,34 @@ public abstract class ActionLink implements Serializable {
 
     public enum ActionType {
 
-        CREATE,
-        EDIT,
-        USER_TEMPLATE,
-        ROLE_TEMPLATE,
-        ENABLE,
-        SEARCH,
-        DELETE,
-        EXECUTE,
-        DRYRUN,
-        CLAIM,
-        SELECT,
-        EXPORT
+        CREATE("create"),
+        EDIT("read"),
+        USER_TEMPLATE("read"),
+        ROLE_TEMPLATE("read"),
+        ENABLE("update"),
+        SEARCH("read"),
+        DELETE("delete"),
+        EXECUTE("execute"),
+        DRYRUN("execute"),
+        CLAIM("claim"),
+        SELECT("read"),
+        EXPORT("read"),
+        SUSPEND("update"),
+        REACTIVATE("update");
 
+        private final String actionId;
+
+        private ActionType(final String actionId) {
+            this.actionId = actionId;
+        }
+
+        public String getActionId() {
+            return actionId;
+        }
     }
 
     public abstract void onClick(final AjaxRequestTarget target);
+
+    public void postClick() {
+    }
 }

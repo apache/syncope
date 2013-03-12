@@ -148,7 +148,7 @@ public abstract class TaskModalPage extends BaseModalPage {
                         });
                         taskExecMessageWin.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Tasks", "read", StringUtils.hasText(model.getObject().getMessage()));
+                }, ActionLink.ActionType.EDIT, "Tasks", StringUtils.hasText(model.getObject().getMessage()));
 
                 panel.add(new ActionLink() {
 
@@ -169,7 +169,7 @@ public abstract class TaskModalPage extends BaseModalPage {
                         target.add(feedbackPanel);
                         target.add(executions);
                     }
-                }, ActionLink.ActionType.DELETE, "Tasks", "delete");
+                }, ActionLink.ActionType.DELETE, "Tasks");
 
                 cellItem.add(panel);
             }

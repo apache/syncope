@@ -160,7 +160,7 @@ public class SyncTasks extends Panel {
 
                         window.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Tasks", "read");
+                }, ActionLink.ActionType.EDIT, "Tasks");
 
                 panel.add(new ActionLink() {
 
@@ -181,7 +181,7 @@ public class SyncTasks extends Panel {
 
                         window.show(target);
                     }
-                }, ActionLink.ActionType.USER_TEMPLATE, "Tasks", "read");
+                }, ActionLink.ActionType.USER_TEMPLATE, "Tasks");
 
                 panel.add(new ActionLink() {
 
@@ -202,7 +202,7 @@ public class SyncTasks extends Panel {
 
                         window.show(target);
                     }
-                }, ActionLink.ActionType.ROLE_TEMPLATE, "Tasks", "read");
+                }, ActionLink.ActionType.ROLE_TEMPLATE, "Tasks");
 
                 panel.add(new ActionLink() {
 
@@ -220,7 +220,7 @@ public class SyncTasks extends Panel {
                         target.add(container);
                         target.add(getPage().get("feedback"));
                     }
-                }, ActionLink.ActionType.EXECUTE, "Tasks", "execute");
+                }, ActionLink.ActionType.EXECUTE, "Tasks");
 
                 panel.add(new ActionLink() {
 
@@ -238,7 +238,7 @@ public class SyncTasks extends Panel {
                         target.add(container);
                         target.add(getPage().get("feedback"));
                     }
-                }, ActionLink.ActionType.DRYRUN, "Tasks", "execute");
+                }, ActionLink.ActionType.DRYRUN, "Tasks");
 
                 panel.add(new ActionLink() {
 
@@ -255,7 +255,7 @@ public class SyncTasks extends Panel {
                         target.add(container);
                         target.add(getPage().get("feedback"));
                     }
-                }, ActionLink.ActionType.DELETE, "Tasks", "delete");
+                }, ActionLink.ActionType.DELETE, "Tasks");
 
                 cellItem.add(panel);
             }

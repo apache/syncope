@@ -29,6 +29,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
+import org.apache.syncope.common.to.BulkActionRes.Status;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.PropagationStatusTO;
@@ -694,5 +697,52 @@ public class UserController {
         LOG.debug("User successfully deleted: {}", userId);
 
         return userTO;
+    }
+
+    @PreAuthorize("(hasRole('USER_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE) or "
+    + "(hasRole('USER_UPDATE') and "
+    + "(#bulkAction.operation == #bulkAction.operation.REACTIVATE or "
+    + "#bulkAction.operation == #bulkAction.operation.SUSPEND))")
+    @RequestMapping(method = RequestMethod.POST, value = "/bulk")
+    public BulkActionRes bulkAction(@RequestBody final BulkAction bulkAction) {
+        LOG.debug("Bulk action '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
+
+        BulkActionRes res = new BulkActionRes();
+
+        switch (bulkAction.getOperation()) {
+            case DELETE:
+                for (String userId : bulkAction.getTargets()) {
+                    try {
+                        res.add(doDelete(Long.valueOf(userId)).getId(), Status.SUCCESS);
+                    } catch (Exception e) {
+                        LOG.error("Error performing delete for user {}", userId, e);
+                        res.add(userId, Status.FAILURE);
+                    }
+                }
+                break;
+            case SUSPEND:
+                for (String userId : bulkAction.getTargets()) {
+                    try {
+                        res.add(suspend(Long.valueOf(userId)).getId(), Status.SUCCESS);
+                    } catch (Exception e) {
+                        LOG.error("Error performing suspend for user {}", userId, e);
+                        res.add(userId, Status.FAILURE);
+                    }
+                }
+                break;
+            case REACTIVATE:
+                for (String userId : bulkAction.getTargets()) {
+                    try {
+                        res.add(reactivate(Long.valueOf(userId)).getId(), Status.SUCCESS);
+                    } catch (Exception e) {
+                        LOG.error("Error performing reactivate for user {}", userId, e);
+                        res.add(userId, Status.FAILURE);
+                    }
+                }
+                break;
+            default:
+        }
+
+        return res;
     }
 }

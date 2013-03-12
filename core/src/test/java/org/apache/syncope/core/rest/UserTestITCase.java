@@ -42,6 +42,9 @@ import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.services.UserWorkflowService;
 import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
+import org.apache.syncope.common.to.BulkActionRes.Status;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.MembershipTO;
@@ -2052,6 +2055,7 @@ public class UserTestITCase extends AbstractTest {
         assertNull(connObjectTO.getAttributeMap().get("email"));
     }
 
+    @Test
     public void issueSYNCOPE265() {
         for (long i = 1; i <= 5; i++) {
             UserMod userMod = new UserMod();
@@ -2067,6 +2071,40 @@ public class UserTestITCase extends AbstractTest {
             UserTO userTO = userService.update(i, userMod);
             assertEquals("a type", userTO.getAttributeMap().get("type").getValues().get(0));
         }
+    }
+
+    @Test
+    public void bulkActions() {
+        final BulkAction bulkAction = new BulkAction();
+
+        for (int i = 0; i < 10; i++) {
+            UserTO userTO = getUniqueSampleTO("bulk_" + i + "@apache.org");
+            bulkAction.addTarget(String.valueOf(createUser(userTO).getId()));
+        }
+
+        // check for a fail
+        bulkAction.addTarget(String.valueOf(Long.MAX_VALUE));
+
+        assertEquals(11, bulkAction.size());
+
+        bulkAction.setOperation(BulkAction.Type.SUSPEND);
+        BulkActionRes res = userService.bulkAction(bulkAction);
+        assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
+        assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
+        assertEquals("suspended", userService.read(
+                Long.parseLong(res.getResultByStatus(Status.SUCCESS).get(3).toString())).getStatus());
+
+        bulkAction.setOperation(BulkAction.Type.REACTIVATE);
+        res = userService.bulkAction(bulkAction);
+        assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
+        assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
+        assertEquals("active", userService.read(
+                Long.parseLong(res.getResultByStatus(Status.SUCCESS).get(3).toString())).getStatus());
+
+        bulkAction.setOperation(BulkAction.Type.DELETE);
+        res = userService.bulkAction(bulkAction);
+        assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
+        assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
     }
 
     private boolean getBooleanAttribute(ConnObjectTO connObjectTO, String attrName) {

@@ -25,6 +25,8 @@ import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.services.UserService;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -119,5 +121,10 @@ public class UserRestClient extends AbstractAttributableRestClient {
 
     public UserTO reactivate(final long userId, final List<StatusBean> statuses) {
         return getService(UserService.class).reactivate(userId, StatusUtils.buildPropagationRequestTO(statuses, true));
+    }
+
+    @Override
+    public BulkActionRes bulkAction(final BulkAction action) {
+        return getService(UserService.class).bulkAction(action);
     }
 }

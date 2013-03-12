@@ -21,13 +21,13 @@ package org.apache.syncope.client.services.proxy;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.UserService;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.UserTO;
 import org.springframework.web.client.RestTemplate;
@@ -178,5 +178,10 @@ public class UserServiceProxy extends SpringServiceProxy implements UserService 
     @Override
     public int searchCount(final NodeCond searchCondition) {
         return getRestTemplate().postForObject(baseUrl + "user/search/count.json", searchCondition, Integer.class);
+    }
+
+    @Override
+    public BulkActionRes bulkAction(final BulkAction bulkActions) {
+        return getRestTemplate().postForObject(baseUrl + "user/bulk", bulkActions, BulkActionRes.class);
     }
 }

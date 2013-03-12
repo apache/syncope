@@ -60,26 +60,35 @@ public class ActionLinksPanel extends Panel {
         super.add(new Fragment("panelDryRun", "emptyFragment", this));
         super.add(new Fragment("panelSelect", "emptyFragment", this));
         super.add(new Fragment("panelExport", "emptyFragment", this));
+        super.add(new Fragment("panelSuspend", "emptyFragment", this));
+        super.add(new Fragment("panelReactivate", "emptyFragment", this));
     }
 
-    public void add(final ActionLink link, final ActionLink.ActionType type, final String pageId,
-            final String actionId) {
+    public void add(
+            final ActionLink link, final ActionLink.ActionType type, final String pageId, final String actionId) {
 
-        add(link, type, xmlRolesReader.getAllAllowedRoles(pageId, actionId), true);
+        addWithRoles(link, type, xmlRolesReader.getAllAllowedRoles(pageId, actionId), true);
     }
 
-    public void add(final ActionLink link, final ActionLink.ActionType type, final String pageId,
-            final String actionId, final boolean enabled) {
+    public void add(
+            final ActionLink link, final ActionLink.ActionType type, final String pageId) {
 
-        add(link, type, xmlRolesReader.getAllAllowedRoles(pageId, actionId), enabled);
+        add(link, type, pageId, true);
     }
 
-    public void add(final ActionLink link, final ActionLink.ActionType type, final String roles) {
-        add(link, type, roles, true);
+    public void add(
+            final ActionLink link, final ActionLink.ActionType type, final String pageId, final boolean enabled) {
+
+        addWithRoles(link, type, xmlRolesReader.getAllAllowedRoles(pageId, type.getActionId()), enabled);
     }
 
-    public void add(final ActionLink link, final ActionLink.ActionType type, final String roles,
-            final boolean enabled) {
+    public void addWithRoles(
+            final ActionLink link, final ActionLink.ActionType type, final String roles) {
+        addWithRoles(link, type, roles, true);
+    }
+
+    public void addWithRoles(
+            final ActionLink link, final ActionLink.ActionType type, final String roles, final boolean enabled) {
 
         Fragment fragment = null;
 
@@ -88,9 +97,9 @@ public class ActionLinksPanel extends Panel {
             case CLAIM:
                 fragment = new Fragment("panelClaim", "fragmentClaim", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("claimLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink("claimLink", pageRef) {
 
-                    private static final long serialVersionUID = -6957616042924610290L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
@@ -102,9 +111,9 @@ public class ActionLinksPanel extends Panel {
             case CREATE:
                 fragment = new Fragment("panelCreate", "fragmentCreate", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("createLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink("createLink", pageRef) {
 
-                    private static final long serialVersionUID = -6957616042924610290L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
@@ -116,9 +125,9 @@ public class ActionLinksPanel extends Panel {
             case EDIT:
                 fragment = new Fragment("panelEdit", "fragmentEdit", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("editLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink("editLink", pageRef) {
 
-                    private static final long serialVersionUID = -6957616042924610290L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
@@ -130,9 +139,9 @@ public class ActionLinksPanel extends Panel {
             case USER_TEMPLATE:
                 fragment = new Fragment("panelUserTemplate", "fragmentUserTemplate", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("userTemplateLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink("userTemplateLink", pageRef) {
 
-                    private static final long serialVersionUID = -6957616042924610290L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
@@ -144,9 +153,9 @@ public class ActionLinksPanel extends Panel {
             case ROLE_TEMPLATE:
                 fragment = new Fragment("panelRoleTemplate", "fragmentRoleTemplate", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("roleTemplateLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink("roleTemplateLink", pageRef) {
 
-                    private static final long serialVersionUID = -6957616042924610290L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
@@ -158,9 +167,9 @@ public class ActionLinksPanel extends Panel {
             case ENABLE:
                 fragment = new Fragment("panelEnable", "fragmentEnable", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("enableLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink("enableLink", pageRef) {
 
-                    private static final long serialVersionUID = -6957616042924610290L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
@@ -172,9 +181,9 @@ public class ActionLinksPanel extends Panel {
             case SEARCH:
                 fragment = new Fragment("panelSearch", "fragmentSearch", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("searchLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink("searchLink", pageRef) {
 
-                    private static final long serialVersionUID = -6957616042924610290L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
@@ -186,9 +195,9 @@ public class ActionLinksPanel extends Panel {
             case EXECUTE:
                 fragment = new Fragment("panelExecute", "fragmentExecute", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("executeLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink("executeLink", pageRef) {
 
-                    private static final long serialVersionUID = -6957616042924610290L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
@@ -200,9 +209,9 @@ public class ActionLinksPanel extends Panel {
             case DRYRUN:
                 fragment = new Fragment("panelDryRun", "fragmentDryRun", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("dryRunLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink("dryRunLink", pageRef) {
 
-                    private static final long serialVersionUID = -6957616042924610290L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
@@ -214,9 +223,9 @@ public class ActionLinksPanel extends Panel {
             case DELETE:
                 fragment = new Fragment("panelDelete", "fragmentDelete", this);
 
-                fragment.addOrReplace(new IndicatingDeleteOnConfirmAjaxLink<Void>("deleteLink", pageRef) {
+                fragment.addOrReplace(new IndicatingDeleteOnConfirmAjaxLink("deleteLink", pageRef) {
 
-                    private static final long serialVersionUID = -6957616042924610290L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
@@ -229,9 +238,9 @@ public class ActionLinksPanel extends Panel {
             case SELECT:
                 fragment = new Fragment("panelSelect", "fragmentSelect", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("selectLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink("selectLink", pageRef) {
 
-                    private static final long serialVersionUID = -6957616042924610290L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
@@ -244,9 +253,37 @@ public class ActionLinksPanel extends Panel {
             case EXPORT:
                 fragment = new Fragment("panelExport", "fragmentExport", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("exportLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink("exportLink", pageRef) {
 
-                    private static final long serialVersionUID = -6957616042924610290L;
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                });
+                break;
+
+            case SUSPEND:
+                fragment = new Fragment("panelSuspend", "fragmentSuspend", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("suspendLink", pageRef) {
+
+                    private static final long serialVersionUID = -6957616042924610291L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                });
+                break;
+
+            case REACTIVATE:
+                fragment = new Fragment("panelReactivate", "fragmentReactivate", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("reactivateLink", pageRef) {
+
+                    private static final long serialVersionUID = -6957616042924610292L;
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
@@ -308,6 +345,13 @@ public class ActionLinksPanel extends Panel {
                 super.addOrReplace(new Fragment("panelExport", "emptyFragment", this));
                 break;
 
+            case SUSPEND:
+                super.addOrReplace(new Fragment("panelSuspend", "emptyFragment", this));
+                break;
+
+            case REACTIVATE:
+                super.addOrReplace(new Fragment("panelReactivate", "emptyFragment", this));
+                break;
             default:
             // do nothing
         }

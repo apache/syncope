@@ -71,11 +71,6 @@ public class WorkflowUserSuspender implements UserSuspender {
 
                 taskExecutor.execute(tasks);
             }
-
-            if (LOG.isDebugEnabled()) {
-                final UserTO savedTO = userDataBinder.getUserTO(updated.getResult());
-                LOG.debug("About to return suspended user\n{}", savedTO);
-            }
         } catch (Exception e) {
             LOG.error("Error during user suspension", e);
         }

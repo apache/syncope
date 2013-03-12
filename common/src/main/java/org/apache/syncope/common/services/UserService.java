@@ -19,7 +19,6 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -28,9 +27,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.UserTO;
 
@@ -66,7 +66,7 @@ public interface UserService {
     @Path("{userId}")
     UserTO delete(@PathParam("userId") Long userId);
 
-   @GET
+    @GET
     List<UserTO> list();
 
     @GET
@@ -132,4 +132,7 @@ public interface UserService {
     @Path("{userId}")
     UserTO update(@PathParam("userId") Long userId, UserMod userMod);
 
+    @POST
+    @Path("bulk")
+    BulkActionRes bulkAction(BulkAction bulkAction);
 }
