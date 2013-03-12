@@ -133,9 +133,10 @@ public class AttributableSearchTest {
         assertNotNull(users);
         assertEquals(4, users.size());
 
-        Set<Long> ids = new HashSet<Long>(2);
-        ids.add(users.get(0).getId());
-        ids.add(users.get(1).getId());
+        Set<Long> ids = new HashSet<Long>(users.size());
+        for (SyncopeUser user : users) {
+            ids.add(user.getId());
+        }
         assertTrue(ids.contains(1L));
         assertTrue(ids.contains(3L));
     }
@@ -328,13 +329,13 @@ public class AttributableSearchTest {
         NodeCond searchCondition = NodeCond.getLeafCond(idLeafCond);
         assertTrue(searchCondition.isValid());
 
-        List<SyncopeUser> matchingUsers =
+        List<SyncopeUser> users =
                 searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCondition,
                 AttributableUtil.getInstance(AttributableType.USER));
 
-        assertNotNull(matchingUsers);
-        assertEquals(1, matchingUsers.size());
-        assertEquals(1L, matchingUsers.iterator().next().getId().longValue());
+        assertNotNull(users);
+        assertEquals(1, users.size());
+        assertEquals(1L, users.iterator().next().getId().longValue());
 
         idLeafCond = new AttributableCond(AttributableCond.Type.LT);
         idLeafCond.setSchema("id");
@@ -343,12 +344,18 @@ public class AttributableSearchTest {
         searchCondition = NodeCond.getNotLeafCond(idLeafCond);
         assertTrue(searchCondition.isValid());
 
-        matchingUsers = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCondition,
+        users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCondition,
                 AttributableUtil.getInstance(AttributableType.USER));
 
-        assertNotNull(matchingUsers);
-        assertEquals(2, matchingUsers.size());
-        assertEquals(4L, matchingUsers.iterator().next().getId().longValue());
+        assertNotNull(users);
+        assertEquals(2, users.size());
+        boolean found = false;
+        for (SyncopeUser user : users) {
+            if (user.getId() == 4) {
+                found = true;
+            }
+        }
+        assertTrue(found);
     }
 
     @Test
@@ -367,7 +374,13 @@ public class AttributableSearchTest {
                 searchCondition, AttributableUtil.getInstance(AttributableType.USER));
         assertNotNull(users);
         assertEquals(2, users.size());
-        assertEquals(4L, users.iterator().next().getId().longValue());
+        boolean found = false;
+        for (SyncopeUser user : users) {
+            if (user.getId() == 4) {
+                found = true;
+            }
+        }
+        assertTrue(found);
     }
 
     @Test

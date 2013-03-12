@@ -131,8 +131,7 @@ public final class MappingUtil {
     public static <T extends AbstractAttributable> Map.Entry<String, Attribute> prepareAttribute(
             final ExternalResource resource, final AbstractMappingItem mapItem,
             final T subject, final String password, final PasswordGenerator passwordGenerator,
-            final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated)
-            throws ClassNotFoundException {
+            final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated) {
 
         final List<AbstractAttributable> attributables = new ArrayList<AbstractAttributable>();
 
@@ -190,13 +189,13 @@ public final class MappingUtil {
                 + "\n* mandatory condition " + mapItem.getMandatoryCondition()
                 + "\n* Schema " + mapItem.getIntAttrName()
                 + "\n* IntMappingType " + mapItem.getIntMappingType().toString()
-                + "\n* ClassType " + schemaType.getClassName()
+                + "\n* ClassType " + schemaType.getType().getName()
                 + "\n* Values " + values);
 
         List<Object> objValues = new ArrayList<Object>();
 
         for (AbstractAttrValue value : values) {
-            if (FrameworkUtil.isSupportedAttributeType(Class.forName(schemaType.getClassName()))) {
+            if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
                 objValues.add(value.getValue());
             } else {
                 objValues.add(value.getValueAsString());
@@ -300,15 +299,10 @@ public final class MappingUtil {
 
         final AttributableUtil attrUtil = AttributableUtil.getInstance(subject);
 
-        String accountId = null;
-        try {
-            Map.Entry<String, Attribute> preparedAttr = prepareAttribute(
-                    resource, attrUtil.getAccountIdItem(resource), subject, null, null,
-                    Collections.<String>emptySet(), Collections.<String, AttributeMod>emptyMap());
-            accountId = preparedAttr.getKey();
-        } catch (ClassNotFoundException e) {
-            LOG.error("Could not get accountId for {} on {}", subject, resource, e);
-        }
+        Map.Entry<String, Attribute> preparedAttr = prepareAttribute(
+                resource, attrUtil.getAccountIdItem(resource), subject, null, null,
+                Collections.<String>emptySet(), Collections.<String, AttributeMod>emptyMap());
+        String accountId = preparedAttr.getKey();
 
         final Name roleOwnerName = evaluateNAME(subject, resource, accountId);
         return roleOwnerName.getNameValue();

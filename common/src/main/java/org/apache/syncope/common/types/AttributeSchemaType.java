@@ -18,29 +18,32 @@
  */
 package org.apache.syncope.common.types;
 
+import java.util.Date;
 import javax.xml.bind.annotation.XmlEnum;
 
 @XmlEnum
 public enum AttributeSchemaType {
 
-    String("java.lang.String"),
-    Long("java.lang.Long"),
-    Double("java.lang.Double"),
-    Boolean("java.lang.Boolean"),
-    Date("java.util.Date"),
-    Enum("java.lang.Enum");
+    String(String.class),
+    Long(Long.class),
+    Double(Double.class),
+    Boolean(Boolean.class),
+    Date(Date.class),
+    Enum(Enum.class);
 
-    final private String className;
+    final private Class<?> type;
 
-    AttributeSchemaType(String className) {
-        this.className = className;
+    AttributeSchemaType(final Class<?> type) {
+        this.type = type;
     }
 
-    public String getClassName() {
-        return className;
+    public Class<?> getType() {
+        return type;
     }
 
     public boolean isConversionPatternNeeded() {
-        return this == AttributeSchemaType.Date || this == AttributeSchemaType.Double || this == AttributeSchemaType.Long;
+        return this == AttributeSchemaType.Date
+                || this == AttributeSchemaType.Double
+                || this == AttributeSchemaType.Long;
     }
 }

@@ -47,7 +47,7 @@ public class BulkAction extends AbstractBaseBean {
         return operation;
     }
 
-    public void setOperation(Type operation) {
+    public void setOperation(final Type operation) {
         this.operation = operation;
     }
 
@@ -61,7 +61,7 @@ public class BulkAction extends AbstractBaseBean {
 
     public void addTarget(final String target) {
         if (this.targets == null) {
-            this.targets = new ArrayList();
+            this.targets = new ArrayList<String>();
         }
 
         this.targets.add(target);

@@ -223,7 +223,7 @@ under the License.
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_Task" strategy="TABLE"/>
-        <table-generator name="SEQ_Task" pk-column-value="SEQ_Task" initial-value="10"/>
+        <table-generator name="SEQ_Task" pk-column-value="SEQ_Task" initial-value="100"/>
       </id>
     </attributes>
   </entity>

@@ -279,8 +279,6 @@ public class NotificationTest {
         Notification actual = notificationDAO.save(notification);
         assertNotNull(actual);
 
-        notificationDAO.flush();
-
         // 2. create user
         UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
         MembershipTO membershipTO = new MembershipTO();

@@ -51,6 +51,7 @@ import org.apache.syncope.core.util.AttributableUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.ReflectionUtils;
 
 @Repository
 public class AttributableSearchDAOImpl extends AbstractDAOImpl implements AttributableSearchDAO {
@@ -535,38 +536,26 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     private String getQuery(final AttributableCond cond, final boolean not, final List<Object> parameters,
             final AttributableUtil attrUtil) {
 
-        Field attributableClassField = null;
-        // loop over attributable class and all superclasses searching for field
-        for (Class i = attrUtil.attributableClass(); attributableClassField == null && i != Object.class;) {
-            try {
-                attributableClassField = i.getDeclaredField(cond.getSchema());
-            } catch (Exception ignore) {
-                // ignore exception
-                LOG.debug("Field '{}' not found on class '{}'", new String[]{cond.getSchema(), i.getSimpleName()},
-                        ignore);
-            } finally {
-                i = i.getSuperclass();
-            }
-        }
-        if (attributableClassField == null) {
+        Field attributableField = ReflectionUtils.findField(attrUtil.attributableClass(), cond.getSchema());
+        if (attributableField == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
             return EMPTY_ATTR_QUERY;
         }
 
         AbstractSchema schema = attrUtil.newSchema();
-        schema.setName(attributableClassField.getName());
+        schema.setName(attributableField.getName());
         for (AttributeSchemaType type : AttributeSchemaType.values()) {
-            if (attributableClassField.getType().getName().equals(type.getClassName())) {
+            if (attributableField.getType().isAssignableFrom(type.getType())) {
                 schema.setType(type);
             }
         }
 
-        // Deal with Attirbutable Integer fields logically mapping to boolean values
+        // Deal with Attributable Integer fields logically mapping to boolean values
         // (SyncopeRole.inheritAttributes, for example)
         boolean foundBooleanMin = false;
         boolean foundBooleanMax = false;
-        if (Integer.class.equals(attributableClassField.getType())) {
-            for (Annotation annotation : attributableClassField.getAnnotations()) {
+        if (Integer.class.equals(attributableField.getType())) {
+            for (Annotation annotation : attributableField.getAnnotations()) {
                 if (Min.class.equals(annotation.annotationType())) {
                     foundBooleanMin = ((Min) annotation).value() == 0;
                 } else if (Max.class.equals(annotation.annotationType())) {
@@ -577,23 +566,23 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         if (foundBooleanMin && foundBooleanMax) {
             if ("true".equalsIgnoreCase(cond.getExpression())) {
                 cond.setExpression("1");
+                schema.setType(AttributeSchemaType.Long);
             } else if ("false".equalsIgnoreCase(cond.getExpression())) {
                 cond.setExpression("0");
+                schema.setType(AttributeSchemaType.Long);
             }
         }
 
         // Deal with Attributable fields representing relationships to other entities
         // Only _id and _name are suppored
-        if (attributableClassField.getType().getAnnotation(Entity.class) != null) {
-            if (BeanUtils.findDeclaredMethodWithMinimalParameters(
-                    attributableClassField.getType(), "getId") != null) {
-
+        if (attributableField.getType().getAnnotation(Entity.class) != null) {
+            if (BeanUtils.findDeclaredMethodWithMinimalParameters(attributableField.getType(), "getId") != null) {
                 cond.setSchema(cond.getSchema() + "_id");
+                schema.setType(AttributeSchemaType.Long);
             }
-            if (BeanUtils.findDeclaredMethodWithMinimalParameters(
-                    attributableClassField.getType(), "getName") != null) {
-
+            if (BeanUtils.findDeclaredMethodWithMinimalParameters(attributableField.getType(), "getName") != null) {
                 cond.setSchema(cond.getSchema() + "_name");
+                schema.setType(AttributeSchemaType.String);
             }
         }
 

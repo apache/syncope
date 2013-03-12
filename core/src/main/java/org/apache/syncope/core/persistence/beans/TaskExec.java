@@ -25,7 +25,7 @@ import javax.persistence.ManyToOne;
 /**
  * An execution (with result) of a Task.
  *
- * @see PropagationTask
+ * @see Task
  */
 @Entity
 public class TaskExec extends AbstractExec {
@@ -58,7 +58,14 @@ public class TaskExec extends AbstractExec {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "{" + "id=" + id + ", " + "startDate=" + startDate + ", " + "endDate="
-                + endDate + ", " + "task=" + task + ", " + "status=" + status + ", " + "message=" + message + '}';
+        return new StringBuilder(getClass().getSimpleName()).append('{').
+                append("id=").append(id).append(", ").
+                append("startDate=").append(startDate).append(", ").
+                append("endDate=").append(endDate).append(", ").
+                append("task=").append(task).append(", ").
+                append("status=").append(status).append(", ").
+                append("message=").append(message).
+                append('}').
+                toString();
     }
 }

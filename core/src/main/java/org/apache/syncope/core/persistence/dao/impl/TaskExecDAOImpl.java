@@ -43,9 +43,9 @@ public class TaskExecDAOImpl extends AbstractDAOImpl implements TaskExecDAO {
     }
 
     private <T extends Task> TaskExec findLatest(final T task, final String field) {
-        TypedQuery<TaskExec> query = entityManager.createQuery("SELECT e " + "FROM " + TaskExec.class.getSimpleName()
-                + " e "
-                + "WHERE e.task=:task " + "ORDER BY e." + field + " DESC", TaskExec.class);
+        TypedQuery<TaskExec> query = entityManager.createQuery("SELECT e FROM " + TaskExec.class.getSimpleName() + " e "
+                + "WHERE e.task=:task "
+                + "ORDER BY e." + field + " DESC", TaskExec.class);
         query.setParameter("task", task);
         query.setMaxResults(1);
 

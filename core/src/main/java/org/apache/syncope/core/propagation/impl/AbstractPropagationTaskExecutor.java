@@ -358,10 +358,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
                 taskDAO.save(task);
 
-                // This flush call is needed to generate a value for the execution id
-                // An alternative to this would be the following statement that might cause troubles with
-                // concurrent calls.
-                // taskExecDAO.findLatestStarted(task);
+                // this flush call is needed to generate a value for the execution id
                 taskDAO.flush();
             }
         }
