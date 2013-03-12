@@ -56,6 +56,14 @@ under the License.
         </entry>
       </map>
     </property>
+    <property name="collectionWrapperMap">
+      <map>
+        <entry>
+          <key><value>org.apache.syncope.common.to.PolicyTO</value></key>
+          <value>policies</value>
+        </entry>
+      </map>
+    </property>
   </bean>
 
   <bean id="jsonProvider" class="org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider">
