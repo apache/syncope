@@ -90,15 +90,6 @@ public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, Syn
                 throw new AccountPolicyException("Suffix not permitted");
             }
         }
-        
-        LOG.error("AAAAAAAAAAAAAAAAAAAAAAAA suspender {}", userSuspender);
-        LOG.error("AAAAAAAAAAAAAAAAAAAAAAAA failed logins {}", user.getFailedLogins());
-        LOG.error("AAAAAAAAAAAAAAAAAAAAAAAA retries logins {}", policy.getPermittedLoginRetries());
-        LOG.error("AAAAAAAAAAAAAAAAAAAAAAAA user is suspended {}", user.isSuspended());
-        LOG.error("AAAAAAAAAAAAAAAAAAAAAAAA check {}", (userSuspender != null
-                && user.getFailedLogins() != null && policy.getPermittedLoginRetries() > 0
-                && user.getFailedLogins() > policy.getPermittedLoginRetries() && !user.isSuspended()));
-        
 
         // check for subsequent failed logins
         if (userSuspender != null
