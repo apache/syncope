@@ -259,15 +259,10 @@ public class ResourceMappingPanel extends Panel {
 
                 final FieldPanel extAttrName;
 
-                if (schemaNames.isEmpty()) {
-                    extAttrName = new AjaxTextFieldPanel("extAttrName", new ResourceModel("extAttrNames",
-                            "extAttrNames").getObject(), new PropertyModel<String>(mappingTO, "extAttrName"));
+                extAttrName = new AjaxTextFieldPanel("extAttrName", new ResourceModel("extAttrNames",
+                        "extAttrNames").getObject(), new PropertyModel<String>(mappingTO, "extAttrName"));
 
-                } else {
-                    extAttrName = new AjaxDropDownChoicePanel<String>("extAttrName", new ResourceModel("extAttrNames",
-                            "extAttrNames").getObject(), new PropertyModel(mappingTO, "extAttrName"));
-                    ((AjaxDropDownChoicePanel) extAttrName).setChoices(schemaNames);
-                }
+                ((AjaxTextFieldPanel) extAttrName).setChoices(schemaNames);
 
                 boolean required = false;
                 if (mappingTO != null && !mappingTO.isAccountid() && !mappingTO.isPassword()) {
