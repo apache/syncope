@@ -40,8 +40,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -54,7 +54,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -85,7 +85,7 @@ public class NotificationTasks extends Panel {
 
     private final List<IColumn<TaskTO, String>> columns;
 
-    private AjaxFallbackDefaultDataTable<TaskTO, String> table;
+    private AjaxDataTablePanel<TaskTO, String> table;
 
     public NotificationTasks(final String id, final PageReference pageRef) {
         super(id);
@@ -100,15 +100,20 @@ public class NotificationTasks extends Panel {
 
         columns = new ArrayList<IColumn<TaskTO, String>>();
 
-        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("id"), "id", "id"));
-        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("sender"), "sender", "sender"));
-        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("recipients"), "recipients", "recipients"));
-        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("subject"), "subject", "subject"));
-        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("traceLevel"), "traceLevel", "traceLevel"));
         columns.add(new PropertyColumn<TaskTO, String>(
-                new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
+                new StringResourceModel("id", this, null), "id", "id"));
+        columns.add(new PropertyColumn<TaskTO, String>(
+                new StringResourceModel("sender", this, null), "sender", "sender"));
+        columns.add(new PropertyColumn<TaskTO, String>(
+                new StringResourceModel("recipients", this, null), "recipients", "recipients"));
+        columns.add(new PropertyColumn<TaskTO, String>(
+                new StringResourceModel("subject", this, null), "subject", "subject"));
+        columns.add(new PropertyColumn<TaskTO, String>(
+                new StringResourceModel("traceLevel", this, null), "traceLevel", "traceLevel"));
+        columns.add(new PropertyColumn<TaskTO, String>(
+                new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new AbstractColumn<TaskTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<TaskTO, String>(new StringResourceModel("actions", this, null, "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -189,7 +194,9 @@ public class NotificationTasks extends Panel {
                 columns,
                 new TasksProvider<NotificationTaskTO>(restClient, paginatorRows, getId(), NotificationTaskTO.class),
                 container,
-                0);
+                0,
+                pageRef,
+                restClient);
 
         container.add(table);
 
@@ -262,7 +269,9 @@ public class NotificationTasks extends Panel {
                         new TasksProvider<NotificationTaskTO>(restClient, paginatorRows, getId(),
                         NotificationTaskTO.class),
                         container,
-                        table == null ? 0 : (int) table.getCurrentPage());
+                        table == null ? 0 : (int) table.getCurrentPage(),
+                        pageRef,
+                        restClient);
 
                 target.add(container);
             }
@@ -270,5 +279,12 @@ public class NotificationTasks extends Panel {
 
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
+    }
+    
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if (event.getPayload() instanceof AbstractSearchResultPanel.EventDataWrapper) {
+            ((AbstractSearchResultPanel.EventDataWrapper) event.getPayload()).getTarget().add(container);
+        }
     }
 }

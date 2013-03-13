@@ -21,6 +21,9 @@ package org.apache.syncope.console.rest;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.services.TaskService;
+import org.apache.syncope.common.services.UserService;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.JobClassTO;
 import org.apache.syncope.common.to.NotificationTaskTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
@@ -163,5 +166,9 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     public void updateSyncTask(final SyncTaskTO taskTO) {
         getService(TaskService.class).update(taskTO.getId(), taskTO);
+    }
+
+    public BulkActionRes bulkAction(final BulkAction action) {
+        return getService(TaskService.class).bulkAction(action);
     }
 }

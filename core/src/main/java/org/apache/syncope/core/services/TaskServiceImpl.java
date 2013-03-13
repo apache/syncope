@@ -26,6 +26,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.TaskService;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.JobClassTO;
 import org.apache.syncope.common.to.NotificationTaskTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
@@ -153,5 +155,10 @@ public class TaskServiceImpl implements TaskService, ContextAware {
     @Override
     public void setUriInfo(final UriInfo ui) {
         this.uriInfo = ui;
+    }
+
+    @Override
+    public BulkActionRes bulkAction(BulkAction bulkAction) {
+        return taskController.bulkAction(bulkAction);
     }
 }

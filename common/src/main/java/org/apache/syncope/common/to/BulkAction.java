@@ -32,7 +32,9 @@ public class BulkAction extends AbstractBaseBean {
 
         DELETE,
         REACTIVATE,
-        SUSPEND
+        SUSPEND,
+        DRYRUN,
+        EXECUTE
 
     }
 

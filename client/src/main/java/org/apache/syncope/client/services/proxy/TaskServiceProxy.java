@@ -28,6 +28,8 @@ import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.TaskService;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.JobClassTO;
 import org.apache.syncope.common.to.NotificationTaskTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
@@ -215,5 +217,10 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
             default:
                 throw new IllegalArgumentException("SchemaType is not supported: " + type);
         }
+    }
+
+    @Override
+    public BulkActionRes bulkAction(final BulkAction bulkAction) {
+        return getRestTemplate().postForObject(baseUrl + "task/bulk", bulkAction, BulkActionRes.class);
     }
 }

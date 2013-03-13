@@ -23,6 +23,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
@@ -438,5 +440,54 @@ public class TaskController extends AbstractController {
         auditManager.audit(Category.task, TaskSubCategory.deleteExecution, Result.success,
                 "Successfully deleted task execution: " + taskExec.getId());
         return taskExecutionToDelete;
+    }
+
+    @PreAuthorize("(hasRole('TASK_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE) or "
+    + "(hasRole('TASK_EXECUTE') and "
+    + "(#bulkAction.operation == #bulkAction.operation.EXECUTE or "
+    + "#bulkAction.operation == #bulkAction.operation.DRYRUN))")
+    @RequestMapping(method = RequestMethod.POST, value = "/bulk")
+    public BulkActionRes bulkAction(@RequestBody final BulkAction bulkAction) {
+        LOG.debug("Bulk action '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
+
+        BulkActionRes res = new BulkActionRes();
+
+        switch (bulkAction.getOperation()) {
+            case DELETE:
+                for (String taskId : bulkAction.getTargets()) {
+                    try {
+                        res.add(delete(Long.valueOf(taskId)).getId(), BulkActionRes.Status.SUCCESS);
+                    } catch (Exception e) {
+                        LOG.error("Error performing delete for task {}", taskId, e);
+                        res.add(taskId, BulkActionRes.Status.FAILURE);
+                    }
+                }
+                break;
+            case DRYRUN:
+                for (String taskId : bulkAction.getTargets()) {
+                    try {
+                        execute(Long.valueOf(taskId), true);
+                        res.add(taskId, BulkActionRes.Status.SUCCESS);
+                    } catch (Exception e) {
+                        LOG.error("Error performing dryrun for task {}", taskId, e);
+                        res.add(taskId, BulkActionRes.Status.FAILURE);
+                    }
+                }
+                break;
+            case EXECUTE:
+                for (String taskId : bulkAction.getTargets()) {
+                    try {
+                        execute(Long.valueOf(taskId), false);
+                        res.add(taskId, BulkActionRes.Status.SUCCESS);
+                    } catch (Exception e) {
+                        LOG.error("Error performing execute for task {}", taskId, e);
+                        res.add(taskId, BulkActionRes.Status.FAILURE);
+                    }
+                }
+                break;
+            default:
+        }
+
+        return res;
     }
 }

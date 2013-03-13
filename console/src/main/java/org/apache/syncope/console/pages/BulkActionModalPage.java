@@ -107,6 +107,12 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
                 case REACTIVATE:
                     bulkAction.setOperation(BulkAction.Type.REACTIVATE);
                     break;
+                case EXECUTE:
+                    bulkAction.setOperation(BulkAction.Type.EXECUTE);
+                    break;
+                case DRYRUN:
+                    bulkAction.setOperation(BulkAction.Type.DRYRUN);
+                    break;
                 default:
                     LOG.error("Bulk action type not supported");
             }
@@ -148,9 +154,7 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
 
     private Object getTargetId(final Object target, final String idFieldName)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        final PropertyDescriptor propDesc =
-                BeanUtils.getPropertyDescriptor(target.getClass(), idFieldName);
-        final Object id = propDesc.getReadMethod().invoke(target, new Object[0]);
-        return id;
+        final PropertyDescriptor propDesc = BeanUtils.getPropertyDescriptor(target.getClass(), idFieldName);
+        return propDesc.getReadMethod().invoke(target, new Object[0]);
     }
 }

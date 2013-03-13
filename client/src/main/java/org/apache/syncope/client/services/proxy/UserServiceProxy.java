@@ -181,7 +181,7 @@ public class UserServiceProxy extends SpringServiceProxy implements UserService 
     }
 
     @Override
-    public BulkActionRes bulkAction(final BulkAction bulkActions) {
-        return getRestTemplate().postForObject(baseUrl + "user/bulk", bulkActions, BulkActionRes.class);
+    public BulkActionRes bulkAction(final BulkAction bulkAction) {
+        return getRestTemplate().postForObject(baseUrl + "user/bulk", bulkAction, BulkActionRes.class);
     }
 }

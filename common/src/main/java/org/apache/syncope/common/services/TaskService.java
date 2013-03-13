@@ -30,6 +30,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 
 import org.apache.syncope.common.to.JobClassTO;
 import org.apache.syncope.common.to.ReportExecTO;
@@ -146,4 +148,8 @@ public interface TaskService {
     @PUT
     @Path("{taskId}")
     void update(@PathParam("taskId") Long taskId, TaskTO taskTO);
+    
+    @POST
+    @Path("bulk")
+    BulkActionRes bulkAction(BulkAction bulkAction);
 }

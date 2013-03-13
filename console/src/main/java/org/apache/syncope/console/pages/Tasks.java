@@ -19,6 +19,7 @@
 package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -27,15 +28,19 @@ import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.console.pages.panels.AjaxDataTablePanel;
 import org.apache.syncope.console.pages.panels.NotificationTasks;
 import org.apache.syncope.console.pages.panels.PropagationTasks;
 import org.apache.syncope.console.pages.panels.SchedTasks;
 import org.apache.syncope.console.pages.panels.SyncTasks;
+import org.apache.syncope.console.rest.BaseRestClient;
 import org.apache.syncope.console.rest.TaskRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.AbstractReadOnlyModel;
@@ -54,6 +59,8 @@ public class Tasks extends BasePage {
         add(new NotificationTasks("notification", getPageReference()));
         add(new SchedTasks("sched", getPageReference()));
         add(new SyncTasks("sync", getPageReference()));
+
+        getPageReference();
     }
 
     @Override
@@ -189,14 +196,25 @@ public class Tasks extends BasePage {
      * @param currentPage current page index.
      * @return data table.
      */
-    public static AjaxFallbackDefaultDataTable<TaskTO, String> updateTaskTable(
+    public static AjaxDataTablePanel<TaskTO, String> updateTaskTable(
             final List<IColumn<TaskTO, String>> columns,
             final TasksProvider dataProvider,
             final WebMarkupContainer container,
-            final int currentPage) {
+            final int currentPage,
+            final PageReference pageRef,
+            final BaseRestClient restClient) {
 
-        final AjaxFallbackDefaultDataTable<TaskTO, String> table = new AjaxFallbackDefaultDataTable<TaskTO, String>(
-                "datatable", columns, dataProvider, dataProvider.paginatorRows);
+        final AjaxDataTablePanel<TaskTO, String> table = new AjaxDataTablePanel<TaskTO, String>(
+                "datatable",
+                columns,
+                (ISortableDataProvider<TaskTO, String>) dataProvider,
+                dataProvider.paginatorRows,
+                Arrays.asList(new ActionLink.ActionType[]{
+                    ActionLink.ActionType.DELETE, ActionLink.ActionType.DRYRUN, ActionLink.ActionType.EXECUTE}),
+                restClient,
+                "id",
+                "Tasks",
+                pageRef);
 
         table.setCurrentPage(currentPage);
         table.setOutputMarkupId(true);

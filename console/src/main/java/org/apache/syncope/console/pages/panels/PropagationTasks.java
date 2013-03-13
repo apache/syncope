@@ -29,6 +29,7 @@ import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.PropagationTaskModalPage;
 import org.apache.syncope.console.pages.Tasks;
 import org.apache.syncope.console.pages.Tasks.TasksProvider;
+import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel.EventDataWrapper;
 import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -41,8 +42,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -55,7 +56,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -89,7 +90,7 @@ public class PropagationTasks extends Panel {
 
     private final List<IColumn<TaskTO, String>> columns;
 
-    private AjaxFallbackDefaultDataTable<TaskTO, String> table;
+    private AjaxDataTablePanel<TaskTO, String> table;
 
     public PropagationTasks(final String id, final PageReference pageRef) {
         super(id);
@@ -104,26 +105,31 @@ public class PropagationTasks extends Panel {
 
         columns = new ArrayList<IColumn<TaskTO, String>>();
 
-        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("id"), "id", "id"));
-
-        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("resource"), "resource", "resource"));
-
-        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("accountId"), "accountId", "accountId"));
+        columns.add(new PropertyColumn<TaskTO, String>(
+                new StringResourceModel("id", this, null), "id", "id"));
 
         columns.add(new PropertyColumn<TaskTO, String>(
-                new ResourceModel("propagationMode"), "propagationMode", "propagationMode"));
+                new StringResourceModel("resource", this, null), "resource", "resource"));
 
         columns.add(new PropertyColumn<TaskTO, String>(
-                new ResourceModel("propagationOperation"), "propagationOperation", "propagationOperation"));
-
-        columns.add(new DatePropertyColumn<TaskTO>(new ResourceModel("startDate"), "startDate", "startDate"));
-
-        columns.add(new DatePropertyColumn<TaskTO>(new ResourceModel("endDate"), "endDate", "endDate"));
+                new StringResourceModel("accountId", this, null), "accountId", "accountId"));
 
         columns.add(new PropertyColumn<TaskTO, String>(
-                new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
+                new StringResourceModel("propagationMode", this, null), "propagationMode", "propagationMode"));
 
-        columns.add(new AbstractColumn<TaskTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new PropertyColumn<TaskTO, String>(new StringResourceModel(
+                "propagationOperation", this, null), "propagationOperation", "propagationOperation"));
+
+        columns.add(new DatePropertyColumn<TaskTO>(
+                new StringResourceModel("startDate", this, null), "startDate", "startDate"));
+
+        columns.add(new DatePropertyColumn<TaskTO>(
+                new StringResourceModel("endDate", this, null), "endDate", "endDate"));
+
+        columns.add(new PropertyColumn<TaskTO, String>(
+                new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
+
+        columns.add(new AbstractColumn<TaskTO, String>(new StringResourceModel("actions", this, null, "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -204,7 +210,9 @@ public class PropagationTasks extends Panel {
                 columns,
                 new TasksProvider<PropagationTaskTO>(restClient, paginatorRows, getId(), PropagationTaskTO.class),
                 container,
-                0);
+                0,
+                pageRef,
+                restClient);
 
         window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
@@ -276,7 +284,9 @@ public class PropagationTasks extends Panel {
                         new TasksProvider<PropagationTaskTO>(restClient, paginatorRows,
                         getId(), PropagationTaskTO.class),
                         container,
-                        table == null ? 0 : (int) table.getCurrentPage());
+                        table == null ? 0 : (int) table.getCurrentPage(),
+                        pageRef,
+                        restClient);
 
                 target.add(container);
             }
@@ -284,5 +294,12 @@ public class PropagationTasks extends Panel {
 
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
+    }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if (event.getPayload() instanceof EventDataWrapper) {
+            ((EventDataWrapper) event.getPayload()).getTarget().add(container);
+        }
     }
 }

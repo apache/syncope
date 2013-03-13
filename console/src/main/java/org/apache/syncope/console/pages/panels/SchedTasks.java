@@ -42,8 +42,8 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -56,7 +56,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -85,7 +85,7 @@ public class SchedTasks extends Panel {
 
     private final List<IColumn<TaskTO, String>> columns;
 
-    private AjaxFallbackDefaultDataTable<TaskTO, String> table;
+    private AjaxDataTablePanel<TaskTO, String> table;
 
     public SchedTasks(final String id, final PageReference pageRef) {
 
@@ -108,22 +108,22 @@ public class SchedTasks extends Panel {
 
         columns = new ArrayList<IColumn<TaskTO, String>>();
 
-        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("id"), "id", "id"));
-
-        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("name"), "name", "name"));
-
-        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("description"), "description", "description"));
-
-        columns.add(new PropertyColumn<TaskTO, String>(new ResourceModel("class"), "jobClassName", "jobClassName"));
-
-        columns.add(new DatePropertyColumn<TaskTO>(new ResourceModel("lastExec"), "lastExec", "lastExec"));
-
-        columns.add(new DatePropertyColumn<TaskTO>(new ResourceModel("nextExec"), "nextExec", "nextExec"));
-
         columns.add(new PropertyColumn<TaskTO, String>(
-                new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
+                new StringResourceModel("id", this, null), "id", "id"));
+        columns.add(new PropertyColumn<TaskTO, String>(
+                new StringResourceModel("name", this, null), "name", "name"));
+        columns.add(new PropertyColumn<TaskTO, String>(
+                new StringResourceModel("description", this, null), "description", "description"));
+        columns.add(new PropertyColumn<TaskTO, String>(
+                new StringResourceModel("class", this, null), "jobClassName", "jobClassName"));
+        columns.add(new DatePropertyColumn<TaskTO>(
+                new StringResourceModel("lastExec", this, null), "lastExec", "lastExec"));
+        columns.add(new DatePropertyColumn<TaskTO>(
+                new StringResourceModel("nextExec", this, null), "nextExec", "nextExec"));
+        columns.add(new PropertyColumn<TaskTO, String>(
+                new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new AbstractColumn<TaskTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<TaskTO, String>(new StringResourceModel("actions", this, null, "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -221,7 +221,9 @@ public class SchedTasks extends Panel {
                 columns,
                 new TasksProvider<SchedTaskTO>(restClient, paginatorRows, getId(), SchedTaskTO.class),
                 container,
-                0);
+                0,
+                pageRef,
+                restClient);
 
         container.add(table);
 
@@ -274,7 +276,9 @@ public class SchedTasks extends Panel {
                         columns,
                         new TasksProvider<SchedTaskTO>(restClient, paginatorRows, getId(), SchedTaskTO.class),
                         container,
-                        table == null ? 0 : (int) table.getCurrentPage());
+                        table == null ? 0 : (int) table.getCurrentPage(),
+                        pageRef,
+                        restClient);
 
                 target.add(container);
             }
@@ -307,5 +311,12 @@ public class SchedTasks extends Panel {
                 "create"));
 
         add(createLink);
+    }
+    
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if (event.getPayload() instanceof AbstractSearchResultPanel.EventDataWrapper) {
+            ((AbstractSearchResultPanel.EventDataWrapper) event.getPayload()).getTarget().add(container);
+        }
     }
 }
