@@ -27,6 +27,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ResourceService;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.ResourceTO;
@@ -99,5 +101,10 @@ public class ResourceServiceImpl implements ResourceService, ContextAware {
     @Override
     public void setUriInfo(final UriInfo ui) {
         this.uriInfo = ui;
+    }
+
+    @Override
+    public BulkActionRes bulkAction(final BulkAction bulkAction) {
+        return resourceController.bulkAction(bulkAction);
     }
 }

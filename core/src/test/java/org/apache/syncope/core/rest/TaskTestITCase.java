@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +36,7 @@ import org.apache.syncope.common.search.MembershipCond;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.JobClassTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.NotificationTO;
@@ -881,6 +883,34 @@ public class TaskTestITCase extends AbstractTest {
         } catch (EmptyResultDataAccessException e) {
             assertTrue(false);
         }
+    }
+
+    @Test
+    public void bulkAction() {
+        final List<PropagationTaskTO> before = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION);
+
+        // create user with testdb resource
+        final UserTO userTO = UserTestITCase.getUniqueSampleTO("taskBulk@apache.org");
+        userTO.addResource("resource-testdb");
+        createUser(userTO);
+
+        final List<PropagationTaskTO> after =
+                new ArrayList<PropagationTaskTO>((List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION));
+
+        after.removeAll(before);
+
+        assertFalse(after.isEmpty());
+
+        final BulkAction bulkAction = new BulkAction();
+        bulkAction.setOperation(BulkAction.Type.DELETE);
+
+        for (TaskTO taskTO : after) {
+            bulkAction.addTarget(String.valueOf(taskTO.getId()));
+        }
+
+        taskService.bulkAction(bulkAction);
+
+        assertFalse(taskService.list(TaskType.PROPAGATION).containsAll(after));
     }
 
     /**

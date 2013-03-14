@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.console.rest;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.syncope.common.services.ResourceService;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.util.CollectionWrapper;
@@ -82,5 +82,9 @@ public class ResourceRestClient extends BaseRestClient {
 
     public void delete(final String name) {
         getService(ResourceService.class).delete(name);
+    }
+
+    public BulkActionRes bulkAction(final BulkAction action) {
+        return getService(ResourceService.class).bulkAction(action);
     }
 }

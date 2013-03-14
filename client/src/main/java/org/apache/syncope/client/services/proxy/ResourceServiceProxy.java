@@ -31,6 +31,8 @@ import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ResourceService;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.ResourceTO;
@@ -109,5 +111,10 @@ public class ResourceServiceProxy extends SpringServiceProxy implements Resource
     public boolean check(final ResourceTO resourceTO) {
         return getRestTemplate().postForObject(baseUrl + "resource/check.json", resourceTO, Boolean.class).
                 booleanValue();
+    }
+
+    @Override
+    public BulkActionRes bulkAction(final BulkAction bulkAction) {
+        return getRestTemplate().postForObject(baseUrl + "resource/bulk", bulkAction, BulkActionRes.class);
     }
 }

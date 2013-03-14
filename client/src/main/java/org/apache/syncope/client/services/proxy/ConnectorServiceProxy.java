@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.services.ConnectorService;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.SchemaTO;
@@ -118,5 +120,10 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
     @Override
     public void reload() {
         getRestTemplate().postForLocation(baseUrl + "connector/reload", null);
+    }
+
+    @Override
+    public BulkActionRes bulkAction(final BulkAction bulkAction) {
+        return getRestTemplate().postForObject(baseUrl + "connector/bulk", bulkAction, BulkActionRes.class);
     }
 }

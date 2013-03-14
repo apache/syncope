@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.services.ConnectorService;
 import org.apache.syncope.common.services.ResourceService;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.ResourceTO;
@@ -191,5 +193,9 @@ public class ConnectorRestClient extends BaseRestClient {
 
     public void reload() {
         getService(ConnectorService.class).reload();
+    }
+
+    public BulkActionRes bulkAction(final BulkAction action) {
+        return getService(ConnectorService.class).bulkAction(action);
     }
 }

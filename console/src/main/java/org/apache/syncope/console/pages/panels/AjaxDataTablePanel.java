@@ -170,4 +170,8 @@ public class AjaxDataTablePanel<T, S> extends Panel {
     public final long getPageCount() {
         return dataTable.getPageCount();
     }
+
+    public void setItemsPerPage(final int resourcePaginatorRows) {
+        dataTable.setItemsPerPage(resourcePaginatorRows);
+    }
 }

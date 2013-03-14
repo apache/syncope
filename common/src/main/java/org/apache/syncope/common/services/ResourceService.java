@@ -28,7 +28,8 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
-
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.ResourceTO;
@@ -106,4 +107,7 @@ public interface ResourceService {
     @Path("{resourceName}")
     void update(@PathParam("resourceName") String resourceName, ResourceTO resourceTO);
 
+    @POST
+    @Path("bulk")
+    BulkActionRes bulkAction(BulkAction bulkAction);
 }

@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.to.BulkAction;
 
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
@@ -407,6 +408,35 @@ public class ResourceTestITCase extends AbstractTest {
         } catch (SyncopeClientCompositeErrorException scce) {
             assertEquals(HttpStatus.BAD_REQUEST, scce.getStatusCode());
             assertTrue(scce.hasException(SyncopeClientExceptionType.RequiredValuesMissing));
+        }
+    }
+
+    @Test
+    public void bulkAction() {
+        resourceService.create(buildResourceTO("forBulk1"));
+        resourceService.create(buildResourceTO("forBulk2"));
+
+        assertNotNull(resourceService.read("forBulk1"));
+        assertNotNull(resourceService.read("forBulk2"));
+
+        final BulkAction bulkAction = new BulkAction();
+        bulkAction.setOperation(BulkAction.Type.DELETE);
+
+        bulkAction.addTarget(String.valueOf("forBulk1"));
+        bulkAction.addTarget(String.valueOf("forBulk2"));
+
+        resourceService.bulkAction(bulkAction);
+
+        try {
+            resourceService.read("forBulk1");
+            fail();
+        } catch (SyncopeClientCompositeErrorException e) {
+        }
+
+        try {
+            resourceService.read("forBulk2");
+            fail();
+        } catch (SyncopeClientCompositeErrorException e) {
         }
     }
 

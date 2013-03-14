@@ -25,6 +25,8 @@ import java.util.Locale;
 import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.types.AuditElements.Category;
@@ -392,5 +394,29 @@ public class ConnInstanceController extends AbstractController {
 
         auditManager.audit(Category.connector, ConnectorSubCategory.reload, Result.success,
                 "Successfully reloaded all connector bundles and instances");
+    }
+
+    @PreAuthorize("hasRole('CONNECTOR_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE")
+    @RequestMapping(method = RequestMethod.POST, value = "/bulk")
+    public BulkActionRes bulkAction(@RequestBody final BulkAction bulkAction) {
+        LOG.debug("Bulk action '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
+
+        BulkActionRes res = new BulkActionRes();
+
+        switch (bulkAction.getOperation()) {
+            case DELETE:
+                for (String id : bulkAction.getTargets()) {
+                    try {
+                        res.add(delete(Long.valueOf(id)).getId(), BulkActionRes.Status.SUCCESS);
+                    } catch (Exception e) {
+                        LOG.error("Error performing delete for connector {}", id, e);
+                        res.add(id, BulkActionRes.Status.FAILURE);
+                    }
+                }
+                break;
+            default:
+        }
+
+        return res;
     }
 }

@@ -23,17 +23,20 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.MappingItemTO;
@@ -645,5 +648,46 @@ public class ConnInstanceTestITCase extends AbstractTest {
     @Test
     public void reload() {
         connectorService.reload();
+    }
+
+    @Test
+    public void bulkAction() {
+        final BulkAction bulkAction = new BulkAction();
+        bulkAction.setOperation(BulkAction.Type.DELETE);
+
+        ConnInstanceTO conn = connectorService.read(101L);
+
+        conn.setId(0);
+        conn.setDisplayName("forBulk1");
+
+        bulkAction.addTarget(String.valueOf(
+                getObject(connectorService.create(conn), ConnInstanceTO.class, connectorService).getId()));
+
+        conn.setDisplayName("forBulk2");
+
+        bulkAction.addTarget(String.valueOf(
+                getObject(connectorService.create(conn), ConnInstanceTO.class, connectorService).getId()));
+
+
+        Iterator<String> iter = bulkAction.getTargets().iterator();
+
+        assertNotNull(connectorService.read(Long.valueOf(iter.next())));
+        assertNotNull(connectorService.read(Long.valueOf(iter.next())));
+
+        connectorService.bulkAction(bulkAction);
+
+        iter = bulkAction.getTargets().iterator();
+
+        try {
+            connectorService.read(Long.valueOf(iter.next()));
+            fail();
+        } catch (SyncopeClientCompositeErrorException e) {
+        }
+
+        try {
+            connectorService.read(Long.valueOf(iter.next()));
+            fail();
+        } catch (SyncopeClientCompositeErrorException e) {
+        }
     }
 }

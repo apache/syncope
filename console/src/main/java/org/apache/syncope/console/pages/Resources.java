@@ -19,6 +19,7 @@
 package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -28,6 +29,8 @@ import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel;
+import org.apache.syncope.console.pages.panels.AjaxDataTablePanel;
 import org.apache.syncope.console.rest.ConnectorRestClient;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
@@ -42,12 +45,13 @@ import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -58,7 +62,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -151,11 +155,12 @@ public class Resources extends BasePage {
     }
 
     private void setupResources() {
-        List<IColumn> columns = new ArrayList<IColumn>();
+        List<IColumn<ResourceTO, String>> columns = new ArrayList<IColumn<ResourceTO, String>>();
 
-        columns.add(new PropertyColumn(new ResourceModel("name"), "name", "name"));
+        columns.add(new PropertyColumn(new StringResourceModel("name", this, null), "name", "name"));
 
-        columns.add(new AbstractColumn<ResourceTO, String>(new ResourceModel("connector", "connector")) {
+        columns.add(new AbstractColumn<ResourceTO, String>(
+                new StringResourceModel("connector", this, null, "connector")) {
 
             private static final long serialVersionUID = 8263694778917279290L;
 
@@ -196,12 +201,12 @@ public class Resources extends BasePage {
             }
         });
 
-        columns.add(new PropertyColumn(new ResourceModel("propagationPrimary"), "propagationPrimary",
-                "propagationPrimary"));
-        columns.add(new PropertyColumn(new ResourceModel("propagationPriority"), "propagationPriority",
-                "propagationPriority"));
+        columns.add(new PropertyColumn(new StringResourceModel(
+                "propagationPrimary", this, null), "propagationPrimary", "propagationPrimary"));
+        columns.add(new PropertyColumn(new StringResourceModel(
+                "propagationPriority", this, null), "propagationPriority", "propagationPriority"));
 
-        columns.add(new AbstractColumn<ResourceTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<ResourceTO, String>(new StringResourceModel("actions", this, null, "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -266,8 +271,16 @@ public class Resources extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable("resourceDatatable", columns,
-                new ResourcesProvider(), resourcePaginatorRows);
+        final AjaxDataTablePanel<ResourceTO, String> table = new AjaxDataTablePanel<ResourceTO, String>(
+                "resourceDatatable",
+                columns,
+                (ISortableDataProvider<ResourceTO, String>) new ResourcesProvider(),
+                resourcePaginatorRows,
+                Arrays.asList(new ActionLink.ActionType[]{ActionLink.ActionType.DELETE}),
+                resourceRestClient,
+                "name",
+                "Resources",
+                getPageReference());
 
         resourceContainer = new WebMarkupContainer("resourceContainer");
         resourceContainer.add(table);
@@ -339,19 +352,19 @@ public class Resources extends BasePage {
     }
 
     private void setupConnectors() {
-        List<IColumn> columns = new ArrayList<IColumn>();
+        List<IColumn<ConnInstanceTO, String>> columns = new ArrayList<IColumn<ConnInstanceTO, String>>();
 
-        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
-
-        columns.add(new PropertyColumn(new ResourceModel("name"), "connectorName", "connectorName"));
-
-        columns.add(new PropertyColumn(new ResourceModel("displayName"), "displayName", "displayName"));
-
-        columns.add(new PropertyColumn(new ResourceModel("version"), "version", "version"));
-
-        columns.add(new PropertyColumn(new ResourceModel("bundleName"), "bundleName", "bundleName"));
-
-        columns.add(new AbstractColumn<ConnInstanceTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new PropertyColumn(
+                new StringResourceModel("id", this, null), "id", "id"));
+        columns.add(new PropertyColumn(
+                new StringResourceModel("name", this, null), "connectorName", "connectorName"));
+        columns.add(new PropertyColumn(
+                new StringResourceModel("displayName", this, null), "displayName", "displayName"));
+        columns.add(new PropertyColumn(
+                new StringResourceModel("version", this, null), "version", "version"));
+        columns.add(new PropertyColumn(
+                new StringResourceModel("bundleName", this, null), "bundleName", "bundleName"));
+        columns.add(new AbstractColumn<ConnInstanceTO, String>(new StringResourceModel("actions", this, null, "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -413,8 +426,16 @@ public class Resources extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable("connectorDatatable", columns,
-                new ConnectorsProvider(), connectorPaginatorRows);
+        final AjaxDataTablePanel<ConnInstanceTO, String> table = new AjaxDataTablePanel<ConnInstanceTO, String>(
+                "connectorDatatable",
+                columns,
+                (ISortableDataProvider<ConnInstanceTO, String>) new ConnectorsProvider(),
+                connectorPaginatorRows,
+                Arrays.asList(new ActionLink.ActionType[]{ActionLink.ActionType.DELETE}),
+                connectorRestClient,
+                "id",
+                "Connectors",
+                getPageReference());
 
         connectorContainer = new WebMarkupContainer("connectorContainer");
         connectorContainer.add(table);
@@ -577,6 +598,14 @@ public class Resources extends BasePage {
 
         public List<ConnInstanceTO> getConnectorsListDB() {
             return connectorRestClient.getAllConnectors();
+        }
+    }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if (event.getPayload() instanceof AbstractSearchResultPanel.EventDataWrapper) {
+            ((AbstractSearchResultPanel.EventDataWrapper) event.getPayload()).getTarget().add(resourceContainer);
+            ((AbstractSearchResultPanel.EventDataWrapper) event.getPayload()).getTarget().add(connectorContainer);
         }
     }
 }

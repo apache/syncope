@@ -23,6 +23,8 @@ import java.util.Set;
 import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -298,5 +300,29 @@ public class ResourceController extends AbstractController {
         }
 
         return new ModelAndView().addObject(result);
+    }
+
+    @PreAuthorize("hasRole('RESOURCE_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE")
+    @RequestMapping(method = RequestMethod.POST, value = "/bulk")
+    public BulkActionRes bulkAction(@RequestBody final BulkAction bulkAction) {
+        LOG.debug("Bulk action '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
+
+        BulkActionRes res = new BulkActionRes();
+
+        switch (bulkAction.getOperation()) {
+            case DELETE:
+                for (String name : bulkAction.getTargets()) {
+                    try {
+                        res.add(delete(name).getName(), BulkActionRes.Status.SUCCESS);
+                    } catch (Exception e) {
+                        LOG.error("Error performing delete for resource {}", name, e);
+                        res.add(name, BulkActionRes.Status.FAILURE);
+                    }
+                }
+                break;
+            default:
+        }
+
+        return res;
     }
 }

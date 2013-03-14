@@ -25,6 +25,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ConnectorService;
+import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.SchemaTO;
@@ -110,5 +112,10 @@ public class ConnectorServiceImpl implements ConnectorService, ContextAware {
     @Override
     public void reload() {
         connInstanceController.reload();
+    }
+
+    @Override
+    public BulkActionRes bulkAction(final BulkAction bulkAction) {
+        return connInstanceController.bulkAction(bulkAction);
     }
 }
