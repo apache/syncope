@@ -305,11 +305,13 @@ public class TaskController extends AbstractController {
             case SCHED:
             case SYNC:
                 try {
-                    jobInstanceLoader.registerJob(task, ((SchedTask) task).getJobClassName(), ((SchedTask) task).
-                            getCronExpression());
+                    jobInstanceLoader.registerJob(task,
+                            ((SchedTask) task).getJobClassName(),
+                            ((SchedTask) task).getCronExpression());
 
                     JobDataMap map = new JobDataMap();
                     map.put(AbstractTaskJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
+
                     scheduler.getScheduler().triggerJob(
                             new JobKey(JobInstanceLoader.getJobName(task), Scheduler.DEFAULT_GROUP), map);
                 } catch (Exception e) {

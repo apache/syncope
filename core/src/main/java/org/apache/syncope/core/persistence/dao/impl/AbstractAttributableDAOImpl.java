@@ -219,11 +219,12 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
                 : attrUtil.attrValueClass().getName();
 
         TypedQuery<AbstractAttrValue> query = entityManager.createQuery("SELECT e FROM " + entityName + " e"
-                + " WHERE e.attribute.schema.name = :schemaName " + " AND (e.stringValue IS NOT NULL"
-                + " AND e.stringValue = :stringValue)" + " OR (e.booleanValue IS NOT NULL"
-                + " AND e.booleanValue = :booleanValue)" + " OR (e.dateValue IS NOT NULL"
-                + " AND e.dateValue = :dateValue)" + " OR (e.longValue IS NOT NULL" + " AND e.longValue = :longValue)"
-                + " OR (e.doubleValue IS NOT NULL" + " AND e.doubleValue = :doubleValue)",
+                + " WHERE e.attribute.schema.name = :schemaName AND (e.stringValue IS NOT NULL"
+                + " AND e.stringValue = :stringValue)"
+                + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
+                + " OR (e.dateValue IS NOT NULL AND e.dateValue = :dateValue)"
+                + " OR (e.longValue IS NOT NULL AND e.longValue = :longValue)"
+                + " OR (e.doubleValue IS NOT NULL AND e.doubleValue = :doubleValue)",
                 AbstractAttrValue.class);
 
         query.setParameter("schemaName", schemaName);
