@@ -93,7 +93,7 @@ public class Schema extends BasePage {
 
     };
 
-    private static final int WIN_WIDTH = 550;
+    private static final int WIN_WIDTH = 600;
 
     private static final int WIN_HEIGHT = 200;
 
