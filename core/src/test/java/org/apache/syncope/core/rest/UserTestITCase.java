@@ -641,7 +641,8 @@ public class UserTestITCase extends AbstractTest {
 
         Exception exception = null;
         try {
-            jdbcTemplate.queryForInt("SELECT id FROM test WHERE id=?", userTO.getUsername());
+            jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
+                    new String[]{userTO.getUsername()}, Integer.class);
         } catch (EmptyResultDataAccessException e) {
             exception = e;
         }
