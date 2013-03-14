@@ -1069,7 +1069,7 @@ under the License.
 
     <profile>
       <id>glassfish-it</id>
-      
+
       <dependencies>
         <dependency>
           <groupId>com.h2database</groupId>
@@ -1113,7 +1113,7 @@ under the License.
 
     <profile>
       <id>jboss-it</id>
-      
+
       <dependencies>
         <dependency>
           <groupId>com.h2database</groupId>
@@ -1134,7 +1134,46 @@ under the License.
               <skipTests>true</skipTests>
             </configuration>
           </plugin>
-
+      
+          <!-- Disable MANIFEST.MF OSGi handling -->
+          <plugin>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>maven-bundle-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>bundle-manifest</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+      
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>setupBuildToolsForJBoss</id>
+                <phase>pre-integration-test</phase>
+                <configuration>
+                  <target>
+                    <unzip src="${settings.localRepository}/org/apache/syncope/syncope-build-tools/${project.version}/syncope-build-tools-${project.version}.war" 
+                           dest="${project.build.directory}/syncope-build-tools-test"/>
+                    <copy file="${project.build.outputDirectory}/META-INF/MANIFEST.MF" 
+                          todir="${project.build.directory}/syncope-build-tools-test/META-INF"
+                          overwrite="true"/>
+                    <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" 
+                          todir="${project.build.directory}/syncope-build-tools-test/WEB-INF/lib"
+                          overwrite="true"/>
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+                
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
@@ -1155,7 +1194,31 @@ under the License.
                   <cargo.jvmargs>-Xms1024m -Xmx2048m -XX:PermSize=512m -XX:MaxPermSize=1024m -XX:+UseConcMarkSweepGC -XX:+CMSPermGenSweepingEnabled -XX:+CMSClassUnloadingEnabled</cargo.jvmargs>
                 </properties>
               </configuration>
-            </configuration>
+              <deployables>
+                <deployable>
+                  <location>${cargo.run.dir}</location>
+                  <pingURL>http://localhost:${cargo.servlet.port}/syncope/rest/schema/user/list.xml</pingURL>
+                  <pingTimeout>1200000</pingTimeout>
+                  <properties>
+                    <context>syncope</context>
+                  </properties>
+                </deployable>
+                <deployable>
+                  <groupId>org.connid.bundles.soap</groupId>
+                  <artifactId>wssample</artifactId>
+                  <type>war</type>
+                  <properties>
+                    <context>wssample</context>
+                  </properties>
+                </deployable>
+                <deployable>
+                  <location>${project.build.directory}/syncope-build-tools-test</location>
+                  <properties>
+                    <context>syncope-build-tools</context>
+                  </properties>
+                </deployable>
+              </deployables>
+            </configuration>            
           </plugin>
         </plugins>
 
@@ -1171,9 +1234,6 @@ under the License.
           <resource>
             <directory>src/test/resources/jboss</directory>
             <filtering>true</filtering>
-            <includes>
-              <include>persistenceContextEMFactory.xml</include>
-            </includes>
           </resource>
           <resource>
             <directory>src/test/resources</directory>

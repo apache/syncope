@@ -1160,6 +1160,7 @@ under the License.
             <exclude>nbactions.xml</exclude>
             <exclude>nb-configuration.xml</exclude>
             <exclude>**/META-INF/services/**</exclude>
+            <exclude>**/META-INF/MANIFEST.MF</exclude>            
             <exclude>**/*.css</exclude>
             <exclude>**/*.js</exclude>
             <exclude>**/*.csv</exclude>
