@@ -708,7 +708,7 @@ public class TaskTestITCase extends AbstractTest {
         // wait for sync completion (executions incremented)
         do {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
             }
 
