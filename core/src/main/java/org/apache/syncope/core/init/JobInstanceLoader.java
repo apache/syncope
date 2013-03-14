@@ -20,7 +20,6 @@ package org.apache.syncope.core.init;
 
 import java.text.ParseException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -114,9 +113,7 @@ public class JobInstanceLoader {
 
         synchronized (scheduler.getScheduler()) {
             boolean jobAlreadyRunning = false;
-            for (JobExecutionContext jobCtx : (List<JobExecutionContext>) scheduler.getScheduler().
-                    getCurrentlyExecutingJobs()) {
-
+            for (JobExecutionContext jobCtx : scheduler.getScheduler().getCurrentlyExecutingJobs()) {
                 if (jobName.equals(jobCtx.getJobDetail().getKey().getName())
                         && Scheduler.DEFAULT_GROUP.equals(jobCtx.getJobDetail().getKey().getGroup())) {
 
@@ -145,6 +142,8 @@ public class JobInstanceLoader {
 
         // 3. Trigger
         if (cronExpression == null) {
+            // Jobs added with no trigger must be durable
+            jobDetail.setDurability(true);
             scheduler.getScheduler().addJob(jobDetail, true);
         } else {
             CronTriggerImpl cronTrigger = new CronTriggerImpl();
