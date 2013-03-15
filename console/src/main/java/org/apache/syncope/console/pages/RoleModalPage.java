@@ -70,42 +70,43 @@ public class RoleModalPage extends BaseModalPage {
 
         form.add(attributesPanel);
 
-        final AjaxButton submit = new ClearIndicatingAjaxButton("submit", new ResourceModel("submit"), pageRef) {
+        final AjaxButton submit =
+                new ClearIndicatingAjaxButton("submit", new ResourceModel("submit"), getPageReference()) {
 
-            private static final long serialVersionUID = -958724007591692537L;
+                    private static final long serialVersionUID = -958724007591692537L;
 
-            @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                final RoleTO roleTO = (RoleTO) form.getDefaultModelObject();
-                try {
-                    final List<String> entitlementList =
-                            new ArrayList<String>(attributesPanel.getEntitlementsPalette().getModelCollection());
-                    roleTO.setEntitlements(entitlementList);
+                    @Override
+                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                        final RoleTO roleTO = (RoleTO) form.getDefaultModelObject();
+                        try {
+                            final List<String> entitlementList =
+                                    new ArrayList<String>(attributesPanel.getSelectedEntitlements());
+                            roleTO.setEntitlements(entitlementList);
 
-                    if (createFlag) {
-                        roleRestClient.createRole(roleTO);
-                    } else {
-                        RoleMod roleMod = AttributableOperations.diff(roleTO, originalRoleTO);
+                            if (createFlag) {
+                                roleRestClient.createRole(roleTO);
+                            } else {
+                                RoleMod roleMod = AttributableOperations.diff(roleTO, originalRoleTO);
 
-                        // update role just if it is changed
-                        if (!roleMod.isEmpty()) {
-                            roleRestClient.updateRole(roleMod);
+                                // update role just if it is changed
+                                if (!roleMod.isEmpty()) {
+                                    roleRestClient.updateRole(roleMod);
+                                }
+                            }
+                            ((Roles) pageRef.getPage()).setModalResult(true);
+
+                            window.close(target);
+                        } catch (Exception e) {
+                            error(getString("error") + ":" + e.getMessage());
+                            target.add(feedbackPanel);
                         }
                     }
-                    ((Roles) pageRef.getPage()).setModalResult(true);
 
-                    window.close(target);
-                } catch (Exception e) {
-                    error(getString("error") + ":" + e.getMessage());
-                    target.add(feedbackPanel);
-                }
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(feedbackPanel);
-            }
-        };
+                    @Override
+                    protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                        target.add(feedbackPanel);
+                    }
+                };
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Roles",
                 createFlag

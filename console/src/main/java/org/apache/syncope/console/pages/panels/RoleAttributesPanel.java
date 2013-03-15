@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import java.util.Collection;
 import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.console.commons.SelectChoiceRenderer;
 import org.apache.syncope.console.rest.EntitlementRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
@@ -37,7 +37,7 @@ public class RoleAttributesPanel extends Panel {
     @SpringBean
     private EntitlementRestClient entitlementRestClient;
 
-    final Palette<String> entitlementsPalette;
+    final AjaxPalettePanel entitlementsPalette;
 
     public RoleAttributesPanel(final String id, final Form form, final RoleTO roleTO) {
         super(id);
@@ -82,14 +82,12 @@ public class RoleAttributesPanel extends Panel {
         //--------------------------------
         // Security container
         //--------------------------------
-
         this.add(new RoleSecurityPanel("security", roleTO));
         //--------------------------------
 
         //--------------------------------
         // Resources container
         //--------------------------------
-
         this.add(new ResourcesPanel("resources", roleTO));
         //--------------------------------
 
@@ -97,13 +95,12 @@ public class RoleAttributesPanel extends Panel {
 
         ListModel<String> availableEntitlements = new ListModel<String>(entitlementRestClient.getAllEntitlements());
 
-        entitlementsPalette = new Palette<String>("entitlementsPalette", selectedEntitlements, availableEntitlements,
-                new SelectChoiceRenderer(), 20, false);
+        entitlementsPalette = new AjaxPalettePanel("entitlementsPalette", selectedEntitlements, availableEntitlements);
 
         this.add(entitlementsPalette);
     }
 
-    public Palette<String> getEntitlementsPalette() {
-        return this.entitlementsPalette;
+    public Collection<String> getSelectedEntitlements() {
+        return this.entitlementsPalette.getModelCollection();
     }
 }
