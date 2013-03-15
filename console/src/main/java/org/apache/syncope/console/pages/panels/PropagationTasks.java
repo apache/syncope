@@ -31,7 +31,7 @@ import org.apache.syncope.console.pages.Tasks;
 import org.apache.syncope.console.pages.Tasks.TasksProvider;
 import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel.EventDataWrapper;
 import org.apache.syncope.console.rest.TaskRestClient;
-import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
@@ -40,21 +40,16 @@ import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.http.WebResponse;
@@ -129,7 +124,7 @@ public class PropagationTasks extends Panel {
         columns.add(new PropertyColumn<TaskTO, String>(
                 new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new AbstractColumn<TaskTO, String>(new StringResourceModel("actions", this, null, "")) {
+        columns.add(new ActionColumn<TaskTO, String>(new StringResourceModel("actions", this, null, "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -139,8 +134,7 @@ public class PropagationTasks extends Panel {
             }
 
             @Override
-            public void populateItem(final Item<ICellPopulator<TaskTO>> cellItem, final String componentId,
-                    final IModel<TaskTO> model) {
+            public ActionLinksPanel getActions(final String componentId, final IModel<TaskTO> model) {
 
                 final TaskTO taskTO = model.getObject();
 
@@ -202,7 +196,26 @@ public class PropagationTasks extends Panel {
                     }
                 }, ActionLink.ActionType.DELETE, "Tasks");
 
-                cellItem.add(panel);
+                return panel;
+            }
+
+            @Override
+            public Component getHeader(String componentId) {
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(), pageRef);
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        if (target != null) {
+                            target.add(table);
+                        }
+                    }
+                }, ActionLink.ActionType.RELOAD, "Tasks", "list");
+
+                return panel;
             }
         });
 
@@ -233,37 +246,6 @@ public class PropagationTasks extends Panel {
         window.setInitialHeight(WIN_HEIGHT);
         window.setInitialWidth(WIN_WIDTH);
         window.setCookieName("view-task-win");
-
-        final AjaxLink reload = new ClearIndicatingAjaxLink("reload", pageRef) {
-
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            protected void onClickInternal(AjaxRequestTarget target) {
-                if (target != null) {
-                    target.add(table);
-                }
-            }
-        };
-
-        reload.add(new Behavior() {
-
-            private static final long serialVersionUID = 1469628524240283489L;
-
-            @Override
-            public void onComponentTag(final Component component, final ComponentTag tag) {
-
-                if (table.getRowCount() > paginatorRows) {
-                    tag.remove("class");
-                    tag.put("class", "settingsPosMultiPage");
-                } else {
-                    tag.remove("class");
-                    tag.put("class", "settingsPos");
-                }
-            }
-        });
-
-        container.add(reload);
 
         Form paginatorForm = new Form("PaginatorForm");
 

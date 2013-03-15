@@ -27,25 +27,16 @@ import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.AbstractBasePage;
-import org.apache.syncope.console.pages.DisplayAttributesModalPage;
 import org.apache.syncope.console.rest.AbstractAttributableRestClient;
-import org.apache.syncope.console.rest.UserRestClient;
-import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
-import org.apache.wicket.Component;
-import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSource;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -209,97 +200,6 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
         // preferences and container must be not null to use it ...
         rows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_USERS_PAGINATOR_ROWS);
         updateResultTable(false);
-        // ---------------------------
-
-        final AjaxLink displayAttrsLink;
-        if (restClient instanceof UserRestClient) {
-            // ---------------------------
-            // Link to select schemas/columns to be shown (User)
-            // ---------------------------
-            displayAttrsLink = new ClearIndicatingAjaxLink("displayAttrsLink", pageRef) {
-
-                private static final long serialVersionUID = -7978723352517770644L;
-
-                @Override
-                protected void onClickInternal(final AjaxRequestTarget target) {
-                    displaymodal.setPageCreator(new ModalWindow.PageCreator() {
-
-                        private static final long serialVersionUID = -7834632442532690940L;
-
-                        @Override
-                        public Page createPage() {
-                            return new DisplayAttributesModalPage(page.getPageReference(), displaymodal);
-                        }
-                    });
-
-                    displaymodal.show(target);
-                }
-            };
-
-            // Add class to specify relative position of the link.
-            // Position depends on result pages number.
-            displayAttrsLink.add(new Behavior() {
-
-                private static final long serialVersionUID = 1469628524240283489L;
-
-                @Override
-                public void onComponentTag(final Component component, final ComponentTag tag) {
-                    if (resultTable.getRowCount() > rows) {
-                        tag.remove("class");
-                        tag.put("class", "settingsPosMultiPage");
-                    } else {
-                        tag.remove("class");
-                        tag.put("class", "settingsPos");
-                    }
-                }
-            });
-
-            MetaDataRoleAuthorizationStrategy.authorize(
-                    displayAttrsLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "changeView"));
-        } else {
-            displayAttrsLink = new AjaxLink("displayAttrsLink") {
-
-                private static final long serialVersionUID = -7978723352517770644L;
-
-                @Override
-                public void onClick(final AjaxRequestTarget target) {
-                }
-            };
-            displayAttrsLink.setVisible(false);
-        }
-        container.add(displayAttrsLink);
-
-        final AjaxLink reload = new ClearIndicatingAjaxLink("reload", pageRef) {
-
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            protected void onClickInternal(final AjaxRequestTarget target) {
-                if (target != null) {
-                    target.add(resultTable);
-                }
-            }
-        };
-
-        reload.add(new Behavior() {
-
-            private static final long serialVersionUID = 1469628524240283489L;
-
-            @Override
-            public void onComponentTag(final Component component, final ComponentTag tag) {
-
-                if (resultTable.getRowCount() > rows) {
-                    tag.remove("class");
-                    tag.put("class", "settingsPosMultiPage");
-                } else {
-                    tag.remove("class");
-                    tag.put("class", "settingsPos");
-                }
-            }
-        });
-
-        container.add(reload);
-
         // ---------------------------
 
         // ---------------------------

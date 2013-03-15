@@ -62,6 +62,8 @@ public class ActionLinksPanel extends Panel {
         super.add(new Fragment("panelExport", "emptyFragment", this));
         super.add(new Fragment("panelSuspend", "emptyFragment", this));
         super.add(new Fragment("panelReactivate", "emptyFragment", this));
+        super.add(new Fragment("panelReload", "emptyFragment", this));
+        super.add(new Fragment("panelChangeView", "emptyFragment", this));
     }
 
     public void add(
@@ -292,6 +294,33 @@ public class ActionLinksPanel extends Panel {
                 });
                 break;
 
+            case RELOAD:
+                fragment = new Fragment("panelReload", "fragmentReload", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("reloadLink", pageRef) {
+
+                    private static final long serialVersionUID = -6957616042924610293L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                });
+                break;
+
+            case CHANGE_VIEW:
+                fragment = new Fragment("panelChangeView", "fragmentChangeView", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("changeViewLink", pageRef) {
+
+                    private static final long serialVersionUID = -6957616042924610292L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                });
+                break;
             default:
             // do nothink
         }
@@ -351,6 +380,14 @@ public class ActionLinksPanel extends Panel {
 
             case REACTIVATE:
                 super.addOrReplace(new Fragment("panelReactivate", "emptyFragment", this));
+                break;
+
+            case RELOAD:
+                super.addOrReplace(new Fragment("panelReload", "emptyFragment", this));
+                break;
+
+            case CHANGE_VIEW:
+                super.addOrReplace(new Fragment("panelChangeView", "emptyFragment", this));
                 break;
             default:
             // do nothing

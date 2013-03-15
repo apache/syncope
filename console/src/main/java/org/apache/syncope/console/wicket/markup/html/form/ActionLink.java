@@ -40,7 +40,9 @@ public abstract class ActionLink implements Serializable {
         SELECT("read"),
         EXPORT("read"),
         SUSPEND("update"),
-        REACTIVATE("update");
+        REACTIVATE("update"),
+        RELOAD("reload"),
+        CHANGE_VIEW("changeView");
 
         private final String actionId;
 

@@ -36,7 +36,7 @@ import org.apache.syncope.console.markup.html.CrontabContainer;
 import org.apache.syncope.console.rest.ReportRestClient;
 import org.apache.syncope.console.wicket.ajax.form.AbstractAjaxDownloadBehavior;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
-import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
@@ -53,9 +53,7 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
@@ -64,7 +62,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.ListChoice;
-import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -416,7 +413,7 @@ public class ReportModalPage extends BaseModalPage {
     }
 
     private void setupExecutions() {
-        final WebMarkupContainer executions = new WebMarkupContainer("executions");
+        final WebMarkupContainer executions = new WebMarkupContainer("executionContainer");
         executions.setOutputMarkupId(true);
         form.add(executions);
 
@@ -449,18 +446,12 @@ public class ReportModalPage extends BaseModalPage {
         columns.add(new DatePropertyColumn(new ResourceModel("startDate"), "startDate", "startDate"));
         columns.add(new DatePropertyColumn(new ResourceModel("endDate"), "endDate", "endDate"));
         columns.add(new PropertyColumn(new ResourceModel("status"), "status", "status"));
-        columns.add(new AbstractColumn<ReportExecTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<ReportExecTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
-            public String getCssClass() {
-                return "action";
-            }
-
-            @Override
-            public void populateItem(final Item<ICellPopulator<ReportExecTO>> cellItem, final String componentId,
-                    final IModel<ReportExecTO> model) {
+            public ActionLinksPanel getActions(final String componentId, final IModel<ReportExecTO> model) {
 
                 final ReportExecTO taskExecutionTO = model.getObject();
 
@@ -528,36 +519,41 @@ public class ReportModalPage extends BaseModalPage {
                     }
                 }, ActionLink.ActionType.DELETE, "Reports");
 
-                cellItem.add(panel);
+                return panel;
+            }
+
+            @Override
+            public Component getHeader(final String componentId) {
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(), getPageReference());
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        if (target != null) {
+                            final ReportTO currentReportTO = reportTO.getId() == 0
+                                    ? reportTO
+                                    : restClient.read(reportTO.getId());
+                            reportTO.setExecutions(currentReportTO.getExecutions());
+                            final AjaxFallbackDefaultDataTable currentTable =
+                                    new AjaxFallbackDefaultDataTable("executionsTable", columns,
+                                    new ReportExecutionsProvider(reportTO), 10);
+                            currentTable.setOutputMarkupId(true);
+                            target.add(currentTable);
+                            executions.addOrReplace(currentTable);
+                        }
+                    }
+                }, ActionLink.ActionType.RELOAD, "Tasks", "list");
+
+                return panel;
             }
         });
 
         final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable("executionsTable", columns,
                 new ReportExecutionsProvider(reportTO), 10);
         executions.add(table);
-
-        final AjaxLink reload = new ClearIndicatingAjaxLink("reload", getPageReference()) {
-
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            protected void onClickInternal(final AjaxRequestTarget target) {
-                if (target != null) {
-                    final ReportTO currentReportTO = reportTO.getId() == 0
-                            ? reportTO
-                            : restClient.read(reportTO.getId());
-                    reportTO.setExecutions(currentReportTO.getExecutions());
-                    final AjaxFallbackDefaultDataTable currentTable =
-                            new AjaxFallbackDefaultDataTable("executionsTable", columns,
-                            new ReportExecutionsProvider(reportTO), 10);
-                    currentTable.setOutputMarkupId(true);
-                    target.add(currentTable);
-                    executions.addOrReplace(currentTable);
-                }
-            }
-        };
-
-        executions.add(reload);
     }
 
     public void setExportFormat(final ReportExecExportFormat exportFormat) {

@@ -16,25 +16,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:head>
-  <style>
-    .settingsPos{
-      position:relative; 
-      top:30px;
-      left:90%;
-      width:10px;
-      text-decoration: none;
-    }
-
-    .settingsPosMultiPage{
-      position:relative; 
-      top:50px;
-      left:90%;
-      width:10px;
-      text-decoration: none;
-    }
-  </style>
-</wicket:head>
 <wicket:extend>
   <div id="dialog-form">
     <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
@@ -80,10 +61,7 @@ under the License.
           </div>
         </div>
         <div id="executions" class="ui-widget">
-          <span wicket:id="executions" id="executions">
-            <a wicket:id="reload" class="settingsPos">
-              <img src="img/reload.png" alt="reload" class="drop_button" />
-            </a>
+          <span wicket:id="executionContainer" id="executionContainer">
             <table class="ui-widget ui-widget-content"
                    wicket:id="executionsTable" style="width: 100%"/>
           </span>

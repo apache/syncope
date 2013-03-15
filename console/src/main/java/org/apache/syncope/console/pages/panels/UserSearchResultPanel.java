@@ -36,6 +36,7 @@ import org.apache.syncope.console.pages.ResultStatusModalPage;
 import org.apache.syncope.console.pages.StatusModalPage;
 import org.apache.syncope.console.rest.AbstractAttributableRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
@@ -46,12 +47,10 @@ import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
@@ -108,18 +107,12 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
                     Arrays.asList(DisplayAttributesModalPage.DEFAULT_SELECTION));
         }
 
-        columns.add(new AbstractColumn<AbstractAttributableTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<AbstractAttributableTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 
             @Override
-            public String getCssClass() {
-                return "action";
-            }
-
-            @Override
-            public void populateItem(final Item<ICellPopulator<AbstractAttributableTO>> cellItem,
-                    final String componentId, final IModel<AbstractAttributableTO> model) {
+            public ActionLinksPanel getActions(final String componentId, final IModel<AbstractAttributableTO> model) {
 
                 final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, page.getPageReference());
 
@@ -194,7 +187,46 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
                     }
                 }, ActionLink.ActionType.DELETE, PAGEID);
 
-                cellItem.add(panel);
+                return panel;
+            }
+
+            @Override
+            public ActionLinksPanel getHeader(final String componentId) {
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(), page.getPageReference());
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        displaymodal.setPageCreator(new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID = -7834632442532690940L;
+
+                            @Override
+                            public Page createPage() {
+                                return new DisplayAttributesModalPage(page.getPageReference(), displaymodal);
+                            }
+                        });
+
+                        displaymodal.show(target);
+                    }
+                }, ActionLink.ActionType.CHANGE_VIEW, PAGEID);
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        if (target != null) {
+                            target.add(container);
+                        }
+                    }
+                }, ActionLink.ActionType.RELOAD, PAGEID, "list");
+
+                return panel;
             }
         });
 

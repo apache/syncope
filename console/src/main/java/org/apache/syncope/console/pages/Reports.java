@@ -37,6 +37,7 @@ import org.apache.syncope.console.pages.panels.JQueryTabbedPanel;
 import org.apache.syncope.console.rest.LoggerRestClient;
 import org.apache.syncope.console.rest.ReportRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
@@ -47,18 +48,14 @@ import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
-import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Check;
@@ -69,7 +66,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -138,18 +134,12 @@ public class Reports extends BasePage {
         columns.add(new DatePropertyColumn(new ResourceModel("startDate"), "startDate", "startDate"));
         columns.add(new DatePropertyColumn(new ResourceModel("endDate"), "endDate", "endDate"));
         columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
-        columns.add(new AbstractColumn<ReportTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<ReportTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
-            public String getCssClass() {
-                return "action";
-            }
-
-            @Override
-            public void populateItem(final Item<ICellPopulator<ReportTO>> cellItem, final String componentId,
-                    final IModel<ReportTO> model) {
+            public ActionLinksPanel getActions(final String componentId, final IModel<ReportTO> model) {
 
                 final ReportTO reportTO = model.getObject();
 
@@ -211,7 +201,26 @@ public class Reports extends BasePage {
                     }
                 }, ActionLink.ActionType.DELETE, "Reports");
 
-                cellItem.add(panel);
+                return panel;
+            }
+
+            @Override
+            public Component getHeader(final String componentId) {
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(), getPageReference());
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        if (target != null) {
+                            target.add(reportContainer);
+                        }
+                    }
+                }, ActionLink.ActionType.RELOAD, "Tasks", "list");
+
+                return panel;
             }
         });
 
@@ -220,37 +229,6 @@ public class Reports extends BasePage {
 
         reportContainer.add(reportTable);
         reportContainer.setOutputMarkupId(true);
-
-        final AjaxLink reload = new ClearIndicatingAjaxLink("reload", getPageReference()) {
-
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            protected void onClickInternal(final AjaxRequestTarget target) {
-                if (target != null) {
-                    target.add(reportTable);
-                }
-            }
-        };
-
-        reload.add(new Behavior() {
-
-            private static final long serialVersionUID = 1469628524240283489L;
-
-            @Override
-            public void onComponentTag(final Component component, final ComponentTag tag) {
-
-                if (reportTable.getRowCount() > paginatorRows) {
-                    tag.remove("class");
-                    tag.put("class", "settingsPosMultiPage");
-                } else {
-                    tag.remove("class");
-                    tag.put("class", "settingsPos");
-                }
-            }
-        });
-
-        reportContainer.add(reload);
 
         add(reportContainer);
 

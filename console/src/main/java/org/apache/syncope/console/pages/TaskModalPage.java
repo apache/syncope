@@ -31,6 +31,7 @@ import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.rest.TaskRestClient;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
@@ -38,25 +39,19 @@ import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
-import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -92,20 +87,23 @@ public abstract class TaskModalPage extends BaseModalPage {
         profile.setOutputMarkupId(true);
         form.add(profile);
 
-        executions = new WebMarkupContainer("executions");
+        executions = new WebMarkupContainer("executionContainer");
         executions.setOutputMarkupId(true);
         form.add(executions);
 
         final Label idLabel = new Label("idLabel", new ResourceModel("id"));
         profile.add(idLabel);
 
-        final AjaxTextFieldPanel id = new AjaxTextFieldPanel("id", getString("id"), new PropertyModel<String>(taskTO,
-                "id"));
+        final AjaxTextFieldPanel id =
+                new AjaxTextFieldPanel("id", getString("id"), new PropertyModel<String>(taskTO, "id"));
 
         id.setEnabled(false);
         profile.add(id);
 
         final List<IColumn> columns = new ArrayList<IColumn>();
+
+        final int paginatorRows = 10;
+
         columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
 
         columns.add(new DatePropertyColumn(new ResourceModel("startDate"), "startDate", "startDate"));
@@ -114,18 +112,12 @@ public abstract class TaskModalPage extends BaseModalPage {
 
         columns.add(new PropertyColumn(new ResourceModel("status"), "status", "status"));
 
-        columns.add(new AbstractColumn<TaskExecTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<TaskExecTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
-            public String getCssClass() {
-                return "action";
-            }
-
-            @Override
-            public void populateItem(final Item<ICellPopulator<TaskExecTO>> cellItem, final String componentId,
-                    final IModel<TaskExecTO> model) {
+            public ActionLinksPanel getActions(final String componentId, final IModel<TaskExecTO> model) {
 
                 final TaskExecTO taskExecutionTO = model.getObject();
 
@@ -171,51 +163,38 @@ public abstract class TaskModalPage extends BaseModalPage {
                     }
                 }, ActionLink.ActionType.DELETE, "Tasks");
 
-                cellItem.add(panel);
+                return panel;
+            }
+
+            @Override
+            public Component getHeader(final String componentId) {
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(), getPageReference());
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        if (target != null) {
+                            final AjaxFallbackDefaultDataTable currentTable =
+                                    new AjaxFallbackDefaultDataTable("executionsTable", columns,
+                                    new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
+                            currentTable.setOutputMarkupId(true);
+                            target.add(currentTable);
+                            executions.addOrReplace(currentTable);
+                        }
+                    }
+                }, ActionLink.ActionType.RELOAD, "Tasks", "list");
+
+                return panel;
             }
         });
 
-        final int paginatorRows = 10;
         final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable("executionsTable", columns,
                 new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
 
         executions.add(table);
-
-        final AjaxLink<Void> reload = new IndicatingAjaxLink<Void>("reload") {
-
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                if (target != null) {
-                    final AjaxFallbackDefaultDataTable currentTable =
-                            new AjaxFallbackDefaultDataTable("executionsTable", columns,
-                            new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
-                    currentTable.setOutputMarkupId(true);
-                    target.add(currentTable);
-                    executions.addOrReplace(currentTable);
-                }
-            }
-        };
-
-        reload.add(new Behavior() {
-
-            private static final long serialVersionUID = 1469628524240283489L;
-
-            @Override
-            public void onComponentTag(final Component component, final ComponentTag tag) {
-
-                if (table.getRowCount() > paginatorRows) {
-                    tag.remove("class");
-                    tag.put("class", "settingsPosMultiPage");
-                } else {
-                    tag.remove("class");
-                    tag.put("class", "settingsPos");
-                }
-            }
-        });
-
-        executions.addOrReplace(reload);
     }
 
     protected static class TaskExecutionsProvider extends SortableDataProvider<TaskExecTO, String> {
