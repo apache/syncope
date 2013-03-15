@@ -37,7 +37,7 @@ public class RoleAttributesPanel extends Panel {
     @SpringBean
     private EntitlementRestClient entitlementRestClient;
 
-    final AjaxPalettePanel entitlementsPalette;
+    private final AjaxPalettePanel entitlementsPalette;
 
     public RoleAttributesPanel(final String id, final Form form, final RoleTO roleTO) {
         super(id);

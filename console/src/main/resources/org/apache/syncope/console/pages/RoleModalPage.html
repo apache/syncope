@@ -52,6 +52,18 @@ under the License.
           <li><a href="#tabs-6"><span><wicket:message key="tab6"/></span></a></li>
         </ul>
         <div wicket:id="attributesPanel"></div>
+        
+        <script type="text/javascript">
+          /*<![CDATA[*/
+
+          $(function() {
+            $('#formtable div.tablerow:even').addClass("alt");
+            $("#tabs").tabs();
+          });
+    
+          /*]]>*/
+        </script>
+        
       </div>
       <div style="bottom:0;margin:10px">
         <input type="submit"
