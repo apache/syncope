@@ -54,7 +54,6 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
-import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.core.sync.TestSyncActions;
@@ -786,7 +785,7 @@ public class TaskTestITCase extends AbstractTest {
         // Add a custom correlation rule
         // -----------------------------
         SyncPolicyTO policyTO = policyService.read(PolicyType.SYNC, 9L);
-        ((SyncPolicySpec) policyTO.getSpecification()).setUserJavaRule(TestSyncRule.class.getName());
+        policyTO.getSpecification().setUserJavaRule(TestSyncRule.class.getName());
 
         policyService.update(PolicyType.SYNC, policyTO.getId(), policyTO);
         // -----------------------------
@@ -887,6 +886,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void bulkAction() {
+        @SuppressWarnings("unchecked")
         final List<PropagationTaskTO> before = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION);
 
         // create user with testdb resource
@@ -894,6 +894,7 @@ public class TaskTestITCase extends AbstractTest {
         userTO.addResource("resource-testdb");
         createUser(userTO);
 
+        @SuppressWarnings("unchecked")
         final List<PropagationTaskTO> after =
                 new ArrayList<PropagationTaskTO>((List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION));
 
@@ -914,7 +915,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     /**
-     * remove initial and synchronized users to make test re-runnable
+     * Remove initial and synchronized users to make test re-runnable.
      */
     public void removeTestUsers() {
         for (int i = 0; i < 10; i++) {
