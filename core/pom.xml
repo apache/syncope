@@ -1275,26 +1275,24 @@ under the License.
           
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
+            <artifactId>maven-antrun-plugin</artifactId>
             <inherited>true</inherited>
             <executions>
               <execution>
-                <id>explode-build-tools-for-weblogic</id>
-                <phase>test</phase>
-                <goals>
-                  <goal>unpack</goal>
-                </goals>
+                <id>setupBuildToolsForWeblogic</id>
+                <phase>pre-integration-test</phase>
                 <configuration>
-                  <artifactItems>
-                    <artifactItem>
-                      <groupId>org.apache.syncope</groupId>
-                      <artifactId>syncope-build-tools</artifactId>
-                      <version>${project.version}</version>
-                      <outputDirectory>${project.build.directory}/syncope-build-tools-test</outputDirectory>
-                      <type>war</type>
-                    </artifactItem>
-                  </artifactItems>
+                  <target>
+                    <unzip src="${settings.localRepository}/org/apache/syncope/syncope-build-tools/${project.version}/syncope-build-tools-${project.version}.war" 
+                           dest="${project.build.directory}/syncope-build-tools-test"/>
+                    <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" 
+                          todir="${project.build.directory}/syncope-build-tools-test/WEB-INF/lib"
+                          overwrite="true"/>
+                  </target>
                 </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
               </execution>
             </executions>
           </plugin>
@@ -1305,25 +1303,12 @@ under the License.
             <inherited>false</inherited>
             <configuration>
               <container>
-                <containerId>weblogic103x</containerId>
+                <containerId>weblogic12x</containerId>
                 <type>installed</type>
                 <home>${weblogic.home}/wlserver</home>
 
-                <dependencies>
-                  <dependency>
-                    <location>${weblogic.home}/patch_wls1211/profiles/default/sys_manifest_classpath/weblogic_patch.jar</location>
-                  </dependency>
-                  <dependency>
-                    <location>${weblogic.home}/patch_ocp371/profiles/default/sys_manifest_classpath/weblogic_patch.jar</location>
-                  </dependency>
-                </dependencies>
-
                 <log>${cargo.log}</log>
-                <output>${cargo.output}</output>
-                
-                <systemProperties>
-                  <java.endorsed.dirs>${weblogic.home}/wlserver/endorsed</java.endorsed.dirs>
-                </systemProperties>
+                <output>${cargo.output}</output>                
               </container>
               <configuration>
                 <properties>
