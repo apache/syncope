@@ -21,6 +21,7 @@ package org.apache.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -120,7 +121,7 @@ public class ResourceMappingPanel extends Panel {
     /**
      * All mappings.
      */
-    private final ListView mappings;
+    private final ListView<MappingItemTO> mappings;
 
     /**
      * External resource to be updated.
@@ -234,6 +235,41 @@ public class ResourceMappingPanel extends Panel {
         if (AttributableType.USER != ResourceMappingPanel.this.attrType) {
             passwordLabel.setVisible(false);
         }
+
+        Collections.sort(getMapping().getItems(), new Comparator<MappingItemTO>() {
+
+            @Override
+            public int compare(final MappingItemTO left, final MappingItemTO right) {
+                if (left == null && right == null) {
+                    return 0;
+                } else if (left == null) {
+                    return 1;
+                } else if (right == null) {
+                    return -1;
+                } else if (left.getPurpose() == MappingPurpose.BOTH && right.getPurpose() != MappingPurpose.BOTH) {
+                    return -1;
+                } else if (left.getPurpose() != MappingPurpose.BOTH && right.getPurpose() == MappingPurpose.BOTH) {
+                    return 1;
+                } else if (left.getPurpose() == MappingPurpose.PROPAGATION
+                        && right.getPurpose() == MappingPurpose.SYNCHRONIZATION) {
+                    return -1;
+                } else if (left.getPurpose() == MappingPurpose.SYNCHRONIZATION
+                        && right.getPurpose() == MappingPurpose.PROPAGATION) {
+                    return 1;
+                } else if (left.isAccountid()) {
+                    return -1;
+                } else if (right.isAccountid()) {
+                    return 1;
+                } else if (left.isPassword()) {
+                    return -1;
+                } else if (right.isPassword()) {
+                    return 1;
+                } else {
+                    return left.getIntAttrName().compareTo(right.getIntAttrName());
+                }
+            }
+        });
+
 
         mappings = new ListView<MappingItemTO>("mappings", getMapping().getItems()) {
 
