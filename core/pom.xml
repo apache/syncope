@@ -660,9 +660,17 @@ under the License.
     
     <profile>
       <id>skipTests</id>
+
       <properties>
         <javaagent/>
       </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+        </dependency>
+      </dependencies>
       
       <build>
         <plugins>      
@@ -687,7 +695,21 @@ under the License.
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
             <inherited>true</inherited>
+            <configuration>
+              <deployables>
+                <deployable>
+                  <location>${project.build.directory}/${project.build.finalName}.war</location>
+                </deployable>
+              </deployables>
+            </configuration>
             <executions>
+              <execution>
+                <id>install-container</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>install</goal>
+                </goals>
+              </execution>
               <execution>
                 <id>start-container</id>
                 <phase>none</phase>
