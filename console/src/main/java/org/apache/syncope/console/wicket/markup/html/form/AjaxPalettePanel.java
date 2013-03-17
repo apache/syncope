@@ -19,6 +19,7 @@
 package org.apache.syncope.console.wicket.markup.html.form;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
@@ -62,5 +63,9 @@ public class AjaxPalettePanel<T> extends AbstractFieldPanel {
     public AbstractFieldPanel setModelObject(final Serializable object) {
         palette.setDefaultModelObject(object);
         return this;
+    }
+
+    public Collection<T> getModelCollection() {
+        return palette.getModelCollection();
     }
 }
