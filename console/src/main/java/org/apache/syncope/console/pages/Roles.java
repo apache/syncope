@@ -105,14 +105,14 @@ public class Roles extends BasePage {
         }
     }
 
-    public static class RoleSummuryUpdateEvent extends RoleEvent {
+    public static class RoleSummaryUpdateEvent extends RoleEvent {
 
-        public RoleSummuryUpdateEvent(AjaxRequestTarget target, Long selectedNodeId) {
+        public RoleSummaryUpdateEvent(AjaxRequestTarget target, Long selectedNodeId) {
             super(target, selectedNodeId);
         }
     }
 
-    public static class TreeNodeUpdateEvent extends RoleSummuryUpdateEvent {
+    public static class TreeNodeUpdateEvent extends RoleSummaryUpdateEvent {
 
         public TreeNodeUpdateEvent(final AjaxRequestTarget target, final Long selectedNodeId) {
             super(target, selectedNodeId);

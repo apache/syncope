@@ -32,7 +32,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.pages.Roles.RoleSummuryUpdateEvent;
+import org.apache.syncope.console.pages.Roles.RoleSummaryUpdateEvent;
 import org.apache.syncope.console.pages.Roles.TreeNodeUpdateEvent;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 
@@ -79,7 +79,7 @@ public class TreeRolePanel extends Panel {
                 DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) node;
                 RoleTO unitObject = (RoleTO) treeNode.getUserObject();
 
-                send(getPage(), Broadcast.BREADTH, new RoleSummuryUpdateEvent(target, unitObject.getId()));
+                send(getPage(), Broadcast.BREADTH, new RoleSummaryUpdateEvent(target, unitObject.getId()));
 
             }
         };
@@ -105,7 +105,7 @@ public class TreeRolePanel extends Panel {
             update.getTarget().add(treeContainer);
 
             send(getPage(), Broadcast.BREADTH,
-                    new RoleSummuryUpdateEvent(update.getTarget(), update.getSelectedNodeId()));
+                    new RoleSummaryUpdateEvent(update.getTarget(), update.getSelectedNodeId()));
         }
     }
 }

@@ -19,7 +19,7 @@
 package org.apache.syncope.console.pages.panels;
 
 import org.apache.syncope.client.to.RoleTO;
-import org.apache.syncope.console.pages.Roles.RoleSummuryUpdateEvent;
+import org.apache.syncope.console.pages.Roles.RoleSummaryUpdateEvent;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
 import org.apache.wicket.PageReference;
@@ -84,8 +84,8 @@ public class RoleSummaryPanel extends Panel {
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
 
-        if (event.getPayload() instanceof RoleSummuryUpdateEvent) {
-            final RoleSummuryUpdateEvent update = (RoleSummuryUpdateEvent) event.getPayload();
+        if (event.getPayload() instanceof RoleSummaryUpdateEvent) {
+            final RoleSummaryUpdateEvent update = (RoleSummaryUpdateEvent) event.getPayload();
 
             fragment = new Fragment("rolePanel", (update.getSelectedNodeId() == 0
                     ? "rootPanel" : "roleViewPanel"), this);
