@@ -146,5 +146,14 @@ under the License.
         <module>hibernate-enhancer</module>
       </modules>
     </profile>
+
+    <profile>
+      <id>skipTests</id>
+
+      <build>
+        <defaultGoal>clean install</defaultGoal>
+      </build>
+    </profile>
+    
   </profiles>
 </project>

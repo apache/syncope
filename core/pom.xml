@@ -626,6 +626,72 @@ under the License.
   <profiles>
 
     <profile>
+      <id>skipTests</id>
+
+      <properties>
+        <javaagent/>
+      </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <skipTests>${skipTests}</skipTests>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <skipTests>${skipTests}</skipTests>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <deployables>
+                <deployable>
+                  <location>${project.build.directory}/${project.build.finalName}.war</location>
+                </deployable>
+              </deployables>
+            </configuration>
+            <executions>
+              <execution>
+                <id>install-container</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>install</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>start-container</id>
+                <phase>none</phase>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
       <id>dev</id>
       <properties>
         <waitForCheck>true</waitForCheck>

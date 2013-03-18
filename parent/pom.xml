@@ -1102,6 +1102,20 @@ under the License.
         <module>../hibernate-enhancer</module>
       </modules>
     </profile>
+
+    <profile>
+      <id>skipTests</id>
+
+      <properties>
+        <skipTests>true</skipTests>
+      </properties>
+
+      <modules>
+        <module>../quality</module>
+        <module>../archetype</module>
+        <module>../hibernate-enhancer</module>
+      </modules>
+    </profile>
     
     <profile>
       <id>site</id>
