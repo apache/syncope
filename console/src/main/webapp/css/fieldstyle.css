@@ -44,6 +44,16 @@
     width: 100%;
 }
 
+div#formtable {
+    display: table;
+    width: 100%;
+}
+
+div#formtable > span:first-of-type {
+    display: table-row-group;
+    width: 100%;
+}
+
 div.tablerow {
     display: inline-table;
     padding: 5px;
@@ -55,20 +65,22 @@ div.alt {
 }
 
 div.tablecolumn_label{
-    float: left;
+    display: table-cell;
     font-size: 12px;
     vertical-align: middle;
     font-family: Verdana,Tahoma,sans-serif;
+    width: 30%;
 }
 
 div.tablecolumn_field{
-    float: left;
+    display: table-cell;
     vertical-align: middle;
     font-family: Verdana,Tahoma,sans-serif;
+    width: 70%;
 }
 
 div.tablecolumn_check{
-    float: left;
+    display: table-cell;
     margin-right: 5px;
     margin-left: 2px;
     vertical-align: middle;

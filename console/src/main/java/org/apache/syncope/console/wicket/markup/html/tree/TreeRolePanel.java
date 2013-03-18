@@ -19,7 +19,6 @@
 package org.apache.syncope.console.wicket.markup.html.tree;
 
 import javax.swing.tree.DefaultMutableTreeNode;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
@@ -33,7 +32,9 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.syncope.client.to.RoleTO;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.pages.panels.RoleSummaryPanel.TreeNodeClickUpdate;
+import org.apache.syncope.console.pages.Roles.RoleSummuryUpdateEvent;
+import org.apache.syncope.console.pages.Roles.TreeNodeUpdateEvent;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 
 public class TreeRolePanel extends Panel {
 
@@ -78,7 +79,7 @@ public class TreeRolePanel extends Panel {
                 DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) node;
                 RoleTO unitObject = (RoleTO) treeNode.getUserObject();
 
-                send(getPage(), Broadcast.BREADTH, new TreeNodeClickUpdate(target, unitObject.getId()));
+                send(getPage(), Broadcast.BREADTH, new RoleSummuryUpdateEvent(target, unitObject.getId()));
 
             }
         };
@@ -95,13 +96,16 @@ public class TreeRolePanel extends Panel {
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
 
-        if (event.getPayload() instanceof TreeNodeClickUpdate) {
+        if (event.getPayload() instanceof TreeNodeUpdateEvent) {
 
-            final TreeNodeClickUpdate update = (TreeNodeClickUpdate) event.getPayload();
+            final TreeNodeUpdateEvent update = (TreeNodeUpdateEvent) event.getPayload();
 
             updateTree();
 
             update.getTarget().add(treeContainer);
+
+            send(getPage(), Broadcast.BREADTH,
+                    new RoleSummuryUpdateEvent(update.getTarget(), update.getSelectedNodeId()));
         }
     }
 }

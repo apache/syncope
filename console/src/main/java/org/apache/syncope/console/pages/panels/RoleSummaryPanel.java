@@ -19,10 +19,10 @@
 package org.apache.syncope.console.pages.panels;
 
 import org.apache.syncope.client.to.RoleTO;
+import org.apache.syncope.console.pages.Roles.RoleSummuryUpdateEvent;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -84,8 +84,8 @@ public class RoleSummaryPanel extends Panel {
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
 
-        if (event.getPayload() instanceof TreeNodeClickUpdate) {
-            final TreeNodeClickUpdate update = (TreeNodeClickUpdate) event.getPayload();
+        if (event.getPayload() instanceof RoleSummuryUpdateEvent) {
+            final RoleSummuryUpdateEvent update = (RoleSummuryUpdateEvent) event.getPayload();
 
             fragment = new Fragment("rolePanel", (update.getSelectedNodeId() == 0
                     ? "rootPanel" : "roleViewPanel"), this);
@@ -104,33 +104,6 @@ public class RoleSummaryPanel extends Panel {
 
             replace(fragment);
             update.getTarget().add(this);
-        }
-    }
-
-    public static class TreeNodeClickUpdate {
-
-        private AjaxRequestTarget target;
-
-        private Long selectedNodeId;
-
-        public TreeNodeClickUpdate(final AjaxRequestTarget target, final Long selectedNodeId) {
-            this.target = target;
-            this.selectedNodeId = selectedNodeId;
-        }
-
-        /**
-         * @return ajax request target
-         */
-        public AjaxRequestTarget getTarget() {
-            return target;
-        }
-
-        public Long getSelectedNodeId() {
-            return selectedNodeId;
-        }
-
-        public void setSelectedNodeId(final Long selectedNodeId) {
-            this.selectedNodeId = selectedNodeId;
         }
     }
 }

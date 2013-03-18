@@ -21,10 +21,8 @@ package org.apache.syncope.console.pages;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.syncope.console.pages.panels.RoleSummaryPanel;
-import org.apache.syncope.console.pages.panels.RoleSummaryPanel.TreeNodeClickUpdate;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeRolePanel;
 
 /**
@@ -40,8 +38,6 @@ public class Roles extends BasePage {
 
     private static final int WIN_WIDTH = 700;
 
-    private final WebMarkupContainer container;
-
     public Roles(final PageParameters parameters) {
         super(parameters);
 
@@ -52,20 +48,16 @@ public class Roles extends BasePage {
         createRoleWin.setCookieName("create-role-modal");
         add(createRoleWin);
 
-        container = new WebMarkupContainer("container");
-        container.setOutputMarkupId(true);
-        add(container);
-
         final TreeRolePanel treePanel = new TreeRolePanel("treePanel");
         treePanel.setOutputMarkupId(true);
-        container.add(treePanel);
+        add(treePanel);
 
-        final RoleSummaryPanel nodePanel = new RoleSummaryPanel("summaryPanel", createRoleWin, Roles.this
-                .getPageReference());
+        final RoleSummaryPanel summaryPanel =
+                new RoleSummaryPanel("summaryPanel", createRoleWin, Roles.this.getPageReference());
 
-        nodePanel.setOutputMarkupId(true);
+        summaryPanel.setOutputMarkupId(true);
 
-        container.add(nodePanel);
+        add(summaryPanel);
 
         createRoleWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
@@ -74,12 +66,12 @@ public class Roles extends BasePage {
             @Override
             public void onClose(final AjaxRequestTarget target) {
 
-                final TreeNodeClickUpdate data = new TreeNodeClickUpdate(target, nodePanel.getSelectedNode() == null
+                final TreeNodeUpdateEvent data = new TreeNodeUpdateEvent(target, summaryPanel.getSelectedNode() == null
                         ? 0
-                        : nodePanel.getSelectedNode().getId());
+                        : summaryPanel.getSelectedNode().getId());
 
                 send(getPage(), Broadcast.BREADTH, data);
-                target.add(container);
+
                 if (modalResult) {
                     getSession().info(getString("operation_succeded"));
                     target.add(feedbackPanel);
@@ -87,7 +79,43 @@ public class Roles extends BasePage {
                 }
             }
         });
+    }
 
-        container.add(createRoleWin);
+    public static class RoleEvent {
+
+        protected AjaxRequestTarget target;
+
+        protected Long selectedNodeId;
+
+        public RoleEvent(final AjaxRequestTarget target, final Long selectedNodeId) {
+            this.target = target;
+            this.selectedNodeId = selectedNodeId;
+        }
+
+        public AjaxRequestTarget getTarget() {
+            return target;
+        }
+
+        public Long getSelectedNodeId() {
+            return selectedNodeId;
+        }
+
+        public void setSelectedNodeId(final Long selectedNodeId) {
+            this.selectedNodeId = selectedNodeId;
+        }
+    }
+
+    public static class RoleSummuryUpdateEvent extends RoleEvent {
+
+        public RoleSummuryUpdateEvent(AjaxRequestTarget target, Long selectedNodeId) {
+            super(target, selectedNodeId);
+        }
+    }
+
+    public static class TreeNodeUpdateEvent extends RoleSummuryUpdateEvent {
+
+        public TreeNodeUpdateEvent(final AjaxRequestTarget target, final Long selectedNodeId) {
+            super(target, selectedNodeId);
+        }
     }
 }
