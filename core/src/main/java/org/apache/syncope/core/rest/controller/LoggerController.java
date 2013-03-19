@@ -170,7 +170,7 @@ public class LoggerController extends AbstractController {
         } else if (expectedType != syncopeLogger.getType()) {
             throwInvalidLogger(expectedType);
         }
-        
+
         LoggerTO loggerToDelete = new LoggerTO();
         BeanUtils.copyProperties(syncopeLogger, loggerToDelete);
 
@@ -184,7 +184,7 @@ public class LoggerController extends AbstractController {
 
         auditManager.audit(Category.logger, LoggerSubCategory.setLevel, Result.success, String.format(
                 "Successfully deleted logger %s (%s)", name, expectedType));
-        
+
         return loggerToDelete;
     }
 
@@ -197,7 +197,6 @@ public class LoggerController extends AbstractController {
     @PreAuthorize("hasRole('AUDIT_DISABLE')")
     @RequestMapping(method = RequestMethod.PUT, value = "/audit/disable")
     public void disableAudit(@RequestBody final AuditLoggerName auditLoggerName) {
-
         try {
             delete(auditLoggerName.toLoggerName(), SyncopeLoggerType.AUDIT);
         } catch (NotFoundException e) {

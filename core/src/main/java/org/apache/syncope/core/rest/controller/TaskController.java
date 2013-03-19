@@ -99,13 +99,11 @@ public class TaskController extends AbstractController {
     @Autowired
     private ImplementationClassNamesLoader classNamesLoader;
 
-    @PreAuthorize("hasRole('TASK_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create/sync")
     public TaskTO createSyncTask(final HttpServletResponse response, @RequestBody final SyncTaskTO taskTO) {
         return createSchedTask(response, taskTO);
     }
 
-    @PreAuthorize("hasRole('TASK_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create/sched")
     public TaskTO createSchedTask(final HttpServletResponse response, @RequestBody final SchedTaskTO taskTO) {
         TaskTO createdTaskTO = createSchedTaskInternal(taskTO);
@@ -113,6 +111,7 @@ public class TaskController extends AbstractController {
         return createdTaskTO;
     }
 
+    @PreAuthorize("hasRole('TASK_CREATE')")
     public TaskTO createSchedTaskInternal(final SchedTaskTO taskTO) {
         LOG.debug("Creating task " + taskTO);
 
@@ -180,12 +179,12 @@ public class TaskController extends AbstractController {
         return binder.getTaskTO(task, taskUtil);
     }
 
-    @PreAuthorize("hasRole('TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/count")
     public ModelAndView count(@PathVariable("kind") final String kind) {
         return new ModelAndView().addObject(countInternal(kind));
     }
 
+    @PreAuthorize("hasRole('TASK_LIST')")
     public int countInternal(final String kind) {
         return taskDAO.count(getTaskUtil(kind).taskClass());
     }
@@ -445,9 +444,9 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("(hasRole('TASK_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE) or "
-    + "(hasRole('TASK_EXECUTE') and "
-    + "(#bulkAction.operation == #bulkAction.operation.EXECUTE or "
-    + "#bulkAction.operation == #bulkAction.operation.DRYRUN))")
+            + "(hasRole('TASK_EXECUTE') and "
+            + "(#bulkAction.operation == #bulkAction.operation.EXECUTE or "
+            + "#bulkAction.operation == #bulkAction.operation.DRYRUN))")
     @RequestMapping(method = RequestMethod.POST, value = "/bulk")
     public BulkActionRes bulkAction(@RequestBody final BulkAction bulkAction) {
         LOG.debug("Bulk action '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());

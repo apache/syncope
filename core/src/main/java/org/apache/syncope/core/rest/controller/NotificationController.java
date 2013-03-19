@@ -82,7 +82,6 @@ public class NotificationController extends AbstractController {
         return notificationTOs;
     }
 
-    @PreAuthorize("hasRole('NOTIFICATION_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
     public NotificationTO create(final HttpServletResponse response, @RequestBody final NotificationTO notificationTO) {
         NotificationTO savedNotificationTO = createInternal(notificationTO);
@@ -90,6 +89,7 @@ public class NotificationController extends AbstractController {
         return savedNotificationTO;
     }
 
+    @PreAuthorize("hasRole('NOTIFICATION_CREATE')")
     public NotificationTO createInternal(final NotificationTO notificationTO) {
         LOG.debug("Notification create called with parameter {}", notificationTO);
         Notification notification = notificationDAO.save(binder.createNotification(notificationTO));
@@ -122,7 +122,6 @@ public class NotificationController extends AbstractController {
     @PreAuthorize("hasRole('CONNECTOR_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{notificationId}")
     public NotificationTO delete(@PathVariable("notificationId") final Long notificationId) {
-
         Notification notification = notificationDAO.find(notificationId);
         if (notification == null) {
             LOG.error("Could not find notificatin '" + notificationId + "'");

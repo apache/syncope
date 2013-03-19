@@ -126,7 +126,6 @@ public class ConfigurationController extends AbstractController {
     @PreAuthorize("hasRole('CONFIGURATION_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{key}")
     public ConfigurationTO read(final HttpServletResponse response, @PathVariable("key") final String key) {
-
         ConfigurationTO result;
         try {
             SyncopeConf conf = confDAO.find(key);
@@ -202,9 +201,7 @@ public class ConfigurationController extends AbstractController {
         return new ModelAndView().addObject(htmlTemplates);
     }
 
-    @PreAuthorize("hasRole('CONFIGURATION_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/dbexport")
-    @Transactional(readOnly = true)
     public void dbExport(final HttpServletResponse response) {
         response.setContentType(MediaType.TEXT_XML);
         response.setHeader(SyncopeConstants.CONTENT_DISPOSITION_HEADER,
@@ -216,6 +213,7 @@ public class ConfigurationController extends AbstractController {
         }
     }
 
+    @PreAuthorize("hasRole('CONFIGURATION_READ')")
     @Transactional(readOnly = true)
     public void dbExportInternal(final OutputStream os) {
         try {

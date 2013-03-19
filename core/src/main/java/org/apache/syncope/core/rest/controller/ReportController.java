@@ -98,7 +98,6 @@ public class ReportController extends AbstractController {
     @Autowired
     private ReportDataBinder binder;
 
-    @PreAuthorize("hasRole('REPORT_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
     public ReportTO create(final HttpServletResponse response, @RequestBody final ReportTO reportTO) {
         ReportTO createdReportTO = createInternal(reportTO);
@@ -106,6 +105,7 @@ public class ReportController extends AbstractController {
         return createdReportTO;
     }
 
+    @PreAuthorize("hasRole('REPORT_CREATE')")
     public ReportTO createInternal(final ReportTO reportTO) {
         LOG.debug("Creating report " + reportTO);
 
@@ -150,11 +150,12 @@ public class ReportController extends AbstractController {
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getId(), e);
 
-            SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeErrorException sccee =
+                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
             SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
             sce.addElement(e.getMessage());
-            scce.addException(sce);
-            throw scce;
+            sccee.addException(sce);
+            throw sccee;
         }
 
         auditManager.audit(Category.report, ReportSubCategory.update, Result.success,
@@ -199,13 +200,13 @@ public class ReportController extends AbstractController {
         return result;
     }
 
-    @PreAuthorize("hasRole('REPORT_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/reportletConfClasses")
     public ModelAndView getReportletConfClasses() {
         Set<String> reportletConfClasses = getReportletConfClassesInternal();
         return new ModelAndView().addObject(reportletConfClasses);
     }
 
+    @PreAuthorize("hasRole('REPORT_LIST')")
     @SuppressWarnings("rawtypes")
     public Set<String> getReportletConfClassesInternal() {
         Set<String> reportletConfClasses = new HashSet<String>();
@@ -251,7 +252,6 @@ public class ReportController extends AbstractController {
         return binder.getReportExecTO(reportExec);
     }
 
-    @PreAuthorize("hasRole('REPORT_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/execution/export/{executionId}")
     @Transactional(readOnly = true)
     public void exportExecutionResult(final HttpServletResponse response,
@@ -275,6 +275,7 @@ public class ReportController extends AbstractController {
         exportExecutionResultInternal(os, reportExec, format);
     }
 
+    @PreAuthorize("hasRole('REPORT_READ')")
     public void exportExecutionResultInternal(final OutputStream os, final ReportExec reportExec,
             final ReportExecExportFormat format) {
 
@@ -338,14 +339,15 @@ public class ReportController extends AbstractController {
                 "Successfully exported report execution: " + reportExec.getId());
     }
 
+    @PreAuthorize("hasRole('REPORT_READ')")
     public ReportExec getAndCheckReportExecInternal(final Long executionId) {
         ReportExec reportExec = reportExecDAO.find(executionId);
         if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionId);
         }
         if (!ReportExecStatus.SUCCESS.name().equals(reportExec.getStatus()) || reportExec.getExecResult() == null) {
-            SyncopeClientCompositeErrorException sccee = new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeErrorException sccee =
+                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
             SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidReportExec);
             sce.addElement(reportExec.getExecResult() == null
                     ? "No report data produced"

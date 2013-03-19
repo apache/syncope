@@ -66,24 +66,22 @@ public class PolicyController extends AbstractController {
     @Autowired
     private PolicyDataBinder binder;
 
-    @PreAuthorize("hasRole('POLICY_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/password/create")
     public PasswordPolicyTO create(final HttpServletResponse response, @RequestBody final PasswordPolicyTO policyTO) {
         return createInternal(policyTO);
     }
 
-    @PreAuthorize("hasRole('POLICY_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/account/create")
     public AccountPolicyTO create(final HttpServletResponse response, @RequestBody final AccountPolicyTO policyTO) {
         return createInternal(policyTO);
     }
 
-    @PreAuthorize("hasRole('POLICY_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/sync/create")
     public SyncPolicyTO create(final HttpServletResponse response, @RequestBody final SyncPolicyTO policyTO) {
         return createInternal(policyTO);
     }
 
+    @PreAuthorize("hasRole('POLICY_CREATE')")
     public <T extends PolicyTO> T createInternal(final T policyTO) {
         LOG.debug("Creating policy " + policyTO);
 

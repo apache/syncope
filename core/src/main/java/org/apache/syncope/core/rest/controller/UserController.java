@@ -117,49 +117,49 @@ public class UserController {
     @Autowired
     protected ConnObjectUtil connObjectUtil;
 
-    @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/verifyPassword/{username}")
-    @Transactional(readOnly = true)
     public ModelAndView verifyPassword(@PathVariable("username") String username,
             @RequestParam("password") final String password) {
 
         return new ModelAndView().addObject(verifyPasswordInternal(username, password));
     }
 
+    @PreAuthorize("hasRole('USER_READ')")
+    @Transactional(readOnly = true)
     public Boolean verifyPasswordInternal(final String username, final String password) {
         auditManager.audit(Category.user, UserSubCategory.create, Result.success,
                 "Verified password for: " + username);
         return binder.verifyPassword(username, password);
     }
 
-    @PreAuthorize("hasRole('USER_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/count")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public ModelAndView count() {
         return new ModelAndView().addObject(countInternal());
     }
 
+    @PreAuthorize("hasRole('USER_LIST')")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public int countInternal() {
         return userDAO.count(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()));
     }
 
-    @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.POST, value = "/search/count")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public ModelAndView searchCount(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
         return new ModelAndView().addObject(searchCountInternal(searchCondition));
     }
 
+    @PreAuthorize("hasRole('USER_READ')")
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public int searchCountInternal(final NodeCond searchCondition) throws InvalidSearchConditionException {
         if (!searchCondition.isValid()) {
             LOG.error("Invalid search condition: {}", searchCondition);
             throw new InvalidSearchConditionException();
         }
-        final Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-        return searchDAO.count(adminRoleIds, searchCondition, AttributableUtil.getInstance(AttributableType.USER));
+
+        return searchDAO.count(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()),
+                searchCondition, AttributableUtil.getInstance(AttributableType.USER));
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
@@ -214,7 +214,6 @@ public class UserController {
     @RequestMapping(method = RequestMethod.GET, value = "/readByUsername/{username}")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public UserTO read(@PathVariable final String username) {
-
         UserTO result = binder.getUserTO(username);
 
         auditManager.audit(Category.user, UserSubCategory.read, Result.success,
@@ -273,7 +272,6 @@ public class UserController {
         return result;
     }
 
-    @PreAuthorize("hasRole('USER_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
     public UserTO create(final HttpServletResponse response, @RequestBody final UserTO userTO) {
         UserTO savedTO = createInternal(userTO);
@@ -281,6 +279,7 @@ public class UserController {
         return savedTO;
     }
 
+    @PreAuthorize("hasRole('USER_CREATE')")
     public UserTO createInternal(final UserTO userTO) {
         LOG.debug("User create called with {}", userTO);
 
@@ -700,9 +699,9 @@ public class UserController {
     }
 
     @PreAuthorize("(hasRole('USER_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE) or "
-    + "(hasRole('USER_UPDATE') and "
-    + "(#bulkAction.operation == #bulkAction.operation.REACTIVATE or "
-    + "#bulkAction.operation == #bulkAction.operation.SUSPEND))")
+            + "(hasRole('USER_UPDATE') and "
+            + "(#bulkAction.operation == #bulkAction.operation.REACTIVATE or "
+            + "#bulkAction.operation == #bulkAction.operation.SUSPEND))")
     @RequestMapping(method = RequestMethod.POST, value = "/bulk")
     public BulkActionRes bulkAction(@RequestBody final BulkAction bulkAction) {
         LOG.debug("Bulk action '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
