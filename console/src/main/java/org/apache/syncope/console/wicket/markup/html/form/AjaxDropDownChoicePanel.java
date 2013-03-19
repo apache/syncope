@@ -36,7 +36,9 @@ public class AjaxDropDownChoicePanel<T> extends FieldPanel implements Cloneable 
 
         super(id, name, model);
 
-        field = new DropDownChoice("dropDownChoiceField", model, Collections.emptyList(), new ChoiceRenderer());
+        field = new DropDownChoice<T>(
+                "dropDownChoiceField", model, Collections.<T>emptyList(), new ChoiceRenderer<T>());
+
         add(field.setLabel(new Model(name)).setOutputMarkupId(true));
 
         if (!isReadOnly()) {
@@ -69,10 +71,9 @@ public class AjaxDropDownChoicePanel<T> extends FieldPanel implements Cloneable 
 
     @Override
     public FieldPanel clone() {
-        AjaxDropDownChoicePanel<T> panel = (AjaxDropDownChoicePanel<T>) super.clone();
-
-        setChoiceRenderer(((DropDownChoice) field).getChoiceRenderer());
-        setChoices(((DropDownChoice) field).getChoices());
+        final AjaxDropDownChoicePanel<T> panel = (AjaxDropDownChoicePanel<T>) super.clone();
+        panel.setChoiceRenderer(((DropDownChoice) field).getChoiceRenderer());
+        panel.setChoices(((DropDownChoice) field).getChoices());
 
         return panel;
     }
