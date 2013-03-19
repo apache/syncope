@@ -19,6 +19,7 @@
 package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -69,6 +70,7 @@ public class ResourcesPanel extends Panel {
         for (ResourceTO resourceTO : resourceRestClient.getAllResources()) {
             allResources.add(resourceTO.getName());
         }
+        Collections.sort(allResources);
     }
 
     public ResourcesPanel(final String id, final UserTO userTO, final StatusPanel statusPanel) {
@@ -83,9 +85,11 @@ public class ResourcesPanel extends Panel {
     public ResourcesPanel(final String id, final RoleTO roleTO) {
         this(id, (AbstractAttributableTO) roleTO);
 
+        List<String> selectedResources = new ArrayList<String>(roleTO.getResources());
+        Collections.sort(selectedResources);
+
         final AjaxPalettePanel<String> resourcesPalette = new AjaxPalettePanel<String>("resourcesPalette",
-                new PropertyModel<List<String>>(roleTO, "resources"),
-                new ListModel<String>(allResources));
+                new ListModel<String>(selectedResources), new ListModel<String>(allResources));
         add(resourcesPalette);
     }
 
