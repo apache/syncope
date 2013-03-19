@@ -90,4 +90,11 @@ public class AjaxTextFieldPanel extends FieldPanel<String> {
             this.choices = choices;
         }
     }
+
+    @Override
+    public FieldPanel clone() {
+        final AjaxTextFieldPanel panel = (AjaxTextFieldPanel) super.clone();
+        panel.setChoices(choices);
+        return panel;
+    }
 }
