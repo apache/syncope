@@ -19,13 +19,15 @@
         font-weight: bold;
         float:left;
         margin-left: 5px;
+        display: table-cell;
+        width: 60%;
       }
 
       .divtableheadercell {
-        display:table-cell;
+        display:inline-table;
         vertical-align:top;
         text-align:right;
-        width:70px;
+        width:75px;
         height:20px;
       }
 
@@ -36,7 +38,7 @@
       }
 
       .divtablecheck {
-        width:70px;
+        width:75px;
         height:20px;
       }
     </style>
@@ -44,11 +46,8 @@
   <wicket:panel>
     <div style="display:block;">
       <div style="display:inline-table;">
-        <div style="display:table-cell;vertical-align:top;">
-          <div>
-            <div class="tablecolumn_label medium_fixedsize">
-            </div>
-          </div>
+        <div style="display:table-cell; width:300px;">
+          &nbsp;
         </div>
         <div class="divtableheadercell">
           <div class="divtableheaderlabel">Success</div>
@@ -64,7 +63,7 @@
     <div style="display:inline-table;">
       <div style="display:table-cell;vertical-align:top;">
         <div id="divtablerow-label" wicket:id="categoryView">
-          <div class="tablecolumn_label medium_fixedsize" style="height:20px;">
+          <div class="tablecolumn_label" style="width:300px; height:20px;">
             <span wicket:id="subcategory">[subcategory]</span>
           </div>
         </div>
@@ -79,13 +78,14 @@
       <div id="divtablerow-success" class="divtablecheckcolumn">
         <span wicket:id="successGroup">
           <div wicket:id="successView" class="divtablecheck">
+            <div class="divtableheaderlabel">&nbsp;</div>
             <input type="checkbox" wicket:id="successCheck"/>
           </div>
         </span>
 
         <script type="text/javascript">
           $(function() {
-            $('#divtablerow-success div:even').addClass("alt");
+            $('#divtablerow-success div.divtablecheck:even').addClass("alt");
           });
         </script>
       </div>
@@ -93,13 +93,14 @@
       <div id="divtablerow-failure" class="divtablecheckcolumn">
         <span wicket:id="failureGroup">
           <div wicket:id="failureView" class="divtablecheck">
+            <div class="divtableheaderlabel">&nbsp;</div>
             <input type="checkbox" wicket:id="failureCheck"/>
           </div>
         </span>
 
         <script type="text/javascript">
           $(function() {
-            $('#divtablerow-failure div:even').addClass("alt");
+            $('#divtablerow-failure div.divtablecheck:even').addClass("alt");
           });
         </script>
       </div>
