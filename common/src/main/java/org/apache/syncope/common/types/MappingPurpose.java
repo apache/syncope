@@ -17,8 +17,8 @@ package org.apache.syncope.common.types;
 
 public enum MappingPurpose {
 
+    BOTH,
     SYNCHRONIZATION,
-    PROPAGATION,
-    BOTH
+    PROPAGATION
 
 }

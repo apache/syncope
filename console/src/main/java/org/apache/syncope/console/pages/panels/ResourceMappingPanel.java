@@ -278,6 +278,9 @@ public class ResourceMappingPanel extends Panel {
             @Override
             protected void populateItem(final ListItem<MappingItemTO> item) {
                 final MappingItemTO mapItem = item.getModelObject();
+                if (mapItem.getPurpose() == null) {
+                    mapItem.setPurpose(MappingPurpose.BOTH);
+                }
 
                 AttributableType entity = null;
                 if (mapItem.getIntMappingType() != null) {
@@ -363,22 +366,17 @@ public class ResourceMappingPanel extends Panel {
                 });
                 item.add(entitiesPanel);
 
-                final FieldPanel extAttrName;
-                if (schemaNames.isEmpty()) {
-                    extAttrName = new AjaxTextFieldPanel("extAttrName", new ResourceModel("extAttrNames",
-                            "extAttrNames").getObject(), new PropertyModel<String>(mapItem, "extAttrName"));
-                } else {
-                    extAttrName = new AjaxDropDownChoicePanel<String>("extAttrName", new ResourceModel("extAttrNames",
-                            "extAttrNames").getObject(), new PropertyModel(mapItem, "extAttrName"), false);
-                    ((AjaxDropDownChoicePanel) extAttrName).setChoices(schemaNames);
-                }
+                final FieldPanel extAttrName = new AjaxTextFieldPanel("extAttrName", new ResourceModel("extAttrNames",
+                        "extAttrNames").getObject(), new PropertyModel<String>(mapItem, "extAttrName"));
+                ((AjaxTextFieldPanel) extAttrName).setChoices(schemaNames);
+
                 boolean required = false;
                 if (mapItem != null) {
                     boolean accountIdOrPassword = mapItem.isAccountid() || mapItem.isPassword();
                     if (!accountIdOrPassword) {
                         required = true;
                     } else if (accountIdOrPassword && !schemaNames.isEmpty()) {
-                        ((AjaxDropDownChoicePanel) extAttrName).setModelObject(null);
+                        ((AjaxTextFieldPanel) extAttrName).setModelObject(null);
                     }
                 }
                 extAttrName.setRequired(required);

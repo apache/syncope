@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -41,12 +42,16 @@ public class AjaxTextFieldPanel extends FieldPanel<String> {
 
         super(id, name, model);
 
-        field = new AutoCompleteTextField<String>("textField", model) {
+        final AutoCompleteSettings settings = new AutoCompleteSettings();
+        settings.setShowCompleteListOnFocusGain(true);
+        settings.setShowListOnEmptyInput(true);
+
+        field = new AutoCompleteTextField<String>("textField", model, settings) {
 
             private static final long serialVersionUID = -6648767303091874219L;
 
             @Override
-            protected Iterator<String> getChoices(String input) {
+            protected Iterator<String> getChoices(final String input) {
                 final Pattern pattern = Pattern.compile(Pattern.quote(input) + ".*", Pattern.CASE_INSENSITIVE);
 
                 final List<String> result = new ArrayList<String>();
