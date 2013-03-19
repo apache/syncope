@@ -53,8 +53,6 @@ public class Roles extends BasePage {
 
     private final ModalWindow editRoleWin;
 
-    private final WebMarkupContainer container;
-
     public Roles(final PageParameters parameters) {
         super(parameters);
 
@@ -65,17 +63,13 @@ public class Roles extends BasePage {
         editRoleWin.setCookieName("edit-role-modal");
         add(editRoleWin);
 
-        container = new WebMarkupContainer("container");
-        container.setOutputMarkupId(true);
-        add(container);
-
         final TreeRolePanel treePanel = new TreeRolePanel("treePanel");
         treePanel.setOutputMarkupId(true);
-        container.add(treePanel);
+        add(treePanel);
 
         final RoleSummaryPanel summaryPanel = new RoleSummaryPanel("summaryPanel", editRoleWin,
                 Roles.this.getPageReference());
-        container.add(summaryPanel);
+        add(summaryPanel);
 
         editRoleWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
@@ -83,7 +77,7 @@ public class Roles extends BasePage {
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
-                final RoleSummaryPanel summaryPanel = (RoleSummaryPanel) container.get("summaryPanel");
+                final RoleSummaryPanel summaryPanel = (RoleSummaryPanel) get("summaryPanel");
 
                 final TreeNodeClickUpdate data = new TreeNodeClickUpdate(target,
                         summaryPanel == null || summaryPanel.getSelectedNode() == null
@@ -91,7 +85,7 @@ public class Roles extends BasePage {
                         : summaryPanel.getSelectedNode().getId());
 
                 send(getPage(), Broadcast.BREADTH, data);
-                target.add(container);
+                
                 if (modalResult) {
                     getSession().info(getString("operation_succeeded"));
                     target.add(feedbackPanel);
@@ -99,8 +93,6 @@ public class Roles extends BasePage {
                 }
             }
         });
-
-        container.add(editRoleWin);
 
         final AbstractSearchResultPanel searchResult =
                 new RoleSearchResultPanel("searchResult", true, null, getPageReference(), restClient);
@@ -155,7 +147,7 @@ public class Roles extends BasePage {
             final RoleSummaryPanel summaryPanel = new RoleSummaryPanel("summaryPanel", editRoleWin,
                     Roles.this.getPageReference(), update.getSelectedNodeId());
 
-            container.addOrReplace(summaryPanel);
+            addOrReplace(summaryPanel);
             update.getTarget().add(this);
         }
     }

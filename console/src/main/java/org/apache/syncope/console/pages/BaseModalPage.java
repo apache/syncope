@@ -19,6 +19,10 @@
 package org.apache.syncope.console.pages;
 
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
+import org.apache.syncope.markup.head.MetaHeaderItem;
+import org.apache.wicket.markup.head.HeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.PriorityHeaderItem;
 
 /**
  * Syncope Modal Window.
@@ -27,9 +31,17 @@ public abstract class BaseModalPage extends AbstractBasePage {
 
     private static final long serialVersionUID = -1443079028368471943L;
 
+    private final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
+
     public BaseModalPage() {
         super();
 
         add(new CloseOnESCBehavior("keyup"));
+    }
+
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        super.renderHead(response);
+        response.render(new PriorityHeaderItem(meta));
     }
 }

@@ -22,6 +22,7 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.SyncopeApplication;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.markup.head.MetaHeaderItem;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -30,6 +31,9 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.head.HeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.PriorityHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -46,6 +50,8 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
     private final static int EDIT_PROFILE_WIN_HEIGHT = 550;
 
     private final static int EDIT_PROFILE_WIN_WIDTH = 800;
+
+    private final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
     @SpringBean
     private UserRestClient userRestClient;
@@ -163,5 +169,11 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
                 }
             }
         });
+    }
+
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        super.renderHead(response);
+        response.render(new PriorityHeaderItem(meta));
     }
 }
