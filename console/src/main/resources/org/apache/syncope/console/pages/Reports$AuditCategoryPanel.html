@@ -15,62 +15,85 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:head>
     <style>
+      .container {
+        display: block;
+        width: 100%;
+      }
+
+      .label {
+        font-size: 12px;
+        vertical-align: middle;
+        font-family: Verdana,Tahoma,sans-serif;
+        display: table-cell;
+        width: 300px;
+        height: 20px;
+      }
+
       .divtableheaderlabel {
         font-weight: bold;
-        float:left;
+        float: left;
         margin-left: 5px;
         display: table-cell;
-        width: 60%;
+        width: 70px;
       }
 
       .divtableheadercell {
-        display:inline-table;
-        vertical-align:top;
-        text-align:right;
-        width:75px;
-        height:20px;
+        display: inline-table;
+        vertical-align: top;
+        text-align: right;
+        width: 105px;
+        height: 20px;
       }
 
       .divtablecheckcolumn {
-        display:table-cell;
-        vertical-align:top;
-        text-align:right;
+        display: table-cell;
+        vertical-align: top;
+        text-align: right;
+        width: 105px;
       }
 
       .divtablecheck {
-        width:75px;
-        height:20px;
+        width: 105px;
+        height: 20px;
       }
     </style>
   </wicket:head>
   <wicket:panel>
-    <div style="display:block;">
+    <div class="container">
       <div style="display:inline-table;">
-        <div style="display:table-cell; width:300px;">
+        <div class="label">
           &nbsp;
         </div>
-        <div class="divtableheadercell">
-          <div class="divtableheaderlabel">Success</div>
-          <input type="checkbox" wicket:id="successSelector" style="margin-top: 0px;margin-bottom: 0px;"/>
+        <div style="display: table-cell">
+          <div class="divtableheadercell">
+            <div class="divtableheaderlabel">Success</div>
+            <div style="display: table-cell">
+              <input type="checkbox" wicket:id="successSelector" style="margin-top: 0px;margin-bottom: 0px;"/>
+            </div>
+          </div>
         </div>
-        <div class="divtableheadercell">
-          <div class="divtableheaderlabel">Failure</div>
-          <input type="checkbox" wicket:id="failureSelector" style="margin-top: 0px;margin-bottom: 0px;"/>
+        <div style="display: table-cell">
+          <div class="divtableheadercell">
+            <div class="divtableheaderlabel">Failure</div>
+            <div style="display: table-cell">
+              <input type="checkbox" wicket:id="failureSelector" style="margin-top: 0px;margin-bottom: 0px;"/>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div style="display:inline-table;">
-      <div style="display:table-cell;vertical-align:top;">
+    <div class="container">
+      <div class="label">
         <div id="divtablerow-label" wicket:id="categoryView">
-          <div class="tablecolumn_label" style="width:300px; height:20px;">
+          <div class="label">
             <span wicket:id="subcategory">[subcategory]</span>
           </div>
         </div>
 
         <script type="text/javascript">
           $(function() {
-            $('#divtablerow-label div:even').addClass("alt");
+            $('#divtablerow-label div.label:even').addClass("alt");
           });
         </script>
       </div>

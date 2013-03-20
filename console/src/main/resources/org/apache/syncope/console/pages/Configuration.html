@@ -27,6 +27,13 @@ under the License.
       document.getElementById("workflowDefArea").value = editor.getValue();
     }
   </script>
+  
+  <style>
+    td#level {
+      width: 100px;
+      text-align: center;
+    }
+  </style>
 </wicket:head>
 
 <wicket:extend>
@@ -134,7 +141,7 @@ under the License.
             <tbody>
               <tr wicket:id="corelogger">
                 <td><span wicket:id="name"/></td>
-                <td><select wicket:id="level"/></td>
+                <td id="level"><select wicket:id="level"/></td>
               </tr>
             </tbody>
           </table>
@@ -154,7 +161,7 @@ under the License.
             <tbody>
               <tr wicket:id="consolelogger">
                 <td><span wicket:id="name"/></td>
-                <td><select wicket:id="level"/></td>
+                <td id="level"><select wicket:id="level"/></td>
               </tr>
             </tbody>
           </table>
