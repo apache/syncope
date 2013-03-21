@@ -131,13 +131,13 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
         enumerationKeys.setModelObject((Serializable) getEnumValuesAsList(schema.getEnumerationKeys()));
 
-        if (schema == null || AttributeSchemaType.Enum.equals(schema.getType())) {
-            enumerationValues.setEnabled(Boolean.FALSE);
-            enumerationKeys.setEnabled(Boolean.FALSE);
-        } else {
+        if (AttributeSchemaType.Enum == schema.getType()) {
             enumerationValues.setEnabled(Boolean.TRUE);
             enumerationKeys.setEnabled(Boolean.TRUE);
             enumerationValuesPanel.addRequiredLabel();
+        } else {
+            enumerationValues.setEnabled(Boolean.FALSE);
+            enumerationKeys.setEnabled(Boolean.FALSE);
         }
 
         type.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {

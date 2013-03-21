@@ -28,8 +28,8 @@ public class SchemaTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
-        selenium.click("//div[@id='role']/div/a");
+        selenium.click("//div[@id='tabs']/ul/li[3]/a");
+        selenium.click("//div[@id='rschema']/div/div/div/a");
 
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//*[@id='_wicket_window_0']\");", "30000");
 
@@ -48,10 +48,7 @@ public class SchemaTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
-        selenium.click("//div[@id='membership']/ul/li[3]/a/span");
-
-        selenium.click("//table/tbody/tr/td[3]/div/span[11]/a");
+        selenium.click("//div[3]/div/div/div/div/div/span/table/tbody/tr/td[7]/div/span[11]/a");
 
         assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
     }
