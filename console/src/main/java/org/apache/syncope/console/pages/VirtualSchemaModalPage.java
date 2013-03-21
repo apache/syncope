@@ -22,13 +22,13 @@ import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.to.VirtualSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -67,12 +67,12 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
         final AjaxCheckBoxPanel readonly = new AjaxCheckBoxPanel("readonly", getString("readonly"),
                 new PropertyModel<Boolean>(schema, "readonly"));
 
-        final AjaxButton submit = new ClearIndicatingAjaxButton("apply", new ResourceModel("submit"), pageRef) {
+        final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
                 VirtualSchemaTO schemaTO = (VirtualSchemaTO) form.getDefaultModelObject();
                 try {
                     if (createFlag) {
@@ -97,12 +97,12 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
             }
         };
 
-        final AjaxButton cancel = new ClearIndicatingAjaxButton("cancel", new ResourceModel("cancel"), pageRef) {
+        final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 window.close(target);
             }
         };

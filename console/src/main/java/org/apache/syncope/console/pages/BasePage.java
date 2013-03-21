@@ -47,11 +47,11 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
 
     private static final long serialVersionUID = 1571997737305598502L;
 
+    private final static HeaderItem META_IE_COMPATIBILITY = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
+
     private final static int EDIT_PROFILE_WIN_HEIGHT = 550;
 
     private final static int EDIT_PROFILE_WIN_WIDTH = 800;
-
-    private final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
     @SpringBean
     private UserRestClient userRestClient;
@@ -113,7 +113,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 final UserTO userTO = SyncopeSession.get().isAuthenticated()
                         ? userRestClient.readProfile()
                         : new UserTO();
@@ -172,8 +172,8 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
     }
 
     @Override
-    public void renderHead(IHeaderResponse response) {
+    public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
-        response.render(new PriorityHeaderItem(meta));
+        response.render(new PriorityHeaderItem(META_IE_COMPATIBILITY));
     }
 }

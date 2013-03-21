@@ -19,10 +19,12 @@
 package org.apache.syncope.console.rest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.services.SchemaService;
+import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.to.DerivedSchemaTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.ValidatorTO;
@@ -40,6 +42,18 @@ import org.springframework.stereotype.Component;
 public class SchemaRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2479730152700312373L;
+
+    public List<? extends AbstractSchemaTO> getSchemas(final AttributableType attrType, final SchemaType schemaType) {
+        List<? extends AbstractSchemaTO> schemas = Collections.emptyList();
+
+        try {
+            schemas = getService(SchemaService.class).list(attrType, schemaType);
+        } catch (SyncopeClientCompositeErrorException e) {
+            LOG.error("While getting all schemas for {} and {}", attrType, schemaType, e);
+        }
+
+        return schemas;
+    }
 
     /**
      * Get schemas.

@@ -17,7 +17,24 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:panel>
-    <input wicket:id="check" type="checkbox"/>
+  <wicket:head>
+    <style>
+      li.selected {
+        margin-bottom: -1px !important;
+        padding-bottom: 1px !important;
+      }
+    </style>
+  </wicket:head>
+  <wicket:panel xmlns:wicket="http://wicket.apache.org">
+    <div class="ui-tabs ui-widget ui-widget-content ui-corner-all">
+      <span wicket:id="tabs-container"> 
+        <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+          <li wicket:id="tabs" class="ui-state-default ui-corner-top">
+            <a href="#" wicket:id="link"><span wicket:id="title">[[tab title]]</span></a>
+          </li>
+        </ul>
+      </span>
+      <div wicket:id="panel" class="ui-tabs-panel ui-widget-content ui-corner-bottom">[panel]</div>
+    </div>
   </wicket:panel>
 </html>

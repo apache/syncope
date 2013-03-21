@@ -33,7 +33,7 @@ import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.markup.html.list.AltListView;
-import org.apache.syncope.console.pages.panels.JQueryTabbedPanel;
+import org.apache.syncope.console.pages.panels.JQueryUITabbedPanel;
 import org.apache.syncope.console.rest.LoggerRestClient;
 import org.apache.syncope.console.rest.ReportRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
@@ -308,7 +308,7 @@ public class Reports extends BasePage {
             });
         }
 
-        form.add(new JQueryTabbedPanel("categoriesTabs", tabs));
+        form.add(new JQueryUITabbedPanel("categoriesTabs", tabs));
     }
 
     private class ReportProvider extends SortableDataProvider<ReportTO, String> {

@@ -16,96 +16,98 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:head>
-  <style>
-    span#action{
-      margin-left: 1px;
-      margin-right: 1px;
-    }
-  </style>
-</wicket:head>
-<wicket:panel>
-  <span wicket:id="panelClaim">[plus]</span>
-  <span wicket:id="panelDryRun">[plus]</span>
-  <span wicket:id="panelExecute">[plus]</span>
-  <span wicket:id="panelEnable">[plus]</span>
-  <span wicket:id="panelSearch">[plus]</span>
-  <span wicket:id="panelCreate">[plus]</span>
-  <span wicket:id="panelUserTemplate">[plus]</span>
-  <span wicket:id="panelRoleTemplate">[plus]</span>
-  <span wicket:id="panelEdit">[plus]</span>
-  <span wicket:id="panelExport">[plus]</span>
-  <span wicket:id="panelDelete">[plus]</span>
-  <span wicket:id="panelSelect">[plus]</span>
-  <span wicket:id="panelSuspend">[plus]</span>
-  <span wicket:id="panelReactivate">[plus]</span>
-  <span wicket:id="panelReload">[plus]</span>
-  <span wicket:id="panelChangeView">[plus]</span>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:head>
+    <style>
+      span#action{
+        margin-left: 1px;
+        margin-right: 1px;
+      }
+    </style>
+  </wicket:head>
+  <wicket:panel>
+    <span wicket:id="panelClaim">[plus]</span>
+    <span wicket:id="panelDryRun">[plus]</span>
+    <span wicket:id="panelExecute">[plus]</span>
+    <span wicket:id="panelEnable">[plus]</span>
+    <span wicket:id="panelSearch">[plus]</span>
+    <span wicket:id="panelCreate">[plus]</span>
+    <span wicket:id="panelUserTemplate">[plus]</span>
+    <span wicket:id="panelRoleTemplate">[plus]</span>
+    <span wicket:id="panelEdit">[plus]</span>
+    <span wicket:id="panelExport">[plus]</span>
+    <span wicket:id="panelDelete">[plus]</span>
+    <span wicket:id="panelSelect">[plus]</span>
+    <span wicket:id="panelSuspend">[plus]</span>
+    <span wicket:id="panelReactivate">[plus]</span>
+    <span wicket:id="panelReload">[plus]</span>
+    <span wicket:id="panelChangeView">[plus]</span>
 
-  <wicket:fragment wicket:id="fragmentClaim">
-    <a href="#" wicket:id="claimLink"><img id="action" src="img/actions/claim.png" alt="claim icon" title="Claim"/></a>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentClaim">
+      <a href="#" wicket:id="claimLink"><img id="action" src="img/actions/claim.png" alt="claim icon" title="Claim"/></a>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="fragmentCreate">
-    <a href="#" wicket:id="createLink"><img id="action" src="img/actions/create.png" alt="create icon"  title="Create"/></a>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentCreate">
+      <a href="#" wicket:id="createLink"><img id="action" src="img/actions/create.png" alt="create icon"  title="Create"/></a>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="fragmentSearch">
-    <a href="#" wicket:id="searchLink"><img id="action" src="img/actions/search.png" alt="search icon"  title="Search and modify"/></a>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentSearch">
+      <a href="#" wicket:id="searchLink"><img id="action" src="img/actions/search.png" alt="search icon"  title="Search and modify"/></a>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="fragmentEnable">
-    <a href="#" wicket:id="enableLink"><img id="action" src="img/actions/enable.png" alt="enable icon"  title="Enable / Disable"/></a>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentEnable">
+      <a href="#" wicket:id="enableLink"><img id="action" src="img/actions/enable.png" alt="enable icon"  title="Enable / Disable"/></a>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="fragmentEdit">
-    <a href="#" wicket:id="editLink"><img id="action" src="img/actions/edit.png" alt="edit icon"  title="Edit"/></a>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentEdit">
+      <a href="#" wicket:id="editLink"><img id="action" src="img/actions/edit.png" alt="edit icon"  title="Edit"/></a>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="fragmentUserTemplate">
-    <a href="#" wicket:id="userTemplateLink"><img id="action" src="img/actions/user_template.png" alt="user template icon"  title="Specify user template"/></a>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentUserTemplate">
+      <a href="#" wicket:id="userTemplateLink"><img id="action" src="img/actions/user_template.png" alt="user template icon"  title="Specify user template"/></a>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="fragmentRoleTemplate">
-    <a href="#" wicket:id="roleTemplateLink"><img id="action" src="img/actions/role_template.png" alt="role template icon"  title="Specify role template"/></a>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentRoleTemplate">
+      <a href="#" wicket:id="roleTemplateLink"><img id="action" src="img/actions/role_template.png" alt="role template icon"  title="Specify role template"/></a>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="fragmentDelete">
-    <a href="#" wicket:id="deleteLink"><img id="action" src="img/actions/delete.png" alt="delete icon"  title="Delete"/></a>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentDelete">
+      <a href="#" wicket:id="deleteLink"><img id="action" src="img/actions/delete.png" alt="delete icon"  title="Delete"/></a>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="fragmentDryRun">
-    <a href="#" wicket:id="dryRunLink"><img id="action" src="img/actions/dryrun.png" alt="dryrun icon"  title="DryRun"/></a>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentDryRun">
+      <a href="#" wicket:id="dryRunLink"><img id="action" src="img/actions/dryrun.png" alt="dryrun icon"  title="DryRun"/></a>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="fragmentExecute">
-    <a href="#" wicket:id="executeLink"><img id="action" src="img/actions/execute.png" alt="execute icon"  title="Execute"/></a>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentExecute">
+      <a href="#" wicket:id="executeLink"><img id="action" src="img/actions/execute.png" alt="execute icon"  title="Execute"/></a>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="fragmentSelect">
-    <a href="#" wicket:id="selectLink"><img id="action" src="img/actions/select.png" alt="select icon"  title="Select"/></a>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentSelect">
+      <a href="#" wicket:id="selectLink"><img id="action" src="img/actions/select.png" alt="select icon"  title="Select"/></a>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="fragmentExport">
-    <a href="#" wicket:id="exportLink"><img id="action" src="img/actions/export.png" alt="export icon"  title="Export"/></a>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentExport">
+      <a href="#" wicket:id="exportLink"><img id="action" src="img/actions/export.png" alt="export icon"  title="Export"/></a>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="fragmentSuspend">
-    <a href="#" wicket:id="suspendLink"><img id="action" src="img/actions/suspend.png" alt="suspend icon"  title="Suspend"/></a>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentSuspend">
+      <a href="#" wicket:id="suspendLink"><img id="action" src="img/actions/suspend.png" alt="suspend icon"  title="Suspend"/></a>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="fragmentReactivate">
-    <a href="#" wicket:id="reactivateLink"><img id="action" src="img/actions/reactivate.png" alt="reactivate icon"  title="Reactivate"/></a>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentReactivate">
+      <a href="#" wicket:id="reactivateLink"><img id="action" src="img/actions/reactivate.png" alt="reactivate icon"  title="Reactivate"/></a>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="fragmentReload">
-    <a href="#" wicket:id="reloadLink"><img id="action" src="img/actions/reload.png" alt="reload icon"  title="Reload"/></a>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentReload">
+      <a href="#" wicket:id="reloadLink"><img id="action" src="img/actions/reload.png" alt="reload icon"  title="Reload"/></a>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="fragmentChangeView">
-    <a href="#" wicket:id="changeViewLink"><img id="action" src="img/actions/settings-icon.png" alt="Change view icon"  title="Change view"/></a>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentChangeView">
+      <a href="#" wicket:id="changeViewLink"><img id="action" src="img/actions/settings-icon.png" alt="Change view icon"  title="Change view"/></a>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="emptyFragment">
-  </wicket:fragment>
-</wicket:panel>
+    <wicket:fragment wicket:id="emptyFragment">
+    </wicket:fragment>
+  </wicket:panel>
+</html>

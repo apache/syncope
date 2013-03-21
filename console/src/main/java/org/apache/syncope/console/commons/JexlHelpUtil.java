@@ -23,9 +23,13 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.link.ExternalLink;
 
-public class JexlHelpUtil {
+public final class JexlHelpUtil {
 
     private static final String JEXL_SYNTAX_URL = "http://commons.apache.org/jexl/reference/syntax.html";
+
+    private JexlHelpUtil() {
+        // private constructor for static utility class
+    }
 
     public static WebMarkupContainer getJexlHelpWebContainer(final String wicketId) {
         final WebMarkupContainer jexlHelp = new WebMarkupContainer(wicketId);
@@ -36,16 +40,18 @@ public class JexlHelpUtil {
         return jexlHelp;
     }
 
-    public static AjaxLink getAjaxLink(final WebMarkupContainer wmc, final String wicketId) {
-        AjaxLink questionMarkJexlHelp = new AjaxLink(wicketId) {
+    public static AjaxLink<Void> getAjaxLink(final WebMarkupContainer wmc, final String wicketId) {
+        AjaxLink<Void> questionMarkJexlHelp = new AjaxLink<Void>(wicketId) {
 
-            boolean toogle = false;
+            private static final long serialVersionUID = -1838017408000591382L;
 
-            private static final long serialVersionUID = -7978723352517770644L;
+            private boolean toogle = false;
 
             @Override
-            public void onClick(AjaxRequestTarget target) {
-                toogle = !toogle;
+            public void onClick(final AjaxRequestTarget target) {
+                // using bitwise inversion as suggested by 
+                // http://pmd.sourceforge.net/pmd-4.2.5/rules/controversial.html#BooleanInversion
+                toogle ^= true;
                 wmc.setVisible(toogle);
                 target.add(wmc);
             }

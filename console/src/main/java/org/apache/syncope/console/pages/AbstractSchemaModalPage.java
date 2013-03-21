@@ -28,7 +28,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 /**
  * Modal window with Schema form.
  */
-abstract public class AbstractSchemaModalPage extends BaseModalPage {
+public abstract class AbstractSchemaModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = 7369215690388444748L;
 
@@ -37,12 +37,12 @@ abstract public class AbstractSchemaModalPage extends BaseModalPage {
 
     protected AttributableType kind;
 
-    public AbstractSchemaModalPage(AttributableType kind) {
+    public AbstractSchemaModalPage(final AttributableType kind) {
         this.kind = kind;
     }
 
-    abstract public void setSchemaModalPage(final PageReference callerPageRef, final ModalWindow window,
-            AbstractBaseBean schema, final boolean createFlag);
+    public abstract void setSchemaModalPage(PageReference callerPageRef, ModalWindow window, AbstractBaseBean schema,
+            boolean createFlag);
 
     public AttributableType getKind() {
         return kind;

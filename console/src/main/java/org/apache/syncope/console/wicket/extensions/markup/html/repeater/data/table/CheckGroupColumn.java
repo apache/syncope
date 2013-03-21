@@ -25,22 +25,15 @@ import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CheckGroupColumn<T, S> extends AbstractColumn<T, S> {
 
     private static final long serialVersionUID = 7955560320949560715L;
 
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(CheckGroupColumn.class);
-
     private CheckGroup<T> group;
 
-    public CheckGroupColumn(CheckGroup<T> checkGroup) {
-        super(new Model());
+    public CheckGroupColumn(final CheckGroup<T> checkGroup) {
+        super(new Model<String>());
         this.group = checkGroup;
     }
 
@@ -50,13 +43,12 @@ public class CheckGroupColumn<T, S> extends AbstractColumn<T, S> {
     }
 
     @Override
-    public Component getHeader(String componentId) {
-        return new CheckBoxGroupSelectorPanel(componentId, group);
+    public Component getHeader(final String componentId) {
+        return new CheckBoxGroupSelectorPanel<T>(componentId, group);
     }
 
     @Override
-    public void populateItem(Item<ICellPopulator<T>> item, String componentId, IModel<T> rowModel) {
+    public void populateItem(final Item<ICellPopulator<T>> item, final String componentId, final IModel<T> rowModel) {
         item.add(new CheckBoxPanel<T>(componentId, rowModel, group));
     }
-    
 }

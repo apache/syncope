@@ -30,6 +30,7 @@ import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -92,6 +93,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                 getString("conversionPattern"), new PropertyModel<String>(schema, "conversionPattern"));
 
         final IModel<List<String>> validatorsList = new LoadableDetachableModel<List<String>>() {
+
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
@@ -107,8 +109,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         validatorClass.setChoices(validatorsList.getObject());
 
         final AjaxDropDownChoicePanel<AttributeSchemaType> type = new AjaxDropDownChoicePanel<AttributeSchemaType>(
-                "type",
-                getString("type"), new PropertyModel(schema, "type"));
+                "type", getString("type"), new PropertyModel(schema, "type"));
         type.setChoices(Arrays.asList(AttributeSchemaType.values()));
         type.addRequiredLabel();
 
@@ -130,16 +131,17 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
         enumerationKeys.setModelObject((Serializable) getEnumValuesAsList(schema.getEnumerationKeys()));
 
-        if (schema != null && AttributeSchemaType.Enum.equals(((SchemaTO) schema).getType())) {
+        if (schema == null || AttributeSchemaType.Enum.equals(schema.getType())) {
+            enumerationValues.setEnabled(Boolean.FALSE);
+            enumerationKeys.setEnabled(Boolean.FALSE);
+        } else {
             enumerationValues.setEnabled(Boolean.TRUE);
             enumerationKeys.setEnabled(Boolean.TRUE);
             enumerationValuesPanel.addRequiredLabel();
-        } else {
-            enumerationValues.setEnabled(Boolean.FALSE);
-            enumerationKeys.setEnabled(Boolean.FALSE);
         }
 
         type.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
@@ -175,6 +177,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         });
 
         final AutoCompleteTextField mandatoryCondition = new AutoCompleteTextField("mandatoryCondition") {
+
             private static final long serialVersionUID = -2428903969518079100L;
 
             @Override
@@ -197,17 +200,18 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         };
 
         mandatoryCondition.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
-            protected void onUpdate(AjaxRequestTarget art) {
+            protected void onUpdate(final AjaxRequestTarget target) {
             }
         });
 
         final WebMarkupContainer pwdJexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
         schemaForm.add(pwdJexlHelp);
 
-        final AjaxLink pwdQuestionMarkJexlHelp = JexlHelpUtil.getAjaxLink(pwdJexlHelp, "questionMarkJexlHelp");
+        final AjaxLink<Void> pwdQuestionMarkJexlHelp = JexlHelpUtil.getAjaxLink(pwdJexlHelp, "questionMarkJexlHelp");
         schemaForm.add(pwdQuestionMarkJexlHelp);
 
         final AjaxCheckBoxPanel multivalue = new AjaxCheckBoxPanel("multivalue", getString("multivalue"),
@@ -220,6 +224,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                 getString("uniqueConstraint"), new PropertyModel<Boolean>(schema, "uniqueConstraint"));
 
         final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -259,6 +264,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         };
 
         final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
@@ -300,7 +306,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         for (String str : enumerationValues) {
             if (StringUtils.isNotBlank(str)) {
                 if (builder.length() > 0) {
-                    builder.append(Schema.enumValuesSeparator);
+                    builder.append(Constants.ENUM_VALUES_SEPARATOR);
                 }
 
                 builder.append(str.trim());
@@ -314,7 +320,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         final List<String> values = new ArrayList<String>();
 
         if (StringUtils.isNotBlank(enumerationValues)) {
-            for (String value : enumerationValues.split(Schema.enumValuesSeparator)) {
+            for (String value : enumerationValues.split(Constants.ENUM_VALUES_SEPARATOR)) {
                 values.add(value.trim());
             }
         } else {

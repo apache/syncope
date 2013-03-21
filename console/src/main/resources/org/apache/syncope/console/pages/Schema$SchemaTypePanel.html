@@ -18,6 +18,24 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <input wicket:id="check" type="checkbox"/>
+    <div id="users-contain" class="ui-widget">
+      <span wicket:id="schemaContainer">
+        <table class="ui-widget ui-widget-content table-hover" wicket:id="datatable"/>
+      </span>
+
+      <span style="float:right">
+        <form wicket:id="paginatorForm" style="display:inline">
+          <label><wicket:message key="displayRows"/></label>
+          <select class="text ui-widget-content ui-corner-all" wicket:id="rowsChooser"/>
+        </form>
+      </span>
+    </div>
+
+    <div wicket:id="editSchemaWin">[Show modal window for editing schema]</div>
+
+    <a wicket:id="createSchemaLink"
+       class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+      <wicket:message key="create_attribute"/>
+    </a>
   </wicket:panel>
 </html>

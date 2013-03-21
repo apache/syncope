@@ -19,31 +19,42 @@
 package org.apache.syncope.common.types;
 
 import javax.xml.bind.annotation.XmlEnum;
+import org.apache.syncope.common.to.AbstractSchemaTO;
+import org.apache.syncope.common.to.DerivedSchemaTO;
+import org.apache.syncope.common.to.SchemaTO;
+import org.apache.syncope.common.to.VirtualSchemaTO;
 
 @XmlEnum
 public enum SchemaType {
 
     /**
-     * Derived schema calculated based on other attributes.
-     */
-    DERIVED("derivedSchema"),
-    /**
      * Standard schema for normal attributes to be stored within syncope.
      */
-    NORMAL("schema"),
+    NORMAL("schema", SchemaTO.class),
+    /**
+     * Derived schema calculated based on other attributes.
+     */
+    DERIVED("derivedSchema", DerivedSchemaTO.class),
     /**
      * Virtual schema for attributes fetched from remote resources only.
      */
-    VIRTUAL("virtualSchema");
+    VIRTUAL("virtualSchema", VirtualSchemaTO.class);
 
     // TODO remove name once CXF migration is complete
     private final String name;
 
-    private SchemaType(final String name) {
+    private final Class<? extends AbstractSchemaTO> toClass;
+
+    private SchemaType(final String name, final Class<? extends AbstractSchemaTO> toClass) {
         this.name = name;
+        this.toClass = toClass;
     }
 
     public String toSpringURL() {
         return name;
+    }
+
+    public Class<? extends AbstractSchemaTO> getToClass() {
+        return toClass;
     }
 }

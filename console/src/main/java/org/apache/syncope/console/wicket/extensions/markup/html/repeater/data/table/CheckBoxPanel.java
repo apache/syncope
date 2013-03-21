@@ -27,8 +27,11 @@ public class CheckBoxPanel<T> extends Panel {
 
     private static final long serialVersionUID = 4062106303929176865L;
 
-    public CheckBoxPanel(String componentId, IModel<T> model, CheckGroup<T> checkGroup) {
+    private final Check<T> check;
+
+    public CheckBoxPanel(final String componentId, final IModel<T> model, final CheckGroup<T> checkGroup) {
         super(componentId, model);
-        add(new Check<T>("check", model, checkGroup));
+        this.check = new Check<T>("check", model, checkGroup);
+        add(this.check);
     }
 }

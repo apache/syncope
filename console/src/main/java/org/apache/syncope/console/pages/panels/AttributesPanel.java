@@ -34,9 +34,9 @@ import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.markup.html.list.AltListView;
-import org.apache.syncope.console.pages.Schema;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -253,11 +253,11 @@ public class AttributesPanel extends Panel {
 
         final String[] values = StringUtils.isBlank(schemaTO.getEnumerationValues())
                 ? new String[0]
-                : schemaTO.getEnumerationValues().split(Schema.enumValuesSeparator);
+                : schemaTO.getEnumerationValues().split(Constants.ENUM_VALUES_SEPARATOR);
 
         final String[] keys = StringUtils.isBlank(schemaTO.getEnumerationKeys())
                 ? new String[0]
-                : schemaTO.getEnumerationKeys().split(Schema.enumValuesSeparator);
+                : schemaTO.getEnumerationKeys().split(Constants.ENUM_VALUES_SEPARATOR);
 
         for (int i = 0; i < values.length; i++) {
             res.put(values[i].trim(), keys.length > i ? keys[i].trim() : null);
@@ -271,7 +271,7 @@ public class AttributesPanel extends Panel {
 
         final String[] values = StringUtils.isBlank(schemaTO.getEnumerationValues())
                 ? new String[0]
-                : schemaTO.getEnumerationValues().split(Schema.enumValuesSeparator);
+                : schemaTO.getEnumerationValues().split(Constants.ENUM_VALUES_SEPARATOR);
 
         for (String value : values) {
             res.add(value.trim());
