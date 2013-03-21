@@ -25,25 +25,20 @@ public class AccessTestITCase extends AbstractTest {
     @Test
     public void clickAround() {
         selenium.click("css=img[alt=\"Schema\"]");
+        selenium.waitForPageToLoad("30000");
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='user']\");", "30000");
+        selenium.click("//div[@id='uschema']/div/div/span/ul/li[2]/a");
+        selenium.click("//div[@id='uschema']/div/div/span/ul/li[3]/a");
 
-        selenium.click("//div[@id='user']/ul/li[2]/a/span");
-        selenium.click("//div[@id='user']/ul/li[3]/a/span");
+        selenium.click("//div[@id='tabs']/ul/li[2]/a");
 
-        selenium.click("link=Role");
+        selenium.click("//div[@id='mschema']/div/div/span/ul/li[2]/a");
+        selenium.click("//div[@id='mschema']/div/div/span/ul/li[3]/a");
+        
+        selenium.click("//div[@id='tabs']/ul/li[3]/a");
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='role']\");", "30000");
-
-        selenium.click("//div[@id='role']/ul/li/a/span");
-        selenium.click("//div[@id='role']/ul/li[2]/a/span");
-        selenium.click("//div[@id='role']/ul/li[3]/a/span");
-        selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
-
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='membership']\");", "30000");
-
-        selenium.click("//div[@id='membership']/ul/li[2]/a/span");
-        selenium.click("//div[@id='membership']/ul/li[3]/a/span");
+        selenium.click("//div[@id='rschema']/div/div/span/ul/li[2]/a");
+        selenium.click("//div[@id='rschema']/div/div/span/ul/li[3]/a");
 
         selenium.click("css=img[alt=\"Users\"]");
         selenium.waitForPageToLoad("30000");
