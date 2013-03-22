@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
@@ -178,7 +179,6 @@ public class Schema extends BasePage {
             final Field clazzField = ReflectionUtils.findField(schemaType.getToClass(), field);
             if (clazzField != null) {
                 if (clazzField.getType().equals(Boolean.class) || clazzField.getType().equals(boolean.class)) {
-
                     columns.add(new AbstractColumn<AbstractSchemaTO, String>(new ResourceModel(field)) {
 
                         private static final long serialVersionUID = 8263694778917279290L;
@@ -190,13 +190,32 @@ public class Schema extends BasePage {
                             BeanWrapper bwi = new BeanWrapperImpl(model.getObject());
                             Object obj = bwi.getPropertyValue(field);
 
-                            Label empty = new Label(componentId, " ");
-                            empty.add(new AttributeModifier("class", new Model<String>(obj.toString())));
-                            item.add(empty);
+                            item.add(new Label(componentId, ""));
+                            item.add(new AttributeModifier("class", new Model<String>(obj.toString())));
+                        }
+
+                        @Override
+                        public String getCssClass() {
+                            return "small_fixedsize";
                         }
                     });
                 } else {
-                    columns.add(new PropertyColumn(new ResourceModel(field), field, field));
+                    IColumn column = new PropertyColumn(new ResourceModel(field), field, field) {
+
+                        private static final long serialVersionUID = 3282547854226892169L;
+
+                        @Override
+                        public String getCssClass() {
+                            String css = super.getCssClass();
+                            if ("name".equals(field)) {
+                                css = StringUtils.isBlank(css)
+                                        ? "medium_fixedsize"
+                                        : css + " medium_fixedsize";
+                            }
+                            return css;
+                        }
+                    };
+                    columns.add(column);
                 }
             }
         }
@@ -413,9 +432,16 @@ public class Schema extends BasePage {
             editSchemaWin.setMarkupId("editSchemaWin");
             add(editSchemaWin);
 
+            WebMarkupContainer schemaWrapContainer = new WebMarkupContainer("schemaWrapContainer");
+            schemaWrapContainer.setOutputMarkupId(true);
+            if (schemaType != SchemaType.VIRTUAL) {
+                schemaWrapContainer.add(new AttributeModifier("style", "width:auto;"));
+            }
+            add(schemaWrapContainer);
+
             WebMarkupContainer schemaContainer = new WebMarkupContainer("schemaContainer");
             schemaContainer.setOutputMarkupId(true);
-            add(schemaContainer);
+            schemaWrapContainer.add(schemaContainer);
             setWindowClosedCallback(editSchemaWin, schemaContainer);
 
             final String paginatorRowsKey = PAGINATOR_ROWS_KEYS.get(
@@ -429,7 +455,7 @@ public class Schema extends BasePage {
             table.setOutputMarkupId(true);
             schemaContainer.add(table);
 
-            add(getPaginatorForm(schemaContainer, table, "paginatorForm", this, paginatorRowsKey));
+            schemaWrapContainer.add(getPaginatorForm(schemaContainer, table, "paginatorForm", this, paginatorRowsKey));
 
             add(getCreateSchemaLink(editSchemaWin, attrType, schemaType, "createSchemaLink"));
         }
