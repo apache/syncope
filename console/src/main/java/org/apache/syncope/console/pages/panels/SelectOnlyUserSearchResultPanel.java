@@ -54,12 +54,6 @@ public class SelectOnlyUserSearchResultPanel extends UserSearchResultPanel {
 
         this.pageRef = pageRef;
         this.window = window;
-
-        container.get("reload").setEnabled(false);
-        container.get("reload").setVisible(false);
-
-        container.get("displayAttrsLink").setEnabled(false);
-        container.get("displayAttrsLink").setVisible(false);
     }
 
     @Override

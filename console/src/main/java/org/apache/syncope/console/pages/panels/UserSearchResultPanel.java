@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
@@ -35,6 +36,7 @@ import org.apache.syncope.console.pages.EditUserModalPage;
 import org.apache.syncope.console.pages.ResultStatusModalPage;
 import org.apache.syncope.console.pages.StatusModalPage;
 import org.apache.syncope.console.rest.AbstractAttributableRestClient;
+import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
@@ -52,6 +54,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColu
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.util.ReflectionUtils;
 
 public class UserSearchResultPanel extends AbstractSearchResultPanel {
@@ -60,10 +63,26 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
     private final static String PAGEID = "Users";
 
+    @SpringBean
+    private SchemaRestClient schemaRestClient;
+
+    private final List<String> schemaNames;
+
+    private final List<String> dSchemaNames;
+
+    private final List<String> vSchemaNames;
+
     public <T extends AbstractAttributableTO> UserSearchResultPanel(final String id, final boolean filtered,
-            final NodeCond searchCond, final PageReference callerRef, final AbstractAttributableRestClient restClient) {
+            final NodeCond searchCond, final PageReference callerRef,
+            final AbstractAttributableRestClient restClient) {
 
         super(id, filtered, searchCond, callerRef, restClient);
+
+        this.schemaNames = schemaRestClient.getSchemaNames(AttributableType.USER);
+        this.dSchemaNames = schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
+        this.vSchemaNames = schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
+
+        initResultTable();
     }
 
     @Override
@@ -85,15 +104,21 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
         }
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
-            columns.add(new AttrColumn(name, SchemaType.NORMAL));
+            if (schemaNames.contains(name)) {
+                columns.add(new AttrColumn(name, SchemaType.NORMAL));
+            }
         }
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW)) {
-            columns.add(new AttrColumn(name, SchemaType.DERIVED));
+            if (dSchemaNames.contains(name)) {
+                columns.add(new AttrColumn(name, SchemaType.DERIVED));
+            }
         }
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW)) {
-            columns.add(new AttrColumn(name, SchemaType.VIRTUAL));
+            if (vSchemaNames.contains(name)) {
+                columns.add(new AttrColumn(name, SchemaType.VIRTUAL));
+            }
         }
 
         // Add defaults in case of no selection
@@ -206,7 +231,8 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
                             @Override
                             public Page createPage() {
-                                return new DisplayAttributesModalPage(page.getPageReference(), displaymodal);
+                                return new DisplayAttributesModalPage(page.getPageReference(), displaymodal,
+                                        schemaNames, dSchemaNames, vSchemaNames);
                             }
                         });
 

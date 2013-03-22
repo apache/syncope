@@ -56,6 +56,7 @@ public class RoleSearchResultPanel extends AbstractSearchResultPanel {
             final AbstractAttributableRestClient restClient) {
 
         super(id, filtered, searchCond, callerRef, restClient);
+        initResultTable();
     }
 
     @Override

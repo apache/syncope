@@ -120,7 +120,6 @@ public class SchemaRestClient extends BaseRestClient {
      * @return List of derived schema names.
      */
     public List<String> getDerivedSchemaNames(final AttributableType type) {
-
         final List<String> userDerivedSchemasNames = new ArrayList<String>();
 
         try {
@@ -145,7 +144,6 @@ public class SchemaRestClient extends BaseRestClient {
      */
     @SuppressWarnings("unchecked")
     public List<VirtualSchemaTO> getVirtualSchemas(final AttributableType type) {
-
         List<VirtualSchemaTO> userVirtualSchemas = null;
 
         try {

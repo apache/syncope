@@ -194,11 +194,13 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
         container.setOutputMarkupId(true);
         add(container);
 
+        rows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_USERS_PAGINATOR_ROWS);
+    }
+
+    protected void initResultTable() {
         // ---------------------------
         // Result table initialization
         // ---------------------------
-        // preferences and container must be not null to use it ...
-        rows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_USERS_PAGINATOR_ROWS);
         updateResultTable(false);
         // ---------------------------
 
