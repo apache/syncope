@@ -21,7 +21,6 @@ package org.apache.syncope.console.rest;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.services.TaskService;
-import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.JobClassTO;

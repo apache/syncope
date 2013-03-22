@@ -22,6 +22,8 @@ import org.apache.wicket.request.Response;
 
 public class MetaHeaderItem extends HeaderItem implements Serializable {
 
+    private static final long serialVersionUID = 7578609827530302053L;
+
     private final String key;
 
     private final String value;

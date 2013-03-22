@@ -27,7 +27,6 @@ import org.apache.syncope.common.to.PolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.springframework.stereotype.Component;
 
 /**

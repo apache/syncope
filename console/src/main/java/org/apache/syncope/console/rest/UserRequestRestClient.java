@@ -20,9 +20,6 @@ package org.apache.syncope.console.rest;
 
 import java.util.List;
 
-import javax.ws.rs.core.Response;
-
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.UserRequestTO;

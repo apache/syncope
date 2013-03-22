@@ -47,6 +47,8 @@ public class AjaxDataTablePanel<T, S> extends Panel {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AjaxDataTablePanel.class);
 
+    private static final long serialVersionUID = -8826989026203543957L;
+
     private final CheckGroup<T> group;
 
     private final Form bulkActionForm;
@@ -129,6 +131,7 @@ public class AjaxDataTablePanel<T, S> extends Panel {
         group.add(dataTable);
 
         fragment.add(new ClearIndicatingAjaxButton("bulkActionLink", bulkActionForm, pageRef) {
+            private static final long serialVersionUID = 382302811235019988L;
 
             @Override
             protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
