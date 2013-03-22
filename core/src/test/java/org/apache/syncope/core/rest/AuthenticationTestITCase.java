@@ -118,7 +118,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
-        SchemaService schemaService2 = setupCredentials(schemaService, SchemaService.class, userTO.getUsername(), "password123");
+        SchemaService schemaService2 = setupCredentials(schemaService, SchemaService.class,
+                userTO.getUsername(), "password123");
 
         schemaTO = schemaService2.read(AttributableType.USER, SchemaType.NORMAL, schemaName);
         assertNotNull(schemaTO);
@@ -155,7 +156,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserService userService2 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
+        UserService userService2 = setupCredentials(userService, UserService.class,
+                userTO.getUsername(), "password123");
 
         UserTO readUserTO = userService2.read(1L);
         assertNotNull(readUserTO);
@@ -190,7 +192,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserService userService2 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
+        UserService userService2 = setupCredentials(userService, UserService.class,
+                userTO.getUsername(), "password123");
 
         AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
         isNullCond.setSchema("loginDate");
@@ -224,9 +227,9 @@ public class AuthenticationTestITCase extends AbstractTest {
 
     @Test
     public void checkFailedLogins() {
-    	// Workaround for CXF issue.. remove after upgrade to 2.7.3
-    	CXFAuthenticator.addAuthenticator();
-    	Authenticator.setDefault(new CXFPatchedAuthenticator());
+        // Workaround for CXF issue.. remove after upgrade to 2.7.3
+        CXFAuthenticator.addAuthenticator();
+        Authenticator.setDefault(new CXFPatchedAuthenticator());
         UserTO userTO = UserTestITCase.getUniqueSampleTO("checkFailedLogin@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
@@ -241,11 +244,13 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(userTO);
         long userId = userTO.getId();
 
-        UserService userService2 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
+        UserService userService2 = setupCredentials(userService, UserService.class,
+                userTO.getUsername(), "password123");
         assertEquals(0, getFailedLogins(userService2, userId));
 
         // authentications failed ...
-        UserService userService3 = setupCredentials(userService, UserService.class, userTO.getUsername(), "wrongpwd1");
+        UserService userService3 = setupCredentials(userService, UserService.class,
+                userTO.getUsername(), "wrongpwd1");
         assertReadFails(userService3, userId);
         assertReadFails(userService3, userId);
 
@@ -253,7 +258,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         super.resetRestTemplate();
         assertEquals(2, getFailedLogins(userService, userId));
 
-        UserService userService4 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
+        UserService userService4 = setupCredentials(userService, UserService.class,
+                userTO.getUsername(), "password123");
         assertEquals(0, getFailedLogins(userService4, userId));
     }
 
@@ -273,11 +279,13 @@ public class AuthenticationTestITCase extends AbstractTest {
         long userId = userTO.getId();
         assertNotNull(userTO);
 
-        UserService userService2 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
+        UserService userService2 = setupCredentials(userService, UserService.class,
+                userTO.getUsername(), "password123");
         assertEquals(0, getFailedLogins(userService2, userId));
 
         // authentications failed ...
-        UserService userService3 = setupCredentials(userService, UserService.class, userTO.getUsername(), "wrongpwd1");
+        UserService userService3 = setupCredentials(userService, UserService.class,
+                userTO.getUsername(), "wrongpwd1");
         assertReadFails(userService3, userId);
         assertReadFails(userService3, userId);
         assertReadFails(userService3, userId);
@@ -349,7 +357,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         role1Admin = createUser(role1Admin);
         assertNotNull(role1Admin);
 
-        UserService userService2 = setupCredentials(userService, UserService.class, role1Admin.getUsername(), "password");
+        UserService userService2 = setupCredentials(userService, UserService.class,
+                role1Admin.getUsername(), "password");
 
         // User with role 1, created by user with child role created above
         UserTO role1User = UserTestITCase.getUniqueSampleTO("syncope48user@apache.org");
@@ -362,7 +371,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         role1User = response.readEntity(UserTO.class);
         assertNotNull(role1User);
     }
-    
+
     private int getFailedLogins(UserService testUserService, long userId) {
         UserTO readUserTO = testUserService.read(userId);
         assertNotNull(readUserTO);
