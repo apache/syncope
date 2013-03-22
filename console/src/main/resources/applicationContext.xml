@@ -16,7 +16,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -26,15 +25,15 @@ under the License.
        xmlns:oxm="http://www.springframework.org/schema/oxm"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.springframework.org/schema/context
-       http://www.springframework.org/schema/context/spring-context.xsd
-       http://www.springframework.org/schema/oxm
-       http://www.springframework.org/schema/oxm/spring-oxm.xsd
-       http://www.springframework.org/schema/tx
-       http://www.springframework.org/schema/tx/spring-tx.xsd
-       http://www.springframework.org/schema/aop
-       http://www.springframework.org/schema/aop/spring-aop.xsd">
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/oxm
+                           http://www.springframework.org/schema/oxm/spring-oxm.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/aop
+                           http://www.springframework.org/schema/aop/spring-aop.xsd">
 
   <context:component-scan base-package="org.apache.syncope.console.rest"/>
 
@@ -70,6 +69,11 @@ under the License.
 
   <bean id="httpClientConnManager" class="org.apache.http.impl.conn.PoolingClientConnectionManager"/>
   
+  <bean id="httpHostHeader" class="org.apache.http.message.BasicHeader">
+    <constructor-arg value="Host"/>
+    <constructor-arg value="${host}"/>
+  </bean>
+  
   <bean id="httpClientParams" class="org.apache.syncope.client.http.HttpClientParams">
     <property name="parameterMap">
       <map key-type="java.lang.String">
@@ -84,6 +88,14 @@ under the License.
             <value>http.auth.credential-charset</value>
           </key>
           <value type="java.lang.String">UTF-8</value>
+        </entry>
+        <entry>
+          <key>
+            <value>http.default-headers</value>
+          </key>
+          <list>
+            <ref bean="httpHostHeader"/>
+          </list>
         </entry>
       </map>
     </property>
