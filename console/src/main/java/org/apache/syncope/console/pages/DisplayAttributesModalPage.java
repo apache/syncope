@@ -29,8 +29,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.syncope.client.to.UserTO;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
-import org.apache.syncope.console.rest.SchemaRestClient;
-import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -66,93 +64,10 @@ public class DisplayAttributesModalPage extends BaseModalPage {
         "attributes", "derivedAttributes", "virtualAttributes", "memberships", "resources",
         "serialVersionUID", "password", "propagationTOs"};
 
-    public static final List<String> DEFAULT_SELECTION = Arrays.asList(new String[]{"id", "username", "status"});
+    public static final List<String> DEFAULT_SELECTION = Arrays.asList(new String[] {"id", "username", "status"});
 
     @SpringBean
     private PreferenceManager prefMan;
-
-    /**
-     * Schema rest client.
-     */
-    @SpringBean
-    private SchemaRestClient schemaRestClient;
-
-    final private IModel<List<String>> dnames = new LoadableDetachableModel<List<String>>() {
-
-        private static final long serialVersionUID = 5275935387613157437L;
-
-        @Override
-        protected List<String> load() {
-
-            final List<String> details = new ArrayList<String>();
-
-            Class<?> clazz = UserTO.class;
-
-            // loop on class and all superclasses searching for field
-            while (clazz != null && clazz != Object.class) {
-                for (Field field : clazz.getDeclaredFields()) {
-                    if (!ArrayUtils.contains(ATTRIBUTES_TO_HIDE, field.getName())) {
-                        details.add(field.getName());
-                    }
-                }
-                clazz = clazz.getSuperclass();
-            }
-
-            Collections.reverse(details);
-            return details;
-        }
-    };
-
-    final private IModel<List<String>> names = new LoadableDetachableModel<List<String>>() {
-
-        private static final long serialVersionUID = 5275935387613157437L;
-
-        @Override
-        protected List<String> load() {
-
-            List<String> schemas = schemaRestClient.getSchemaNames(AttributableType.USER);
-
-            if (schemas == null) {
-                schemas = new ArrayList<String>();
-            }
-
-            return schemas;
-        }
-    };
-
-    final private IModel<List<String>> dsnames = new LoadableDetachableModel<List<String>>() {
-
-        private static final long serialVersionUID = 5275935387613157437L;
-
-        @Override
-        protected List<String> load() {
-
-            List<String> schemas = schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
-
-            if (schemas == null) {
-                schemas = new ArrayList<String>();
-            }
-
-            return schemas;
-        }
-    };
-
-    final private IModel<List<String>> vsnames = new LoadableDetachableModel<List<String>>() {
-
-        private static final long serialVersionUID = 5275935387613157437L;
-
-        @Override
-        protected List<String> load() {
-
-            List<String> schemas = schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
-
-            if (schemas == null) {
-                schemas = new ArrayList<String>();
-            }
-
-            return schemas;
-        }
-    };
 
     private final List<String> selectedDetails;
 
@@ -162,9 +77,66 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
     private final List<String> selectedDerSchemas;
 
-    public DisplayAttributesModalPage(final PageReference pageRef, final ModalWindow window) {
+    public DisplayAttributesModalPage(final PageReference pageRef, final ModalWindow window,
+            final List<String> schemaNames, final List<String> dSchemaNames, final List<String> vSchemaNames) {
 
         super();
+
+        final IModel<List<String>> fnames = new LoadableDetachableModel<List<String>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+
+                final List<String> details = new ArrayList<String>();
+
+                Class<?> clazz = UserTO.class;
+
+                // loop on class and all superclasses searching for field
+                while (clazz != null && clazz != Object.class) {
+                    for (Field field : clazz.getDeclaredFields()) {
+                        if (!ArrayUtils.contains(ATTRIBUTES_TO_HIDE, field.getName())) {
+                            details.add(field.getName());
+                        }
+                    }
+                    clazz = clazz.getSuperclass();
+                }
+
+                Collections.reverse(details);
+                return details;
+            }
+        };
+
+        final IModel<List<String>> names = new LoadableDetachableModel<List<String>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return schemaNames;
+            }
+        };
+
+        final IModel<List<String>> dsnames = new LoadableDetachableModel<List<String>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return dSchemaNames;
+            }
+        };
+
+        final IModel<List<String>> vsnames = new LoadableDetachableModel<List<String>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return vSchemaNames;
+            }
+        };
 
         final Form form = new Form("form");
         form.setModel(new CompoundPropertyModel(this));
@@ -180,7 +152,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
         final CheckGroup dgroup = new CheckGroup("dCheckGroup", new PropertyModel(this, "selectedDetails"));
         form.add(dgroup);
 
-        final ListView<String> details = new ListView<String>("details", dnames) {
+        final ListView<String> details = new ListView<String>("details", fnames) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
@@ -298,7 +270,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
             }
 
             @Override
-            protected void onError(AjaxRequestTarget target, Form<?> form) {
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
                 target.add(feedbackPanel);
             }
         };

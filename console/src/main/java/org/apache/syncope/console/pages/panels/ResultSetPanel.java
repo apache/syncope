@@ -34,6 +34,7 @@ import org.apache.syncope.console.pages.BasePage;
 import org.apache.syncope.console.pages.DisplayAttributesModalPage;
 import org.apache.syncope.console.pages.EditUserModalPage;
 import org.apache.syncope.console.pages.StatusModalPage;
+import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -41,6 +42,7 @@ import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.ta
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.UserAttrColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
@@ -119,6 +121,12 @@ public class ResultSetPanel extends Panel implements IEventSource {
     private UserRestClient restClient;
 
     /**
+     * Schema rest client.
+     */
+    @SpringBean
+    private SchemaRestClient schemaRestClient;
+
+    /**
      * Application preferences.
      */
     @SpringBean
@@ -186,13 +194,23 @@ public class ResultSetPanel extends Panel implements IEventSource {
      */
     private final BasePage page;
 
+    private final List<String> schemaNames;
+
+    private final List<String> dSchemaNames;
+
+    private final List<String> vSchemaNames;
+
     public <T extends AbstractAttributableTO> ResultSetPanel(final String id, final boolean filtered,
             final NodeCond searchCond, final PageReference pageRef) {
-        super(id);
 
+        super(id);
         setOutputMarkupId(true);
 
         page = (BasePage) pageRef.getPage();
+
+        schemaNames = schemaRestClient.getSchemaNames(AttributableType.USER);
+        dSchemaNames = schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
+        vSchemaNames = schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
 
         this.filtered = filtered;
         this.filter = searchCond;
@@ -244,7 +262,8 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
                     @Override
                     public Page createPage() {
-                        return new DisplayAttributesModalPage(page.getPageReference(), displaymodal);
+                        return new DisplayAttributesModalPage(page.getPageReference(), displaymodal,
+                                schemaNames, dSchemaNames, vSchemaNames);
                     }
                 });
 
@@ -355,15 +374,21 @@ public class ResultSetPanel extends Panel implements IEventSource {
         }
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
-            columns.add(new UserAttrColumn(name, UserAttrColumn.SchemaType.schema));
+            if (schemaNames.contains(name)) {
+                columns.add(new UserAttrColumn(name, UserAttrColumn.SchemaType.schema));
+            }
         }
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW)) {
-            columns.add(new UserAttrColumn(name, UserAttrColumn.SchemaType.derivedSchema));
+            if (dSchemaNames.contains(name)) {
+                columns.add(new UserAttrColumn(name, UserAttrColumn.SchemaType.derivedSchema));
+            }
         }
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW)) {
-            columns.add(new UserAttrColumn(name, UserAttrColumn.SchemaType.virtualSchema));
+            if (vSchemaNames.contains(name)) {
+                columns.add(new UserAttrColumn(name, UserAttrColumn.SchemaType.virtualSchema));
+            }
         }
 
         // Add defaults in case of no selection
