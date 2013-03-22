@@ -89,8 +89,8 @@ public class PolicyRestClient extends BaseRestClient {
         List<String> rules = null;
 
         try {
-            rules = CollectionWrapper.unwrapCorrelationRuleClasses(
-                    getService(PolicyService.class).getCorrelationRuleClasses(PolicyType.SYNC));
+            rules = CollectionWrapper.unwrapSyncCorrelationRuleClasses(
+                    getService(PolicyService.class).getSyncCorrelationRuleClasses(PolicyType.SYNC));
         } catch (Exception e) {
             LOG.error("While getting all correlation rule classes", e);
         }

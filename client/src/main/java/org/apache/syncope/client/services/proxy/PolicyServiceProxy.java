@@ -20,7 +20,7 @@ package org.apache.syncope.client.services.proxy;
 
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.NotFoundException;
@@ -137,16 +137,15 @@ public class PolicyServiceProxy extends SpringServiceProxy implements PolicyServ
     }
 
     @Override
-    public Set<CorrelationRuleClassTO> getCorrelationRuleClasses(final PolicyType type) {
-        Set<CorrelationRuleClassTO> result = null;
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public Set<CorrelationRuleClassTO> getSyncCorrelationRuleClasses(final PolicyType type) {
+        Set<CorrelationRuleClassTO> result = Collections.<CorrelationRuleClassTO>emptySet();
 
         switch (type) {
             case SYNC:
             case GLOBAL_SYNC:
-                final Set<String> classes = new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(
-                        baseUrl + "policy/correlationRuleClasses.json", String[].class)));
-
-                result = CollectionWrapper.wrapCorrelationRuleClasses(classes);
+                result = CollectionWrapper.wrapSyncCorrelationRuleClasses(
+                        handlePossiblyEmptyStringCollection(baseUrl + "policy/syncCorrelationRuleClasses.json"));
                 break;
 
             default:

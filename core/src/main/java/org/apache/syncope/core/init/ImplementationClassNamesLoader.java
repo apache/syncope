@@ -31,7 +31,7 @@ import org.apache.syncope.core.propagation.PropagationActions;
 import org.apache.syncope.core.report.ReportJob;
 import org.apache.syncope.core.report.Reportlet;
 import org.apache.syncope.core.sync.SyncActions;
-import org.apache.syncope.core.sync.SyncRule;
+import org.apache.syncope.core.sync.SyncCorrelationRule;
 import org.apache.syncope.core.sync.impl.SyncJob;
 import org.quartz.Job;
 import org.slf4j.Logger;
@@ -103,7 +103,7 @@ public class ImplementationClassNamesLoader {
                         classNames.get(Type.SYNC_ACTIONS).add(metadata.getClassName());
                     }
 
-                    if (interfaces.contains(SyncRule.class) && !metadata.isAbstract()) {
+                    if (interfaces.contains(SyncCorrelationRule.class) && !metadata.isAbstract()) {
                         classNames.get(Type.SYNC_CORRELATION_RULES).add(metadata.getClassName());
                     }
 

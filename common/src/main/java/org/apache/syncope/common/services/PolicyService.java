@@ -101,6 +101,6 @@ public interface PolicyService {
      * @return Returns correlation rules java classes.
      */
     @GET
-    @Path("correlationRuleClasses")
-    Set<CorrelationRuleClassTO> getCorrelationRuleClasses(@PathParam("type") PolicyType type);
+    @Path("syncCorrelationRuleClasses")
+    Set<CorrelationRuleClassTO> getSyncCorrelationRuleClasses(@PathParam("type") PolicyType type);
 }

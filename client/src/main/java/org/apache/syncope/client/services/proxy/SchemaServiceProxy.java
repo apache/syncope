@@ -65,7 +65,6 @@ public class SchemaServiceProxy extends SpringServiceProxy implements SchemaServ
 
     @Override
     public void delete(final AttributableType kind, final SchemaType type, final String schemaName) {
-
         getRestTemplate().getForObject(baseUrl + type.toSpringURL() + "/{kind}/delete/{name}.json", getTOClass(type),
                 kind, schemaName);
     }

@@ -22,7 +22,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -82,10 +81,8 @@ public class ResourceServiceProxy extends SpringServiceProxy implements Resource
 
     @Override
     public Set<PropagationActionClassTO> getPropagationActionsClasses() {
-        Set<String> classes = new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(
-                baseUrl + "resource/propagationActionsClasses.json", String[].class)));
-
-        return CollectionWrapper.wrapPropagationActionClasses(classes);
+        return CollectionWrapper.wrapPropagationActionClasses(
+                handlePossiblyEmptyStringCollection(baseUrl + "resource/propagationActionsClasses.json"));
     }
 
     @Override

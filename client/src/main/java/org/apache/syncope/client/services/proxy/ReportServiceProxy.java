@@ -66,9 +66,8 @@ public class ReportServiceProxy extends SpringServiceProxy implements ReportServ
 
     @Override
     public ReportletConfClasses getReportletConfClasses() {
-        List<String> confClasses = Arrays.asList(getRestTemplate().getForObject(
-                baseUrl + "report/reportletConfClasses.json", String[].class));
-        return new ReportletConfClasses(confClasses);
+        return new ReportletConfClasses(
+                handlePossiblyEmptyStringCollection(baseUrl + "report/reportletConfClasses.json"));
     }
 
     @Override

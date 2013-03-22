@@ -165,7 +165,7 @@ public class PolicyTestITCase extends AbstractTest {
 
     @Test
     public void getCorrelationRules() {
-        assertEquals(1, policyService.getCorrelationRuleClasses(PolicyType.SYNC).size());
+        assertEquals(1, policyService.getSyncCorrelationRuleClasses(PolicyType.SYNC).size());
     }
 
     private SyncPolicyTO buildSyncPolicyTO() {

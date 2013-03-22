@@ -19,6 +19,8 @@
 package org.apache.syncope.client.services.proxy;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.Response;
 import org.apache.http.HttpEntity;
@@ -86,5 +88,20 @@ public abstract class SpringServiceProxy {
         } catch (IOException e) {
             throw new InternalServerErrorException(e);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Collection<String> handlePossiblyEmptyStringCollection(final String url) {
+        Collection<String> result = Collections.<String>emptySet();
+
+        final Object object = getRestTemplate().getForObject(url, Object.class);
+        if (object instanceof String) {
+            String string = (String) object;
+            result = Collections.singleton(string);
+        } else if (object instanceof Collection) {
+            result = (Collection<String>) object;
+        }
+
+        return result;
     }
 }

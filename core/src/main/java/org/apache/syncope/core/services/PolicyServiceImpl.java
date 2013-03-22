@@ -125,7 +125,7 @@ public class PolicyServiceImpl implements PolicyService, ContextAware {
     }
 
     @Override
-    public Set<CorrelationRuleClassTO> getCorrelationRuleClasses(final PolicyType type) {
+    public Set<CorrelationRuleClassTO> getSyncCorrelationRuleClasses(final PolicyType type) {
         Set<CorrelationRuleClassTO> result = null;
 
         switch (type) {
@@ -133,9 +133,9 @@ public class PolicyServiceImpl implements PolicyService, ContextAware {
             case GLOBAL_SYNC:
 
                 @SuppressWarnings("unchecked")
-                final Set<String> classes = (Set<String>) policyController.getCorrelationRuleClasses().getModel().
+                final Set<String> classes = (Set<String>) policyController.getSyncCorrelationRuleClasses().getModel().
                         values().iterator().next();
-                result = CollectionWrapper.wrapCorrelationRuleClasses(classes);
+                result = CollectionWrapper.wrapSyncCorrelationRuleClasses(classes);
                 break;
 
             default:

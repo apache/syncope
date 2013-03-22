@@ -69,7 +69,7 @@ import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.beans.user.UVirAttr;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
-import org.apache.syncope.core.sync.SyncRule;
+import org.apache.syncope.core.sync.SyncCorrelationRule;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.slf4j.LoggerFactory;
 
@@ -625,7 +625,7 @@ public class AttributableUtil {
         return result;
     }
 
-    public SyncRule getCorrelationRule(final SyncPolicySpec policySpec) {
+    public SyncCorrelationRule getCorrelationRule(final SyncPolicySpec policySpec) {
 
         String clazz;
 
@@ -641,11 +641,11 @@ public class AttributableUtil {
                 clazz = null;
         }
 
-        SyncRule res = null;
+        SyncCorrelationRule res = null;
 
         if (StringUtils.isNotBlank(clazz)) {
             try {
-                res = (SyncRule) Class.forName(clazz).newInstance();
+                res = (SyncCorrelationRule) Class.forName(clazz).newInstance();
             } catch (Exception e) {
                 LOG.error("Failure instantiating correlation rule class '{}'", clazz, e);
             }

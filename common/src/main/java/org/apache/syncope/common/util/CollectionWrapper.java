@@ -19,11 +19,11 @@
 package org.apache.syncope.common.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.to.CorrelationRuleClassTO;
-
 import org.apache.syncope.common.to.EntitlementTO;
 import org.apache.syncope.common.to.JobClassTO;
 import org.apache.syncope.common.to.LoggerTO;
@@ -38,9 +38,15 @@ import org.springframework.web.servlet.ModelAndView;
 public final class CollectionWrapper {
 
     private CollectionWrapper() {
+        // empty constructor for static utility class
     }
 
-    public static Set<EntitlementTO> wrap(final Set<String> collection) {
+    @SuppressWarnings("unchecked")
+    public static List<String> wrapStrings(final ModelAndView modelAndView) {
+        return (List<String>) modelAndView.getModel().values().iterator().next();
+    }
+
+    public static Set<EntitlementTO> wrap(final Collection<String> collection) {
         Set<EntitlementTO> respons = new HashSet<EntitlementTO>();
         for (String e : collection) {
             respons.add(EntitlementTO.instance(e));
@@ -48,15 +54,7 @@ public final class CollectionWrapper {
         return respons;
     }
 
-    public static List<EntitlementTO> wrap(final List<String> collection) {
-        List<EntitlementTO> respons = new ArrayList<EntitlementTO>();
-        for (String e : collection) {
-            respons.add(EntitlementTO.instance(e));
-        }
-        return respons;
-    }
-
-    public static Set<String> unwrap(final Set<EntitlementTO> collection) {
+    public static Set<String> unwrap(final Collection<EntitlementTO> collection) {
         Set<String> respons = new HashSet<String>();
         for (EntitlementTO e : collection) {
             respons.add(e.getName());
@@ -64,21 +62,7 @@ public final class CollectionWrapper {
         return respons;
     }
 
-    public static List<String> unwrap(final List<EntitlementTO> collection) {
-        List<String> respons = new ArrayList<String>();
-        for (EntitlementTO e : collection) {
-            respons.add(e.getName());
-        }
-        return respons;
-    }
-
-    public static Set<MailTemplateTO> wrapMailTemplates(final ModelAndView mailTemplates) {
-        @SuppressWarnings("unchecked")
-        Set<String> collection = (Set<String>) mailTemplates.getModel().values().iterator().next();
-        return wrapMailTemplates(collection);
-    }
-
-    public static Set<MailTemplateTO> wrapMailTemplates(final Set<String> collection) {
+    public static Set<MailTemplateTO> wrapMailTemplates(final Collection<String> collection) {
         Set<MailTemplateTO> respons = new HashSet<MailTemplateTO>();
         for (String e : collection) {
             respons.add(MailTemplateTO.instance(e));
@@ -86,21 +70,7 @@ public final class CollectionWrapper {
         return respons;
     }
 
-    public static Set<ValidatorTO> wrapValidator(final ModelAndView validators) {
-        @SuppressWarnings("unchecked")
-        Set<String> collection = (Set<String>) validators.getModel().values().iterator().next();
-        return wrapValidator(collection);
-    }
-
-    public static List<String> unwrapValidator(final List<ValidatorTO> collection) {
-        List<String> respons = new ArrayList<String>();
-        for (ValidatorTO e : collection) {
-            respons.add(e.getName());
-        }
-        return respons;
-    }
-
-    public static List<String> unwrapMailTemplates(final List<MailTemplateTO> collection) {
+    public static List<String> unwrapMailTemplates(final Collection<MailTemplateTO> collection) {
         List<String> respons = new ArrayList<String>();
         for (MailTemplateTO e : collection) {
             respons.add(e.getName());
@@ -108,42 +78,23 @@ public final class CollectionWrapper {
         return respons;
     }
 
-    public static Set<ValidatorTO> wrapValidator(final Set<String> collection) {
+    public static Set<ValidatorTO> wrapValidators(final Collection<String> validators) {
         Set<ValidatorTO> respons = new HashSet<ValidatorTO>();
-        for (String e : collection) {
-            respons.add(ValidatorTO.instance(e));
+        for (String validator : validators) {
+            respons.add(ValidatorTO.instance(validator));
         }
         return respons;
     }
 
-    public static List<LoggerTO> unwrapLogger(List<AuditLoggerName> auditNames) {
-        List<LoggerTO> respons = new ArrayList<LoggerTO>();
-        for (AuditLoggerName l : auditNames) {
-            LoggerTO loggerTO = new LoggerTO();
-            loggerTO.setName(l.toLoggerName());
-            loggerTO.setLevel(SyncopeLoggerLevel.DEBUG);
-            respons.add(loggerTO);
+    public static List<String> unwrapValidator(final Collection<ValidatorTO> collection) {
+        List<String> respons = new ArrayList<String>();
+        for (ValidatorTO e : collection) {
+            respons.add(e.getName());
         }
         return respons;
     }
 
-    public static Set<JobClassTO> wrapJobClasses(Set<String> classes) {
-        Set<JobClassTO> respons = new HashSet<JobClassTO>();
-        for (String cl : classes) {
-            respons.add(JobClassTO.instance(cl));
-        }
-        return respons;
-    }
-
-    public static Set<SyncActionClassTO> wrapSyncActionClasses(Set<String> classes) {
-        Set<SyncActionClassTO> respons = new HashSet<SyncActionClassTO>();
-        for (String cl : classes) {
-            respons.add(SyncActionClassTO.instance(cl));
-        }
-        return respons;
-    }
-
-    public static List<AuditLoggerName> wrapLogger(List<LoggerTO> logger) {
+    public static List<AuditLoggerName> wrapLogger(final Collection<LoggerTO> logger) {
         List<AuditLoggerName> respons = new ArrayList<AuditLoggerName>();
         for (LoggerTO l : logger) {
             try {
@@ -155,7 +106,26 @@ public final class CollectionWrapper {
         return respons;
     }
 
-    public static List<String> unwrapJobClasses(List<JobClassTO> jobClasses) {
+    public static List<LoggerTO> unwrapLogger(final Collection<AuditLoggerName> auditNames) {
+        List<LoggerTO> respons = new ArrayList<LoggerTO>();
+        for (AuditLoggerName l : auditNames) {
+            LoggerTO loggerTO = new LoggerTO();
+            loggerTO.setName(l.toLoggerName());
+            loggerTO.setLevel(SyncopeLoggerLevel.DEBUG);
+            respons.add(loggerTO);
+        }
+        return respons;
+    }
+
+    public static Set<JobClassTO> wrapJobClasses(final Collection<String> classes) {
+        Set<JobClassTO> respons = new HashSet<JobClassTO>();
+        for (String cl : classes) {
+            respons.add(JobClassTO.instance(cl));
+        }
+        return respons;
+    }
+
+    public static List<String> unwrapJobClasses(final Collection<JobClassTO> jobClasses) {
         List<String> respons = new ArrayList<String>();
         for (JobClassTO e : jobClasses) {
             respons.add(e.getName());
@@ -163,7 +133,15 @@ public final class CollectionWrapper {
         return respons;
     }
 
-    public static List<String> unwrapSyncActionClasses(List<SyncActionClassTO> actions) {
+    public static Set<SyncActionClassTO> wrapSyncActionClasses(final Collection<String> classes) {
+        Set<SyncActionClassTO> respons = new HashSet<SyncActionClassTO>();
+        for (String cl : classes) {
+            respons.add(SyncActionClassTO.instance(cl));
+        }
+        return respons;
+    }
+
+    public static List<String> unwrapSyncActionClasses(final Collection<SyncActionClassTO> actions) {
         List<String> respons = new ArrayList<String>();
         for (SyncActionClassTO e : actions) {
             respons.add(e.getName());
@@ -171,7 +149,7 @@ public final class CollectionWrapper {
         return respons;
     }
 
-    public static Set<PropagationActionClassTO> wrapPropagationActionClasses(Set<String> classes) {
+    public static Set<PropagationActionClassTO> wrapPropagationActionClasses(final Collection<String> classes) {
         Set<PropagationActionClassTO> respons = new HashSet<PropagationActionClassTO>();
         for (String cl : classes) {
             respons.add(PropagationActionClassTO.instance(cl));
@@ -179,7 +157,7 @@ public final class CollectionWrapper {
         return respons;
     }
 
-    public static List<String> unwrapPropagationActionClasses(Set<PropagationActionClassTO> actions) {
+    public static List<String> unwrapPropagationActionClasses(final Collection<PropagationActionClassTO> actions) {
         List<String> respons = new ArrayList<String>();
         for (PropagationActionClassTO e : actions) {
             respons.add(e.getName());
@@ -187,7 +165,7 @@ public final class CollectionWrapper {
         return respons;
     }
 
-    public static Set<CorrelationRuleClassTO> wrapCorrelationRuleClasses(Set<String> classes) {
+    public static Set<CorrelationRuleClassTO> wrapSyncCorrelationRuleClasses(final Collection<String> classes) {
         Set<CorrelationRuleClassTO> respons = new HashSet<CorrelationRuleClassTO>();
         for (String cl : classes) {
             respons.add(CorrelationRuleClassTO.instance(cl));
@@ -195,16 +173,11 @@ public final class CollectionWrapper {
         return respons;
     }
 
-    public static List<String> unwrapCorrelationRuleClasses(Set<CorrelationRuleClassTO> actions) {
+    public static List<String> unwrapSyncCorrelationRuleClasses(final Collection<CorrelationRuleClassTO> actions) {
         List<String> respons = new ArrayList<String>();
         for (CorrelationRuleClassTO e : actions) {
             respons.add(e.getName());
         }
         return respons;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static List<String> wrapStrings(final ModelAndView modelAndView) {
-        return (List<String>) modelAndView.getModel().values().iterator().next();
     }
 }

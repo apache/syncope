@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.syncope.common.services.EntitlementService;
-import org.apache.syncope.common.to.EntitlementTO;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.springframework.stereotype.Component;
 
@@ -40,9 +39,8 @@ public class AuthRestClient extends BaseRestClient {
      * @return List<String>
      */
     public List<String> getAllEntitlements() {
-        List<EntitlementTO> entitlemens = new ArrayList<EntitlementTO>(getService(EntitlementService.class)
-                .getAllEntitlements());
-        return CollectionWrapper.unwrap(entitlemens);
+        return new ArrayList<String>(
+                CollectionWrapper.unwrap(getService(EntitlementService.class).getAllEntitlements()));
     }
 
     /**
@@ -51,8 +49,7 @@ public class AuthRestClient extends BaseRestClient {
      * @return List<String>
      */
     public List<String> getOwnedEntitlements() {
-        List<EntitlementTO> entitlemens = new ArrayList<EntitlementTO>(getService(EntitlementService.class)
-                .getMyEntitlements());
-        return CollectionWrapper.unwrap(entitlemens);
+        return new ArrayList<String>(
+                CollectionWrapper.unwrap(getService(EntitlementService.class).getMyEntitlements()));
     }
 }

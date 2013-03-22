@@ -24,7 +24,7 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 /**
  * Interface for correlation rule to be evaluated during SyncJob execution.
  */
-public interface SyncRule {
+public interface SyncCorrelationRule {
 
     /**
      * Return a search condition.
@@ -32,5 +32,5 @@ public interface SyncRule {
      * @param connObj connector object.
      * @return search condition.
      */
-    NodeCond getSearchCond(final ConnectorObject connObj);
+    NodeCond getSearchCond(ConnectorObject connObj);
 }

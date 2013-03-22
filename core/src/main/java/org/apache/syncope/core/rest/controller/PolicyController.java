@@ -237,8 +237,8 @@ public class PolicyController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('POLICY_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/correlationRuleClasses")
-    public ModelAndView getCorrelationRuleClasses() {
+    @RequestMapping(method = RequestMethod.GET, value = "/syncCorrelationRuleClasses")
+    public ModelAndView getSyncCorrelationRuleClasses() {
         final Set<String> correlationRules =
                 classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.SYNC_CORRELATION_RULES);
 

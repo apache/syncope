@@ -72,7 +72,7 @@ import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.sync.SyncActions;
 import org.apache.syncope.core.sync.SyncResult;
-import org.apache.syncope.core.sync.SyncRule;
+import org.apache.syncope.core.sync.SyncCorrelationRule;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
@@ -343,7 +343,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
     }
 
     private List<Long> findByCorrelationRule(
-            final ConnectorObject connObj, final SyncRule rule, final AttributableUtil attrUtil) {
+            final ConnectorObject connObj, final SyncCorrelationRule rule, final AttributableUtil attrUtil) {
         return search(rule.getSearchCond(connObj), attrUtil);
     }
 
@@ -441,7 +441,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             syncPolicySpec = syncTask.getResource().getSyncPolicy().<SyncPolicySpec>getSpecification();
         }
 
-        SyncRule syncRule = null;
+        SyncCorrelationRule syncRule = null;
         List<String> altSearchSchemas = null;
 
         if (syncPolicySpec != null) {

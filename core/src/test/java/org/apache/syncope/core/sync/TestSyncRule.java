@@ -22,7 +22,7 @@ import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.NodeCond;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
-public class TestSyncRule implements SyncRule {
+public class TestSyncRule implements SyncCorrelationRule {
 
     @Override
     public NodeCond getSearchCond(ConnectorObject connObj) {

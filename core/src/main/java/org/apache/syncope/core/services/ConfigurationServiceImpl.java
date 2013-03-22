@@ -79,13 +79,17 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Set<MailTemplateTO> getMailTemplates() {
-        return CollectionWrapper.wrapMailTemplates(configurationController.getMailTemplates());
+        return CollectionWrapper.wrapMailTemplates(
+                (Set<String>) configurationController.getMailTemplates().getModel().values().iterator().next());
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Set<ValidatorTO> getValidators() {
-        return CollectionWrapper.wrapValidator(configurationController.getValidators());
+        return CollectionWrapper.wrapValidators(
+                (Set<String>) configurationController.getValidators().getModel().values().iterator().next());
     }
 
     @Override

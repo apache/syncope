@@ -22,7 +22,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.InternalServerErrorException;
@@ -81,16 +80,14 @@ public class ConfigurationServiceProxy extends SpringServiceProxy implements Con
 
     @Override
     public Set<ValidatorTO> getValidators() {
-        Set<String> response = new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(
-                baseUrl + "configuration/validators.json", String[].class)));
-        return CollectionWrapper.wrapValidator(response);
+        return CollectionWrapper.wrapValidators(
+                handlePossiblyEmptyStringCollection(baseUrl + "configuration/validators.json"));
     }
 
     @Override
     public Set<MailTemplateTO> getMailTemplates() {
-        Set<String> response = new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(
-                baseUrl + "configuration/mailTemplates.json", String[].class)));
-        return CollectionWrapper.wrapMailTemplates(response);
+        return CollectionWrapper.wrapMailTemplates(
+                handlePossiblyEmptyStringCollection(baseUrl + "configuration/mailTemplates.json"));
     }
 
     @Override

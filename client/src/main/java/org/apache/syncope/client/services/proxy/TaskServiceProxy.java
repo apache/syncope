@@ -21,7 +21,6 @@ package org.apache.syncope.client.services.proxy;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
@@ -106,18 +105,14 @@ public class TaskServiceProxy extends SpringServiceProxy implements TaskService 
 
     @Override
     public Set<JobClassTO> getJobClasses() {
-        Set<String> classes = new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(
-                baseUrl + "task/jobClasses.json", String[].class)));
-
-        return CollectionWrapper.wrapJobClasses(classes);
+        return CollectionWrapper.wrapJobClasses(
+                handlePossiblyEmptyStringCollection(baseUrl + "task/jobClasses.json"));
     }
 
     @Override
     public Set<SyncActionClassTO> getSyncActionsClasses() {
-        Set<String> classes = new HashSet<String>(Arrays.asList(getRestTemplate().getForObject(
-                baseUrl + "task/syncActionsClasses.json", String[].class)));
-
-        return CollectionWrapper.wrapSyncActionClasses(classes);
+        return CollectionWrapper.wrapSyncActionClasses(
+                handlePossiblyEmptyStringCollection(baseUrl + "task/syncActionsClasses.json"));
     }
 
     @Override
