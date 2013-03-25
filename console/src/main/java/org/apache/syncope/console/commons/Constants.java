@@ -74,18 +74,11 @@ public final class Constants {
 
     public static final String PAGEPARAM_CURRENT_PAGE = "_current_page";
 
-    /*
-     * DATE FORMATS FOR TASKS
-     */
-    public static final String ITALIAN_DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
+    public static final String[] SCHEMA_FIELDS = {"name", "type"};
 
-    public static final String ENGLISH_DATE_FORMAT = "MM/dd/yyyy HH:mm:ss";
+    public static final String[] VIRTUAL_SCHEMA_FIELDS = {"name"};
 
-    public static final String[] SCHEMA_FIELDS = { "name", "type" };
-
-    public static final String[] VIRTUAL_SCHEMA_FIELDS = { "name" };
-
-    public static final String[] DERIVED_SCHEMA_FIELDS = { "name", "expression" };
+    public static final String[] DERIVED_SCHEMA_FIELDS = {"name", "expression"};
 
     public static final String PREF_POLICY_PAGINATOR_ROWS = "policy.paginator.rows";
 

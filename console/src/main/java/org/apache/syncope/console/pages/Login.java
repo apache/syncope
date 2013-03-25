@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.console.pages;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -96,7 +94,7 @@ public class Login extends WebPage {
         passwordField.setMarkupId("password");
         form.add(passwordField);
 
-        languageSelect = new LocaleDropDown("language", Arrays.asList(new Locale[]{Locale.ENGLISH, Locale.ITALIAN}));
+        languageSelect = new LocaleDropDown("language");
 
         form.add(languageSelect);
 
@@ -239,9 +237,8 @@ public class Login extends WebPage {
             }
         }
 
-        public LocaleDropDown(final String id, final List<Locale> supportedLocales) {
-
-            super(id, supportedLocales);
+        public LocaleDropDown(final String id) {
+            super(id, SyncopeSession.SUPPORTED_LOCALES);
 
             setChoiceRenderer(new LocaleRenderer());
             setModel(new IModel<Locale>() {

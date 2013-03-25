@@ -18,8 +18,10 @@
  */
 package org.apache.syncope.console;
 
-import java.text.SimpleDateFormat;
-import org.apache.syncope.console.commons.Constants;
+import java.text.DateFormat;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -35,6 +37,9 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public class SyncopeSession extends WebSession {
 
     private static final long serialVersionUID = 7743446298924805872L;
+
+    public static final List<Locale> SUPPORTED_LOCALES = Arrays.asList(new Locale[] {
+        Locale.ENGLISH, Locale.ITALIAN});
 
     private String userId;
 
@@ -94,19 +99,9 @@ public class SyncopeSession extends WebSession {
         return this.roles.hasAnyRole(roles);
     }
 
-    public SimpleDateFormat getDateFormat() {
-        String language = "en";
-        if (getLocale() != null) {
-            language = getLocale().getLanguage();
-        }
+    public DateFormat getDateFormat() {
+        final Locale locale = getLocale() == null ? Locale.ENGLISH : getLocale();
 
-        SimpleDateFormat formatter;
-        if ("it".equals(language)) {
-            formatter = new SimpleDateFormat(Constants.ITALIAN_DATE_FORMAT);
-        } else {
-            formatter = new SimpleDateFormat(Constants.ENGLISH_DATE_FORMAT);
-        }
-
-        return formatter;
+        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
     }
 }
