@@ -74,10 +74,6 @@ public final class Constants {
 
     public static final String PAGEPARAM_CURRENT_PAGE = "_current_page";
 
-    public static final String ITALIAN_DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
-
-    public static final String ENGLISH_DATE_FORMAT = "MM/dd/yyyy HH:mm:ss";
-
     public static final String PREF_POLICY_PAGINATOR_ROWS = "policy.paginator.rows";
 
     public static final String ENUM_VALUES_SEPARATOR = ";";

@@ -18,8 +18,12 @@
  */
 package org.apache.syncope.console;
 
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import org.apache.syncope.client.services.proxy.ConfigurationServiceProxy;
 import org.apache.syncope.client.services.proxy.ConnectorServiceProxy;
 import org.apache.syncope.client.services.proxy.EntitlementServiceProxy;
@@ -51,7 +55,6 @@ import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.services.UserWorkflowService;
 import org.apache.syncope.common.services.WorkflowService;
-import org.apache.syncope.console.commons.Constants;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -68,6 +71,9 @@ public class SyncopeSession extends WebSession {
 
     private static final long serialVersionUID = 7743446298924805872L;
 
+    public static final List<Locale> SUPPORTED_LOCALES = Arrays.asList(new Locale[] {
+        Locale.ENGLISH, Locale.ITALIAN});
+
     private String userId;
 
     private String version;
@@ -78,7 +84,7 @@ public class SyncopeSession extends WebSession {
 
     private final RestTemplate restTemplate;
 
-    private final HashMap<Class<?>, SpringServiceProxy> services = new HashMap<Class<?>, SpringServiceProxy>();
+    private final Map<Class<?>, SpringServiceProxy> services = new HashMap<Class<?>, SpringServiceProxy>();
 
     public static SyncopeSession get() {
         return (SyncopeSession) Session.get();
@@ -96,7 +102,7 @@ public class SyncopeSession extends WebSession {
         setupRESTClients();
     }
 
-    protected void setupRESTClients() {
+    private void setupRESTClients() {
         services.put(ConfigurationService.class, new ConfigurationServiceProxy(baseURL, restTemplate));
         services.put(ConnectorService.class, new ConnectorServiceProxy(baseURL, restTemplate));
         services.put(EntitlementService.class, new EntitlementServiceProxy(baseURL, restTemplate));
@@ -115,7 +121,7 @@ public class SyncopeSession extends WebSession {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getService(Class<T> service) {
+    public <T> T getService(final Class<T> service) {
         return (T) services.get(service);
     }
 
@@ -156,19 +162,9 @@ public class SyncopeSession extends WebSession {
         return this.roles.hasAnyRole(roles);
     }
 
-    public SimpleDateFormat getDateFormat() {
-        String language = "en";
-        if (getLocale() != null) {
-            language = getLocale().getLanguage();
-        }
+    public DateFormat getDateFormat() {
+        final Locale locale = getLocale() == null ? Locale.ENGLISH : getLocale();
 
-        SimpleDateFormat formatter;
-        if ("it".equals(language)) {
-            formatter = new SimpleDateFormat(Constants.ITALIAN_DATE_FORMAT);
-        } else {
-            formatter = new SimpleDateFormat(Constants.ENGLISH_DATE_FORMAT);
-        }
-
-        return formatter;
+        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
     }
 }
