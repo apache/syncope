@@ -54,7 +54,36 @@ under the License.
     </section>
 
     <section name="Current Releases">
-   <subsection name="1.0.6 Espressivo">
+   <subsection name="1.0.7 Espressivo">
+        <p>Release date: Mar 26th, 2013</p>
+        <p>
+          <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Espressivo">Release notes</a>
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Artifact</th>
+              <th>Signatures</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.0.7/syncope-root-1.0.7-source-release.zip">syncope-root-1.0.7-source-release.zip</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/syncope/1.0.7/syncope-root-1.0.7-source-release.zip.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/1.0.7/syncope-root-1.0.7-source-release.zip.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/1.0.7/syncope-root-1.0.7-source-release.zip.sha1">sha1</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </subsection>   
+    </section>
+
+    <section name="Older Releases">
+     <subsection name="1.0.6 Espressivo">
         <p>Release date: Feb 27th, 2013</p>
         <p>
           <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Espressivo">Release notes</a>
@@ -69,41 +98,12 @@ under the License.
           <tbody>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.0.6/syncope-root-1.0.6-source-release.zip">syncope-root-1.0.6-source-release.zip</a>
+                <a href="http://archive.apache.org/dist/syncope/1.0.6/syncope-root-1.0.6-source-release.zip">syncope-root-1.0.6-source-release.zip</a>
               </td>
               <td>
-                <a href="http://www.apache.org/dist/syncope/1.0.6/syncope-root-1.0.6-source-release.zip.asc">asc</a> 
-                <a href="http://www.apache.org/dist/syncope/1.0.6/syncope-root-1.0.6-source-release.zip.md5">md5</a> 
-                <a href="http://www.apache.org/dist/syncope/1.0.6/syncope-root-1.0.6-source-release.zip.sha1">sha1</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </subsection>   
-    </section>
-
-    <section name="Older Releases">
-     <subsection name="1.0.5 Espressivo">
-        <p>Release date: Jan 23rd, 2013</p>
-        <p>
-          <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Espressivo">Release notes</a>
-        </p>
-        <table>
-          <thead>
-            <tr>
-              <th>Artifact</th>
-              <th>Signatures</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <a href="http://archive.apache.org/dist/syncope/1.0.5/syncope-root-1.0.5-source-release.zip">syncope-root-1.0.5-source-release.zip</a>
-              </td>
-              <td>
-                <a href="http://archive.apache.org/dist/syncope/1.0.5/syncope-root-1.0.5-source-release.zip.asc">asc</a> 
-                <a href="http://archive.apache.org/dist/syncope/1.0.5/syncope-root-1.0.5-source-release.zip.md5">md5</a> 
-                <a href="http://archive.apache.org/dist/syncope/1.0.5/syncope-root-1.0.5-source-release.zip.sha1">sha1</a>
+                <a href="http://archive.apache.org/dist/syncope/1.0.6/syncope-root-1.0.6-source-release.zip.asc">asc</a> 
+                <a href="http://archive.apache.org/dist/syncope/1.0.6/syncope-root-1.0.6-source-release.zip.md5">md5</a> 
+                <a href="http://archive.apache.org/dist/syncope/1.0.6/syncope-root-1.0.6-source-release.zip.sha1">sha1</a>
               </td>
             </tr>
           </tbody>

@@ -2,6 +2,18 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.0.7
+================================================================================
+** Bug
+    * [SYNCOPE-332] - User List sorting via Derived attributes column doesn't work
+    * [SYNCOPE-336] - Use a auto-complete textfield to chose for external attribute to be mapped during schema mapping creation
+    * [SYNCOPE-339] - enum schema multivalue doesn't work
+    * [SYNCOPE-341] - When deleting user schema, user list attributes head don't get updated
+    * [SYNCOPE-342] - Console might fail to connect when core is deployed on virtual host
+
+** Task
+    * [SYNCOPE-326] - Check console style (CSS) on Internet Explorer
+
 Release Notes - Syncope - Version 1.0.6
 ================================================================================
 ** Bug
@@ -15,8 +27,6 @@ Release Notes - Syncope - Version 1.0.6
     * [SYNCOPE-315] - "Persistent" feedback messages
     * [SYNCOPE-316] - Exception when creating connector instances with no bundles available
     * [SYNCOPE-325] - Stacktrace when accessing the Configuration page on JBoss
-
-
 
 ** Improvement
     * [SYNCOPE-154] - Virtual attribute cache
@@ -32,8 +42,6 @@ Release Notes - Syncope - Version 1.0.5
     * [SYNCOPE-272] - During sync null attributes from template are considered
     * [SYNCOPE-273] - Role deletion inhibits notification update
     * [SYNCOPE-274] - Sync: during update with user template existing memberships break update
-
-
 
 ** Improvement
     * [SYNCOPE-14] - Solve some warnings and verify if generated projects still work
