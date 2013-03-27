@@ -308,7 +308,6 @@ under the License.
     <dependency>
       <groupId>org.jasypt</groupId>
       <artifactId>jasypt</artifactId>
-      <version>${jasypt.version}</version>
     </dependency> 
 
     <!-- TEST -->
