@@ -32,6 +32,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         selenium.waitForCondition(
                 "selenium.isElementPresent(\"//form/div[2]/div/div/div[3]/div[2]/span/select\");", "30000");
+        selenium.select("//select[@name='location:dropDownChoiceField']", "value=0");
         selenium.select("//select[@name='connectorName:dropDownChoiceField']", "label=org.connid.bundles.soap");
 
         selenium.click("//div[2]/form/div[2]/ul/li[2]/a/span");
@@ -51,13 +52,13 @@ public class ConnInstanceTestITCase extends AbstractTest {
         selenium.click("//div[3]/ul/li[2]/a");
         selenium.click("//tr[4]/td[7]/div/span[9]/a");
 
-        selenium.waitForCondition(""
-                + "selenium.isElementPresent(\"//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select\");", "30000");
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select\");", "30000");
 
         assertEquals("ConnInstance103", selenium.getAttribute("//input[@name='displayName:textField']/@value"));
 
-        assertEquals("org.connid.bundles.soap", selenium
-                .getSelectedLabel("//select[@name='connectorName:dropDownChoiceField']"));
+        assertEquals("org.connid.bundles.soap",
+                selenium.getSelectedLabel("//select[@name='connectorName:dropDownChoiceField']"));
 
         selenium.click("//div[2]/form/div[2]/ul/li[2]/a/span");
         selenium.click("css=a.w_close");
@@ -74,8 +75,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
 
-        selenium.waitForCondition("selenium.isTextPresent(" + "\"Error occurred during the requested operation\");",
-                "10000");
+        selenium.waitForCondition("selenium.isTextPresent(\"Error:\");", "10000");
     }
 
     @Test

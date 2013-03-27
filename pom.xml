@@ -323,7 +323,7 @@ under the License.
     <jasypt.version>1.9.0</jasypt.version>
  
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
-    <connid.location>file://${bundles.directory}</connid.location>
+    <connid.location>file:${bundles.directory}/</connid.location>
     <log.directory>${project.build.directory}/log</log.directory>
                 
     <cargo.servlet.port>9080</cargo.servlet.port>
