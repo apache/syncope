@@ -110,12 +110,16 @@ under the License.
     <level value="DEBUG"/>
     <appender-ref ref="connid"/>
   </logger>
+  <logger name="org.connid" additivity="false">
+    <level value="DEBUG"/>
+    <appender-ref ref="connid"/>
+  </logger>
   <logger name="org.apache.syncope.core.connid" additivity="false">
     <level value="DEBUG"/>
     <appender-ref ref="connid"/>
   </logger>
-  <logger name="org.connid" additivity="false">
-    <level value="DEBUG"/>
+  <logger name="org.apache.syncope.core.util.ConnIdBundleManager" additivity="false">
+    <level value="INFO"/>
     <appender-ref ref="connid"/>
   </logger>
     

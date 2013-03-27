@@ -37,13 +37,31 @@ public class ConnBundleTO extends AbstractBaseBean {
 
     private String displayName;
 
-    private String bundleName;
+    private String location;
 
-    private String version;
+    private String bundleName;
 
     private String connectorName;
 
+    private String version;
+
     private List<ConnConfPropSchema> properties = new ArrayList<ConnConfPropSchema>();
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(final String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(final String location) {
+        this.location = location;
+    }
 
     public String getBundleName() {
         return bundleName;
@@ -61,18 +79,18 @@ public class ConnBundleTO extends AbstractBaseBean {
         this.connectorName = connectorName;
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(final String displayName) {
-        this.displayName = displayName;
-    }
-
     @XmlElementWrapper(name = "properties")
     @XmlElement(name = "connConfPropSchema")
     public List<ConnConfPropSchema> getProperties() {
         return properties;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(final String version) {
+        this.version = version;
     }
 
     public void setProperties(final List<ConnConfPropSchema> properties) {
@@ -85,13 +103,5 @@ public class ConnBundleTO extends AbstractBaseBean {
 
     public boolean removeProperty(final ConnConfPropSchema property) {
         return properties.remove(property);
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(final String version) {
-        this.version = version;
     }
 }

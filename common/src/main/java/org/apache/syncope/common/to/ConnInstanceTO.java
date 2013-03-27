@@ -41,11 +41,13 @@ public class ConnInstanceTO extends AbstractBaseBean {
 
     private long id;
 
+    private String location;
+
+    private String connectorName;
+
     private String bundleName;
 
     private String version;
-
-    private String connectorName;
 
     private final Set<ConnConfProperty> configuration;
 
@@ -70,11 +72,27 @@ public class ConnInstanceTO extends AbstractBaseBean {
         this.id = id;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(final String location) {
+        this.location = location;
+    }
+
+    public String getConnectorName() {
+        return connectorName;
+    }
+
+    public void setConnectorName(final String connectorname) {
+        this.connectorName = connectorname;
+    }
+
     public String getBundleName() {
         return bundleName;
     }
 
-    public void setBundleName(String bundlename) {
+    public void setBundleName(final String bundlename) {
         this.bundleName = bundlename;
     }
 
@@ -82,8 +100,8 @@ public class ConnInstanceTO extends AbstractBaseBean {
         return version;
     }
 
-    public void setVersion(String bundleversion) {
-        this.version = bundleversion;
+    public void setVersion(final String version) {
+        this.version = version;
     }
 
     @XmlElementWrapper(name = "configuration")
@@ -97,7 +115,7 @@ public class ConnInstanceTO extends AbstractBaseBean {
         Map<String, ConnConfProperty> result;
 
         if (getConfiguration() == null) {
-            result = Collections.emptyMap();
+            result = Collections.<String, ConnConfProperty>emptyMap();
         } else {
             result = new HashMap<String, ConnConfProperty>();
             for (ConnConfProperty prop : getConfiguration()) {
@@ -109,15 +127,15 @@ public class ConnInstanceTO extends AbstractBaseBean {
         return result;
     }
 
-    public boolean addConfiguration(ConnConfProperty property) {
+    public boolean addConfiguration(final ConnConfProperty property) {
         return this.configuration.add(property);
     }
 
-    public boolean removeConfiguration(ConnConfProperty property) {
+    public boolean removeConfiguration(final ConnConfProperty property) {
         return this.configuration.remove(property);
     }
 
-    public void setConfiguration(Set<ConnConfProperty> configuration) {
+    public void setConfiguration(final Set<ConnConfProperty> configuration) {
         if (this.configuration != configuration) {
             this.configuration.clear();
             if (configuration != null && !configuration.isEmpty()) {
@@ -126,19 +144,11 @@ public class ConnInstanceTO extends AbstractBaseBean {
         }
     }
 
-    public String getConnectorName() {
-        return connectorName;
-    }
-
-    public void setConnectorName(String connectorname) {
-        this.connectorName = connectorname;
-    }
-
-    public boolean addCapability(ConnectorCapability capability) {
+    public boolean addCapability(final ConnectorCapability capability) {
         return capabilities.add(capability);
     }
 
-    public boolean removeCapability(ConnectorCapability capability) {
+    public boolean removeCapability(final ConnectorCapability capability) {
         return capabilities.remove(capability);
     }
 
@@ -161,7 +171,7 @@ public class ConnInstanceTO extends AbstractBaseBean {
         return displayName;
     }
 
-    public void setDisplayName(String displayName) {
+    public void setDisplayName(final String displayName) {
         this.displayName = displayName;
     }
 
@@ -179,7 +189,7 @@ public class ConnInstanceTO extends AbstractBaseBean {
      *
      * @param timeout.
      */
-    public void setConnRequestTimeout(Integer connRequestTimeout) {
+    public void setConnRequestTimeout(final Integer connRequestTimeout) {
         this.connRequestTimeout = connRequestTimeout;
     }
 }

@@ -81,6 +81,27 @@ under the License.
     </dependency>
 
     <dependency>
+      <groupId>org.connid</groupId>
+      <artifactId>connid-framework</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.connid</groupId>
+      <artifactId>connid-framework-internal</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy-all</artifactId>
+    </dependency>
+      
+    <dependency>
+      <groupId>org.connid.bundles.db</groupId>
+      <artifactId>org.connid.bundles.db.table</artifactId>
+      <version>${connid.db.table.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+      
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>1.5.6</version>
@@ -104,7 +125,7 @@ under the License.
   </dependencies>
 
   <build>
-    <plugins>
+    <plugins>      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
@@ -131,10 +152,12 @@ under the License.
         <inherited>true</inherited>
         <configuration>
           <container>
-            <containerId>jetty6x</containerId>
-            <type>embedded</type>
-            <log>${cargo.log}</log>
-            <output>${cargo.output}</output>
+            <dependencies>
+              <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+              </dependency>
+            </dependencies>
           </container>
           <configuration>
             <properties>

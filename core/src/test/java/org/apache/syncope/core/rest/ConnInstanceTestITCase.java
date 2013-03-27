@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -64,18 +65,14 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
     private static String connidDbTableVersion;
 
-    private static String bundlesDirectory;
-
     @BeforeClass
     public static void setUpConnIdBundles() throws IOException {
         InputStream propStream = null;
         try {
             Properties props = new Properties();
-            propStream = org.apache.syncope.core.AbstractTest.class.
-                    getResourceAsStream(ConnIdBundleManager.CONNID_PROPS);
+            propStream = ConnInstanceTestITCase.class.getResourceAsStream(ConnIdBundleManager.CONNID_PROPS);
             props.load(propStream);
 
-            bundlesDirectory = props.getProperty("bundles.directory");
             connidSoapVersion = props.getProperty("connid.soap.version");
             connidDbTableVersion = props.getProperty("connid.db.table.version");
         } catch (Exception e) {
@@ -83,7 +80,6 @@ public class ConnInstanceTestITCase extends AbstractTest {
         } finally {
             IOUtils.closeQuietly(propStream);
         }
-        assertNotNull(bundlesDirectory);
         assertNotNull(connidSoapVersion);
         assertNotNull(connidDbTableVersion);
     }
@@ -101,6 +97,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
     @Test
     public void create() {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
+
+        connectorTO.setLocation(ConnIdBundleManager.getConnManagers().keySet().iterator().next().toString());
 
         // set connector version
         connectorTO.setVersion(connidSoapVersion);
@@ -425,8 +423,13 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
     @Test
     public void validate() {
-
         ConnInstanceTO connectorTO = new ConnInstanceTO();
+        
+        for (URI location : ConnIdBundleManager.getConnManagers().keySet()) {
+            if (!location.getScheme().equals("file")) {
+                connectorTO.setLocation(location.toString());
+            }
+        }
 
         // set connector version
         connectorTO.setVersion(connidDbTableVersion);
@@ -549,11 +552,12 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE112() {
-
         // ----------------------------------------
         // Create a new connector
         // ----------------------------------------
         ConnInstanceTO connectorTO = new ConnInstanceTO();
+
+        connectorTO.setLocation(ConnIdBundleManager.getConnManagers().keySet().iterator().next().toString());
 
         // set connector version
         connectorTO.setVersion(connidSoapVersion);

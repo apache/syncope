@@ -323,6 +323,7 @@ under the License.
     <jasypt.version>1.9.0</jasypt.version>
  
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
+    <connid.location>file://${bundles.directory}</connid.location>
     <log.directory>${project.build.directory}/log</log.directory>
                 
     <cargo.servlet.port>9080</cargo.servlet.port>
@@ -339,6 +340,9 @@ under the License.
     <testdb.url>jdbc:h2:tcp://localhost:9092/testdb</testdb.url>
     <testdb.username>sa</testdb.username>
     <testdb.password>sa</testdb.password>
+    
+    <testconnectorserver.port>4554</testconnectorserver.port>
+    <testconnectorserver.key>testconnectorserver</testconnectorserver.key>
     
     <test.csvdir.path>${project.build.directory}/test-csvdir</test.csvdir.path>
         
@@ -798,33 +802,9 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.connid.bundles.soap</groupId>
-        <artifactId>org.connid.bundles.soap</artifactId>
-        <version>${connid.soap.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.connid.bundles.soap</groupId>
         <artifactId>wssample</artifactId>
         <version>${connid.soap.version}</version>
         <type>war</type>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.connid.bundles.db</groupId>
-        <artifactId>org.connid.bundles.db.table</artifactId>
-        <version>${connid.db.table.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.connid.bundles</groupId>
-        <artifactId>org.connid.bundles.csvdir</artifactId>
-        <version>${connid.csvdir.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.connid.bundles</groupId>
-        <artifactId>org.connid.bundles.ldap</artifactId>
-        <version>${connid.ldap.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -873,6 +853,17 @@ under the License.
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
             <!--<compilerArgument>-Xlint:unchecked</compilerArgument>-->
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>2.6</version>
+          <configuration>
+            <useDefaultDelimiters>false</useDefaultDelimiters>
+            <delimiters>
+              <delimiter>${*}</delimiter>
+            </delimiters>
           </configuration>
         </plugin>
         <plugin>
@@ -982,12 +973,6 @@ under the License.
                 <groupId>org.connid.bundles.soap</groupId>
                 <artifactId>org.connid.bundles.soap</artifactId>
                 <version>${connid.soap.version}</version>
-                <outputDirectory>${bundles.directory}</outputDirectory>
-              </artifactItem>
-              <artifactItem>
-                <groupId>org.connid.bundles.db</groupId>
-                <artifactId>org.connid.bundles.db.table</artifactId>
-                <version>${connid.db.table.version}</version>
                 <outputDirectory>${bundles.directory}</outputDirectory>
               </artifactItem>
               <artifactItem>

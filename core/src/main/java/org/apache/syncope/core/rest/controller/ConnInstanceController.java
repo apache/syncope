@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
@@ -50,7 +51,6 @@ import org.apache.syncope.core.util.ConnIdBundleManager;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorInfo;
-import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorKey;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -225,34 +225,20 @@ public class ConnInstanceController extends AbstractController {
             CurrentLocale.set(new Locale(lang));
         }
 
-        ConnectorInfoManager manager = ConnIdBundleManager.getConnManager();
-
-        List<ConnectorInfo> bundles = manager.getConnectorInfos();
-
-        if (LOG.isDebugEnabled() && bundles != null) {
-            LOG.debug("#Bundles: {}", bundles.size());
-
-            for (ConnectorInfo bundle : bundles) {
-                LOG.debug("Bundle: {}", bundle.getConnectorDisplayName());
-            }
-        }
-
         List<ConnBundleTO> connectorBundleTOs = new ArrayList<ConnBundleTO>();
-        if (bundles != null) {
-            for (ConnectorInfo bundle : bundles) {
-                ConnBundleTO connectorBundleTO = new ConnBundleTO();
-                connectorBundleTO.setDisplayName(bundle.getConnectorDisplayName());
+        for (Map.Entry<String, List<ConnectorInfo>> entry : ConnIdBundleManager.getConnectorInfos().entrySet()) {
+            for (ConnectorInfo bundle : entry.getValue()) {
+                ConnBundleTO connBundleTO = new ConnBundleTO();
+                connBundleTO.setDisplayName(bundle.getConnectorDisplayName());
+
+                connBundleTO.setLocation(entry.getKey());
 
                 ConnectorKey key = bundle.getConnectorKey();
+                connBundleTO.setBundleName(key.getBundleName());
+                connBundleTO.setConnectorName(key.getConnectorName());
+                connBundleTO.setVersion(key.getBundleVersion());
 
-                LOG.debug("Bundle name: {}\nBundle version: {}\nBundle class: {}",
-                        key.getBundleName(), key.getBundleVersion(), key.getConnectorName());
-
-                connectorBundleTO.setBundleName(key.getBundleName());
-                connectorBundleTO.setConnectorName(key.getConnectorName());
-                connectorBundleTO.setVersion(key.getBundleVersion());
-
-                ConfigurationProperties properties = ConnIdBundleManager.getConfProps(bundle);
+                ConfigurationProperties properties = ConnIdBundleManager.getConfigurationProperties(bundle);
 
                 for (String propName : properties.getPropertyNames()) {
                     ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
@@ -260,33 +246,20 @@ public class ConnInstanceController extends AbstractController {
                     ConfigurationPropertyImpl configurationProperty =
                             (ConfigurationPropertyImpl) properties.getProperty(propName);
 
-                    // set name
                     connConfPropSchema.setName(configurationProperty.getName());
-
-                    // set display name
                     connConfPropSchema.setDisplayName(configurationProperty.getDisplayName(propName));
-
-                    // set help message
                     connConfPropSchema.setHelpMessage(configurationProperty.getHelpMessage(propName));
-
-                    // set if mandatory
                     connConfPropSchema.setRequired(configurationProperty.isRequired());
-
-                    // set type
                     connConfPropSchema.setType(configurationProperty.getType().getName());
-
-                    // set order
                     connConfPropSchema.setOrder(configurationProperty.getOrder());
-
-                    // set confidential
                     connConfPropSchema.setConfidential(configurationProperty.isConfidential());
 
-                    connectorBundleTO.addProperty(connConfPropSchema);
+                    connBundleTO.addProperty(connConfPropSchema);
                 }
 
-                LOG.debug("Bundle properties: {}", connectorBundleTO.getProperties());
+                LOG.debug("Connector bundle: {}", connBundleTO);
 
-                connectorBundleTOs.add(connectorBundleTO);
+                connectorBundleTOs.add(connBundleTO);
             }
         }
 
@@ -328,7 +301,9 @@ public class ConnInstanceController extends AbstractController {
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/{connInstanceId}/configurationProperty/list")
     @Transactional(readOnly = true)
-    public List<ConnConfProperty> getConfigurationProperties(@PathVariable("connInstanceId") final Long connInstanceId) {
+    public List<ConnConfProperty> getConfigurationProperties(
+            @PathVariable("connInstanceId") final Long connInstanceId) {
+
         final ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connInstanceId + "'");

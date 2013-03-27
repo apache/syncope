@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.init;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import org.apache.commons.lang.SerializationUtils;
@@ -35,7 +34,6 @@ import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.ConnIdBundleManager;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
-import org.identityconnectors.framework.api.ConnectorInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,13 +107,6 @@ class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
         // This is needed in order to avoid encoding problems when sending error messages via REST
         CurrentLocale.set(Locale.ENGLISH);
 
-        if (LOG.isDebugEnabled()) {
-            List<ConnectorInfo> connInfos = ConnIdBundleManager.getConnManager().getConnectorInfos();
-            for (ConnectorInfo connInfo : connInfos) {
-                LOG.debug("Found connector bundle {}", connInfo.getConnectorDisplayName());
-            }
-        }
-
         // Load all resource-specific connectors
         int connectors = 0;
         for (ExternalResource resource : resourceDAO.findAll()) {
@@ -147,7 +138,7 @@ class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
         LOG.info("Done unloading {} connectors", connectors);
 
         ConnectorFacadeFactory.getInstance().dispose();
-        ConnIdBundleManager.resetConnManager();
+        ConnIdBundleManager.resetConnManagers();
         LOG.info("All connector resources disposed");
     }
 }

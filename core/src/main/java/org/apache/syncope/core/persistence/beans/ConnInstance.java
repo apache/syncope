@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.beans;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,9 +36,11 @@ import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
+import org.apache.syncope.core.persistence.validation.entity.ConnInstanceCheck;
 import org.apache.syncope.core.util.XMLSerializer;
 
 @Entity
+@ConnInstanceCheck
 public class ConnInstance extends AbstractBaseBean {
 
     private static final long serialVersionUID = -2294708794497208872L;
@@ -48,21 +51,31 @@ public class ConnInstance extends AbstractBaseBean {
     private Long id;
 
     /**
-     * Connector class name prefix used to retrieve configuration bean.
+     * URI identifying the local / remote ConnId location where the related connector bundle is found.
+     */
+    @Column(nullable = false)
+    private String location;
+
+    /**
+     * Connector bundle class name.
+     * Within a given location, the triple
+     * (ConnectorBundle-Name, ConnectorBundle-Version, ConnectorBundle-Version) must be unique.
      */
     @Column(nullable = false)
     private String connectorName;
 
     /**
-     * ConnectorBundle-Name: Qualified name for the connector bundle. Within a given deployment, the pair
-     * (ConnectorBundle-Name, ConnectorBundle-Version) must be unique.
+     * Qualified name for the connector bundle.
+     * Within a given location, the triple
+     * (ConnectorBundle-Name, ConnectorBundle-Version, ConnectorBundle-Version) must be unique.
      */
     @Column(nullable = false)
     private String bundleName;
 
     /**
-     * ConnectorBundle-Version: The version of the bundle. Within a given deployment, the pair (ConnectorBundle-Name,
-     * ConnectorBundle-Version) must be unique.
+     * Version of the bundle.
+     * Within a given location, the triple
+     * (ConnectorBundle-Name, ConnectorBundle-Version, ConnectorBundle-Version) must be unique.
      */
     @Column(nullable = false)
     private String version;
@@ -77,7 +90,9 @@ public class ConnInstance extends AbstractBaseBean {
 
     /**
      * The main configuration for the connector instance. This is directly implemented by the Configuration bean class
-     * which contains annotated ConfigurationProperties (@ConfigurationProperty).
+     * which contains annotated ConfigurationProperties.
+     *
+     * @see org.identityconnectors.framework.api.ConfigurationProperty
      */
     @Lob
     private String xmlConfiguration;
@@ -100,32 +115,41 @@ public class ConnInstance extends AbstractBaseBean {
 
     public ConnInstance() {
         super();
+
         capabilities = new HashSet<ConnectorCapability>();
         resources = new ArrayList<ExternalResource>();
     }
 
-    public String getVersion() {
-        return version;
+    public String getLocation() {
+        return location;
     }
 
-    public void setVersion(String majorVersion) {
-        this.version = majorVersion;
-    }
-
-    public String getBundleName() {
-        return bundleName;
-    }
-
-    public void setBundleName(String bundleName) {
-        this.bundleName = bundleName;
+    public void setLocation(final String location) {
+        this.location = location;
     }
 
     public String getConnectorName() {
         return connectorName;
     }
 
-    public void setConnectorName(String connectorName) {
+    public void setConnectorName(final String connectorName) {
         this.connectorName = connectorName;
+    }
+
+    public String getBundleName() {
+        return bundleName;
+    }
+
+    public void setBundleName(final String bundleName) {
+        this.bundleName = bundleName;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(final String version) {
+        this.version = version;
     }
 
     public Set<ConnConfProperty> getConfiguration() {
@@ -148,7 +172,7 @@ public class ConnInstance extends AbstractBaseBean {
         return displayName;
     }
 
-    public void setDisplayName(String displayName) {
+    public void setDisplayName(final String displayName) {
         this.displayName = displayName;
     }
 
@@ -156,26 +180,26 @@ public class ConnInstance extends AbstractBaseBean {
         return this.resources;
     }
 
-    public void setResources(List<ExternalResource> resources) {
+    public void setResources(final List<ExternalResource> resources) {
         this.resources.clear();
         if (resources != null && !resources.isEmpty()) {
             this.resources.addAll(resources);
         }
     }
 
-    public boolean addResource(ExternalResource resource) {
+    public boolean addResource(final ExternalResource resource) {
         return !this.resources.contains(resource) && this.resources.add(resource);
     }
 
-    public boolean removeResource(ExternalResource resource) {
+    public boolean removeResource(final ExternalResource resource) {
         return this.resources.remove(resource);
     }
 
-    public boolean addCapability(ConnectorCapability capabitily) {
+    public boolean addCapability(final ConnectorCapability capabitily) {
         return capabilities.add(capabitily);
     }
 
-    public boolean removeCapability(ConnectorCapability capabitily) {
+    public boolean removeCapability(final ConnectorCapability capabitily) {
         return capabilities.remove(capabitily);
     }
 
@@ -197,7 +221,7 @@ public class ConnInstance extends AbstractBaseBean {
         return connRequestTimeout == null ? DEFAULT_TIMEOUT : connRequestTimeout;
     }
 
-    public void setConnRequestTimeout(Integer connRequestTimeout) {
+    public void setConnRequestTimeout(final Integer connRequestTimeout) {
         this.connRequestTimeout = connRequestTimeout;
     }
 }

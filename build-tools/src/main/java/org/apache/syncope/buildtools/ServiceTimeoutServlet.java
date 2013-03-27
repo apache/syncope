@@ -30,6 +30,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class ServiceTimeoutServlet extends HttpServlet {
 
+    private static final long serialVersionUID = -1467488672392710293L;
+
     /**
      * Processes requests for both HTTP
      * <code>GET</code> and
@@ -40,8 +42,9 @@ public class ServiceTimeoutServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    protected void processRequest(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
+
         response.setContentType("text/html;charset=UTF-8");
 
         try {
@@ -51,7 +54,6 @@ public class ServiceTimeoutServlet extends HttpServlet {
         }
 
         final PrintWriter out = response.getWriter();
-
         try {
             out.println("OK");
         } finally {
@@ -69,8 +71,9 @@ public class ServiceTimeoutServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
+
         processRequest(request, response);
     }
 
@@ -84,8 +87,9 @@ public class ServiceTimeoutServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
+
         processRequest(request, response);
     }
 

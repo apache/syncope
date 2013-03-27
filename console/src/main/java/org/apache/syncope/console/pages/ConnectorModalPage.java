@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
+import static org.apache.wicket.Component.ENABLE;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
@@ -81,95 +83,193 @@ public class ConnectorModalPage extends BaseModalPage {
     // GuardedByteArray is not in classpath
     private static final String GUARDED_BYTE_ARRAY = "org.identityconnectors.common.security.GuardedByteArray";
 
-    private static final List<Class> NUMBER = Arrays.asList(new Class[]{Integer.class, Double.class, Long.class,
-                Float.class, Number.class, Integer.TYPE, Long.TYPE, Double.TYPE, Float.TYPE});
+    private static final Class[] NUMBER = {Integer.class, Double.class, Long.class,
+        Float.class, Number.class, Integer.TYPE, Long.TYPE, Double.TYPE, Float.TYPE};
 
     @SpringBean
     private ConnectorRestClient restClient;
 
-    private CheckBoxMultipleChoice<ConnectorCapability> capabilitiesPalette;
+    private final Map<String, Map<String, Map<String, ConnBundleTO>>> mapConnBundleTOs;
 
-    private WebMarkupContainer propertiesContainer;
-
-    private List<ConnectorCapability> selectedCapabilities;
+    private final List<ConnectorCapability> selectedCapabilities;
 
     private ConnBundleTO bundleTO;
 
     private List<ConnConfProperty> properties;
 
-    public ConnectorModalPage(final PageReference pageRef, final ModalWindow window, final ConnInstanceTO connectorTO) {
+    private final WebMarkupContainer propertiesContainer;
+
+    public ConnectorModalPage(final PageReference pageRef, final ModalWindow window,
+            final ConnInstanceTO connInstanceTO) {
+
         super();
 
-        selectedCapabilities = new ArrayList<ConnectorCapability>(connectorTO.getId() == 0
+        // general data setup
+
+        selectedCapabilities = new ArrayList<ConnectorCapability>(connInstanceTO.getId() == 0
                 ? EnumSet.noneOf(ConnectorCapability.class)
-                : connectorTO.getCapabilities());
+                : connInstanceTO.getCapabilities());
 
-        final IModel<List<ConnectorCapability>> capabilities =
-                new LoadableDetachableModel<List<ConnectorCapability>>() {
-
-                    private static final long serialVersionUID = 5275935387613157437L;
-
-                    @Override
-                    protected List<ConnectorCapability> load() {
-                        return Arrays.asList(ConnectorCapability.values());
-                    }
-                };
-
-        final Map<String, Map<String, ConnBundleTO>> mapConnBundleTO = new HashMap<String, Map<String, ConnBundleTO>>();
+        mapConnBundleTOs = new HashMap<String, Map<String, Map<String, ConnBundleTO>>>();
         for (ConnBundleTO connBundleTO : restClient.getAllBundles()) {
-            if (!mapConnBundleTO.containsKey(connBundleTO.getBundleName())) {
-                mapConnBundleTO.put(connBundleTO.getBundleName(), new HashMap<String, ConnBundleTO>());
+            // by location
+            if (!mapConnBundleTOs.containsKey(connBundleTO.getLocation())) {
+                mapConnBundleTOs.put(connBundleTO.getLocation(), new HashMap<String, Map<String, ConnBundleTO>>());
             }
-            final Map<String, ConnBundleTO> bundleMap = mapConnBundleTO.get(connBundleTO.getBundleName());
-            if (!bundleMap.containsKey(connBundleTO.getVersion())) {
-                bundleMap.put(connBundleTO.getVersion(), connBundleTO);
+            final Map<String, Map<String, ConnBundleTO>> byLocation = mapConnBundleTOs.get(connBundleTO.getLocation());
+
+            // by name
+            if (!byLocation.containsKey(connBundleTO.getBundleName())) {
+                byLocation.put(connBundleTO.getBundleName(), new HashMap<String, ConnBundleTO>());
+            }
+            final Map<String, ConnBundleTO> byName = byLocation.get(connBundleTO.getBundleName());
+
+            // by version
+            if (!byName.containsKey(connBundleTO.getVersion())) {
+                byName.put(connBundleTO.getVersion(), connBundleTO);
             }
         }
 
-        bundleTO = getSelectedBundleTO(mapConnBundleTO, connectorTO);
-        properties = fillProperties(bundleTO, connectorTO);
+        bundleTO = getSelectedBundleTO(connInstanceTO);
+        properties = fillProperties(bundleTO, connInstanceTO);
+
+        // form - first tab
+
+        final Form<ConnInstanceTO> connectorForm = new Form<ConnInstanceTO>("form");
+        connectorForm.setModel(new CompoundPropertyModel<ConnInstanceTO>(connInstanceTO));
+        connectorForm.setOutputMarkupId(true);
+        add(connectorForm);
+
+        propertiesContainer = new WebMarkupContainer("container");
+        propertiesContainer.setOutputMarkupId(true);
+        connectorForm.add(propertiesContainer);
+
+        final Form<ConnInstanceTO> connectorPropForm = new Form<ConnInstanceTO>("connectorPropForm");
+        connectorPropForm.setModel(new CompoundPropertyModel<ConnInstanceTO>(connInstanceTO));
+        connectorPropForm.setOutputMarkupId(true);
+        propertiesContainer.add(connectorPropForm);
 
         final AjaxTextFieldPanel displayName = new AjaxTextFieldPanel(
-                "displayName", "display name", new PropertyModel<String>(connectorTO, "displayName"));
+                "displayName", "display name", new PropertyModel<String>(connInstanceTO, "displayName"));
         displayName.setOutputMarkupId(true);
         displayName.addRequiredLabel();
+        connectorForm.add(displayName);
 
-        final AjaxDropDownChoicePanel<String> bundleName =
+        final AjaxDropDownChoicePanel<String> location =
+                new AjaxDropDownChoicePanel<String>("location", "location",
+                new Model<String>(bundleTO == null ? null : bundleTO.getLocation()));
+        ((DropDownChoice) location.getField()).setNullValid(true);
+        location.setStyleSheet("long_dynamicsize");
+        location.setChoices(new ArrayList<String>(mapConnBundleTOs.keySet()));
+        location.setRequired(true);
+        location.addRequiredLabel();
+        location.setOutputMarkupId(true);
+        location.setEnabled(connInstanceTO.getId() == 0);
+        location.getField().setOutputMarkupId(true);
+        connectorForm.add(location);
+
+        final AjaxDropDownChoicePanel<String> connectorName =
                 new AjaxDropDownChoicePanel<String>("connectorName", "connectorName",
-                new Model<String>(bundleTO != null ? bundleTO.getBundleName() : null));
-
-        ((DropDownChoice) bundleName.getField()).setNullValid(true);
-
-        bundleName.setStyleSheet("long_dynamicsize");
-        bundleName.setChoices(new ArrayList<String>(mapConnBundleTO.keySet()));
-        bundleName.setRequired(true);
-        bundleName.addRequiredLabel();
-        bundleName.setOutputMarkupId(true);
-        bundleName.setEnabled(connectorTO.getId() == 0);
-        bundleName.getField().setOutputMarkupId(true);
+                new Model<String>(bundleTO == null ? null : bundleTO.getBundleName()));
+        ((DropDownChoice) connectorName.getField()).setNullValid(true);
+        connectorName.setStyleSheet("long_dynamicsize");
+        connectorName.setChoices(bundleTO == null
+                ? new ArrayList<String>()
+                : new ArrayList<String>(mapConnBundleTOs.get(connInstanceTO.getLocation()).keySet()));
+        connectorName.setRequired(true);
+        connectorName.addRequiredLabel();
+        connectorName.setEnabled(connInstanceTO.getLocation() != null);
+        connectorName.setOutputMarkupId(true);
+        connectorName.setEnabled(connInstanceTO.getId() == 0);
+        connectorName.getField().setOutputMarkupId(true);
+        connectorForm.add(connectorName);
 
         final AjaxDropDownChoicePanel<String> version =
                 new AjaxDropDownChoicePanel<String>("version", "version",
-                new Model<String>(bundleTO != null ? bundleTO.getVersion() : null));
-
+                new Model<String>(bundleTO == null ? null : bundleTO.getVersion()));
         version.setStyleSheet("long_dynamicsize");
-        version.setChoices(bundleTO != null
-                ? new ArrayList<String>(mapConnBundleTO.get(connectorTO.getBundleName()).keySet())
-                : new ArrayList<String>());
-
+        version.setChoices(bundleTO == null
+                ? new ArrayList<String>()
+                : new ArrayList<String>(mapConnBundleTOs.get(connInstanceTO.getLocation()).
+                get(connInstanceTO.getBundleName()).keySet()));
         version.setRequired(true);
         version.addRequiredLabel();
-        version.setEnabled(connectorTO != null && connectorTO.getBundleName() != null);
+        version.setEnabled(connInstanceTO.getBundleName() != null);
         version.setOutputMarkupId(true);
         version.addRequiredLabel();
         version.getField().setOutputMarkupId(true);
+        connectorForm.add(version);
 
         final AjaxTextFieldPanel connRequestTimeout = new AjaxTextFieldPanel(
                 "connRequestTimeout",
                 "connRequestTimeout",
-                new PropertyModel<String>(connectorTO, "connRequestTimeout"));
+                new PropertyModel<String>(connInstanceTO, "connRequestTimeout"));
+        connectorForm.add(connRequestTimeout);
 
-        final ListView<ConnConfProperty> view = new AltListView<ConnConfProperty>(
+        // form - first tab - onchange()
+        location.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                ((DropDownChoice) location.getField()).setNullValid(false);
+                connInstanceTO.setLocation(location.getModelObject());
+                target.add(location);
+
+                connectorName.setChoices(new ArrayList<String>(
+                        mapConnBundleTOs.get(location.getModelObject()).keySet()));
+                connectorName.setEnabled(true);
+                connectorName.getField().setModelValue(null);
+                target.add(connectorName);
+
+                version.setChoices(new ArrayList<String>());
+                version.getField().setModelValue(null);
+                version.setEnabled(false);
+                target.add(version);
+
+                properties.clear();
+                target.add(propertiesContainer);
+            }
+        });
+        connectorName.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                ((DropDownChoice) connectorName.getField()).setNullValid(false);
+                connInstanceTO.setBundleName(connectorName.getModelObject());
+                target.add(connectorName);
+
+                List<String> versions = new ArrayList<String>(
+                        mapConnBundleTOs.get(location.getModelObject()).get(connectorName.getModelObject()).keySet());
+                version.setChoices(versions);
+                version.setEnabled(true);
+                if (versions.size() == 1) {
+                    selectVersion(target, connInstanceTO, version, versions.get(0));
+                    version.getField().setModelObject(versions.get(0));
+                } else {
+                    version.getField().setModelValue(null);
+                    properties.clear();
+                    target.add(propertiesContainer);
+                }
+                target.add(version);
+            }
+        });
+        version.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                selectVersion(target, connInstanceTO, version, version.getModelObject());
+            }
+        });
+
+        // form - second tab (properties)
+
+        final ListView<ConnConfProperty> connPropView = new AltListView<ConnConfProperty>(
                 "connectorProperties", new PropertyModel<List<ConnConfProperty>>(this, "properties")) {
 
             private static final long serialVersionUID = 9101744072914090143L;
@@ -186,11 +286,8 @@ public class ConnectorModalPage extends BaseModalPage {
                 item.add(label);
 
                 final FieldPanel field;
-
                 boolean required = false;
-
                 boolean isArray = false;
-
                 if (property.getSchema().isConfidential()
                         || GUARDED_STRING.equalsIgnoreCase(property.getSchema().getType())
                         || GUARDED_BYTE_ARRAY.equalsIgnoreCase(property.getSchema().getType())) {
@@ -201,7 +298,6 @@ public class ConnectorModalPage extends BaseModalPage {
                     ((PasswordTextField) field.getField()).setResetPassword(false);
 
                     required = property.getSchema().isRequired();
-
                 } else {
                     Class<?> propertySchemaClass;
 
@@ -212,8 +308,7 @@ public class ConnectorModalPage extends BaseModalPage {
                         LOG.error("Error parsing attribute type", e);
                         propertySchemaClass = String.class;
                     }
-
-                    if (NUMBER.contains(propertySchemaClass)) {
+                    if (ArrayUtils.contains(NUMBER, propertySchemaClass)) {
                         field = new AjaxNumberFieldPanel("panel",
                                 label.getDefaultModelObjectAsString(), new Model<Number>(),
                                 ClassUtils.resolvePrimitiveIfNecessary(propertySchemaClass));
@@ -256,58 +351,11 @@ public class ConnectorModalPage extends BaseModalPage {
                         "connPropAttrOverridable", new PropertyModel<Boolean>(property, "overridable"));
 
                 item.add(overridable);
-                connectorTO.addConfiguration(property);
+                connInstanceTO.addConfiguration(property);
             }
         };
-
-        view.setOutputMarkupId(true);
-
-        bundleName.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                ((DropDownChoice) bundleName.getField()).setNullValid(false);
-                // reset all information stored in connectorTO
-                connectorTO.setConfiguration(new HashSet<ConnConfProperty>());
-                connectorTO.setBundleName(bundleName.getField().getModelObject().toString());
-                connectorTO.setVersion(null);
-                properties.clear();
-                version.setEnabled(connectorTO.getBundleName() != null);
-                version.getField().setModelValue(null);
-                List<String> choices = new ArrayList<String>(mapConnBundleTO.get(connectorTO.getBundleName()).keySet());
-                version.setChoices(choices);
-                if (choices.size() == 1) {
-                    connectorTO.setVersion(choices.get(0));
-                    version.getField().setModelObject(choices.get(0));
-                    connectorTO.setDisplayName(displayName.getModelObject());
-                    bundleTO = getSelectedBundleTO(mapConnBundleTO, connectorTO);
-                    properties = fillProperties(bundleTO, connectorTO);
-                }
-                target.add(bundleName);
-                target.add(version);
-                target.add(propertiesContainer);
-            }
-        });
-
-        version.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-
-                connectorTO.setVersion(version.getField().getModelObject().toString());
-                connectorTO.setDisplayName(displayName.getModelObject());
-                bundleTO = getSelectedBundleTO(mapConnBundleTO, connectorTO);
-                properties.clear();
-                properties = fillProperties(bundleTO, connectorTO);
-                target.add(bundleName);
-                target.add(version);
-                target.add(propertiesContainer);
-            }
-        });
+        connPropView.setOutputMarkupId(true);
+        connectorPropForm.add(connPropView);
 
         final AjaxLink<String> check = new IndicatingAjaxLink<String>("check", new ResourceModel("check")) {
 
@@ -315,10 +363,10 @@ public class ConnectorModalPage extends BaseModalPage {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                connectorTO.setBundleName(bundleTO.getBundleName());
-                connectorTO.setVersion(bundleTO.getVersion());
+                connInstanceTO.setBundleName(bundleTO.getBundleName());
+                connInstanceTO.setVersion(bundleTO.getVersion());
 
-                if (restClient.check(connectorTO)) {
+                if (restClient.check(connInstanceTO)) {
                     info(getString("success_connection"));
                 } else {
                     error(getString("error_connection"));
@@ -327,6 +375,26 @@ public class ConnectorModalPage extends BaseModalPage {
                 target.add(feedbackPanel);
             }
         };
+        connectorPropForm.add(check);
+
+        // form - third tab (capabilities)
+
+        final IModel<List<ConnectorCapability>> capabilities =
+                new LoadableDetachableModel<List<ConnectorCapability>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<ConnectorCapability> load() {
+                return Arrays.asList(ConnectorCapability.values());
+            }
+        };
+        CheckBoxMultipleChoice<ConnectorCapability> capabilitiesPalette =
+                new CheckBoxMultipleChoice<ConnectorCapability>("capabilitiesPalette",
+                new PropertyModel<List<ConnectorCapability>>(this, "selectedCapabilities"), capabilities);
+        connectorForm.add(capabilitiesPalette);
+
+        // form - submit / cancel buttons
 
         final AjaxButton submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
 
@@ -336,17 +404,17 @@ public class ConnectorModalPage extends BaseModalPage {
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 final ConnInstanceTO conn = (ConnInstanceTO) form.getModelObject();
 
+                conn.setConnectorName(bundleTO.getConnectorName());
                 conn.setBundleName(bundleTO.getBundleName());
                 conn.setVersion(bundleTO.getVersion());
-                conn.setConfiguration(new HashSet<ConnConfProperty>(view.getModelObject()));
+                conn.setConfiguration(new HashSet<ConnConfProperty>(connPropView.getModelObject()));
 
                 // Set the model object's capabilites to capabilitiesPalette's converted Set
                 conn.setCapabilities(selectedCapabilities.isEmpty()
                         ? EnumSet.noneOf(ConnectorCapability.class)
                         : EnumSet.copyOf(selectedCapabilities));
                 try {
-
-                    if (connectorTO.getId() == 0) {
+                    if (connInstanceTO.getId() == 0) {
                         restClient.create(conn);
                     } else {
                         restClient.update(conn);
@@ -368,6 +436,11 @@ public class ConnectorModalPage extends BaseModalPage {
                 target.add(feedbackPanel);
             }
         };
+        String roles = connInstanceTO.getId() == 0
+                ? xmlRolesReader.getAllAllowedRoles("Connectors", "create")
+                : xmlRolesReader.getAllAllowedRoles("Connectors", "update");
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, roles);
+        connectorForm.add(submit);
 
         final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
 
@@ -377,83 +450,40 @@ public class ConnectorModalPage extends BaseModalPage {
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 window.close(target);
             }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-            }
         };
-
         cancel.setDefaultFormProcessing(false);
-
-        String roles = connectorTO.getId() == 0
-                ? xmlRolesReader.getAllAllowedRoles("Connectors", "create")
-                : xmlRolesReader.getAllAllowedRoles("Connectors", "update");
-
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, roles);
-
-        capabilitiesPalette = new CheckBoxMultipleChoice<ConnectorCapability>("capabilitiesPalette",
-                new PropertyModel<List<ConnectorCapability>>(this,
-                "selectedCapabilities"), capabilities);
-
-        final Form<ConnInstanceTO> connectorForm = new Form<ConnInstanceTO>("form");
-        connectorForm.setModel(new CompoundPropertyModel<ConnInstanceTO>(connectorTO));
-        connectorForm.setOutputMarkupId(true);
-
-        final Form<ConnInstanceTO> connectorPropForm = new Form<ConnInstanceTO>("connectorPropForm");
-        connectorPropForm.setModel(new CompoundPropertyModel<ConnInstanceTO>(connectorTO));
-        connectorPropForm.setOutputMarkupId(true);
-
-        propertiesContainer = new WebMarkupContainer("container");
-        propertiesContainer.setOutputMarkupId(true);
-        propertiesContainer.add(connectorPropForm);
-
-        connectorForm.add(propertiesContainer);
-        connectorPropForm.add(view);
-        connectorPropForm.add(check);
-
-        connectorForm.add(bundleName);
-        connectorForm.add(displayName);
-        connectorForm.add(version);
-        connectorForm.add(connRequestTimeout);
-        connectorForm.add(capabilitiesPalette);
-        connectorForm.add(submit);
         connectorForm.add(cancel);
-        add(connectorForm);
     }
 
-    private ConnBundleTO getSelectedBundleTO(final Map<String, Map<String, ConnBundleTO>> bundles,
-            final ConnInstanceTO connTO) {
+    private ConnBundleTO getSelectedBundleTO(final ConnInstanceTO connInstanceTO) {
+        ConnBundleTO result = null;
+        if (connInstanceTO != null
+                && StringUtils.isNotBlank(connInstanceTO.getLocation())
+                && StringUtils.isNotBlank(connInstanceTO.getBundleName())
+                && StringUtils.isNotBlank(connInstanceTO.getVersion())
+                && mapConnBundleTOs.containsKey(connInstanceTO.getLocation())) {
 
-        if (connTO != null && StringUtils.isNotBlank(connTO.getBundleName())
-                && StringUtils.isNotBlank(connTO.getVersion())) {
-
-            for (String bKey : bundles.keySet()) {
-                if (bKey.equals(connTO.getBundleName())) {
-                    for (String vKey : bundles.get(bKey).keySet()) {
-                        ConnBundleTO to = bundles.get(bKey).get(vKey);
-                        if (to.getVersion().equals(connTO.getVersion())) {
-                            connTO.setConnectorName(to.getConnectorName());
-                            connTO.setVersion(to.getVersion());
-                            return to;
-                        }
-                    }
+            Map<String, Map<String, ConnBundleTO>> byLocation = mapConnBundleTOs.get(connInstanceTO.getLocation());
+            if (byLocation.containsKey(connInstanceTO.getBundleName())) {
+                Map<String, ConnBundleTO> byName = byLocation.get(connInstanceTO.getBundleName());
+                if (byName.containsKey(connInstanceTO.getVersion())) {
+                    result = byName.get(connInstanceTO.getVersion());
                 }
             }
         }
-        return null;
+        return result;
     }
 
-    private List<ConnConfProperty> fillProperties(final ConnBundleTO bundleTO, final ConnInstanceTO connTO) {
-
+    private List<ConnConfProperty> fillProperties(final ConnBundleTO bundleTO, final ConnInstanceTO connInstanceTO) {
         final List<ConnConfProperty> props = new ArrayList<ConnConfProperty>();
 
         if (bundleTO != null) {
             for (ConnConfPropSchema key : bundleTO.getProperties()) {
                 final ConnConfProperty propertyTO = new ConnConfProperty();
                 propertyTO.setSchema(key);
-                if (connTO.getId() != 0 && connTO.getConfigurationMap().containsKey(key.getName())) {
-                    propertyTO.setValues(connTO.getConfigurationMap().get(key.getName()).getValues());
-                    propertyTO.setOverridable(connTO.getConfigurationMap().get(key.getName()).isOverridable());
+                if (connInstanceTO.getId() != 0 && connInstanceTO.getConfigurationMap().containsKey(key.getName())) {
+                    propertyTO.setValues(connInstanceTO.getConfigurationMap().get(key.getName()).getValues());
+                    propertyTO.setOverridable(connInstanceTO.getConfigurationMap().get(key.getName()).isOverridable());
                 }
                 props.add(propertyTO);
             }
@@ -461,6 +491,17 @@ public class ConnectorModalPage extends BaseModalPage {
         // re-order properties
         Collections.sort(props);
         return props;
+    }
+
+    private void selectVersion(final AjaxRequestTarget target, final ConnInstanceTO connInstanceTO,
+            final AjaxDropDownChoicePanel<String> version, final String versionValue) {
+
+        connInstanceTO.setVersion(versionValue);
+        target.add(version);
+
+        bundleTO = getSelectedBundleTO(connInstanceTO);
+        properties = fillProperties(bundleTO, connInstanceTO);
+        target.add(propertiesContainer);
     }
 
     public List<ConnConfProperty> getProperties() {

@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.dao;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -60,21 +61,22 @@ public class ConnInstanceTest extends AbstractDAOTest {
 
     @Test
     public void save() throws ClassNotFoundException {
+        ConnInstance connInstance = new ConnInstance();
 
-        ConnInstance connectorInstance = new ConnInstance();
+        connInstance.setLocation(new File("java.io.tmpdir").toURI().toString());
 
         // set connector version
-        connectorInstance.setVersion("1.0");
+        connInstance.setVersion("1.0");
 
         // set connector name
-        connectorInstance.setConnectorName("WebService");
+        connInstance.setConnectorName("WebService");
 
         // set bundle name
-        connectorInstance.setBundleName("org.apache.syncope.core.persistence.test.util");
+        connInstance.setBundleName("org.apache.syncope.core.persistence.test.util");
 
-        connectorInstance.setDisplayName("New");
+        connInstance.setDisplayName("New");
 
-        connectorInstance.setConnRequestTimeout(60);
+        connInstance.setConnRequestTimeout(60);
 
         // set the connector configuration using PropertyTO
         Set<ConnConfProperty> conf = new HashSet<ConnConfProperty>();
@@ -99,11 +101,11 @@ public class ConnInstanceTest extends AbstractDAOTest {
         conf.add(servicename);
 
         // set connector configuration
-        connectorInstance.setConfiguration(conf);
-        assertFalse(connectorInstance.getConfiguration().isEmpty());
+        connInstance.setConfiguration(conf);
+        assertFalse(connInstance.getConfiguration().isEmpty());
 
         // perform save operation
-        ConnInstance actual = connInstanceDAO.save(connectorInstance);
+        ConnInstance actual = connInstanceDAO.save(connInstance);
 
         assertNotNull("save did not work", actual.getId());
 
@@ -114,13 +116,13 @@ public class ConnInstanceTest extends AbstractDAOTest {
         assertEquals("save did not work for \"bundle name\" attribute", "org.apache.syncope.core.persistence.test.util",
                 actual.getBundleName());
 
-        assertEquals("save did not work for \"majorVersion\" attribute", "1.0", connectorInstance.getVersion());
+        assertEquals("save did not work for \"majorVersion\" attribute", "1.0", connInstance.getVersion());
 
         assertEquals("New", actual.getDisplayName());
 
         assertEquals(new Integer(60), actual.getConnRequestTimeout());
 
-        conf = connectorInstance.getConfiguration();
+        conf = connInstance.getConfiguration();
         assertFalse(conf.isEmpty());
 
         assertNotNull("configuration retrieving failed", conf);

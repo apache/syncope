@@ -3,8 +3,9 @@ This package contains a full working distribution of Apache Syncope, equivalent 
 In order to run this distribution you must:
  1. unzip the archive
  2. cd into the 'apache-tomcat-*' directory
- 3. start Apache Tomcat by running './bin/startup.sh' (Unix) or 'bin/startup.bat' (Windows)
- 4. point your favourite browser to http://localhost:9080/syncope-console/
+ 3. (Unix-only) chmod 755 ./bin/*.sh
+ 4. start Apache Tomcat by running './bin/startup.sh' (Unix) or 'bin/startup.bat' (Windows)
+ 5. point your favourite browser to http://localhost:9080/syncope-console/
 
 For more information about what features are available and how to access, check [1]. 
 

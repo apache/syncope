@@ -48,7 +48,7 @@ public abstract class AbstractTest {
             Properties props = new Properties();
             props.load(propStream);
 
-            bundlesDirectory = props.getProperty("bundles.directory");
+            bundlesDirectory = props.getProperty("connid.locations");
             connidSoapVersion = props.getProperty("connid.soap.version");
         } catch (Exception e) {
             LOG.error("Could not load {}", ConnIdBundleManager.CONNID_PROPS, e);

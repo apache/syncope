@@ -34,7 +34,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * Utility serlvet context listener managing H2 test server instance (to be used as external resource).
+ * Utility servlet context listener managing H2 test server instance (to be used as external resource).
  */
 public class H2StartStopListener implements ServletContextListener {
 

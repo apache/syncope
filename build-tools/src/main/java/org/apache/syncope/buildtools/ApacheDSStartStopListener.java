@@ -44,6 +44,8 @@ import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtracto
 import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Start and stop an embedded ApacheDS instance alongside with Servlet Context.
@@ -51,6 +53,11 @@ import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
  * @see http://svn.apache.org/repos/asf/directory/documentation/samples/trunk/embedded-sample/
  */
 public class ApacheDSStartStopListener implements ServletContextListener {
+
+    /**
+     * Logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(ApacheDSStartStopListener.class);
 
     private DirectoryService service;
 
@@ -176,7 +183,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
         final LdifURLLoader contentLoader = new LdifURLLoader(service.getAdminSession(),
                 servletContext.getResource("/WEB-INF/classes/content.ldif"));
         final int numEntries = contentLoader.execute();
-        servletContext.log("Successfully created " + numEntries + " entries");
+        LOG.info("Successfully created {} entries", numEntries);
     }
 
     /**
@@ -197,8 +204,8 @@ public class ApacheDSStartStopListener implements ServletContextListener {
             initDirectoryService(sce.getServletContext(), workDir);
 
             server = new LdapServer();
-            server.setTransports(new TcpTransport(Integer.valueOf(sce.getServletContext().getInitParameter(
-                    "testds.port"))));
+            server.setTransports(
+                    new TcpTransport(Integer.valueOf(sce.getServletContext().getInitParameter("testds.port"))));
             server.setDirectoryService(service);
 
             server.start();
@@ -208,14 +215,14 @@ public class ApacheDSStartStopListener implements ServletContextListener {
 
             result = service.getAdminSession().lookup(new DN("o=isp"));
         } catch (Exception e) {
-            sce.getServletContext().log("Fatal error in context init", e);
+            LOG.error("Fatal error in context init", e);
             throw new RuntimeException(e);
         }
 
         if (result == null) {
             throw new RuntimeException("Base DN not found");
         } else {
-            sce.getServletContext().log("ApacheDS startup completed succesfully");
+            LOG.info("ApacheDS startup completed succesfully");
         }
     }
 
@@ -234,7 +241,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
                 service.shutdown();
             }
         } catch (Exception e) {
-            scEvent.getServletContext().log("Fatal error in context shutdown", e);
+            LOG.error("Fatal error in context shutdown", e);
             throw new RuntimeException(e);
         }
     }

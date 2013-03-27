@@ -16,98 +16,110 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:extend>
-  <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
-<div style="margin:10px">
-  <form wicket:id="form">
-    <div id="tabs">
-      <ul>
-        <li class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
-        <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
-        <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
-      </ul>
-      <div id="tabs-1">
-        <div id="formtable">
-          <div class="tablerow alt">
-            <div class="tablecolumn_label short_dynamicsize">
-              <label for="displayName"><wicket:message key="displayName"/></label>
-            </div>
-            <div class="tablecolumn_field short_dynamicsize">
-              <span wicket:id="displayName">[displayName]</span>
-            </div>
-          </div>
-
-          <div class="tablerow">
-            <div class="tablecolumn_label short_dynamicsize">
-              <label for="name"><wicket:message key="name"/></label>
-            </div>
-            <div class="tablecolumn_field medium_dynamicsize">
-              <span wicket:id="connectorName">[connectorName]</span>
-            </div>
-          </div>
-
-          <div class="tablerow alt">
-            <div class="tablecolumn_label short_dynamicsize">
-              <label for="version"><wicket:message key="version"/></label>
-            </div>
-            <div class="tablecolumn_field short_dynamicsize">
-              <span wicket:id="version">[version]</span>
-            </div>
-          </div>
-          <div class="tablerow">
-            <div class="tablecolumn_label short_dynamicsize">
-              <label for="connRequestTimeout"><wicket:message key="connRequestTimeout"/></label>
-            </div>
-            <div class="tablecolumn_field short_dynamicsize">
-              <span wicket:id="connRequestTimeout">[connRequestTimeout]</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div id="tabs-2">
-        <div id="formtable">
-          <span wicket:id="container">
-            <div style="border-bottom: 10px">
-              <div style="width: 40px; text-align: center; font-size: 7px">
-                <label for="version"><wicket:message key="overridable"/></label>
-              </div>
-            </div>
-            <form wicket:id="connectorPropForm">
-              <div class="tablerow" wicket:id="connectorProperties">
-
-                <div class="tablecolumn_check" style="width: 27px; text-align: center; margin-right: 10px">
-                  <span wicket:id="connPropAttrOverridable">[connPropAttrOverridable]</span>
-                </div>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:extend>
+    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+    <div style="margin:10px">
+      <form wicket:id="form">
+        <div id="tabs">
+          <ul>
+            <li class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
+            <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
+            <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
+          </ul>
+          <div id="tabs-1">
+            <div id="formtable">
+              <div class="tablerow alt">
                 <div class="tablecolumn_label short_dynamicsize">
-                  <span wicket:id="connPropAttrSchema">[connPropAttrSchema]</span>
+                  <label for="displayName"><wicket:message key="displayName"/></label>
                 </div>
                 <div class="tablecolumn_field short_dynamicsize">
-                  <span wicket:id="panel">[panel]</span>
+                  <span wicket:id="displayName">[displayName]</span>
                 </div>
               </div>
-              <div>
-                <a style="position: absolute; top: 2px; right:20px;" wicket:id="check">
-                  <img src="img/ping.png"width="30" height="30"
-                       alt="ping" title="title" wicket:message="title:check"/>
-                </a>
-              </div>
-            </form>
-          </span>
-        </div>
-      </div>
-      <div id="tabs-3">
-        <span wicket:id="capabilitiesPalette"/>
-      </div>
-    </div>
 
-    <div style="margin: 20px 10px 0">
-      <input type="submit"
-             class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-             wicket:id="apply"/>
-      <input type="button"
-             class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-             wicket:id="cancel"/>
+              <div class="tablerow">
+                <div class="tablecolumn_label short_dynamicsize">
+                  <label for="location"><wicket:message key="location"/></label>
+                </div>
+                <div class="tablecolumn_field short_dynamicsize">
+                  <span wicket:id="location">[location]</span>
+                </div>
+              </div>
+
+              <div class="tablerow alt">
+                <div class="tablecolumn_label short_dynamicsize">
+                  <label for="name"><wicket:message key="name"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                  <span wicket:id="connectorName">[connectorName]</span>
+                </div>
+              </div>
+
+              <div class="tablerow">
+                <div class="tablecolumn_label short_dynamicsize">
+                  <label for="version"><wicket:message key="version"/></label>
+                </div>
+                <div class="tablecolumn_field short_dynamicsize">
+                  <span wicket:id="version">[version]</span>
+                </div>
+              </div>
+
+              <div class="tablerow alt">
+                <div class="tablecolumn_label short_dynamicsize">
+                  <label for="connRequestTimeout"><wicket:message key="connRequestTimeout"/></label>
+                </div>
+                <div class="tablecolumn_field short_dynamicsize">
+                  <span wicket:id="connRequestTimeout">[connRequestTimeout]</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tabs-2">
+            <div id="formtable">
+              <span wicket:id="container">
+                <div style="border-bottom: 10px">
+                  <div style="width: 40px; text-align: center; font-size: 7px">
+                    <label for="version"><wicket:message key="overridable"/></label>
+                  </div>
+                </div>
+                <form wicket:id="connectorPropForm">
+                  <div class="tablerow" wicket:id="connectorProperties">
+
+                    <div class="tablecolumn_check" style="width: 27px; text-align: center; margin-right: 10px">
+                      <span wicket:id="connPropAttrOverridable">[connPropAttrOverridable]</span>
+                    </div>
+                    <div class="tablecolumn_label short_dynamicsize">
+                      <span wicket:id="connPropAttrSchema">[connPropAttrSchema]</span>
+                    </div>
+                    <div class="tablecolumn_field short_dynamicsize">
+                      <span wicket:id="panel">[panel]</span>
+                    </div>
+                  </div>
+                  <div>
+                    <a style="position: absolute; top: 2px; right:20px;" wicket:id="check">
+                      <img src="img/ping.png"width="30" height="30"
+                           alt="ping" title="title" wicket:message="title:check"/>
+                    </a>
+                  </div>
+                </form>
+              </span>
+            </div>
+          </div>
+          <div id="tabs-3">
+            <span wicket:id="capabilitiesPalette"/>
+          </div>
+        </div>
+
+        <div style="margin: 20px 10px 0">
+          <input type="submit"
+                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                 wicket:id="apply"/>
+          <input type="button"
+                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                 wicket:id="cancel"/>
+        </div>
+      </form>
     </div>
-  </form>
-</div>
-</wicket:extend>
+  </wicket:extend>
+</html>

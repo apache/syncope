@@ -16,55 +16,57 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:extend>
-  <div id="tabs">
-    <ul>
-      <li class="tabs-selected">
-        <a href="#tabs-1">
-          <span><wicket:message key="tab1"/>
-          </span>
-        </a>
-      </li>
-      <li>
-        <a href="#tabs-2">
-          <span><wicket:message key="tab2"/>
-          </span>
-        </a>
-      </li>
-    </ul>
-
-    <div id="tabs-1">
-      <div id="users-contain" class="ui-widget" style="width:auto">
-        <span wicket:id="listResult"> [search result] </span>
-        <div wicket:id="editModal" ></div>
-      </div>
-
-      <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-         wicket:id="createLink">
-        <wicket:message key="create_user"/>
-      </a>
-    </div>
-
-    <div id="tabs-2">
-      <div>
-        <form wicket:id="searchForm">
-          <span wicket:id="searchPanel">searchPanel</span>
-
-          <br/>
-          <a wicket:id="search"
-             class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
-            <img src="img/search.png" alt="search"/>
-            <wicket:message key="search"/>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:extend>
+    <div id="tabs">
+      <ul>
+        <li class="tabs-selected">
+          <a href="#tabs-1">
+            <span><wicket:message key="tab1"/>
+            </span>
           </a>
-        </form>
+        </li>
+        <li>
+          <a href="#tabs-2">
+            <span><wicket:message key="tab2"/>
+            </span>
+          </a>
+        </li>
+      </ul>
+
+      <div id="tabs-1">
+        <div id="users-contain" class="ui-widget" style="width:auto">
+          <span wicket:id="listResult"> [search result] </span>
+          <div wicket:id="editModal" ></div>
+        </div>
+
+        <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+           wicket:id="createLink">
+          <wicket:message key="create_user"/>
+        </a>
       </div>
 
-      <div id="users-contain" class="ui-widget" style="width:auto">
-        <span wicket:id="searchResult">[search result]</span>
+      <div id="tabs-2">
+        <div>
+          <form wicket:id="searchForm">
+            <span wicket:id="searchPanel">searchPanel</span>
+
+            <br/>
+            <a wicket:id="search"
+               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+              <img src="img/search.png" alt="search"/>
+              <wicket:message key="search"/>
+            </a>
+          </form>
+        </div>
+
+        <div id="users-contain" class="ui-widget" style="width:auto">
+          <span wicket:id="searchResult">[search result]</span>
+        </div>
       </div>
+
     </div>
 
-  </div>
-
-  <wicket:child/>
-</wicket:extend>
+    <wicket:child/>
+  </wicket:extend>
+</html>

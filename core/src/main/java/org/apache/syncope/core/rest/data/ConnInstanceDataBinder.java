@@ -85,6 +85,10 @@ public class ConnInstanceDataBinder {
         SyncopeClientException requiredValuesMissing = new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
 
+        if (connInstanceTO.getLocation() == null) {
+            requiredValuesMissing.addElement("location");
+        }
+
         if (connInstanceTO.getBundleName() == null) {
             requiredValuesMissing.addElement("bundlename");
         }
@@ -101,9 +105,12 @@ public class ConnInstanceDataBinder {
             requiredValuesMissing.addElement("configuration");
         }
 
-        ConnInstance connectorInstance = new ConnInstance();
+        ConnInstance connInstance = new ConnInstance();
 
-        BeanUtils.copyProperties(connInstanceTO, connectorInstance, IGNORE_PROPERTIES);
+        BeanUtils.copyProperties(connInstanceTO, connInstance, IGNORE_PROPERTIES);
+        if (connInstanceTO.getLocation() != null) {
+            connInstance.setLocation(connInstanceTO.getLocation().toString());
+        }
 
         // Throw composite exception if there is at least one element set
         // in the composing exceptions
@@ -116,7 +123,7 @@ public class ConnInstanceDataBinder {
             throw scee;
         }
 
-        return connectorInstance;
+        return connInstance;
     }
 
     public ConnInstance updateConnInstance(final long connInstanceId, final ConnInstanceTO connInstanceTO) {
@@ -130,6 +137,10 @@ public class ConnInstanceDataBinder {
         }
 
         ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
+
+        if (connInstanceTO.getLocation() != null) {
+            connInstance.setLocation(connInstanceTO.getLocation().toString());
+        }
 
         if (connInstanceTO.getBundleName() != null) {
             connInstance.setBundleName(connInstanceTO.getBundleName());
@@ -174,9 +185,10 @@ public class ConnInstanceDataBinder {
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
         connInstanceTO.setId(connInstance.getId() == null ? 0L : connInstance.getId().longValue());
 
-        // retrieve the ConfigurationProperties.
-        ConfigurationProperties properties = ConnIdBundleManager.getConfProps(
-                connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName());
+        // retrieve the ConfigurationProperties
+        ConfigurationProperties properties = ConnIdBundleManager.getConfigurationProperties(
+                ConnIdBundleManager.getConnectorInfo(connInstance.getLocation(),
+                connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName()));
 
         BeanUtils.copyProperties(connInstance, connInstanceTO, IGNORE_PROPERTIES);
 

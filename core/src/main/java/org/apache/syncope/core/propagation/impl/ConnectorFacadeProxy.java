@@ -33,7 +33,6 @@ import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
-import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.propagation.TimeoutException;
@@ -45,7 +44,6 @@ import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorFacade;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.identityconnectors.framework.api.ConnectorInfo;
-import org.identityconnectors.framework.api.ConnectorKey;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
@@ -93,7 +91,6 @@ public class ConnectorFacadeProxy implements Connector {
      * Use the passed connector instance to build a ConnectorFacade that will be used to make all wrapped calls.
      *
      * @param connInstance the connector instance configuration
-     * @see ConnectorKey
      * @see ConnectorInfo
      * @see APIConfiguration
      * @see ConfigurationProperties
@@ -102,26 +99,8 @@ public class ConnectorFacadeProxy implements Connector {
     public ConnectorFacadeProxy(final ConnInstance connInstance) {
         this.activeConnInstance = connInstance;
 
-        // specify a connector.
-        ConnectorKey key = new ConnectorKey(
+        ConnectorInfo info = ConnIdBundleManager.getConnectorInfo(connInstance.getLocation(),
                 connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName());
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Bundle name: " + key.getBundleName()
-                    + "\nBundle version: " + key.getBundleVersion()
-                    + "\nBundle class: " + key.getConnectorName());
-        }
-
-        // get the specified connector.
-        ConnectorInfo info;
-        try {
-            info = ConnIdBundleManager.getConnManager().findConnectorInfo(key);
-            if (info == null) {
-                throw new NotFoundException("Connector Info for key " + key);
-            }
-        } catch (MissingConfKeyException e) {
-            throw new NotFoundException("Connector Info for key " + key, e);
-        }
 
         // create default configuration
         APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
@@ -129,21 +108,13 @@ public class ConnectorFacadeProxy implements Connector {
             throw new NotFoundException("Default API configuration");
         }
 
-        // retrieve the ConfigurationProperties.
+        // retrieve the ConfigurationProperties
         final ConfigurationProperties properties = apiConfig.getConfigurationProperties();
         if (properties == null) {
             throw new NotFoundException("Configuration properties");
         }
 
-        // Print out what the properties are (not necessary)
-        if (LOG.isDebugEnabled()) {
-            for (String propName : properties.getPropertyNames()) {
-                LOG.debug("Property Name: {}\nProperty Type: {}",
-                        properties.getProperty(propName).getName(), properties.getProperty(propName).getType());
-            }
-        }
-
-        // Set all of the ConfigurationProperties needed by the connector.
+        // set all of the ConfigurationProperties needed by the connector.
         for (ConnConfProperty property : connInstance.getConfiguration()) {
             if (property.getValues() != null && !property.getValues().isEmpty()) {
                 properties.setPropertyValue(property.getSchema().getName(),
@@ -151,13 +122,13 @@ public class ConnectorFacadeProxy implements Connector {
             }
         }
 
-        // Use the ConnectorFacadeFactory's newInstance() method to get a new connector.
+        // use the ConnectorFacadeFactory's newInstance() method to get a new connector.
         connector = ConnectorFacadeFactory.getInstance().newInstance(apiConfig);
         if (connector == null) {
             throw new NotFoundException("Connector");
         }
 
-        // Make sure we have set up the Configuration properly
+        // make sure we have set up the Configuration properly
         connector.validate();
     }
 
@@ -563,7 +534,7 @@ public class ConnectorFacadeProxy implements Connector {
             } else if (File.class.equals(propertySchemaClass)) {
                 value = new File(values.get(0).toString());
             } else if (String[].class.equals(propertySchemaClass)) {
-                value = values.toArray(new String[]{});
+                value = values.toArray(new String[] {});
             } else {
                 value = values.get(0) == null ? null : values.get(0).toString();
             }

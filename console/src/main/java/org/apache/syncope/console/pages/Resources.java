@@ -255,9 +255,8 @@ public class Resources extends BasePage {
 
                             resourceRestClient.delete(resourceTO.getName());
                             info(getString("operation_succeeded"));
-
                         } catch (SyncopeClientCompositeErrorException e) {
-                            error(getString("operation_error"));
+                            error(getString("error") + ":" + e.getMessage());
 
                             LOG.error("While deleting resource " + resourceTO.getName(), e);
                         }
@@ -276,7 +275,7 @@ public class Resources extends BasePage {
                 columns,
                 (ISortableDataProvider<ResourceTO, String>) new ResourcesProvider(),
                 resourcePaginatorRows,
-                Arrays.asList(new ActionLink.ActionType[]{ActionLink.ActionType.DELETE}),
+                Arrays.asList(new ActionLink.ActionType[] {ActionLink.ActionType.DELETE}),
                 resourceRestClient,
                 "name",
                 "Resources",
@@ -361,9 +360,9 @@ public class Resources extends BasePage {
         columns.add(new PropertyColumn(
                 new StringResourceModel("displayName", this, null), "displayName", "displayName"));
         columns.add(new PropertyColumn(
-                new StringResourceModel("version", this, null), "version", "version"));
-        columns.add(new PropertyColumn(
                 new StringResourceModel("bundleName", this, null), "bundleName", "bundleName"));
+        columns.add(new PropertyColumn(
+                new StringResourceModel("version", this, null), "version", "version"));
         columns.add(new AbstractColumn<ConnInstanceTO, String>(new StringResourceModel("actions", this, null, "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
@@ -412,7 +411,7 @@ public class Resources extends BasePage {
                             connectorRestClient.delete(connectorTO.getId());
                             info(getString("operation_succeeded"));
                         } catch (SyncopeClientCompositeErrorException e) {
-                            error(getString("operation_error"));
+                            error(getString("error") + ":" + e.getMessage());
 
                             LOG.error("While deleting connector " + connectorTO.getId(), e);
                         }
@@ -431,7 +430,7 @@ public class Resources extends BasePage {
                 columns,
                 (ISortableDataProvider<ConnInstanceTO, String>) new ConnectorsProvider(),
                 connectorPaginatorRows,
-                Arrays.asList(new ActionLink.ActionType[]{ActionLink.ActionType.DELETE}),
+                Arrays.asList(new ActionLink.ActionType[] {ActionLink.ActionType.DELETE}),
                 connectorRestClient,
                 "id",
                 "Connectors",
