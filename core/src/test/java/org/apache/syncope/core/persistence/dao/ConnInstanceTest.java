@@ -63,7 +63,7 @@ public class ConnInstanceTest extends AbstractDAOTest {
     public void save() throws ClassNotFoundException {
         ConnInstance connInstance = new ConnInstance();
 
-        connInstance.setLocation(new File("java.io.tmpdir").toURI().toString());
+        connInstance.setLocation(new File(System.getProperty("java.io.tmpdir")).toURI().toString());
 
         // set connector version
         connInstance.setVersion("1.0");

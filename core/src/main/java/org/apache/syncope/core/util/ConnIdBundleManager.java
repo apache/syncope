@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -93,9 +92,9 @@ public final class ConnIdBundleManager {
         List<URI> locations = new ArrayList<URI>();
         for (String location : stringLocations) {
             try {
-                locations.add(new URI(location.trim()));
+                locations.add(URIUtil.buildForConnId(location));
                 LOG.info("Valid ConnId location: {}", location.trim());
-            } catch (URISyntaxException e) {
+            } catch (Exception e) {
                 LOG.error("Invalid ConnId location: {}", location.trim(), e);
             }
         }
@@ -236,8 +235,8 @@ public final class ConnIdBundleManager {
         // check ConnIdLocation
         URI uriLocation = null;
         try {
-            uriLocation = new URI(location);
-        } catch (URISyntaxException e) {
+            uriLocation = URIUtil.buildForConnId(location);
+        } catch (Exception e) {
             throw new IllegalArgumentException("Invalid ConnId location " + location, e);
         }
 

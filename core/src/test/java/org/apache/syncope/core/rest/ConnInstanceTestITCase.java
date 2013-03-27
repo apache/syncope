@@ -98,7 +98,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
     public void create() {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
 
-        connectorTO.setLocation(ConnIdBundleManager.getConnManagers().keySet().iterator().next().toString());
+        connectorTO.setLocation(connectorService.read(100L).getLocation());
 
         // set connector version
         connectorTO.setVersion(connidSoapVersion);
@@ -360,7 +360,6 @@ public class ConnInstanceTestITCase extends AbstractTest {
     @Test
     public void read() {
         ConnInstanceTO connectorInstanceTO = connectorService.read(100L);
-
         assertNotNull(connectorInstanceTO);
     }
 
@@ -424,7 +423,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
     @Test
     public void validate() {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
-        
+
         for (URI location : ConnIdBundleManager.getConnManagers().keySet()) {
             if (!location.getScheme().equals("file")) {
                 connectorTO.setLocation(location.toString());
@@ -557,7 +556,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // ----------------------------------------
         ConnInstanceTO connectorTO = new ConnInstanceTO();
 
-        connectorTO.setLocation(ConnIdBundleManager.getConnManagers().keySet().iterator().next().toString());
+        connectorTO.setLocation(connectorService.read(100L).getLocation());
 
         // set connector version
         connectorTO.setVersion(connidSoapVersion);
@@ -600,7 +599,6 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.setConfiguration(conf);
 
         try {
-
             assertFalse(connectorService.check(connectorTO));
 
             Response response = connectorService.create(connectorTO);

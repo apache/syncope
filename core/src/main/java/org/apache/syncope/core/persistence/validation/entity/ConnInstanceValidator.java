@@ -18,13 +18,11 @@
  */
 package org.apache.syncope.core.persistence.validation.entity;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
+import org.apache.syncope.core.util.URIUtil;
 
 public class ConnInstanceValidator extends AbstractValidator implements
         ConstraintValidator<ConnInstanceCheck, ConnInstance> {
@@ -39,12 +37,13 @@ public class ConnInstanceValidator extends AbstractValidator implements
     public boolean isValid(final ConnInstance connInstance, final ConstraintValidatorContext context) {
         boolean isValid = true;
         try {
-            URI location = new URI(connInstance.getLocation());
-            isValid = ArrayUtils.contains(ALLOWED_SCHEMES, location.getScheme());
-        } catch (URISyntaxException e) {
+            URIUtil.buildForConnId(connInstance.getLocation());
+        } catch (Exception e) {
+            LOG.error("While validating {}", connInstance.getLocation(), e);
+
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidConnInstanceLocation.toString())
-                    .addNode(" is not a valid URI for file:// or connid(s):// schemes").addConstraintViolation();
+                    .addNode("location").addConstraintViolation();
             isValid = false;
         }
 
