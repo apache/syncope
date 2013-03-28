@@ -505,14 +505,6 @@ under the License.
           </configuration>
           <deployables>
             <deployable>
-              <location>${cargo.run.dir}</location>
-              <pingURL>http://localhost:${cargo.servlet.port}/syncope/rest/schema/user/list.xml</pingURL>
-              <pingTimeout>60000</pingTimeout>
-              <properties>
-                <context>syncope</context>
-              </properties>
-            </deployable>
-            <deployable>
               <groupId>org.connid.bundles.soap</groupId>
               <artifactId>wssample</artifactId>
               <type>war</type>
@@ -526,6 +518,14 @@ under the License.
               <type>war</type>
               <properties>
                 <context>syncope-build-tools</context>
+              </properties>
+            </deployable>
+            <deployable>
+              <location>${cargo.run.dir}</location>
+              <pingURL>http://localhost:${cargo.servlet.port}/syncope/rest/schema/user/list.xml</pingURL>
+              <pingTimeout>60000</pingTimeout>
+              <properties>
+                <context>syncope</context>
               </properties>
             </deployable>
           </deployables>
@@ -650,6 +650,7 @@ under the License.
           <exclude>mysql/**</exclude>
           <exclude>sqlserver/**</exclude>
           <exclude>jboss/**</exclude>
+          <exclude>weblogic/**</exclude>
         </excludes>
       </testResource>
     </testResources>
@@ -1304,10 +1305,17 @@ under the License.
                 <phase>pre-integration-test</phase>
                 <configuration>
                   <target>
+                    <!-- Needed because WebLogic has problems in running ApacheDS from the WAR archive -->
                     <unzip src="${settings.localRepository}/org/apache/syncope/syncope-build-tools/${project.version}/syncope-build-tools-${project.version}.war" 
                            dest="${project.build.directory}/syncope-build-tools-test"/>
+                    <!-- Needed because WebLogic is installed (H2 dependency cannot be injected via cargo) -->
                     <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" 
                           todir="${project.build.directory}/syncope-build-tools-test/WEB-INF/lib"
+                          overwrite="true"/>
+                    <!-- Needed because WebLogic deploys first core then build-tools: this JSP will just ask core to
+                    reload all connectors -->
+                    <copy file="${project.build.directory}/test-classes/conninstance-reload.jsp" 
+                          todir="${project.build.directory}/syncope-build-tools-test"
                           overwrite="true"/>
                   </target>
                 </configuration>
@@ -1338,14 +1346,6 @@ under the License.
               </configuration>
               <deployables>
                 <deployable>
-                  <location>${cargo.run.dir}</location>
-                  <pingURL>http://localhost:${cargo.servlet.port}/syncope/rest/schema/user/list.xml</pingURL>
-                  <pingTimeout>1200000</pingTimeout>
-                  <properties>
-                    <context>syncope</context>
-                  </properties>
-                </deployable>
-                <deployable>
                   <groupId>org.connid.bundles.soap</groupId>
                   <artifactId>wssample</artifactId>
                   <type>war</type>
@@ -1355,8 +1355,20 @@ under the License.
                 </deployable>
                 <deployable>
                   <location>${project.build.directory}/syncope-build-tools-test</location>
+                  <!-- build-tools are correctly deployed only when call to this JSP returns 200, e.g.
+                  when connectors are reloaded by the core -->
+                  <pingURL>http://localhost:${cargo.servlet.port}/syncope-build-tools/conninstance-reload.jsp</pingURL>
+                  <pingTimeout>1200000</pingTimeout>
                   <properties>
                     <context>syncope-build-tools</context>
+                  </properties>
+                </deployable>
+                <deployable>
+                  <location>${cargo.run.dir}</location>
+                  <pingURL>http://localhost:${cargo.servlet.port}/syncope/rest/schema/user/list.xml</pingURL>
+                  <pingTimeout>1200000</pingTimeout>
+                  <properties>
+                    <context>syncope</context>
                   </properties>
                 </deployable>
               </deployables>
@@ -1380,6 +1392,12 @@ under the License.
             </includes>            
           </resource>
         </resources>
+        <testResources>
+          <testResource>
+            <directory>src/test/resources/weblogic</directory>
+            <filtering>true</filtering>            
+          </testResource>
+        </testResources>
       </build>
     </profile>
 
