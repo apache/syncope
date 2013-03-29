@@ -111,7 +111,9 @@ public class JobInstanceLoader {
         return "Trigger_" + jobName;
     }
 
-    private void registerJob(final String jobName, final Job jobInstance, final String cronExpression) throws Exception {
+    private void registerJob(final String jobName, final Job jobInstance, final String cronExpression)
+            throws Exception {
+
         synchronized (scheduler.getScheduler()) {
             boolean jobAlreadyRunning = false;
             for (JobExecutionContext jobCtx : (List<JobExecutionContext>) scheduler.getScheduler().
@@ -156,8 +158,7 @@ public class JobInstanceLoader {
     }
 
     public void registerJob(final Task task, final String jobClassName, final String cronExpression) throws Exception {
-
-        Class jobClass = Class.forName(jobClassName);
+        Class<?> jobClass = Class.forName(jobClassName);
         Job jobInstance = (Job) getBeanFactory().createBean(jobClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
         if (jobInstance instanceof AbstractTaskJob) {
             ((AbstractTaskJob) jobInstance).setTaskId(task.getId());
@@ -169,8 +170,8 @@ public class JobInstanceLoader {
                 try {
                     syncJobActionsClass = Class.forName(jobActionsClassName);
                 } catch (Exception e) {
-                    LOG.error("Class {} not found, reverting to {}", new Object[]{jobActionsClassName,
-                                syncJobActionsClass.getName(), e});
+                    LOG.error("Class {} not found, reverting to {}",
+                            jobActionsClassName, syncJobActionsClass.getName(), e);
                 }
             }
             SyncJobActions syncJobActions = (SyncJobActions) getBeanFactory().createBean(syncJobActionsClass,
@@ -183,9 +184,8 @@ public class JobInstanceLoader {
     }
 
     public void registerJob(final Report report) throws Exception {
-
-        Job jobInstance = (Job) getBeanFactory().createBean(ReportJob.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE,
-                false);
+        Job jobInstance = (Job) getBeanFactory().createBean(
+                ReportJob.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
         ((ReportJob) jobInstance).setReportId(report.getId());
 
         registerJob(getJobName(report), jobInstance, report.getCronExpression());
@@ -212,10 +212,10 @@ public class JobInstanceLoader {
         unregisterJob(getJobName(report));
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void load() {
         // 1. jobs for SchedTasks
-        Set<SchedTask> tasks = new HashSet(taskDAO.findAll(SchedTask.class));
+        Set<SchedTask> tasks = new HashSet<SchedTask>(taskDAO.findAll(SchedTask.class));
         tasks.addAll(taskDAO.findAll(SyncTask.class));
         for (SchedTask task : tasks) {
             try {

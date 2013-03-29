@@ -892,7 +892,7 @@ public class TaskTestITCase extends AbstractTest {
         } while (preSyncSize == actual.getExecutions().size() && i < maxit);
         assertEquals(preSyncSize + 1, actual.getExecutions().size());
 
-        final String status = actual.getExecutions().get(1).getStatus();
+        final String status = actual.getExecutions().get(preSyncSize).getStatus();
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
