@@ -455,7 +455,7 @@ svn commit -m "Promoting the voted release artifacts and cleaning up older relea
             <source>
 svn co https://svn.apache.org/repos/asf/syncope/site/
 cd site
-svn rm *.html apidocs css images js
+svn rm *.html apidocs css images img js
 svn mv &lt;version&gt;/* .
 svn rm &lt;version&gt;
 svn commit -m "Promoting the staging site"</source>
