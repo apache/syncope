@@ -33,7 +33,7 @@ under the License.
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>12</version>
+    <version>13</version>
     <relativePath />
   </parent>
 
@@ -272,7 +272,7 @@ under the License.
 
     <spring.version>3.1.4.RELEASE</spring.version>
     <spring-security.version>3.1.3.RELEASE</spring-security.version>
-    <aspectj.version>1.7.1</aspectj.version>
+    <aspectj.version>1.7.2.RELEASE</aspectj.version>
     <jackson.version>1.9.12</jackson.version>
     <xstream.version>1.4.4</xstream.version>
     <velocity.version>1.7</velocity.version>
@@ -287,17 +287,17 @@ under the License.
 
     <groovy.version>1.6.9</groovy.version>
 
-    <h2.version>1.3.168</h2.version>
+    <h2.version>1.3.170</h2.version>
 
-    <logback.version>1.0.7</logback.version>
-    <slf4j.version>1.7.2</slf4j.version>
+    <logback.version>1.0.11</logback.version>
+    <slf4j.version>1.7.5</slf4j.version>
 
     <junit.version>4.11</junit.version>
     <selenium-java-client-driver.version>1.0.2</selenium-java-client-driver.version>
 
     <apacheds.version>1.5.7</apacheds.version>
 
-    <tomcat.version>7.0.37</tomcat.version>
+    <tomcat.version>7.0.39</tomcat.version>
  
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
     <log.directory>${project.build.directory}/log</log.directory>
@@ -361,7 +361,7 @@ under the License.
       <dependency>
         <groupId>org.javassist</groupId>
         <artifactId>javassist</artifactId>
-        <version>3.16.1-GA</version>
+        <version>3.17.1-GA</version>
       </dependency>
 
       <dependency>
@@ -541,12 +541,7 @@ under the License.
         <artifactId>cglib</artifactId>
         <version>2.2.2</version>
       </dependency>
-            
-      <dependency>
-        <groupId>org.aspectj</groupId>
-        <artifactId>aspectjrt</artifactId>
-        <version>${aspectj.version}</version>
-      </dependency>
+
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
@@ -804,7 +799,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.13</version>
+          <version>2.14</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
@@ -855,7 +850,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>2.13</version>
+          <version>2.14</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
@@ -878,7 +873,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>2.5.1</version>
+          <version>2.7</version>
           <configuration>
             <artifactItems>
               <artifactItem>
