@@ -84,7 +84,8 @@ public class SyncTask extends SchedTask {
     }
 
     @Override
-    public void setJobClassName(String jobClassName) {
+    public void setJobClassName(final String jobClassName) {
+        // fixed to SyncJob, cannot be changed
     }
 
     public ExternalResource getResource() {

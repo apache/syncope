@@ -22,13 +22,18 @@ import org.apache.syncope.core.persistence.dao.impl.ContentLoader;
 import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Component;
 
 /**
  * Take care of all initializations needed by Syncope to run up and safe.
  */
 @Component
+@Configurable
 public class SpringContextInitializer implements InitializingBean {
+
+    @Autowired
+    private ContentUpgrader contentUpgrader;
 
     @Autowired
     private ConnectorFactory connFactory;
@@ -48,8 +53,18 @@ public class SpringContextInitializer implements InitializingBean {
     @Autowired
     private WorkflowAdapterLoader workflowAdapterLoader;
 
+    private boolean upgrade = false;
+
+    public void setUpgrade(final boolean upgrade) {
+        this.upgrade = upgrade;
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
+        if (upgrade) {
+            contentUpgrader.upgrade();
+        }
+
         workflowAdapterLoader.load();
         contentLoader.load();
         connFactory.load();

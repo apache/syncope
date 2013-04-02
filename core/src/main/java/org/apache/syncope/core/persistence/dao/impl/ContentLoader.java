@@ -23,15 +23,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Properties;
 import javax.sql.DataSource;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.util.ImportExport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
@@ -41,13 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Initialize Database with default content if no data is present already.
  */
 @Component
-public class ContentLoader {
-
-    private static final String VIEWS_FILE = "/views.xml";
-
-    private static final String INDEXES_FILE = "/indexes.xml";
-
-    private static final Logger LOG = LoggerFactory.getLogger(ContentLoader.class);
+public class ContentLoader extends AbstractContentDealer {
 
     @Autowired
     private DataSource dataSource;
@@ -111,67 +102,6 @@ public class ContentLoader {
         }
     }
 
-    private void createViews(final Connection conn) {
-        LOG.debug("Creating views");
-        InputStream viewsStream = null;
-        try {
-            viewsStream = getClass().getResourceAsStream(VIEWS_FILE);
-            Properties views = new Properties();
-            views.loadFromXML(viewsStream);
-
-            for (String idx : views.stringPropertyNames()) {
-                LOG.debug("Creating view {}", views.get(idx).toString());
-                PreparedStatement statement = null;
-                try {
-                    final String updateViews = views.get(idx).toString().replaceAll("\\n", " ");
-                    statement = conn.prepareStatement(updateViews);
-                    statement.executeUpdate();
-                } catch (SQLException e) {
-                    LOG.error("Could not create view ", e);
-                } finally {
-                    if (statement != null) {
-                        statement.close();
-                    }
-                }
-            }
-
-            LOG.debug("Views created, go for indexes");
-        } catch (Exception e) {
-            LOG.error("While creating views", e);
-        } finally {
-            IOUtils.closeQuietly(viewsStream);
-        }
-    }
-
-    private void createIndexes(final Connection conn) {
-        LOG.debug("Creating indexes");
-
-        InputStream indexesStream = null;
-        Properties indexes = new Properties();
-        try {
-            indexesStream = getClass().getResourceAsStream(INDEXES_FILE);
-            indexes.loadFromXML(indexesStream);
-        } catch (Exception e) {
-            throw new RuntimeException("Error loading properties from stream", e);
-        } finally {
-            IOUtils.closeQuietly(indexesStream);
-        }
-
-        for (String idx : indexes.stringPropertyNames()) {
-            LOG.debug("Creating index {}", indexes.get(idx).toString());
-            PreparedStatement statement = null;
-            try {
-                final String updateIndexed = indexes.get(idx).toString();
-                statement = conn.prepareStatement(updateIndexed);
-                statement.executeUpdate();
-            } catch (SQLException e) {
-                LOG.error("Could not create index ", e);
-            } finally {
-                closeStatement(statement);
-            }
-        }
-    }
-
     private void loadDefaultContent() {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         InputStream in = null;
@@ -185,16 +115,6 @@ public class ContentLoader {
             LOG.error("While loading default content", e);
         } finally {
             IOUtils.closeQuietly(in);
-        }
-    }
-
-    private void closeStatement(final PreparedStatement statement) {
-        if (statement != null) {
-            try {
-                statement.close();
-            } catch (SQLException e) {
-                LOG.error("Error closing SQL statement", e);
-            }
         }
     }
 }

@@ -59,7 +59,7 @@ public class ReportletConfInstance extends AbstractBaseBean {
     }
 
     public void setInstance(final ReportletConf instance) {
-        serializedInstance = instance == null
+        this.serializedInstance = instance == null
                 ? null
                 : XMLSerializer.serialize(instance);
     }

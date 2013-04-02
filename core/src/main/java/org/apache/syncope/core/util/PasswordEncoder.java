@@ -31,6 +31,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.syncope.common.types.CipherAlgorithm;
+import org.jasypt.commons.CommonUtils;
 import org.jasypt.digest.StandardStringDigester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -163,7 +164,7 @@ public final class PasswordEncoder {
             digester.setSaltSizeBytes(0);
         }
 
-        digester.setStringOutputType("hexadecimal");
+        digester.setStringOutputType(CommonUtils.STRING_OUTPUT_TYPE_HEXADECIMAL);
         return digester;
     }
 

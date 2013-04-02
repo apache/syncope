@@ -212,11 +212,10 @@ public class JobInstanceLoader {
         unregisterJob(getJobName(report));
     }
 
-    @SuppressWarnings("unchecked")
     @Transactional
     public void load() {
         // 1. jobs for SchedTasks
-        Set<SchedTask> tasks = new HashSet(taskDAO.findAll(SchedTask.class));
+        Set<SchedTask> tasks = new HashSet<SchedTask>(taskDAO.findAll(SchedTask.class));
         tasks.addAll(taskDAO.findAll(SyncTask.class));
         for (SchedTask task : tasks) {
             try {

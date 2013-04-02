@@ -132,7 +132,7 @@ public class ResourceDataBinder {
         resource.setSyncPolicy(resourceTO.getSyncPolicy() == null
                 ? null : (SyncPolicy) policyDAO.find(resourceTO.getSyncPolicy()));
 
-        resource.setConnectorConfigurationProperties(new HashSet<ConnConfProperty>(resourceTO.getConnConfProperties()));
+        resource.setConnInstanceConfiguration(new HashSet<ConnConfProperty>(resourceTO.getConnConfProperties()));
 
         if (resourceTO.getUsyncToken() == null) {
             resource.setUserializedSyncToken(null);
@@ -223,7 +223,7 @@ public class ResourceDataBinder {
     public ConnInstance getConnInstance(final ExternalResource resource) {
         final ConnInstance connInstanceClone = (ConnInstance) SerializationUtils.clone(resource.getConnector());
 
-        return getConnInstance(connInstanceClone, resource.getConfiguration());
+        return getConnInstance(connInstanceClone, resource.getConnInstanceConfiguration());
     }
 
     public ConnInstance getConnInstance(final ResourceTO resourceTO) {
@@ -326,7 +326,7 @@ public class ResourceDataBinder {
         resourceTO.setSyncPolicy(resource.getSyncPolicy() == null
                 ? null : resource.getSyncPolicy().getId());
 
-        resourceTO.setConnectorConfigurationProperties(resource.getConfiguration());
+        resourceTO.setConnectorConfigurationProperties(resource.getConnInstanceConfiguration());
 
         resourceTO.setUsyncToken(resource.getUserializedSyncToken());
         resourceTO.setRsyncToken(resource.getRserializedSyncToken());

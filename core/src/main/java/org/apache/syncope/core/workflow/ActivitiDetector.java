@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.workflow;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import org.apache.commons.io.IOUtils;
@@ -31,7 +30,7 @@ public class ActivitiDetector {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActivitiDetector.class);
 
-    private static final String XX = "/workflow.properties";
+    private static final String WORKFLOW_PROPERTIES = "/workflow.properties";
 
     private static String uwfAdapterClassName;
 
@@ -39,24 +38,14 @@ public class ActivitiDetector {
 
     private static String activitiVersion;
 
-    static {
-        try {
-            init();
-        } catch (IOException e) {
-            LOG.error("Could not read from {}", XX, e);
-        }
-    }
-
     /**
      * Read classpath:/workflow.properties in order to determine the configured workflow adapter class name.
-     *
-     * @throws IOException if anything goes wrong
      */
-    private static void init() throws IOException {
-        Properties props = new java.util.Properties();
+    static {
+        Properties props = new Properties();
         InputStream propStream = null;
         try {
-            propStream = ContentLoader.class.getResourceAsStream(XX);
+            propStream = ContentLoader.class.getResourceAsStream(WORKFLOW_PROPERTIES);
             props.load(propStream);
             uwfAdapterClassName = props.getProperty("uwfAdapter");
             rwfAdapterClassName = props.getProperty("rwfAdapter");

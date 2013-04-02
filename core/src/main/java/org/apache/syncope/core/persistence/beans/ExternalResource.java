@@ -312,23 +312,20 @@ public class ExternalResource extends AbstractBaseBean {
         this.syncPolicy = syncPolicy;
     }
 
-    public void setConnectorConfigurationProperties(final Set<ConnConfProperty> properties) {
-        // create new set to make sure it's a serializable set implementation.
-        xmlConfiguration = XMLSerializer.serialize(new HashSet<ConnConfProperty>(properties));
-    }
-
-    public Set<ConnConfProperty> getConfiguration() {
-        Set<ConnConfProperty> result = Collections.emptySet();
-
-        Set<ConnConfProperty> deserializedSet;
+    public Set<ConnConfProperty> getConnInstanceConfiguration() {
+        Set<ConnConfProperty> result = null;
         if (StringUtils.isNotBlank(xmlConfiguration)) {
-            deserializedSet = XMLSerializer.<HashSet<ConnConfProperty>>deserialize(xmlConfiguration);
-            if (deserializedSet != null) {
-                result = deserializedSet;
-            }
+            result = XMLSerializer.<HashSet<ConnConfProperty>>deserialize(xmlConfiguration);
+        }
+        if (result == null) {
+            result = Collections.emptySet();
         }
 
         return result;
+    }
+
+    public void setConnInstanceConfiguration(final Set<ConnConfProperty> properties) {
+        xmlConfiguration = XMLSerializer.serialize(new HashSet<ConnConfProperty>(properties));
     }
 
     public String getUserializedSyncToken() {
@@ -346,7 +343,7 @@ public class ExternalResource extends AbstractBaseBean {
     }
 
     public void setUsyncToken(final SyncToken syncToken) {
-        userializedSyncToken = XMLSerializer.serialize(syncToken);
+        this.userializedSyncToken = XMLSerializer.serialize(syncToken);
     }
 
     public String getRserializedSyncToken() {
@@ -364,7 +361,7 @@ public class ExternalResource extends AbstractBaseBean {
     }
 
     public void setRsyncToken(final SyncToken syncToken) {
-        rserializedSyncToken = XMLSerializer.serialize(syncToken);
+        this.rserializedSyncToken = XMLSerializer.serialize(syncToken);
     }
 
     public String getPropagationActionsClassName() {

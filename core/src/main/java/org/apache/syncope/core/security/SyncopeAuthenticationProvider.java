@@ -45,7 +45,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeAuthenticationProvider.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeAuthenticationProvider.class);
 
     @Autowired
     private AuditManager auditManager;
@@ -115,7 +115,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
         String username = authentication.getName();
         if (adminUser.equals(username)) {
-            authenticated = PasswordEncoder.verify(
+            authenticated = authenticate(
                     authentication.getCredentials().toString(),
                     CipherAlgorithm.valueOf(adminPasswordAlgorithm),
                     adminPassword);
@@ -126,7 +126,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                 if (user.isSuspended()) {
                     throw new DisabledException("User " + user.getUsername() + " is suspended");
                 }
-                authenticated = PasswordEncoder.verify(
+                authenticated = authenticate(
                         authentication.getCredentials().toString(),
                         user.getCipherAlgorithm(),
                         user.getPassword());
@@ -169,6 +169,12 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         }
 
         return token;
+    }
+
+    protected boolean authenticate(final String password, final CipherAlgorithm cipherAlgorithm,
+            final String digestedPassword) {
+
+        return PasswordEncoder.verify(password, cipherAlgorithm, digestedPassword);
     }
 
     @Override
