@@ -16,61 +16,63 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:extend>
-  <div style="margin:10px">
-    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:extend>
+    <div style="margin:10px">
+      <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
 
-    <form wicket:id="form">
-      <div id="tabs">
-        <ul>
-          <li class="tabs-selected"><a href="#description"><span><wicket:message key="policyDescription"/></span></a></li>
-          <li><a href="#specification"><span><wicket:message key="policySpecification"/></span></a></li>
-        </ul>
+      <form wicket:id="form">
+        <div id="tabs">
+          <ul>
+            <li class="tabs-selected"><a href="#description"><span><wicket:message key="policyDescription"/></span></a></li>
+            <li><a href="#specification"><span><wicket:message key="policySpecification"/></span></a></li>
+          </ul>
 
-        <div id="description">
-          <div id="formtable">
-            <div class="tablerow alt">
-              <div class="tablecolumn_label short_fixedsize">
-                <label for="id"><wicket:message key="id"/></label>
+          <div id="description">
+            <div id="formtable">
+              <div class="tablerow alt">
+                <div class="tablecolumn_label short_fixedsize">
+                  <label for="id"><wicket:message key="id"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                  <span wicket:id="id">[id]</span>
+                </div>
               </div>
-              <div class="tablecolumn_field medium_dynamicsize">
-                <span wicket:id="id">[id]</span>
-              </div>
-            </div>
 
-            <div class="tablerow">
-              <div class="tablecolumn_label short_fixedsize">
-                <label for="type"><wicket:message key="type"/></label>
+              <div class="tablerow">
+                <div class="tablecolumn_label short_fixedsize">
+                  <label for="type"><wicket:message key="type"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                  <span wicket:id="type">[type]</span>
+                </div>
               </div>
-              <div class="tablecolumn_field medium_dynamicsize">
-                <span wicket:id="type">[type]</span>
-              </div>
-            </div>
 
-            <div class="tablerow alt">
-              <div class="tablecolumn_label short_fixedsize">
-                <label for="description"><wicket:message key="description"/></label>
-              </div>
-              <div class="tablecolumn_field medium_dynamicsize">
-                <span wicket:id="description">[description]</span>
+              <div class="tablerow alt">
+                <div class="tablecolumn_label short_fixedsize">
+                  <label for="description"><wicket:message key="description"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                  <span wicket:id="description">[description]</span>
+                </div>
               </div>
             </div>
           </div>
+
+          <div id="specification">
+            <span wicket:id="panel">[password policy panel]</span>
+          </div>
         </div>
 
-        <div id="specification">
-          <span wicket:id="panel">[password policy panel]</span>
+        <div style="margin: 20px 10px 0">
+          <input type="submit"
+                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                 wicket:id="apply"/>
+          <input type="button"
+                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                 wicket:id="cancel"/>
         </div>
-      </div>
-
-      <div style="margin: 20px 10px 0">
-        <input type="submit"
-               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-               wicket:id="apply"/>
-        <input type="button"
-               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-               wicket:id="cancel"/>
-      </div>
-    </form>
-  </div>
-</wicket:extend>
+      </form>
+    </div>
+  </wicket:extend>
+</html>

@@ -30,7 +30,6 @@ import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.console.pages.panels.PolicyBeanPanel;
 import org.apache.syncope.console.rest.PolicyRestClient;
-import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.PageReference;
@@ -79,17 +78,17 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
         switch (policyTO.getType()) {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
-                type.setChoices(Arrays.asList(new PolicyType[]{PolicyType.GLOBAL_ACCOUNT, PolicyType.ACCOUNT}));
+                type.setChoices(Arrays.asList(new PolicyType[] {PolicyType.GLOBAL_ACCOUNT, PolicyType.ACCOUNT}));
                 break;
 
             case GLOBAL_PASSWORD:
             case PASSWORD:
-                type.setChoices(Arrays.asList(new PolicyType[]{PolicyType.GLOBAL_PASSWORD, PolicyType.PASSWORD}));
+                type.setChoices(Arrays.asList(new PolicyType[] {PolicyType.GLOBAL_PASSWORD, PolicyType.PASSWORD}));
                 break;
 
             case GLOBAL_SYNC:
             case SYNC:
-                type.setChoices(Arrays.asList(new PolicyType[]{PolicyType.GLOBAL_SYNC, PolicyType.SYNC}));
+                type.setChoices(Arrays.asList(new PolicyType[] {PolicyType.GLOBAL_SYNC, PolicyType.SYNC}));
 
             default:
         }
@@ -103,12 +102,12 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
 
         form.add(new PolicyBeanPanel("panel", policy));
 
-        final AjaxButton submit = new ClearIndicatingAjaxButton("apply", new ResourceModel("apply"), pageRef) {
+        final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("apply")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 setPolicySpecification(policyTO, policy);
 
                 try {
