@@ -26,8 +26,12 @@ import org.apache.syncope.core.persistence.beans.AbstractSchema;
 
 public class EmailAddressValidator extends AbstractValidator {
 
+    private static final long serialVersionUID = 792457177290331518L;
+
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
-            "^[\\w\\-]([\\.\\w])+[\\w]+@([\\w\\-]+\\.)+[A-Z]{2,4}$", Pattern.CASE_INSENSITIVE);
+            "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*"
+            + "@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
+            Pattern.CASE_INSENSITIVE);
 
     public EmailAddressValidator(final AbstractSchema schema) {
         super(schema);
