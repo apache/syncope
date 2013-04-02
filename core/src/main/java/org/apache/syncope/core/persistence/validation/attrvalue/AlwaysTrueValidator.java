@@ -23,14 +23,14 @@ import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 
 public class AlwaysTrueValidator extends AbstractValidator {
 
-    public AlwaysTrueValidator(AbstractSchema schema) {
+    private static final long serialVersionUID = 872107345555773183L;
 
+    public AlwaysTrueValidator(final AbstractSchema schema) {
         super(schema);
     }
 
     @Override
-    protected void doValidate(AbstractAttrValue attributeValue) throws InvalidAttrValueException {
-
+    protected void doValidate(final AbstractAttrValue attributeValue) throws InvalidAttrValueException {
         Boolean value = attributeValue.getValue();
         if (!value) {
             throw new InvalidAttrValueException(attributeValue);
