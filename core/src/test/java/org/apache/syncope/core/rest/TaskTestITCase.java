@@ -23,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -721,7 +722,7 @@ public class TaskTestITCase extends AbstractTest {
             i++;
         } while (preSyncSize == taskTO.getExecutions().size() && i < maxit);
         if (i == maxit) {
-            throw new RuntimeException("Timeout when executing task " + taskId);
+            fail("Timeout when executing task " + taskId);
         }
         return taskTO.getExecutions().get(0);
     }

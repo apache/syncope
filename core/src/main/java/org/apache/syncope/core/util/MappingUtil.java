@@ -364,12 +364,13 @@ public final class MappingUtil {
                         }
                         if (vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
                             if (vAttrsToBeUpdated.containsKey(mappingItem.getIntAttrName())) {
-                                virAttr.setValues(vAttrsToBeUpdated.get(mappingItem.getIntAttrName()).
-                                        getValuesToBeAdded());
+                                virAttr.setValues(
+                                        vAttrsToBeUpdated.get(mappingItem.getIntAttrName()).getValuesToBeAdded());
                             } else if (vAttrsToBeRemoved.contains(mappingItem.getIntAttrName())) {
                                 virAttr.getValues().clear();
                             } else {
-                                throw new RuntimeException("Virtual attribute has not to be updated");
+                                throw new IllegalArgumentException("Don't need to update virtual attribute '"
+                                        + mappingItem.getIntAttrName() + "'");
                             }
                         }
                     }

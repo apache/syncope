@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,7 +134,7 @@ public abstract class AbstractTest {
     private String contentType;
 
     protected UserService userService;
-    
+
     protected UserWorkflowService userWorkflowService;
 
     protected RoleService roleService;
@@ -357,12 +358,12 @@ public abstract class AbstractTest {
                 builder.append(key + ":" + headers.getFirst(key) + ",");
             }
             builder.append(")");
-            throw new RuntimeException("Error on create. Status is : " + response.getStatus() + " with headers "
+            fail("Error on create. Status is : " + response.getStatus() + " with headers "
                     + builder.toString());
         }
     }
 
-    <T extends AbstractSchemaTO> Response createSchema(final AttributableType kind,
+    protected <T extends AbstractSchemaTO> Response createSchema(final AttributableType kind,
             final SchemaType type, final T schemaTO) {
         Response response = schemaService.create(kind, type, schemaTO);
         if (response.getStatus() != HttpStatus.SC_CREATED) {

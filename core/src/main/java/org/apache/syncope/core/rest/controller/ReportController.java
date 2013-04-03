@@ -262,7 +262,7 @@ public class ReportController extends AbstractController {
         try {
             os = response.getOutputStream();
         } catch (IOException e) {
-            throw new RuntimeException("Could not retrieve stream", e);
+            throw new IllegalStateException("Could not get output stream", e);
         }
         ReportExec reportExec = getAndCheckReportExecInternal(executionId);
 

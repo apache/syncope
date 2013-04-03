@@ -18,19 +18,15 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
+import static org.apache.syncope.core.persistence.dao.impl.AbstractContentDealer.LOG;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javax.sql.DataSource;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
-import org.apache.syncope.core.util.ImportExport;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.apache.syncope.core.util.ContentLoaderHandler;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,65 +36,29 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class ContentLoader extends AbstractContentDealer {
 
-    @Autowired
-    private DataSource dataSource;
-
-    @Autowired
-    private ImportExport importExport;
+    public static final String CONTENT_XML = "content.xml";
 
     @Transactional
     public void load() {
-        Connection conn = null;
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+        boolean existingData;
         try {
-            conn = DataSourceUtils.getConnection(dataSource);
-
-            boolean existingData = isDataPresent(conn);
-            if (existingData) {
-                LOG.info("Data found in the database, leaving untouched");
-            } else {
-                LOG.info("Empty database found, loading default content");
-
-                loadDefaultContent();
-                createIndexes(conn);
-                createViews(conn);
-            }
-        } finally {
-            DataSourceUtils.releaseConnection(conn, dataSource);
-            if (conn != null) {
-                try {
-                    if (!conn.isClosed()) {
-                        conn.close();
-                    }
-                } catch (SQLException e) {
-                    LOG.error("While releasing connection", e);
-                }
-            }
-        }
-    }
-
-    private boolean isDataPresent(final Connection conn) {
-        PreparedStatement statement = null;
-        ResultSet rs = null;
-        try {
-            final String queryContent = "SELECT * FROM " + SyncopeConf.class.getSimpleName();
-            statement = conn.prepareStatement(
-                    queryContent, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            rs = statement.executeQuery();
-            rs.last();
-            return rs.getRow() > 0;
-        } catch (SQLException e) {
+            existingData = jdbcTemplate.queryForObject("SELECT COUNT(0) FROM " + SyncopeConf.class.getSimpleName(),
+                    Integer.class) > 0;
+        } catch (DataAccessException e) {
             LOG.error("Could not access to table " + SyncopeConf.class.getSimpleName(), e);
-            return true;
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    LOG.error("While closing tables result set", e);
-                }
-            }
+            existingData = true;
+        }
 
-            closeStatement(statement);
+        if (existingData) {
+            LOG.info("Data found in the database, leaving untouched");
+        } else {
+            LOG.info("Empty database found, loading default content");
+
+            loadDefaultContent();
+            createIndexes();
+            createViews();
         }
     }
 
@@ -106,10 +66,10 @@ public class ContentLoader extends AbstractContentDealer {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         InputStream in = null;
         try {
-            in = getClass().getResourceAsStream("/" + ImportExport.CONTENT_FILE);
+            in = getClass().getResourceAsStream("/" + CONTENT_XML);
 
             SAXParser parser = factory.newSAXParser();
-            parser.parse(in, importExport);
+            parser.parse(in, new ContentLoaderHandler(dataSource, ROOT_ELEMENT));
             LOG.debug("Default content successfully loaded");
         } catch (Exception e) {
             LOG.error("While loading default content", e);

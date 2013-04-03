@@ -18,91 +18,85 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.io.IOException;
 import java.util.Properties;
-import org.apache.commons.io.IOUtils;
+import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 public abstract class AbstractContentDealer {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractContentDealer.class);
 
-    private static final String VIEWS_FILE = "/views.xml";
+    protected static final String ROOT_ELEMENT = "dataset";
 
-    private static final String INDEXES_FILE = "/indexes.xml";
+    private static final String PERSISTENCE_PROPERTIES = "/persistence.properties";
 
-    protected void createIndexes(final Connection conn) {
+    private static final String VIEWS_XML = "/views.xml";
+
+    private static final String INDEXES_XML = "/indexes.xml";
+
+    protected static String dbSchema;
+
+    protected static Properties views;
+
+    protected static Properties indexes;
+
+    @Autowired
+    protected DataSource dataSource;
+
+    static {
+        try {
+            Properties persistence = PropertiesLoaderUtils.loadProperties(
+                    new ClassPathResource(PERSISTENCE_PROPERTIES));
+            dbSchema = persistence.getProperty("database.schema");
+
+            views = PropertiesLoaderUtils.loadProperties(new ClassPathResource(VIEWS_XML));
+
+            indexes = PropertiesLoaderUtils.loadProperties(new ClassPathResource(INDEXES_XML));
+        } catch (IOException e) {
+            LOG.error("Could not read one or more properties files", e);
+        }
+    }
+
+    protected void createIndexes() {
         LOG.debug("Creating indexes");
 
-        InputStream indexesStream = null;
-        Properties indexes = new Properties();
-        try {
-            indexesStream = getClass().getResourceAsStream(INDEXES_FILE);
-            indexes.loadFromXML(indexesStream);
-        } catch (Exception e) {
-            throw new RuntimeException("Error loading properties from stream", e);
-        } finally {
-            IOUtils.closeQuietly(indexesStream);
-        }
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
         for (String idx : indexes.stringPropertyNames()) {
             LOG.debug("Creating index {}", indexes.get(idx).toString());
-            PreparedStatement statement = null;
+
             try {
-                final String updateIndexed = indexes.get(idx).toString();
-                statement = conn.prepareStatement(updateIndexed);
-                statement.executeUpdate();
-            } catch (SQLException e) {
+                jdbcTemplate.execute(indexes.get(idx).toString());
+            } catch (DataAccessException e) {
                 LOG.error("Could not create index ", e);
-            } finally {
-                closeStatement(statement);
             }
         }
+
+        LOG.debug("Indexes created");
     }
 
-    protected void createViews(final Connection conn) {
+    protected void createViews() {
         LOG.debug("Creating views");
-        InputStream viewsStream = null;
-        try {
-            viewsStream = getClass().getResourceAsStream(VIEWS_FILE);
-            Properties views = new Properties();
-            views.loadFromXML(viewsStream);
 
-            for (String idx : views.stringPropertyNames()) {
-                LOG.debug("Creating view {}", views.get(idx).toString());
-                PreparedStatement statement = null;
-                try {
-                    final String updateViews = views.get(idx).toString().replaceAll("\\n", " ");
-                    statement = conn.prepareStatement(updateViews);
-                    statement.executeUpdate();
-                } catch (SQLException e) {
-                    LOG.error("Could not create view ", e);
-                } finally {
-                    if (statement != null) {
-                        statement.close();
-                    }
-                }
-            }
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-            LOG.debug("Views created, go for indexes");
-        } catch (Exception e) {
-            LOG.error("While creating views", e);
-        } finally {
-            IOUtils.closeQuietly(viewsStream);
-        }
-    }
+        for (String idx : views.stringPropertyNames()) {
+            LOG.debug("Creating view {}", views.get(idx).toString());
 
-    protected void closeStatement(final PreparedStatement statement) {
-        if (statement != null) {
             try {
-                statement.close();
-            } catch (SQLException e) {
-                LOG.error("Error closing SQL statement", e);
+                jdbcTemplate.execute(views.get(idx).toString().replaceAll("\\n", " "));
+            } catch (DataAccessException e) {
+                LOG.error("Could not create view ", e);
             }
         }
+
+        LOG.debug("Ciews created");
     }
 }

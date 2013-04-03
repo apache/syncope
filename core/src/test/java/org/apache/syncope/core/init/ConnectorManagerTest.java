@@ -27,7 +27,6 @@ import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -54,7 +53,7 @@ public class ConnectorManagerTest extends AbstractNonDAOTest {
         connManager.unload();
     }
 
-    @Test@Ignore
+    @Test
     public void load() {
         connManager.load();
 

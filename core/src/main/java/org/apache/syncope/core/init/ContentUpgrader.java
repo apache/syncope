@@ -25,7 +25,6 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import javax.sql.DataSource;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.UserTO;
@@ -62,9 +61,6 @@ import org.springframework.util.ReflectionUtils;
  */
 @Component
 public class ContentUpgrader extends AbstractContentDealer {
-
-    @Autowired
-    private DataSource dataSource;
 
     @Autowired
     private ConfDAO confDAO;
@@ -286,8 +282,8 @@ public class ContentUpgrader extends AbstractContentDealer {
 
         Connection conn = DataSourceUtils.getConnection(dataSource);
         try {
-            createIndexes(conn);
-            createViews(conn);
+            createIndexes();
+            createViews();
         } finally {
             DataSourceUtils.releaseConnection(conn, dataSource);
             if (conn != null) {

@@ -35,8 +35,8 @@ import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.MailTemplateTO;
 import org.apache.syncope.common.to.ValidatorTO;
 import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.core.persistence.dao.impl.ContentLoader;
 import org.apache.syncope.core.rest.controller.ConfigurationController;
-import org.apache.syncope.core.util.ImportExport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -69,7 +69,7 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
         return Response.ok(sout)
                 .type(MediaType.TEXT_XML)
                 .header(SyncopeConstants.CONTENT_DISPOSITION_HEADER,
-                "attachment; filename=" + ImportExport.CONTENT_FILE)
+                "attachment; filename=" + ContentLoader.CONTENT_XML)
                 .build();
     }
 

@@ -38,9 +38,10 @@ import org.apache.syncope.core.init.WorkflowAdapterLoader;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
+import org.apache.syncope.core.persistence.dao.impl.ContentLoader;
 import org.apache.syncope.core.persistence.validation.attrvalue.Validator;
 import org.apache.syncope.core.rest.data.ConfigurationDataBinder;
-import org.apache.syncope.core.util.ImportExport;
+import org.apache.syncope.core.util.ContentExporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -67,7 +68,7 @@ public class ConfigurationController extends AbstractController {
     private ConfigurationDataBinder binder;
 
     @Autowired
-    private ImportExport importExport;
+    private ContentExporter exporter;
 
     @Autowired
     private ImplementationClassNamesLoader classNamesLoader;
@@ -205,7 +206,7 @@ public class ConfigurationController extends AbstractController {
     public void dbExport(final HttpServletResponse response) {
         response.setContentType(MediaType.TEXT_XML);
         response.setHeader(SyncopeConstants.CONTENT_DISPOSITION_HEADER,
-                "attachment; filename=" + ImportExport.CONTENT_FILE);
+                "attachment; filename=" + ContentLoader.CONTENT_XML);
         try {
             dbExportInternal(response.getOutputStream());
         } catch (IOException e) {
@@ -217,7 +218,7 @@ public class ConfigurationController extends AbstractController {
     @Transactional(readOnly = true)
     public void dbExportInternal(final OutputStream os) {
         try {
-            importExport.export(os, wfAdapterLoader.getTablePrefix());
+            exporter.export(os, wfAdapterLoader.getTablePrefix());
 
             auditManager.audit(Category.configuration, ConfigurationSubCategory.dbExport, Result.success,
                     "Successfully exported database content");
