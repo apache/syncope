@@ -128,6 +128,9 @@ public class ResourceMappingPanel extends Panel {
      */
     private final ResourceTO resourceTO;
 
+    /**
+     * User / role.
+     */
     private final AttributableType attrType;
 
     /**
@@ -162,12 +165,12 @@ public class ResourceMappingPanel extends Panel {
     /**
      * Attribute Mapping Panel.
      *
-     * @param panelid panel id
+     * @param id panel id
      * @param resourceTO external resource
      * @param attrType USER / ROLE
      */
-    public ResourceMappingPanel(final String panelid, final ResourceTO resourceTO, final AttributableType attrType) {
-        super(panelid);
+    public ResourceMappingPanel(final String id, final ResourceTO resourceTO, final AttributableType attrType) {
+        super(id);
         setOutputMarkupId(true);
 
         this.resourceTO = resourceTO;
@@ -225,7 +228,7 @@ public class ResourceMappingPanel extends Panel {
         final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
         mappingContainer.add(jexlHelp);
 
-        AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
+        AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
         mappingContainer.add(questionMarkJexlHelp);
 
         add(mappingContainer);
@@ -326,24 +329,34 @@ public class ResourceMappingPanel extends Panel {
                     }
                 });
 
-                final AjaxDropDownChoicePanel<String> intAttrNames = new AjaxDropDownChoicePanel<String>("intAttrNames",
-                        getString("intAttrNames"), new PropertyModel<String>(mapItem, "intAttrName"));
+                final AjaxDropDownChoicePanel<String> intAttrNames =
+                        new AjaxDropDownChoicePanel<String>("intAttrNames", getString("intAttrNames"),
+                        new PropertyModel<String>(mapItem, "intAttrName"), false);
                 intAttrNames.setChoices(schemaNames);
                 intAttrNames.setRequired(true);
                 intAttrNames.setStyleSheet(FIELD_STYLE);
+                intAttrNames.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+
+                    private static final long serialVersionUID = -1107858522700306810L;
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                    }
+                });
                 item.add(intAttrNames);
 
-                final AjaxDropDownChoicePanel<IntMappingType> typesPanel =
+                final AjaxDropDownChoicePanel<IntMappingType> intMappingTypes =
                         new AjaxDropDownChoicePanel<IntMappingType>("intMappingTypes",
                         new ResourceModel("intMappingTypes", "intMappingTypes").getObject(),
                         new PropertyModel<IntMappingType>(mapItem, "intMappingType"));
-                typesPanel.setRequired(true);
-                typesPanel.setChoices(attrTypes);
-                typesPanel.setStyleSheet(FIELD_STYLE);
-                item.add(typesPanel);
+                intMappingTypes.setRequired(true);
+                intMappingTypes.setChoices(attrTypes);
+                intMappingTypes.setStyleSheet(FIELD_STYLE);
+                item.add(intMappingTypes);
 
-                final AjaxDropDownChoicePanel entitiesPanel = new AjaxDropDownChoicePanel("entities",
-                        new ResourceModel("entities", "entities").getObject(), new Model(entity));
+                final AjaxDropDownChoicePanel<AttributableType> entitiesPanel =
+                        new AjaxDropDownChoicePanel<AttributableType>("entities",
+                        new ResourceModel("entities", "entities").getObject(), new Model<AttributableType>(entity));
                 entitiesPanel.setChoices(attrType == AttributableType.ROLE
                         ? Collections.<AttributableType>singletonList(AttributableType.ROLE)
                         : Arrays.asList(AttributableType.values()));
@@ -355,54 +368,54 @@ public class ResourceMappingPanel extends Panel {
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
                         attrTypes.clear();
-                        attrTypes.addAll(getAttributeTypes((AttributableType) entitiesPanel.getModelObject()));
-                        typesPanel.setChoices(attrTypes);
+                        attrTypes.addAll(getAttributeTypes(entitiesPanel.getModelObject()));
+                        intMappingTypes.setChoices(attrTypes);
 
                         intAttrNames.setChoices(Collections.<String>emptyList());
 
-                        target.add(typesPanel.getField());
+                        target.add(intMappingTypes.getField());
                         target.add(intAttrNames.getField());
                     }
                 });
                 item.add(entitiesPanel);
 
-                final FieldPanel extAttrName = new AjaxTextFieldPanel("extAttrName", new ResourceModel("extAttrNames",
-                        "extAttrNames").getObject(), new PropertyModel<String>(mapItem, "extAttrName"));
-                ((AjaxTextFieldPanel) extAttrName).setChoices(schemaNames);
+                final FieldPanel extAttrNames = new AjaxTextFieldPanel("extAttrName",
+                        new ResourceModel("extAttrNames", "extAttrNames").getObject(),
+                        new PropertyModel<String>(mapItem, "extAttrName"));
+                ((AjaxTextFieldPanel) extAttrNames).setChoices(schemaNames);
 
                 boolean required = false;
-                if (mapItem != null) {
-                    boolean accountIdOrPassword = mapItem.isAccountid() || mapItem.isPassword();
-                    if (!accountIdOrPassword) {
-                        required = true;
-                    } else if (accountIdOrPassword && !schemaNames.isEmpty()) {
-                        ((AjaxTextFieldPanel) extAttrName).setModelObject(null);
-                    }
+                boolean accountIdOrPassword = mapItem.isAccountid() || mapItem.isPassword();
+                if (accountIdOrPassword) {
+                    ((AjaxTextFieldPanel) extAttrNames).setModelObject(null);
+                } else if (!schemaNames.isEmpty()) {
+                    required = true;
                 }
-                extAttrName.setRequired(required);
-                extAttrName.setEnabled(required);
-                extAttrName.setStyleSheet(FIELD_STYLE);
-                item.add(extAttrName);
+                extAttrNames.setRequired(required);
+                extAttrNames.setEnabled(required);
+                extAttrNames.setStyleSheet(FIELD_STYLE);
+                item.add(extAttrNames);
 
-                final AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel("mandatoryCondition", new ResourceModel(
-                        "mandatoryCondition", "mandatoryCondition").getObject(), new PropertyModel(mapItem,
-                        "mandatoryCondition"));
-                mandatory.setChoices(Arrays.asList(new String[]{"true", "false"}));
+                final AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel("mandatoryCondition",
+                        new ResourceModel("mandatoryCondition", "mandatoryCondition").getObject(),
+                        new PropertyModel<String>(mapItem, "mandatoryCondition"));
+                mandatory.setChoices(Arrays.asList(new String[] {"true", "false"}));
                 mandatory.setStyleSheet(SHORT_FIELD_STYLE);
                 item.add(mandatory);
 
-                final AjaxCheckBoxPanel accountId = new AjaxCheckBoxPanel("accountId", new ResourceModel("accountId",
-                        "accountId").getObject(), new PropertyModel(mapItem, "accountid"));
+                final AjaxCheckBoxPanel accountId = new AjaxCheckBoxPanel("accountId",
+                        new ResourceModel("accountId", "accountId").getObject(),
+                        new PropertyModel<Boolean>(mapItem, "accountid"));
                 accountId.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-                        extAttrName.setEnabled(!accountId.getModelObject() && !mapItem.isPassword());
-                        extAttrName.setModelObject(null);
-                        extAttrName.setRequired(!accountId.getModelObject());
-                        target.add(extAttrName);
+                        extAttrNames.setEnabled(!accountId.getModelObject() && !mapItem.isPassword());
+                        extAttrNames.setModelObject(null);
+                        extAttrNames.setRequired(!accountId.getModelObject());
+                        target.add(extAttrNames);
 
                         if (accountId.getModelObject()) {
                             mapItem.setMandatoryCondition("true");
@@ -417,19 +430,20 @@ public class ResourceMappingPanel extends Panel {
                 item.add(accountId);
 
                 final AjaxCheckBoxPanel password = new AjaxCheckBoxPanel("password",
-                        new ResourceModel("password", "password").getObject(), new PropertyModel(mapItem, "password"));
+                        new ResourceModel("password", "password").getObject(),
+                        new PropertyModel<Boolean>(mapItem, "password"));
                 password.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-                        extAttrName.setEnabled(!mapItem.isAccountid() && !password.getModelObject());
-                        extAttrName.setModelObject(null);
-                        extAttrName.setRequired(!password.getModelObject());
-                        target.add(extAttrName);
+                        extAttrNames.setEnabled(!mapItem.isAccountid() && !password.getModelObject());
+                        extAttrNames.setModelObject(null);
+                        extAttrNames.setRequired(!password.getModelObject());
+                        target.add(extAttrNames);
 
-                        setAccountId((IntMappingType) typesPanel.getModelObject(), accountId, password);
+                        setAccountId(intMappingTypes.getModelObject(), accountId, password);
                         target.add(accountId);
                     }
                 });
@@ -438,33 +452,35 @@ public class ResourceMappingPanel extends Panel {
                     password.setVisible(false);
                 }
 
-                final AjaxDropDownChoicePanel purpose = new AjaxDropDownChoicePanel<String>(
-                        "purpose",
+                final AjaxDropDownChoicePanel<MappingPurpose> purpose =
+                        new AjaxDropDownChoicePanel<MappingPurpose>("purpose",
                         new ResourceModel("purpose", "purpose").getObject(),
-                        new PropertyModel(mapItem, "purpose"),
+                        new PropertyModel<MappingPurpose>(mapItem, "purpose"),
                         false);
-                ((AjaxDropDownChoicePanel) purpose).setChoices(Arrays.asList(MappingPurpose.values()));
+                purpose.setChoices(Arrays.asList(MappingPurpose.values()));
                 purpose.setStyleSheet(FIELD_STYLE);
                 purpose.setRequired(true);
                 purpose.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
-
-                    @Override
-                    protected void onUpdate(AjaxRequestTarget art) {
-                    }
-                });
-
-                item.add(purpose);
-
-                typesPanel.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-                        setAttrNames((IntMappingType) typesPanel.getModelObject(), intAttrNames);
+                    }
+                });
+
+                item.add(purpose);
+
+                intMappingTypes.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+
+                    private static final long serialVersionUID = -1107858522700306810L;
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        setAttrNames(intMappingTypes.getModelObject(), intAttrNames);
                         target.add(intAttrNames);
 
-                        setAccountId((IntMappingType) typesPanel.getModelObject(), accountId, password);
+                        setAccountId(intMappingTypes.getModelObject(), accountId, password);
                         target.add(accountId);
                     }
                 });
@@ -535,20 +551,18 @@ public class ResourceMappingPanel extends Panel {
     }
 
     /**
-     * Set attribute names for a drop down chice list.
+     * Set attribute names for a drop down choice list.
      *
      * @param type attribute type.
      * @param toBeUpdated drop down choice to be updated.
      */
-    private void setAttrNames(final IntMappingType type, final AjaxDropDownChoicePanel toBeUpdated) {
-
+    private void setAttrNames(final IntMappingType type, final AjaxDropDownChoicePanel<String> toBeUpdated) {
         toBeUpdated.setRequired(true);
         toBeUpdated.setEnabled(true);
 
         if (type == null || type.getAttributableType() == null) {
-            toBeUpdated.setChoices(Collections.emptyList());
+            toBeUpdated.setChoices(Collections.<String>emptyList());
         } else {
-
             switch (type) {
                 // user attribute names
                 case UserSchema:
@@ -577,7 +591,7 @@ public class ResourceMappingPanel extends Panel {
                 default:
                     toBeUpdated.setRequired(false);
                     toBeUpdated.setEnabled(false);
-                    toBeUpdated.setChoices(Collections.emptyList());
+                    toBeUpdated.setChoices(Collections.<String>emptyList());
             }
         }
     }

@@ -149,7 +149,6 @@ public class ResourceModalPage extends BaseModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
                 target.add(feedbackPanel);
             }
         };

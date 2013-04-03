@@ -16,46 +16,48 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:extend>
-  <div style="margin:10px">
-    <p class="ui-widget ui-corner-all ui-widget-header">
-      <span wicket:id="new"/>&nbsp;<wicket:message key="title"/>&nbsp;<span wicket:id="name"/>
-    </p>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:extend>
+    <div style="margin:10px">
+      <p class="ui-widget ui-corner-all ui-widget-header">
+        <span wicket:id="new"/>&nbsp;<wicket:message key="title"/>&nbsp;<span wicket:id="name"/>
+      </p>
 
-    <form wicket:id="form">
-      <div id="tabs">
-        <ul>
-          <li class="tabs-selected"><a href="#resource"><span><wicket:message key="resource"/></span></a></li>
-          <li><a href="#umapping"><span><wicket:message key="umapping"/></span></a></li>
-          <li><a href="#rmapping"><span><wicket:message key="rmapping"/></span></a></li>
-          <li><a href="#connectorProperties"><span><wicket:message key="connectorProperties"/></span></a></li>
-          <li><a href="#security"><span><wicket:message key="security"/></span></a></li>
-        </ul>
-        <div id="resource">
-          <span wicket:id="details">[details]</span>
+      <form wicket:id="form">
+        <div id="tabs">
+          <ul>
+            <li class="tabs-selected"><a href="#resource"><span><wicket:message key="resource"/></span></a></li>
+            <li><a href="#umapping"><span><wicket:message key="umapping"/></span></a></li>
+            <li><a href="#rmapping"><span><wicket:message key="rmapping"/></span></a></li>
+            <li><a href="#connectorProperties"><span><wicket:message key="connectorProperties"/></span></a></li>
+            <li><a href="#security"><span><wicket:message key="security"/></span></a></li>
+          </ul>
+          <div id="resource">
+            <span wicket:id="details">[details]</span>
+          </div>
+          <div id="umapping">
+            <span wicket:id="umapping">[umapping]</span>
+          </div>
+          <div id="rmapping">
+            <span wicket:id="rmapping">[rmapping]</span>
+          </div>
+          <div id="connectorProperties">
+            <span wicket:id="connconf">[connconf]</span>
+          </div>
+          <div id="security">
+            <span wicket:id="security">[security]</span>
+          </div>
         </div>
-        <div id="umapping">
-          <span wicket:id="umapping">[umapping]</span>
-        </div>
-        <div id="rmapping">
-          <span wicket:id="rmapping">[rmapping]</span>
-        </div>
-        <div id="connectorProperties">
-          <span wicket:id="connconf">[connconf]</span>
-        </div>
-        <div id="security">
-          <span wicket:id="security">[security]</span>
-        </div>
-      </div>
 
-      <div style="margin: 20px 10px 0">
-        <input type="submit"
-               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-               wicket:id="apply"/>
-        <input type="button"
-               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-               wicket:id="cancel"/>
-      </div> 
-    </form>
-  </div>
-</wicket:extend>
+        <div style="margin: 20px 10px 0">
+          <input type="submit"
+                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                 wicket:id="apply"/>
+          <input type="button"
+                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                 wicket:id="cancel"/>
+        </div> 
+      </form>
+    </div>
+  </wicket:extend>
+</html>

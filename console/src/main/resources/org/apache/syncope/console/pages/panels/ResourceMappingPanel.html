@@ -16,106 +16,108 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:panel>
-  <div>
-    <table id="mappings"
-           class="ui-widget ui-widget-content ui-corner-all"
-           style="font-size: 1em;margin-top:2px;"
-           width="100%" cellpadding="2px" cellspacing="1px"
-           wicket:id="mappingContainer">
-      <thead>
-        <tr class="ui-widget-header">
-          <th><wicket:message key="delete"/></th>
-      <th><wicket:message key="entity"/></th>
-      <th><wicket:message key="intMappingTypes"/></th>
-      <th><wicket:message key="intAttrNames"/></th>
-      <th><wicket:message key="extAttrNames"/></th>
-      <th><wicket:message key="mandatoryCondition"/>
-      <a wicket:id="questionMarkJexlHelp" href="#" alt="Click to help" title="Click to help">?</a>
-      <div wicket:id="jexlHelp" class="help tooltip"
-           style="position: fixed; left: 640px; top: 115px; text-align: left; opacity: 0.9; font-size: 10px;">
-        <wicket:message key="jexl_info"/>
-        <ul>
-          <li><wicket:message key="jexl_ex1"/></li>
-          <li><wicket:message key="jexl_ex2"/></li>
-        </ul>
-        <a href="#" wicket:id="jexlLink" target="_blank"><wicket:message key="jexl_syntax_url"/></a>
-      </div>
-      </th>
-      <th><wicket:message key="accountId"/></th>
-      <th><label wicket:id="passwordLabel"/></th>
-      <th><wicket:message key="purpose"/></th>
-      </tr>
-      </thead>
-      <tfoot>
-        <tr>
-          <td colspan="7" style="padding: 5px">
-            <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                   wicket:id="addMappingBtn" />
-          </td>
-        </tr>
-      </tfoot>
-      <tbody>
-        <tr wicket:id="mappings" class="tablerow">
-          <td align="center" valign="middle">
-            <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
-          </td>
-          <td align="center" valign="middle">
-            <span wicket:id="entities">[entities]</span>
-          </td>
-          <td align="center" valign="middle">
-            <span wicket:id="intMappingTypes">[intMappingTypes]</span>
-          </td>
-          <td align="center" valign="middle">
-            <span wicket:id="intAttrNames">[intAttrNames]</span>
-          </td>
-          <td align="center" valign="middle">
-            <span wicket:id="extAttrName">[extAttrName]</span>
-          </td>
-          <td align="center" valign="middle">
-            <span wicket:id="mandatoryCondition">[mandatoryCondition]</span>
-          </td>
-          <td align="center" valign="middle">
-            <span wicket:id="accountId">[accountId]</span>
-          </td>
-          <td align="center" valign="middle">
-            <span wicket:id="password">[password]</span>
-          </td>
-          <td align="center" valign="middle">
-            <span wicket:id="purpose">[purpose]</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:panel>
+    <div>
+      <table id="mappings"
+             class="ui-widget ui-widget-content ui-corner-all"
+             style="font-size: 1em;margin-top:2px;"
+             width="100%" cellpadding="2px" cellspacing="1px"
+             wicket:id="mappingContainer">
+        <thead>
+          <tr class="ui-widget-header">
+            <th><wicket:message key="delete"/></th>
+            <th><wicket:message key="entity"/></th>
+            <th><wicket:message key="intMappingTypes"/></th>
+            <th><wicket:message key="intAttrNames"/></th>
+            <th><wicket:message key="extAttrNames"/></th>
+            <th><wicket:message key="mandatoryCondition"/>
+              <a wicket:id="questionMarkJexlHelp" href="#" alt="Click to help" title="Click to help">?</a>
+              <div wicket:id="jexlHelp" class="help tooltip"
+                   style="position: fixed; left: 640px; top: 115px; text-align: left; opacity: 0.9; font-size: 10px;">
+                <wicket:message key="jexl_info"/>
+                <ul>
+                  <li><wicket:message key="jexl_ex1"/></li>
+                  <li><wicket:message key="jexl_ex2"/></li>
+                </ul>
+                <a href="#" wicket:id="jexlLink" target="_blank"><wicket:message key="jexl_syntax_url"/></a>
+              </div>
+            </th>
+            <th><wicket:message key="accountId"/></th>
+            <th><label wicket:id="passwordLabel"/></th>
+            <th><wicket:message key="purpose"/></th>
+          </tr>
+        </thead>
+        <tfoot>
+          <tr>
+            <td colspan="7" style="padding: 5px">
+              <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                     wicket:id="addMappingBtn" />
+            </td>
+          </tr>
+        </tfoot>
+        <tbody>
+          <tr wicket:id="mappings" class="tablerow">
+            <td align="center" valign="middle">
+              <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
+            </td>
+            <td align="center" valign="middle">
+              <span wicket:id="entities">[entities]</span>
+            </td>
+            <td align="center" valign="middle">
+              <span wicket:id="intMappingTypes">[intMappingTypes]</span>
+            </td>
+            <td align="center" valign="middle">
+              <span wicket:id="intAttrNames">[intAttrNames]</span>
+            </td>
+            <td align="center" valign="middle">
+              <span wicket:id="extAttrName">[extAttrName]</span>
+            </td>
+            <td align="center" valign="middle">
+              <span wicket:id="mandatoryCondition">[mandatoryCondition]</span>
+            </td>
+            <td align="center" valign="middle">
+              <span wicket:id="accountId">[accountId]</span>
+            </td>
+            <td align="center" valign="middle">
+              <span wicket:id="password">[password]</span>
+            </td>
+            <td align="center" valign="middle">
+              <span wicket:id="purpose">[purpose]</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-    <script type="text/javascript">
-      $(function() {
-        $('table#mappings tbody tr.tablerow:even').addClass("alt");
-      });
-    </script>
+      <script type="text/javascript">
+        $(function() {
+          $('table#mappings tbody tr.tablerow:even').addClass("alt");
+        });
+      </script>
 
-    <table id="accountLinkTable"
-           class="ui-widget ui-widget-content ui-corner-all"
-           style="font-size: 1em;margin-top:2px;"
-           border-width="1px;" border-color="#cccccc;" border-style="solid;"
-           width="100%" cellpadding="2px" cellspacing="1px"
-           wicket:id="accountLinkContainer">
-      <thead>
-        <tr class="ui-widget-header">
-          <th width="10%" align="left"><wicket:message key="enable"/></th>
-      <th align="left"><wicket:message key="accountLink"/></th>
-      </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td width="10%" align="left" valign="middle">
-            <span wicket:id="accountLinkCheckbox">[accountLinkCheckbox]</span>
-          </td>
-          <td align="left" valign="middle">
-            <span wicket:id="accountLink">[accountLink]</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</wicket:panel>
+      <table id="accountLinkTable"
+             class="ui-widget ui-widget-content ui-corner-all"
+             style="font-size: 1em;margin-top:2px;"
+             border-width="1px;" border-color="#cccccc;" border-style="solid;"
+             width="100%" cellpadding="2px" cellspacing="1px"
+             wicket:id="accountLinkContainer">
+        <thead>
+          <tr class="ui-widget-header">
+            <th width="10%" align="left"><wicket:message key="enable"/></th>
+            <th align="left"><wicket:message key="accountLink"/></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td width="10%" align="left" valign="middle">
+              <span wicket:id="accountLinkCheckbox">[accountLinkCheckbox]</span>
+            </td>
+            <td align="left" valign="middle">
+              <span wicket:id="accountLink">[accountLink]</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </wicket:panel>
+</html>
