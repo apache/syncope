@@ -40,7 +40,7 @@ under the License.
     <property name="securityContextRepository" ref="securityContextRepository"/>
   </bean>
 
-  <security:http security-context-repository-ref="securityContextRepository">
+  <security:http security-context-repository-ref="securityContextRepository" realm="Apache Syncope authentication">
     <security:http-basic/>
     <security:intercept-url pattern="/**"/>
   </security:http>
