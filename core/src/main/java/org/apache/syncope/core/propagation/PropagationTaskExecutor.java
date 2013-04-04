@@ -23,6 +23,11 @@ import java.util.Collection;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 
+/**
+ * Execute propagation tasks.
+ *
+ * @see PropagationTask
+ */
 public interface PropagationTaskExecutor {
 
     /**
@@ -44,20 +49,18 @@ public interface PropagationTaskExecutor {
 
     /**
      * Execute a collection of PropagationTask objects.
+     * The process is interrupted as soon as the result of the communication with a primary resource is in error.
      *
      * @param tasks to be executed
-     * @throws PropagationException if propagation goes wrong: propagation is interrupted as soon as the result of the
-     * communication with a primary resource is in error
      */
-    void execute(Collection<PropagationTask> tasks) throws PropagationException;
+    void execute(Collection<PropagationTask> tasks);
 
     /**
      * Execute a collection of PropagationTask objects and invoke the given handler on each of these.
+     * The process is interrupted as soon as the result of the communication with a primary resource is in error.
      *
      * @param tasks to be execute, in given order
      * @param handler propagation handler
-     * @throws PropagationException if propagation goes wrong: propagation is interrupted as soon as the result of the
-     * communication with a primary resource is in error
      */
-    void execute(Collection<PropagationTask> tasks, PropagationHandler handler) throws PropagationException;
+    void execute(Collection<PropagationTask> tasks, PropagationHandler handler);
 }

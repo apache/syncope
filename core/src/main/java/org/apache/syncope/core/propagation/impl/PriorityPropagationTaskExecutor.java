@@ -34,11 +34,10 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
 
     /**
      * Sort the given collection by looking at related ExternalResource's priority, then execute.
+     * {@inheritDoc}
      */
     @Override
-    public void execute(final Collection<PropagationTask> tasks, final PropagationHandler handler)
-            throws PropagationException {
-
+    public void execute(final Collection<PropagationTask> tasks, final PropagationHandler handler) {
         final List<PropagationTask> prioritizedTasks = new ArrayList<PropagationTask>(tasks);
         Collections.sort(prioritizedTasks, new PriorityComparator());
 
@@ -64,6 +63,12 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         }
     }
 
+    /**
+     * Compare propagation tasks according to related ExternalResource's priority.
+     *
+     * @see PropagationTask
+     * @see org.apache.syncope.core.persistence.beans.ExternalResource#propagationPriority
+     */
     protected static class PriorityComparator implements Comparator<PropagationTask>, Serializable {
 
         private static final long serialVersionUID = -1969355670784448878L;
@@ -78,10 +83,10 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                     : task2.getResource().getPropagationPriority().intValue();
 
             return prop1 > prop2
-                    ? -1
+                    ? 1
                     : prop1 == prop2
                     ? 0
-                    : 1;
+                    : -1;
         }
     }
 }
