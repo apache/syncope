@@ -1200,8 +1200,8 @@ under the License.
             <phase>process-resources</phase>
             <configuration>
               <target name="copy-javadoc-files" description="Copy NOTICE/LICENSE files for javadoc jars">
-                <mkdir dir="target/apidocs/META-INF" />
-                <copy todir="target/apidocs/META-INF">
+                <mkdir dir="${project.build.directory}/apidocs/META-INF" />
+                <copy todir="${project.build.directory}/apidocs/META-INF">
                   <fileset dir="..">
                     <include name="NOTICE" />
                     <include name="LICENSE" />
@@ -1276,13 +1276,14 @@ under the License.
       <build>
         <defaultGoal>clean site-deploy</defaultGoal>
         
-        <plugins>
+        <plugins>          
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
             <version>3.2</version>
             <configuration>
               <locales>en</locales>
+              <generateProjectInfo>false</generateProjectInfo>
               <reportPlugins>
                 <plugin>
                   <groupId>org.apache.maven.plugins</groupId>
@@ -1291,35 +1292,38 @@ under the License.
                   <configuration>
                     <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
                     <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-                    <anonymousConnection>scm:svn:http://svn.apache.org/repos/asf/incubator/syncope/trunk</anonymousConnection>
-                    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/syncope/trunk</developerConnection>
-                    <webAccessUrl>http://svn.apache.org/viewvc/incubator/syncope/trunk</webAccessUrl>
                   </configuration>
-                  <reportSets>
-                    <reportSet>
-                      <reports>
-                        <report>index</report>
-                        <report>mailing-list</report>
-                        <report>project-team</report>
-                        <report>scm</report>
-                        <report>cim</report>
-                        <report>issue-tracking</report>
-                        <report>license</report>
-                      </reports>
-                    </reportSet>
-                  </reportSets>
+                  <reports>
+                    <report>index</report>
+                    <report>mailing-list</report>
+                    <report>project-team</report>
+                    <report>scm</report>
+                    <report>cim</report>
+                    <report>issue-tracking</report>
+                    <report>license</report>
+                  </reports>
                 </plugin>
                 <plugin>
                   <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-javadoc-plugin</artifactId>
                   <version>2.9</version>
-                  <reportSets>
-                    <reportSet>
-                      <reports>
-                        <report>aggregate</report>
-                      </reports>
-                    </reportSet>
-                  </reportSets>
+                  <configuration>
+                    <destDir>apidocs/1.1</destDir>
+                    <detectLinks>true</detectLinks>
+                    <detectJavaApiLink>true</detectJavaApiLink>
+                    <links>
+                      <link>http://docs.oracle.com/javaee/6/api/</link>
+                      <link>http://www.slf4j.org/api/</link>
+                      <link>http://tirasa.github.com/ConnId/apidocs/base/</link>
+                      <link>http://ci.apache.org/projects/wicket/apidocs/6.0.x/</link>
+                      <link>http://static.springsource.org/spring/docs/3.2.x/javadoc-api/</link>
+                      <link>http://static.springsource.org/spring-security/site/docs/3.1.x/apidocs/</link>
+                      <link>http://activiti.org/javadocs/</link>
+                    </links>
+                  </configuration>
+                  <reports>
+                    <report>aggregate</report>
+                  </reports>
                 </plugin>
               </reportPlugins>
             </configuration>

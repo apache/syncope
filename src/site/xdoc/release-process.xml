@@ -116,7 +116,7 @@ under the License.
         importance to go through these at least once for every major release.
         </p>
         <p>
-          All verifications takes place in the <tt>core</tt> submodule.
+          All verifications take place in the <tt>core</tt> submodule.
         <ol>
           <li>DBMS
             <ul>
@@ -188,52 +188,33 @@ pass <tt>-Dweblogic.home=...</tt> to Maven
       
       <subsection name="Prepare the source for release">
         <ol>
-          <li>Clean up JIRA so the             
-            <b>Fix Version</b> in issues resolved since the last
-            release includes this release version correctly.  Also, transition any
-            <b>Resolved</b> issues to the 
-            <b>Closed</b> state.
+          <li>Clean up JIRA so the <b>Fix Version</b> in issues resolved since the last
+            release includes this release version correctly. Also, transition any
+            <b>Resolved</b> issues to the <b>Closed</b> state.
           </li>
           <li>
-            Update the <tt>CHANGES</tt> file in a working copy of the project root based on the Text release reports
-            from JIRA.
-          </li>
-          <li>
-            Update the <a href="downloads.html">downloads</a> site page by adding the new release artifacts with base 
-            URL <source>http://www.apache.org/dyn/closer.cgi/syncope/&lt;version&gt;/</source>,
-            moving current release artifacts to 'Older Releases' section and changing base URL to 
-            <source>http://archive.apache.org/dist/syncope/</source>
+            Update the <tt>CHANGES</tt> file, in a SVN working copy <u>of the branch under release</u> (currently 1_0_X
+            or 1_1_X), based on the text release reports from JIRA.
           </li>
           <li>
             Commit any changes back to SVN:
-            <source>svn commit -m "updating files for release"</source>
+            <source>svn commit -m "Updating CHANGES for release"</source>
           </li>
           <li>
-            Perform a full build and deploy the SNAPSHOT artifacts:
-            <source>mvn clean deploy</source>
-          </li>
-        </ol>
-      </subsection>
-      
-      <subsection name="Get source tree">
-        <ol>
-          <li>
-            <strong>
-              <em>Only for new major releases (like 1.0.0 to 1.1.0):</em>
-            </strong>
-            <br/>
-            Create a sub-branch from which to make the release.
-            <br/>
-            Releasing from a branch will allow any cosmetic changes that need to be made for the release to be 
-            approved to be done without preventing other more disruptive advances in the trunk from potentially 
-            causing problems with the release. It also provides a future maintenance branch (like 1.0.x.)
-            <br/>
-            A branch can be made by running:
-            <source>mvn -P apache-release release:branch -DbranchName=1_0_X</source>
+            Update the <a href="https://svn.apache.org/repos/asf/syncope/branches/1_1_X/src/site/xdoc/downloads.xml">downloads</a>
+            site page from a SVN working copy <u>of the branch used for managing the web site</u> (currenly 1_1_X):
+            <ul>
+              <li>add new release artifacts with base URL
+                <source>http://www.apache.org/dyn/closer.cgi/syncope/&lt;version&gt;/</source>
+              </li>
+              <li>move current release artifacts to 'Older Releases' section and change base URL to 
+                <source>http://archive.apache.org/dist/syncope/</source>
+              </li>
+            </ul>
           </li>
           <li>
-            Checkout a clean copy of the trunk/branch to release using command line SVN:
-            <source>svn checkout https://svn.apache.org/repos/asf/syncope/trunk/ release</source>
+            Commit any changes back to SVN:
+            <source>svn commit -m "Updating downloads site page for release"</source>
           </li>
         </ol>
       </subsection>
@@ -241,8 +222,7 @@ pass <tt>-Dweblogic.home=...</tt> to Maven
       <subsection name="Prepare the release">
         <ol>
           <li>
-            Do a dry run of the 
-            <tt>release:prepare</tt> step.
+            Do a dry run of the <tt>release:prepare</tt> step.
             <source>mvn -P apache-release release:prepare -DdryRun=true</source>
 
             The dry run will not commit any changes back to SVN and gives you the opportunity to verify that the 
@@ -258,24 +238,19 @@ pass <tt>-Dweblogic.home=...</tt> to Maven
           <li>
             Verify that the release process completed as expected:
             <ol>
-              <li>The release plugin will create 
-                <code>pom.xml.tag</code> files which contain the
-                changes that would have been committed to SVN. The only differences between
-                <code>pom.xml.tag</code> and its corresponding 
-                <code>pom.xml</code> file should be the version
-                number.
+              <li>The release plugin will create <code>pom.xml.tag</code> files which contain the changes that would 
+                have been committed to SVN. The only differences between <code>pom.xml.tag</code> and its corresponding 
+                <code>pom.xml</code> file should be the version number.
               </li>
               <li>
                 If other formatting changes have been made you should review the changes and then commit them:
-                <source>svn commit -m "fixing formatting for release"</source>
+                <source>svn commit -m "Fixing formatting for release"</source>
               </li>
               <li>
-                Assuming the 
-                <code>.tag</code> files look OK you may proceed and do any other validation you feel necessary.
-                The following list may be helpful:
+                Assuming the <code>.tag</code> files look OK you may proceed and do any other validation you feel 
+                necessary. The following list may be helpful:
                 <ol>
-                  <li>Check 
-                    <tt>release.properties</tt> and make sure that the scm properties have the
+                  <li>Check <tt>release.properties</tt> and make sure that the scm properties have the
                     right version. Sometimes the scm location can be the previous version not the next version.
                   </li>
                   <li>
@@ -297,9 +272,8 @@ gpg: Signature made ...</source>
             </ol>
           </li>
           <li>
-            Run the 
-            <tt>release:prepare</tt> step for real this time. You'll be prompted for the same version information and 
-            optionally your GPG passphrase again.
+            Run the <tt>release:prepare</tt> step for real this time. You'll be prompted for the same version 
+            information and optionally your GPG passphrase again.
             <source>mvn -P apache-release release:prepare</source>
           </li>
           <li>
@@ -315,20 +289,40 @@ cd &lt;version&gt;</source>
       <subsection name="Perform the release">
         <ol>
           <li>
-            This step will create the staging site
-            <source>svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
+            <b>Staging site</b>
+            <ul>
+              <li>1_1_X
+<source>svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
 svn checkout https://svn.apache.org/repos/asf/syncope/tags/syncope-&lt;version&gt; syncope-&lt;version&gt;
 cd syncope-&lt;version&gt;
 mvn clean install
 mvn -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
 cd ../site/&lt;version&gt;
-rm -r syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools
+rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools project-reports.html apidocs/1.html
 cd ..
 svn add &lt;version&gt;
-svn commit -m "staging site for release"</source>
+svn copy apidocs/1.0 &lt;version&gt;/apidocs/
+svn commit -m "Staging site for release"</source>
+              </li>
+              <li>1_0_X
+<source>svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
+svn checkout https://svn.apache.org/repos/asf/syncope/tags/syncope-&lt;version&gt; syncope-&lt;version&gt;
+cd syncope-&lt;version&gt;
+mvn clean install
+mvn -f parent/pom.xml -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
+cd ../site/&lt;version&gt;
+rm -rf images css syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-hibernate-enhancer syncope-quality project-reports.html apidocs/1.html
+cd ..
+svn add &lt;version&gt;
+svn copy *.html css images img js &lt;version&gt;
+svn copy apidocs/1.1 &lt;version&gt;/apidocs/
+svn commit -m "Staging site for release"</source>
+              </li>
+            </ul>
           </li>
           <li>
-            From the directory where you have launched <tt>release:prepare</tt> execute (this step will create a maven staging repository):
+            From the directory where you have launched <tt>release:prepare</tt> execute (this step will create a maven 
+            staging repository):
             <source>mvn -P apache-release release:perform [-Duser.name=&lt;your_apache_uid&gt;]</source>
         
             <p>
@@ -360,7 +354,9 @@ svn commit -m "staging site for release"</source>
                     files (see 
                     <a href="http://people.apache.org/~henkp/repo/faq.html">Repository FAQ</a> and 
                     <a href="http://www.apache.org/dev/release-signing.html#openpgp-ascii-detach-sig">Detached Signatures</a>).
-                    The <code>syncope-&lt;version&gt;-source-release.zip</code>
+                    <br/>
+                    The <code>syncope-&lt;version&gt;-source-release.zip</code> (for 1_1_X) or
+                    <code>syncope-root-&lt;version&gt;-source-release.zip</code> (for 1_0_X)
                     should likewise have signature and checksum files.
                   </li>
                 </ol>
@@ -531,7 +527,7 @@ svn commit -m "Promoting the voted release artifacts and cleaning up older relea
             <source>
 svn co https://svn.apache.org/repos/asf/syncope/site/
 cd site
-svn rm *.html apidocs css images js
+svn rm *.html apidocs css images img js
 svn mv &lt;version&gt;/* .
 svn rm &lt;version&gt;
 svn commit -m "Promoting the staging site"</source>
@@ -574,12 +570,12 @@ svn commit -m "Promoting the staging site"</source>
           <p>Delete the svn tag created by the 
             <code>release:perform</code> step:
           </p>
-          <source>svn rm https://svn.apache.org/repos/asf/syncope/tags/&lt;version&gt; -m "deleting tag from rolled back release"</source>
+          <source>svn remove https://svn.apache.org/repos/asf/syncope/tags/&lt;version&gt; -m "Deleting tag from rolled back release"</source>
         </li>
         <li>
           <p>Delete the staging site:
           </p>
-          <source>svn rm https://svn.apache.org/repos/asf/syncope/site/&lt;version&gt; -m "deleting staging site from rolled back release"</source>
+          <source>svn remove https://svn.apache.org/repos/asf/syncope/site/&lt;version&gt; -m "Deleting staging site from rolled back release"</source>
         </li>
         <li>
           <p>Drop the nexus staging repo:</p>

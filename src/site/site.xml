@@ -25,8 +25,8 @@ under the License.
          name="Apache Syncope">
 
   <publishDate position="right"/>
-  <version position="right"/>
-
+  <version position="none"/>
+ 
   <skin>
     <groupId>org.apache.maven.skins</groupId>
     <artifactId>maven-fluido-skin</artifactId>
@@ -36,9 +36,6 @@ under the License.
     <fluidoSkin>
       <topBarEnabled>true</topBarEnabled>
       <sideBarEnabled>false</sideBarEnabled>
-      <googleSearch>
-        <sitesearch>${project.url}</sitesearch>
-      </googleSearch>
       <twitter>
         <user>syncopeidm</user>
         <showUser>true</showUser>
@@ -48,6 +45,8 @@ under the License.
         <projectId>syncope</projectId>
         <widget>thin-badge</widget>
       </ohloh>
+      <facebookLike/>
+      <googlePlusOne/>
     </fluidoSkin>
   </custom>
   
@@ -61,7 +60,10 @@ under the License.
       <item name="Features" href="features.html"/>
       <item name="Architecture" href="architecture.html"/>
       <item name="Downloads" href="downloads.html"/>
-      <item name="Javadoc" href="apidocs/index.html"/>
+      <item name="API Docs" href="apidocs/1.1/index.html">
+        <item name="Javadocs 1.1" href="apidocs/1.1/index.html"/>
+        <item name="Javadocs 1.0" href="apidocs/1.0/index.html"/>
+      </item>
       <item name="License" href="license.html"/>
       <item name="Professional Services" href="professional-services.html"/>
     </menu>
