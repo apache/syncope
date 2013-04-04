@@ -106,7 +106,7 @@ public class SyncJob extends AbstractTaskJob {
      * @param dryRun dry run?
      * @return report as string
      */
-    private String createReport(final List<SyncResult> syncResults, final TraceLevel syncTraceLevel,
+    protected String createReport(final List<SyncResult> syncResults, final TraceLevel syncTraceLevel,
             final boolean dryRun) {
 
         if (syncTraceLevel == TraceLevel.NONE) {
@@ -452,6 +452,6 @@ public class SyncJob extends AbstractTaskJob {
         // True if either failed and failures have to be registered, or if ALL has to be registered.
         return (Status.valueOf(execution.getStatus()) == Status.FAILURE
                 && syncTask.getResource().getSyncTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
-                || syncTask.getResource().getSyncTraceLevel() == TraceLevel.ALL;
+                || syncTask.getResource().getSyncTraceLevel().ordinal() >= TraceLevel.SUMMARY.ordinal();
     }
 }
