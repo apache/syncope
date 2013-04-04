@@ -16,7 +16,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
 <document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
@@ -42,14 +41,20 @@ under the License.
         information.
       </p>
       <p>Use the links below to download a source distribution of Apache Syncope.
-        It is good practice to 
-        <a href="#Verifying_Releases">verify the integrity</a> of the distribution files.
+        It is good practice to <a href="#Verifying_Releases">verify the integrity</a> of the distribution files.
       </p>
-      <div style="border: 1px solid black; border-radius: 15px;padding:5px;background-color:#F5F5F5;text-align:center;margin-top:5px;margin-bottom:10px;">
-        <strong>Note</strong> that the preferred way to create an Apache Syncope project is to 
-        <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Create+a+new+Syncope+project">generate a Maven 
-          project
-        </a> starting from published archetype.
+      <div style="border: 1px solid black; border-radius: 15px;padding:5px;background-color:#F5F5F5;margin-top:5px;margin-bottom:10px;">
+        <div style="margin-left:20px;">
+          <p>
+            <b>Note</b> that the preferred way to work with Apache Syncope is to 
+            <a class="externalLink" href="https://cwiki.apache.org/confluence/display/SYNCOPE/Create+a+new+Syncope+project">generate a Maven project</a>
+        starting from published archetype.
+          </p>
+          <p>
+            If evaluating Apache Syncope, the simplest way is via the 
+            <a class="externalLink" href="https://cwiki.apache.org/confluence/display/SYNCOPE/Run+Syncope+standalone+distribution">standalone distribution</a>.
+          </p>
+        </div>
       </div>
     </section>
 
