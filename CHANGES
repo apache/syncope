@@ -2,6 +2,189 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.1.0
+================================================================================
+** Sub-task
+    * [SYNCOPE-26] - Membership propagation / synchronization
+    * [SYNCOPE-172] - Role propagation / synchronization
+    * [SYNCOPE-173] - Role workflow
+    * [SYNCOPE-227] - Role virtual attributes
+    * [SYNCOPE-251] - Fix Dependency issues with ConnID Bundle deployment 
+    * [SYNCOPE-252] - Update LICENSE / NOTICE files for any added or removed Maven dependency
+    * [SYNCOPE-256] - Update Rest exception mapper to Apache CXF
+    * [SYNCOPE-282] - Implement JAX-RS exception mapper for server side
+    * [SYNCOPE-287] - Information for release notes
+    * [SYNCOPE-288] - Make setters of Transfer Objects (TO) compatible to CXF and JAXB
+    * [SYNCOPE-289] - Prepare CXF Rest integration tests migration
+    * [SYNCOPE-335] - Use correct wrapper names for returning lists
+
+** Bug
+    * [SYNCOPE-182] - LICENSE & NOTICE: duplicated entries
+    * [SYNCOPE-183] - 'Enforce mandatory constraints' not working
+    * [SYNCOPE-185] - Could not delete an user with LDAP resource
+    * [SYNCOPE-187] - When deleting an user, REST error doesn't bring error message to display
+    * [SYNCOPE-191] - UI Error when sorting Synchronization Task executions
+    * [SYNCOPE-192] - With trace level NONE notification tasks don't get updated
+    * [SYNCOPE-193] - LDAP test connector status management does not work with synchronization
+    * [SYNCOPE-194] - User attributes not sychronized properly from LDAP resource
+    * [SYNCOPE-196] - Change Display Attributes button misaligned
+    * [SYNCOPE-197] - TaskModalPage Refresh button misaligned
+    * [SYNCOPE-202] - MySQL and Oracle integration test hangs
+    * [SYNCOPE-208] - Resources: schema mapping form shows incorrect external field names for SyncopeUserId and Password
+    * [SYNCOPE-211] - Test org.apache.syncope.core.persistence.relationships.derAttrFromSpecialAttrs not enabled
+    * [SYNCOPE-214] - Error when trying to change readonly attribute
+    * [SYNCOPE-217] - SyncopeUser.hasTokenExpired() can easily cause nullpointer exception
+    * [SYNCOPE-220] - When running in embedded mode, CSVDir configuration shows unresolved ${urlencoded.csvdir.path} property
+    * [SYNCOPE-224] - ActivitiWorkflowLoader called by SpringContextInitializer even when ActivitiUserWorkflowAdapter is not selected
+    * [SYNCOPE-226] - Invalid passwords might fill up user's password history
+    * [SYNCOPE-228] - When updating a role, assigned entitlements get lost
+    * [SYNCOPE-230] - Sync user attributes using a long schema attribute as accountId
+    * [SYNCOPE-232] - "Connection is read-only" during initialization
+    * [SYNCOPE-233] - Authentication failure using password with special characters
+    * [SYNCOPE-234] - Failures upgrading OpenJPA
+    * [SYNCOPE-235] - CSVDir connector fails during check connection
+    * [SYNCOPE-236] - Username and password not evaluated from user template during synchronization
+    * [SYNCOPE-237] - Users with no entitlements cannot edit their own profile via console
+    * [SYNCOPE-238] - With an high number of users, the admin console's 'TODO' tab is extremely slow
+    * [SYNCOPE-260] - Update propagation with null virtual attribute values
+    * [SYNCOPE-261] - Role visualization error
+    * [SYNCOPE-262] - Create sync policy fail
+    * [SYNCOPE-267] - Possible NullPointerException into SchemaMappingUtil.getAccountIdValue()
+    * [SYNCOPE-269] - AES encryption key defined in source code
+    * [SYNCOPE-273] - Role deletion inhibits notification update
+    * [SYNCOPE-274] - Sync: during update with user template existing memberships break update
+    * [SYNCOPE-284] - Broken export
+    * [SYNCOPE-292] - NPE when accessing Configuration page with no global sync policy
+    * [SYNCOPE-294] - User data not refreshed before edit
+    * [SYNCOPE-297] - External Attributes are showing up for AccoundId/Password in Resource User Mappings
+    * [SYNCOPE-301] - Status is not updated when synchronizing existing users
+    * [SYNCOPE-302] - Error when accessing the Resources page as non-admin
+    * [SYNCOPE-305] - Can't create Sync or Sched Task in Console
+    * [SYNCOPE-306] - 'Mandatory' error in Console when propagating Virtual Attributes
+    * [SYNCOPE-307] - Virtual Attributes don't propagated in case of update during synchronization
+    * [SYNCOPE-308] - When trying to update an user in status 'rejected', an error 500 is returned
+    * [SYNCOPE-309] - Enter key not bound to user form submit
+    * [SYNCOPE-310] - Palette elements get translated
+    * [SYNCOPE-312] - Introducing UserWorkflowService
+    * [SYNCOPE-314] - User list sort based on username fails 
+    * [SYNCOPE-315] - "Persistent" feedback messages
+    * [SYNCOPE-316] - Exception when creating connector instances with no bundles available
+    * [SYNCOPE-317] - Error executing SyncTask twice or more
+    * [SYNCOPE-318] - No way to see Connector help message for multi-valued property
+    * [SYNCOPE-320] - Support synchronizing role memberships from LDAP groupOfNames
+    * [SYNCOPE-321] - Wicket error adding new derived/virtual attribute
+    * [SYNCOPE-322] - Can't create a new Role in Chromium
+    * [SYNCOPE-323] - REST: create turns into update for some entities
+    * [SYNCOPE-325] - Stacktrace when accessing the Configuration page on JBoss
+    * [SYNCOPE-327] - Error messages during Tomcat shutdown
+    * [SYNCOPE-328] - NPE with no global password policy defined
+    * [SYNCOPE-329] - Wrong CSS deleting execution task
+    * [SYNCOPE-330] - noopworkflow profile not succeeding
+    * [SYNCOPE-332] - User List sorting via Derived attributes column doesn't work
+    * [SYNCOPE-334] - Can't delete a role from a user in the console
+    * [SYNCOPE-336] - Use a auto-complete textfield to chose for external attribute to be mapped during schema mapping creation
+    * [SYNCOPE-338] - Some CXF REST services can be accessed by anonymous
+    * [SYNCOPE-339] - enum schema multivalue doesn't work
+    * [SYNCOPE-341] - When deleting user schema, user list attributes head don't get updated
+    * [SYNCOPE-342] - Console might fail to connect when core is deployed on virtual host
+    * [SYNCOPE-343] - REST methods returning implementation classes might fail when there are no available
+    * [SYNCOPE-344] - Error in the console when you try to assign to an user a resource without CREATE or UPDATE capabilities
+    * [SYNCOPE-347] - User schema mapping error for Username
+
+** Improvement
+    * [SYNCOPE-14] - Solve some warnings and verify if generated projects still work
+    * [SYNCOPE-44] - Add ability to search for Roles via the REST API
+    * [SYNCOPE-51] - Remove MD5 as a supported password cipher algorithm
+    * [SYNCOPE-67] - Display all Execute Tasks (Propagation, Notification and Scheduled) and related Execution history items sortered in descending order
+    * [SYNCOPE-79] - Simplify Maven project structure
+    * [SYNCOPE-93] - Upgrade Quartz to latest 2.X stable version
+    * [SYNCOPE-100] - Add more password encryption options
+    * [SYNCOPE-124] - Prevent task execution request for running tasks
+    * [SYNCOPE-130] - Avoid propagating useless update operations
+    * [SYNCOPE-134] - User, role and membership properties for derived schemas
+    * [SYNCOPE-136] - Password required for resource subscription
+    * [SYNCOPE-137] - Support more than one local connector bundles directory and zero or more ConnId's connector servers
+    * [SYNCOPE-144] - Provide Task entities with a name and an optional description
+    * [SYNCOPE-146] - Provide asynchronous refresh of tasks and reports list
+    * [SYNCOPE-147] - Provide refresh button in task and report modal windows
+    * [SYNCOPE-148] - Provide cancel button for all modal windows
+    * [SYNCOPE-154] - Virtual attribute cache
+    * [SYNCOPE-184] - LDAP test connector should provide status information
+    * [SYNCOPE-195] - Make default sorting order consistent
+    * [SYNCOPE-198] - Add checkboxes to tables headers and rows
+    * [SYNCOPE-199] - Refocus on user deletion page
+    * [SYNCOPE-200] - Improve rat-plugin configuration
+    * [SYNCOPE-201] - AbstractSchema enumerationValues and enumerationKeys too short
+    * [SYNCOPE-203] - Add OSGi support
+    * [SYNCOPE-206] - Create standalone distribution
+    * [SYNCOPE-207] - Clear test configuration in order to avoid AccountId/Password mapping explicitely valued
+    * [SYNCOPE-209] - DB Table connector does not see changes in underlying table until restart
+    * [SYNCOPE-210] - Provide suggestions / help / examples for JEXL-based input fields
+    * [SYNCOPE-212] - Provide Validation Error message to user
+    * [SYNCOPE-215] - ReadOnly option for virtual attributes
+    * [SYNCOPE-216] - NotificationJob is hardcoded to run every 2 minutes
+    * [SYNCOPE-218] - User Workflow visualization
+    * [SYNCOPE-221] - Let user explicitly choose to give value for AccountLink (when defining resource schema mapping)
+    * [SYNCOPE-222] - Check for mandatory condition on Virtual / Derived attributes
+    * [SYNCOPE-225] - Role owner
+    * [SYNCOPE-229] - Allow to change the bundle version associated to an existing connector instance
+    * [SYNCOPE-231] - Using Standard JAX-RS API in Syncope (Introducing Apache CXF WS Stack)
+    * [SYNCOPE-241] - Move persistence and persistence impl into separate modules
+    * [SYNCOPE-242] - Resolve dependency cycles between persistence and the rest of syncope core
+    * [SYNCOPE-243] - Extended org.apache.rat exclude list for eclipse IDE
+    * [SYNCOPE-244] - Make external property file usage possible
+    * [SYNCOPE-245] - Improve UserTestITCase, RoleTestITCase and TaskTestITCase
+    * [SYNCOPE-248] - Consolidate task execution in TaskTestITCase
+    * [SYNCOPE-249] - Implement RoleOwnerSchema for role propagation and synchronization
+    * [SYNCOPE-250] - Improve error handling in NotificationTest
+    * [SYNCOPE-253] - Upgrade Activiti to 5.11
+    * [SYNCOPE-254] - Provide build profile for skipping any test-related activity
+    * [SYNCOPE-255] - Hide Global Password/Account/Sync policy in security resource selections
+    * [SYNCOPE-257] - Schema Mapping for propagation and synchronization
+    * [SYNCOPE-258] - Java class as sync policy correlation rule
+    * [SYNCOPE-259] - Create transitional Service interfaces and switch tests and console to use them
+    * [SYNCOPE-263] - Inject Recipient and Event variable in Velocity Email Notification Template
+    * [SYNCOPE-264] - Email Notification Templates Documentation
+    * [SYNCOPE-266] - Password should be provided again at resource subscription time if a "Password" schema mapping for that resource exists
+    * [SYNCOPE-268] - Enable Rest IntegrationTests to run more than once (per build)
+    * [SYNCOPE-275] - Upgrade Spring to 3.2.1
+    * [SYNCOPE-277] - Improve archetype resource population from core and console
+    * [SYNCOPE-279] - Connector instance timeout
+    * [SYNCOPE-280] - Update some checked exceptions to runtime ones
+    * [SYNCOPE-281] - Refactor client module: Move common classes into common module
+    * [SYNCOPE-283] - website edits
+    * [SYNCOPE-291] - Move NotFoundException to core.persistence.dao
+    * [SYNCOPE-293] - Show information (version, license, ...)
+    * [SYNCOPE-295] - If AccountId is selected when creating a Resource Mapping, then make it mandatory
+    * [SYNCOPE-296] - Align search botton
+    * [SYNCOPE-299] - Add "row to display" selector in resources
+    * [SYNCOPE-311] - View user details during approval
+    * [SYNCOPE-319] - Provide feature for reloading all connectors
+    * [SYNCOPE-324] - Return User instead of Boolean from REST username + password query
+    * [SYNCOPE-331] - Provide access to user / role data on external resources
+    * [SYNCOPE-348] - Email address validator regexp
+
+** New Feature
+    * [SYNCOPE-121] - Policy-compliant random password generation
+    * [SYNCOPE-122] - Password change on an external resource only
+    * [SYNCOPE-138] - Scripted SQL connector bundle
+    * [SYNCOPE-171] - Role provisioning
+
+** Task
+    * [SYNCOPE-125] - Derived and Virtual attribute use cases
+    * [SYNCOPE-127] - Workflow: concepts, how to customize and how to trace
+    * [SYNCOPE-128] - Self-registration
+    * [SYNCOPE-186] - Build reference flows for propagation and synchronization
+    * [SYNCOPE-188] - Upgrade to Apache Wicket 1.5.8
+    * [SYNCOPE-189] - Close Modal Window on keypress (ESC)
+    * [SYNCOPE-190] - Automatic page refresher for task and report
+    * [SYNCOPE-205] - Upgrade to latest Apache Wicket 6.X.Y
+    * [SYNCOPE-265] - Ensure that Syncope test data is consistent
+    * [SYNCOPE-276] - Upgrade instructions from 1.0.X to 1.1.0
+    * [SYNCOPE-278] - Verify export / import
+    * [SYNCOPE-326] - Check console style (CSS) on Internet Explorer
+    * [SYNCOPE-350] - Provide Getting started / Standalone distribution
+
 Release Notes - Syncope - Version 1.0.7
 ================================================================================
 ** Bug
