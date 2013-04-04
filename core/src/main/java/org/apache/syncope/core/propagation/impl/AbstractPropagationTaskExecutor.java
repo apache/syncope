@@ -40,7 +40,6 @@ import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.propagation.DefaultPropagationActions;
 import org.apache.syncope.core.propagation.PropagationActions;
-import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationHandler;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.Connector;
@@ -377,14 +376,12 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     @Override
-    public void execute(final Collection<PropagationTask> tasks)
-            throws PropagationException {
+    public void execute(final Collection<PropagationTask> tasks) {
         execute(tasks, null);
     }
 
     @Override
-    public abstract void execute(Collection<PropagationTask> tasks, PropagationHandler handler)
-            throws PropagationException;
+    public abstract void execute(Collection<PropagationTask> tasks, PropagationHandler handler);
 
     /**
      * Check whether an execution has to be stored, for a given task.
