@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.apache.syncope</groupId>
+    <artifactId>syncope</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+  </parent>
+
+  <name>Apache Syncope Standalone Distribution</name>
+  <description>Apache Syncope Standalone Distribution</description>
+  <groupId>org.apache.syncope</groupId>
+  <artifactId>syncope-standalone</artifactId>
+  <packaging>jar</packaging>
+  
+  <distributionManagement>
+    <site>
+      <id>syncope.website</id>
+      <name>Apache Syncope website</name>
+      <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
+    </site>
+  </distributionManagement>
+  
+  <properties>
+    <connid.location>connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}</connid.location>
+    <log.directory>./logs</log.directory>
+    
+    <work.dir>${project.build.directory}/standalone</work.dir>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.connid.bundles.soap</groupId>
+      <artifactId>wssample</artifactId>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope</groupId>
+      <artifactId>syncope-build-tools</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope</groupId>
+      <artifactId>syncope-core</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope</groupId>
+      <artifactId>syncope-console</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+    </dependency>
+  </dependencies>
+
+  <build>
+    
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>prepare-standalone</id>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>verify</phase>
+            <configuration>
+              <target>
+                <mkdir dir="${work.dir}" />
+                
+                <!-- legal stuff -->
+                <copy file="${project.build.outputDirectory}/README" todir="${work.dir}" />
+                <copy file="../legal_ext/LICENSE" todir="${work.dir}" />
+                <copy file="../legal_ext/NOTICE" todir="${work.dir}" />
+
+                <!-- Syncope core (as run for integration tests) -->
+                <unzip src="${settings.localRepository}/org/codehaus/cargo/cargo-container-archives/apache-tomcat-${tomcat.version}.zip" dest="${work.dir}" />
+                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope">
+                  <fileset dir="../core/target/syncope-core-test" includes="**/*" />
+                </copy>
+                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/classes" overwrite="true">
+                  <fileset dir="${project.build.outputDirectory}/core" />
+                </copy>
+                
+                <!-- Syncope console (exploded) -->
+                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-console">
+                  <fileset dir="../console/target/syncope-console" includes="**/*" />
+                </copy>
+                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-console/WEB-INF/classes" overwrite="true">
+                  <fileset dir="${project.build.outputDirectory}/console" />
+                </copy>
+                                
+                <!-- ConnId's SOAP wssample (provides endpoint for SOAP resources) -->
+                <copy file="${settings.localRepository}/org/connid/bundles/soap/wssample/${connid.soap.version}/wssample-${connid.soap.version}.war" tofile="${work.dir}/apache-tomcat-${tomcat.version}/webapps/wssample.war" />
+
+                <!-- Syncope build tools (provide H2 and Apache DS resources + ConnId connector server) -->
+                <unzip src="../build-tools/target/syncope-build-tools-${project.version}.war" dest="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools" />
+                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools/WEB-INF/lib">
+                  <fileset dir="../core/target/bundles" includes="**/*" />
+                </copy>
+                <zip destfile="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools.war" basedir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools" />
+                <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools" />                  
+
+                <!-- Tomcat shared libraries: H2 and groovy -->
+                <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" todir="${work.dir}/apache-tomcat-${tomcat.version}/lib" />
+                <copy file="${settings.localRepository}/org/codehaus/groovy/groovy-all/${groovy.version}/groovy-all-${groovy.version}.jar" todir="${work.dir}/apache-tomcat-${tomcat.version}/lib" />
+                
+                <!-- Other custom Tomcat resources -->
+                <copy file="../core/target/test-classes/context.xml" todir="${work.dir}/apache-tomcat-${tomcat.version}/conf" overwrite="true" />
+                <copy file="src/main/resources/setenv.sh" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin" />
+                <copy file="src/main/resources/setenv.bat" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin" />
+                <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8080" value="${cargo.servlet.port}" />
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <inherited>true</inherited>
+        <configuration>
+          <descriptors>
+            <descriptor>src/assemble/standalone-zip.xml</descriptor>
+          </descriptors>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-standalone-zip</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+
+    <resources>
+      <resource>
+        <directory>../core/src/test/resources</directory>
+        <filtering>true</filtering>
+        <targetPath>core</targetPath>
+        <includes>
+          <include>content.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../core/src/main/resources</directory>
+        <filtering>true</filtering>
+        <targetPath>core</targetPath>
+        <includes>
+          <include>logback.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../console/src/test/resources</directory>
+        <filtering>true</filtering>
+        <targetPath>console</targetPath>
+        <includes>
+          <include>configuration.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../console/src/main/resources</directory>
+        <filtering>true</filtering>
+        <targetPath>console</targetPath>
+        <includes>
+          <include>logback.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>src/assemble</directory>
+      </resource>
+      <resource>
+        <directory>..</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE</include>
+          <include>NOTICE</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+</project>

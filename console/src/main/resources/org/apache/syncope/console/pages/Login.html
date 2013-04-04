@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Style-Type" content="text/css"/>
+
+    <title>Apache Syncope - Login</title>
+
+    <link rel="shortcut icon" href="img/favicon.ico"/>
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="all"/>
+
+  </head>
+  <body style="text-align:center">
+    <div id="splash">
+      <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
+      <p style="border: none">&nbsp;</p>
+      <div id="loginFeedbackDiv">
+        <span wicket:id="feedback">feedbackmessages will be put here</span>
+      </div>
+      <form wicket:id="login">
+        <label for="userId">
+          <wicket:message key="userId"/>
+        </label>
+        <input type="text" wicket:id="userId" id="userId" size="25" style="width: 180px" />
+        <br />
+        <label for="password" class="password">
+          <wicket:message key="password"/>
+        </label>
+        <input type="password" wicket:id="password" id="password" size="25"  style="width: 180px" />
+        <br />
+        <select wicket:id="language" id="language"/>
+        <br />
+        <br />
+        <input type="submit" wicket:id="submit"/>
+      </form>
+
+      <span style="display: inline-table; margin-bottom: 10px;" wicket:id="selfRegistration"/>
+
+      <wicket:fragment wicket:id="selfRegNotAllowed"/>
+      <wicket:fragment wicket:id="selfRegAllowed">
+        <span wicket:id="selfRegistration"/>
+      </wicket:fragment>
+
+      <div wicket:id="selfRegModal"></div>
+    </div>
+  </body>
+</html>

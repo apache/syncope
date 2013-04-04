@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+
+-->
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <comment>Views</comment>
+  <entry key="user_search">
+    CREATE VIEW user_search AS
+ 
+    SELECT u.id as subject_id, u.* FROM SyncopeUser u
+  </entry>
+  <entry key="user_search_attr">
+    CREATE VIEW user_search_attr AS
+
+    SELECT ua.owner_id AS subject_id,
+    ua.schema_name AS schema_name,
+    uav.booleanvalue AS booleanvalue,
+    uav.datevalue AS datevalue,
+    uav.doublevalue AS doublevalue,
+    uav.longvalue AS longvalue,
+    uav.stringvalue AS stringvalue
+    FROM UAttrUniqueValue uav, UAttr ua
+    WHERE uav.attribute_id = ua.id
+
+    UNION ALL
+
+    SELECT ua.owner_id AS subject_id,
+    ua.schema_name AS schema_name,
+    uav.booleanvalue AS booleanvalue,
+    uav.datevalue AS datevalue,
+    uav.doublevalue AS doublevalue,
+    uav.longvalue AS longvalue,
+    uav.stringvalue AS stringvalue
+    FROM UAttrValue uav, UAttr ua
+    WHERE uav.attribute_id = ua.id
+
+    UNION ALL
+
+    SELECT u.id AS subject_id,
+    USchema.name AS schema_name,
+    NULL AS booleanvalue,
+    NULL AS datevalue,
+    NULL AS doublevalue,
+    NULL AS longvalue,
+    NULL AS stringvalue
+    FROM SyncopeUser u CROSS JOIN USchema
+    LEFT OUTER JOIN UAttr ua ON (USchema.name = ua.schema_name AND ua.owner_id = u.id)
+    WHERE ua.id IS NULL
+  </entry>
+  <entry key="user_search_membership">
+    CREATE VIEW user_search_membership AS
+
+    SELECT m.syncopeuser_id AS subject_id, r.id AS role_id, r.name AS role_name
+    FROM Membership m, SyncopeRole r
+    WHERE m.syncoperole_id = r.id
+  </entry>
+  <entry key="user_search_resource">
+    CREATE VIEW user_search_resource AS
+
+    SELECT st.user_id AS subject_id, st.resource_name AS resource_name
+    FROM SyncopeUser_ExternalResource st
+
+    UNION ALL
+
+    SELECT m.syncopeuser_id AS subject_id, st.resource_name AS resource_name
+    FROM Membership m, SyncopeRole r, SyncopeRole_ExternalResource st
+    WHERE m.syncoperole_id = r.id AND st.role_id = r.id
+  </entry>
+  <entry key="role_search">
+    CREATE VIEW role_search AS
+ 
+    SELECT r.id as subject_id, r.* FROM SyncopeRole r
+  </entry>
+  <entry key="role_search_attr">
+    CREATE VIEW role_search_attr AS
+
+    SELECT ra.owner_id AS subject_id,
+    ra.schema_name AS schema_name,
+    rav.booleanvalue AS booleanvalue,
+    rav.datevalue AS datevalue,
+    rav.doublevalue AS doublevalue,
+    rav.longvalue AS longvalue,
+    rav.stringvalue AS stringvalue
+    FROM RAttrUniqueValue rav, RAttr ra
+    WHERE rav.attribute_id = ra.id
+
+    UNION ALL
+
+    SELECT ra.owner_id AS subject_id,
+    ra.schema_name AS schema_name,
+    rav.booleanvalue AS booleanvalue,
+    rav.datevalue AS datevalue,
+    rav.doublevalue AS doublevalue,
+    rav.longvalue AS longvalue,
+    rav.stringvalue AS stringvalue
+    FROM RAttrValue rav, RAttr ra
+    WHERE rav.attribute_id = ra.id
+
+    UNION ALL
+
+    SELECT r.id AS subject_id,
+    RSchema.name AS schema_name,
+    NULL AS booleanvalue,
+    NULL AS datevalue,
+    NULL AS doublevalue,
+    NULL AS longvalue,
+    NULL AS stringvalue
+    FROM SyncopeRole r CROSS JOIN RSchema
+    LEFT OUTER JOIN RAttr ra ON (RSchema.name = ra.schema_name AND ra.owner_id = r.id)
+    WHERE ra.id IS NULL
+  </entry>
+  <entry key="role_search_resource">
+    CREATE VIEW role_search_resource AS
+
+    SELECT st.role_id AS subject_id, st.resource_name AS resource_name
+    FROM SyncopeRole_ExternalResource st
+  </entry>
+  <entry key="role_search_entitlements">
+    CREATE VIEW role_search_entitlements AS
+
+    SELECT st.role_id AS subject_id, st.entitlement_name AS entitlement_name
+    FROM SyncopeRole_Entitlement st
+  </entry>
+
+</properties>

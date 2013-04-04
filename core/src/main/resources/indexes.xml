@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <comment>Additional indexes (in respect to JPA's)</comment>
+
+  <!-- These indexes are not needed by OpenJPA, only by Hibernate
+  <entry key="roleNameIndex">CREATE INDEX roleNameIndex ON SyncopeRole(name)</entry>
+  <entry key="ConnInstance_capabilities_Index_1">CREATE INDEX ConnInstance_ca_Index_1 ON ConnInstance_capabilities(ConnInstance_id)</entry>    
+  <entry key="ExternalResource_Index_2">CREATE INDEX ExternalResourc_Index_2 ON ExternalResource(connector_id)</entry>
+  <entry key="ExternalResource_Index_3">CREATE INDEX ExternalResourc_Index_3 ON ExternalResource(accountPolicy_id)</entry>
+  <entry key="ExternalResource_Index_4">CREATE INDEX ExternalResourc_Index_4 ON ExternalResource(passwordPolicy_id)</entry>
+  <entry key="ExternalResource_Index_5">CREATE INDEX ExternalResourc_Index_5 ON ExternalResource(syncPolicy_id)</entry>
+  <entry key="MAttr_Index_6">CREATE INDEX MAttr_Index_6 ON MAttr(schema_name)</entry>
+  <entry key="MAttr_Index_7">CREATE INDEX MAttr_Index_7 ON MAttr(owner_id)</entry>
+  <entry key="MAttrUniqueValue_Index_9">CREATE INDEX MAttrUniqueValu_Index_9 ON MAttrUniqueValue(schema_name)</entry>
+  <entry key="MAttrValue_Index_10">CREATE INDEX MAttrValue_Index_10 ON MAttrValue(attribute_id)</entry>
+  <entry key="MDerAttr_Index_11">CREATE INDEX MDerAttr_Index_11 ON MDerAttr(derivedSchema_name)</entry>
+  <entry key="MDerAttr_Index_12">CREATE INDEX MDerAttr_Index_12 ON MDerAttr(owner_id)</entry>
+  <entry key="MVirAttr_Index_13">CREATE INDEX MVirAttr_Index_13 ON MVirAttr(virtualSchema_name)</entry>
+  <entry key="MVirAttr_Index_14">CREATE INDEX MVirAttr_Index_14 ON MVirAttr(owner_id)</entry>
+  <entry key="Membership_Index_15">CREATE INDEX Membership_Index_15 ON Membership(syncopeUser_id)</entry>
+  <entry key="Membership_Index_16">CREATE INDEX Membership_Index_16 ON Membership(syncopeRole_id)</entry>
+  <entry key="NotificationTask_recipients_Index_19">CREATE INDEX NotificationTas_Index_19 ON NotificationTask_recipients(NotificationTask_id)</entry>
+  <entry key="Notification_events_Index_20">CREATE INDEX Notification_ev_Index_20 ON Notification_events(Notification_id)</entry>
+  <entry key="RAttr_Index_21">CREATE INDEX RAttr_Index_21 ON RAttr(schema_name)</entry>
+  <entry key="RAttr_Index_22">CREATE INDEX RAttr_Index_22 ON RAttr(owner_id)</entry>
+  <entry key="RAttrUniqueValue_Index_24">CREATE INDEX RAttrUniqueValu_Index_24 ON RAttrUniqueValue(schema_name)</entry>
+  <entry key="RAttrValue_Index_25">CREATE INDEX RAttrValue_Index_25 ON RAttrValue(attribute_id)</entry>
+  <entry key="RDerAttr_Index_26">CREATE INDEX RDerAttr_Index_26 ON RDerAttr(derivedSchema_name)</entry>
+  <entry key="RDerAttr_Index_27">CREATE INDEX RDerAttr_Index_27 ON RDerAttr(owner_id)</entry>
+  <entry key="RVirAttr_Index_28">CREATE INDEX RVirAttr_Index_28 ON RVirAttr(virtualSchema_name)</entry>
+  <entry key="RVirAttr_Index_29">CREATE INDEX RVirAttr_Index_29 ON RVirAttr(owner_id)</entry>
+  <entry key="SchemaMapping_Index_30">CREATE INDEX SchemaMapping_Index_30 ON SchemaMapping(resource_name)</entry>
+  <entry key="SyncopeRole_Index_31">CREATE INDEX SyncopeRole_Index_31 ON SyncopeRole(accountPolicy_id)</entry>
+  <entry key="SyncopeRole_Index_32">CREATE INDEX SyncopeRole_Index_32 ON SyncopeRole(passwordPolicy_id)</entry>
+  <entry key="SyncopeRole_Index_33">CREATE INDEX SyncopeRole_Index_33 ON SyncopeRole(parent_id)</entry>
+  <entry key="SyncopeRole_Entitlement_Index_34">CREATE INDEX SyncopeRole_Ent_Index_34 ON SyncopeRole_Entitlement(entitlement_name)</entry>
+  <entry key="SyncopeRole_Entitlement_Index_35">CREATE INDEX SyncopeRole_Ent_Index_35 ON SyncopeRole_Entitlement(role_id)</entry>
+  <entry key="SyncopeRole_ExternalResource_Index_36">CREATE INDEX SyncopeRole_Ext_Index_36 ON SyncopeRole_ExternalResource(resource_name)</entry>
+  <entry key="SyncopeRole_ExternalResource_Index_37">CREATE INDEX SyncopeRole_Ext_Index_37 ON SyncopeRole_ExternalResource(role_id)</entry>
+  <entry key="SyncopeUser_ExternalResource_Index_38">CREATE INDEX SyncopeUser_Ext_Index_38 ON SyncopeUser_ExternalResource(resource_name)</entry>
+  <entry key="SyncopeUser_ExternalResource_Index_39">CREATE INDEX SyncopeUser_Ext_Index_39 ON SyncopeUser_ExternalResource(user_id)</entry>
+  <entry key="SyncopeUser_passwordHistory_Index_40">CREATE INDEX SyncopeUser_pas_Index_40 ON SyncopeUser_passwordHistory(SyncopeUser_id)</entry>
+  <entry key="Task_Index_41">CREATE INDEX Task_Index_41 ON Task(syncopeUser_id)</entry>
+  <entry key="Task_Index_42">CREATE INDEX Task_Index_42 ON Task(resource_name)</entry>
+  <entry key="TaskExec_Index_43">CREATE INDEX TaskExec_Index_43 ON TaskExec(task_id)</entry>
+  <entry key="UAttr_Index_44">CREATE INDEX UAttr_Index_44 ON UAttr(schema_name)</entry>
+  <entry key="UAttr_Index_45">CREATE INDEX UAttr_Index_45 ON UAttr(owner_id)</entry>
+  <entry key="UAttrUniqueValue_Index_47">CREATE INDEX UAttrUniqueValu_Index_47 ON UAttrUniqueValue(schema_name)</entry>
+  <entry key="UAttrValue_Index_48">CREATE INDEX UAttrValue_Index_48 ON UAttrValue(attribute_id)</entry>
+  <entry key="UDerAttr_Index_49">CREATE INDEX UDerAttr_Index_49 ON UDerAttr(derivedSchema_name)</entry>
+  <entry key="UDerAttr_Index_50">CREATE INDEX UDerAttr_Index_50 ON UDerAttr(owner_id)</entry>
+  <entry key="UVirAttr_Index_51">CREATE INDEX UVirAttr_Index_51 ON UVirAttr(virtualSchema_name)</entry>
+  <entry key="UVirAttr_Index_52">CREATE INDEX UVirAttr_Index_52 ON UVirAttr(owner_id)</entry>
+  -->
+
+  <entry key="UAttrValue_stringvalueIndex">CREATE INDEX UAttrValue_stringvalueIndex ON UAttrValue(stringvalue)</entry>
+  <entry key="UAttrValue_datevalueIndex">CREATE INDEX UAttrValue_datevalueIndex ON UAttrValue(datevalue)</entry>
+  <entry key="UAttrValue_longvalueIndex">CREATE INDEX UAttrValue_longvalueIndex ON UAttrValue(longvalue)</entry>
+  <entry key="UAttrValue_doublevalueIndex">CREATE INDEX UAttrValue_doublevalueIndex ON UAttrValue(doublevalue)</entry>
+  <entry key="UAttrValue_booleanvalueIndex">CREATE INDEX UAttrValue_booleanvalueIndex ON UAttrValue(booleanvalue)</entry>
+  <entry key="MAttrValue_stringvalueIndex">CREATE INDEX MAttrValue_stringvalueIndex ON MAttrValue(stringvalue)</entry>
+  <entry key="MAttrValue_datevalueIndex">CREATE INDEX MAttrValue_datevalueIndex ON MAttrValue(datevalue)</entry>
+  <entry key="MAttrValue_longvalueIndex">CREATE INDEX MAttrValue_longvalueIndex ON MAttrValue(longvalue)</entry>
+  <entry key="MAttrValue_doublevalueIndex">CREATE INDEX MAttrValue_doublevalueIndex ON MAttrValue(doublevalue)</entry>
+  <entry key="MAttrValue_booleanvalueIndex">CREATE INDEX MAttrValue_booleanvalueIndex ON MAttrValue(booleanvalue)</entry>
+  <entry key="RAttrValue_stringvalueIndex">CREATE INDEX RAttrValue_stringvalueIndex ON RAttrValue(stringvalue)</entry>
+  <entry key="RAttrValue_datevalueIndex">CREATE INDEX RAttrValue_datevalueIndex ON RAttrValue(datevalue)</entry>
+  <entry key="RAttrValue_longvalueIndex">CREATE INDEX RAttrValue_longvalueIndex ON RAttrValue(longvalue)</entry>
+  <entry key="RAttrValue_doublevalueIndex">CREATE INDEX RAttrValue_doublevalueIndex ON RAttrValue(doublevalue)</entry>
+  <entry key="RAttrValue_booleanvalueIndex">CREATE INDEX RAttrValue_booleanvalueIndex ON RAttrValue(booleanvalue)</entry>
+</properties>

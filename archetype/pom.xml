@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.apache.syncope</groupId>
+    <artifactId>syncope</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+  </parent>
+
+  <name>Apache Syncope Archetype</name>
+  <description>Apache Syncope Archetype</description>
+  <groupId>org.apache.syncope</groupId>
+  <artifactId>syncope-archetype</artifactId>
+  <packaging>maven-archetype</packaging>
+
+  <distributionManagement>
+    <site>
+      <id>syncope.website</id>
+      <name>Apache Syncope website</name>
+      <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
+    </site>
+  </distributionManagement>
+  
+  <build>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.archetype</groupId>
+        <artifactId>archetype-packaging</artifactId>
+        <version>2.2</version>
+      </extension>
+    </extensions>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-archetype-plugin</artifactId>
+          <version>2.2</version>
+          <extensions>true</extensions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <!-- Generate project's parent POM and dynamically sets Syncope version -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>xml-maven-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>transform</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <transformationSets>
+            <transformationSet>
+              <dir>${basedir}/src/main/resources</dir>
+              <includes>
+                <include>meta-pom.xml</include>
+              </includes>
+              <outputDir>${basedir}/src/main/resources/archetype-resources</outputDir>
+              <stylesheet>${basedir}/src/main/resources/properties2pom.xsl</stylesheet>
+              <parameters>
+                <parameter>
+                  <name>syncopeVersion</name>
+                  <value>${project.version}</value>
+                </parameter>
+              </parameters>
+              <outputProperties>
+                <outputProperty>
+                  <name>indent</name>
+                  <value>yes</value>
+                </outputProperty>
+              </outputProperties>
+              <fileMappers>
+                <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
+                  <pattern>^meta-(.*)\.xml$</pattern>
+                  <replacement>$1.xml</replacement>
+                </fileMapper>
+              </fileMappers>
+            </transformationSet>
+          </transformationSets>
+        </configuration>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+      </plugin>
+    </plugins>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>..</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE</include>
+          <include>NOTICE</include>
+        </includes>
+      </resource>
+      
+      <resource>
+        <directory>../core/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
+        <includes>
+          <include>*.properties</include>
+          <include>*.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../core/src/main/resources/META-INF</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources/META-INF</targetPath>
+        <includes>
+          <include>spring-persistence.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../core/src/main/webapp</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/webapp</targetPath>
+        <excludes>
+          <exclude>version.jsp</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>../core/src/test/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
+        <includes>
+          <include>*.properties</include>
+          <include>content.xml</include>
+          <include>*.csv</include>
+          <include>*.jsp</include>
+        </includes>
+      </resource>
+
+      <resource>
+        <directory>../console/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
+        <includes>
+          <include>*.*</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../console/src/main/webapp/WEB-INF</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/webapp/WEB-INF</targetPath>
+      </resource>
+      <resource>
+        <directory>../console/src/test/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/test/resources</targetPath>
+        <includes>
+          <include>configuration.properties</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+</project>

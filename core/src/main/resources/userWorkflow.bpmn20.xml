@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<definitions id="definitions"
+             targetNamespace="http://activiti.org/bpmn20" 
+             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
+             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" 
+             xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" 
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL 
+                                 http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
+  
+  <process id="userWorkflow" name="User Workflow" isExecutable="true">
+  
+    <startEvent id="theStart"/>
+    
+    <!-- Create an user -->
+    <sequenceFlow id="flow1" sourceRef="theStart" targetRef="create"/>
+      
+    <serviceTask id="create" name="Create" 
+                 activiti:class="org.apache.syncope.core.workflow.user.activiti.task.Create"/>
+
+    <sequenceFlow id="flow2" sourceRef="create" targetRef="createGW"/>
+        
+    <exclusiveGateway id="createGW"/>
+    <sequenceFlow id="create2Activate" sourceRef="createGW" targetRef="enableGW">
+      <conditionExpression xsi:type="tFormalExpression">${!syncopeUser.getRoleIds().contains(9)}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="create2CreateApproval" sourceRef="createGW" targetRef="createApproval">
+      <conditionExpression xsi:type="tFormalExpression">${syncopeUser.getRoleIds().contains(9)}</conditionExpression>
+    </sequenceFlow>
+        
+    <userTask id="createApproval" activiti:formKey="createApproval" name="Create approval" activiti:candidateGroups="7">
+      <extensionElements>
+        <activiti:formProperty id="username" name="Username" type="string" writable="false" expression="${syncopeUser.username}"/>
+        <activiti:formProperty id="approve" variable="approve" name="Approve?" type="boolean" required="true"/>
+        <activiti:formProperty id="rejectReason" variable="rejectReason" name="Reason for rejecting" type="string"/>
+      </extensionElements>
+    </userTask>
+
+    <sequenceFlow id="flow3" sourceRef="createApproval" targetRef="createApprovalGW"/>
+        
+    <exclusiveGateway id="createApprovalGW"/>
+    <sequenceFlow id="createApprovalGW2EnableGW" sourceRef="createApprovalGW" targetRef="enableGW">
+      <conditionExpression xsi:type="tFormalExpression">${approve}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="createApproval2Reject" sourceRef="createApprovalGW" targetRef="reject">
+      <conditionExpression xsi:type="tFormalExpression">${!approve}</conditionExpression>
+    </sequenceFlow>
+    
+    <exclusiveGateway id="enableGW"/>
+    <!-- opt-in required -->
+    <sequenceFlow id="createApprovalGW2OptIn" sourceRef="enableGW" targetRef="generateToken">
+      <conditionExpression xsi:type="tFormalExpression">${syncopeUser.getRoleIds().contains(11)}</conditionExpression>
+    </sequenceFlow>
+    <!-- activate user if suspension is not required -->
+    <sequenceFlow id="createApprovalGW2Activate" sourceRef="enableGW" targetRef="activate">
+      <conditionExpression xsi:type="tFormalExpression">${enabled==null}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="createApprovalGW2Active" sourceRef="enableGW" targetRef="active">
+      <conditionExpression xsi:type="tFormalExpression">${enabled}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="createApprovalGW2Suspended" sourceRef="enableGW" targetRef="suspend">
+      <conditionExpression xsi:type="tFormalExpression">${!enabled}</conditionExpression>
+    </sequenceFlow>
+    
+    <serviceTask id="activate" name="Activate" 
+                 activiti:class="org.apache.syncope.core.workflow.user.activiti.task.AutoActivate"/>
+    <sequenceFlow id="flow4" sourceRef="activate" targetRef="active"/>
+
+    <!-- Double opt-in required -->
+    <serviceTask id="generateToken" name="Generate token" 
+                 activiti:class="org.apache.syncope.core.workflow.user.activiti.task.GenerateToken"/>
+        
+    <sequenceFlow id="flow5" sourceRef="generateToken" targetRef="created"/>
+
+    <userTask id="created" name="Created"/>
+
+    <sequenceFlow id="flow6" sourceRef="created" targetRef="optinGW"/>
+
+    <exclusiveGateway id="optinGW"/>
+    <sequenceFlow id="created2Activate" sourceRef="optinGW" targetRef="removeToken">
+      <conditionExpression xsi:type="tFormalExpression">${syncopeUser.checkToken(token)}</conditionExpression>
+    </sequenceFlow>  
+    <sequenceFlow id="created2Created" sourceRef="optinGW" targetRef="created">
+      <conditionExpression xsi:type="tFormalExpression">${!syncopeUser.checkToken(token)}</conditionExpression>
+    </sequenceFlow>
+        
+    <scriptTask id="removeToken" name="Remove Token and Activate" scriptFormat="groovy">
+      <script>
+        syncopeUser.removeToken()    
+      </script>
+    </scriptTask>
+
+    <sequenceFlow id="flow7" sourceRef="removeToken" targetRef="active"/>
+    
+    <userTask id="active" name="Active"/>
+        
+    <sequenceFlow id="flow8" sourceRef="active" targetRef="activeGw"/>
+
+    <exclusiveGateway id="activeGw"/>
+    <sequenceFlow id="active2Update" sourceRef="activeGw" targetRef="update">
+      <conditionExpression xsi:type="tFormalExpression">${task == 'update'}</conditionExpression>
+    </sequenceFlow>  
+    <sequenceFlow id="active2Suspend" sourceRef="activeGw" targetRef="suspend">
+      <conditionExpression xsi:type="tFormalExpression">${task == 'suspend'}</conditionExpression>
+    </sequenceFlow> 
+    <sequenceFlow id="active2Delete" sourceRef="activeGw" targetRef="delete">
+      <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
+    </sequenceFlow>
+
+    <!-- Update an active user -->
+    <serviceTask id="update" name="Update" 
+                 activiti:class="org.apache.syncope.core.workflow.user.activiti.task.Update"/>
+
+    <sequenceFlow id="flow9" sourceRef="update" targetRef="active"/>
+
+    <!-- Suspend an active user -->
+    <serviceTask id="suspend" name="Suspend" 
+                 activiti:class="org.apache.syncope.core.workflow.user.activiti.task.Suspend"/>
+
+    <sequenceFlow id="flow10" sourceRef="suspend" targetRef="suspended"/>
+
+    <userTask id="suspended" name="Suspended"/>
+        
+    <sequenceFlow id="flow11" sourceRef="suspended" targetRef="suspendedGw"/>
+
+    <exclusiveGateway id="suspendedGw"/>
+    <sequenceFlow id="suspended2Reactivate" sourceRef="suspendedGw" targetRef="reactivate">
+      <conditionExpression xsi:type="tFormalExpression">${task == 'reactivate'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="suspended2Delete" sourceRef="suspendedGw" targetRef="delete">
+      <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
+    </sequenceFlow>
+
+    <!-- Reactivate a suspended user -->
+    <serviceTask id="reactivate" name ="Reactivate" 
+                 activiti:class="org.apache.syncope.core.workflow.user.activiti.task.Reactivate"/>
+
+    <sequenceFlow id="flow12" sourceRef="reactivate" targetRef="active"/>
+        
+    <!-- Reject an user -->
+    <scriptTask id="reject" name="Reject" scriptFormat="groovy">
+      <!-- Do something with rejectReason -->
+      <script>
+        def scriptVar = rejectReason
+      </script>
+    </scriptTask>
+        
+    <sequenceFlow id="flow13" sourceRef="reject" targetRef="rejected"/>
+
+    <userTask id="rejected" name="Rejected"/>
+        
+    <sequenceFlow id="flow14" sourceRef="rejected" targetRef="rejectedGw"/>
+
+    <exclusiveGateway id="rejectedGw"/>
+    <sequenceFlow id="rejected2Delete" sourceRef="rejectedGw" targetRef="delete">
+      <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="rejected2Rejected" sourceRef="rejectedGw" targetRef="rejected">
+      <conditionExpression xsi:type="tFormalExpression">${empty task}</conditionExpression>
+    </sequenceFlow>
+    
+    <!-- Delete an user (created, active or suspended) -->
+    <serviceTask id="delete" name="Delete" 
+                 activiti:class="org.apache.syncope.core.workflow.user.activiti.task.Delete"/>
+
+    <sequenceFlow id="flow99" sourceRef="delete" targetRef="theEnd"/>
+
+    <endEvent id="theEnd"/>
+      
+  </process>
+  
+</definitions>

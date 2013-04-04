@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<dataset>
+  <SyncopeConf confKey="password.cipher.algorithm" confValue="SHA1"/>
+  <SyncopeConf confKey="smtp.host" confValue="not-existing"/>
+  <SyncopeConf confKey="smtp.port" confValue="25"/>
+  <!-- notificationjob.cronExpression:
+  + not existing: NotificationJob runs according to Notification.DEFAULT_CRON_EXP
+  + provided as empty string: NotificationJob disabled
+  + provided as non-empty string: NotificationJob runs according to the given value -->
+  <SyncopeConf confKey="notificationjob.cronExpression" confValue=""/>
+  <SyncopeConf confKey="token.length" confValue="256"/>
+  <SyncopeConf confKey="token.expireTime" confValue="60"/>
+  <SyncopeConf confKey="createRequest.allowed" confValue="true"/>
+    
+  <!-- Authentication and authorization -->
+  <Entitlement name="SCHEMA_CREATE"/>
+  <Entitlement name="SCHEMA_READ"/>
+  <Entitlement name="SCHEMA_UPDATE"/>
+  <Entitlement name="SCHEMA_DELETE"/>
+  <Entitlement name="USER_LIST"/>
+  <Entitlement name="USER_CREATE"/>
+  <Entitlement name="USER_READ"/>
+  <Entitlement name="USER_UPDATE"/>
+  <Entitlement name="USER_DELETE"/>
+  <Entitlement name="USER_VIEW"/>
+  <Entitlement name="ROLE_CREATE"/>
+  <Entitlement name="ROLE_READ"/>
+  <Entitlement name="ROLE_UPDATE"/>
+  <Entitlement name="ROLE_DELETE"/>
+  <Entitlement name="RESOURCE_CREATE"/>
+  <Entitlement name="RESOURCE_READ"/>
+  <Entitlement name="RESOURCE_UPDATE"/>
+  <Entitlement name="RESOURCE_DELETE"/>
+  <Entitlement name="RESOURCE_GETCONNECTOROBJECT"/>
+  <Entitlement name="CONNECTOR_LIST"/>
+  <Entitlement name="CONNECTOR_CREATE"/>
+  <Entitlement name="CONNECTOR_READ"/>
+  <Entitlement name="CONNECTOR_UPDATE"/>
+  <Entitlement name="CONNECTOR_DELETE"/>
+  <Entitlement name="CONNECTOR_RELOAD"/>
+  <Entitlement name="CONFIGURATION_LIST"/>
+  <Entitlement name="CONFIGURATION_CREATE"/>
+  <Entitlement name="CONFIGURATION_READ"/>
+  <Entitlement name="CONFIGURATION_UPDATE"/>
+  <Entitlement name="CONFIGURATION_DELETE"/>
+  <Entitlement name="TASK_CREATE"/>
+  <Entitlement name="TASK_LIST"/>
+  <Entitlement name="TASK_EXECUTE"/>
+  <Entitlement name="TASK_READ"/>
+  <Entitlement name="TASK_UPDATE"/>
+  <Entitlement name="TASK_DELETE"/>
+  <Entitlement name="POLICY_CREATE"/>
+  <Entitlement name="POLICY_LIST"/>
+  <Entitlement name="POLICY_READ"/>
+  <Entitlement name="POLICY_UPDATE"/>
+  <Entitlement name="POLICY_DELETE"/>
+  <Entitlement name="WORKFLOW_DEF_READ"/>
+  <Entitlement name="WORKFLOW_DEF_UPDATE"/>
+  <Entitlement name="WORKFLOW_TASK_LIST"/> 
+  <Entitlement name="WORKFLOW_FORM_LIST"/>
+  <Entitlement name="WORKFLOW_FORM_READ"/>
+  <Entitlement name="WORKFLOW_FORM_CLAIM"/>
+  <Entitlement name="WORKFLOW_FORM_SUBMIT"/>
+  <Entitlement name="NOTIFICATION_LIST"/>
+  <Entitlement name="NOTIFICATION_CREATE"/>
+  <Entitlement name="NOTIFICATION_READ"/>
+  <Entitlement name="NOTIFICATION_UPDATE"/>
+  <Entitlement name="NOTIFICATION_DELETE"/>
+  <Entitlement name="USER_REQUEST_LIST"/>
+  <Entitlement name="USER_REQUEST_READ"/>
+  <Entitlement name="USER_REQUEST_DELETE"/>
+  <Entitlement name="REPORT_LIST"/>
+  <Entitlement name="REPORT_READ"/>
+  <Entitlement name="REPORT_CREATE"/>
+  <Entitlement name="REPORT_UPDATE"/>
+  <Entitlement name="REPORT_DELETE"/>
+  <Entitlement name="REPORT_EXECUTE"/>
+  <Entitlement name="LOG_LIST"/>
+  <Entitlement name="LOG_SET_LEVEL"/>
+  <Entitlement name="LOG_DELETE"/>
+  <Entitlement name="AUDIT_LIST"/>
+  <Entitlement name="AUDIT_ENABLE"/>
+  <Entitlement name="AUDIT_DISABLE"/>
+
+</dataset>

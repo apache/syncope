@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
+        lazy-init="false" depends-on="nonJPAdbInitializer">
+    <property name="autoStartup" value="true"/>
+    <property name="applicationContextSchedulerContextKey" value="applicationContext"/>
+    <property name="waitForJobsToCompleteOnShutdown" value="true"/>
+    <property name="overwriteExistingJobs" value="true"/>
+    <property name="dataSource" ref="dataSource"/>
+    <property name="transactionManager" ref="transactionManager"/>
+    <property name="jobFactory">
+      <bean class="org.apache.syncope.core.quartz.SpringBeanJobFactory"/>
+    </property>
+    <property name="quartzProperties">
+      <props>
+        <prop key="org.quartz.jobStore.misfireThreshold">6000000</prop>
+        <prop key="org.quartz.jobStore.driverDelegateClass">${quartz.jobstore}</prop>
+
+        <prop key="org.quartz.jobStore.isClustered">true</prop>
+        <prop key="org.quartz.jobStore.clusterCheckinInterval">20000</prop>
+
+        <prop key="org.quartz.scheduler.instanceName">ClusteredScheduler</prop>
+        <prop key="org.quartz.scheduler.instanceId">AUTO</prop>
+        <prop key="org.quartz.scheduler.jmx.export">true</prop>
+      </props>
+    </property>
+  </bean>
+
+  <bean id="notificationJob" class="org.apache.syncope.core.notification.NotificationJob"/>
+</beans>

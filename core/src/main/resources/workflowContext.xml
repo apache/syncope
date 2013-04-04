@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans   
+                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="adminUser" class="java.lang.String">
+    <constructor-arg value="${adminUser}"/>
+  </bean>
+
+  <bean id="uwfAdapter" class="${uwfAdapter}"/>
+  <bean id="rwfAdapter" class="${rwfAdapter}"/>
+
+  <bean id="syncopeActivitiUserManager" class="org.apache.syncope.core.workflow.user.activiti.SyncopeUserManager"/>
+  <bean id="syncopeActivitiGroupManager" class="org.apache.syncope.core.workflow.user.activiti.SyncopeGroupManager"/>
+
+  <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+    <property name="dataSource" ref="dataSource"/>
+    <property name="transactionManager" ref="transactionManager"/>
+    <property name="transactionsExternallyManaged" value="true"/>
+    <property name="databaseSchemaUpdate" value="true"/>
+
+    <property name="jpaEntityManagerFactory" ref="entityManagerFactory"/>
+    <property name="jpaHandleTransaction" value="true"/>
+    <property name="jpaCloseEntityManager" value="false"/>
+
+    <property name="jobExecutorActivate" value="${jobExecutorActivate}"/>
+
+    <property name="customSessionFactories">
+      <list>
+        <bean class="org.apache.syncope.core.workflow.user.activiti.SyncopeSessionFactory">
+          <property name="syncopeSession" ref="syncopeActivitiUserManager"/>
+        </bean>
+        <bean class="org.apache.syncope.core.workflow.user.activiti.SyncopeSessionFactory">
+          <property name="syncopeSession" ref="syncopeActivitiGroupManager"/>
+        </bean>
+      </list>
+    </property>
+    <property name="customPreVariableTypes">
+      <list>
+        <bean class="org.apache.syncope.core.workflow.user.activiti.SyncopeEntitiesVariableType"/>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+    <property name="processEngineConfiguration" ref="processEngineConfiguration"/>
+  </bean>
+
+  <bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService"/>
+  <bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService"/>
+  <bean id="taskService" factory-bean="processEngine" factory-method="getTaskService"/>
+  <bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService"/>
+  <bean id="managementService" factory-bean="processEngine" factory-method="getManagementService"/>
+  <bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService"/>
+  <bean id="formService" factory-bean="processEngine" factory-method="getFormService"/>
+
+  <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+    <property name="velocityProperties">
+      <value>
+        resource.loader=class
+        class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+      </value>
+    </property>
+  </bean>
+</beans>

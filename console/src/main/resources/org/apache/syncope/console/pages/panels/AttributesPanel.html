@@ -1,0 +1,42 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<wicket:panel>
+  <div class="tablerow" wicket:id="schemas">
+    <div class="tablecolumn_label short_dynamicsize">
+      <span wicket:id="name"/>
+    </div>
+
+    <div class="tablecolumn_field medium_dynamicsize">
+      <span wicket:id="panel">
+        [panel for dynamic input type markup]
+      </span>
+      <a wicket:id="questionMarkJexlHelp" href="#" alt="Click to help" title="Click to help"><img src="img/help.png"/></a>
+      <div class="help">
+        <div wicket:id="jexlHelp" class="tooltip">
+          <wicket:message key="jexl_info"/>
+          <ul>
+            <li><wicket:message key="jexl_ex1"/></li>
+            <li><wicket:message key="jexl_ex2"/></li>
+          </ul>
+          <a href="#" wicket:id="jexlLink" target="_blank"><wicket:message key="jexl_syntax_url"/></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</wicket:panel>

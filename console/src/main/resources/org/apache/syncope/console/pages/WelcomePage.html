@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Style-Type" content="text/css"/>
+
+    <title>Apache Syncope - <wicket:message key="welcome"/></title>
+
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="all"/>
+    <style type="text/css">
+      em {
+        font-size: 14px;
+        color: gray;
+      }
+      em img {
+        opacity:0.4;
+        filter:alpha(opacity=40);
+      }
+    </style>
+  </head>
+  <body style="text-align:center">
+    <div id="splash">
+      <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
+      <div wicket:id="infoModal"/>
+      <a style="position: relative; top: 20px; left: -103px;" wicket:id="infoLink"><img src="img/info.png" alt="info" title="info"/></a>
+      <ul>
+        <li><a href="#" wicket:id="todo" class="todo"><img wicket:id="todoIcon" alt="TODO" width="80" height="80" /><br /><wicket:message key="todo"/></a></li>
+        <li><a href="#" wicket:id="schema" class="schema"><img wicket:id="schemaIcon" alt="Schema" width="80" height="80" /><br /><wicket:message key="schema"/></a></li>
+        <li><a href="#" wicket:id="users" class="users"><img wicket:id="usersIcon" alt="Users" width="80" height="80" /><br /><wicket:message key="users"/></a></li>
+        <li><a href="#" wicket:id="roles" class="roles"><img wicket:id="rolesIcon" alt="Roles" width="80" height="80" /><br /><wicket:message key="roles"/></a></li>
+        <li><a href="#" wicket:id="resources" class="resources"><img wicket:id="resourcesIcon" alt="Resources" width="80" height="80" /><br /><wicket:message key="resources"/></a></li>
+        <li><a href="#" wicket:id="tasks" class="tasks"><img wicket:id="tasksIcon" alt="Tasks" width="80" height="80" /><br /><wicket:message key="tasks"/></a></li>
+        <li><a href="#" wicket:id="reports" class="reports"><img wicket:id="reportsIcon" alt="Reports" width="80" height="80" /><br /><wicket:message key="reports"/></a></li>
+        <li><a href="#" wicket:id="configuration" class="configuration"><img wicket:id="configurationIcon" alt="Configuration" width="80" height="80" /><br /><wicket:message key="configuration"/></a></li>
+        <li><a href="#" wicket:id="logout" class="logout"><img src="img/menu/logout.png" alt="Logout" width="80" height="80" /><br /><wicket:message key="logout"/></a></li>
+      </ul>
+    </div>
+  </body>
+</html>
