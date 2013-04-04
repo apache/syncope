@@ -16,7 +16,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -1124,43 +1123,29 @@ under the License.
             <version>3.2</version>
             <configuration>
               <locales>en</locales>
+              <generateProjectInfo>false</generateProjectInfo>
               <reportPlugins>
-                <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-project-info-reports-plugin</artifactId>
-                  <version>2.6</version>
-                  <configuration>
-                    <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
-                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-                    <anonymousConnection>scm:svn:http://svn.apache.org/repos/asf/syncope/trunk</anonymousConnection>
-                    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/syncope/trunk</developerConnection>
-                    <webAccessUrl>http://svn.apache.org/viewvc/syncope/trunk</webAccessUrl>
-                  </configuration>
-                  <reportSets>
-                    <reportSet>
-                      <reports>
-                        <report>index</report>
-                        <report>mailing-list</report>
-                        <report>project-team</report>
-                        <report>scm</report>
-                        <report>cim</report>
-                        <report>issue-tracking</report>
-                        <report>license</report>
-                      </reports>
-                    </reportSet>
-                  </reportSets>
-                </plugin>
                 <plugin>
                   <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-javadoc-plugin</artifactId>
                   <version>2.9</version>
-                  <reportSets>
-                    <reportSet>
-                      <reports>
-                        <report>aggregate</report>
-                      </reports>
-                    </reportSet>
-                  </reportSets>
+                  <configuration>
+                    <destDir>apidocs/1.0</destDir>
+                    <detectLinks>true</detectLinks>
+                    <detectJavaApiLink>true</detectJavaApiLink>
+                    <links>
+                      <link>http://docs.oracle.com/javaee/6/api/</link>
+                      <link>http://www.slf4j.org/api/</link>
+                      <link>http://tirasa.github.com/ConnId/apidocs/base/</link>
+                      <link>http://wicket.apache.org/apidocs/1.5/</link>
+                      <link>http://static.springsource.org/spring/docs/3.1.x/javadoc-api/</link>
+                      <link>http://static.springsource.org/spring-security/site/docs/3.1.x/apidocs/</link>
+                      <link>http://activiti.org/javadocs/</link>
+                    </links>
+                  </configuration>
+                  <reports>
+                    <report>aggregate</report>
+                  </reports>
                 </plugin>
               </reportPlugins>
             </configuration>
