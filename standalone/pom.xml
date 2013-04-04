@@ -90,62 +90,50 @@ under the License.
             <phase>verify</phase>
             <configuration>
               <target>
-                <mkdir dir="${work.dir}"/>
+                <mkdir dir="${work.dir}" />
                 
                 <!-- legal stuff -->
-                <copy file="${project.build.outputDirectory}/README" todir="${work.dir}"/>
-                <copy file="../legal_ext/LICENSE" todir="${work.dir}"/>
-                <copy file="../legal_ext/NOTICE" todir="${work.dir}"/>
+                <copy file="${project.build.outputDirectory}/README" todir="${work.dir}" />
+                <copy file="../legal_ext/LICENSE" todir="${work.dir}" />
+                <copy file="../legal_ext/NOTICE" todir="${work.dir}" />
 
                 <!-- Syncope core (as run for integration tests) -->
-                <unzip src="${settings.localRepository}/org/codehaus/cargo/cargo-container-archives/apache-tomcat-${tomcat.version}.zip"
-                       dest="${work.dir}"/>
+                <unzip src="${settings.localRepository}/org/codehaus/cargo/cargo-container-archives/apache-tomcat-${tomcat.version}.zip" dest="${work.dir}" />
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope">
-                  <fileset dir="../core/target/syncope-core-test" includes="**/*"/>
+                  <fileset dir="../core/target/syncope-core-test" includes="**/*" />
                 </copy>
-                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/classes"
-                      overwrite="true">
-                  <fileset dir="${project.build.outputDirectory}/core"/>
+                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/classes" overwrite="true">
+                  <fileset dir="${project.build.outputDirectory}/core" />
                 </copy>
                 
                 <!-- Syncope console (exploded) -->
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-console">
-                  <fileset dir="../console/target/syncope-console" includes="**/*"/>
+                  <fileset dir="../console/target/syncope-console" includes="**/*" />
                 </copy>
-                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-console/WEB-INF/classes"
-                      overwrite="true">
-                  <fileset dir="${project.build.outputDirectory}/console"/>
+                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-console/WEB-INF/classes" overwrite="true">
+                  <fileset dir="${project.build.outputDirectory}/console" />
                 </copy>
                                 
                 <!-- ConnId's SOAP wssample (provides endpoint for SOAP resources) -->
-                <copy file="${settings.localRepository}/org/connid/bundles/soap/wssample/${connid.soap.version}/wssample-${connid.soap.version}.war"
-                      tofile="${work.dir}/apache-tomcat-${tomcat.version}/webapps/wssample.war"/>
+                <copy file="${settings.localRepository}/org/connid/bundles/soap/wssample/${connid.soap.version}/wssample-${connid.soap.version}.war" tofile="${work.dir}/apache-tomcat-${tomcat.version}/webapps/wssample.war" />
 
                 <!-- Syncope build tools (provide H2 and Apache DS resources + ConnId connector server) -->
-                <unzip src="../build-tools/target/syncope-build-tools-${project.version}.war"
-                       dest="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools"/>
+                <unzip src="../build-tools/target/syncope-build-tools-${project.version}.war" dest="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools" />
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools/WEB-INF/lib">
-                  <fileset dir="../core/target/bundles" includes="**/*"/>
+                  <fileset dir="../core/target/bundles" includes="**/*" />
                 </copy>
-                <zip destfile="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools.war"
-                     basedir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools"/>
-                <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools"/>                  
+                <zip destfile="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools.war" basedir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools" />
+                <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools" />                  
 
                 <!-- Tomcat shared libraries: H2 and groovy -->
-                <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar"
-                      todir="${work.dir}/apache-tomcat-${tomcat.version}/lib"/>
-                <copy file="${settings.localRepository}/org/codehaus/groovy/groovy-all/${groovy.version}/groovy-all-${groovy.version}.jar"
-                      todir="${work.dir}/apache-tomcat-${tomcat.version}/lib"/>
+                <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" todir="${work.dir}/apache-tomcat-${tomcat.version}/lib" />
+                <copy file="${settings.localRepository}/org/codehaus/groovy/groovy-all/${groovy.version}/groovy-all-${groovy.version}.jar" todir="${work.dir}/apache-tomcat-${tomcat.version}/lib" />
                 
                 <!-- Other custom Tomcat resources -->
-                <copy file="../core/target/test-classes/context.xml"
-                      todir="${work.dir}/apache-tomcat-${tomcat.version}/conf" overwrite="true"/>
-                <copy file="src/main/resources/setenv.sh"
-                      todir="${work.dir}/apache-tomcat-${tomcat.version}/bin"/>
-                <copy file="src/main/resources/setenv.bat"
-                      todir="${work.dir}/apache-tomcat-${tomcat.version}/bin"/>
-                <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" 
-                         token="8080" value="${cargo.servlet.port}"/>
+                <copy file="../core/target/test-classes/context.xml" todir="${work.dir}/apache-tomcat-${tomcat.version}/conf" overwrite="true" />
+                <copy file="src/main/resources/setenv.sh" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin" />
+                <copy file="src/main/resources/setenv.bat" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin" />
+                <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8080" value="${cargo.servlet.port}" />
               </target>
             </configuration>
           </execution>
