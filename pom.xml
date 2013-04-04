@@ -49,9 +49,9 @@ under the License.
   </licenses>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/syncope/branches/1_1_X</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/syncope/branches/1_1_X</developerConnection>
-    <url>http://svn.apache.org/viewvc/syncope/branches/1_1_X</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/syncope/trunk</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/syncope/trunk</developerConnection>
+    <url>http://svn.apache.org/viewvc/syncope/trunk</url>
   </scm>
   
   <issueManagement>
