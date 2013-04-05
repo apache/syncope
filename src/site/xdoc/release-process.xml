@@ -569,7 +569,7 @@ svn commit -m "Promoting the staging site"</source>
             </li>
             <li>             
               <em>or</em>
-              manually revert the versions in trunk to the prior version and commit
+              manually revert the versions in the branch under release to the prior version and commit
             </li>
           </ol>
         </li>
