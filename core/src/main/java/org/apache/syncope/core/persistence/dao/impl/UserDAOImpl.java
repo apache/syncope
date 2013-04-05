@@ -61,7 +61,7 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
         try {
             result = query.getSingleResult();
         } catch (NoResultException e) {
-            LOG.error("No user found with id {}", id, e);
+            LOG.debug("No user found with id {}", id, e);
         }
 
         return result;
@@ -77,7 +77,7 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
         try {
             result = query.getSingleResult();
         } catch (NoResultException e) {
-            LOG.error("No user found with username {}", username, e);
+            LOG.debug("No user found with username {}", username, e);
         }
 
         return result;
@@ -93,7 +93,7 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
         try {
             result = query.getSingleResult();
         } catch (NoResultException e) {
-            LOG.error("No user found with workflow id {}", workflowId, e);
+            LOG.debug("No user found with workflow id {}", workflowId, e);
         }
 
         return result;

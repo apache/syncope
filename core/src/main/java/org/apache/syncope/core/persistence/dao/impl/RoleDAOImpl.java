@@ -66,7 +66,7 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
         try {
             result = query.getSingleResult();
         } catch (NoResultException e) {
-            LOG.error("No role found with id {}", id, e);
+            LOG.debug("No role found with id {}", id, e);
         }
 
         return result;

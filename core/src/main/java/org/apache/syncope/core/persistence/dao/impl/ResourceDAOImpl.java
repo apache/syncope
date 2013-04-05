@@ -66,7 +66,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
         try {
             result = query.getSingleResult();
         } catch (NoResultException e) {
-            LOG.error("No resource found with name {}", name, e);
+            LOG.debug("No resource found with name {}", name, e);
         }
 
         return result;

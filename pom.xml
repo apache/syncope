@@ -1240,7 +1240,6 @@ under the License.
           <mavenExecutorId>forked-path</mavenExecutorId>
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <tagNameFormat>syncope-@{project.version}</tagNameFormat>
-          <arguments>-Papache-release</arguments>
         </configuration>
       </plugin>
     </plugins>
