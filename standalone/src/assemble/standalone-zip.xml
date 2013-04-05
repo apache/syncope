@@ -30,7 +30,7 @@ under the License.
   <fileSets>
     <fileSet>
       <directory>${work.dir}</directory>
-      <outputDirectory>apache-syncope-standalone-${project.version}</outputDirectory>
+      <outputDirectory>${project.build.finalName}</outputDirectory>
     </fileSet>
   </fileSets>
 </assembly>

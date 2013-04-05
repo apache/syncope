@@ -57,9 +57,7 @@ public class MembershipDAOImpl extends AbstractDAOImpl implements MembershipDAO 
         try {
             result = (Membership) query.getSingleResult();
         } catch (NoResultException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("No membership was found for user " + user + " and role " + role);
-            }
+            LOG.debug("No membership was found for user {} and role {}", user, role, e);
         }
 
         return result;

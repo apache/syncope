@@ -139,6 +139,7 @@ under the License.
           </execution>
         </executions>
       </plugin>
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -150,7 +151,7 @@ under the License.
         <executions>
           <execution>
             <id>make-standalone-zip</id>
-            <phase>install</phase>
+            <phase>verify</phase>
             <goals>
               <goal>single</goal>
             </goals>
