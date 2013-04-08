@@ -298,7 +298,7 @@ cd syncope-&lt;version&gt;
 mvn clean install
 mvn -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
 cd ../site/&lt;version&gt;
-rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools project-reports.html apidocs/1.html
+rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-common syncope-standalone project-reports.html apidocs/1.html
 cd ..
 svn add &lt;version&gt;
 svn copy apidocs/1.0 &lt;version&gt;/apidocs/
@@ -504,7 +504,23 @@ Best regards.
             </ol>
           </li>
           <li>
-            Add the distribution artifacts to the distribution area
+            Add the distribution artifacts to the distribution area (execute the commands above preferably on
+            <code>people.apache.org</code>)
+            <ul>
+              <li>1_1_X
+<source>
+svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist
+cd syncope-dist
+wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
+https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope/&lt;version&gt;/
+wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
+https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-standalone/&lt;version&gt;/
+svn add &lt;version&gt;
+svn rm &lt;any older release artifact (if present)&gt;
+svn commit -m "Promoting the voted release artifacts and cleaning up older releases"
+</source>
+              </li>
+              <li>1_0_X
 <source>
 svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist
 cd syncope-dist
@@ -514,6 +530,8 @@ svn add &lt;version&gt;
 svn rm &lt;any older release artifact (if present)&gt;
 svn commit -m "Promoting the voted release artifacts and cleaning up older releases"
 </source>
+              </li>
+            </ul>
           </li>
           <li>
             Add appropriate release notes to
