@@ -316,11 +316,7 @@ public abstract class AbstractSearchPanel extends Panel {
         if (searchConditionWrapper == null || searchConditionWrapper.getFilterType() == null) {
             return null;
         }
-
-        LOG.debug("Search conditions: fname {}; ftype {}; fvalue {}; OP {}; type {}; isnot {}", new Object[]{
-                    searchConditionWrapper.getFilterName(), searchConditionWrapper.getFilterType(),
-                    searchConditionWrapper.getFilterValue(), searchConditionWrapper.getOperationType(),
-                    searchConditionWrapper.getType(), searchConditionWrapper.isNotOperator()});
+        LOG.debug("Search condition wrapper: {}", searchConditionWrapper);
 
         NodeCond nodeCond = null;
 
@@ -351,13 +347,12 @@ public abstract class AbstractSearchPanel extends Panel {
             case MEMBERSHIP:
                 final MembershipCond membershipCond = new MembershipCond();
                 membershipCond.setRoleId(RoleTO.fromDisplayName(searchConditionWrapper.getFilterName()));
-                membershipCond.setRoleName(searchConditionWrapper.getFilterName().split(" ")[1]);
+                membershipCond.setRoleName(searchConditionWrapper.getFilterName().
+                        substring(searchConditionWrapper.getFilterName().indexOf(' ') + 1));
 
-                if (searchConditionWrapper.isNotOperator()) {
-                    nodeCond = NodeCond.getNotLeafCond(membershipCond);
-                } else {
-                    nodeCond = NodeCond.getLeafCond(membershipCond);
-                }
+                nodeCond = searchConditionWrapper.isNotOperator()
+                        ? NodeCond.getNotLeafCond(membershipCond)
+                        : NodeCond.getLeafCond(membershipCond);
 
                 break;
 
@@ -365,11 +360,9 @@ public abstract class AbstractSearchPanel extends Panel {
                 final ResourceCond resourceCond = new ResourceCond();
                 resourceCond.setResourceName(searchConditionWrapper.getFilterName());
 
-                if (searchConditionWrapper.isNotOperator()) {
-                    nodeCond = NodeCond.getNotLeafCond(resourceCond);
-                } else {
-                    nodeCond = NodeCond.getLeafCond(resourceCond);
-                }
+                nodeCond = searchConditionWrapper.isNotOperator()
+                        ? NodeCond.getNotLeafCond(resourceCond)
+                        : NodeCond.getLeafCond(resourceCond);
 
                 break;
 
@@ -377,12 +370,9 @@ public abstract class AbstractSearchPanel extends Panel {
                 final EntitlementCond entitlementCond = new EntitlementCond();
                 entitlementCond.setExpression(searchConditionWrapper.getFilterName());
 
-                if (searchConditionWrapper.isNotOperator()) {
-                    nodeCond = NodeCond.getNotLeafCond(entitlementCond);
-                } else {
-                    nodeCond = NodeCond.getLeafCond(entitlementCond);
-                }
-
+                nodeCond = searchConditionWrapper.isNotOperator()
+                        ? NodeCond.getNotLeafCond(entitlementCond)
+                        : NodeCond.getLeafCond(entitlementCond);
                 break;
 
             default:
@@ -394,11 +384,9 @@ public abstract class AbstractSearchPanel extends Panel {
         if (conditions.size() > 1) {
             List<SearchCondWrapper> subList = conditions.subList(1, conditions.size());
 
-            if (OperationType.OR.equals(subList.get(0).getOperationType())) {
-                nodeCond = NodeCond.getOrCond(nodeCond, buildSearchCond(subList));
-            } else {
-                nodeCond = NodeCond.getAndCond(nodeCond, buildSearchCond(subList));
-            }
+            nodeCond = OperationType.OR.equals(subList.get(0).getOperationType())
+                    ? NodeCond.getOrCond(nodeCond, buildSearchCond(subList))
+                    : NodeCond.getAndCond(nodeCond, buildSearchCond(subList));
         }
 
         return nodeCond;

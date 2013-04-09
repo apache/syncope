@@ -16,115 +16,117 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:extend>
-  <div style="margin:10px">
-    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
-    <form wicket:id="form">
-      <div id="tabs">
-        <ul>
-          <li  class="tabs-selected"><a href="#notification"><span><wicket:message key="notification"/></span></a></li>
-          <li><a href="#about"><span><wicket:message key="about"/></span></a></li>
-          <li><a href="#events"><span><wicket:message key="events"/></span></a></li>
-          <li><a href="#recipients"><span><wicket:message key="recipients"/></span></a></li>
-        </ul>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:extend>
+    <div style="margin:10px">
+      <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+      <form wicket:id="form">
+        <div id="tabs">
+          <ul>
+            <li  class="tabs-selected"><a href="#notification"><span><wicket:message key="notification"/></span></a></li>
+            <li><a href="#about"><span><wicket:message key="about"/></span></a></li>
+            <li><a href="#events"><span><wicket:message key="events"/></span></a></li>
+            <li><a href="#recipients"><span><wicket:message key="recipients"/></span></a></li>
+          </ul>
 
-        <div id="notification">
-          <div id="formtable">
-            <div class="tablerow alt">
-              <div class="tablecolumn_label medium_fixedsize">
-                <label for="sender"><wicket:message key="sender"/></label>
+          <div id="notification">
+            <div id="formtable">
+              <div class="tablerow alt">
+                <div class="tablecolumn_label medium_fixedsize">
+                  <label for="sender"><wicket:message key="sender"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                  <span wicket:id="sender">[sender]</span>
+                </div>
               </div>
-              <div class="tablecolumn_field medium_dynamicsize">
-                <span wicket:id="sender">[sender]</span>
-              </div>
-            </div>
 
-            <div class="tablerow">
-              <div class="tablecolumn_label medium_fixedsize">
-                <label for="subject"><wicket:message key="subject"/></label>
+              <div class="tablerow">
+                <div class="tablecolumn_label medium_fixedsize">
+                  <label for="subject"><wicket:message key="subject"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                  <span wicket:id="subject">[subject]</span>
+                </div>
               </div>
-              <div class="tablecolumn_field medium_dynamicsize">
-                <span wicket:id="subject">[subject]</span>
-              </div>
-            </div>
 
-            <div class="tablerow alt">
-              <div class="tablecolumn_label medium_fixedsize">
-                <label for="recipientAttrType"><wicket:message key="recipientAttrType"/></label>
+              <div class="tablerow alt">
+                <div class="tablecolumn_label medium_fixedsize">
+                  <label for="recipientAttrType"><wicket:message key="recipientAttrType"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                  <span wicket:id="recipientAttrType">[recipientAttrType]</span>
+                </div>
               </div>
-              <div class="tablecolumn_field medium_dynamicsize">
-                <span wicket:id="recipientAttrType">[recipientAttrType]</span>
-              </div>
-            </div>
 
-            <div class="tablerow">
-              <div class="tablecolumn_label medium_fixedsize">
-                <label for="recipientAttrName"><wicket:message key="recipientAttrName"/></label>
+              <div class="tablerow">
+                <div class="tablecolumn_label medium_fixedsize">
+                  <label for="recipientAttrName"><wicket:message key="recipientAttrName"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                  <span wicket:id="recipientAttrName">[recipientAttrName]</span>
+                </div>
               </div>
-              <div class="tablecolumn_field medium_dynamicsize">
-                <span wicket:id="recipientAttrName">[recipientAttrName]</span>
-              </div>
-            </div>
 
-            <div class="tablerow alt">
-              <div class="tablecolumn_label medium_fixedsize">
-                <label for="template"><wicket:message key="template"/></label>
+              <div class="tablerow alt">
+                <div class="tablecolumn_label medium_fixedsize">
+                  <label for="template"><wicket:message key="template"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                  <span wicket:id="template">[template]</span>
+                </div>
               </div>
-              <div class="tablecolumn_field medium_dynamicsize">
-                <span wicket:id="template">[template]</span>
+
+              <div class="tablerow">
+                <div class="tablecolumn_label medium_fixedsize">
+                  <label for="traceLevel"><wicket:message key="traceLevel"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                  <span wicket:id="traceLevel">[traceLevel]</span>
+                </div>
               </div>
-            </div>
-
-            <div class="tablerow">
-              <div class="tablecolumn_label medium_fixedsize">
-                <label for="traceLevel"><wicket:message key="traceLevel"/></label>
-              </div>
-              <div class="tablecolumn_field medium_dynamicsize">
-                <span wicket:id="traceLevel">[traceLevel]</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div id="about">
-          <span wicket:id="about"/>
-        </div>
-
-        <div id="events">
-          <span wicket:id="events"/>
-        </div>
-
-        <div id="recipients">
-          <div class="tablerow">
-            <div class="tablecolumn_field">
-              <span wicket:id="selfAsRecipient">[selfAsRecipient]</span>
-            </div>
-            <div class="tablecolumn_label">
-              <label for="selfAsRecipient"><wicket:message key="selfAsRecipient"/></label>
             </div>
           </div>
-          <span wicket:id="recipientsContainer">
+
+          <div id="about">
+            <span wicket:id="about"/>
+          </div>
+
+          <div id="events">
+            <span wicket:id="events"/>
+          </div>
+
+          <div id="recipients">
             <div class="tablerow">
               <div class="tablecolumn_field">
-                <span wicket:id="checkRecipients">[checkRecipients]</span>
+                <span wicket:id="selfAsRecipient">[selfAsRecipient]</span>
               </div>
               <div class="tablecolumn_label">
-                <label for="checkRecipients"><wicket:message key="checkRecipients"/></label>
+                <label for="selfAsRecipient"><wicket:message key="selfAsRecipient"/></label>
               </div>
             </div>
-            <span wicket:id="recipients"/>
-          </span>
+            <span wicket:id="recipientsContainer">
+              <div class="tablerow">
+                <div class="tablecolumn_field">
+                  <span wicket:id="checkRecipients">[checkRecipients]</span>
+                </div>
+                <div class="tablecolumn_label">
+                  <label for="checkRecipients"><wicket:message key="checkRecipients"/></label>
+                </div>
+              </div>
+              <span wicket:id="recipients"/>
+            </span>
+          </div>
         </div>
-      </div>
 
-      <div style="margin: 20px 10px 0">
-        <input type="submit"
-               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-               wicket:id="apply"/>
-        <input type="button"
-               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-               wicket:id="cancel"/>
-      </div>
-    </form>
-  </div>
-</wicket:extend>
+        <div style="margin: 20px 10px 0">
+          <input type="submit"
+                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                 wicket:id="apply"/>
+          <input type="button"
+                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                 wicket:id="cancel"/>
+        </div>
+      </form>
+    </div>
+  </wicket:extend>
+</html>

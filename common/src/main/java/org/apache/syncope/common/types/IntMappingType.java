@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.types;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -75,7 +76,7 @@ public enum IntMappingType {
      * @return set of attribute types.
      */
     public static Set<IntMappingType> getAttributeTypes(
-            final AttributableType attributableType, final Set<IntMappingType> toBeFiltered) {
+            final AttributableType attributableType, final Collection<IntMappingType> toBeFiltered) {
 
         final Set<IntMappingType> res = getAttributeTypes(attributableType);
         res.removeAll(toBeFiltered);

@@ -21,9 +21,8 @@ package org.apache.syncope.console.pages;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
@@ -85,14 +84,16 @@ class NotificationModalPage extends BaseModalPage {
         subject.addRequiredLabel();
         form.add(subject);
 
-        final AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<String>("template",
-                getString("template"), new PropertyModel(notificationTO, "template"));
+        final AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<String>(
+                "template", getString("template"),
+                new PropertyModel<String>(notificationTO, "template"));
         template.setChoices(restClient.getMailTemplates());
         template.addRequiredLabel();
         form.add(template);
 
-        final AjaxDropDownChoicePanel<TraceLevel> traceLevel = new AjaxDropDownChoicePanel<TraceLevel>("traceLevel",
-                getString("traceLevel"), new PropertyModel(notificationTO, "traceLevel"));
+        final AjaxDropDownChoicePanel<TraceLevel> traceLevel = new AjaxDropDownChoicePanel<TraceLevel>(
+                "traceLevel", getString("traceLevel"),
+                new PropertyModel<TraceLevel>(notificationTO, "traceLevel"));
         traceLevel.setChoices(Arrays.asList(TraceLevel.values()));
         traceLevel.addRequiredLabel();
         form.add(traceLevel);
@@ -101,26 +102,18 @@ class NotificationModalPage extends BaseModalPage {
         form.add(about);
 
         final AjaxDropDownChoicePanel<IntMappingType> recipientAttrType = new AjaxDropDownChoicePanel<IntMappingType>(
-                "recipientAttrType",
-                new ResourceModel("recipientAttrType", "recipientAttrType").getObject(),
+                "recipientAttrType", new ResourceModel("recipientAttrType", "recipientAttrType").getObject(),
                 new PropertyModel<IntMappingType>(notificationTO, "recipientAttrType"));
-
-        final Set<IntMappingType> toBeFiltered = new HashSet<IntMappingType>();
-        toBeFiltered.add(IntMappingType.UserId);
-        toBeFiltered.add(IntMappingType.Password);
-
         recipientAttrType.setChoices(new ArrayList<IntMappingType>(
-                (Set<IntMappingType>) IntMappingType.getAttributeTypes(AttributableType.USER, toBeFiltered)));
-
+                IntMappingType.getAttributeTypes(AttributableType.USER,
+                EnumSet.of(IntMappingType.UserId, IntMappingType.Password))));
         recipientAttrType.setRequired(true);
         form.add(recipientAttrType);
 
         final AjaxDropDownChoicePanel<String> recipientAttrName = new AjaxDropDownChoicePanel<String>(
-                "recipientAttrName",
-                new ResourceModel("recipientAttrName", "recipientAttrName").getObject(),
-                new PropertyModel(notificationTO, "recipientAttrName"));
-
-        recipientAttrName.setChoices(getSchemaNames(notificationTO.getRecipientAttrType()));
+                "recipientAttrName", new ResourceModel("recipientAttrName", "recipientAttrName").getObject(),
+                new PropertyModel<String>(notificationTO, "recipientAttrName"));
+        recipientAttrName.setChoices(getSchemaNames(recipientAttrType.getModelObject()));
         recipientAttrName.setRequired(true);
         form.add(recipientAttrName);
 
@@ -130,7 +123,7 @@ class NotificationModalPage extends BaseModalPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                recipientAttrName.setChoices(getSchemaNames(notificationTO.getRecipientAttrType()));
+                recipientAttrName.setChoices(getSchemaNames(recipientAttrType.getModelObject()));
                 target.add(recipientAttrName);
             }
         });
@@ -255,25 +248,33 @@ class NotificationModalPage extends BaseModalPage {
     }
 
     private List<String> getSchemaNames(final IntMappingType type) {
+        final List<String> result;
+
         if (type == null) {
-            return Collections.<String>emptyList();
+            result = Collections.<String>emptyList();
+        } else {
+            switch (type) {
+                case UserSchema:
+                    result = schemaRestClient.getSchemaNames(AttributableType.USER);
+                    break;
+
+                case UserDerivedSchema:
+                    result = schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
+                    break;
+
+                case UserVirtualSchema:
+                    result = schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
+                    break;
+
+                case Username:
+                    result = Collections.singletonList("Username");
+                    break;
+
+                default:
+                    result = Collections.<String>emptyList();
+            }
         }
 
-        switch (type) {
-            case UserSchema:
-                return schemaRestClient.getSchemaNames(AttributableType.USER);
-
-            case UserDerivedSchema:
-                return schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
-
-            case UserVirtualSchema:
-                return schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
-
-            case Username:
-                return Collections.singletonList("Username");
-
-            default:
-                return Collections.<String>emptyList();
-        }
+        return result;
     }
 }
