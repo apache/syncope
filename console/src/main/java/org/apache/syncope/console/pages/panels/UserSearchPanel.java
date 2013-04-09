@@ -37,12 +37,12 @@ import org.apache.syncope.console.commons.SearchCondWrapper.OperationType;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
-import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.types.AttributableType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -73,9 +73,9 @@ public class UserSearchPanel extends Panel {
      */
     private static final Logger LOG = LoggerFactory.getLogger(UserSearchPanel.class);
 
-    private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.asList(new String[]{
-                "attributes", "derivedAttributes", "virtualAttributes",
-                "serialVersionUID", "memberships", "resources", "password", "propagationStatusMap"});
+    private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.asList(new String[] {
+        "attributes", "derivedAttributes", "virtualAttributes",
+        "serialVersionUID", "memberships", "resources", "password", "propagationStatusMap"});
 
     @SpringBean
     private SchemaRestClient schemaRestClient;
@@ -161,13 +161,13 @@ public class UserSearchPanel extends Panel {
     final private IModel<List<AttributeCond.Type>> attributeTypes =
             new LoadableDetachableModel<List<AttributeCond.Type>>() {
 
-                private static final long serialVersionUID = 5275935387613157437L;
+        private static final long serialVersionUID = 5275935387613157437L;
 
-                @Override
-                protected List<AttributeCond.Type> load() {
-                    return Arrays.asList(AttributeCond.Type.values());
-                }
-            };
+        @Override
+        protected List<AttributeCond.Type> load() {
+            return Arrays.asList(AttributeCond.Type.values());
+        }
+    };
 
     final private IModel<List<FilterType>> filterTypes = new LoadableDetachableModel<List<FilterType>>() {
 
@@ -193,7 +193,7 @@ public class UserSearchPanel extends Panel {
         this(id, initCond, true, pageRef);
     }
 
-    public UserSearchPanel(final String id, final NodeCond initNodeCond, final boolean required,
+    public UserSearchPanel(final String id, final NodeCond initCond, final boolean required,
             final PageReference pageRef) {
 
         super(id);
@@ -211,38 +211,29 @@ public class UserSearchPanel extends Panel {
 
             @Override
             public boolean accept(final FeedbackMessage message) {
-                boolean result;
-
-                // messages reported on the session have a null reporter
-                if (message.getReporter() != null) {
-                    // only accept messages coming from the children
-                    // of the search form container
-                    result = searchFormContainer.contains(message.getReporter(), true);
-                } else {
-                    result = false;
-                }
-
-                return result;
+                // only accept messages coming from children of the search form container
+                return message.getReporter() == null
+                        ? false
+                        : searchFormContainer.contains(message.getReporter(), true);
             }
         });
         searchFeedback.setOutputMarkupId(true);
         add(searchFeedback);
 
-        if (initNodeCond == null) {
+        if (initCond == null) {
             searchConditionList = new ArrayList<SearchCondWrapper>();
             searchConditionList.add(new SearchCondWrapper());
         } else {
-            searchConditionList = getSearchCondWrappers(initNodeCond, null);
+            searchConditionList = getSearchCondWrappers(initCond, null);
         }
         searchFormContainer.add(new SearchView("searchView", searchConditionList, searchFormContainer));
 
-        AjaxButton addAndButton = new ClearIndicatingAjaxButton("addAndButton", new ResourceModel("addAndButton"),
-                pageRef) {
+        AjaxButton addAndButton = new IndicatingAjaxButton("addAndButton", new ResourceModel("addAndButton")) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 SearchCondWrapper conditionWrapper = new SearchCondWrapper();
                 conditionWrapper.setOperationType(OperationType.AND);
                 searchConditionList.add(conditionWrapper);
@@ -257,13 +248,12 @@ public class UserSearchPanel extends Panel {
         addAndButton.setDefaultFormProcessing(false);
         searchFormContainer.add(addAndButton);
 
-        AjaxButton addOrButton = new ClearIndicatingAjaxButton("addOrButton", new ResourceModel("addOrButton"),
-                pageRef) {
+        AjaxButton addOrButton = new IndicatingAjaxButton("addOrButton", new ResourceModel("addOrButton")) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 SearchCondWrapper conditionWrapper = new SearchCondWrapper();
                 conditionWrapper.setOperationType(OperationType.OR);
                 searchConditionList.add(conditionWrapper);
@@ -367,10 +357,10 @@ public class UserSearchPanel extends Panel {
             return null;
         }
 
-        LOG.debug("Search conditions: fname {}; ftype {}; fvalue {}; OP {}; type {}; isnot {}", new Object[]{
-                    searchConditionWrapper.getFilterName(), searchConditionWrapper.getFilterType(),
-                    searchConditionWrapper.getFilterValue(), searchConditionWrapper.getOperationType(),
-                    searchConditionWrapper.getType(), searchConditionWrapper.isNotOperator()});
+        LOG.debug("Search conditions: fname {}; ftype {}; fvalue {}; OP {}; type {}; isnot {}", new Object[] {
+            searchConditionWrapper.getFilterName(), searchConditionWrapper.getFilterType(),
+            searchConditionWrapper.getFilterValue(), searchConditionWrapper.getOperationType(),
+            searchConditionWrapper.getType(), searchConditionWrapper.isNotOperator()});
 
         NodeCond nodeCond = null;
 
@@ -401,7 +391,8 @@ public class UserSearchPanel extends Panel {
             case MEMBERSHIP:
                 final MembershipCond membershipCond = new MembershipCond();
                 membershipCond.setRoleId(RoleTO.fromDisplayName(searchConditionWrapper.getFilterName()));
-                membershipCond.setRoleName(searchConditionWrapper.getFilterName().split(" ")[1]);
+                membershipCond.setRoleName(searchConditionWrapper.getFilterName().
+                        substring(searchConditionWrapper.getFilterName().indexOf(' ') + 1));
 
                 if (searchConditionWrapper.isNotOperator()) {
                     nodeCond = NodeCond.getNotLeafCond(membershipCond);
@@ -529,13 +520,12 @@ public class UserSearchPanel extends Panel {
             filterTypeChooser.setRequired(required);
             item.add(filterTypeChooser);
 
-            AjaxButton dropButton = new ClearIndicatingAjaxButton("dropButton", new ResourceModel("dropButton"),
-                    pageRef) {
+            AjaxButton dropButton = new IndicatingAjaxButton("dropButton", new ResourceModel("dropButton")) {
 
                 private static final long serialVersionUID = -4804368561204623354L;
 
                 @Override
-                protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                     getList().remove(Integer.valueOf(getParent().getId()).intValue());
                     target.add(searchFormContainer);
                 }
