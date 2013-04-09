@@ -16,61 +16,63 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:panel>
-  <div id="searchBox">
-    <div wicket:id="searchFeedback"></div>
-    <table border="0">
-      <thead>
-        <tr>
-          <th></th>
-          <th><wicket:message key="search_not_value"/></th>
-      <th><wicket:message key="search_filter_type"/></th>
-      <th><wicket:message key="search_filter_name"/></th>
-      <th><wicket:message key="search_type_cond"/></th>
-      <th><wicket:message key="search_filter_value"/></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      </tr>
-      </thead>
-      <tbody wicket:id="searchFormContainer">
-        <tr wicket:id="searchView">
-          <td>
-            <b><span wicket:id="operationType"/></b>
-          </td>
-          <td>
-            <input type="checkbox" wicket:id="notOperator"/>
-          </td>
-          <td>
-            <select class="text ui-widget-content ui-corner-all"
-                    wicket:id="filterType"/>
-          </td>
-          <td>
-            <select class="text ui-widget-content ui-corner-all"
-                    wicket:id="filterName"/>
-          </td>
-          <td>
-            <select class="text ui-widget-content ui-corner-all"
-                    wicket:id="type"/>
-          </td>
-          <td>
-            <input type="text" class="text ui-widget-content ui-corner-all"
-                   wicket:id="filterValue"/>
-          </td>
-          <td>
-            <input type="button" class="text ui-widget-content ui-corner-all"
-                   wicket:id="addAndButton"/>
-          </td>
-          <td>
-            <input type="submit" class="text ui-widget-content ui-corner-all"
-                   wicket:id="addOrButton"/>
-          </td>        
-          <td>
-            <input type="button" class="text ui-widget-content ui-corner-all"
-                   wicket:id="dropButton"/>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</wicket:panel>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:panel>
+    <div id="searchBox">
+      <div wicket:id="searchFeedback"></div>
+      <table border="0">
+        <thead>
+          <tr>
+            <th></th>
+            <th><wicket:message key="search_not_value"/></th>
+            <th><wicket:message key="search_filter_type"/></th>
+            <th><wicket:message key="search_filter_name"/></th>
+            <th><wicket:message key="search_type_cond"/></th>
+            <th><wicket:message key="search_filter_value"/></th>
+            <th></th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody wicket:id="searchFormContainer">
+          <tr wicket:id="searchView">
+            <td>
+              <b><span wicket:id="operationType"/></b>
+            </td>
+            <td>
+              <input type="checkbox" wicket:id="notOperator"/>
+            </td>
+            <td>
+              <select class="text ui-widget-content ui-corner-all"
+                      wicket:id="filterType"/>
+            </td>
+            <td>
+              <select class="text ui-widget-content ui-corner-all"
+                      wicket:id="filterName"/>
+            </td>
+            <td>
+              <select class="text ui-widget-content ui-corner-all"
+                      wicket:id="type"/>
+            </td>
+            <td>
+              <input type="text" class="text ui-widget-content ui-corner-all"
+                     wicket:id="filterValue"/>
+            </td>
+            <td>
+              <input type="button" class="text ui-widget-content ui-corner-all"
+                     wicket:id="addAndButton"/>
+            </td>
+            <td>
+              <input type="submit" class="text ui-widget-content ui-corner-all"
+                     wicket:id="addOrButton"/>
+            </td>        
+            <td>
+              <input type="button" class="text ui-widget-content ui-corner-all"
+                     wicket:id="dropButton"/>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </wicket:panel>
+</html>

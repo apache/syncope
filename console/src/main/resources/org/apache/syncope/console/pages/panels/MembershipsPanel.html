@@ -16,51 +16,51 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
     <p class="ui-widget ui-corner-all ui-widget-header">
-    <wicket:message key="membership_availability"/>
-  </p>
+      <wicket:message key="membership_availability"/>
+    </p>
 
-  <div wicket:id="treeTable" style="float: left; width: 100%; margin:auto;" class="role-tree roleTable"/>
+    <div wicket:id="treeTable" style="float: left; width: 100%; margin:auto;" class="role-tree roleTable"/>
 
-  <div style="float: left; width: 100%;">
-    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="membership_text"/></p>
+    <div style="float: left; width: 100%;">
+      <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="membership_text"/></p>
 
-    <table id="users" class="membershipTable"
-           style="font-size:1.1em" wicket:id="membershipsContainer"
-           cellpadding="5px" cellspacing="2px">
-      <thead>
-        <tr class="ui-widget-header">
-          <th><wicket:message key="id"/></th>
-      <th><wicket:message key="name"/></th>
-      <th><wicket:message key="edit"/></th>
-      <th><wicket:message key="delete"/></th>
-      </tr>
-      </thead>
-      <tbody>
-        <tr wicket:id="memberships">
-          <td>
-            <span wicket:id="roleId"/>
-          </td>
-          <td>
-            <span wicket:id="roleName"/>
-          </td>
-          <td>
-            <a href="#" wicket:id="editLink">
-              <wicket:message key="edit"/>
-            </a>
-          </td>
-          <td>
-            <a href="#" wicket:id="deleteLink">
-              <wicket:message key="delete"/>
-            </a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+      <table id="users" class="membershipTable"
+             style="font-size:1.1em" wicket:id="membershipsContainer"
+             cellpadding="5px" cellspacing="2px">
+        <thead>
+          <tr class="ui-widget-header">
+            <th><wicket:message key="id"/></th>
+            <th><wicket:message key="name"/></th>
+            <th><wicket:message key="edit"/></th>
+            <th><wicket:message key="delete"/></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr wicket:id="memberships">
+            <td>
+              <span wicket:id="roleId"/>
+            </td>
+            <td>
+              <span wicket:id="roleName"/>
+            </td>
+            <td>
+              <a href="#" wicket:id="editLink">
+                <wicket:message key="edit"/>
+              </a>
+            </td>
+            <td>
+              <a href="#" wicket:id="deleteLink">
+                <wicket:message key="delete"/>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-  <div wicket:id="membershipWin"/>
-</wicket:panel>
+    <div wicket:id="membershipWin"/>
+  </wicket:panel>
 </html>
