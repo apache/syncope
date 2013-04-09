@@ -16,7 +16,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -97,8 +96,12 @@ under the License.
                 <copy file="../legal_ext/LICENSE" todir="${work.dir}" />
                 <copy file="../legal_ext/NOTICE" todir="${work.dir}" />
 
-                <!-- Syncope core (as run for integration tests) -->
+                <!-- Unzip Tomcat and remove docs and examples from webapps (space saving) -->
                 <unzip src="${settings.localRepository}/org/codehaus/cargo/cargo-container-archives/apache-tomcat-${tomcat.version}.zip" dest="${work.dir}" />
+                <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/docs"/>
+                <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/examples"/>
+
+                <!-- Syncope core (as run for integration tests) -->
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope">
                   <fileset dir="../core/target/syncope-core-test" includes="**/*" />
                 </copy>
