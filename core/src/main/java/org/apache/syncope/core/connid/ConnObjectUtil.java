@@ -599,8 +599,9 @@ public class ConnObjectUtil {
     private void fillFromTemplate(final AbstractAttributableTO attributableTO, final AbstractAttributableTO template) {
         Map<String, AttributeTO> currentAttrMap = attributableTO.getAttributeMap();
         for (AttributeTO templateAttr : template.getAttributes()) {
-            if (!currentAttrMap.containsKey(templateAttr.getSchema())
-                    || currentAttrMap.get(templateAttr.getSchema()).getValues().isEmpty()) {
+            if (templateAttr.getValues() != null && !templateAttr.getValues().isEmpty()
+                    && (!currentAttrMap.containsKey(templateAttr.getSchema())
+                    || currentAttrMap.get(templateAttr.getSchema()).getValues().isEmpty())) {
 
                 attributableTO.addAttribute(evaluateAttrTemplate(attributableTO, templateAttr));
             }
@@ -615,8 +616,9 @@ public class ConnObjectUtil {
 
         currentAttrMap = attributableTO.getVirtualAttributeMap();
         for (AttributeTO templateVirAttr : template.getDerivedAttributes()) {
-            if (!currentAttrMap.containsKey(templateVirAttr.getSchema())
-                    || currentAttrMap.get(templateVirAttr.getSchema()).getValues().isEmpty()) {
+            if (templateVirAttr.getValues() != null && !templateVirAttr.getValues().isEmpty()
+                    && (!currentAttrMap.containsKey(templateVirAttr.getSchema())
+                    || currentAttrMap.get(templateVirAttr.getSchema()).getValues().isEmpty())) {
 
                 attributableTO.addVirtualAttribute(evaluateAttrTemplate(attributableTO, templateVirAttr));
             }
