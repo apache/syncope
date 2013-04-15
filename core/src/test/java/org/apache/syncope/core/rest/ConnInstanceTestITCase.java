@@ -349,7 +349,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<ConnInstanceTO> connectorInstanceTOs = connectorService.list("");
+        List<ConnInstanceTO> connectorInstanceTOs = connectorService.list(null);
         assertNotNull(connectorInstanceTOs);
         assertFalse(connectorInstanceTOs.isEmpty());
         for (ConnInstanceTO instance : connectorInstanceTOs) {
@@ -409,7 +409,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         }
 
         // 2. Check English (default)
-        connectorInstanceTOs = connectorService.list("");
+        connectorInstanceTOs = connectorService.list(null);
 
         for (ConnInstanceTO instance : connectorInstanceTOs) {
             if ("org.connid.bundles.db.table".equals(instance.getBundleName())) {

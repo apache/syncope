@@ -29,9 +29,9 @@ import org.apache.cxf.jaxrs.model.Parameter;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.cxf.message.Message;
 
-public class QueryResourceInfoComperator extends OperationResourceInfoComparator implements ResourceComparator {
+public class QueryResourceInfoComparator extends OperationResourceInfoComparator implements ResourceComparator {
 
-    public QueryResourceInfoComperator() {
+    public QueryResourceInfoComparator() {
         super(null, null);
     }
 
@@ -43,7 +43,6 @@ public class QueryResourceInfoComperator extends OperationResourceInfoComparator
 
     @Override
     public int compare(final OperationResourceInfo oper1, final OperationResourceInfo oper2, final Message message) {
-
         // Check if CXF can make a decision
         int cxfResult = super.compare(oper1, oper2);
         if (cxfResult != 0) {
@@ -56,8 +55,8 @@ public class QueryResourceInfoComperator extends OperationResourceInfoComparator
         return op1Counter == op2Counter
                 ? 0
                 : op1Counter < op2Counter
-                        ? 1
-                        : -1;
+                ? 1
+                : -1;
     }
 
     /**
@@ -69,7 +68,6 @@ public class QueryResourceInfoComperator extends OperationResourceInfoComparator
      * @return A positive or negative number, indicating a good match between query and method
      */
     protected int getMatchingRate(final OperationResourceInfo operation, final Message message) {
-
         List<Parameter> params = operation.getParameters();
         if (params == null || params.isEmpty()) {
             return 0;

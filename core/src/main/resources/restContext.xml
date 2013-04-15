@@ -91,7 +91,7 @@ under the License.
       <ref bean="userWorkflowServiceImpl"/>
     </jaxrs:serviceBeans>
     <jaxrs:resourceComparator>
-      <bean id="myServiceComparator" class="org.apache.syncope.core.rest.utils.QueryResourceInfoComperator"/>
+      <bean id="myServiceComparator" class="org.apache.syncope.core.rest.utils.QueryResourceInfoComparator"/>
     </jaxrs:resourceComparator>
     <jaxrs:providers>
       <ref bean="jaxbProvider"/>
