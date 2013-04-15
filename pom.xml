@@ -286,7 +286,7 @@ under the License.
     <commons-jexl.version>2.1.1</commons-jexl.version>
     <commons-lang.version>2.6</commons-lang.version>
         
-    <httpcomponents.version>4.2.3</httpcomponents.version>
+    <httpcomponents.version>4.2.4</httpcomponents.version>
 
     <activiti.version>5.12</activiti.version>
 
@@ -306,7 +306,7 @@ under the License.
 
     <wicket.version>6.6.0</wicket.version>
 
-    <groovy.version>2.1.2</groovy.version>
+    <groovy.version>2.1.3</groovy.version>
 
     <h2.version>1.3.170</h2.version>
 
@@ -472,7 +472,7 @@ under the License.
       <dependency>
         <groupId>javax.validation</groupId>
         <artifactId>validation-api</artifactId>
-        <version>1.0.0.GA</version>
+        <version>1.1.0.Final</version>
       </dependency>
       <dependency>
         <groupId>org.apache.bval</groupId>
@@ -567,7 +567,7 @@ under the License.
       <dependency>
         <groupId>cglib</groupId>
         <artifactId>cglib</artifactId>
-        <version>2.2.2</version>
+        <version>3.0</version>
       </dependency>
             
       <dependency>
