@@ -89,7 +89,8 @@ public class ResourcesPanel extends Panel {
         Collections.sort(selectedResources);
 
         final AjaxPalettePanel<String> resourcesPalette = new AjaxPalettePanel<String>("resourcesPalette",
-                new ListModel<String>(selectedResources), new ListModel<String>(allResources));
+                new PropertyModel<List<String>>(roleTO, "resources"),
+                new ListModel<String>(allResources));
         add(resourcesPalette);
     }
 
@@ -115,8 +116,8 @@ public class ResourcesPanel extends Panel {
                 private static final long serialVersionUID = -3415146226879212841L;
 
                 @Override
-                protected Recorder newRecorderComponent() {
-                    Recorder recorder = super.newRecorderComponent();
+                protected Recorder<T> newRecorderComponent() {
+                    Recorder<T> recorder = super.newRecorderComponent();
                     recorder.add(new AjaxFormComponentUpdatingBehavior("change") {
 
                         private static final long serialVersionUID = 5538299138211283825L;

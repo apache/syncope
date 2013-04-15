@@ -51,7 +51,7 @@ public class RolePanel extends Panel {
     @SpringBean
     private XMLRolesReader xmlRolesReader;
 
-    private final AjaxPalettePanel entitlementsPalette;
+    private final AjaxPalettePanel<String> entitlementsPalette;
 
     public RolePanel(final String id, final Form form, final RoleTO roleTO, final RoleModalPage.Mode mode) {
         this(id, form, roleTO, mode, null);
@@ -130,8 +130,8 @@ public class RolePanel extends Panel {
         }
         ListModel<String> availableEntitlements = new ListModel<String>(allEntitlements);
 
-        entitlementsPalette = new AjaxPalettePanel("entitlementsPalette", selectedEntitlements, availableEntitlements);
-
+        entitlementsPalette =
+                new AjaxPalettePanel<String>("entitlementsPalette", selectedEntitlements, availableEntitlements);
         this.add(entitlementsPalette);
     }
 
