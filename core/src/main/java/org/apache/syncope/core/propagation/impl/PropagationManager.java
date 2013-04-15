@@ -523,6 +523,7 @@ public class PropagationManager {
 
         if (!propByRes.get(ResourceOperation.CREATE).isEmpty()
                 && vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
+
             connObjectUtil.retrieveVirAttrValues(subject, attrUtil);
 
             // update vAttrsToBeUpdated as well

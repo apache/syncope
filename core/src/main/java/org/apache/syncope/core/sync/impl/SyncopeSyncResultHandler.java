@@ -104,105 +104,105 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
      * Policy DAO.
      */
     @Autowired
-    private PolicyDAO policyDAO;
+    protected PolicyDAO policyDAO;
 
     /**
      * Entitlement DAO.
      */
     @Autowired
-    private EntitlementDAO entitlementDAO;
+    protected EntitlementDAO entitlementDAO;
 
     /**
      * Schema DAO.
      */
     @Autowired
-    private SchemaDAO schemaDAO;
+    protected SchemaDAO schemaDAO;
 
     /**
      * User DAO.
      */
     @Autowired
-    private UserDAO userDAO;
+    protected UserDAO userDAO;
 
     /**
      * Role DAO.
      */
     @Autowired
-    private RoleDAO roleDAO;
+    protected RoleDAO roleDAO;
 
     /**
      * Search DAO.
      */
     @Autowired
-    private AttributableSearchDAO searchDAO;
+    protected AttributableSearchDAO searchDAO;
 
     /**
      * ConnectorObject util.
      */
     @Autowired
-    private ConnObjectUtil connObjectUtil;
+    protected ConnObjectUtil connObjectUtil;
 
     /**
      * User workflow adapter.
      */
     @Autowired
-    private UserWorkflowAdapter uwfAdapter;
+    protected UserWorkflowAdapter uwfAdapter;
 
     /**
      * Role workflow adapter.
      */
     @Autowired
-    private RoleWorkflowAdapter rwfAdapter;
+    protected RoleWorkflowAdapter rwfAdapter;
 
     /**
      * Propagation Manager.
      */
     @Autowired
-    private PropagationManager propagationManager;
+    protected PropagationManager propagationManager;
 
     /**
      * PropagationTask executor.
      */
     @Autowired
-    private PropagationTaskExecutor taskExecutor;
+    protected PropagationTaskExecutor taskExecutor;
 
     /**
      * User data binder.
      */
     @Autowired
-    private UserDataBinder userDataBinder;
+    protected UserDataBinder userDataBinder;
 
     /**
      * Role data binder.
      */
     @Autowired
-    private RoleDataBinder roleDataBinder;
+    protected RoleDataBinder roleDataBinder;
 
     /**
      * Notification Manager.
      */
     @Autowired
-    private NotificationManager notificationManager;
+    protected NotificationManager notificationManager;
 
     /**
      * Syncing connector.
      */
-    private Connector connector;
+    protected Connector connector;
 
     /**
      * SyncJob actions.
      */
-    private SyncActions actions;
+    protected SyncActions actions;
 
-    private Collection<SyncResult> results;
+    protected Collection<SyncResult> results;
 
-    private SyncTask syncTask;
+    protected SyncTask syncTask;
 
-    private ConflictResolutionAction resAct;
+    protected ConflictResolutionAction resAct;
 
-    private boolean dryRun;
+    protected boolean dryRun;
 
-    private Map<Long, String> roleOwnerMap = new HashMap<Long, String>();
+    protected Map<Long, String> roleOwnerMap = new HashMap<Long, String>();
 
     public Connector getConnector() {
         return connector;
@@ -259,7 +259,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
     @Override
     public boolean handle(final SyncDelta delta) {
         try {
-            results.addAll(doHandle(delta));
+            doHandle(delta);
             return true;
         } catch (JobExecutionException e) {
             LOG.error("Synchronization failed", e);
@@ -267,7 +267,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         }
     }
 
-    private List<Long> findByAccountIdItem(final String uid, final AttributableUtil attrUtil) {
+    protected List<Long> findByAccountIdItem(final String uid, final AttributableUtil attrUtil) {
         final List<Long> result = new ArrayList<Long>();
 
         final AbstractMappingItem accountIdItem = attrUtil.getAccountIdItem(syncTask.getResource());
@@ -342,12 +342,25 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         return result;
     }
 
-    private List<Long> findByCorrelationRule(
+    protected List<Long> search(final NodeCond searchCond, final AttributableUtil attrUtil) {
+        final List<Long> result = new ArrayList<Long>();
+
+        final List<AbstractAttributable> subjects = searchDAO.search(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCond, attrUtil);
+        for (AbstractAttributable subject : subjects) {
+            result.add(subject.getId());
+        }
+
+        return result;
+    }
+
+    protected List<Long> findByCorrelationRule(
             final ConnectorObject connObj, final SyncCorrelationRule rule, final AttributableUtil attrUtil) {
+
         return search(rule.getSearchCond(connObj), attrUtil);
     }
 
-    private List<Long> findByAttributableSearch(
+    protected List<Long> findByAttributableSearch(
             final ConnectorObject connObj, final List<String> altSearchSchemas, final AttributableUtil attrUtil) {
 
         // search for external attribute's name/value of each specified name
@@ -406,18 +419,6 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         }
 
         return search(searchCond, attrUtil);
-    }
-
-    private List<Long> search(final NodeCond searchCond, final AttributableUtil attrUtil) {
-        final List<Long> result = new ArrayList<Long>();
-
-        final List<AbstractAttributable> subjects = searchDAO.search(
-                EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCond, attrUtil);
-        for (AbstractAttributable subject : subjects) {
-            result.add(subject.getId());
-        }
-
-        return result;
     }
 
     /**
@@ -543,6 +544,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     subjectTO = userDataBinder.getUserTO(created.getResult().getKey());
 
                     result.setId(created.getResult().getKey());
+                    result.setName(((UserTO) subjectTO).getUsername());
                 }
                 if (AttributableType.ROLE == attrUtil.getType()) {
                     WorkflowResult<Long> created = rwfAdapter.create((RoleTO) subjectTO);
@@ -561,12 +563,6 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     subjectTO = roleDataBinder.getRoleTO(created.getResult());
 
                     result.setId(created.getResult());
-                }
-
-                if (subjectTO instanceof UserTO) {
-                    result.setName(((UserTO) subjectTO).getUsername());
-                }
-                if (subjectTO instanceof RoleTO) {
                     result.setName(((RoleTO) subjectTO).getName());
                 }
                 result.setStatus(SyncResult.Status.SUCCESS);
@@ -583,7 +579,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         return Collections.singletonList(result);
     }
 
-    protected void updateUser(final Long id, SyncDelta delta, final boolean dryRun, final SyncResult result)
+    protected UserTO updateUser(final Long id, SyncDelta delta, final boolean dryRun, final SyncResult result)
             throws Exception {
 
         UserTO userTO = userDataBinder.getUserTO(id);
@@ -593,7 +589,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         delta = actions.beforeUpdate(this, delta, userTO, userMod);
 
         if (dryRun) {
-            return;
+            return userTO;
         }
 
         WorkflowResult<Map.Entry<Long, Boolean>> updated;
@@ -645,9 +641,11 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         userTO = userDataBinder.getUserTO(updated.getResult().getKey());
 
         actions.after(this, delta, userTO, result);
+
+        return userTO;
     }
 
-    protected void updateRole(final Long id, SyncDelta delta, final boolean dryRun, final SyncResult result)
+    protected RoleTO updateRole(final Long id, SyncDelta delta, final boolean dryRun, final SyncResult result)
             throws Exception {
 
         RoleTO roleTO = roleDataBinder.getRoleTO(id);
@@ -657,7 +655,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         delta = actions.beforeUpdate(this, delta, roleTO, roleMod);
 
         if (dryRun) {
-            return;
+            return roleTO;
         }
 
         WorkflowResult<Long> updated = rwfAdapter.update(roleMod);
@@ -681,6 +679,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         roleTO = roleDataBinder.getRoleTO(updated.getResult());
 
         actions.after(this, delta, roleTO, result);
+
+        return roleTO;
     }
 
     protected List<SyncResult> update(SyncDelta delta, final List<Long> subjects, final AttributableUtil attrUtil,
@@ -707,11 +707,13 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
             try {
                 if (AttributableType.USER == attrUtil.getType()) {
-                    updateUser(id, delta, dryRun, result);
+                    UserTO updated = updateUser(id, delta, dryRun, result);
+                    result.setName(updated.getUsername());
                 }
 
                 if (AttributableType.ROLE == attrUtil.getType()) {
-                    updateRole(id, delta, dryRun, result);
+                    RoleTO updated = updateRole(id, delta, dryRun, result);
+                    result.setName(updated.getName());
                 }
             } catch (PropagationException e) {
                 result.setStatus(SyncResult.Status.FAILURE);
@@ -809,12 +811,14 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
      * Look into SyncDelta and take necessary actions (create / update / delete) on user(s).
      *
      * @param delta returned by the underlying connector
-     * @return list of synchronization results
      * @throws JobExecutionException in case of synchronization failure.
      */
-    protected final List<SyncResult> doHandle(final SyncDelta delta)
+    protected final void doHandle(final SyncDelta delta)
             throws JobExecutionException {
-        final List<SyncResult> results = new ArrayList<SyncResult>();
+
+        if (results == null) {
+            results = new ArrayList<SyncResult>();
+        }
 
         LOG.debug("Process {} for {} as {}",
                 delta.getDeltaType(), delta.getUid().getUidValue(), delta.getObject().getObjectClass());
@@ -884,7 +888,5 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 }
             }
         }
-
-        return results;
     }
 }
