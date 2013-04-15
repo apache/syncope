@@ -235,17 +235,19 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             LOG.debug("{} not found on external resource: ignoring delete", task.getAccountId());
         } else {
             /*
-             * We must choose here whether to a. actually delete the provided user from the external resource b. just
-             * update the provided user data onto the external resource
+             * We must choose here whether to
+             * a. actually delete the provided user / role from the external resource
+             * b. just update the provided user / role data onto the external resource
              *
-             * (a) happens when either there is no user associated with the PropagationTask (this takes place when the
-             * task is generated via UserController.delete()) or the provided updated user hasn't the current resource
-             * assigned (when the task is generated via UserController.update()).
+             * (a) happens when either there is no user / role associated with the PropagationTask (this takes place
+             * when the task is generated via UserController.delete() / RoleController.delete()) or the provided updated
+             * user / role hasn't the current resource assigned (when the task is generated via
+             * UserController.update() / RoleController.update()).
              *
-             * (b) happens when the provided updated user does have the current resource assigned (when the task is
-             * generated via UserController.update()): this basically means that before such update, this user used to
-             * have the current resource assigned by more than one mean (for example, two different memberships with the
-             * same resource).
+             * (b) happens when the provided updated user / role does have the current resource assigned (when the task
+             * is generated via UserController.update() / RoleController.updae()): this basically means that before such
+             * update, this user / role used to have the current resource assigned by more than one mean (for example,
+             * two different memberships with the same resource).
              */
             AbstractAttributable subject = getSubject(task);
             if (subject == null || !subject.getResourceNames().contains(task.getResource().getName())) {
