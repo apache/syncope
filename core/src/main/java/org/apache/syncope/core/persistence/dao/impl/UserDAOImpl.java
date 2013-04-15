@@ -53,8 +53,8 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
 
     @Override
     public SyncopeUser find(final Long id) {
-        TypedQuery<SyncopeUser> query = entityManager.createQuery("SELECT e FROM " + SyncopeUser.class.getSimpleName()
-                + " e " + "WHERE e.id = :id", SyncopeUser.class);
+        TypedQuery<SyncopeUser> query = entityManager.createQuery(
+                "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e WHERE e.id = :id", SyncopeUser.class);
         query.setParameter("id", id);
 
         SyncopeUser result = null;
@@ -173,7 +173,7 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
         List<Number> userIds = new ArrayList<Number>();
         List<Object> resultList = query.getResultList();
 
-        //fix for HHH-5902 - bug hibernate
+        // fix for HHH-5902 - bug hibernate
         if (resultList != null) {
             for (Object userId : resultList) {
                 if (userId instanceof Object[]) {
@@ -186,11 +186,10 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
 
         List<SyncopeUser> result = new ArrayList<SyncopeUser>(userIds.size());
 
-        SyncopeUser user;
-        for (Object userId : userIds) {
-            user = findInternal(((Number) userId).longValue());
+        for (Number userId : userIds) {
+            SyncopeUser user = findInternal(userId.longValue());
             if (user == null) {
-                LOG.error("Could not find user with id {}, " + "even though returned by the native query", userId);
+                LOG.error("Could not find user with id {}, even though returned by the native query", userId);
             } else {
                 result.add(user);
             }
@@ -232,8 +231,7 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
 
     @Override
     public void delete(final SyncopeUser user) {
-        // Not calling membershipDAO.delete() here because it would try
-        // to save this user as well, thus going into
+        // Not calling membershipDAO.delete() here because it would try to save this user as well, thus going into
         // ConcurrentModificationException
         for (Membership membership : user.getMemberships()) {
             membership.setSyncopeUser(null);

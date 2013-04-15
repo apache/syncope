@@ -71,7 +71,7 @@ public class Users extends BasePage {
 
 
         // create new user
-        final AjaxLink createLink = new ClearIndicatingAjaxLink("createLink", getPageReference()) {
+        final AjaxLink<Void> createLink = new ClearIndicatingAjaxLink<Void>("createLink", getPageReference()) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
