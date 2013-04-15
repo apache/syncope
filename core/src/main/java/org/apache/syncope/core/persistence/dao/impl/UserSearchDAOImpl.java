@@ -22,12 +22,13 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
+import javax.swing.SortOrder;
 import javax.validation.ValidationException;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.apache.syncope.client.search.AttributeCond;
@@ -92,7 +93,6 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
 
     @Override
     public int count(final Set<Long> adminRoles, final NodeCond searchCondition) {
-
         List<Object> parameters = Collections.synchronizedList(new ArrayList<Object>());
 
         // 1. get the query string from the search condition
@@ -148,7 +148,6 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
 
     @Override
     public boolean matches(final SyncopeUser user, final NodeCond searchCondition) {
-
         List<Object> parameters = Collections.synchronizedList(new ArrayList<Object>());
 
         // 1. get the query string from the search condition
@@ -171,7 +170,6 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
     }
 
     private int setParameter(final List<Object> parameters, final Object parameter) {
-
         int key;
         synchronized (parameters) {
             parameters.add(parameter);
@@ -182,7 +180,6 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
     }
 
     private void fillWithParameters(final Query query, final List<Object> parameters) {
-
         for (int i = 0; i < parameters.size(); i++) {
             if (parameters.get(i) instanceof Date) {
                 query.setParameter(i + 1, (Date) parameters.get(i), TemporalType.TIMESTAMP);
@@ -217,7 +214,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
         // 3. prepare the search query
         final Query query = entityManager.createNativeQuery(queryString.toString());
 
-        // page starts from 1, while setFirtResult() starts from 0
+        // 4. page starts from 1, while setFirtResult() starts from 0
         query.setFirstResult(itemsPerPage * (page <= 0
                 ? 0
                 : page - 1));
@@ -226,31 +223,34 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
             query.setMaxResults(itemsPerPage);
         }
 
-        // 4. populate the search query with parameter values
+        // 5. populate the search query with parameter values
         fillWithParameters(query, parameters);
 
         LOG.debug("Native query\n{}\nwith parameters\n{}", queryString.toString(), parameters);
 
-        // 5. Prepare the result (avoiding duplicates - set)
-        final Set<Number> userIds = new HashSet<Number>();
+        // 6. Prepare the result (avoiding duplicates)
+        final List<Number> userIds = new ArrayList<Number>();
         final List resultList = query.getResultList();
 
         //fix for HHH-5902 - bug hibernate
         if (resultList != null) {
             for (Object userId : resultList) {
+                final Number userIdNumber;
                 if (userId instanceof Object[]) {
-                    userIds.add((Number) ((Object[]) userId)[0]);
+                    userIdNumber = (Number) ((Object[]) userId)[0];
                 } else {
-                    userIds.add((Number) userId);
+                    userIdNumber = (Number) userId;
+                }
+                if (!userIds.contains(userIdNumber)) {
+                    userIds.add(userIdNumber);
                 }
             }
         }
 
         final List<SyncopeUser> result = new ArrayList<SyncopeUser>(userIds.size());
 
-        SyncopeUser user;
-        for (Object userId : userIds) {
-            user = userDAO.find(((Number) userId).longValue());
+        for (Number userId : userIds) {
+            SyncopeUser user = userDAO.find(userId.longValue());
             if (user == null) {
                 LOG.error("Could not find user with id {}, " + "even though returned by the native query", userId);
             } else {
@@ -304,7 +304,6 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
     }
 
     private String getQuery(final MembershipCond cond, final boolean not, final List<Object> parameters) {
-
         StringBuilder query = new StringBuilder("SELECT DISTINCT user_id FROM user_search WHERE ");
 
         if (not) {
@@ -508,7 +507,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl implements UserSearchDAO 
                 syncopeUserClassField = i.getDeclaredField(cond.getSchema());
             } catch (Exception ignore) {
                 // ignore exception
-                LOG.debug("Field '{}' not found on class '{}'", new String[]{cond.getSchema(), i.getSimpleName()},
+                LOG.debug("Field '{}' not found on class '{}'", new String[] {cond.getSchema(), i.getSimpleName()},
                         ignore);
             } finally {
                 i = i.getSuperclass();

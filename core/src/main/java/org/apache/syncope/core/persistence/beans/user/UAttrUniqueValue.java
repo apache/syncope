@@ -31,10 +31,13 @@ import org.apache.syncope.core.persistence.beans.AbstractSchema;
 public class UAttrUniqueValue extends AbstractAttrUniqueValue {
 
     private static final long serialVersionUID = -64080804563305387L;
+
     @Id
     private Long id;
+
     @OneToOne(optional = false)
     private UAttr attribute;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "schema_name")
     private USchema schema;

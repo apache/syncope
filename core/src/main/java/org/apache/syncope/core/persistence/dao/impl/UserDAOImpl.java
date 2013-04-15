@@ -30,12 +30,13 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
+import javax.swing.SortOrder;
 import org.apache.commons.jexl2.parser.Parser;
 import org.apache.commons.jexl2.parser.ParserConstants;
 import org.apache.commons.jexl2.parser.Token;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -70,8 +71,8 @@ public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {
 
     @Override
     public SyncopeUser find(final Long id) {
-        TypedQuery<SyncopeUser> query = entityManager.createQuery("SELECT e FROM " + SyncopeUser.class.getSimpleName()
-                + " e " + "WHERE e.id = :id", SyncopeUser.class);
+        TypedQuery<SyncopeUser> query = entityManager.createQuery(
+                "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e WHERE e.id = :id", SyncopeUser.class);
         query.setParameter("id", id);
 
         SyncopeUser result = null;
@@ -172,7 +173,6 @@ public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {
 
     @Override
     public List<SyncopeUser> findByAttrValue(final String schemaName, final UAttrValue attrValue) {
-
         USchema schema = schemaDAO.find(schemaName, USchema.class);
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaName);
@@ -204,10 +204,9 @@ public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {
         query.setParameter("doubleValue", attrValue.getDoubleValue());
 
         List<SyncopeUser> result = new ArrayList<SyncopeUser>();
-        SyncopeUser user;
-        for (AbstractAttrValue value : (List<AbstractAttrValue>) query.getResultList()) {
 
-            user = (SyncopeUser) value.getAttribute().getOwner();
+        for (AbstractAttrValue value : (List<AbstractAttrValue>) query.getResultList()) {
+            SyncopeUser user = (SyncopeUser) value.getAttribute().getOwner();
             if (!result.contains(user)) {
                 result.add(user);
             }
@@ -218,7 +217,6 @@ public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {
 
     @Override
     public SyncopeUser findByAttrUniqueValue(final String schemaName, final UAttrValue attrUniqueValue) {
-
         USchema schema = schemaDAO.find(schemaName, USchema.class);
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaName);
@@ -281,7 +279,6 @@ public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {
 
     @Override
     public final List<SyncopeUser> findAll(final Set<Long> adminRoles, final int page, final int itemsPerPage) {
-
         final Query query = entityManager.createNativeQuery(getFindAllQuery(adminRoles).toString());
 
         query.setFirstResult(itemsPerPage * (page <= 0
@@ -298,19 +295,22 @@ public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {
         //fix for HHH-5902 - bug hibernate
         if (resultList != null) {
             for (Object userId : resultList) {
+                final Number userIdNumber;
                 if (userId instanceof Object[]) {
-                    userIds.add((Number) ((Object[]) userId)[0]);
+                    userIdNumber = (Number) ((Object[]) userId)[0];
                 } else {
-                    userIds.add((Number) userId);
+                    userIdNumber = (Number) userId;
+                }
+                if (!userIds.contains(userIdNumber)) {
+                    userIds.add(userIdNumber);
                 }
             }
         }
 
         List<SyncopeUser> result = new ArrayList<SyncopeUser>(userIds.size());
 
-        SyncopeUser user;
-        for (Object userId : userIds) {
-            user = find(((Number) userId).longValue());
+        for (Number userId : userIds) {
+            SyncopeUser user = find(userId.longValue());
             if (user == null) {
                 LOG.error("Could not find user with id {}, " + "even though returned by the native query", userId);
             } else {
@@ -395,8 +395,7 @@ public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {
 
         // Get schema names and literals
         Token token;
-        while ((token = parser.getNextToken()) != null && StringUtils.hasText(token.toString())) {
-
+        while ((token = parser.getNextToken()) != null && StringUtils.isNotBlank(token.toString())) {
             if (token.kind == ParserConstants.STRING_LITERAL) {
                 literals.add(token.toString().substring(1, token.toString().length() - 1));
             }
@@ -512,7 +511,6 @@ public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {
      * @return
      */
     private List<String> split(final String attrValue, final List<String> literals) {
-
         final List<String> attrValues = new ArrayList<String>();
 
         if (literals.isEmpty()) {
@@ -520,7 +518,6 @@ public class UserDAOImpl extends AbstractDAOImpl implements UserDAO {
         } else {
 
             for (String token : attrValue.split(Pattern.quote(literals.get(0)))) {
-
                 attrValues.addAll(split(token, literals.subList(1, literals.size())));
             }
         }
