@@ -23,7 +23,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.Entity;
@@ -226,39 +225,43 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         // 3. prepare the search query
         final Query query = entityManager.createNativeQuery(queryString.toString());
 
-        // page starts from 1, while setFirtResult() starts from 0
+        // 4. page starts from 1, while setFirtResult() starts from 0
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
 
         if (itemsPerPage >= 0) {
             query.setMaxResults(itemsPerPage);
         }
 
-        // 4. populate the search query with parameter values
+        // 5. populate the search query with parameter values
         fillWithParameters(query, parameters);
 
         LOG.debug("Native query\n{}\nwith parameters\n{}", queryString.toString(), parameters);
 
-        // 5. Prepare the result (avoiding duplicates - set)
-        final Set<Number> subjectIds = new HashSet<Number>();
+        // 6. Prepare the result (avoiding duplicates)
+        final List<Number> subjectIds = new ArrayList<Number>();
         final List resultList = query.getResultList();
 
-        //fix for HHH-5902 - bug hibernate
+        // fix for HHH-5902 - bug hibernate
         if (resultList != null) {
             for (Object userId : resultList) {
+                final Number subjectIdNumber;
                 if (userId instanceof Object[]) {
-                    subjectIds.add((Number) ((Object[]) userId)[0]);
+                    subjectIdNumber = (Number) ((Object[]) userId)[0];
                 } else {
-                    subjectIds.add((Number) userId);
+                    subjectIdNumber = (Number) userId;
+                }
+                if (!subjectIds.contains(subjectIdNumber)) {
+                    subjectIds.add(subjectIdNumber);
                 }
             }
         }
 
         final List<T> result = new ArrayList<T>(subjectIds.size());
 
-        for (Object subjectId : subjectIds) {
+        for (Number subjectId : subjectIds) {
             T subject = attrUtil.getType() == AttributableType.USER
-                    ? (T) userDAO.find(((Number) subjectId).longValue())
-                    : (T) roleDAO.find(((Number) subjectId).longValue());
+                    ? (T) userDAO.find(subjectId.longValue())
+                    : (T) roleDAO.find(subjectId.longValue());
             if (subject == null) {
                 LOG.error("Could not find {} with id {}, even though returned by the native query",
                         attrUtil.getType(), subjectId);
