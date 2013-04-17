@@ -202,7 +202,8 @@ public class AttributableUtil {
 
     public <T extends AbstractMappingItem> List<T> getMappingItems(
             final ExternalResource resource, final MappingPurpose purpose) {
-        List<T> items = Collections.EMPTY_LIST;
+
+        List<T> items = Collections.<T>emptyList();
 
         if (resource != null) {
             switch (type) {

@@ -549,6 +549,9 @@ public class PropagationManager {
                 final ExternalResource resource = resourceDAO.find(resourceName);
                 if (resource == null) {
                     LOG.error("Invalid resource name specified: {}, ignoring...", resourceName);
+                } else if (attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION).isEmpty()) {
+                    LOG.warn("Requesting propagation for {} but no propagation mapping provided for {}",
+                            attrUtil.getType(), resource);
                 } else {
                     PropagationTask task = new PropagationTask();
                     task.setResource(resource);
