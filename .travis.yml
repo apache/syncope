@@ -13,12 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-script: mvn clean verify
 language: java
 jdk:
   - openjdk6
+# default install is mvn install --quiet -DskipTests=true
+install: mvn --show-version --errors -P skipTests
+#invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
+script: mvn --show-version --errors clean install -Dinvoker.streamLogs=true
 branches:
-  except:
+  only:
     - trunk
     - 1_1_X
     - 1_0_X
