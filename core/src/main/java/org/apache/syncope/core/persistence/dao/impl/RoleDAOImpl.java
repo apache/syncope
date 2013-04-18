@@ -30,9 +30,9 @@ import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
+import org.apache.syncope.core.persistence.beans.role.RAttrValue;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
@@ -192,12 +192,12 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
     }
 
     @Override
-    public List<SyncopeRole> findByAttrValue(final String schemaName, final UAttrValue attrValue) {
+    public List<SyncopeRole> findByAttrValue(final String schemaName, final RAttrValue attrValue) {
         return findByAttrValue(schemaName, attrValue, AttributableUtil.getInstance(AttributableType.ROLE));
     }
 
     @Override
-    public SyncopeRole findByAttrUniqueValue(final String schemaName, final UAttrValue attrUniqueValue) {
+    public SyncopeRole findByAttrUniqueValue(final String schemaName, final RAttrValue attrUniqueValue) {
         return (SyncopeRole) findByAttrUniqueValue(schemaName, attrUniqueValue,
                 AttributableUtil.getInstance(AttributableType.ROLE));
     }

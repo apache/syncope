@@ -24,9 +24,9 @@ import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
+import org.apache.syncope.core.persistence.beans.role.RAttrValue;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 public interface RoleDAO extends AttributableDAO {
@@ -49,9 +49,9 @@ public interface RoleDAO extends AttributableDAO {
 
     List<SyncopeRole> findByDerAttrValue(String schemaName, String value) throws InvalidSearchConditionException;
 
-    List<SyncopeRole> findByAttrValue(String schemaName, UAttrValue attrValue);
+    List<SyncopeRole> findByAttrValue(String schemaName, RAttrValue attrValue);
 
-    SyncopeRole findByAttrUniqueValue(String schemaName, UAttrValue attrUniqueValue);
+    SyncopeRole findByAttrUniqueValue(String schemaName, RAttrValue attrUniqueValue);
 
     List<SyncopeRole> findByResource(ExternalResource resource);
 

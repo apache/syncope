@@ -317,11 +317,9 @@ svn checkout https://svn.apache.org/repos/asf/syncope/branches/1_1_X syncope-1_1
 cd syncope-1_1_X
 mvn -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
 cd ../site/&lt;version&gt;
-rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools project-reports.html apidocs/1.html apidocs/1.1
+rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-common syncope-standalone project-reports.html apidocs/1.html apidocs/1.1
 cd ..
 svn add &lt;version&gt;
-svn copy *.html css images img js &lt;version&gt;
-svn revert &lt;version&gt;/downloads.html
 svn copy apidocs/1.1 &lt;version&gt;/apidocs/
 svn commit -m "Staging site for release"</source>
               </li>
