@@ -2,6 +2,17 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.0.8
+================================================================================
+** Bug
+    * [SYNCOPE-351] - Errors when editing role membership assignment in notifications (About and Recipients)
+
+** Improvement
+    * [SYNCOPE-348] - Email address validator regexp
+
+** Wish
+    * [SYNCOPE-340] - Translate items of Syncope UI and config files labels for Portuguese language
+
 Release Notes - Syncope - Version 1.0.7
 ================================================================================
 ** Bug
