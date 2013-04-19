@@ -24,9 +24,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.EntityManager;
 
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
@@ -34,6 +36,7 @@ import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.persistence.beans.role.RMappingItem;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UMapping;
 import org.apache.syncope.core.persistence.beans.user.UMappingItem;
@@ -49,6 +52,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class ResourceTest extends AbstractDAOTest {
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -237,6 +243,31 @@ public class ResourceTest extends AbstractDAOTest {
         // there must be no tasks
         for (PropagationTask task : propagationTasks) {
             assertNull(taskDAO.find(task.getId()));
+        }
+    }
+
+    @Test
+    public void emptyMapping() {
+        ExternalResource ldap = resourceDAO.find("resource-ldap");
+        assertNotNull(ldap);
+        assertNotNull(ldap.getUmapping());
+        assertNotNull(ldap.getRmapping());
+
+        List<RMappingItem> items = ldap.getRmapping().<RMappingItem>getItems();
+        assertNotNull(items);
+        assertFalse(items.isEmpty());
+        List<Long> itemIds = new ArrayList<Long>(items.size());
+        for (RMappingItem item : items) {
+            itemIds.add(item.getId());
+        }
+
+        ldap.setRmapping(null);
+
+        resourceDAO.save(ldap);
+        resourceDAO.flush();
+
+        for (Long itemId : itemIds) {
+            assertNull(entityManager.find(RMappingItem.class, itemId));
         }
     }
 

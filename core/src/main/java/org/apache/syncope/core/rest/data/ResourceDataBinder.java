@@ -105,13 +105,17 @@ public class ResourceDataBinder {
 
         resource.setPropagationMode(resourceTO.getPropagationMode());
 
-        if (resourceTO.getUmapping() != null) {
+        if (resourceTO.getUmapping() == null || resourceTO.getUmapping().getItems().isEmpty()) {
+            resource.setUmapping(null);
+        } else {
             UMapping mapping = new UMapping();
             mapping.setResource(resource);
             resource.setUmapping(mapping);
             populateMapping(resourceTO.getUmapping(), mapping, new UMappingItem());
         }
-        if (resourceTO.getRmapping() != null) {
+        if (resourceTO.getRmapping() == null || resourceTO.getRmapping().getItems().isEmpty()) {
+            resource.setRmapping(null);
+        } else {
             RMapping mapping = new RMapping();
             mapping.setResource(resource);
             resource.setRmapping(mapping);
