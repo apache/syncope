@@ -560,6 +560,7 @@ public class UserTestITCase extends AbstractTest {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
 
         UserTO userTO = getUniqueSampleTO("createWithReject@syncope.apache.org");
+        userTO.addResource("resource-testdb");
 
         // User with role 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
@@ -575,7 +576,6 @@ public class UserTestITCase extends AbstractTest {
 
         // 2. request if there is any pending task for user just created
         WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getId());
-
         assertNotNull(form);
         assertNotNull(form.getUserId());
         assertEquals(userTO.getId(), form.getUserId());
@@ -611,6 +611,17 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertEquals("rejected", userTO.getStatus());
 
+        // 6. check that rejected user was not propagated to external resource (SYNCOPE-364)
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        Exception exception = null;
+        try {
+            jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
+                    new String[] {userTO.getUsername()}, Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            exception = e;
+        }
+        assertNotNull(exception);
+
         // reset admin credentials for restTemplate
         super.resetRestTemplate();
     }
@@ -618,8 +629,6 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void createWithApproval() {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
-
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
         UserTO userTO = getUniqueSampleTO("createWithApproval@syncope.apache.org");
         userTO.addResource(RESOURCE_NAME_TESTDB);
@@ -639,10 +648,12 @@ public class UserTestITCase extends AbstractTest {
 
         assertTrue(userTO.getPropagationStatusTOs().isEmpty());
 
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
         Exception exception = null;
         try {
             jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
-                    new String[]{userTO.getUsername()}, Integer.class);
+                    new String[] {userTO.getUsername()}, Integer.class);
         } catch (EmptyResultDataAccessException e) {
             exception = e;
         }

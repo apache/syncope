@@ -185,6 +185,17 @@ Release Notes - Syncope - Version 1.1.0
     * [SYNCOPE-326] - Check console style (CSS) on Internet Explorer
     * [SYNCOPE-350] - Provide Getting started / Standalone distribution
 
+Release Notes - Syncope - Version 1.0.8
+================================================================================
+** Bug
+    * [SYNCOPE-351] - Errors when editing role membership assignment in notifications (About and Recipients)
+
+** Improvement
+    * [SYNCOPE-348] - Email address validator regexp
+
+** Wish
+    * [SYNCOPE-340] - Translate items of Syncope UI and config files labels for Portuguese language
+
 Release Notes - Syncope - Version 1.0.7
 ================================================================================
 ** Bug

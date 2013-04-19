@@ -650,8 +650,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         SyncopeUser updated = userDAO.save(user);
 
         // see if there is any propagation to be done
-        PropagationByResource propByRes = (PropagationByResource) runtimeService.getVariable(user.getWorkflowId(),
-                PROP_BY_RESOURCE);
+        PropagationByResource propByRes =
+                (PropagationByResource) runtimeService.getVariable(user.getWorkflowId(), PROP_BY_RESOURCE);
 
         // fetch - if available - the encrpted password
         String clearPassword = null;
