@@ -59,10 +59,8 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
         return getService(ReportService.class).count();
     }
 
-    public ReportTO create(final ReportTO reportTO) {
-        Response response = getService(ReportService.class).create(reportTO);
-        Long reportId = (Long) response.getEntity();
-        return getService(ReportService.class).read(reportId);
+    public void create(final ReportTO reportTO) {
+        getService(ReportService.class).create(reportTO);
     }
 
     public void update(final ReportTO reportTO) {
