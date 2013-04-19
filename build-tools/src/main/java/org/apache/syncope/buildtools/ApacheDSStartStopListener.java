@@ -153,9 +153,12 @@ public class ApacheDSStartStopListener implements ServletContextListener {
      * partitions.
      *
      * @param workDir the directory to be used for storing the data
+     * @param loadDefaultContent if default content should be loaded
      * @throws Exception if there were some problems while initializing
      */
-    private void initDirectoryService(final ServletContext servletContext, final File workDir) throws Exception {
+    private void initDirectoryService(final ServletContext servletContext, final File workDir,
+            final boolean loadDefaultContent) throws Exception {
+
         // Initialize the LDAP service
         service = new DefaultDirectoryService();
         service.setWorkingDirectory(workDir);
@@ -180,10 +183,12 @@ public class ApacheDSStartStopListener implements ServletContextListener {
         service.startup();
 
         // Finally, load content LDIF
-        final LdifURLLoader contentLoader = new LdifURLLoader(service.getAdminSession(),
-                servletContext.getResource("/WEB-INF/classes/content.ldif"));
-        final int numEntries = contentLoader.execute();
-        LOG.info("Successfully created {} entries", numEntries);
+        if (loadDefaultContent) {
+            final LdifURLLoader contentLoader = new LdifURLLoader(service.getAdminSession(),
+                    servletContext.getResource("/WEB-INF/classes/content.ldif"));
+            final int numEntries = contentLoader.execute();
+            LOG.info("Successfully created {} entries", numEntries);
+        }
     }
 
     /**
@@ -195,13 +200,16 @@ public class ApacheDSStartStopListener implements ServletContextListener {
     public void contextInitialized(final ServletContextEvent sce) {
         File workDir = (File) sce.getServletContext().getAttribute("javax.servlet.context.tempdir");
         workDir = new File(workDir, "server-work");
-        if (!workDir.mkdirs()) {
+        
+        final boolean loadDefaultContent = !workDir.exists();
+        
+        if (loadDefaultContent && !workDir.mkdirs()) {
             throw new RuntimeException("Could not create " + workDir.getAbsolutePath());
         }
 
         Entry result;
         try {
-            initDirectoryService(sce.getServletContext(), workDir);
+            initDirectoryService(sce.getServletContext(), workDir, loadDefaultContent);
 
             server = new LdapServer();
             server.setTransports(
