@@ -39,6 +39,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.ConnBundleTO;
+import org.apache.syncope.common.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
@@ -547,6 +548,26 @@ public class ConnInstanceTestITCase extends AbstractTest {
         schemaNames = connectorService.getSchemaNames(conn.getId(), conn, true);
         assertNotNull(schemaNames);
         assertFalse(schemaNames.isEmpty());
+    }
+
+    @Test
+    public void getSupportedObjectClasses() {
+        ConnInstanceTO ldap = connectorService.read(105L);
+        assertNotNull(ldap);
+
+        List<ConnIdObjectClassTO> objectClasses = connectorService.getSupportedObjectClasses(ldap.getId(), ldap);
+        assertNotNull(objectClasses);
+        assertEquals(2, objectClasses.size());
+        assertTrue(objectClasses.contains(ConnIdObjectClassTO.ACCOUNT));
+        assertTrue(objectClasses.contains(ConnIdObjectClassTO.GROUP));
+
+        ConnInstanceTO csv = connectorService.read(104L);
+        assertNotNull(csv);
+
+        objectClasses = connectorService.getSupportedObjectClasses(csv.getId(), csv);
+        assertNotNull(objectClasses);
+        assertEquals(1, objectClasses.size());
+        assertTrue(objectClasses.contains(ConnIdObjectClassTO.ACCOUNT));
     }
 
     @Test

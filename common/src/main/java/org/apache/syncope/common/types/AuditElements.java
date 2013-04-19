@@ -100,6 +100,7 @@ public final class AuditElements {
         delete,
         getBundles,
         getSchemaNames,
+        getSupportedObjectClasses,
         getConfigurationProperties,
         check,
         readConnectorBean,

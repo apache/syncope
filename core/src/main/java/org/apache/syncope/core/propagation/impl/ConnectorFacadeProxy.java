@@ -411,8 +411,26 @@ public class ConnectorFacadeProxy implements Connector {
     }
 
     @Override
-    public Set<String> getSchema(final boolean showall) {
-        final Future<Set<String>> future = asyncFacade.getSchema(connector, showall);
+    public Set<String> getSchemaNames(final boolean includeSpecial) {
+        final Future<Set<String>> future = asyncFacade.getSchemaNames(connector, includeSpecial);
+        try {
+            return future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
+        } catch (java.util.concurrent.TimeoutException e) {
+            future.cancel(true);
+            throw new TimeoutException("Request timeout");
+        } catch (Exception e) {
+            LOG.error("Connector request execution failure", e);
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            } else {
+                throw new IllegalArgumentException(e.getCause());
+            }
+        }
+    }
+
+    @Override
+    public Set<ObjectClass> getSupportedObjectClasses() {
+        final Future<Set<ObjectClass>> future = asyncFacade.getSupportedObjectClasses(connector);
         try {
             return future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {

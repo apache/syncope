@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnBundleTO;
+import org.apache.syncope.common.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.ConnConfProperty;
@@ -73,13 +74,24 @@ public interface ConnectorService {
     /**
      * @param connInstanceId connector instance id to be used for schema lookup
      * @param connInstanceTO connector instance object to provide special configuration properties
-     * @param showAll if set to true, special schema names (like '__PASSWORD__') will be included; default is false
+     * @param includeSpecial if set to true, special schema names (like '__PASSWORD__') will be included;
+     * default is false
      * @return schema names for connector bundle matching the given connector instance id
      */
     @POST
-    @Path("{connInstanceId}/schemas")
+    @Path("{connInstanceId}/schemaNames")
     List<SchemaTO> getSchemaNames(@PathParam("connInstanceId") Long connInstanceId, ConnInstanceTO connInstanceTO,
-            @QueryParam("showAll") @DefaultValue("false") boolean showAll);
+            @QueryParam("includeSpecial") @DefaultValue("false") boolean includeSpecial);
+
+    /**
+     * @param connInstanceId connector instance id to be used for schema lookup
+     * @param connInstanceTO connector instance object to provide special configuration properties
+     * @return supported object classes for connector bundle matching the given connector instance id
+     */
+    @POST
+    @Path("{connInstanceId}/supportedObjectClasses")
+    List<ConnIdObjectClassTO> getSupportedObjectClasses(@PathParam("connInstanceId") Long connInstanceId,
+            ConnInstanceTO connInstanceTO);
 
     /**
      * @param lang language to select property keys, null for default (English).

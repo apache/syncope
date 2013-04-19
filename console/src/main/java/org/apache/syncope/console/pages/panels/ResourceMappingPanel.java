@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.common.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
@@ -143,16 +144,18 @@ public class ResourceMappingPanel extends Panel {
      */
     private final WebMarkupContainer accountLinkContainer;
 
+    private final AjaxCheckBoxPanel accountLinkCheckbox;
+
     private MappingTO getMapping() {
         MappingTO result = null;
 
-        if (AttributableType.USER == attrType) {
+        if (AttributableType.USER == this.attrType) {
             if (this.resourceTO.getUmapping() == null) {
                 this.resourceTO.setUmapping(new MappingTO());
             }
             result = this.resourceTO.getUmapping();
         }
-        if (AttributableType.ROLE == attrType) {
+        if (AttributableType.ROLE == this.attrType) {
             if (this.resourceTO.getRmapping() == null) {
                 this.resourceTO.setRmapping(new MappingTO());
             }
@@ -176,62 +179,27 @@ public class ResourceMappingPanel extends Panel {
         this.resourceTO = resourceTO;
         this.attrType = attrType;
 
+        this.mappingContainer = new WebMarkupContainer("mappingContainer");
+        this.mappingContainer.setOutputMarkupId(true);
+        add(this.mappingContainer);
+
+        this.accountLinkContainer = new WebMarkupContainer("accountLinkContainer");
+        this.accountLinkContainer.setOutputMarkupId(true);
+        add(this.accountLinkContainer);
+
         if (this.resourceTO.getConnectorId() != null && this.resourceTO.getConnectorId() > 0) {
-            schemaNames =
-                    getResourceSchemaNames(this.resourceTO.getConnectorId(), this.resourceTO.getConnConfProperties());
+            schemaNames = getSchemaNames(this.resourceTO.getConnectorId(), this.resourceTO.getConnConfProperties());
+
+            setEnabled();
         } else {
             schemaNames = Collections.<String>emptyList();
         }
-
-        accountLinkContainer = new WebMarkupContainer("accountLinkContainer");
-        accountLinkContainer.setOutputMarkupId(true);
-        add(accountLinkContainer);
-
-        boolean accountLinkEnabled = false;
-        if (getMapping().getAccountLink() != null) {
-            accountLinkEnabled = true;
-        }
-        final AjaxCheckBoxPanel accountLinkCheckbox = new AjaxCheckBoxPanel("accountLinkCheckbox",
-                new ResourceModel("accountLinkCheckbox", "accountLinkCheckbox").getObject(),
-                new Model<Boolean>(Boolean.valueOf(accountLinkEnabled)));
-        accountLinkCheckbox.setEnabled(true);
-
-        accountLinkContainer.add(accountLinkCheckbox);
-
-        final AjaxTextFieldPanel accountLink = new AjaxTextFieldPanel("accountLink",
-                new ResourceModel("accountLink", "accountLink").getObject(),
-                new PropertyModel<String>(getMapping(), "accountLink"));
-        accountLink.setEnabled(accountLinkEnabled);
-        accountLinkContainer.add(accountLink);
-
-        accountLinkCheckbox.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                if (accountLinkCheckbox.getModelObject()) {
-                    accountLink.setEnabled(Boolean.TRUE);
-                    accountLink.setModelObject("");
-                } else {
-                    accountLink.setEnabled(Boolean.FALSE);
-                    accountLink.setModelObject("");
-                }
-
-                target.add(accountLink);
-            }
-        });
-
-        mappingContainer = new WebMarkupContainer("mappingContainer");
-        mappingContainer.setOutputMarkupId(true);
 
         final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
         mappingContainer.add(jexlHelp);
 
         AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
         mappingContainer.add(questionMarkJexlHelp);
-
-        add(mappingContainer);
 
         final Label passwordLabel = new Label("passwordLabel", new ResourceModel("password"));
         mappingContainer.add(passwordLabel);
@@ -505,29 +473,72 @@ public class ResourceMappingPanel extends Panel {
         addMappingBtn.setDefaultFormProcessing(false);
         addMappingBtn.setEnabled(this.resourceTO.getConnectorId() != null && this.resourceTO.getConnectorId() > 0);
         mappingContainer.add(addMappingBtn);
+
+        boolean accountLinkEnabled = false;
+        if (getMapping().getAccountLink() != null) {
+            accountLinkEnabled = true;
+        }
+        accountLinkCheckbox = new AjaxCheckBoxPanel("accountLinkCheckbox",
+                new ResourceModel("accountLinkCheckbox", "accountLinkCheckbox").getObject(),
+                new Model<Boolean>(Boolean.valueOf(accountLinkEnabled)));
+        accountLinkCheckbox.setEnabled(true);
+
+        accountLinkContainer.add(accountLinkCheckbox);
+
+        final AjaxTextFieldPanel accountLink = new AjaxTextFieldPanel("accountLink",
+                new ResourceModel("accountLink", "accountLink").getObject(),
+                new PropertyModel<String>(getMapping(), "accountLink"));
+        accountLink.setEnabled(accountLinkEnabled);
+        accountLinkContainer.add(accountLink);
+
+        accountLinkCheckbox.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                if (accountLinkCheckbox.getModelObject()) {
+                    accountLink.setEnabled(Boolean.TRUE);
+                    accountLink.setModelObject("");
+                } else {
+                    accountLink.setEnabled(Boolean.FALSE);
+                    accountLink.setModelObject("");
+                }
+
+                target.add(accountLink);
+            }
+        });
     }
 
-    /**
-     * Get resource schema names.
-     *
-     * @param connectorId connector id.
-     * @param conf connector configuration properties.
-     * @return resource schema names.
-     */
-    private List<String> getResourceSchemaNames(final Long connectorId, final Set<ConnConfProperty> conf) {
-        final List<String> names = new ArrayList<String>();
+    private List<String> getSchemaNames(final Long connectorId, final Set<ConnConfProperty> conf) {
+        final ConnInstanceTO connInstanceTO = new ConnInstanceTO();
+        connInstanceTO.setId(connectorId);
+        connInstanceTO.setConfiguration(conf);
 
-        try {
-            final ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-            connInstanceTO.setId(connectorId);
-            connInstanceTO.setConfiguration(conf);
+        return connRestClient.getSchemaNames(connInstanceTO);
+    }
 
-            names.addAll(connRestClient.getSchemaNames(connInstanceTO));
-        } catch (Exception e) {
-            LOG.warn("Error retrieving resource schema names", e);
+    private void setEnabled() {
+        final ConnInstanceTO connInstanceTO = new ConnInstanceTO();
+        connInstanceTO.setId(this.resourceTO.getConnectorId());
+        connInstanceTO.setConfiguration(this.resourceTO.getConnConfProperties());
+
+        List<ConnIdObjectClassTO> objectClasses = connRestClient.getSupportedObjectClasses(connInstanceTO);
+
+        boolean enabled = (AttributableType.USER == attrType && objectClasses.contains(ConnIdObjectClassTO.ACCOUNT))
+                || (AttributableType.ROLE == attrType && objectClasses.contains(ConnIdObjectClassTO.GROUP));
+        this.mappingContainer.setEnabled(enabled);
+        this.mappingContainer.setVisible(enabled);
+        this.accountLinkContainer.setEnabled(enabled);
+        this.accountLinkContainer.setVisible(enabled);
+
+        if (!enabled) {
+            getMapping().getItems().clear();
+            getMapping().setAccountLink(null);
+            if (this.accountLinkCheckbox != null) {
+                this.accountLinkCheckbox.setModelObject(null);
+            }
         }
-
-        return names;
     }
 
     @Override
@@ -542,8 +553,9 @@ public class ResourceMappingPanel extends Panel {
             addMappingBtn.setEnabled(resourceTO.getConnectorId() != null && resourceTO.getConnectorId() > 0);
 
             schemaNames.clear();
-            schemaNames.addAll(
-                    getResourceSchemaNames(resourceTO.getConnectorId(), new HashSet<ConnConfProperty>(conf)));
+            schemaNames.addAll(getSchemaNames(resourceTO.getConnectorId(), new HashSet<ConnConfProperty>(conf)));
+
+            setEnabled();
 
             target.add(this);
         }

@@ -166,11 +166,18 @@ public interface Connector {
     /**
      * Return resource schema names.
      *
-     * @param showall return special attributes (like as __NAME__ or __PASSWORD__) if true
-     * @return a list of schema names
+     * @param includeSpecial return special attributes (like as __NAME__ or __PASSWORD__) if true
+     * @return schema names
      */
-    Set<String> getSchema(boolean showall);
+    Set<String> getSchemaNames(boolean includeSpecial);
 
+    /**
+     * Return ConnId's object classes supported by this connector.
+     * 
+     * @return supported object classes
+     */
+    Set<ObjectClass> getSupportedObjectClasses();
+    
     /**
      * Validate a connector instance.
      */

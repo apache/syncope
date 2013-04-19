@@ -28,6 +28,7 @@ import org.apache.syncope.common.services.ConnectorService;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnBundleTO;
+import org.apache.syncope.common.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.ConnConfProperty;
@@ -67,16 +68,28 @@ public class ConnectorServiceImpl implements ConnectorService, ContextAware {
 
     @Override
     public List<SchemaTO> getSchemaNames(final Long connInstanceId, final ConnInstanceTO connInstanceTO,
-            final boolean showall) {
+            final boolean includeSpecial) {
 
-        List<String> schemaNames = connInstanceController.getSchemaNames(connInstanceTO, showall);
-        List<SchemaTO> schemas = new ArrayList<SchemaTO>();
+        List<String> schemaNames = connInstanceController.getSchemaNames(connInstanceTO, includeSpecial);
+        List<SchemaTO> result = new ArrayList<SchemaTO>(schemaNames.size());
         for (String name : schemaNames) {
             SchemaTO schemaTO = new SchemaTO();
             schemaTO.setName(name);
-            schemas.add(schemaTO);
+            result.add(schemaTO);
         }
-        return schemas;
+        return result;
+    }
+
+    @Override
+    public List<ConnIdObjectClassTO> getSupportedObjectClasses(final Long connInstanceId,
+            final ConnInstanceTO connInstanceTO) {
+
+        List<String> objectClasses = connInstanceController.getSupportedObjectClasses(connInstanceTO);
+        List<ConnIdObjectClassTO> result = new ArrayList<ConnIdObjectClassTO>(objectClasses.size());
+        for (String objectClass : objectClasses) {
+            result.add(new ConnIdObjectClassTO(objectClass));
+        }
+        return result;
     }
 
     @Override
