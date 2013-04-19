@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.controller;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -52,6 +51,7 @@ import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorKey;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -270,10 +270,11 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
-    @RequestMapping(method = RequestMethod.POST, value = "/schema/list")
+    @RequestMapping(method = RequestMethod.POST, value = "/schemaNames/list")
     @Transactional(readOnly = true)
     public List<String> getSchemaNames(@RequestBody final ConnInstanceTO connInstanceTO,
-            @RequestParam(required = false, value = "showall", defaultValue = "false") final boolean showall) {
+            @RequestParam(required = false, value = "includeSpecial", defaultValue = "false")
+            final boolean includeSpecial) {
 
         final ConnInstance connInstance = connInstanceDAO.find(connInstanceTO.getId());
         if (connInstance == null) {
@@ -288,12 +289,41 @@ public class ConnInstanceController extends AbstractController {
         // bean couldn't exist or couldn't be updated.
         // This is the reason why we should take a "not mature" connector facade proxy to ask for schema names.
         final List<String> result =
-                new ArrayList<String>(connFactory.createConnector(connInstance, conf).getSchema(showall));
-        Collections.sort(result);
+                new ArrayList<String>(connFactory.createConnector(connInstance, conf).getSchemaNames(includeSpecial));
 
         auditManager.audit(Category.connector, ConnectorSubCategory.getSchemaNames, Result.success,
-                "Successfully listed " + (showall ? "all " : "") + "schema names (" + result.size() + ") for connector "
-                + connInstance.getDisplayName());
+                "Successfully listed " + (includeSpecial ? "all " : "") + "schema names (" + result.size() + ") "
+                + "for connector " + connInstance.getDisplayName());
+
+        return result;
+    }
+
+    @PreAuthorize("hasRole('CONNECTOR_READ')")
+    @RequestMapping(method = RequestMethod.POST, value = "/supportedObjectClasses/list")
+    @Transactional(readOnly = true)
+    public List<String> getSupportedObjectClasses(@RequestBody final ConnInstanceTO connInstanceTO) {
+        final ConnInstance connInstance = connInstanceDAO.find(connInstanceTO.getId());
+        if (connInstance == null) {
+            throw new NotFoundException("Connector '" + connInstanceTO.getId() + "'");
+        }
+
+        // consider the possibility to receive overridden properties only
+        final Set<ConnConfProperty> conf = binder.mergeConnConfProperties(connInstanceTO.getConfiguration(),
+                connInstance.getConfiguration());
+
+        // We cannot use Spring bean because this method could be used during resource definition or modification:
+        // bean couldn't exist or couldn't be updated.
+        // This is the reason why we should take a "not mature" connector facade proxy to ask for object classes.
+        Set<ObjectClass> objectClasses = connFactory.createConnector(connInstance, conf).getSupportedObjectClasses();
+
+        List<String> result = new ArrayList<String>(objectClasses.size());
+        for (ObjectClass objectClass : objectClasses) {
+            result.add(objectClass.getObjectClassValue());
+        }
+
+        auditManager.audit(Category.connector, ConnectorSubCategory.getSupportedObjectClasses, Result.success,
+                "Successfully listed supported object classes (" + result.size() + ") "
+                + "for connector " + connInstance.getDisplayName());
 
         return result;
     }

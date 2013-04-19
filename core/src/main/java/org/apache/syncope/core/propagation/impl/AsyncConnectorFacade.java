@@ -140,15 +140,15 @@ public class AsyncConnectorFacade {
     }
 
     @Async
-    public Future<Set<String>> getSchema(final ConnectorFacade connector, final boolean showall) {
-        final Set<String> resourceSchemaNames = new HashSet<String>();
+    public Future<Set<String>> getSchemaNames(final ConnectorFacade connector, final boolean includeSpecial) {
+        final Set<String> schemaNames = new HashSet<String>();
 
         try {
             final Schema schema = connector.schema();
             for (ObjectClassInfo info : schema.getObjectClassInfo()) {
                 for (AttributeInfo attrInfo : info.getAttributeInfo()) {
-                    if (showall || !AttributeUtil.isSpecialName(attrInfo.getName())) {
-                        resourceSchemaNames.add(attrInfo.getName());
+                    if (includeSpecial || !AttributeUtil.isSpecialName(attrInfo.getName())) {
+                        schemaNames.add(attrInfo.getName());
                     }
                 }
             }
@@ -157,7 +157,24 @@ public class AsyncConnectorFacade {
             LOG.debug("While reading schema on connector {}", connector, e);
         }
 
-        return new AsyncResult<Set<String>>(resourceSchemaNames);
+        return new AsyncResult<Set<String>>(schemaNames);
+    }
+
+    @Async
+    public Future<Set<ObjectClass>> getSupportedObjectClasses(final ConnectorFacade connector) {
+        final Set<ObjectClass> objectClasses = new HashSet<ObjectClass>();
+
+        try {
+            final Schema schema = connector.schema();
+            for (ObjectClassInfo info : schema.getObjectClassInfo()) {
+                objectClasses.add(new ObjectClass(info.getType()));
+            }
+        } catch (Exception e) {
+            // catch exception in order to manage unpredictable behaviors
+            LOG.debug("While reading schema on connector {}", connector, e);
+        }
+
+        return new AsyncResult<Set<ObjectClass>>(objectClasses);
     }
 
     @Async

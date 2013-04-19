@@ -64,18 +64,6 @@ public class ResourceDetailsPanel extends Panel {
         super(id);
         setOutputMarkupId(true);
 
-        final IModel<List<ConnInstanceTO>> connectors = new LoadableDetachableModel<List<ConnInstanceTO>>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
-
-            @Override
-            protected List<ConnInstanceTO> load() {
-                return connRestClient.getAllConnectors();
-            }
-        };
-
-        connInstanceTO = getConectorInstanceTO(connectors.getObject(), resourceTO);
-
         final AjaxTextFieldPanel resourceName = new AjaxTextFieldPanel("name", new ResourceModel("name", "name").
                 getObject(), new PropertyModel<String>(resourceTO, "name"));
 
@@ -157,6 +145,18 @@ public class ResourceDetailsPanel extends Panel {
         });
         add(resetToken);
 
+        final IModel<List<ConnInstanceTO>> connectors = new LoadableDetachableModel<List<ConnInstanceTO>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<ConnInstanceTO> load() {
+                return connRestClient.getAllConnectors();
+            }
+        };
+
+        connInstanceTO = getConectorInstanceTO(connectors.getObject(), resourceTO);
+
         final AjaxDropDownChoicePanel<ConnInstanceTO> conn = new AjaxDropDownChoicePanel<ConnInstanceTO>("connector",
                 new ResourceModel("connector", "connector").getObject(),
                 new PropertyModel<ConnInstanceTO>(this, "connInstanceTO"));
@@ -204,18 +204,14 @@ public class ResourceDetailsPanel extends Panel {
      *
      * @param connectorTOs list of all connectors.
      * @param resourceTO resource.
-     * @return selected connector instance. In case of no connectors available return null. In case of new resource
-     * specification return the first on connector available.
+     * @return selected connector instance: in case of no connectors available, null; in case of new resource
+     * specification, the first on connector available
      */
     private ConnInstanceTO getConectorInstanceTO(final List<ConnInstanceTO> connectorTOs, final ResourceTO resourceTO) {
-
         if (connectorTOs.isEmpty()) {
-
             resourceTO.setConnectorId(null);
             return null;
-
         } else {
-
             // use the first element as default
             ConnInstanceTO res = connectorTOs.get(0);
 
@@ -230,7 +226,6 @@ public class ResourceDetailsPanel extends Panel {
 
             return res;
         }
-
     }
 
     /**

@@ -27,6 +27,7 @@ import org.apache.syncope.common.services.ConnectorService;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnBundleTO;
+import org.apache.syncope.common.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.ConnConfProperty;
@@ -85,18 +86,31 @@ public class ConnectorServiceProxy extends SpringServiceProxy implements Connect
 
     @Override
     public List<SchemaTO> getSchemaNames(final Long connInstanceId, final ConnInstanceTO connInstanceTO,
-            final boolean showall) {
-        final String queryString = "?showall=" + showall;
+            final boolean includeSpecial) {
 
-        List<String> response = Arrays.asList(getRestTemplate().postForObject(
-                baseUrl + "connector/schema/list" + queryString, connInstanceTO, String[].class));
-        List<SchemaTO> schemaNames = new ArrayList<SchemaTO>();
-        for (String name : response) {
+        List<String> schemaNames = Arrays.asList(getRestTemplate().postForObject(
+                baseUrl + "connector/schemaNames/list?includeSpecial=" + includeSpecial,
+                connInstanceTO, String[].class));
+        List<SchemaTO> result = new ArrayList<SchemaTO>(schemaNames.size());
+        for (String name : schemaNames) {
             SchemaTO schemaTO = new SchemaTO();
             schemaTO.setName(name);
-            schemaNames.add(schemaTO);
+            result.add(schemaTO);
         }
-        return schemaNames;
+        return result;
+    }
+
+    @Override
+    public List<ConnIdObjectClassTO> getSupportedObjectClasses(final Long connInstanceId,
+            final ConnInstanceTO connInstanceTO) {
+
+        List<String> objectClasses = Arrays.asList(getRestTemplate().postForObject(
+                baseUrl + "connector/supportedObjectClasses/list", connInstanceTO, String[].class));
+        List<ConnIdObjectClassTO> result = new ArrayList<ConnIdObjectClassTO>(objectClasses.size());
+        for (String objectClass : objectClasses) {
+            result.add(new ConnIdObjectClassTO(objectClass));
+        }
+        return result;
     }
 
     @Override

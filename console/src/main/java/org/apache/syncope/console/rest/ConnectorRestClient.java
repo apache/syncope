@@ -28,6 +28,7 @@ import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnBundleTO;
+import org.apache.syncope.common.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.SchemaTO;
@@ -149,7 +150,7 @@ public class ConnectorRestClient extends BaseRestClient {
      */
     public boolean check(final ConnInstanceTO connectorTO) {
         ConnInstanceTO toBeChecked = new ConnInstanceTO();
-        BeanUtils.copyProperties(connectorTO, toBeChecked, new String[]{"configuration"});
+        BeanUtils.copyProperties(connectorTO, toBeChecked, new String[] {"configuration"});
         toBeChecked.setConfiguration(filterProperties(connectorTO.getConfiguration()));
 
         boolean check = false;
@@ -176,19 +177,30 @@ public class ConnectorRestClient extends BaseRestClient {
     public List<String> getSchemaNames(final ConnInstanceTO connectorTO) {
         List<String> schemaNames = new ArrayList<String>();
         try {
-            List<SchemaTO> response = getService(ConnectorService.class).getSchemaNames(connectorTO.getId(),
-                    connectorTO, false);
+            List<SchemaTO> response = getService(ConnectorService.class).
+                    getSchemaNames(connectorTO.getId(), connectorTO, false);
             for (SchemaTO schema : response) {
                 schemaNames.add(schema.getName());
             }
         } catch (Exception e) {
-            LOG.error("While getting resource schema names", e);
+            LOG.error("While getting schema names", e);
         } finally {
             // re-order schema names list
             Collections.sort(schemaNames);
         }
 
         return schemaNames;
+    }
+
+    public List<ConnIdObjectClassTO> getSupportedObjectClasses(final ConnInstanceTO connectorTO) {
+        List<ConnIdObjectClassTO> result = Collections.emptyList();
+        try {
+            result = getService(ConnectorService.class).getSupportedObjectClasses(connectorTO.getId(), connectorTO);
+        } catch (Exception e) {
+            LOG.error("While getting supported object classes", e);
+        }
+
+        return result;
     }
 
     public void reload() {
