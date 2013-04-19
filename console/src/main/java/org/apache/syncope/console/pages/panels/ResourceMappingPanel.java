@@ -273,7 +273,6 @@ public class ResourceMappingPanel extends Panel {
             }
         });
 
-
         mappings = new ListView<MappingItemTO>("mappings", getMapping().getItems()) {
 
             private static final long serialVersionUID = 4949588177564901031L;

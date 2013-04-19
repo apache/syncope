@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.apache.syncope.core.rest.AbstractTest.getUUIDString;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -438,6 +439,23 @@ public class ResourceTestITCase extends AbstractTest {
             fail();
         } catch (SyncopeClientCompositeErrorException e) {
         }
+    }
+
+    @Test
+    public void issueSYNCOPE360() {
+        final String name = "SYNCOPE360-" + getUUIDString();
+        resourceService.create(buildResourceTO(name));
+
+        ResourceTO resource = resourceService.read(name);
+        assertNotNull(resource);
+        assertNotNull(resource.getUmapping());
+
+        resource.setUmapping(new MappingTO());
+        resourceService.update(name, resource);
+
+        resource = resourceService.read(name);
+        assertNotNull(resource);
+        assertNull(resource.getUmapping());
     }
 
     private ResourceTO buildResourceTO(String resourceName) {

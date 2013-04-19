@@ -102,7 +102,7 @@ public class ResourceModalPage extends BaseModalPage {
 
                 boolean accountIdError = false;
 
-                if (resourceTO.getUmapping().getItems().isEmpty()) {
+                if (resourceTO.getUmapping() == null || resourceTO.getUmapping().getItems().isEmpty()) {
                     resourceTO.setUmapping(null);
                 } else {
                     int uAccountIdCount = 0;
@@ -114,7 +114,7 @@ public class ResourceModalPage extends BaseModalPage {
                     accountIdError = uAccountIdCount != 1;
                 }
 
-                if (resourceTO.getRmapping().getItems().isEmpty()) {
+                if (resourceTO.getRmapping() == null || resourceTO.getRmapping().getItems().isEmpty()) {
                     resourceTO.setRmapping(null);
                 } else {
                     int rAccountIdCount = 0;
