@@ -162,6 +162,7 @@ under the License.
       <!-- Do something with rejectReason -->
       <script>
         def scriptVar = rejectReason
+        execution.setVariable("propByResource", null);
       </script>
     </scriptTask>
         
