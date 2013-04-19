@@ -110,8 +110,6 @@ public class AttributesPanel extends Panel {
             protected void populateItem(final ListItem<AttributeTO> item) {
                 final AttributeTO attributeTO = (AttributeTO) item.getDefaultModelObject();
 
-                final StringBuilder text = new StringBuilder(attributeTO.getSchema());
-
                 final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
                 item.add(jexlHelp);
 
@@ -122,7 +120,7 @@ public class AttributesPanel extends Panel {
                     questionMarkJexlHelp.setVisible(false);
                 }
 
-                item.add(new Label("name", text.toString()));
+                item.add(new Label("name", attributeTO.getSchema()));
 
                 final FieldPanel panel =
                         getFieldPanel(schemas.getObject().get(attributeTO.getSchema()), form, attributeTO);
