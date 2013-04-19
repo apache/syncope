@@ -610,10 +610,19 @@ public class UserController {
         WorkflowResult<Map.Entry<Long, String>> updated = wfAdapter.submitForm(form, SecurityContextHolder.getContext().
                 getAuthentication().getName());
 
-        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new SimpleEntry<Long, Boolean>(updated.getResult().getKey(), Boolean.TRUE),
-                updated.getPropByRes(), updated.getPerformedTasks()), updated.getResult().getValue(), null, null);
-        propagationManager.execute(tasks);
+        // propByRes can be made empty by the workflow definition is no propagation should occur 
+        // (for example, with rejected users)
+        if (updated.getPropByRes() != null && !updated.getPropByRes().isEmpty()) {
+            List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
+                    new WorkflowResult<Map.Entry<Long, Boolean>>(
+                    new SimpleEntry<Long, Boolean>(updated.getResult().getKey(), Boolean.TRUE),
+                    updated.getPropByRes(),
+                    updated.getPerformedTasks()),
+                    updated.getResult().getValue(),
+                    null,
+                    null);
+            propagationManager.execute(tasks);
+        }
 
         final UserTO savedTO = dataBinder.getUserTO(updated.getResult().getKey());
 

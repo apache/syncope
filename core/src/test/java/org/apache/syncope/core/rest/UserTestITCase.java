@@ -574,7 +574,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
 
         // 3. verify password
-        Boolean verify = restTemplate.getForObject(BASE_URL + "user/verifyPassword/{username}.json?password=password123",
+        Boolean verify = restTemplate.
+                getForObject(BASE_URL + "user/verifyPassword/{username}.json?password=password123",
                 Boolean.class, newUserTO.getUsername());
         assertTrue(verify);
 
@@ -657,6 +658,7 @@ public class UserTestITCase extends AbstractTest {
         Assume.assumeTrue(SpringContextInitializer.isActivitiConfigured());
 
         UserTO userTO = getSampleTO("createWithReject@syncope.apache.org");
+        userTO.addResource("resource-testdb");
 
         // User with role 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
@@ -712,6 +714,17 @@ public class UserTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/workflow/form/submit", form, UserTO.class);
         assertNotNull(userTO);
         assertEquals("rejected", userTO.getStatus());
+
+        // 6. check that rejected user was not propagated to external resource (SYNCOPE-364)
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        Exception exception = null;
+        try {
+            jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
+                    new String[] {userTO.getUsername()}, Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            exception = e;
+        }
+        assertNotNull(exception);
 
         // reset admin credentials for restTemplate
         super.resetRestTemplate();
@@ -900,7 +913,8 @@ public class UserTestITCase extends AbstractTest {
             assertNotNull(user);
         }
 
-        users = Arrays.asList(restTemplate.getForObject(BASE_URL + "user/list/{page}/{size}.json", UserTO[].class, 2, 2));
+        users = Arrays.
+                asList(restTemplate.getForObject(BASE_URL + "user/list/{page}/{size}.json", UserTO[].class, 2, 2));
 
         assertNotNull(users);
         assertFalse(users.isEmpty());
