@@ -20,11 +20,6 @@ jdk:
 install: mvn --show-version --errors -P skipTests
 #invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
 script: mvn --show-version --errors -P all clean install -Dinvoker.streamLogs=true
-branches:
-  only:
-    - trunk
-    - 1_1_X
-    - 1_0_X
 notifications:
   email:
     - dev@syncope.apache.org
