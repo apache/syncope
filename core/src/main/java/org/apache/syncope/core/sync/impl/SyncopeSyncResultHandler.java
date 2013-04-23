@@ -512,6 +512,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         final SyncResult result = new SyncResult();
         result.setOperation(ResourceOperation.CREATE);
         result.setSubjectType(attrUtil.getType());
+        result.setStatus(SyncResult.Status.SUCCESS);
 
         AbstractAttributableTO subjectTO = connObjectUtil.getAttributableTO(delta.getObject(), syncTask, attrUtil);
 
@@ -525,7 +526,6 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             if (subjectTO instanceof RoleTO) {
                 result.setName(((RoleTO) subjectTO).getName());
             }
-            result.setStatus(SyncResult.Status.SUCCESS);
         } else {
             try {
                 if (AttributableType.USER == attrUtil.getType()) {
@@ -565,8 +565,10 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     result.setId(created.getResult());
                     result.setName(((RoleTO) subjectTO).getName());
                 }
-                result.setStatus(SyncResult.Status.SUCCESS);
+
             } catch (PropagationException e) {
+                // A propagation failure doesn't imply a synchronization failure.
+                // The propagation exception status will be reported into the propagation task execution.
                 LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
             } catch (Exception e) {
                 result.setStatus(SyncResult.Status.FAILURE);
@@ -716,9 +718,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     result.setName(updated.getName());
                 }
             } catch (PropagationException e) {
-                result.setStatus(SyncResult.Status.FAILURE);
-                result.setMessage(delta.getUid().getUidValue() + "updated but not propagated\n" + e.getMessage());
-
+                // A propagation failure doesn't imply a synchronization failure.
+                // The propagation exception status will be reported into the propagation task execution.
                 LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
             } catch (Exception e) {
                 result.setStatus(SyncResult.Status.FAILURE);
@@ -778,6 +779,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                         }
                         taskExecutor.execute(tasks);
                     } catch (Exception e) {
+                        // A propagation failure doesn't imply a synchronization failure.
+                        // The propagation exception status will be reported into the propagation task execution.
                         LOG.error("Could not propagate user " + id, e);
                     }
 
@@ -789,7 +792,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                             rwfAdapter.delete(id);
                         }
                     } catch (Exception e) {
-                        result.setStatus(SyncResult.Status.SUCCESS);
+                        result.setStatus(SyncResult.Status.FAILURE);
                         result.setMessage(e.getMessage());
                         LOG.error("Could not delete {} {}", attrUtil.getType(), id, e);
                     }
