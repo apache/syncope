@@ -306,7 +306,7 @@ under the License.
     <velocity.version>1.7</velocity.version>
     <quartz.version>2.1.7</quartz.version>
 
-    <openjpa.version>2.2.1</openjpa.version>
+    <openjpa.version>2.2.2</openjpa.version>
     <bval.version>0.5</bval.version>
         
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
