@@ -366,7 +366,7 @@ public class ResourceMappingPanel extends Panel {
                 final AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel("mandatoryCondition",
                         new ResourceModel("mandatoryCondition", "mandatoryCondition").getObject(),
                         new PropertyModel<String>(mapItem, "mandatoryCondition"));
-                mandatory.setChoices(Arrays.asList(new String[] {"true", "false"}));
+                mandatory.setChoices(Arrays.asList(new String[]{"true", "false"}));
                 mandatory.setStyleSheet(SHORT_FIELD_STYLE);
                 item.add(mandatory);
 
@@ -525,7 +525,8 @@ public class ResourceMappingPanel extends Panel {
 
         List<ConnIdObjectClassTO> objectClasses = connRestClient.getSupportedObjectClasses(connInstanceTO);
 
-        boolean enabled = (AttributableType.USER == attrType && objectClasses.contains(ConnIdObjectClassTO.ACCOUNT))
+        boolean enabled = objectClasses.isEmpty()
+                || (AttributableType.USER == attrType && objectClasses.contains(ConnIdObjectClassTO.ACCOUNT))
                 || (AttributableType.ROLE == attrType && objectClasses.contains(ConnIdObjectClassTO.GROUP));
         this.mappingContainer.setEnabled(enabled);
         this.mappingContainer.setVisible(enabled);
