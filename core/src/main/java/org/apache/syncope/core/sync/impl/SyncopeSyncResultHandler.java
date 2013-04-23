@@ -367,7 +367,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         final Map<String, Attribute> extValues = new HashMap<String, Attribute>();
 
-        for (AbstractMappingItem item : attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)) {
+        for (AbstractMappingItem item
+                : attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)) {
 
             extValues.put(item.getIntAttrName(), connObj.getAttributeByName(item.getExtAttrName()));
         }
