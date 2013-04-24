@@ -137,7 +137,7 @@ public class AttributesPanel extends Panel {
         add(attributeView);
     }
 
-    private List<AttributeTO> initEntityData(final AbstractAttributableTO entityTO,
+    private void initEntityData(final AbstractAttributableTO entityTO,
             final Collection<SchemaTO> schemas) {
 
         final List<AttributeTO> entityData = new ArrayList<AttributeTO>();
@@ -163,8 +163,6 @@ public class AttributesPanel extends Panel {
         }
 
         entityTO.setAttributes(entityData);
-
-        return entityData;
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
