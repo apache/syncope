@@ -62,36 +62,58 @@ public class ResourcesPanel extends Panel {
 
     private final List<String> allResources;
 
-    private ResourcesPanel(final String id, final AbstractAttributableTO attributableTO) {
-        super(id);
-        this.attributableTO = attributableTO;
+    public static class ResourcesPanelBuilder {
+
+        private String id;
+
+        private Object to;
+
+        private StatusPanel statusPanel;
+
+        public ResourcesPanelBuilder(String id) {
+            this.id = id;
+        }
+
+        public ResourcesPanelBuilder attributableTO(Object to) {
+            this.to = to;
+            return this;
+        }
+
+        public ResourcesPanelBuilder statusPanel(StatusPanel statusPanel) {
+            this.statusPanel = statusPanel;
+            return this;
+        }
+
+        public ResourcesPanel build() {
+            return new ResourcesPanel(this);
+        }
+    }
+
+    private ResourcesPanel(final ResourcesPanelBuilder builder) {
+        super(builder.id);
+        attributableTO = (AbstractAttributableTO) builder.to;
         previousResources = new HashSet<String>(attributableTO.getResources());
         allResources = new ArrayList<String>();
         for (ResourceTO resourceTO : resourceRestClient.getAllResources()) {
             allResources.add(resourceTO.getName());
         }
         Collections.sort(allResources);
-    }
 
-    public ResourcesPanel(final String id, final UserTO userTO, final StatusPanel statusPanel) {
-        this(id, userTO);
+        AjaxPalettePanel<String> resourcesPalette = null;
 
-        final AjaxPalettePanel<String> resourcesPalette = new AjaxRecordingPalettePanel<String>("resourcesPalette",
-                new PropertyModel<List<String>>(userTO, "resources"),
-                new ListModel<String>(allResources), statusPanel);
+        if (attributableTO instanceof UserTO) {
+            resourcesPalette = new AjaxRecordingPalettePanel<String>("resourcesPalette",
+                    new PropertyModel<List<String>>(attributableTO, "resources"),
+                    new ListModel<String>(allResources), builder.statusPanel);
+        } else if (attributableTO instanceof RoleTO) {
+            List<String> selectedResources = new ArrayList<String>(((RoleTO) attributableTO).getResources());
+            Collections.sort(selectedResources);
+
+            resourcesPalette = new AjaxPalettePanel<String>("resourcesPalette",
+                    new PropertyModel<List<String>>(attributableTO, "resources"), new ListModel<String>(allResources));
+        }
         add(resourcesPalette);
-    }
 
-    public ResourcesPanel(final String id, final RoleTO roleTO) {
-        this(id, (AbstractAttributableTO) roleTO);
-
-        List<String> selectedResources = new ArrayList<String>(roleTO.getResources());
-        Collections.sort(selectedResources);
-
-        final AjaxPalettePanel<String> resourcesPalette = new AjaxPalettePanel<String>("resourcesPalette",
-                new PropertyModel<List<String>>(roleTO, "resources"),
-                new ListModel<String>(allResources));
-        add(resourcesPalette);
     }
 
     private class AjaxRecordingPalettePanel<T> extends AjaxPalettePanel<T> {

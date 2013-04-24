@@ -119,7 +119,8 @@ public class RolePanel extends Panel {
         // Resources container
         //--------------------------------
 
-        this.add(new ResourcesPanel("resources", roleTO).setOutputMarkupId(true));
+        this.add(new ResourcesPanel.ResourcesPanelBuilder("resources").attributableTO(roleTO).build()
+                .setOutputMarkupId(true));
         //--------------------------------
 
         ListModel<String> selectedEntitlements = new ListModel<String>(roleTO.getEntitlements());
