@@ -384,6 +384,19 @@ public class PropagationManager {
     }
 
     /**
+     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
+     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
+     * the creation fails onto a mandatory resource.
+     *
+     * @param wfResult user to be propagated (and info associated), as per result from workflow
+     * @return list of propagation tasks
+     */
+    public List<PropagationTask> getUserDeleteTaskIds(final WorkflowResult<Long> wfResult) {
+        SyncopeUser user = userDataBinder.getUserFromId(wfResult.getResult());
+        return createTasks(user, null, null, null, false, true, wfResult.getPropByRes());
+    }
+
+    /**
      * Perform delete on each resource associated to the role. It is possible to ask for a mandatory provisioning for
      * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
      * the creation fails onto a mandatory resource.

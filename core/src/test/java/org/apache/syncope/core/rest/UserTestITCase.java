@@ -2182,6 +2182,43 @@ public class UserTestITCase extends AbstractTest {
         resourceService.update(ldap.getName(), ldap);
     }
 
+    @Test
+    public void issueSYNCOPE357() {
+        // 1. create role with LDAP resource
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName("SYNCOPE357-" + getUUIDString());
+        roleTO.setParent(8L);
+        roleTO.addResource(RESOURCE_NAME_LDAP);
+
+        roleTO = createRole(roleService, roleTO);
+        assertNotNull(roleTO);
+
+        // 2. create user with membership of the above role
+        UserTO userTO = getUniqueSampleTO("syncope357@syncope.apache.org");
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(roleTO.getId());
+        userTO.addMembership(membershipTO);
+
+        userTO = createUser(userTO);
+        assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
+
+        // 3. read user on resource
+        ConnObjectTO connObj =
+                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.USER, userTO.getId());
+        assertNotNull(connObj);
+
+        // 4. remove role
+        roleService.delete(roleTO.getId());
+
+        // 5. try to read user on resource: fail
+        try {
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.USER, userTO.getId());
+            fail();
+        } catch (SyncopeClientCompositeErrorException scce) {
+            assertNotNull(scce.getException(SyncopeClientExceptionType.NotFound));
+        }
+    }
+
     private boolean getBooleanAttribute(ConnObjectTO connObjectTO, String attrName) {
         return Boolean.parseBoolean(getStringAttribute(connObjectTO, attrName));
     }
