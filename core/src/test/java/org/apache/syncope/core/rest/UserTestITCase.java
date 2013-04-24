@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.apache.syncope.core.rest.AbstractTest.getUUIDString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -47,6 +48,7 @@ import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.BulkActionRes.Status;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.ConnObjectTO;
+import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PolicyTO;
@@ -54,6 +56,7 @@ import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.PropagationStatusTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.ResourceTO;
+import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
@@ -560,7 +563,7 @@ public class UserTestITCase extends AbstractTest {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
 
         UserTO userTO = getUniqueSampleTO("createWithReject@syncope.apache.org");
-        userTO.addResource("resource-testdb");
+        userTO.addResource(RESOURCE_NAME_TESTDB);
 
         // User with role 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
@@ -2117,6 +2120,66 @@ public class UserTestITCase extends AbstractTest {
         res = userService.bulkAction(bulkAction);
         assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
         assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
+    }
+
+    @Test
+    public void issueSYNCOPE354() {
+        // change resource-ldap role mapping for including uniqueMember (need for assertions below)
+        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        for (MappingItemTO item : ldap.getRmapping().getItems()) {
+            if ("description".equals(item.getExtAttrName())) {
+                item.setExtAttrName("uniqueMember");
+            }
+        }
+        resourceService.update(ldap.getName(), ldap);
+
+        // 1. create role with LDAP resource
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName("SYNCOPE354-" + getUUIDString());
+        roleTO.setParent(8L);
+        roleTO.addResource(RESOURCE_NAME_LDAP);
+
+        roleTO = createRole(roleService, roleTO);
+        assertNotNull(roleTO);
+
+        // 2. create user with LDAP resource and membership of the above role
+        UserTO userTO = getUniqueSampleTO("syncope354@syncope.apache.org");
+        userTO.addResource(RESOURCE_NAME_LDAP);
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(roleTO.getId());
+        userTO.addMembership(membershipTO);
+
+        userTO = createUser(userTO);
+        assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
+
+        // 3. read role on resource, check that user DN is included in uniqueMember
+        ConnObjectTO connObj =
+                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, roleTO.getId());
+        assertNotNull(connObj);
+        assertTrue(connObj.getAttributeMap().get("uniqueMember").getValues().
+                contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
+
+        // 4. remove membership
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.addMembershipToBeRemoved(userTO.getMemberships().iterator().next().getId());
+
+        userTO = userService.update(userMod.getId(), userMod);
+        assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
+
+        // 5. read role on resource, check that user DN was removed from uniqueMember
+        connObj = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, roleTO.getId());
+        assertNotNull(connObj);
+        assertFalse(connObj.getAttributeMap().get("uniqueMember").getValues().
+                contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
+
+        // 6. restore original resource-ldap role mapping
+        for (MappingItemTO item : ldap.getRmapping().getItems()) {
+            if ("uniqueMember".equals(item.getExtAttrName())) {
+                item.setExtAttrName("description");
+            }
+        }
+        resourceService.update(ldap.getName(), ldap);
     }
 
     private boolean getBooleanAttribute(ConnObjectTO connObjectTO, String attrName) {
