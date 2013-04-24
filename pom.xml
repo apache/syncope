@@ -293,7 +293,7 @@ under the License.
     <commons-jexl.version>2.1.1</commons-jexl.version>
     <commons-lang.version>2.6</commons-lang.version>
         
-    <httpcomponents.version>4.2.4</httpcomponents.version>
+    <hc.client.version>4.2.5</hc.client.version>
 
     <activiti.version>5.12</activiti.version>
 
@@ -406,13 +406,8 @@ under the License.
 
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpcore</artifactId>
-        <version>${httpcomponents.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
-        <version>${httpcomponents.version}</version>
+        <version>${hc.client.version}</version>
       </dependency>
 
       <dependency>
