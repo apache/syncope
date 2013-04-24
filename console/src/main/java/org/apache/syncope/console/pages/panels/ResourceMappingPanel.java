@@ -355,7 +355,7 @@ public class ResourceMappingPanel extends Panel {
                 boolean accountIdOrPassword = mapItem.isAccountid() || mapItem.isPassword();
                 if (accountIdOrPassword) {
                     ((AjaxTextFieldPanel) extAttrNames).setModelObject(null);
-                } else if (!schemaNames.isEmpty()) {
+                } else {
                     required = true;
                 }
                 extAttrNames.setRequired(required);
