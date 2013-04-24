@@ -324,7 +324,17 @@ public class RoleController {
     @PreAuthorize("hasRole('ROLE_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{roleId}")
     public RoleTO delete(@PathVariable("roleId") final Long roleId) {
-        List<PropagationTask> tasks = propagationManager.getRoleDeleteTaskIds(roleId);
+        LOG.debug("Role delete called for {}", roleId);
+
+        // Generate propagation tasks for deleting users from role resources, if they are on those resources only
+        // because of the reason being deleted (see SYNCOPE-357)
+        List<PropagationTask> tasks = new ArrayList<PropagationTask>();
+        for (WorkflowResult<Long> wfResult : binder.getUsersOnResourcesOnlyBecauseOfRole(roleId)) {
+            tasks.addAll(propagationManager.getUserDeleteTaskIds(wfResult));
+        }
+
+        // Generate propagation tasks for deleting this role from resources
+        tasks.addAll(propagationManager.getRoleDeleteTaskIds(roleId));
 
         RoleTO roleTO = new RoleTO();
         roleTO.setId(roleId);

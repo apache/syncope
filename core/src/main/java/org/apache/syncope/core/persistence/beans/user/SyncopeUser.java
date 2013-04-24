@@ -153,9 +153,9 @@ public class SyncopeUser extends AbstractAttributable {
      */
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-    @JoinColumn(name = "user_id"),
-    inverseJoinColumns =
-    @JoinColumn(name = "resource_name"))
+            @JoinColumn(name = "user_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "resource_name"))
     @Valid
     private Set<ExternalResource> resources;
 
@@ -248,6 +248,10 @@ public class SyncopeUser extends AbstractAttributable {
         }
 
         return result;
+    }
+
+    public Set<ExternalResource> getOwnResources() {
+        return super.getResources();
     }
 
     public String getPassword() {

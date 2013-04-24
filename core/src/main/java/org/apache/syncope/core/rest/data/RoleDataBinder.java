@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.rest.data;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.mod.RoleMod;
@@ -30,7 +32,9 @@ import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.Entitlement;
+import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
+import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.RAttr;
 import org.apache.syncope.core.persistence.beans.role.RDerAttr;
 import org.apache.syncope.core.persistence.beans.role.RVirAttr;
@@ -42,6 +46,7 @@ import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
+import org.apache.syncope.core.workflow.WorkflowResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -73,6 +78,30 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             throw new UnauthorizedRoleException(role.getId());
         }
         return role;
+    }
+
+    @Transactional(readOnly = true)
+    public List<WorkflowResult<Long>> getUsersOnResourcesOnlyBecauseOfRole(final Long roleId) {
+        SyncopeRole role = getRoleFromId(roleId);
+
+        List<WorkflowResult<Long>> result = new ArrayList<WorkflowResult<Long>>();
+
+        for (Membership membership : roleDAO.findMemberships(role)) {
+            SyncopeUser user = membership.getSyncopeUser();
+
+            PropagationByResource propByRes = new PropagationByResource();
+            for (ExternalResource resource : role.getResources()) {
+                if (!user.getOwnResources().contains(resource)) {
+                    propByRes.add(ResourceOperation.DELETE, resource.getName());
+                }
+
+                if (!propByRes.isEmpty()) {
+                    result.add(new WorkflowResult<Long>(user.getId(), propByRes, Collections.<String>emptySet()));
+                }
+            }
+        }
+
+        return result;
     }
 
     public SyncopeRole create(final SyncopeRole role, final RoleTO roleTO) {
