@@ -43,14 +43,14 @@ public final class URIUtil {
     public static URI buildForConnId(final String location) throws MalformedURLException, URISyntaxException {
         final String candidate = location.trim();
 
-        if (!location.startsWith("file:")
-                && !location.startsWith("connid:") && !location.startsWith("connids:")) {
+        if (!candidate.startsWith("file:")
+                && !candidate.startsWith("connid:") && !candidate.startsWith("connids:")) {
 
             throw new IllegalArgumentException(candidate + " is not a valid URI for file or connid(s) schemes");
         }
 
         URI uri;
-        if (location.startsWith("file:")) {
+        if (candidate.startsWith("file:")) {
             uri = new File(new URL(candidate).getFile()).getAbsoluteFile().toURI();
         } else {
             uri = new URI(candidate);
