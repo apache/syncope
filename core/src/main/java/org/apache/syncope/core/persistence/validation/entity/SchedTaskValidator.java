@@ -51,8 +51,9 @@ public class SchedTaskValidator extends AbstractValidator implements ConstraintV
             isValid = false;
 
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidSchedTask.toString()).addNode(
-                    object + ".jobClassName is not valid").addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidSchedTask, "Invalid job class name")).
+                    addNode("jobClassName").addConstraintViolation();
         }
 
         if (isValid && object.getCronExpression() != null) {
@@ -63,8 +64,9 @@ public class SchedTaskValidator extends AbstractValidator implements ConstraintV
                 isValid = false;
 
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidSchedTask.toString()).addNode(
-                        object + ".cronExpression==" + object.getCronExpression()).addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidSchedTask, "Invalid cron expression")).
+                        addNode("cronExpression").addConstraintViolation();
             }
         }
 

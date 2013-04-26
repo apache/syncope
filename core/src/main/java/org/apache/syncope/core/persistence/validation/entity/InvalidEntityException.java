@@ -22,10 +22,8 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
-
 import org.apache.syncope.common.types.EntityViolationType;
 
 public class InvalidEntityException extends ValidationException {
@@ -44,14 +42,23 @@ public class InvalidEntityException extends ValidationException {
         this.entityClassSimpleName = entityClassSimpleName;
 
         this.violations = new HashMap<Class, Set<EntityViolationType>>();
-        EntityViolationType entityViolationType;
         for (ConstraintViolation<Object> violation : violations) {
+            int firstComma = violation.getMessageTemplate().indexOf(';');
+
+            final String key = violation.getMessageTemplate().substring(
+                    0, firstComma > 0 ? firstComma : violation.getMessageTemplate().length());
+
+            final String message = violation.getMessageTemplate().substring(firstComma > 0 ? firstComma + 1 : 0);
+
+            EntityViolationType entityViolationType;
+
             try {
-                entityViolationType = EntityViolationType.valueOf(violation.getMessageTemplate());
+                entityViolationType = EntityViolationType.valueOf(key.trim());
             } catch (IllegalArgumentException e) {
                 entityViolationType = EntityViolationType.Standard;
-                entityViolationType.setMessageTemplate(violation.getPropertyPath() + ": " + violation.getMessage());
             }
+
+            entityViolationType.setMessage(message.trim());
 
             if (!this.violations.containsKey(violation.getLeafBean().getClass())) {
                 this.violations.put(violation.getLeafBean().getClass(), EnumSet.noneOf(EntityViolationType.class));

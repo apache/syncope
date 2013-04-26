@@ -57,8 +57,7 @@ public class SchemaValidator extends AbstractValidator implements ConstraintVali
                 if (!isValid) {
                     violation = EntityViolationType.MultivalueAndUniqueConstraint;
 
-                    throw new Exception(object + " cannot be multivalue and have "
-                            + "unique constraint at the same time");
+                    throw new Exception(object + " cannot be multivalue and have unique constraint at the same time");
                 }
             }
 
@@ -67,8 +66,8 @@ public class SchemaValidator extends AbstractValidator implements ConstraintVali
             LOG.error("Error saving schema", e);
 
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(violation.toString()).addNode(object.toString())
-                    .addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(getTemplate(violation, e.getMessage())).
+                    addNode(object.getClass().getSimpleName()).addConstraintViolation();
 
             return false;
         }

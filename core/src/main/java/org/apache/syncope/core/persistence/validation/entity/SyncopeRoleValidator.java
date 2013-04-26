@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 
@@ -40,8 +39,10 @@ public class SyncopeRoleValidator extends AbstractValidator implements
         if (object.getUserOwner() != null && object.getRoleOwner() != null) {
             isValid = false;
 
-            context.buildConstraintViolationWithTemplate("A role must either be owned by an user or a role, not both").
-                    addNode(EntityViolationType.InvalidRoleOwner.toString()).addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidRoleOwner,
+                    "A role must either be owned by an user or a role, not both")).
+                    addNode("owner").addConstraintViolation();
         }
 
         return isValid;

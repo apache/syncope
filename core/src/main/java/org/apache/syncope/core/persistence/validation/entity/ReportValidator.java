@@ -50,8 +50,9 @@ public class ReportValidator extends AbstractValidator implements ConstraintVali
                 isValid = false;
 
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidReport.name()).addNode(
-                        object + ".cronExpression==" + object.getCronExpression()).addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidReport, "Invalid cron expression")).
+                        addNode("cronExpression").addConstraintViolation();
             }
         }
 
@@ -64,8 +65,9 @@ public class ReportValidator extends AbstractValidator implements ConstraintVali
             isValid = false;
 
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidReport.name()).addNode(
-                    object + ".reportletConfs with duplicate names").addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidReport, "Reportlet name must be unique")).
+                    addNode("reportletConfs").addConstraintViolation();
         }
 
         return isValid;

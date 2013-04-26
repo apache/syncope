@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.AbstractMapping;
@@ -37,22 +36,25 @@ public class ExternalResourceValidator extends AbstractValidator implements
 
     private boolean isValid(final AbstractMappingItem item, final ConstraintValidatorContext context) {
         if (StringUtils.isBlank(item.getExtAttrName())) {
-            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidMapping.toString())
-                    .addNode(item + ".extAttrName is null").addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidMapping, item + ".extAttrName is null")).
+                    addNode("extAttrName").addConstraintViolation();
 
             return false;
         }
 
         if (StringUtils.isBlank(item.getIntAttrName())) {
-            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidMapping.toString())
-                    .addNode(item + ".intAttrName is null").addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidMapping, item + ".intAttrName is null")).
+                    addNode("intAttrName").addConstraintViolation();
 
             return false;
         }
-        
+
         if (item.getPurpose() == null) {
-            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidMapping.toString())
-                    .addNode(item + ".purpose is null").addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidMapping, item + ".purpose is null")).
+                    addNode("purpose").addConstraintViolation();
 
             return false;
         }
@@ -72,8 +74,9 @@ public class ExternalResourceValidator extends AbstractValidator implements
             }
         }
         if (accountIds != 1) {
-            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidMapping.toString())
-                    .addNode(mapping + ".accountId.size==" + accountIds).addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidMapping, "One and only one accountId mapping is needed")).
+                    addNode("accountId.size").addConstraintViolation();
             return false;
         }
 
@@ -88,8 +91,9 @@ public class ExternalResourceValidator extends AbstractValidator implements
             }
         }
         if (passwords > 1) {
-            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidMapping.toString())
-                    .addNode(mapping + ".password.size==" + passwords).addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidMapping, "One and only one password mapping is allowed")).
+                    addNode("password.size").addConstraintViolation();
             isValid = false;
         }
 
@@ -111,8 +115,9 @@ public class ExternalResourceValidator extends AbstractValidator implements
             }
 
             if (actionsClass == null || !isAssignable) {
-                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidResource.toString())
-                        .addNode(resource + ".actionsClassName is not valid").addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidResource, "Ivalid actions class name")).
+                        addNode("actionsClassName").addConstraintViolation();
                 return false;
             }
         }

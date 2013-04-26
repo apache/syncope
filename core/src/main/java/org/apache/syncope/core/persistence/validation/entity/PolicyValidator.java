@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
 import org.apache.syncope.common.types.AccountPolicySpec;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.PasswordPolicySpec;
@@ -50,8 +49,9 @@ public class PolicyValidator extends AbstractValidator implements ConstraintVali
                 || ((object instanceof AccountPolicy && !(object.getSpecification() instanceof AccountPolicySpec)))
                 || ((object instanceof SyncPolicy && !(object.getSpecification() instanceof SyncPolicySpec))))) {
 
-            context.buildConstraintViolationWithTemplate("Invalid policy specification").
-                    addNode(EntityViolationType.valueOf("Invalid" + object.getClass().getSimpleName()).name()).
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.valueOf("Invalid" + object.getClass().getSimpleName()),
+                    "Invalid policy specification")).addNode("specification").
                     addConstraintViolation();
 
             return false;
@@ -63,8 +63,9 @@ public class PolicyValidator extends AbstractValidator implements ConstraintVali
                 final PasswordPolicy passwordPolicy = policyDAO.getGlobalPasswordPolicy();
 
                 if (passwordPolicy != null && !passwordPolicy.getId().equals(object.getId())) {
-                    context.buildConstraintViolationWithTemplate("Password policy already exists").addNode(
-                            EntityViolationType.InvalidPasswordPolicy.name()).addConstraintViolation();
+                    context.buildConstraintViolationWithTemplate(
+                            getTemplate(EntityViolationType.InvalidPasswordPolicy, "Password policy already exists")).
+                            addNode(object.getClass().getSimpleName()).addConstraintViolation();
 
                     return false;
                 }
@@ -75,8 +76,9 @@ public class PolicyValidator extends AbstractValidator implements ConstraintVali
                 final AccountPolicy accountPolicy = policyDAO.getGlobalAccountPolicy();
 
                 if (accountPolicy != null && !accountPolicy.getId().equals(object.getId())) {
-                    context.buildConstraintViolationWithTemplate("Global Account policy already exists").addNode(
-                            EntityViolationType.InvalidAccountPolicy.name()).addConstraintViolation();
+                    context.buildConstraintViolationWithTemplate(getTemplate(
+                            EntityViolationType.InvalidAccountPolicy, "Global Account policy already exists")).
+                            addNode(object.getClass().getSimpleName()).addConstraintViolation();
 
                     return false;
                 }
@@ -87,8 +89,9 @@ public class PolicyValidator extends AbstractValidator implements ConstraintVali
                 final SyncPolicy syncPolicy = policyDAO.getGlobalSyncPolicy();
 
                 if (syncPolicy != null && !syncPolicy.getId().equals(object.getId())) {
-                    context.buildConstraintViolationWithTemplate("Global Sync policy already exists").addNode(
-                            EntityViolationType.InvalidSyncPolicy.name()).addConstraintViolation();
+                    context.buildConstraintViolationWithTemplate(getTemplate(
+                            EntityViolationType.InvalidSyncPolicy, "Global Sync policy already exists")).
+                            addNode(object.getClass().getSimpleName()).addConstraintViolation();
 
                     return false;
                 }

@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.AbstractAttrUniqueValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
@@ -63,8 +62,10 @@ public class AttrValueValidator extends AbstractValidator implements
                 LOG.error("More than one non-null value for " + object);
 
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(EntityViolationType.MoreThanOneNonNull.toString())
-                        .addNode(object.toString().replaceAll("\\n", " ")).addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.MoreThanOneNonNull, "More than one non-null value found")).
+                        addNode(object.getClass().getSimpleName().replaceAll("\\n", " ")).addConstraintViolation();
+
             } else if (object instanceof AbstractAttrUniqueValue) {
                 AbstractSchema uniqueValueSchema = ((AbstractAttrUniqueValue) object).getSchema();
                 AbstractSchema attrSchema = object.getAttribute().getSchema();
@@ -73,15 +74,14 @@ public class AttrValueValidator extends AbstractValidator implements
 
                 if (!isValid) {
                     LOG.error("Unique value schema for " + object.getClass().getSimpleName() + "[" + object.getId()
-                            + "]" + " is " + uniqueValueSchema + ", while owning " + "attribute schema is "
-                            + attrSchema);
+                            + "]" + " is " + uniqueValueSchema + ", while owning attribute schema is " + attrSchema);
 
                     context.disableDefaultConstraintViolation();
                     context.buildConstraintViolationWithTemplate(
-                            EntityViolationType.valueOf("Invalid" + attrSchema.getClass().getSimpleName()).toString())
-                            .addNode(
-                                    object.getClass().getSimpleName() + "[" + object.getId() + "].schema="
-                                            + uniqueValueSchema + " != " + attrSchema).addConstraintViolation();
+                            getTemplate(EntityViolationType.valueOf("Invalid" + attrSchema.getClass().getSimpleName()),
+                            "Unique value schema is " + uniqueValueSchema
+                            + ", while owning attribute schema is " + attrSchema)).addNode("schema").
+                            addConstraintViolation();
                 }
             }
         }

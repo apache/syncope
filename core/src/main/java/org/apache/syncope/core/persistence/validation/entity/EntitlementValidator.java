@@ -20,10 +20,8 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 
@@ -52,11 +50,12 @@ public class EntitlementValidator extends AbstractValidator implements
             }
 
             if (!isValid) {
-                LOG.error(object + " cannot have name " + "starting by ROLE_");
+                LOG.error(object + " cannot have name starting by ROLE_");
 
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidEntitlementName.toString())
-                        .addNode(object.toString()).addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(getTemplate(
+                        EntityViolationType.InvalidEntitlementName, object + " cannot have name starting by ROLE_")).
+                        addNode("name").addConstraintViolation();
             }
         }
 

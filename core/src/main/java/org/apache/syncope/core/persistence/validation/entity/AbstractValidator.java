@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.validation.entity;
 
+import org.apache.syncope.common.types.EntityViolationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,4 +29,7 @@ public abstract class AbstractValidator {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractValidator.class);
 
+    protected final String getTemplate(final EntityViolationType type, final String message) {
+        return type.name() + ";" + message;
+    }
 }
