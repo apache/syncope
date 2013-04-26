@@ -42,8 +42,10 @@ public class ConnInstanceValidator extends AbstractValidator implements
             LOG.error("While validating {}", connInstance.getLocation(), e);
 
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidConnInstanceLocation.toString())
-                    .addNode("location").addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidConnInstanceLocation, e.getMessage())).
+                    addNode("location").addConstraintViolation();
+
             isValid = false;
         }
 

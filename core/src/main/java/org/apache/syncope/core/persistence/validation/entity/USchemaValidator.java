@@ -33,8 +33,8 @@ import org.apache.syncope.core.persistence.beans.user.UVirSchema;
 public class USchemaValidator extends AbstractValidator implements ConstraintValidator<USchemaCheck, Object> {
 
     @Transient
-    private static List<String> PERMITTED_USCHEMA_NAMES = Arrays.asList(new String[] { "failedLogins", "username",
-            "password", "lastLoginDate", "creationDate", "changePwdDate" });
+    private static List<String> PERMITTED_USCHEMA_NAMES = Arrays.asList(new String[]{"failedLogins", "username",
+                "password", "lastLoginDate", "creationDate", "changePwdDate"});
 
     @Override
     public void initialize(final USchemaCheck constraintAnnotation) {
@@ -72,8 +72,10 @@ public class USchemaValidator extends AbstractValidator implements ConstraintVal
             LOG.error("Error saving schema", e);
 
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(violation.toString()).addNode(object.toString())
-                    .addConstraintViolation();
+
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(violation, e.getMessage())).
+                    addNode(object.getClass().getSimpleName()).addConstraintViolation();
 
             return false;
         }

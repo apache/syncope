@@ -56,8 +56,9 @@ public class SyncTaskValidator extends AbstractValidator implements ConstraintVa
                     LOG.error("Resource is null");
 
                     context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidSyncTask.toString())
-                            .addNode(object + ".resource is NULL").addConstraintViolation();
+                    context.buildConstraintViolationWithTemplate(
+                            getTemplate(EntityViolationType.InvalidSyncTask, "Resource cannot be null")).
+                            addNode("resource").addConstraintViolation();
                 }
 
                 if (StringUtils.isNotBlank(object.getActionsClassName())) {
@@ -75,8 +76,9 @@ public class SyncTaskValidator extends AbstractValidator implements ConstraintVa
                         isValid = false;
 
                         context.disableDefaultConstraintViolation();
-                        context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidSyncTask.toString())
-                                .addNode(object + ".actionsClassName is not valid").addConstraintViolation();
+                        context.buildConstraintViolationWithTemplate(
+                                getTemplate(EntityViolationType.InvalidSyncTask, "Invalid class name")).
+                                addNode("actionsClassName").addConstraintViolation();
                     }
                 }
             }

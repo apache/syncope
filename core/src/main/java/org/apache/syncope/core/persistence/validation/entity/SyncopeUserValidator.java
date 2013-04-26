@@ -92,8 +92,9 @@ public class SyncopeUserValidator extends AbstractValidator implements
             } catch (Exception e) {
                 LOG.debug("Invalid password");
 
-                context.buildConstraintViolationWithTemplate(e.getMessage()).addNode(
-                        EntityViolationType.InvalidPassword.toString()).addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidPassword, e.getMessage())).
+                        addNode("password").addConstraintViolation();
 
                 return false;
             } finally {
@@ -120,8 +121,9 @@ public class SyncopeUserValidator extends AbstractValidator implements
         } catch (Exception e) {
             LOG.debug("Invalid username");
 
-            context.buildConstraintViolationWithTemplate(e.getMessage()).addNode(
-                    EntityViolationType.InvalidUsername.toString()).addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidUsername, e.getMessage()))
+                    .addNode("username").addConstraintViolation();
 
             return false;
         }

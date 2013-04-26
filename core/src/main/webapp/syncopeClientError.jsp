@@ -60,7 +60,7 @@ under the License.
 
             for (EntityViolationType violationType : violation.getValue()) {
                 response.addHeader(exType.getElementHeaderName(),
-                        violation.getClass().getSimpleName() + ": " + violationType);
+                        violationType.name() + ": " + violationType.getMessage());
             }
         }
 

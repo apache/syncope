@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 
@@ -53,9 +52,11 @@ public class AttrValidator extends AbstractValidator implements ConstraintValida
                         + ", " + "values={}", object.getValuesAsStrings());
 
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidValueList.toString()).addNode(
-                        object + "(" + object.getSchema().getName() + ")" + "{" + object.getValuesAsStrings() + "}")
-                        .addConstraintViolation();
+
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidValueList,
+                        "Invalid values " + object.getValuesAsStrings())).
+                        addNode(object.getSchema().getName()).addConstraintViolation();
             }
         }
 

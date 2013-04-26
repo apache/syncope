@@ -62,8 +62,9 @@ public class PropagationTaskValidator extends AbstractValidator implements
 
             if (!isValid) {
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(EntityViolationType.InvalidPropagationTask.toString())
-                        .addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidPropagationTask, "Invalid task")).
+                        addNode(task.getClass().getSimpleName()).addConstraintViolation();
             }
         }
 

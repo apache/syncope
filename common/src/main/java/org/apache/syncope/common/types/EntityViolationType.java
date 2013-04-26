@@ -60,14 +60,11 @@ public enum EntityViolationType {
         this.message = message;
     }
 
-    public void setMessageTemplate(final String message) {
+    public void setMessage(final String message) {
         this.message = message;
     }
 
-    @Override
-    public String toString() {
-        return this == Standard
-                ? message
-                : super.toString();
+    public String getMessage() {
+        return message;
     }
 }
