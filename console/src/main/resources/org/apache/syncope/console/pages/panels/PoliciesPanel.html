@@ -16,27 +16,27 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:panel>
-
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:panel>
     <div>
-        <div id="users-contain" class="ui-widget">
-            <span wicket:id="container">
-                <table class="ui-widget ui-widget-content table-hover" wicket:id="datatable"/>
-            </span>
+      <div id="users-contain" class="ui-widget">
+        <span wicket:id="container">
+          <table class="ui-widget ui-widget-content table-hover" wicket:id="datatable"/>
+        </span>
 
-            <span style="float:right">
-                <form wicket:id="PaginatorForm" style="display:inline">
-                    <label><wicket:message key="displayRows"/></label>
-                    <select class="text ui-widget-content ui-corner-all" wicket:id="rowsChooser"/>
-                </form>
-            </span>
-        </div>
+        <span style="float:right">
+          <form wicket:id="PaginatorForm" style="display:inline">
+            <label><wicket:message key="displayRows"/></label>
+            <select class="text ui-widget-content ui-corner-all" wicket:id="rowsChooser"/>
+          </form>
+        </span>
+      </div>
 
-        <div wicket:id="editModalWin">[Show modal window for creating/editing password policy]</div>
+      <div wicket:id="editModalWin">[Show modal window for creating/editing password policy]</div>
 
-        <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="createLink">
-            <wicket:message key="create"/>
-        </a>
+      <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="createLink">
+        <wicket:message key="create"/>
+      </a>
     </div>
-
-</wicket:panel>
+  </wicket:panel>
+</html>
