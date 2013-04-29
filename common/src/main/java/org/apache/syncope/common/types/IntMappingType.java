@@ -117,7 +117,7 @@ public enum IntMappingType {
     public static Set<IntMappingType> getEmbedded() {
         return EnumSet.of(
                 IntMappingType.UserId, IntMappingType.Username, IntMappingType.Password,
-                IntMappingType.RoleId, IntMappingType.RoleName,
+                IntMappingType.RoleId, IntMappingType.RoleName, IntMappingType.RoleOwnerSchema,
                 IntMappingType.MembershipId);
     }
 

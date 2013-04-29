@@ -26,8 +26,6 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
-import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.to.DerivedSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
@@ -65,8 +63,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
         schema.setName("derived");
         schema.setExpression("derived_sx + '_' + derived_dx");
 
-        Response response = createSchema(AttributableType.USER, SchemaType.DERIVED, schema);
-        DerivedSchemaTO actual = getObject(response, DerivedSchemaTO.class, schemaService);
+        DerivedSchemaTO actual = createSchema(AttributableType.USER, SchemaType.DERIVED, schema);
         assertNotNull(actual);
 
         actual = schemaService.read(AttributableType.USER, SchemaType.DERIVED, actual.getName());
@@ -91,9 +88,8 @@ public class DerivedSchemaTestITCase extends AbstractTest {
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
         } finally {
             // Recreate schema to make test re-runnable
-            Response response = createSchema(AttributableType.ROLE, SchemaType.DERIVED, schema);
-            assertNotNull(response);
-            assertEquals(HttpStatus.CREATED.value(), response.getStatus());
+            schema = createSchema(AttributableType.ROLE, SchemaType.DERIVED, schema);
+            assertNotNull(schema);
         }
         assertNotNull(t);
     }
