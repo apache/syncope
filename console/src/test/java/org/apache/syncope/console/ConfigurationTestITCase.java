@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ConfigurationTestITCase extends AbstractTest {
@@ -83,7 +84,7 @@ public class ConfigurationTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='id:textField']\");", "30000");
 
         selenium.type("name=description:textField", "new description");
-        selenium.click("//html/body/div[2]/form/div[3]/input[@type='submit']");
+        selenium.click("//div[2]/form/div[3]/input[@type='submit']");
 
         selenium.waitForCondition("selenium.isTextPresent(\"new description\");", "30000");
     }
