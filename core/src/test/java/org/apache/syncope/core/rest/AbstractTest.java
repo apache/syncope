@@ -404,27 +404,6 @@ public abstract class AbstractTest {
             }
         }
         return (T) getObject(response, policy.getClass(), policyService);
-//
-//        T result;
-//        switch (policyType) {
-//            case ACCOUNT:
-//            case GLOBAL_ACCOUNT:
-//                result = (T) getObject(response, AccountPolicyTO.class, policyService);
-//                break;
-//
-//            case SYNC:
-//            case GLOBAL_SYNC:
-//                result = (T) getObject(response, SyncPolicyTO.class, policy);
-//                break;
-//
-//            case PASSWORD:
-//            case GLOBAL_PASSWORD:
-//            default:
-//                result = (T) getObject(response, PasswordPolicyTO.class, policy);
-//                break;
-//        }
-//
-//        return result;
     }
 
     protected ResourceTO createResource(final ResourceTO resourceTO) {
