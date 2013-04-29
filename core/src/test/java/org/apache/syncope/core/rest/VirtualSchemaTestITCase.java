@@ -26,8 +26,6 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
-import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.to.VirtualSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
@@ -64,8 +62,7 @@ public class VirtualSchemaTestITCase extends AbstractTest {
         VirtualSchemaTO schema = new VirtualSchemaTO();
         schema.setName("virtual");
 
-        Response response = createSchema(AttributableType.USER, SchemaType.VIRTUAL, schema);
-        VirtualSchemaTO actual = getObject(response, VirtualSchemaTO.class, schemaService);
+        VirtualSchemaTO actual = createSchema(AttributableType.USER, SchemaType.VIRTUAL, schema);
         assertNotNull(actual);
 
         actual = schemaService.read(AttributableType.USER, SchemaType.VIRTUAL, actual.getName());

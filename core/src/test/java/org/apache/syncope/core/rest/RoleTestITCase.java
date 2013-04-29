@@ -29,8 +29,6 @@ import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.to.ConnObjectTO;
@@ -148,8 +146,7 @@ public class RoleTestITCase extends AbstractTest {
 
         roleTO.addResource("resource-ldap");
 
-        Response response = roleService.create(roleTO);
-        roleTO = getObject(response, RoleTO.class, roleService);
+        roleTO = createRole(roleService, roleTO);
         assertNotNull(roleTO);
 
         RoleTO deletedRole = roleService.delete(roleTO.getId());

@@ -194,7 +194,7 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setUmapping(mapping);
 
         try {
-            createResource(resourceService, resourceTO);
+            createResource(resourceTO);
             fail("Create should not have worked");
         } catch (SyncopeClientCompositeErrorException e) {
             SyncopeClientException requiredValueMissing = e
@@ -228,7 +228,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         resourceTO.setUmapping(mapping);
 
-        createResource(resourceService, resourceTO);
+        createResource(resourceTO);
     }
 
     @Test
@@ -395,7 +395,7 @@ public class ResourceTestITCase extends AbstractTest {
         assertNotNull(actual);
 
         try {
-            createResource(resourceService, actual);
+            createResource(actual);
             fail();
         } catch (SyncopeClientCompositeErrorException scce) {
             assertEquals(HttpStatus.CONFLICT, scce.getStatusCode());
@@ -404,7 +404,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         actual.setName(null);
         try {
-            createResource(resourceService, actual);
+            createResource(actual);
             fail();
         } catch (SyncopeClientCompositeErrorException scce) {
             assertEquals(HttpStatus.BAD_REQUEST, scce.getStatusCode());
@@ -458,6 +458,35 @@ public class ResourceTestITCase extends AbstractTest {
         assertNull(resource.getUmapping());
     }
 
+    @Test
+    public void issueSYNCOPE368() {
+        final String name = "SYNCOPE368-" + getUUIDString();
+
+        ResourceTO resourceTO = new ResourceTO();
+
+        resourceTO.setName(name);
+        resourceTO.setConnectorId(105L);
+
+        MappingTO mapping = new MappingTO();
+
+        MappingItemTO item = new MappingItemTO();
+        item.setIntMappingType(IntMappingType.RoleName);
+        item.setPurpose(MappingPurpose.BOTH);
+        mapping.setAccountIdItem(item);
+
+        item = new MappingItemTO();
+        item.setIntMappingType(IntMappingType.RoleOwnerSchema);
+        item.setExtAttrName("owner");
+        item.setPurpose(MappingPurpose.BOTH);
+        mapping.addItem(item);
+
+        resourceTO.setRmapping(mapping);
+        
+        resourceTO = createResource(resourceTO);
+        assertNotNull(resourceTO);
+        assertEquals(2, resourceTO.getRmapping().getItems().size());
+    }
+
     private ResourceTO buildResourceTO(String resourceName) {
         ResourceTO resourceTO = new ResourceTO();
 
@@ -477,7 +506,6 @@ public class ResourceTestITCase extends AbstractTest {
         item.setExtAttrName("username");
         item.setIntAttrName("fullname");
         item.setIntMappingType(IntMappingType.UserId);
-        item.setAccountid(true);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setAccountIdItem(item);
 

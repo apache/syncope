@@ -83,8 +83,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         authRoleTO.setParent(8L);
         authRoleTO.addEntitlement("SCHEMA_READ");
 
-        Response response = roleService.create(authRoleTO);
-        authRoleTO = getObject(response, RoleTO.class, roleService);
+        authRoleTO = createRole(roleService, authRoleTO);
         assertNotNull(authRoleTO);
 
         String schemaName = "authTestSchema" + getUUIDString();
@@ -95,8 +94,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         schemaTO.setMandatoryCondition("false");
         schemaTO.setType(AttributeSchemaType.String);
 
-        response = createSchema(AttributableType.USER, SchemaType.NORMAL, schemaTO);
-        SchemaTO newSchemaTO = getObject(response, SchemaTO.class, entitlementService);
+        SchemaTO newSchemaTO = createSchema(AttributableType.USER, SchemaType.NORMAL, schemaTO);
         assertEquals(schemaTO, newSchemaTO);
 
         // 2. create an user with the role created above (as admin)
@@ -334,8 +332,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         parentRole.addEntitlement("ROLE_1");
         parentRole.setParent(1L);
 
-        Response response = roleService.create(parentRole);
-        parentRole = getObject(response, RoleTO.class, roleService);
+        parentRole =  createRole(roleService, parentRole);
         assertNotNull(parentRole);
 
         // Child role, with no entitlements
@@ -343,8 +340,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         childRole.setName("childAdminRole");
         childRole.setParent(parentRole.getId());
 
-        response = roleService.create(childRole);
-        childRole = getObject(response, RoleTO.class, roleService);
+        childRole = createRole(roleService, childRole);
         assertNotNull(childRole);
 
         // User with child role, created by admin
@@ -366,7 +362,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.setRoleId(1L);
         role1User.addMembership(membershipTO);
 
-        response = userService2.create(role1User);
+        Response response = userService2.create(role1User);
         assertNotNull(response);
         role1User = response.readEntity(UserTO.class);
         assertNotNull(role1User);

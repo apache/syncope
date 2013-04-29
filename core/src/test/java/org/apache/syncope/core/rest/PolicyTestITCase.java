@@ -24,7 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
@@ -80,7 +79,7 @@ public class PolicyTestITCase extends AbstractTest {
         policy.setDescription("global password policy");
 
         try {
-            createPolicy(policyService, PolicyType.PASSWORD, policy);
+            createPolicy(PolicyType.PASSWORD, policy);
             fail();
         } catch (SyncopeClientCompositeErrorException sccee) {
             assertNotNull(sccee.getException(SyncopeClientExceptionType.InvalidPasswordPolicy));
@@ -93,7 +92,7 @@ public class PolicyTestITCase extends AbstractTest {
         policy.setSpecification(new SyncPolicySpec());
 
         try {
-            createPolicy(policyService, PolicyType.SYNC, policy);
+            createPolicy(PolicyType.SYNC, policy);
             fail();
         } catch (SyncopeClientCompositeErrorException sccee) {
             assertNotNull(sccee.getException(SyncopeClientExceptionType.InvalidSyncPolicy));
@@ -104,12 +103,11 @@ public class PolicyTestITCase extends AbstractTest {
     public void create() {
         SyncPolicyTO policy = buildSyncPolicyTO();
 
-        Response response = createPolicy(policyService, PolicyType.SYNC, policy);
-        SyncPolicyTO policyTO = getObject(response, SyncPolicyTO.class, policyService);
+        SyncPolicyTO policyTO = createPolicy(PolicyType.SYNC, policy);
 
         assertNotNull(policyTO);
         assertEquals(PolicyType.SYNC, policyTO.getType());
-        assertEquals(TestSyncRule.class.getName(), ((SyncPolicySpec) policyTO.getSpecification()).getUserJavaRule());
+        assertEquals(TestSyncRule.class.getName(), policyTO.getSpecification().getUserJavaRule());
     }
 
     @Test
@@ -122,8 +120,7 @@ public class PolicyTestITCase extends AbstractTest {
         policy.setSpecification(globalPolicy.getSpecification());
 
         // create a new password policy using global password as a template
-        Response response = createPolicy(policyService, PolicyType.PASSWORD, policy);
-        policy = getObject(response, PasswordPolicyTO.class, policyService);
+        policy = createPolicy(PolicyType.PASSWORD, policy);
 
         // read new password policy
         policy = policyService.read(PolicyType.PASSWORD, policy.getId());
@@ -147,8 +144,8 @@ public class PolicyTestITCase extends AbstractTest {
     @Test
     public void delete() {
         SyncPolicyTO policy = buildSyncPolicyTO();
-        Response response = createPolicy(policyService, PolicyType.SYNC, policy);
-        SyncPolicyTO policyTO = getObject(response, SyncPolicyTO.class, policyService);
+
+        SyncPolicyTO policyTO = createPolicy(PolicyType.SYNC, policy);
         assertNotNull(policyTO);
 
         policyService.delete(PolicyType.SYNC, policyTO.getId());
