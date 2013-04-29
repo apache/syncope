@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.1.1</version>
   </parent>
 
   <name>Apache Syncope Standalone Distribution</name>
@@ -98,8 +98,8 @@ under the License.
 
                 <!-- Unzip Tomcat and remove docs and examples from webapps (space saving) -->
                 <unzip src="${settings.localRepository}/org/codehaus/cargo/cargo-container-archives/apache-tomcat-${tomcat.version}.zip" dest="${work.dir}" />
-                <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/docs"/>
-                <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/examples"/>
+                <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/docs" />
+                <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/examples" />
 
                 <!-- Syncope core (as run for integration tests) -->
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope">
