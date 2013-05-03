@@ -258,7 +258,7 @@ under the License.
         
     <connid.version>1.3.2</connid.version>
     <connid.soap.version>1.2.3</connid.soap.version>
-    <connid.db.table.version>2.1.4</connid.db.table.version>
+    <connid.db.table.version>2.1.4.1</connid.db.table.version>
     <connid.csvdir.version>0.6.1</connid.csvdir.version>
     <connid.ldap.version>1.3.3</connid.ldap.version>
 
@@ -270,7 +270,7 @@ under the License.
     <activiti.version>5.9</activiti.version>
 
     <spring.version>3.1.4.RELEASE</spring.version>
-    <spring-security.version>3.1.3.RELEASE</spring-security.version>
+    <spring-security.version>3.1.4.RELEASE</spring-security.version>
     <aspectj.version>1.7.2.RELEASE</aspectj.version>
     <jackson.version>1.9.12</jackson.version>
     <xstream.version>1.4.4</xstream.version>
