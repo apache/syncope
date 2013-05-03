@@ -1,17 +1,20 @@
 /*
- * Copyright 2013 The Apache Software Foundation.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.syncope.common.to;
 
@@ -28,6 +31,8 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 @XmlRootElement(name = "BulkActionRes")
 @XmlType
 public class BulkActionRes extends AbstractBaseBean {
+
+    private static final long serialVersionUID = 2868894178821778133L;
 
     @XmlEnum
     @XmlType(name = "bulkActionStatus")
@@ -71,7 +76,7 @@ public class BulkActionRes extends AbstractBaseBean {
     }
 
     @JsonIgnore
-    public List getResultByStatus(final Status status) {
+    public List<String> getResultByStatus(final Status status) {
         final List<String> res = new ArrayList<String>();
         if (results != null) {
             for (Result result : results) {
@@ -83,7 +88,9 @@ public class BulkActionRes extends AbstractBaseBean {
         return res;
     }
 
-    public static class Result {
+    public static class Result extends AbstractBaseBean {
+
+        private static final long serialVersionUID = -1149681964161193232L;
 
         private String key;
 

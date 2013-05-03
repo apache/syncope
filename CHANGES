@@ -2,6 +2,35 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.1.1
+================================================================================
+** Bug
+    * [SYNCOPE-351] - Errors when editing role membership assignment in notifications (About and Recipients)
+    * [SYNCOPE-352] - No connectors available on clean install
+    * [SYNCOPE-353] - UserTemplate evaluation generates unjustified attributes to be removed
+    * [SYNCOPE-354] - LDAP Membership propagation does not remove memberships
+    * [SYNCOPE-356] - Unable to set resource for role via the console
+    * [SYNCOPE-357] - When deleting role on external resource, also remove from there users with resource assigned only via that role
+    * [SYNCOPE-358] - ConnectorService#list invocation with null parameter actually calls ConnectorService#readByResource
+    * [SYNCOPE-360] - Removing Role mapping from External Resource fails
+    * [SYNCOPE-361] - When creating new report, the modal window does not close and an exception is logged
+    * [SYNCOPE-363] - ApacheDS not available since second run of the standalone distribution
+    * [SYNCOPE-364] - Rejected users are anyway propagate to associated resources
+    * [SYNCOPE-365] - External attribute disabled in case of schema info not available
+    * [SYNCOPE-366] - Uniform constraint violation building
+    * [SYNCOPE-367] - ConfigurationTestITCase#browseAccountPolicy Selenium test fails
+    * [SYNCOPE-368] - Cannot add 'RoleOwnerSchema' mapping item via console
+
+** Improvement
+    * [SYNCOPE-359] - Ignore propagation if no schema mapping is provided
+    * [SYNCOPE-362] - Disable mapping tab when the underlying connector does not support correspondent ObjectClass
+
+** Task
+    * [SYNCOPE-126] - Database import / export and related tasks
+
+** Wish
+    * [SYNCOPE-340] - Translate items of Syncope UI and config files labels for Portuguese language 
+
 Release Notes - Syncope - Version 1.1.0
 ================================================================================
 ** Sub-task

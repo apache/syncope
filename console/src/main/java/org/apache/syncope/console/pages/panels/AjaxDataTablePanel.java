@@ -1,17 +1,20 @@
 /*
- * Copyright 2013 The Apache Software Foundation.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.syncope.console.pages.panels;
 
@@ -53,7 +56,7 @@ public class AjaxDataTablePanel<T, S> extends Panel {
 
     private final Form bulkActionForm;
 
-    private final AjaxFallbackDefaultDataTable dataTable;
+    private final AjaxFallbackDefaultDataTable<T, S> dataTable;
 
     public AjaxDataTablePanel(
             final String id,
@@ -64,7 +67,7 @@ public class AjaxDataTablePanel<T, S> extends Panel {
 
         this.bulkActionForm = null;
         this.group = null;
-        dataTable = new AjaxFallbackDefaultDataTable("dataTable", columns, dataProvider, rowsPerPage);
+        dataTable = new AjaxFallbackDefaultDataTable<T, S>("dataTable", columns, dataProvider, rowsPerPage);
 
         Fragment fragment = new Fragment("tablePanel", "bulkNotAvailable", this);
         fragment.add(dataTable);
@@ -127,10 +130,11 @@ public class AjaxDataTablePanel<T, S> extends Panel {
         bulkActionForm.add(group);
 
         columns.add(0, new CheckGroupColumn<T, S>(group));
-        dataTable = new AjaxFallbackDefaultDataTable("dataTable", columns, dataProvider, rowsPerPage);
+        dataTable = new AjaxFallbackDefaultDataTable<T, S>("dataTable", columns, dataProvider, rowsPerPage);
         group.add(dataTable);
 
         fragment.add(new ClearIndicatingAjaxButton("bulkActionLink", bulkActionForm, pageRef) {
+
             private static final long serialVersionUID = 382302811235019988L;
 
             @Override
@@ -141,7 +145,7 @@ public class AjaxDataTablePanel<T, S> extends Panel {
 
                     @Override
                     public Page createPage() {
-                        return new BulkActionModalPage(
+                        return new BulkActionModalPage<T, S>(
                                 getPage().getPageReference(),
                                 bulkModalWin,
                                 new ArrayList<T>(group.getModelObject()),

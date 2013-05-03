@@ -133,16 +133,6 @@ under the License.
           <archive>
             <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
           </archive>
-          <webResources>
-            <webResource>
-              <directory>${basedir}/src/main/webapp/WEB-INF</directory>
-              <includes>
-                <include>web.xml</include>
-              </includes>
-              <targetPath>WEB-INF</targetPath>
-              <filtering>true</filtering>
-            </webResource>
-          </webResources>
         </configuration>
       </plugin>
 
