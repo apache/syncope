@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
+import java.security.AccessControlException;
 import java.util.Locale;
 import java.util.Set;
 import org.apache.http.HttpResponse;
@@ -78,24 +79,24 @@ public class Login extends WebPage {
     @SpringBean(name = "baseURL")
     private String baseURL;
 
-    private Form form;
+    private Form<Void> form;
 
-    private TextField userIdField;
+    private TextField<String> userIdField;
 
-    private TextField passwordField;
+    private TextField<String> passwordField;
 
     private DropDownChoice<Locale> languageSelect;
 
     public Login(final PageParameters parameters) {
         super(parameters);
 
-        form = new Form("login");
+        form = new Form<Void>("login");
 
-        userIdField = new TextField("userId", new Model());
+        userIdField = new TextField<String>("userId", new Model<String>());
         userIdField.setMarkupId("userId");
         form.add(userIdField);
 
-        passwordField = new PasswordTextField("password", new Model());
+        passwordField = new PasswordTextField("password", new Model<String>());
         passwordField.setMarkupId("password");
         form.add(passwordField);
 
@@ -117,7 +118,7 @@ public class Login extends WebPage {
                     SyncopeSession.get().setVersion(getSyncopeVersion());
 
                     setResponsePage(WelcomePage.class, parameters);
-                } catch (HttpClientErrorException e) {
+                } catch (AccessControlException e) {
                     error(getString("login-error"));
 
                     PreemptiveAuthHttpRequestFactory requestFactory =
@@ -147,7 +148,7 @@ public class Login extends WebPage {
         if (isSelfRegistrationAllowed()) {
             selfRegFrag = new Fragment("selfRegistration", "selfRegAllowed", this);
 
-            final AjaxLink selfRegLink = new ClearIndicatingAjaxLink("link", getPageReference()) {
+            final AjaxLink<Void> selfRegLink = new ClearIndicatingAjaxLink<Void>("link", getPageReference()) {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
