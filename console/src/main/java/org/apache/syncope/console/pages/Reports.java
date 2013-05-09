@@ -117,6 +117,7 @@ public class Reports extends BasePage {
         setupAudit();
     }
 
+    @SuppressWarnings({"rawtypes","unchecked"})
     private void setupReport() {
         reportContainer = new WebMarkupContainer("reportContainer");
         setWindowClosedCallback(window, reportContainer);
