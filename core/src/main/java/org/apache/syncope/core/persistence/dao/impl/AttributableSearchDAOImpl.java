@@ -142,7 +142,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         if (adminRoles != null && (!adminRoles.isEmpty() || roleDAO.findAll().isEmpty())) {
             LOG.debug("Search condition:\n{}", searchCondition);
 
-            if (searchCondition.isValid()) {
+            if (searchCondition != null && searchCondition.isValid()) {
                 try {
                     result = doSearch(adminRoles, searchCondition, page, itemsPerPage, attrUtil);
                 } catch (Exception e) {

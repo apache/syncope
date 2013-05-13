@@ -450,7 +450,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             altSearchSchemas = attrUtil.getAltSearchSchemas(syncPolicySpec);
         }
 
-        return syncRule == null ? altSearchSchemas == null
+        return syncRule == null ? altSearchSchemas == null || altSearchSchemas.isEmpty()
                 ? findByAccountIdItem(uid, attrUtil)
                 : findByAttributableSearch(connObj, altSearchSchemas, attrUtil)
                 : findByCorrelationRule(connObj, syncRule, attrUtil);
