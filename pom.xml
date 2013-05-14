@@ -297,7 +297,7 @@ under the License.
 
     <activiti.version>5.12</activiti.version>
 
-    <cxf.version>2.7.4</cxf.version>	
+    <cxf.version>2.7.5</cxf.version>	
     <spring.version>3.2.2.RELEASE</spring.version>
     <spring-security.version>3.1.4.RELEASE</spring-security.version>
     <aspectj.version>1.7.2.RELEASE</aspectj.version>
@@ -1172,6 +1172,8 @@ under the License.
             <exclude>**/*.csv</exclude>
             <exclude>**/archetype-resources/**</exclude>
             <exclude>**/goal.txt</exclude>
+            <exclude>**/rat.txt</exclude>
+            <exclude>**/build-copy-javadoc-files.xml</exclude>
             <exclude>**/maven-eclipse.xml</exclude>
             <exclude>**/*.iml</exclude>
             <exclude>**/*.log</exclude>
