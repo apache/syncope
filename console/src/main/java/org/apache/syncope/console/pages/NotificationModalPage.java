@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
@@ -55,11 +56,6 @@ import org.apache.wicket.validation.validator.EmailAddressValidator;
 class NotificationModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -1975312550059578553L;
-
-    /**
-     * OnChange event name.
-     */
-    private static final String ON_CHANGE = "onchange";
 
     @SpringBean
     private NotificationRestClient restClient;
@@ -117,7 +113,7 @@ class NotificationModalPage extends BaseModalPage {
         recipientAttrName.setRequired(true);
         form.add(recipientAttrName);
 
-        recipientAttrType.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+        recipientAttrType.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -156,7 +152,7 @@ class NotificationModalPage extends BaseModalPage {
         recipientsContainer.add(recipients);
         recipients.setEnabled(checkRecipients.getModelObject());
 
-        selfAsRecipient.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+        selfAsRecipient.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -172,7 +168,7 @@ class NotificationModalPage extends BaseModalPage {
             }
         });
 
-        checkRecipients.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+        checkRecipients.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

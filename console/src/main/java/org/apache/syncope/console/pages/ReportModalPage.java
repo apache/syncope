@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.report.AbstractReportletConf;
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.to.ReportExecTO;
@@ -276,7 +277,7 @@ public class ReportModalPage extends BaseModalPage {
 
         reportlets.setNullValid(true);
         profile.add(reportlets);
-        reportlets.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        reportlets.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

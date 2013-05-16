@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.MappingItemTO;
@@ -76,11 +77,6 @@ public class ResourceMappingPanel extends Panel {
      * Logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(ResourceMappingPanel.class);
-
-    /**
-     * OnChange event name.
-     */
-    private static final String ON_CHANGE = "onchange";
 
     /**
      * Mapping field style sheet.
@@ -302,7 +298,7 @@ public class ResourceMappingPanel extends Panel {
                 intAttrNames.setChoices(schemaNames);
                 intAttrNames.setRequired(true);
                 intAttrNames.setStyleSheet(FIELD_STYLE);
-                intAttrNames.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+                intAttrNames.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -328,7 +324,7 @@ public class ResourceMappingPanel extends Panel {
                         ? Collections.<AttributableType>singletonList(AttributableType.ROLE)
                         : Arrays.asList(AttributableType.values()));
                 entitiesPanel.setStyleSheet(DEF_FIELD_STYLE);
-                entitiesPanel.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+                entitiesPanel.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -373,7 +369,7 @@ public class ResourceMappingPanel extends Panel {
                 final AjaxCheckBoxPanel accountId = new AjaxCheckBoxPanel("accountId",
                         new ResourceModel("accountId", "accountId").getObject(),
                         new PropertyModel<Boolean>(mapItem, "accountid"));
-                accountId.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+                accountId.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -399,7 +395,7 @@ public class ResourceMappingPanel extends Panel {
                 final AjaxCheckBoxPanel password = new AjaxCheckBoxPanel("password",
                         new ResourceModel("password", "password").getObject(),
                         new PropertyModel<Boolean>(mapItem, "password"));
-                password.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+                password.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -427,7 +423,7 @@ public class ResourceMappingPanel extends Panel {
                 purpose.setChoices(Arrays.asList(MappingPurpose.values()));
                 purpose.setStyleSheet(FIELD_STYLE);
                 purpose.setRequired(true);
-                purpose.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+                purpose.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -438,7 +434,7 @@ public class ResourceMappingPanel extends Panel {
 
                 item.add(purpose);
 
-                intMappingTypes.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+                intMappingTypes.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -491,7 +487,7 @@ public class ResourceMappingPanel extends Panel {
         accountLink.setEnabled(accountLinkEnabled);
         accountLinkContainer.add(accountLink);
 
-        accountLinkCheckbox.getField().add(new AjaxFormComponentUpdatingBehavior(ON_CHANGE) {
+        accountLinkCheckbox.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

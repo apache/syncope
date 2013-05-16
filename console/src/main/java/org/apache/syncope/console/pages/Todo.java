@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.UserRequestType;
@@ -196,7 +197,7 @@ public class Todo extends BasePage {
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
                 "approvalPaginatorRows"), prefMan.getPaginatorChoices());
 
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -336,7 +337,7 @@ public class Todo extends BasePage {
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
                 "userRequestPaginatorRows"), prefMan.getPaginatorChoices());
 
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

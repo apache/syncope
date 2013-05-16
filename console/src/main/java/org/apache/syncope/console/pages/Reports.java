@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
@@ -241,7 +242,7 @@ public class Reports extends BasePage {
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
 
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

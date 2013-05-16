@@ -143,7 +143,7 @@ public class ReportletConfModalPage extends BaseModalPage {
         reportletClass.setChoices(restClient.getReportletConfClasses());
         ((DropDownChoice) reportletClass.getField()).setNullValid(true);
         reportletClass.addRequiredLabel();
-        reportletClass.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        reportletClass.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = 5538299138211283825L;
 

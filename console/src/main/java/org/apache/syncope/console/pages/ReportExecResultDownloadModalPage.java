@@ -19,6 +19,7 @@
 package org.apache.syncope.console.pages;
 
 import java.util.Arrays;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.wicket.PageReference;
@@ -56,7 +57,7 @@ public class ReportExecResultDownloadModalPage extends BaseModalPage {
             }
         });
 
-        format.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        format.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

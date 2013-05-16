@@ -20,6 +20,7 @@ package org.apache.syncope.console.wicket.markup.html.form;
 
 import java.util.Calendar;
 import java.util.Date;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -46,7 +47,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
 
         final Calendar cal = Calendar.getInstance();
 
-        field.get("hours").add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        field.get("hours").add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -61,7 +62,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
             }
         });
 
-        field.get("minutes").add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        field.get("minutes").add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -72,7 +73,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
             }
         });
 
-        field.get("date").add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        field.get("date").add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -90,7 +91,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
             }
         });
 
-        field.get("amOrPmChoice").add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        field.get("amOrPmChoice").add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

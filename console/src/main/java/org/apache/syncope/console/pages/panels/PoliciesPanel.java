@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PolicyTO;
@@ -233,7 +234,7 @@ public class PoliciesPanel extends Panel {
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
 
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
