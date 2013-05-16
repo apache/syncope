@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.to.NotificationTO;
@@ -359,7 +360,7 @@ public class Configuration extends BasePage {
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
                 "confPaginatorRows"), prefMan.getPaginatorChoices());
 
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -504,7 +505,7 @@ public class Configuration extends BasePage {
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
                 "notificationPaginatorRows"), prefMan.getPaginatorChoices());
 
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -642,7 +643,7 @@ public class Configuration extends BasePage {
             });
             level.setChoices(Arrays.asList(SyncopeLoggerLevel.values()));
             level.setOutputMarkupId(true);
-            level.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            level.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 

@@ -92,6 +92,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
                     } else {
                         restClient.updateDerivedSchema(kind, schemaTO);
                     }
+
                     if (pageRef.getPage() instanceof BasePage) {
                         ((BasePage) pageRef.getPage()).setModalResult(true);
                     }
@@ -122,13 +123,9 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
         cancel.setDefaultFormProcessing(
                 false);
 
-        String allowedRoles;
-
-        if (createFlag) {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema", "create");
-        } else {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema", "update");
-        }
+        String allowedRoles = createFlag
+                ? xmlRolesReader.getAllAllowedRoles("Schema", "create")
+                : xmlRolesReader.getAllAllowedRoles("Schema", "update");
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 

@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
@@ -140,7 +141,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
             enumerationKeys.setEnabled(Boolean.FALSE);
         }
 
-        type.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        type.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -199,7 +200,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
             }
         };
 
-        mandatoryCondition.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        mandatoryCondition.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

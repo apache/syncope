@@ -50,11 +50,9 @@ public class PolicyRestClient extends BaseRestClient {
     @SuppressWarnings("unchecked")
     public <T extends PolicyTO> List<T> getPolicies(final PolicyType type, final boolean includeGlobal) {
         final List<T> res = new ArrayList<T>();
-        List<T> policies = new ArrayList<T>();
 
         try {
-            policies = (List<T>) getService(PolicyService.class).list(type);
-            res.addAll(policies);
+            res.addAll((List<T>) getService(PolicyService.class).list(type));
         } catch (Exception ignore) {
             LOG.debug("No policy found", ignore);
         }

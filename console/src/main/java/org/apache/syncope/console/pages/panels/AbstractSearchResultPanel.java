@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.Collection;
 import java.util.List;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.console.commons.AttributableDataProvider;
@@ -213,7 +214,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
         final DropDownChoice<Integer> rowsChooser = new DropDownChoice<Integer>(
                 "rowsChooser", new PropertyModel<Integer>(this, "rows"), prefMan.getPaginatorChoices());
 
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

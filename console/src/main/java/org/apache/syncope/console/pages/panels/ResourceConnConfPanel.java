@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.console.markup.html.list.AltListView;
@@ -204,7 +205,7 @@ public class ResourceConnConfPanel extends Panel {
                         field.addRequiredLabel();
                     }
 
-                    field.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+                    field.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
                         private static final long serialVersionUID = -1107858522700306810L;
 

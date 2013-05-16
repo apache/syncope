@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.types.ConnConfPropSchema;
@@ -207,7 +208,7 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorForm.add(connRequestTimeout);
 
         // form - first tab - onchange()
-        location.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        location.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -232,7 +233,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 target.add(propertiesContainer);
             }
         });
-        connectorName.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        connectorName.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -257,7 +258,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 target.add(version);
             }
         });
-        version.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        version.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

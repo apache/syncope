@@ -19,6 +19,7 @@
 package org.apache.syncope.console.pages.panels;
 
 import java.util.List;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.RoleTO;
@@ -144,7 +145,7 @@ public class DerivedAttributesPanel extends Panel {
                 final DropDownChoice<String> schemaChoice = new DropDownChoice<String>("schema",
                         new PropertyModel<String>(attributeTO, "schema"), derivedSchemaNames);
 
-                schemaChoice.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+                schemaChoice.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_BLUR) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 

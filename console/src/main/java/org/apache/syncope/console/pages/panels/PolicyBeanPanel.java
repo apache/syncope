@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.annotation.ClassList;
 import org.apache.syncope.common.annotation.SchemaList;
 import org.apache.syncope.common.types.AbstractPolicySpec;
@@ -254,7 +255,7 @@ public class PolicyBeanPanel extends Panel {
 
         panel.setEnabled(checked);
 
-        check.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        check.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

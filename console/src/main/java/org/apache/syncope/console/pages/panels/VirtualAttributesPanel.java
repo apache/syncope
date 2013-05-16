@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.RoleTO;
@@ -194,7 +195,7 @@ public class VirtualAttributesPanel extends Panel {
                     }
                 });
 
-                schemaChoice.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+                schemaChoice.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_BLUR) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -216,7 +217,7 @@ public class VirtualAttributesPanel extends Panel {
                     }
                 });
 
-                schemaChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+                schemaChoice.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 

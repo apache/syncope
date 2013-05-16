@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.Arrays;
 import java.util.List;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.PropagationMode;
@@ -131,7 +132,7 @@ public class ResourceDetailsPanel extends Panel {
         final AjaxCheckBoxPanel resetToken = new AjaxCheckBoxPanel("resetToken", new ResourceModel("resetToken",
                 "resetToken").getObject(), new Model<Boolean>(null));
 
-        resetToken.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        resetToken.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -186,7 +187,7 @@ public class ResourceDetailsPanel extends Panel {
         conn.addRequiredLabel();
         conn.setEnabled(createFlag);
 
-        conn.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        conn.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

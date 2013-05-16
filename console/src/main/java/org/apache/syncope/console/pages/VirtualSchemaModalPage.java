@@ -109,13 +109,9 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
 
         cancel.setDefaultFormProcessing(false);
 
-        String allowedRoles;
-
-        if (createFlag) {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema", "create");
-        } else {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema", "update");
-        }
+        String allowedRoles = createFlag
+                ? xmlRolesReader.getAllAllowedRoles("Schema", "create")
+                : xmlRolesReader.getAllAllowedRoles("Schema", "update");
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 

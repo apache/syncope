@@ -17,6 +17,8 @@
  * under the License.
  */
 package org.apache.syncope.console.wicket.markup.html.form;
+import org.apache.syncope.common.SyncopeConstants;
+
 
 import java.util.Date;
 
@@ -38,7 +40,7 @@ public class DateTextFieldPanel extends DateFieldPanel {
         field = DateTextField.forDatePattern("field", model, datePattern);
 
         if (!isReadOnly()) {
-            field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            field.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
