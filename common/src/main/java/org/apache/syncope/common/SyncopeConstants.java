@@ -49,4 +49,9 @@ public class SyncopeConstants {
 
     public static final String ON_BLUR = "onblur";
 
+    /**
+     * Default image suffix
+     */
+    public static final String DEFAULT_IMG_SUFFIX = ".png";
+
 }

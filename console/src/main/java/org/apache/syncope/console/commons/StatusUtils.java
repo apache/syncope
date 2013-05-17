@@ -41,15 +41,26 @@ public class StatusUtils implements Serializable {
 
     public enum Status {
 
-        NOT_YET_SUBMITTED,
-        CREATED,
-        ACTIVE,
-        SUSPENDED,
-        UNDEFINED,
-        OBJECT_NOT_FOUND;
+        NOT_YET_SUBMITTED(""),
+        CREATED("created"),
+        ACTIVE("active"),
+        SUSPENDED("inactive"),
+        UNDEFINED("undefined"),
+        OBJECT_NOT_FOUND("objectnotfound");
 
         public boolean isActive() {
             return this == ACTIVE;
+        }
+
+        private Status(final String name) {
+            this.name = name;
+        }
+
+        private final String name;
+
+        @Override
+        public String toString() {
+            return name;
         }
     }
 
@@ -104,7 +115,7 @@ public class StatusUtils implements Serializable {
     }
 
     private Boolean isEnabled(final ConnObjectTO objectTO) {
-        final String STATUSATTR = "__ENABLE__";
+        final String STATUSATTR = ConnidAttribute.ENABLE;
 
         final Map<String, AttributeTO> attributeTOs = objectTO.getAttributeMap();
 
@@ -116,7 +127,7 @@ public class StatusUtils implements Serializable {
     }
 
     private String getAccountLink(final ConnObjectTO objectTO) {
-        final String NAME = "__NAME__";
+        final String NAME = ConnidAttribute.NAME;
 
         final Map<String, AttributeTO> attributeTOs = objectTO == null
                 ? Collections.<String, AttributeTO>emptyMap()

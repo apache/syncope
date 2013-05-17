@@ -19,6 +19,8 @@
 package org.apache.syncope.console.pages;
 
 import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.markup.head.MetaHeaderItem;
+import org.apache.wicket.markup.head.HeaderItem;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -34,6 +36,8 @@ public class AbstractBasePage extends WebPage {
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractBasePage.class);
+
+    protected final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
     @SpringBean
     protected XMLRolesReader xmlRolesReader;

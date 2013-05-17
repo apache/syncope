@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.PropagationRequestTO;
@@ -70,6 +71,8 @@ public class StatusPanel extends Panel implements IHeaderContributor {
     private static final Logger LOG = LoggerFactory.getLogger(StatusPanel.class);
 
     private static final long serialVersionUID = -4064294905566247728L;
+
+    public static final String IMG_STATUES = "../statuses/";
 
     private static final int CONNOBJECT_WIN_HEIGHT = 400;
 
@@ -162,33 +165,39 @@ public class StatusPanel extends Panel implements IHeaderContributor {
                 switch (item.getModelObject().getStatus()) {
 
                     case NOT_YET_SUBMITTED:
-                        image = new Image("icon", "../statuses/undefined.png");
+                        image = new Image("icon", IMG_STATUES + StatusUtils.Status.UNDEFINED.toString()
+                                + SyncopeConstants.DEFAULT_IMG_SUFFIX);
                         alt = "undefined icon";
                         title = "Not yet submitted";
                         break;
 
                     case ACTIVE:
-                        image = new Image("icon", "../statuses/active.png");
+                        image = new Image("icon", IMG_STATUES + StatusUtils.Status.ACTIVE.toString()
+                                + SyncopeConstants.DEFAULT_IMG_SUFFIX);
                         alt = "active icon";
                         title = "Enabled";
                         break;
 
                     case UNDEFINED:
-                        image = new Image("icon", "../statuses/undefined.png");
+                        image = new Image("icon", IMG_STATUES + StatusUtils.Status.UNDEFINED.toString()
+                                + SyncopeConstants.DEFAULT_IMG_SUFFIX);
                         checkVisibility = false;
                         alt = "undefined icon";
                         title = "Undefined status";
                         break;
 
                     case OBJECT_NOT_FOUND:
-                        image = new Image("icon", "../statuses/objectnotfound.png");
+                        image =
+                                new Image("icon", IMG_STATUES + StatusUtils.Status.OBJECT_NOT_FOUND.toString()
+                                + SyncopeConstants.DEFAULT_IMG_SUFFIX);
                         checkVisibility = false;
                         alt = "notfound icon";
                         title = "User not found";
                         break;
 
                     default:
-                        image = new Image("icon", "../statuses/inactive.png");
+                        image = new Image("icon", IMG_STATUES + StatusUtils.Status.SUSPENDED.toString()
+                                + SyncopeConstants.DEFAULT_IMG_SUFFIX);
                         alt = "inactive icon";
                         title = "Disabled";
                 }

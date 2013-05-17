@@ -123,7 +123,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         Object entity = response.getEntity();
         assertTrue(entity instanceof InputStream);
-        String configExport = IOUtils.toString((InputStream) entity, "UTF-8");
+        String configExport = IOUtils.toString((InputStream) entity, SyncopeConstants.DEFAULT_ENCODING);
         assertFalse(configExport.isEmpty());
         assertTrue(configExport.length() > 1000);
     }

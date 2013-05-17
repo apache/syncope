@@ -25,14 +25,11 @@ import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.PreferenceManager;
-import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.RoleTemplateModalPage;
 import org.apache.syncope.console.pages.SyncTaskModalPage;
 import org.apache.syncope.console.pages.Tasks;
 import org.apache.syncope.console.pages.Tasks.TasksProvider;
 import org.apache.syncope.console.pages.UserTemplateModalPage;
-import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -52,36 +49,21 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColu
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.http.WebResponse;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class SyncTasks extends Panel {
-
-    private static final int WIN_HEIGHT = 500;
-
-    private static final int WIN_WIDTH = 700;
+public class SyncTasks extends AbstractTasks {
 
     private static final long serialVersionUID = -8674781241465369244L;
-
-    @SpringBean
-    private TaskRestClient restClient;
-
-    @SpringBean
-    private PreferenceManager prefMan;
 
     private int paginatorRows;
 
     private WebMarkupContainer container;
 
     private ModalWindow window;
-
-    @SpringBean
-    protected XMLRolesReader xmlRolesReader;
 
     private final List<IColumn<TaskTO, String>> columns;
 
@@ -98,7 +80,7 @@ public class SyncTasks extends Panel {
         window.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         window.setInitialHeight(WIN_HEIGHT);
         window.setInitialWidth(WIN_WIDTH);
-        window.setCookieName("view-task-win");
+        window.setCookieName(VIEW_TASK_WIN_COOKIE_NAME);
         add(window);
 
         ((Tasks) pageRef.getPage()).setWindowClosedCallback(window, container);
@@ -151,7 +133,7 @@ public class SyncTasks extends Panel {
 
                         window.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Tasks");
+                }, ActionLink.ActionType.EDIT, TASKS);
 
                 panel.add(new ActionLink() {
 
@@ -172,7 +154,7 @@ public class SyncTasks extends Panel {
 
                         window.show(target);
                     }
-                }, ActionLink.ActionType.USER_TEMPLATE, "Tasks");
+                }, ActionLink.ActionType.USER_TEMPLATE, TASKS);
 
                 panel.add(new ActionLink() {
 
@@ -193,7 +175,7 @@ public class SyncTasks extends Panel {
 
                         window.show(target);
                     }
-                }, ActionLink.ActionType.ROLE_TEMPLATE, "Tasks");
+                }, ActionLink.ActionType.ROLE_TEMPLATE, TASKS);
 
                 panel.add(new ActionLink() {
 
@@ -203,15 +185,15 @@ public class SyncTasks extends Panel {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             restClient.startExecution(taskTO.getId(), false);
-                            getSession().info(getString("operation_succeeded"));
+                            getSession().info(OPERATION_SUCCEEDED);
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
 
                         target.add(container);
-                        target.add(getPage().get("feedback"));
+                        target.add(getPage().get(FEEDBACK));
                     }
-                }, ActionLink.ActionType.EXECUTE, "Tasks");
+                }, ActionLink.ActionType.EXECUTE, TASKS);
 
                 panel.add(new ActionLink() {
 
@@ -221,15 +203,15 @@ public class SyncTasks extends Panel {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             restClient.startExecution(taskTO.getId(), true);
-                            getSession().info(getString("operation_succeeded"));
+                            getSession().info(OPERATION_SUCCEEDED);
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
 
                         target.add(container);
-                        target.add(getPage().get("feedback"));
+                        target.add(getPage().get(FEEDBACK));
                     }
-                }, ActionLink.ActionType.DRYRUN, "Tasks");
+                }, ActionLink.ActionType.DRYRUN, TASKS);
 
                 panel.add(new ActionLink() {
 
@@ -239,14 +221,14 @@ public class SyncTasks extends Panel {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             restClient.delete(taskTO.getId(), SyncTaskTO.class);
-                            info(getString("operation_succeeded"));
+                            info(OPERATION_SUCCEEDED);
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
                         target.add(container);
-                        target.add(getPage().get("feedback"));
+                        target.add(getPage().get(FEEDBACK));
                     }
-                }, ActionLink.ActionType.DELETE, "Tasks");
+                }, ActionLink.ActionType.DELETE, TASKS);
 
                 return panel;
             }
@@ -265,7 +247,7 @@ public class SyncTasks extends Panel {
                             target.add(table);
                         }
                     }
-                }, ActionLink.ActionType.RELOAD, "Tasks", "list");
+                }, ActionLink.ActionType.RELOAD, TASKS, "list");
 
                 return panel;
             }
@@ -332,7 +314,7 @@ public class SyncTasks extends Panel {
         };
 
         MetaDataRoleAuthorizationStrategy.authorize(
-                createLink, RENDER, xmlRolesReader.getAllAllowedRoles("Tasks", "create"));
+                createLink, RENDER, xmlRolesReader.getAllAllowedRoles(TASKS, "create"));
 
         add(createLink);
     }
