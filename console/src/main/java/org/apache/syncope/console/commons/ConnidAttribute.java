@@ -15,10 +15,6 @@
  */
 package org.apache.syncope.console.commons;
 
-/**
- *
- * @author massi
- */
 public final class ConnidAttribute {
     
     public static final String ENABLE = "__ENABLE__";
