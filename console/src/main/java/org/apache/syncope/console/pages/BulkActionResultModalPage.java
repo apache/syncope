@@ -58,6 +58,7 @@ public class BulkActionResultModalPage<T, S> extends BaseModalPage {
         newColumnList.add(newColumnList.size(), new ActionResultColumn<T, S>(results, idFieldName));
 
         final SortableDataProvider<T, S> dataProvider = new SortableDataProvider<T, S>() {
+            private static final long serialVersionUID = 5291903859908641954L;
 
             @Override
             public Iterator<? extends T> iterator(long first, long count) {

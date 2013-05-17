@@ -93,6 +93,7 @@ public class PolicyBeanPanel extends Panel {
     };
 
     final IModel<List<String>> correlationRules = new LoadableDetachableModel<List<String>>() {
+        private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {

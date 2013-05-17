@@ -62,6 +62,8 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
 
         final SortableDataProvider<T, S> dataProvider = new SortableDataProvider<T, S>() {
 
+            private static final long serialVersionUID = 5291903859908641954L;
+
             @Override
             public Iterator<? extends T> iterator(long first, long count) {
                 return items.iterator();
@@ -119,6 +121,8 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
 
             actionPanel.add(new ActionLink() {
 
+                private static final long serialVersionUID = -3722207913631435501L;
+
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
                     try {
@@ -140,13 +144,13 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
         final AjaxButton cancel =
                 new ClearIndicatingAjaxButton("cancel", new ResourceModel("cancel"), getPageReference()) {
 
-                    private static final long serialVersionUID = -958724007591692537L;
+            private static final long serialVersionUID = -958724007591692537L;
 
-                    @Override
-                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                        window.close(target);
-                    }
-                };
+            @Override
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                window.close(target);
+            }
+        };
 
         cancel.setDefaultFormProcessing(false);
         form.add(cancel);

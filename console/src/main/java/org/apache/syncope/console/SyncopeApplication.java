@@ -19,6 +19,7 @@
 package org.apache.syncope.console;
 
 import java.io.Serializable;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.Configuration;
 import org.apache.syncope.console.pages.InfoModalPage;
@@ -63,8 +64,6 @@ public class SyncopeApplication
     public static final String IMG_PREFIX = "/img/menu/";
 
     public static final String IMG_NOTSEL = "notsel/";
-
-    public static final String IMG_SUFFIX = ".png";
 
     private static final long serialVersionUID = -2920378752291913495L;
 
@@ -118,7 +117,7 @@ public class SyncopeApplication
         page.add(schemaLink);
         schemaLink.add(new Image("schemaIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : "") + "schema" + IMG_SUFFIX)));
+                : "") + "schema" + SyncopeConstants.DEFAULT_IMG_SUFFIX)));
 
         BookmarkablePageLink<Void> usersLink = new BookmarkablePageLink<Void>("users", Users.class);
         String allowedUsersRoles = xmlRolesReader.getAllAllowedRoles("Users", "list");
@@ -126,21 +125,21 @@ public class SyncopeApplication
         page.add(usersLink);
         usersLink.add(new Image("usersIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : "") + "users" + IMG_SUFFIX)));
+                : "") + "users" + SyncopeConstants.DEFAULT_IMG_SUFFIX)));
 
         BookmarkablePageLink<Void> rolesLink = new BookmarkablePageLink<Void>("roles", Roles.class);
         MetaDataRoleAuthorizationStrategy.authorizeAll(rolesLink, WebPage.ENABLE);
         page.add(rolesLink);
         rolesLink.add(new Image("rolesIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : "") + "roles" + IMG_SUFFIX)));
+                : "") + "roles" + SyncopeConstants.DEFAULT_IMG_SUFFIX)));
 
         BookmarkablePageLink<Void> resourcesLink = new BookmarkablePageLink<Void>("resources", Resources.class);
         MetaDataRoleAuthorizationStrategy.authorizeAll(resourcesLink, WebPage.ENABLE);
         page.add(resourcesLink);
         resourcesLink.add(new Image("resourcesIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : "") + "resources" + IMG_SUFFIX)));
+                : "") + "resources" + SyncopeConstants.DEFAULT_IMG_SUFFIX)));
 
         BookmarkablePageLink<Void> todoLink = new BookmarkablePageLink<Void>("todo", Todo.class);
         MetaDataRoleAuthorizationStrategy.authorize(todoLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles(
@@ -148,7 +147,7 @@ public class SyncopeApplication
         page.add(todoLink);
         todoLink.add(new Image("todoIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : "") + "todo" + IMG_SUFFIX)));
+                : "") + "todo" + SyncopeConstants.DEFAULT_IMG_SUFFIX)));
 
         BookmarkablePageLink<Void> reportLink = new BookmarkablePageLink<Void>("reports", Reports.class);
         String allowedReportRoles = xmlRolesReader.getAllAllowedRoles("Reports", "list");
@@ -156,7 +155,7 @@ public class SyncopeApplication
         page.add(reportLink);
         reportLink.add(new Image("reportsIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : "") + "reports" + IMG_SUFFIX)));
+                : "") + "reports" + SyncopeConstants.DEFAULT_IMG_SUFFIX)));
 
         BookmarkablePageLink<Void> configurationLink = new BookmarkablePageLink<Void>("configuration",
                 Configuration.class);
@@ -165,7 +164,7 @@ public class SyncopeApplication
         page.add(configurationLink);
         configurationLink.add(new Image("configurationIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : "") + "configuration" + IMG_SUFFIX)));
+                : "") + "configuration" + SyncopeConstants.DEFAULT_IMG_SUFFIX)));
 
         BookmarkablePageLink<Void> taskLink = new BookmarkablePageLink<Void>("tasks", Tasks.class);
         String allowedTasksRoles = xmlRolesReader.getAllAllowedRoles("Tasks", "list");
@@ -173,7 +172,7 @@ public class SyncopeApplication
         page.add(taskLink);
         taskLink.add(new Image("tasksIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : "") + "tasks" + IMG_SUFFIX)));
+                : "") + "tasks" + SyncopeConstants.DEFAULT_IMG_SUFFIX)));
 
         page.add(new BookmarkablePageLink<Void>("logout", Logout.class));
     }

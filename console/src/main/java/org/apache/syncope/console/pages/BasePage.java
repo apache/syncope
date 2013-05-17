@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.SyncopeApplication;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.rest.UserRestClient;
-import org.apache.syncope.markup.head.MetaHeaderItem;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -31,7 +31,6 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.head.HeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.PriorityHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -46,8 +45,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
 
     private static final long serialVersionUID = 1571997737305598502L;
-
-    private final static HeaderItem META_IE_COMPATIBILITY = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
     private final static int EDIT_PROFILE_WIN_HEIGHT = 550;
 
@@ -94,7 +91,8 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
                     @Override
                     public void onComponentTag(final Component component, final ComponentTag tag) {
 
-                        tag.put("src", "../.." + SyncopeApplication.IMG_PREFIX + kind + SyncopeApplication.IMG_SUFFIX);
+                        tag.put("src", "../.." + SyncopeApplication.IMG_PREFIX + kind
+                                + SyncopeConstants.DEFAULT_IMG_SUFFIX);
                     }
                 });
             }
@@ -174,6 +172,6 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
     @Override
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
-        response.render(new PriorityHeaderItem(META_IE_COMPATIBILITY));
+        response.render(new PriorityHeaderItem(meta));
     }
 }
