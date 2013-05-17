@@ -35,7 +35,7 @@ public enum LoggerType {
      */
     AUDIT;
 
-    public static LoggerType fromString(String value) {
+    public static LoggerType fromString(final String value) {
         return LoggerType.valueOf(value.toUpperCase());
     }
 }

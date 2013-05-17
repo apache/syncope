@@ -30,6 +30,8 @@ import org.apache.syncope.common.AbstractBaseBean;
 @XmlType
 public class ResourceCond extends AbstractBaseBean implements SearchCond {
 
+    private static final long serialVersionUID = 466054166309460002L;
+
     private String resourceName;
 
     public String getResourceName() {

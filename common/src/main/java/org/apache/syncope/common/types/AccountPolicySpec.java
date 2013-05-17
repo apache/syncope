@@ -91,7 +91,7 @@ public class AccountPolicySpec extends AbstractPolicySpec {
         return allLowerCase;
     }
 
-    public void setAllLowerCase(boolean allLowerCase) {
+    public void setAllLowerCase(final boolean allLowerCase) {
         this.allLowerCase = allLowerCase;
     }
 
@@ -99,7 +99,7 @@ public class AccountPolicySpec extends AbstractPolicySpec {
         return allUpperCase;
     }
 
-    public void setAllUpperCase(boolean allUpperCase) {
+    public void setAllUpperCase(final boolean allUpperCase) {
         this.allUpperCase = allUpperCase;
     }
 
@@ -107,7 +107,7 @@ public class AccountPolicySpec extends AbstractPolicySpec {
         return maxLength;
     }
 
-    public void setMaxLength(int maxLength) {
+    public void setMaxLength(final int maxLength) {
         this.maxLength = maxLength;
     }
 
@@ -115,7 +115,7 @@ public class AccountPolicySpec extends AbstractPolicySpec {
         return minLength;
     }
 
-    public void setMinLength(int minLength) {
+    public void setMinLength(final int minLength) {
         this.minLength = minLength;
     }
 
@@ -128,7 +128,7 @@ public class AccountPolicySpec extends AbstractPolicySpec {
         return prefixesNotPermitted;
     }
 
-    public void setPrefixesNotPermitted(List<String> prefixesNotPermitted) {
+    public void setPrefixesNotPermitted(final List<String> prefixesNotPermitted) {
         this.prefixesNotPermitted = prefixesNotPermitted;
     }
 
@@ -141,7 +141,7 @@ public class AccountPolicySpec extends AbstractPolicySpec {
         return schemasNotPermitted;
     }
 
-    public void setSchemasNotPermitted(List<String> schemasNotPermitted) {
+    public void setSchemasNotPermitted(final List<String> schemasNotPermitted) {
         this.schemasNotPermitted = schemasNotPermitted;
     }
 
@@ -154,7 +154,7 @@ public class AccountPolicySpec extends AbstractPolicySpec {
         return suffixesNotPermitted;
     }
 
-    public void setSuffixesNotPermitted(List<String> suffixesNotPermitted) {
+    public void setSuffixesNotPermitted(final List<String> suffixesNotPermitted) {
         this.suffixesNotPermitted = suffixesNotPermitted;
     }
 
@@ -167,7 +167,7 @@ public class AccountPolicySpec extends AbstractPolicySpec {
         return wordsNotPermitted;
     }
 
-    public void setWordsNotPermitted(List<String> wordsNotPermitted) {
+    public void setWordsNotPermitted(final List<String> wordsNotPermitted) {
         this.wordsNotPermitted = wordsNotPermitted;
     }
 
@@ -175,7 +175,7 @@ public class AccountPolicySpec extends AbstractPolicySpec {
         return propagateSuspension;
     }
 
-    public void setPropagateSuspension(boolean propagateSuspension) {
+    public void setPropagateSuspension(final boolean propagateSuspension) {
         this.propagateSuspension = propagateSuspension;
     }
 
@@ -183,7 +183,7 @@ public class AccountPolicySpec extends AbstractPolicySpec {
         return permittedLoginRetries;
     }
 
-    public void setPermittedLoginRetries(int permittedLoginRetries) {
+    public void setPermittedLoginRetries(final int permittedLoginRetries) {
         this.permittedLoginRetries = permittedLoginRetries;
     }
 }

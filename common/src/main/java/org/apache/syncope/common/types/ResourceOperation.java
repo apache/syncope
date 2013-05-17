@@ -27,7 +27,7 @@ public enum ResourceOperation {
     UPDATE,
     DELETE;
 
-    public static ResourceOperation fromString(String value) {
+    public static ResourceOperation fromString(final String value) {
         return ResourceOperation.valueOf(value.toUpperCase());
     }
 }

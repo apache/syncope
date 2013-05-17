@@ -30,7 +30,7 @@ public enum TaskType {
 
     private String name;
 
-    private TaskType(String name) {
+    private TaskType(final String name) {
         this.name = name;
     }
 
@@ -39,7 +39,7 @@ public enum TaskType {
         return name;
     }
 
-    public static TaskType fromString(String name) {
+    public static TaskType fromString(final String name) {
         if (name != null) {
             for (TaskType t : TaskType.values()) {
                 if (t.name.equalsIgnoreCase(name)) {

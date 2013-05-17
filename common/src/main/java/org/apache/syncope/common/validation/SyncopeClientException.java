@@ -36,7 +36,7 @@ public class SyncopeClientException extends Exception {
         elements = new HashSet<String>();
     }
 
-    public SyncopeClientException(SyncopeClientExceptionType type) {
+    public SyncopeClientException(final SyncopeClientExceptionType type) {
         this();
         setType(type);
     }
@@ -45,15 +45,15 @@ public class SyncopeClientException extends Exception {
         return type;
     }
 
-    public final void setType(SyncopeClientExceptionType type) {
+    public final void setType(final SyncopeClientExceptionType type) {
         this.type = type;
     }
 
-    public boolean addElement(String element) {
+    public boolean addElement(final String element) {
         return elements.add(element);
     }
 
-    public boolean removeElement(String element) {
+    public boolean removeElement(final String element) {
         return elements.remove(element);
     }
 
@@ -61,11 +61,11 @@ public class SyncopeClientException extends Exception {
         return elements;
     }
 
-    public void setElements(Set<String> elements) {
+    public void setElements(final Set<String> elements) {
         this.elements = elements;
     }
 
-    public void setElements(List<String> elements) {
+    public void setElements(final List<String> elements) {
         this.elements.addAll(elements);
     }
 

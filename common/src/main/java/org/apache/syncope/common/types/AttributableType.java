@@ -27,7 +27,7 @@ public enum AttributableType {
     ROLE,
     MEMBERSHIP;
 
-    public static AttributableType fromString(String value) {
+    public static AttributableType fromString(final String value) {
         return valueOf(value.toUpperCase());
     }
 

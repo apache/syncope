@@ -155,7 +155,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return digitRequired;
     }
 
-    public void setDigitRequired(boolean digitRequired) {
+    public void setDigitRequired(final boolean digitRequired) {
         this.digitRequired = digitRequired;
     }
 
@@ -163,7 +163,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return lowercaseRequired;
     }
 
-    public void setLowercaseRequired(boolean lowercaseRequired) {
+    public void setLowercaseRequired(final boolean lowercaseRequired) {
         this.lowercaseRequired = lowercaseRequired;
     }
 
@@ -171,7 +171,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return maxLength;
     }
 
-    public void setMaxLength(int maxLength) {
+    public void setMaxLength(final int maxLength) {
         this.maxLength = maxLength;
     }
 
@@ -179,7 +179,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return minLength;
     }
 
-    public void setMinLength(int minLength) {
+    public void setMinLength(final int minLength) {
         this.minLength = minLength;
     }
 
@@ -187,7 +187,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return mustEndWithDigit;
     }
 
-    public void setMustEndWithDigit(boolean mustEndWithDigit) {
+    public void setMustEndWithDigit(final boolean mustEndWithDigit) {
         this.mustEndWithDigit = mustEndWithDigit;
     }
 
@@ -195,7 +195,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return mustEndWithNonAlpha;
     }
 
-    public void setMustEndWithNonAlpha(boolean mustEndWithNonAlpha) {
+    public void setMustEndWithNonAlpha(final boolean mustEndWithNonAlpha) {
         this.mustEndWithNonAlpha = mustEndWithNonAlpha;
     }
 
@@ -203,7 +203,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return mustStartWithDigit;
     }
 
-    public void setMustStartWithDigit(boolean mustStartWithDigit) {
+    public void setMustStartWithDigit(final boolean mustStartWithDigit) {
         this.mustStartWithDigit = mustStartWithDigit;
     }
 
@@ -211,7 +211,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return mustStartWithNonAlpha;
     }
 
-    public void setMustStartWithNonAlpha(boolean mustStartWithNonAlpha) {
+    public void setMustStartWithNonAlpha(final boolean mustStartWithNonAlpha) {
         this.mustStartWithNonAlpha = mustStartWithNonAlpha;
     }
 
@@ -219,7 +219,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return mustntEndWithDigit;
     }
 
-    public void setMustntEndWithDigit(boolean mustntEndWithDigit) {
+    public void setMustntEndWithDigit(final boolean mustntEndWithDigit) {
         this.mustntEndWithDigit = mustntEndWithDigit;
     }
 
@@ -227,7 +227,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return mustntEndWithNonAlpha;
     }
 
-    public void setMustntEndWithNonAlpha(boolean mustntEndWithNonAlpha) {
+    public void setMustntEndWithNonAlpha(final boolean mustntEndWithNonAlpha) {
         this.mustntEndWithNonAlpha = mustntEndWithNonAlpha;
     }
 
@@ -235,7 +235,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return mustntStartWithDigit;
     }
 
-    public void setMustntStartWithDigit(boolean mustntStartWithDigit) {
+    public void setMustntStartWithDigit(final boolean mustntStartWithDigit) {
         this.mustntStartWithDigit = mustntStartWithDigit;
     }
 
@@ -243,7 +243,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return mustntStartWithNonAlpha;
     }
 
-    public void setMustntStartWithNonAlpha(boolean mustntStartWithNonAlpha) {
+    public void setMustntStartWithNonAlpha(final boolean mustntStartWithNonAlpha) {
         this.mustntStartWithNonAlpha = mustntStartWithNonAlpha;
     }
 
@@ -251,7 +251,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return nonAlphanumericRequired;
     }
 
-    public void setNonAlphanumericRequired(boolean nonAlphanumericRequired) {
+    public void setNonAlphanumericRequired(final boolean nonAlphanumericRequired) {
         this.nonAlphanumericRequired = nonAlphanumericRequired;
     }
 
@@ -264,7 +264,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return prefixesNotPermitted;
     }
 
-    public void setPrefixesNotPermitted(List<String> prefixesNotPermitted) {
+    public void setPrefixesNotPermitted(final List<String> prefixesNotPermitted) {
         this.prefixesNotPermitted = prefixesNotPermitted;
     }
 
@@ -277,7 +277,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return schemasNotPermitted;
     }
 
-    public void setSchemasNotPermitted(List<String> schemasNotPermitted) {
+    public void setSchemasNotPermitted(final List<String> schemasNotPermitted) {
         this.schemasNotPermitted = schemasNotPermitted;
     }
 
@@ -290,7 +290,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return suffixesNotPermitted;
     }
 
-    public void setSuffixesNotPermitted(List<String> suffixesNotPermitted) {
+    public void setSuffixesNotPermitted(final List<String> suffixesNotPermitted) {
         this.suffixesNotPermitted = suffixesNotPermitted;
     }
 
@@ -298,7 +298,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return uppercaseRequired;
     }
 
-    public void setUppercaseRequired(boolean uppercaseRequired) {
+    public void setUppercaseRequired(final boolean uppercaseRequired) {
         this.uppercaseRequired = uppercaseRequired;
     }
 
@@ -311,7 +311,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return wordsNotPermitted;
     }
 
-    public void setWordsNotPermitted(List<String> wordsNotPermitted) {
+    public void setWordsNotPermitted(final List<String> wordsNotPermitted) {
         this.wordsNotPermitted = wordsNotPermitted;
     }
 
@@ -319,7 +319,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return alphanumericRequired;
     }
 
-    public void setAlphanumericRequired(boolean alphanumericRequired) {
+    public void setAlphanumericRequired(final boolean alphanumericRequired) {
         this.alphanumericRequired = alphanumericRequired;
     }
 
@@ -327,7 +327,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return mustEndWithAlpha;
     }
 
-    public void setMustEndWithAlpha(boolean mustEndWithAlpha) {
+    public void setMustEndWithAlpha(final boolean mustEndWithAlpha) {
         this.mustEndWithAlpha = mustEndWithAlpha;
     }
 
@@ -335,7 +335,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return mustStartWithAlpha;
     }
 
-    public void setMustStartWithAlpha(boolean mustStartWithAlpha) {
+    public void setMustStartWithAlpha(final boolean mustStartWithAlpha) {
         this.mustStartWithAlpha = mustStartWithAlpha;
     }
 
@@ -343,7 +343,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return mustntEndWithAlpha;
     }
 
-    public void setMustntEndWithAlpha(boolean mustntEndWithAlpha) {
+    public void setMustntEndWithAlpha(final boolean mustntEndWithAlpha) {
         this.mustntEndWithAlpha = mustntEndWithAlpha;
     }
 
@@ -351,7 +351,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return mustntStartWithAlpha;
     }
 
-    public void setMustntStartWithAlpha(boolean mustntStartWithAlpha) {
+    public void setMustntStartWithAlpha(final boolean mustntStartWithAlpha) {
         this.mustntStartWithAlpha = mustntStartWithAlpha;
     }
 
@@ -359,7 +359,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return historyLength;
     }
 
-    public void setHistoryLength(int historyLength) {
+    public void setHistoryLength(final int historyLength) {
         this.historyLength = historyLength;
     }
 }
