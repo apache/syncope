@@ -53,21 +53,58 @@ public class RolePanel extends Panel {
 
     private final AjaxPalettePanel<String> entitlementsPalette;
 
-    public RolePanel(final String id, final Form form, final RoleTO roleTO, final RoleModalPage.Mode mode) {
-        this(id, form, roleTO, mode, null);
+    public static class Builder {
+
+        private String id;
+
+        private Form form;
+
+        private RoleTO roleTO;
+
+        private RoleModalPage.Mode mode;
+
+        private PageReference pageReference;
+
+        public Builder(String id) {
+            this.id = id;
+        }
+
+        public RolePanel.Builder form(final Form form) {
+            this.form = form;
+            return this;
+        }
+
+        public RolePanel.Builder roleTO(final RoleTO roleTO) {
+            this.roleTO = roleTO;
+            return this;
+        }
+
+        public RolePanel.Builder roleModalPageMode(final RoleModalPage.Mode mode) {
+            this.mode = mode;
+            return this;
+        }
+
+        public RolePanel.Builder pageRef(final PageReference pageReference) {
+            this.pageReference = pageReference;
+            return this;
+        }
+
+        public RolePanel build() {
+            return new RolePanel(this);
+        }
     }
 
-    public RolePanel(final String id, final Form form, final RoleTO roleTO, final RoleModalPage.Mode mode,
-            final PageReference pageref) {
+    private RolePanel(final Builder builder) {
+        super(builder.id);
 
-        super(id);
+        this.add(new RoleDetailsPanel(
+                "details", builder.roleTO, builder.form, builder.mode == RoleModalPage.Mode.TEMPLATE));
 
-        this.add(new RoleDetailsPanel("details", roleTO, form, mode == RoleModalPage.Mode.TEMPLATE));
-
-        if (pageref == null || roleTO.getId() == 0) {
+        if (builder.pageReference == null || builder.roleTO.getId() == 0) {
             this.add(new Label("statuspanel", ""));
         } else {
-            StatusPanel statusPanel = new StatusPanel("statuspanel", roleTO, new ArrayList<StatusBean>(), pageref);
+            StatusPanel statusPanel = new StatusPanel(
+                    "statuspanel", builder.roleTO, new ArrayList<StatusBean>(), builder.pageReference);
             statusPanel.setOutputMarkupId(true);
             MetaDataRoleAuthorizationStrategy.authorize(
                     statusPanel, RENDER, xmlRolesReader.getAllAllowedRoles("Resources", "getConnectorObject"));
@@ -76,10 +113,11 @@ public class RolePanel extends Panel {
 
         //--------------------------------
         // Attributes panel
-        this.add(new AttributesPanel("attributes", roleTO, form, mode == RoleModalPage.Mode.TEMPLATE));
+        this.add(new AttributesPanel(
+                "attributes", builder.roleTO, builder.form, builder.mode == RoleModalPage.Mode.TEMPLATE));
 
         final AjaxCheckBoxPanel inhAttributes = new AjaxCheckBoxPanel("inheritAttributes", "inheritAttributes",
-                new PropertyModel<Boolean>(roleTO, "inheritAttributes"));
+                new PropertyModel<Boolean>(builder.roleTO, "inheritAttributes"));
         inhAttributes.setOutputMarkupId(true);
         this.add(inhAttributes);
         //--------------------------------
@@ -87,10 +125,10 @@ public class RolePanel extends Panel {
         //--------------------------------
         // Derived attributes container
         //--------------------------------
-        this.add(new DerivedAttributesPanel("derivedAttributes", roleTO));
+        this.add(new DerivedAttributesPanel("derivedAttributes", builder.roleTO));
 
         final AjaxCheckBoxPanel inhDerivedAttributes = new AjaxCheckBoxPanel("inheritDerivedAttributes",
-                "inheritDerivedAttributes", new PropertyModel<Boolean>(roleTO, "inheritDerivedAttributes"));
+                "inheritDerivedAttributes", new PropertyModel<Boolean>(builder.roleTO, "inheritDerivedAttributes"));
         inhDerivedAttributes.setOutputMarkupId(true);
         inhDerivedAttributes.setOutputMarkupId(true);
         this.add(inhDerivedAttributes);
@@ -99,10 +137,11 @@ public class RolePanel extends Panel {
         //--------------------------------
         // Virtual attributes container
         //--------------------------------
-        this.add(new VirtualAttributesPanel("virtualAttributes", roleTO, mode == RoleModalPage.Mode.TEMPLATE));
+        this.add(new VirtualAttributesPanel(
+                "virtualAttributes", builder.roleTO, builder.mode == RoleModalPage.Mode.TEMPLATE));
 
         final AjaxCheckBoxPanel inhVirtualAttributes = new AjaxCheckBoxPanel("inheritVirtualAttributes",
-                "inheritVirtualAttributes", new PropertyModel<Boolean>(roleTO, "inheritVirtualAttributes"));
+                "inheritVirtualAttributes", new PropertyModel<Boolean>(builder.roleTO, "inheritVirtualAttributes"));
         inhVirtualAttributes.setOutputMarkupId(true);
         inhVirtualAttributes.setOutputMarkupId(true);
         this.add(inhVirtualAttributes);
@@ -112,18 +151,18 @@ public class RolePanel extends Panel {
         // Security container
         //--------------------------------
 
-        this.add(new RoleSecurityPanel("security", roleTO).setOutputMarkupId(true));
+        this.add(new RoleSecurityPanel("security", builder.roleTO).setOutputMarkupId(true));
         //--------------------------------
 
         //--------------------------------
         // Resources container
         //--------------------------------
 
-        this.add(new ResourcesPanel.ResourcesPanelBuilder("resources").attributableTO(roleTO).build()
+        this.add(new ResourcesPanel.Builder("resources").attributableTO(builder.roleTO).build()
                 .setOutputMarkupId(true));
         //--------------------------------
 
-        ListModel<String> selectedEntitlements = new ListModel<String>(roleTO.getEntitlements());
+        ListModel<String> selectedEntitlements = new ListModel<String>(builder.roleTO.getEntitlements());
 
         List<String> allEntitlements = entitlementRestClient.getAllEntitlements();
         if (allEntitlements != null && !allEntitlements.isEmpty()) {
