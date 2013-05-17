@@ -62,7 +62,7 @@ public class ResourcesPanel extends Panel {
 
     private final List<String> allResources;
 
-    public static class ResourcesPanelBuilder {
+    public static class Builder {
 
         private String id;
 
@@ -70,16 +70,16 @@ public class ResourcesPanel extends Panel {
 
         private StatusPanel statusPanel;
 
-        public ResourcesPanelBuilder(String id) {
+        public Builder(final String id) {
             this.id = id;
         }
 
-        public ResourcesPanelBuilder attributableTO(Object to) {
+        public Builder attributableTO(final Object to) {
             this.to = to;
             return this;
         }
 
-        public ResourcesPanelBuilder statusPanel(StatusPanel statusPanel) {
+        public Builder statusPanel(final StatusPanel statusPanel) {
             this.statusPanel = statusPanel;
             return this;
         }
@@ -89,7 +89,7 @@ public class ResourcesPanel extends Panel {
         }
     }
 
-    private ResourcesPanel(final ResourcesPanelBuilder builder) {
+    private ResourcesPanel(final Builder builder) {
         super(builder.id);
         attributableTO = (AbstractAttributableTO) builder.to;
         previousResources = new HashSet<String>(attributableTO.getResources());
