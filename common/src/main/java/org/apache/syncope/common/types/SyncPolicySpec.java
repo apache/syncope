@@ -77,7 +77,7 @@ public class SyncPolicySpec extends AbstractPolicySpec {
         return uAltSearchSchemas;
     }
 
-    public void setuAltSearchSchemas(List<String> uAltSearchSchemas) {
+    public void setuAltSearchSchemas(final List<String> uAltSearchSchemas) {
         this.uAltSearchSchemas = uAltSearchSchemas;
     }
 
@@ -87,7 +87,7 @@ public class SyncPolicySpec extends AbstractPolicySpec {
         return rAltSearchSchemas;
     }
 
-    public void setrAltSearchSchemas(List<String> rAltSearchSchemas) {
+    public void setrAltSearchSchemas(final List<String> rAltSearchSchemas) {
         this.rAltSearchSchemas = rAltSearchSchemas;
     }
 
@@ -96,7 +96,7 @@ public class SyncPolicySpec extends AbstractPolicySpec {
         return roleJavaRule;
     }
 
-    public void setRoleJavaRule(String roleJavaRule) {
+    public void setRoleJavaRule(final String roleJavaRule) {
         this.roleJavaRule = roleJavaRule;
     }
 
@@ -104,7 +104,7 @@ public class SyncPolicySpec extends AbstractPolicySpec {
         return userJavaRule;
     }
 
-    public void setUserJavaRule(String userJavaRule) {
+    public void setUserJavaRule(final String userJavaRule) {
         this.userJavaRule = userJavaRule;
     }
 }

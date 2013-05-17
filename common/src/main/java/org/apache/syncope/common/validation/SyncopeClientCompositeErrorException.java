@@ -31,7 +31,7 @@ public class SyncopeClientCompositeErrorException extends HttpClientErrorExcepti
 
     private Set<SyncopeClientException> exceptions;
 
-    public SyncopeClientCompositeErrorException(HttpStatus statusCode) {
+    public SyncopeClientCompositeErrorException(final HttpStatus statusCode) {
         super(statusCode);
         exceptions = new HashSet<SyncopeClientException>();
     }
@@ -40,11 +40,11 @@ public class SyncopeClientCompositeErrorException extends HttpClientErrorExcepti
         return !exceptions.isEmpty();
     }
 
-    public boolean hasException(SyncopeClientExceptionType exceptionType) {
+    public boolean hasException(final SyncopeClientExceptionType exceptionType) {
         return getException(exceptionType) != null;
     }
 
-    public SyncopeClientException getException(SyncopeClientExceptionType exceptionType) {
+    public SyncopeClientException getException(final SyncopeClientExceptionType exceptionType) {
         boolean found = false;
         SyncopeClientException syncopeClientException = null;
         for (Iterator<SyncopeClientException> itor = exceptions.iterator(); itor.hasNext() && !found;) {
@@ -63,7 +63,7 @@ public class SyncopeClientCompositeErrorException extends HttpClientErrorExcepti
         return exceptions;
     }
 
-    public boolean addException(SyncopeClientException exception) {
+    public boolean addException(final SyncopeClientException exception) {
         if (exception.getType() == null) {
             throw new IllegalArgumentException(exception + " does not have the right "
                     + SyncopeClientExceptionType.class.getName() + " set");

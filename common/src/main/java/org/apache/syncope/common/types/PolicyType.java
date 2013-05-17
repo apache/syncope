@@ -52,7 +52,7 @@ public enum PolicyType {
         return description;
     }
 
-    public static PolicyType fromString(String value) {
+    public static PolicyType fromString(final String value) {
         return PolicyType.valueOf(value.toUpperCase());
     }
 }

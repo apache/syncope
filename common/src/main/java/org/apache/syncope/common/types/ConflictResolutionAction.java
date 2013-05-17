@@ -32,7 +32,7 @@ public enum ConflictResolutionAction {
     // sync all
     ALL;
 
-    public static ConflictResolutionAction fromString(String value) {
+    public static ConflictResolutionAction fromString(final String value) {
         return ConflictResolutionAction.valueOf(value.toUpperCase());
     }
 }

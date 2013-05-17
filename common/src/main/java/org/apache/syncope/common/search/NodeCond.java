@@ -29,6 +29,8 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 @XmlType
 public class NodeCond extends AbstractBaseBean {
 
+    private static final long serialVersionUID = 661560782247499526L;
+
     @XmlEnum
     @XmlType(name = "nodeConditionType")
     public enum Type {
