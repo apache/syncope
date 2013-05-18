@@ -181,7 +181,7 @@ public class PoliciesPanel extends Panel {
                         try {
 
                             policyRestClient.delete(accountPolicyTO.getId(), accountPolicyTO.getClass());
-                            info(getString("operation_succeeded"));
+                            info(getString(Constants.OPERATION_SUCCEEDED));
 
                         } catch (SyncopeClientCompositeErrorException e) {
                             error(getString("operation_error"));
@@ -191,7 +191,7 @@ public class PoliciesPanel extends Panel {
                         }
 
                         target.add(container);
-                        target.add(getPage().get("feedback"));
+                        target.add(getPage().get(Constants.FEEDBACK));
                     }
                 }, ActionLink.ActionType.DELETE, "Policies");
 

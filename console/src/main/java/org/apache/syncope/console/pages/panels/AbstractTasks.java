@@ -32,10 +32,6 @@ public abstract class AbstractTasks extends Panel {
 
     protected static final String TASKS = "Tasks";
 
-    protected static final String FEEDBACK = "feedback";
-
-    protected final String OPERATION_SUCCEEDED = getString("operation_succeeded");
-
     protected static final int WIN_HEIGHT = 500;
 
     protected static final int WIN_WIDTH = 700;

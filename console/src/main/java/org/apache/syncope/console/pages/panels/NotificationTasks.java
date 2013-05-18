@@ -131,12 +131,12 @@ public class NotificationTasks extends AbstractTasks {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             restClient.startExecution(taskTO.getId(), false);
-                            getSession().info(OPERATION_SUCCEEDED);
+                            getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
 
-                        target.add(getPage().get(FEEDBACK));
+                        target.add(getPage().get(Constants.FEEDBACK));
                         target.add(container);
                     }
                 }, ActionLink.ActionType.EXECUTE, TASKS);
@@ -149,12 +149,12 @@ public class NotificationTasks extends AbstractTasks {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             restClient.delete(taskTO.getId(), NotificationTaskTO.class);
-                            info(OPERATION_SUCCEEDED);
+                            info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
                         target.add(container);
-                        target.add(getPage().get(FEEDBACK));
+                        target.add(getPage().get(Constants.FEEDBACK));
                     }
                 }, ActionLink.ActionType.DELETE, TASKS);
 
@@ -199,8 +199,8 @@ public class NotificationTasks extends AbstractTasks {
             public void onClose(final AjaxRequestTarget target) {
                 target.add(container);
                 if (operationResult) {
-                    info(OPERATION_SUCCEEDED);
-                    target.add(getPage().get(FEEDBACK));
+                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(getPage().get(Constants.FEEDBACK));
                     operationResult = false;
                 }
             }

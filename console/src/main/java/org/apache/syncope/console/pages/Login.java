@@ -33,6 +33,7 @@ import org.apache.syncope.common.to.EntitlementTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
 import org.apache.wicket.Page;
@@ -134,7 +135,7 @@ public class Login extends WebPage {
         form.add(submitButton);
 
         add(form);
-        add(new FeedbackPanel("feedback"));
+        add(new FeedbackPanel(Constants.FEEDBACK));
 
         // Modal window for self registration
         final ModalWindow editProfileModalWin = new ModalWindow("selfRegModal");

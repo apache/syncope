@@ -119,9 +119,9 @@ public class Resources extends BasePage {
             protected void onClickInternal(final AjaxRequestTarget target) {
                 try {
                     connectorRestClient.reload();
-                    info(getString("operation_succeeded"));
+                    info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
-                    error(getString("error") + ": " + e.getMessage());
+                    error(getString(Constants.ERROR) + ": " + e.getMessage());
                 }
                 target.add(feedbackPanel);
                 target.add(connectorContainer);
@@ -255,9 +255,9 @@ public class Resources extends BasePage {
                         try {
 
                             resourceRestClient.delete(resourceTO.getName());
-                            info(getString("operation_succeeded"));
+                            info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientCompositeErrorException e) {
-                            error(getString("error") + ":" + e.getMessage());
+                            error(getString(Constants.ERROR) + ":" + e.getMessage());
 
                             LOG.error("While deleting resource " + resourceTO.getName(), e);
                         }
@@ -410,9 +410,9 @@ public class Resources extends BasePage {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             connectorRestClient.delete(connectorTO.getId());
-                            info(getString("operation_succeeded"));
+                            info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientCompositeErrorException e) {
-                            error(getString("error") + ":" + e.getMessage());
+                            error(getString(Constants.ERROR) + ":" + e.getMessage());
 
                             LOG.error("While deleting connector " + connectorTO.getId(), e);
                         }

@@ -30,6 +30,7 @@ import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.types.ReportExecStatus;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.DateFormatROModel;
 import org.apache.syncope.console.commons.HttpResourceStream;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
@@ -153,7 +154,7 @@ public class ReportModalPage extends BaseModalPage {
                             window.close(target);
                         } catch (SyncopeClientCompositeErrorException e) {
                             LOG.error("While creating or updating report", e);
-                            error(getString("error") + ":" + e.getMessage());
+                            error(getString(Constants.ERROR) + ":" + e.getMessage());
                             target.add(feedbackPanel);
                         }
                     }
@@ -510,7 +511,7 @@ public class ReportModalPage extends BaseModalPage {
 
                             reportTO.removeExecution(taskExecutionTO);
 
-                            info(getString("operation_succeeded"));
+                            info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }

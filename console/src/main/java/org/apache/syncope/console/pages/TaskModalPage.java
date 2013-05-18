@@ -29,6 +29,7 @@ import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
@@ -153,7 +154,7 @@ public abstract class TaskModalPage extends BaseModalPage {
 
                             taskTO.removeExecution(taskExecutionTO);
 
-                            info(getString("operation_succeeded"));
+                            info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }

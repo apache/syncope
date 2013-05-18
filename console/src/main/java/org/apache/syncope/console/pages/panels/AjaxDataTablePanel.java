@@ -21,6 +21,7 @@ package org.apache.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.AbstractBasePage;
 import org.apache.syncope.console.pages.BulkActionModalPage;
 import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel.EventDataWrapper;
@@ -113,7 +114,7 @@ public class AjaxDataTablePanel<T, S> extends Panel {
                     // reset modal result
                     page.setModalResult(false);
                     // set operation succeeded
-                    getSession().info(getString("operation_succeeded"));
+                    getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                     // refresh feedback panel
                     target.add(page.getFeedbackPanel());
                 }

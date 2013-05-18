@@ -309,7 +309,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
                     // reset modal result
                     page.setModalResult(false);
                     // set operation succeeded
-                    getSession().info(getString("operation_succeeded"));
+                    getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                     // refresh feedback panel
                     target.add(feedbackPanel);
                 }

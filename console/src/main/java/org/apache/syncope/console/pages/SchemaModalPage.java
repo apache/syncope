@@ -253,7 +253,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
-                    error(getString("error") + ":" + e.getMessage());
+                    error(getString(Constants.ERROR) + ":" + e.getMessage());
                     target.add(feedbackPanel);
                 }
             }

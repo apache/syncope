@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.console.commons;
 
-public final class ConnidAttribute {
-    
+public final class ConnIdSpecialAttributeName {
+
     public static final String ENABLE = "__ENABLE__";
 
     public static final String NAME = "__NAME__";
@@ -27,9 +27,8 @@ public final class ConnidAttribute {
     public static final String UID = "__UID__";
 
     public static final String PASSWORD = "__PASSWORD__";
-    
-    private ConnidAttribute() {
+
+    private ConnIdSpecialAttributeName() {
         // private constructor for static utility class
     }
-    
 }

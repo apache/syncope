@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel;
 import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel.EventDataWrapper;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
@@ -157,7 +158,7 @@ public class Users extends BasePage {
                     // reset modal result
                     setModalResult(false);
                     // set operation succeeded
-                    getSession().info(getString("operation_succeeded"));
+                    getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                     // refresh feedback panel
                     target.add(feedbackPanel);
                 }

@@ -165,9 +165,9 @@ public class Configuration extends BasePage {
                     protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                         try {
                             wfRestClient.updateDefinition(workflowDef);
-                            info(getString("operation_succeeded"));
+                            info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientCompositeErrorException scee) {
-                            error(getString("error") + ":" + scee.getMessage());
+                            error(getString(Constants.ERROR) + ":" + scee.getMessage());
                         }
                         target.add(feedbackPanel);
                     }
@@ -272,7 +272,7 @@ public class Configuration extends BasePage {
                             return;
                         }
 
-                        info(getString("operation_succeeded"));
+                        info(getString(Constants.OPERATION_SUCCEEDED));
                         target.add(feedbackPanel);
 
                         target.add(confContainer);
@@ -346,7 +346,7 @@ public class Configuration extends BasePage {
 
                     getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
                 } catch (Exception e) {
-                    error(getString("error") + ": " + e.getMessage());
+                    error(getString(Constants.ERROR) + ": " + e.getMessage());
                 }
             }
         };
@@ -441,7 +441,7 @@ public class Configuration extends BasePage {
                             return;
                         }
 
-                        info(getString("operation_succeeded"));
+                        info(getString(Constants.OPERATION_SUCCEEDED));
                         target.add(feedbackPanel);
 
                         target.add(notificationContainer);
@@ -658,7 +658,7 @@ public class Configuration extends BasePage {
                                     item.getModelObject().getLevel());
                         }
 
-                        info(getString("operation_succeeded"));
+                        info(getString(Constants.OPERATION_SUCCEEDED));
                     } catch (SyncopeClientCompositeErrorException e) {
                         info(getString("operation_error"));
                     }

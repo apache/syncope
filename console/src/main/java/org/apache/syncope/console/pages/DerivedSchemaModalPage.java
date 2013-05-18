@@ -22,6 +22,7 @@ import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.to.DerivedSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.PageReference;
@@ -99,7 +100,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
 
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
-                    error(getString("error") + ":" + e.getMessage());
+                    error(getString(Constants.ERROR) + ":" + e.getMessage());
                     target.add(feedbackPanel);
                 }
             }

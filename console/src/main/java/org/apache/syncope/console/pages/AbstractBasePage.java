@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.markup.head.MetaHeaderItem;
 import org.apache.wicket.markup.head.HeaderItem;
@@ -60,7 +61,7 @@ public class AbstractBasePage extends WebPage {
     }
 
     protected final void setupFeedbackPanel() {
-        feedbackPanel = new FeedbackPanel("feedback");
+        feedbackPanel = new FeedbackPanel(Constants.FEEDBACK);
         feedbackPanel.setOutputMarkupId(true);
         add(feedbackPanel);
     }

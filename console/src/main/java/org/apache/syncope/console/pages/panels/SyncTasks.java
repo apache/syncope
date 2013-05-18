@@ -185,13 +185,13 @@ public class SyncTasks extends AbstractTasks {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             restClient.startExecution(taskTO.getId(), false);
-                            getSession().info(OPERATION_SUCCEEDED);
+                            getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
 
                         target.add(container);
-                        target.add(getPage().get(FEEDBACK));
+                        target.add(getPage().get(Constants.FEEDBACK));
                     }
                 }, ActionLink.ActionType.EXECUTE, TASKS);
 
@@ -203,13 +203,13 @@ public class SyncTasks extends AbstractTasks {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             restClient.startExecution(taskTO.getId(), true);
-                            getSession().info(OPERATION_SUCCEEDED);
+                            getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
 
                         target.add(container);
-                        target.add(getPage().get(FEEDBACK));
+                        target.add(getPage().get(Constants.FEEDBACK));
                     }
                 }, ActionLink.ActionType.DRYRUN, TASKS);
 
@@ -221,12 +221,12 @@ public class SyncTasks extends AbstractTasks {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             restClient.delete(taskTO.getId(), SyncTaskTO.class);
-                            info(OPERATION_SUCCEEDED);
+                            info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
                         target.add(container);
-                        target.add(getPage().get(FEEDBACK));
+                        target.add(getPage().get(Constants.FEEDBACK));
                     }
                 }, ActionLink.ActionType.DELETE, TASKS);
 

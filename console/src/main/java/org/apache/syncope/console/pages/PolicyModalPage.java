@@ -28,6 +28,7 @@ import org.apache.syncope.common.types.AccountPolicySpec;
 import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.SyncPolicySpec;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.PolicyBeanPanel;
 import org.apache.syncope.console.rest.PolicyRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -121,14 +122,14 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
                 } catch (Exception e) {
                     LOG.error("While creating policy", e);
 
-                    error(getString("error") + ":" + e.getMessage());
-                    target.add(getPage().get("feedback"));
+                    error(getString(Constants.ERROR) + ":" + e.getMessage());
+                    target.add(getPage().get(Constants.FEEDBACK));
                 }
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(getPage().get("feedback"));
+                target.add(getPage().get(Constants.FEEDBACK));
             }
         };
 

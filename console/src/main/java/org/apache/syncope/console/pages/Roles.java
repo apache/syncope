@@ -19,6 +19,7 @@
 package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel;
 import org.apache.syncope.console.pages.panels.RoleSearchPanel;
 import org.apache.syncope.console.pages.panels.RoleSearchResultPanel;
@@ -86,7 +87,7 @@ public class Roles extends BasePage {
                 send(getPage(), Broadcast.BREADTH, data);
                 
                 if (modalResult) {
-                    getSession().info(getString("operation_succeeded"));
+                    getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(feedbackPanel);
                     modalResult = false;
                 }
