@@ -19,6 +19,7 @@
 package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.AttributesPanel;
 import org.apache.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.apache.syncope.console.pages.panels.MembershipsPanel;
@@ -194,7 +195,7 @@ public abstract class UserModalPage extends BaseModalPage {
                     closeAction(target, form);
                 } catch (Exception e) {
                     LOG.error("While creating or updating user", e);
-                    error(getString("error") + ":" + e.getMessage());
+                    error(getString(Constants.ERROR) + ":" + e.getMessage());
                     target.add(feedbackPanel);
                 }
             }

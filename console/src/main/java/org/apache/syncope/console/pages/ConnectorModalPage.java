@@ -36,6 +36,7 @@ import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.rest.ConnectorRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -424,7 +425,7 @@ public class ConnectorModalPage extends BaseModalPage {
                     ((Resources) pageRef.getPage()).setModalResult(true);
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
-                    error(getString("error") + ":" + e.getMessage());
+                    error(getString(Constants.ERROR) + ":" + e.getMessage());
                     target.add(feedbackPanel);
                     ((Resources) pageRef.getPage()).setModalResult(false);
                     LOG.error("While creating or updating connector {}", conn, e);

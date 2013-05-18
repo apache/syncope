@@ -24,12 +24,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.StatusBean;
 import org.apache.syncope.console.commons.StatusUtils;
 import org.apache.syncope.console.commons.StatusUtils.Status;
@@ -166,21 +166,21 @@ public class StatusPanel extends Panel implements IHeaderContributor {
 
                     case NOT_YET_SUBMITTED:
                         image = new Image("icon", IMG_STATUES + StatusUtils.Status.UNDEFINED.toString()
-                                + SyncopeConstants.DEFAULT_IMG_SUFFIX);
+                                + Constants.PNG_EXT);
                         alt = "undefined icon";
                         title = "Not yet submitted";
                         break;
 
                     case ACTIVE:
                         image = new Image("icon", IMG_STATUES + StatusUtils.Status.ACTIVE.toString()
-                                + SyncopeConstants.DEFAULT_IMG_SUFFIX);
+                                + Constants.PNG_EXT);
                         alt = "active icon";
                         title = "Enabled";
                         break;
 
                     case UNDEFINED:
                         image = new Image("icon", IMG_STATUES + StatusUtils.Status.UNDEFINED.toString()
-                                + SyncopeConstants.DEFAULT_IMG_SUFFIX);
+                                + Constants.PNG_EXT);
                         checkVisibility = false;
                         alt = "undefined icon";
                         title = "Undefined status";
@@ -189,7 +189,7 @@ public class StatusPanel extends Panel implements IHeaderContributor {
                     case OBJECT_NOT_FOUND:
                         image =
                                 new Image("icon", IMG_STATUES + StatusUtils.Status.OBJECT_NOT_FOUND.toString()
-                                + SyncopeConstants.DEFAULT_IMG_SUFFIX);
+                                + Constants.PNG_EXT);
                         checkVisibility = false;
                         alt = "notfound icon";
                         title = "User not found";
@@ -197,7 +197,7 @@ public class StatusPanel extends Panel implements IHeaderContributor {
 
                     default:
                         image = new Image("icon", IMG_STATUES + StatusUtils.Status.SUSPENDED.toString()
-                                + SyncopeConstants.DEFAULT_IMG_SUFFIX);
+                                + Constants.PNG_EXT);
                         alt = "inactive icon";
                         title = "Disabled";
                 }

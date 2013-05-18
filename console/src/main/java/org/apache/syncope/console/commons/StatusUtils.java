@@ -115,11 +115,9 @@ public class StatusUtils implements Serializable {
     }
 
     private Boolean isEnabled(final ConnObjectTO objectTO) {
-        final String STATUSATTR = ConnidAttribute.ENABLE;
-
         final Map<String, AttributeTO> attributeTOs = objectTO.getAttributeMap();
 
-        final AttributeTO status = attributeTOs.get(STATUSATTR);
+        final AttributeTO status = attributeTOs.get(ConnIdSpecialAttributeName.ENABLE);
 
         return status != null && status.getValues() != null && !status.getValues().isEmpty()
                 ? Boolean.parseBoolean(status.getValues().get(0))
@@ -127,13 +125,11 @@ public class StatusUtils implements Serializable {
     }
 
     private String getAccountLink(final ConnObjectTO objectTO) {
-        final String NAME = ConnidAttribute.NAME;
-
         final Map<String, AttributeTO> attributeTOs = objectTO == null
                 ? Collections.<String, AttributeTO>emptyMap()
                 : objectTO.getAttributeMap();
 
-        final AttributeTO name = attributeTOs.get(NAME);
+        final AttributeTO name = attributeTOs.get(ConnIdSpecialAttributeName.NAME);
 
         return name != null && name.getValues() != null && !name.getValues().isEmpty()
                 ? name.getValues().get(0)

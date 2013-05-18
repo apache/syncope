@@ -20,6 +20,14 @@ package org.apache.syncope.console.commons;
 
 public final class Constants {
 
+    public static final String PNG_EXT = ".png";
+
+    public static final String FEEDBACK = "feedback";
+
+    public static final String OPERATION_SUCCEEDED = "operation_succeeded";
+
+    public static final String ERROR = "error";
+
     public static final String PREF_USERS_DETAILS_VIEW = "users.details.view";
 
     public static final String PREF_USERS_ATTRIBUTES_VIEW = "users.attributes.view";

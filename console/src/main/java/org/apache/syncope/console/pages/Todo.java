@@ -147,9 +147,9 @@ public class Todo extends BasePage {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             approvalRestClient.claimForm(formTO.getTaskId());
-                            info(getString("operation_succeeded"));
+                            info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientCompositeErrorException scee) {
-                            error(getString("error") + ":" + scee.getMessage());
+                            error(getString(Constants.ERROR) + ":" + scee.getMessage());
                         }
                         target.add(feedbackPanel);
                         target.add(approvalContainer);
@@ -288,7 +288,7 @@ public class Todo extends BasePage {
                             return;
                         }
 
-                        info(getString("operation_succeeded"));
+                        info(getString(Constants.OPERATION_SUCCEEDED));
                         target.add(feedbackPanel);
 
                         target.add(userRequestContainer);
@@ -310,7 +310,7 @@ public class Todo extends BasePage {
                             return;
                         }
 
-                        info(getString("operation_succeeded"));
+                        info(getString(Constants.OPERATION_SUCCEEDED));
                         target.add(feedbackPanel);
 
                         target.add(userRequestContainer);

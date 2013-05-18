@@ -284,7 +284,7 @@ public class Schema extends BasePage {
                                 break;
                         }
 
-                        info(getString("operation_succeeded"));
+                        info(getString(Constants.OPERATION_SUCCEEDED));
                         target.add(feedbackPanel);
 
                         target.add(webContainer);

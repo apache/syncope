@@ -92,7 +92,7 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
 
     public String getFilename() {
         return filename == null
-                ? "error"
+                ? Constants.ERROR
                 : filename;
     }
 }

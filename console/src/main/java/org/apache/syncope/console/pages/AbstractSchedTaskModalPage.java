@@ -21,6 +21,7 @@ package org.apache.syncope.console.pages;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.DateFormatROModel;
 import org.apache.syncope.console.markup.html.CrontabContainer;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -104,7 +105,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
                     LOG.error("While creating or updating task", e);
-                    error(getString("error") + ":" + e.getMessage());
+                    error(getString(Constants.ERROR) + ":" + e.getMessage());
                     target.add(feedbackPanel);
                 }
             }

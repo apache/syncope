@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.SyncopeApplication;
 import org.apache.syncope.console.SyncopeSession;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -91,8 +91,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
                     @Override
                     public void onComponentTag(final Component component, final ComponentTag tag) {
 
-                        tag.put("src", "../.." + SyncopeApplication.IMG_PREFIX + kind
-                                + SyncopeConstants.DEFAULT_IMG_SUFFIX);
+                        tag.put("src", "../.." + SyncopeApplication.IMG_PREFIX + kind + Constants.PNG_EXT);
                     }
                 });
             }
@@ -161,7 +160,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
             public void onClose(final AjaxRequestTarget target) {
                 target.add(container);
                 if (isModalResult()) {
-                    info(getString("operation_succeeded"));
+                    info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(feedbackPanel);
                     setModalResult(false);
                 }

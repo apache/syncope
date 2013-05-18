@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.ResourceConnConfPanel;
 import org.apache.syncope.console.pages.panels.ResourceDetailsPanel;
 import org.apache.syncope.console.pages.panels.ResourceMappingPanel;
@@ -141,7 +142,7 @@ public class ResourceModalPage extends BaseModalPage {
                         window.close(target);
                     } catch (Exception e) {
                         LOG.error("Failure managing resource {}", resourceTO, e);
-                        error(getString("error") + ": " + e.getMessage());
+                        error(getString(Constants.ERROR) + ": " + e.getMessage());
                         target.add(feedbackPanel);
                     }
                 }

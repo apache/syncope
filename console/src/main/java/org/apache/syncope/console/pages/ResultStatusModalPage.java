@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConnObjectTO;
@@ -32,7 +31,8 @@ import org.apache.syncope.common.to.PropagationStatusTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
-import org.apache.syncope.console.commons.ConnidAttribute;
+import org.apache.syncope.console.commons.ConnIdSpecialAttributeName;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.StatusUtils;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.Component;
@@ -56,12 +56,9 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
  */
 public class ResultStatusModalPage extends BaseModalPage {
 
-    /**
-     * Serial version id.
-     */
     private static final long serialVersionUID = 2646115294319713723L;
 
-    public static final String IMG_STATUES = "statuses/";
+    private static final String IMG_STATUSES = "statuses/";
 
     @SpringBean
     private UserRestClient userRestClient;
@@ -150,15 +147,15 @@ public class ResultStatusModalPage extends BaseModalPage {
                         case SUCCESS:
                         case SUBMITTED:
                         case CREATED:
-                            image = new Image("icon", IMG_STATUES + StatusUtils.Status.ACTIVE.toString()
-                                    + SyncopeConstants.DEFAULT_IMG_SUFFIX);
+                            image = new Image("icon", IMG_STATUSES + StatusUtils.Status.ACTIVE.toString()
+                                    + Constants.PNG_EXT);
                             alt = "success icon";
                             title = "success";
                             break;
 
                         default:
-                            image = new Image("icon", IMG_STATUES + StatusUtils.Status.SUSPENDED.toString()
-                                    + SyncopeConstants.DEFAULT_IMG_SUFFIX);
+                            image = new Image("icon", IMG_STATUSES + StatusUtils.Status.SUSPENDED.toString()
+                                    + Constants.PNG_EXT);
                             alt = "failure icon";
                             title = "failure";
                     }
@@ -207,11 +204,11 @@ public class ResultStatusModalPage extends BaseModalPage {
         // sorted in reversed presentation order
         final List<String> head = new ArrayList<String>();
         if (attributable instanceof UserTO) {
-            head.add(ConnidAttribute.PASSWORD);
-            head.add(ConnidAttribute.ENABLE);
+            head.add(ConnIdSpecialAttributeName.PASSWORD);
+            head.add(ConnIdSpecialAttributeName.ENABLE);
         }
-        head.add(ConnidAttribute.UID);
-        head.add(ConnidAttribute.NAME);
+        head.add(ConnIdSpecialAttributeName.UID);
+        head.add(ConnIdSpecialAttributeName.NAME);
 
         final Map<String, AttributeTO> beforeAttrMap;
         if (before == null) {
@@ -232,8 +229,8 @@ public class ResultStatusModalPage extends BaseModalPage {
         attributes.addAll(afterAttrMap.keySet());
 
         if (!(attributable instanceof UserTO)) {
-            attributes.remove(ConnidAttribute.PASSWORD);
-            attributes.remove(ConnidAttribute.ENABLE);
+            attributes.remove(ConnIdSpecialAttributeName.PASSWORD);
+            attributes.remove(ConnIdSpecialAttributeName.ENABLE);
         }
 
         final List<String> profile = new ArrayList<String>();
@@ -257,7 +254,7 @@ public class ResultStatusModalPage extends BaseModalPage {
 
                 final Fragment beforeValue;
                 final Fragment afterValue;
-                if (ConnidAttribute.ENABLE.equals(name)) {
+                if (ConnIdSpecialAttributeName.ENABLE.equals(name)) {
                     beforeValue = getStatusIcon("beforeValue", propTO.getResource(), before);
                     afterValue = getStatusIcon("afterValue", propTO.getResource(), after);
                 } else {
@@ -289,7 +286,7 @@ public class ResultStatusModalPage extends BaseModalPage {
         if (attr == null || attr.getValues() == null || attr.getValues().isEmpty()) {
             value = "";
         } else {
-            if (ConnidAttribute.PASSWORD.equals(attrName)) {
+            if (ConnIdSpecialAttributeName.PASSWORD.equals(attrName)) {
                 value = "********";
             } else {
                 value = attr.getValues().size() > 1
@@ -328,15 +325,15 @@ public class ResultStatusModalPage extends BaseModalPage {
         switch (statusUtils.getStatusBean(resourceName, objectTO).getStatus()) {
 
             case ACTIVE:
-                image = new Image("status", IMG_STATUES + StatusUtils.Status.ACTIVE.toString()
-                        + SyncopeConstants.DEFAULT_IMG_SUFFIX);
+                image = new Image("status", IMG_STATUSES + StatusUtils.Status.ACTIVE.toString()
+                        + Constants.PNG_EXT);
                 alt = "active icon";
                 title = "Enabled";
                 break;
 
             case SUSPENDED:
-                image = new Image("status", IMG_STATUES + StatusUtils.Status.SUSPENDED.toString()
-                        + SyncopeConstants.DEFAULT_IMG_SUFFIX);
+                image = new Image("status", IMG_STATUSES + StatusUtils.Status.SUSPENDED.toString()
+                        + Constants.PNG_EXT);
                 alt = "inactive icon";
                 title = "Disabled";
                 break;

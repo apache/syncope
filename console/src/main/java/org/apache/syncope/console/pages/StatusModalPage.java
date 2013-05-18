@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.StatusBean;
 import org.apache.syncope.console.pages.panels.StatusPanel;
 import org.apache.syncope.console.rest.UserRestClient;
@@ -75,7 +76,7 @@ public class StatusModalPage extends BaseModalPage {
                         window.close(target);
                     } catch (Exception e) {
                         LOG.error("Error disabling resources", e);
-                        error(getString("error") + ":" + e.getMessage());
+                        error(getString(Constants.ERROR) + ":" + e.getMessage());
                         target.add(feedbackPanel);
                     }
                 }
@@ -111,7 +112,7 @@ public class StatusModalPage extends BaseModalPage {
                         window.close(target);
                     } catch (Exception e) {
                         LOG.error("Error enabling resources", e);
-                        error(getString("error") + ":" + e.getMessage());
+                        error(getString(Constants.ERROR) + ":" + e.getMessage());
                         target.add(feedbackPanel);
                     }
                 }
