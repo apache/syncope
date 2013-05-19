@@ -30,11 +30,11 @@ public abstract class AbstractTasks extends Panel {
 
     protected static final String VIEW_TASK_WIN_COOKIE_NAME = "view-task-win";
 
-    protected static final String TASKS = "Tasks";
-
     protected static final int WIN_HEIGHT = 500;
 
     protected static final int WIN_WIDTH = 700;
+
+    protected static final String TASKS = "Tasks";
 
     @SpringBean
     protected TaskRestClient restClient;

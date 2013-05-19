@@ -20,6 +20,7 @@ package org.apache.syncope.console.wicket.markup.html.tree;
 
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.ResultStatusModalPage;
 import org.apache.syncope.console.pages.RoleModalPage;
@@ -37,18 +38,11 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Panel for a node element form.
  */
 public class TreeActionLinkPanel extends Panel {
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(TreeActionLinkPanel.class);
 
     private static final long serialVersionUID = -7292448006463567909L;
 
@@ -146,13 +140,13 @@ public class TreeActionLinkPanel extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new ResultStatusModalPage(window, roleTO);
+                                return new ResultStatusModalPage.Builder(window, roleTO).build();
                             }
                         });
 
                         window.show(target);
                     } catch (SyncopeClientCompositeErrorException scce) {
-                        error(getString("operation_error") + ": " + scce.getMessage());
+                        error(getString(Constants.OPERATION_ERROR) + ": " + scce.getMessage());
                         target.add(((Roles) pageRef.getPage()).getFeedbackPanel());
                     }
                 }

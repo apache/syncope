@@ -138,11 +138,11 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
             }, action, pageId, !items.isEmpty());
         }
 
-        final Form form = new Form("form");
+        final Form form = new Form(FORM);
         add(form);
 
         final AjaxButton cancel =
-                new ClearIndicatingAjaxButton("cancel", new ResourceModel("cancel"), getPageReference()) {
+                new ClearIndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL), getPageReference()) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

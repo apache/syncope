@@ -36,7 +36,7 @@ public abstract class BaseModalPage extends AbstractBasePage {
     }
 
     @Override
-    public void renderHead(IHeaderResponse response) {
+    public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
         response.render(new PriorityHeaderItem(meta));
     }

@@ -45,7 +45,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
 
     private static final long serialVersionUID = 6668789770131753386L;
 
-    public DerivedSchemaModalPage(AttributableType kind) {
+    public DerivedSchemaModalPage(final AttributableType kind) {
         super(kind);
     }
 
@@ -57,7 +57,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
             schema = new DerivedSchemaTO();
         }
 
-        final Form schemaForm = new Form("form");
+        final Form schemaForm = new Form(FORM);
 
         schemaForm.setModel(new CompoundPropertyModel(schema));
 
@@ -79,7 +79,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
 
         name.setEnabled(createFlag);
 
-        final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
+        final AjaxButton submit = new IndicatingAjaxButton(APPLY, new ResourceModel(SUBMIT)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -89,9 +89,9 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
 
                 try {
                     if (createFlag) {
-                        restClient.createDerivedSchema(kind, schemaTO);
+                        schemaRestClient.createDerivedSchema(kind, schemaTO);
                     } else {
-                        restClient.updateDerivedSchema(kind, schemaTO);
+                        schemaRestClient.updateDerivedSchema(kind, schemaTO);
                     }
 
                     if (pageRef.getPage() instanceof BasePage) {
@@ -111,7 +111,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
             }
         };
 
-        final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

@@ -157,26 +157,26 @@ public class Configuration extends BasePage {
         wfForm.add(workflowDefArea);
 
         AjaxButton submit =
-                new ClearIndicatingAjaxButton("apply", new Model<String>(getString("submit")), getPageReference()) {
+                new ClearIndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT)), getPageReference()) {
 
-                    private static final long serialVersionUID = -958724007591692537L;
+            private static final long serialVersionUID = -958724007591692537L;
 
-                    @Override
-                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                        try {
-                            wfRestClient.updateDefinition(workflowDef);
-                            info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (SyncopeClientCompositeErrorException scee) {
-                            error(getString(Constants.ERROR) + ":" + scee.getMessage());
-                        }
-                        target.add(feedbackPanel);
-                    }
+            @Override
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                try {
+                    wfRestClient.updateDefinition(workflowDef);
+                    info(getString(Constants.OPERATION_SUCCEEDED));
+                } catch (SyncopeClientCompositeErrorException scee) {
+                    error(getString(Constants.ERROR) + ":" + scee.getMessage());
+                }
+                target.add(feedbackPanel);
+            }
 
-                    @Override
-                    protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                        target.add(feedbackPanel);
-                    }
-                };
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                target.add(feedbackPanel);
+            }
+        };
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Configuration",
                 "workflowDefUpdate"));
@@ -660,7 +660,7 @@ public class Configuration extends BasePage {
 
                         info(getString(Constants.OPERATION_SUCCEEDED));
                     } catch (SyncopeClientCompositeErrorException e) {
-                        info(getString("operation_error"));
+                        info(getString(Constants.OPERATION_ERROR));
                     }
 
                     target.add(feedbackPanel);

@@ -57,7 +57,7 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
     public PolicyModalPage(final ModalWindow window, final T policyTO, final PageReference pageRef) {
         super();
 
-        final Form form = new Form("form");
+        final Form form = new Form(FORM);
         form.setOutputMarkupId(true);
         add(form);
 
@@ -103,7 +103,7 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
 
         form.add(new PolicyBeanPanel("panel", policy));
 
-        final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("apply")) {
+        final AjaxButton submit = new IndicatingAjaxButton(APPLY, new ResourceModel(APPLY)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -135,7 +135,7 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
 
         form.add(submit);
 
-        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final IndicatingAjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

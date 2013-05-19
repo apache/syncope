@@ -58,7 +58,7 @@ public class ConfigurationModalPage extends BaseModalPage {
     public ConfigurationModalPage(final PageReference pageRef, final ModalWindow window,
             final ConfigurationTO configurationTO, final boolean createFlag) {
 
-        Form form = new Form("form", new CompoundPropertyModel(configurationTO));
+        Form form = new Form(FORM, new CompoundPropertyModel(configurationTO));
 
         final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", "key", new PropertyModel(configurationTO, "key"));
         form.add(key);
@@ -69,7 +69,7 @@ public class ConfigurationModalPage extends BaseModalPage {
                 "value"));
         form.add(value);
 
-        submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
+        submit = new IndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT))) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -103,7 +103,7 @@ public class ConfigurationModalPage extends BaseModalPage {
             }
         };
 
-        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final IndicatingAjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

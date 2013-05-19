@@ -64,7 +64,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
     private static final long serialVersionUID = -5991561277287424057L;
 
-    public SchemaModalPage(AttributableType kind) {
+    public SchemaModalPage(final AttributableType kind) {
         super(kind);
     }
 
@@ -79,7 +79,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
             schema = new SchemaTO();
         }
 
-        final Form schemaForm = new Form("form");
+        final Form schemaForm = new Form(FORM);
 
         schemaForm.setModel(new CompoundPropertyModel(schema));
         schemaForm.setOutputMarkupId(Boolean.TRUE);
@@ -99,7 +99,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
             @Override
             protected List<String> load() {
-                return restClient.getAllValidatorClasses();
+                return schemaRestClient.getAllValidatorClasses();
             }
         };
 
@@ -224,7 +224,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         final AjaxCheckBoxPanel uniqueConstraint = new AjaxCheckBoxPanel("uniqueConstraint",
                 getString("uniqueConstraint"), new PropertyModel<Boolean>(schema, "uniqueConstraint"));
 
-        final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
+        final AjaxButton submit = new IndicatingAjaxButton(APPLY, new ResourceModel(SUBMIT)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -243,9 +243,9 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
                 try {
                     if (createFlag) {
-                        restClient.createSchema(kind, schemaTO);
+                        schemaRestClient.createSchema(kind, schemaTO);
                     } else {
-                        restClient.updateSchema(kind, schemaTO);
+                        schemaRestClient.updateSchema(kind, schemaTO);
                     }
                     if (pageRef.getPage() instanceof BasePage) {
                         ((BasePage) pageRef.getPage()).setModalResult(true);
@@ -264,7 +264,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
             }
         };
 
-        final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -276,13 +276,9 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
         cancel.setDefaultFormProcessing(false);
 
-        String allowedRoles;
-
-        if (createFlag) {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema", "create");
-        } else {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema", "update");
-        }
+        String allowedRoles = createFlag
+                ? xmlRolesReader.getAllAllowedRoles("Schema", "create")
+                : xmlRolesReader.getAllAllowedRoles("Schema", "update");
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 

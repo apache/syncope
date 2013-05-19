@@ -35,7 +35,6 @@ import org.apache.syncope.console.commons.DateFormatROModel;
 import org.apache.syncope.console.commons.HttpResourceStream;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.markup.html.CrontabContainer;
-import org.apache.syncope.console.rest.ReportRestClient;
 import org.apache.syncope.console.wicket.ajax.form.AbstractAjaxDownloadBehavior;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
@@ -96,9 +95,6 @@ public class ReportModalPage extends BaseModalPage {
 
     private static final int REPORTLET_CONF_WIN_WIDTH = 800;
 
-    @SpringBean
-    private ReportRestClient restClient;
-
     @SpringBean(name = "baseURL")
     protected String baseURL;
 
@@ -119,7 +115,7 @@ public class ReportModalPage extends BaseModalPage {
     public ReportModalPage(final ModalWindow window, final ReportTO reportTO, final PageReference callerPageRef) {
         this.reportTO = reportTO;
 
-        form = new Form<ReportTO>("form");
+        form = new Form<ReportTO>(FORM);
         form.setModel(new CompoundPropertyModel(reportTO));
         add(form);
 
@@ -131,7 +127,7 @@ public class ReportModalPage extends BaseModalPage {
         form.add(crontab);
 
         final AjaxButton submit =
-                new ClearIndicatingAjaxButton("apply", new ResourceModel("apply"), getPageReference()) {
+                new ClearIndicatingAjaxButton(APPLY, new ResourceModel(APPLY), getPageReference()) {
 
                     private static final long serialVersionUID = -958724007591692537L;
 
@@ -144,9 +140,9 @@ public class ReportModalPage extends BaseModalPage {
 
                         try {
                             if (reportTO.getId() > 0) {
-                                restClient.update(reportTO);
+                                reportRestClient.update(reportTO);
                             } else {
-                                restClient.create(reportTO);
+                                reportRestClient.create(reportTO);
                             }
 
                             ((BasePage) callerPageRef.getPage()).setModalResult(true);
@@ -176,7 +172,7 @@ public class ReportModalPage extends BaseModalPage {
         form.add(submit);
 
         final AjaxButton cancel =
-                new ClearIndicatingAjaxButton("cancel", new ResourceModel("cancel"), getPageReference()) {
+                new ClearIndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL), getPageReference()) {
 
                     private static final long serialVersionUID = -958724007591692537L;
 
@@ -507,7 +503,7 @@ public class ReportModalPage extends BaseModalPage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            restClient.deleteExecution(taskExecutionTO.getId());
+                            reportRestClient.deleteExecution(taskExecutionTO.getId());
 
                             reportTO.removeExecution(taskExecutionTO);
 
@@ -537,7 +533,7 @@ public class ReportModalPage extends BaseModalPage {
                         if (target != null) {
                             final ReportTO currentReportTO = reportTO.getId() == 0
                                     ? reportTO
-                                    : restClient.read(reportTO.getId());
+                                    : reportRestClient.read(reportTO.getId());
                             reportTO.setExecutions(currentReportTO.getExecutions());
                             final AjaxFallbackDefaultDataTable currentTable =
                                     new AjaxFallbackDefaultDataTable("executionsTable", columns,
@@ -547,7 +543,7 @@ public class ReportModalPage extends BaseModalPage {
                             executions.addOrReplace(currentTable);
                         }
                     }
-                }, ActionLink.ActionType.RELOAD, "Tasks", "list");
+                }, ActionLink.ActionType.RELOAD, TASKS, "list");
 
                 return panel;
             }
@@ -627,7 +623,7 @@ public class ReportModalPage extends BaseModalPage {
 
         private void createResourceStream() {
             if (stream == null) {
-                stream = new HttpResourceStream(restClient.exportExecutionResult(exportExecId, exportFormat));
+                stream = new HttpResourceStream(reportRestClient.exportExecutionResult(exportExecId, exportFormat));
             }
         }
 

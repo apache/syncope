@@ -20,12 +20,10 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Modal window with User form.
@@ -33,9 +31,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 public class UserTemplateModalPage extends UserModalPage {
 
     private static final long serialVersionUID = 511003221213581368L;
-
-    @SpringBean
-    private TaskRestClient taskRestClient;
 
     private SyncTaskTO syncTaskTO;
 

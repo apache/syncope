@@ -20,19 +20,14 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SyncTaskTO;
-import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class RoleTemplateModalPage extends RoleModalPage {
 
     private static final long serialVersionUID = -3849135555203409845L;
-
-    @SpringBean
-    private TaskRestClient taskRestClient;
 
     private SyncTaskTO syncTaskTO;
 

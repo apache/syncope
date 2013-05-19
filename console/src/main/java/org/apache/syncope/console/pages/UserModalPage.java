@@ -158,7 +158,7 @@ public abstract class UserModalPage extends BaseModalPage {
         form.add(submit);
         form.setDefaultButton(submit);
 
-        final AjaxButton cancel = new AjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new AjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = 530608535790823587L;
 
@@ -179,7 +179,7 @@ public abstract class UserModalPage extends BaseModalPage {
     }
 
     protected AjaxButton getOnSubmit() {
-        return new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
+        return new IndicatingAjaxButton(APPLY, new ResourceModel(SUBMIT)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

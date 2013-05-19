@@ -20,6 +20,11 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.rest.ReportRestClient;
+import org.apache.syncope.console.rest.ResourceRestClient;
+import org.apache.syncope.console.rest.SchemaRestClient;
+import org.apache.syncope.console.rest.TaskRestClient;
+import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.markup.head.MetaHeaderItem;
 import org.apache.wicket.markup.head.HeaderItem;
 import org.apache.wicket.markup.html.WebPage;
@@ -38,10 +43,37 @@ public class AbstractBasePage extends WebPage {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractBasePage.class);
 
+    protected static final String TASKS = "Tasks";
+
+    protected static final String FORM = "form";
+
+    protected static final String CANCEL = "cancel";
+
+    protected static final String SUBMIT = "submit";
+
+    protected static final String APPLY = "apply";
+
+    protected static final String NAME = "name";
+
     protected final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
+
+    @SpringBean
+    protected UserRestClient userRestClient;
+
+    @SpringBean
+    protected TaskRestClient taskRestClient;
+    
+    @SpringBean
+    protected SchemaRestClient schemaRestClient;
+    
+    @SpringBean
+    protected ResourceRestClient resourceRestClient;
+    
+    @SpringBean
+    protected ReportRestClient reportRestClient;
 
     protected FeedbackPanel feedbackPanel;
 

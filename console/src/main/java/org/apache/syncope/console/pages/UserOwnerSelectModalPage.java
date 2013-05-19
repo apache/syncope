@@ -19,10 +19,10 @@
 package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel;
 import org.apache.syncope.console.pages.panels.SelectOnlyUserSearchResultPanel;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
-import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -30,20 +30,16 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class UserOwnerSelectModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = 2106489458494696439L;
 
-    @SpringBean
-    private UserRestClient restClient;
-
     public UserOwnerSelectModalPage(final PageReference pageRef, final ModalWindow window) {
         super();
 
         final SelectOnlyUserSearchResultPanel searchResult =
-                new SelectOnlyUserSearchResultPanel("searchResult", true, null, pageRef, window, restClient);
+                new SelectOnlyUserSearchResultPanel("searchResult", true, null, pageRef, window, userRestClient);
         add(searchResult);
 
         final Form searchForm = new Form("searchForm");
@@ -77,7 +73,7 @@ public class UserOwnerSelectModalPage extends BaseModalPage {
             final AbstractSearchResultPanel resultsetPanel) {
 
         if (searchCond == null || !searchCond.isValid()) {
-            error(getString("search_error"));
+            error(getString(Constants.SEARCH_ERROR));
             return;
         }
 

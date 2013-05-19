@@ -22,7 +22,6 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.SyncopeApplication;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -37,7 +36,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Syncope Wicket base-page.
@@ -49,9 +47,6 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
     private final static int EDIT_PROFILE_WIN_HEIGHT = 550;
 
     private final static int EDIT_PROFILE_WIN_WIDTH = 800;
-
-    @SpringBean
-    private UserRestClient userRestClient;
 
     public BasePage() {
         super();

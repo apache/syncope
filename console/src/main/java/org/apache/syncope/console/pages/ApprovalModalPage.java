@@ -34,7 +34,6 @@ import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.MapChoiceRenderer;
 import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.rest.ApprovalRestClient;
-import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -67,9 +66,6 @@ public class ApprovalModalPage extends BaseModalPage {
 
     @SpringBean
     private ApprovalRestClient restClient;
-
-    @SpringBean
-    private UserRestClient userRestClient;
 
     private final ModalWindow editUserWin;
 
@@ -194,7 +190,7 @@ public class ApprovalModalPage extends BaseModalPage {
         MetaDataRoleAuthorizationStrategy.authorize(userDetails, ENABLE,
                 xmlRolesReader.getAllAllowedRoles("Users", "read"));
 
-        final AjaxButton submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
+        final AjaxButton submit = new IndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT))) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -248,7 +244,7 @@ public class ApprovalModalPage extends BaseModalPage {
             }
         };
 
-        final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -265,14 +261,14 @@ public class ApprovalModalPage extends BaseModalPage {
 
         cancel.setDefaultFormProcessing(false);
 
-        Form form = new Form("form");
+        Form form = new Form(FORM);
         form.add(propView);
         form.add(userDetails);
         form.add(submit);
         form.add(cancel);
 
         MetaDataRoleAuthorizationStrategy.authorize(form, ENABLE, xmlRolesReader.getAllAllowedRoles("Approval",
-                "submit"));
+                SUBMIT));
 
         editUserWin = new ModalWindow("editUserWin");
         editUserWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
