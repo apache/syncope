@@ -25,7 +25,6 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.StatusBean;
 import org.apache.syncope.console.pages.panels.StatusPanel;
-import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -34,21 +33,17 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class StatusModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = 4114026480146090961L;
-
-    @SpringBean
-    private UserRestClient userRestClient;
 
     public StatusModalPage(final PageReference pageRef, final ModalWindow window,
             final AbstractAttributableTO attributable) {
 
         super();
 
-        final Form form = new Form("form");
+        final Form form = new Form(FORM);
         add(form);
 
         final List<StatusBean> statuses = new ArrayList<StatusBean>();
@@ -133,7 +128,7 @@ public class StatusModalPage extends BaseModalPage {
         }
         form.add(enable);
 
-        final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

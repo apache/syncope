@@ -85,7 +85,7 @@ public class Roles extends BasePage {
                         : summaryPanel.getSelectedNode().getId());
 
                 send(getPage(), Broadcast.BREADTH, data);
-                
+
                 if (modalResult) {
                     getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(feedbackPanel);
@@ -130,7 +130,7 @@ public class Roles extends BasePage {
             final AbstractSearchResultPanel resultsetPanel) {
 
         if (searchCond == null || !searchCond.isValid()) {
-            error(getString("search_error"));
+            error(getString(Constants.SEARCH_ERROR));
             return;
         }
 

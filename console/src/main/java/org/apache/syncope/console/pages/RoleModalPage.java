@@ -97,7 +97,7 @@ public class RoleModalPage extends BaseModalPage {
                 .pageRef(getPageReference()).build();
         form.add(rolePanel);
 
-        final AjaxButton submit = new IndicatingAjaxButton("submit", new ResourceModel("submit")) {
+        final AjaxButton submit = new IndicatingAjaxButton(SUBMIT, new ResourceModel(SUBMIT)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -123,7 +123,7 @@ public class RoleModalPage extends BaseModalPage {
             }
         };
 
-        final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -167,7 +167,7 @@ public class RoleModalPage extends BaseModalPage {
             }
         }
 
-        setResponsePage(new ResultStatusModalPage(window, result));
+        setResponsePage(new ResultStatusModalPage.Builder(window, result).build());
     }
 
     protected void closeAction(final AjaxRequestTarget target, final Form form) {

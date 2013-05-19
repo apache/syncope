@@ -32,7 +32,6 @@ import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
 import org.apache.syncope.console.rest.NotificationRestClient;
-import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
@@ -61,13 +60,10 @@ class NotificationModalPage extends BaseModalPage {
     @SpringBean
     private NotificationRestClient restClient;
 
-    @SpringBean
-    private SchemaRestClient schemaRestClient;
-
     public NotificationModalPage(final PageReference pageRef, final ModalWindow window,
             final NotificationTO notificationTO, final boolean createFlag) {
 
-        Form form = new Form("form", new CompoundPropertyModel(notificationTO));
+        Form form = new Form(FORM, new CompoundPropertyModel(notificationTO));
         form.setModel(new CompoundPropertyModel(notificationTO));
 
         final AjaxTextFieldPanel sender = new AjaxTextFieldPanel("sender", getString("sender"),
@@ -185,7 +181,7 @@ class NotificationModalPage extends BaseModalPage {
             }
         });
 
-        AjaxButton submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
+        AjaxButton submit = new IndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT))) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -219,7 +215,7 @@ class NotificationModalPage extends BaseModalPage {
             }
         };
 
-        final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

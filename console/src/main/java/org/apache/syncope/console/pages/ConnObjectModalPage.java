@@ -43,7 +43,7 @@ public class ConnObjectModalPage extends BaseModalPage {
     public ConnObjectModalPage(final ConnObjectTO connObjectTO) {
         super();
 
-        final Form<Void> form = new Form<Void>("form");
+        final Form<Void> form = new Form<Void>(FORM);
         form.setEnabled(false);
         add(form);
 

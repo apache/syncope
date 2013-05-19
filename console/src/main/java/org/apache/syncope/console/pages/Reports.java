@@ -220,7 +220,7 @@ public class Reports extends BasePage {
                             target.add(reportContainer);
                         }
                     }
-                }, ActionLink.ActionType.RELOAD, "Tasks", "list");
+                }, ActionLink.ActionType.RELOAD, TASKS, "list");
 
                 return panel;
             }

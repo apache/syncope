@@ -20,10 +20,8 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Modal window with Schema form.
@@ -31,9 +29,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 public abstract class AbstractSchemaModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = 7369215690388444748L;
-
-    @SpringBean
-    protected SchemaRestClient restClient;
 
     protected AttributableType kind;
 

@@ -184,10 +184,10 @@ public class PoliciesPanel extends Panel {
                             info(getString(Constants.OPERATION_SUCCEEDED));
 
                         } catch (SyncopeClientCompositeErrorException e) {
-                            error(getString("operation_error"));
+                            error(getString(Constants.OPERATION_ERROR));
 
                             LOG.error("While deleting resource {}({})", new Object[]{accountPolicyTO.getId(),
-                                        accountPolicyTO.getDescription()}, e);
+                                accountPolicyTO.getDescription()}, e);
                         }
 
                         target.add(container);

@@ -33,8 +33,6 @@ import org.apache.syncope.common.report.AbstractReportletConf;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
-import org.apache.syncope.console.rest.ReportRestClient;
-import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -64,7 +62,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.util.ClassUtils;
@@ -76,15 +73,7 @@ public class ReportletConfModalPage extends BaseModalPage {
     private static final String[] EXCLUDE_PROPERTIES = new String[]{"serialVersionUID", "class", "name",
         "reportletClassName"};
 
-    @SpringBean
-    private ReportRestClient restClient;
-
-    @SpringBean
-    private SchemaRestClient schemaRestClient;
-
     private AbstractReportletConf reportletConf;
-
-    private final PageReference pageRef;
 
     private final AjaxTextFieldPanel name;
 
@@ -96,9 +85,8 @@ public class ReportletConfModalPage extends BaseModalPage {
             final PageReference pageRef) {
 
         this.reportletConf = reportletConf;
-        this.pageRef = pageRef;
 
-        Form form = new Form("form");
+        final Form form = new Form(FORM);
         add(form);
 
         propertiesContainer = new WebMarkupContainer("container");
@@ -140,7 +128,7 @@ public class ReportletConfModalPage extends BaseModalPage {
             }
         });
         reportletClass.setStyleSheet("long_dynamicsize");
-        reportletClass.setChoices(restClient.getReportletConfClasses());
+        reportletClass.setChoices(reportRestClient.getReportletConfClasses());
         ((DropDownChoice) reportletClass.getField()).setNullValid(true);
         reportletClass.addRequiredLabel();
         reportletClass.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
@@ -158,7 +146,7 @@ public class ReportletConfModalPage extends BaseModalPage {
 
         propertiesContainer.add(buildPropView());
 
-        final AjaxButton submit = new AjaxButton("apply", new ResourceModel("apply")) {
+        final AjaxButton submit = new AjaxButton(APPLY, new ResourceModel(APPLY)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -192,7 +180,7 @@ public class ReportletConfModalPage extends BaseModalPage {
         };
         form.add(submit);
 
-        final AjaxButton cancel = new ClearIndicatingAjaxButton("cancel", new ResourceModel("cancel"), pageRef) {
+        final AjaxButton cancel = new ClearIndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -266,7 +254,7 @@ public class ReportletConfModalPage extends BaseModalPage {
                     field = ReportletConfModalPage.this.reportletConf.getClass().getDeclaredField(fieldName);
                 } catch (Exception e) {
                     LOG.error("Could not find field {} in class {}", new Object[]{fieldName,
-                                ReportletConfModalPage.this.reportletConf.getClass(), e});
+                        ReportletConfModalPage.this.reportletConf.getClass(), e});
                 }
                 if (field == null) {
                     return;

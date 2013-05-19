@@ -139,7 +139,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
         };
 
 
-        final Form form = new Form("form");
+        final Form form = new Form(FORM);
         form.setModel(new CompoundPropertyModel(this));
 
         selectedDetails = prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW);
@@ -240,7 +240,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
             vsgroup.add(virSchemas);
         }
 
-        final AjaxButton submit = new IndicatingAjaxButton("submit", new ResourceModel("submit")) {
+        final AjaxButton submit = new IndicatingAjaxButton(SUBMIT, new ResourceModel(SUBMIT)) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
@@ -278,7 +278,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
         form.add(submit);
 
-        final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

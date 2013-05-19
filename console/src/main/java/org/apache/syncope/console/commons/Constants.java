@@ -26,6 +26,10 @@ public final class Constants {
 
     public static final String OPERATION_SUCCEEDED = "operation_succeeded";
 
+    public static final String OPERATION_ERROR = "operation_error";
+
+    public static final String SEARCH_ERROR = "search_error";
+
     public static final String ERROR = "error";
 
     public static final String PREF_USERS_DETAILS_VIEW = "users.details.view";

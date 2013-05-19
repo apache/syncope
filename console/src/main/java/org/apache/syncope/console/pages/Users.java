@@ -134,7 +134,7 @@ public class Users extends BasePage {
             final AbstractSearchResultPanel resultsetPanel) {
 
         if (searchCond == null || !searchCond.isValid()) {
-            error(getString("search_error"));
+            error(getString(Constants.SEARCH_ERROR));
             return;
         }
 

@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.console.pages;
 
+import static org.apache.syncope.common.types.PropagationTaskExecStatus.CREATED;
+import static org.apache.syncope.common.types.PropagationTaskExecStatus.SUBMITTED;
+import static org.apache.syncope.common.types.PropagationTaskExecStatus.SUCCESS;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,8 +37,9 @@ import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.StatusUtils;
-import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.console.pages.panels.RolePanel;
 import org.apache.wicket.Component;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.Behavior;
@@ -44,12 +48,12 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Show user or role status after performing a successful operation.
@@ -60,135 +64,151 @@ public class ResultStatusModalPage extends BaseModalPage {
 
     private static final String IMG_STATUSES = "statuses/";
 
-    @SpringBean
-    private UserRestClient userRestClient;
-
     private final AbstractAttributableTO attributable;
+
+    private final UserModalPage.Mode mode;
 
     /**
      * Status management utilities.
      */
     private final StatusUtils statusUtils;
 
-    public ResultStatusModalPage(final ModalWindow window, final AbstractAttributableTO attributable) {
-        this(window, UserModalPage.Mode.ADMIN, attributable);
-    }
+    public static class Builder {
 
-    /**
-     * @param window guest modal window.
-     * @param mode operation mode.
-     * @param attributable User TO.
-     */
-    public ResultStatusModalPage(final ModalWindow window, final UserModalPage.Mode mode,
-            final AbstractAttributableTO attributable) {
+        private ModalWindow window;
 
-        super();
-        this.attributable = attributable;
-        statusUtils = new StatusUtils(this.userRestClient);
+        private UserModalPage.Mode mode;
 
-        final BaseModalPage page = this;
+        private AbstractAttributableTO attributable;
 
-        final WebMarkupContainer container = new WebMarkupContainer("container");
-        container.setOutputMarkupId(true);
-        add(container);
-
-        final Fragment fragment = new Fragment("resultFrag", mode == UserModalPage.Mode.SELF
-                ? "userRequestResultFrag"
-                : "propagationResultFrag", this);
-        fragment.setOutputMarkupId(true);
-        container.add(fragment);
-
-        if (mode == UserModalPage.Mode.ADMIN) {
-            // add Syncope propagation status
-            PropagationStatusTO syncope = new PropagationStatusTO();
-            syncope.setResource("Syncope");
-            syncope.setStatus(PropagationTaskExecStatus.SUCCESS);
-
-            List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-            propagations.add(syncope);
-            propagations.addAll(attributable.getPropagationStatusTOs());
-
-            fragment.add(new Label("info",
-                    ((attributable instanceof UserTO) && ((UserTO) attributable).getUsername() != null)
-                    ? ((UserTO) attributable).getUsername()
-                    : ((attributable instanceof RoleTO) && ((RoleTO) attributable).getName() != null)
-                    ? ((RoleTO) attributable).getName()
-                    : String.valueOf(attributable.getId())));
-
-            final ListView<PropagationStatusTO> propRes = new ListView<PropagationStatusTO>("resources", propagations) {
-
-                private static final long serialVersionUID = -1020475259727720708L;
-
-                @Override
-                protected void populateItem(final ListItem<PropagationStatusTO> item) {
-                    final PropagationStatusTO propTO = (PropagationStatusTO) item.getDefaultModelObject();
-
-                    final ListView attributes = getConnObjectView(propTO);
-
-                    final Fragment attrhead;
-                    if (attributes.getModelObject() == null || attributes.getModelObject().isEmpty()) {
-                        attrhead = new Fragment("attrhead", "emptyAttrHeadFrag", page);
-                    } else {
-                        attrhead = new Fragment("attrhead", "attrHeadFrag", page);
-                    }
-
-                    item.add(attrhead);
-                    item.add(attributes);
-
-                    attrhead.add(new Label("resource", propTO.getResource()));
-
-                    attrhead.add(new Label("propagation", propTO.getStatus() == null
-                            ? "UNDEFINED" : propTO.getStatus().toString()));
-
-                    final Image image;
-                    final String alt, title;
-                    switch (propTO.getStatus()) {
-
-                        case SUCCESS:
-                        case SUBMITTED:
-                        case CREATED:
-                            image = new Image("icon", IMG_STATUSES + StatusUtils.Status.ACTIVE.toString()
-                                    + Constants.PNG_EXT);
-                            alt = "success icon";
-                            title = "success";
-                            break;
-
-                        default:
-                            image = new Image("icon", IMG_STATUSES + StatusUtils.Status.SUSPENDED.toString()
-                                    + Constants.PNG_EXT);
-                            alt = "failure icon";
-                            title = "failure";
-                    }
-
-                    image.add(new Behavior() {
-
-                        private static final long serialVersionUID = 1469628524240283489L;
-
-                        @Override
-                        public void onComponentTag(final Component component, final ComponentTag tag) {
-                            tag.put("alt", alt);
-                            tag.put("title", title);
-                        }
-                    });
-
-                    attrhead.add(image);
-                }
-            };
-            fragment.add(propRes);
+        public Builder(final ModalWindow window, final AbstractAttributableTO attributable) {
+            this.window = window;
+            this.attributable = attributable;
         }
 
-        final AjaxLink close = new IndicatingAjaxLink("close") {
+        public ResultStatusModalPage.Builder mode(final UserModalPage.Mode mode) {
+            this.mode = mode;
+            return this;
+        }
 
-            private static final long serialVersionUID = -7978723352517770644L;
+        public ResultStatusModalPage build() {
+            return new ResultStatusModalPage(this);
+        }
+    }
 
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                window.close(target);
+    private ResultStatusModalPage(final Builder builder) {
+        super();
+        this.attributable = builder.attributable;
+        statusUtils = new StatusUtils(this.userRestClient);
+        if (builder.mode == null) {
+            this.mode = UserModalPage.Mode.ADMIN;
+        } else {
+            this.mode = builder.mode;
+            final BaseModalPage page = this;
+
+            final WebMarkupContainer container = new WebMarkupContainer("container");
+            container.setOutputMarkupId(true);
+            add(container);
+
+            final Fragment fragment = new Fragment("resultFrag", mode == UserModalPage.Mode.SELF
+                    ? "userRequestResultFrag"
+                    : "propagationResultFrag", this);
+            fragment.setOutputMarkupId(true);
+            container.add(fragment);
+
+            if (mode == UserModalPage.Mode.ADMIN) {
+                // add Syncope propagation status
+                PropagationStatusTO syncope = new PropagationStatusTO();
+                syncope.setResource("Syncope");
+                syncope.setStatus(PropagationTaskExecStatus.SUCCESS);
+
+                List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
+                propagations.add(syncope);
+                propagations.addAll(attributable.getPropagationStatusTOs());
+
+                fragment.add(new Label("info",
+                        ((attributable instanceof UserTO) && ((UserTO) attributable).getUsername() != null)
+                        ? ((UserTO) attributable).getUsername()
+                        : ((attributable instanceof RoleTO) && ((RoleTO) attributable).getName() != null)
+                        ? ((RoleTO) attributable).getName()
+                        : String.valueOf(attributable.getId())));
+
+                final ListView<PropagationStatusTO> propRes = new ListView<PropagationStatusTO>("resources",
+                        propagations) {
+
+                    private static final long serialVersionUID = -1020475259727720708L;
+
+                    @Override
+                    protected void populateItem(final ListItem<PropagationStatusTO> item) {
+                        final PropagationStatusTO propTO = (PropagationStatusTO) item.getDefaultModelObject();
+
+                        final ListView attributes = getConnObjectView(propTO);
+
+                        final Fragment attrhead;
+                        if (attributes.getModelObject() == null || attributes.getModelObject().isEmpty()) {
+                            attrhead = new Fragment("attrhead", "emptyAttrHeadFrag", page);
+                        } else {
+                            attrhead = new Fragment("attrhead", "attrHeadFrag", page);
+                        }
+
+                        item.add(attrhead);
+                        item.add(attributes);
+
+                        attrhead.add(new Label("resource", propTO.getResource()));
+
+                        attrhead.add(new Label("propagation", propTO.getStatus() == null
+                                ? "UNDEFINED" : propTO.getStatus().toString()));
+
+                        final Image image;
+                        final String alt, title;
+                        switch (propTO.getStatus()) {
+
+                            case SUCCESS:
+                            case SUBMITTED:
+                            case CREATED:
+                                image = new Image("icon", IMG_STATUSES + StatusUtils.Status.ACTIVE.toString()
+                                        + Constants.PNG_EXT);
+                                alt = "success icon";
+                                title = "success";
+                                break;
+
+                            default:
+                                image = new Image("icon", IMG_STATUSES + StatusUtils.Status.SUSPENDED.toString()
+                                        + Constants.PNG_EXT);
+                                alt = "failure icon";
+                                title = "failure";
+                        }
+
+                        image.add(new Behavior() {
+
+                            private static final long serialVersionUID = 1469628524240283489L;
+
+                            @Override
+                            public void onComponentTag(final Component component, final ComponentTag tag) {
+                                tag.put("alt", alt);
+                                tag.put("title", title);
+                            }
+                        });
+
+                        attrhead.add(image);
+                    }
+                };
+                fragment.add(propRes);
             }
-        };
-        container.add(close);
 
-        setOutputMarkupId(true);
+            final AjaxLink close = new IndicatingAjaxLink("close") {
+
+                private static final long serialVersionUID = -7978723352517770644L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target) {
+                    builder.window.close(target);
+                }
+            };
+            container.add(close);
+
+            setOutputMarkupId(true);
+        }
     }
 
     /**

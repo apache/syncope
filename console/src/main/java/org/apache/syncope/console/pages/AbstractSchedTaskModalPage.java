@@ -74,7 +74,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
         nextExec.setEnabled(false);
         profile.add(nextExec);
 
-        final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("apply")) {
+        final AjaxButton submit = new IndicatingAjaxButton(APPLY, new ResourceModel(APPLY)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -116,7 +116,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
             }
         };
 
-        final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -129,10 +129,10 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
         cancel.setDefaultFormProcessing(false);
 
         if (taskTO.getId() > 0) {
-            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getAllAllowedRoles("Tasks",
+            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getAllAllowedRoles(TASKS,
                     "update"));
         } else {
-            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getAllAllowedRoles("Tasks",
+            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getAllAllowedRoles(TASKS,
                     "create"));
         }
 

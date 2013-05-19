@@ -32,7 +32,7 @@ public class ViewUserModalPage extends EditUserModalPage {
     public ViewUserModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO) {
         super(callerPageRef, window, userTO);
         form.setEnabled(false);
-        form.get("cancel").setVisible(false);
+        form.get(CANCEL).setVisible(false);
     }
 
     @Override

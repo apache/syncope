@@ -23,7 +23,6 @@ import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.console.rest.UserRequestRestClient;
-import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -36,9 +35,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 public class UserRequestModalPage extends UserModalPage {
 
     private static final long serialVersionUID = 603212869211672852L;
-
-    @SpringBean
-    private UserRestClient userRestClient;
 
     @SpringBean
     private UserRequestRestClient requestRestClient;
@@ -130,6 +126,6 @@ public class UserRequestModalPage extends UserModalPage {
 
     @Override
     protected void closeAction(final AjaxRequestTarget target, final Form form) {
-        setResponsePage(new ResultStatusModalPage(window, mode, userTO));
+        setResponsePage(new ResultStatusModalPage.Builder(window, userTO).mode(mode).build());
     }
 }

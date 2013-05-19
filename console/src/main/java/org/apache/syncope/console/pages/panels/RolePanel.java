@@ -65,7 +65,7 @@ public class RolePanel extends Panel {
 
         private PageReference pageReference;
 
-        public Builder(String id) {
+        public Builder(final String id) {
             this.id = id;
         }
 

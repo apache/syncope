@@ -43,7 +43,7 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
 
     private static final long serialVersionUID = 5979623248182851337L;
 
-    public VirtualSchemaModalPage(AttributableType kind) {
+    public VirtualSchemaModalPage(final AttributableType kind) {
         super(kind);
     }
 
@@ -55,7 +55,7 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
             schema = new VirtualSchemaTO();
         }
 
-        final Form schemaForm = new Form("form");
+        final Form schemaForm = new Form(FORM);
 
         schemaForm.setModel(new CompoundPropertyModel(schema));
 
@@ -68,7 +68,7 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
         final AjaxCheckBoxPanel readonly = new AjaxCheckBoxPanel("readonly", getString("readonly"),
                 new PropertyModel<Boolean>(schema, "readonly"));
 
-        final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit")) {
+        final AjaxButton submit = new IndicatingAjaxButton(APPLY, new ResourceModel(SUBMIT)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -77,9 +77,9 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
                 VirtualSchemaTO schemaTO = (VirtualSchemaTO) form.getDefaultModelObject();
                 try {
                     if (createFlag) {
-                        restClient.createVirtualSchema(kind, schemaTO);
+                        schemaRestClient.createVirtualSchema(kind, schemaTO);
                     } else {
-                        restClient.updateVirtualSchema(kind, schemaTO);
+                        schemaRestClient.updateVirtualSchema(kind, schemaTO);
                     }
                     if (pageRef.getPage() instanceof BasePage) {
                         ((BasePage) pageRef.getPage()).setModalResult(true);
@@ -98,7 +98,7 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
             }
         };
 
-        final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

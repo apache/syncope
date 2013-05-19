@@ -31,7 +31,6 @@ import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
@@ -55,7 +54,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.util.StringUtils;
 
 /**
@@ -64,9 +62,6 @@ import org.springframework.util.StringUtils;
 public abstract class TaskModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -4110576026663173545L;
-
-    @SpringBean
-    protected TaskRestClient taskRestClient;
 
     protected WebMarkupContainer profile;
 
@@ -80,7 +75,7 @@ public abstract class TaskModalPage extends BaseModalPage {
         taskExecMessageWin.setCookieName("task-exec-message-win-modal");
         add(taskExecMessageWin);
 
-        form = new Form("form");
+        form = new Form(FORM);
         form.setModel(new CompoundPropertyModel(taskTO));
         add(form);
 
@@ -141,7 +136,7 @@ public abstract class TaskModalPage extends BaseModalPage {
                         });
                         taskExecMessageWin.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Tasks", StringUtils.hasText(model.getObject().getMessage()));
+                }, ActionLink.ActionType.EDIT, TASKS, StringUtils.hasText(model.getObject().getMessage()));
 
                 panel.add(new ActionLink() {
 
@@ -162,7 +157,7 @@ public abstract class TaskModalPage extends BaseModalPage {
                         target.add(feedbackPanel);
                         target.add(executions);
                     }
-                }, ActionLink.ActionType.DELETE, "Tasks");
+                }, ActionLink.ActionType.DELETE, TASKS);
 
                 return panel;
             }
@@ -186,7 +181,7 @@ public abstract class TaskModalPage extends BaseModalPage {
                             executions.addOrReplace(currentTable);
                         }
                     }
-                }, ActionLink.ActionType.RELOAD, "Tasks", "list");
+                }, ActionLink.ActionType.RELOAD, TASKS, "list");
 
                 return panel;
             }

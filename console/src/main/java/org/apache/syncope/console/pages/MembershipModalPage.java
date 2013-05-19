@@ -47,7 +47,7 @@ public class MembershipModalPage extends BaseModalPage {
 
         form.setModel(new CompoundPropertyModel(membershipTO));
 
-        submit = new AjaxButton("submit", new ResourceModel("submit")) {
+        submit = new AjaxButton(SUBMIT, new ResourceModel(SUBMIT)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -69,7 +69,7 @@ public class MembershipModalPage extends BaseModalPage {
 
         form.add(submit);
 
-        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final IndicatingAjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

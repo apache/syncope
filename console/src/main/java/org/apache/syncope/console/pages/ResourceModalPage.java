@@ -27,7 +27,6 @@ import org.apache.syncope.console.pages.panels.ResourceConnConfPanel;
 import org.apache.syncope.console.pages.panels.ResourceDetailsPanel;
 import org.apache.syncope.console.pages.panels.ResourceMappingPanel;
 import org.apache.syncope.console.pages.panels.ResourceSecurityPanel;
-import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -39,7 +38,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Modal window with Resource form.
@@ -47,9 +45,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 public class ResourceModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = 1734415311027284221L;
-
-    @SpringBean
-    private ResourceRestClient restClient;
 
     public ResourceModalPage(final PageReference pageRef, final ModalWindow window, final ResourceTO resourceTO,
             final boolean createFlag) {
@@ -64,14 +59,14 @@ public class ResourceModalPage extends BaseModalPage {
                 ? ""
                 : resourceTO.getName()));
 
-        final Form form = new Form("form");
+        final Form form = new Form(FORM);
         form.setModel(new CompoundPropertyModel(resourceTO));
 
         //--------------------------------
         // Resource details panel
         //--------------------------------
         form.add(new ResourceDetailsPanel("details", resourceTO,
-                restClient.getPropagationActionsClasses(), createFlag));
+                resourceRestClient.getPropagationActionsClasses(), createFlag));
         //--------------------------------
 
         //--------------------------------
@@ -93,7 +88,7 @@ public class ResourceModalPage extends BaseModalPage {
         form.add(new ResourceSecurityPanel("security", resourceTO));
         //--------------------------------
 
-        final AjaxButton submit = new IndicatingAjaxButton("apply", new ResourceModel("submit", "submit")) {
+        final AjaxButton submit = new IndicatingAjaxButton(APPLY, new ResourceModel(SUBMIT, SUBMIT)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -133,9 +128,9 @@ public class ResourceModalPage extends BaseModalPage {
                 } else {
                     try {
                         if (createFlag) {
-                            restClient.create(resourceTO);
+                            resourceRestClient.create(resourceTO);
                         } else {
-                            restClient.update(resourceTO);
+                            resourceRestClient.update(resourceTO);
                         }
 
                         ((Resources) pageRef.getPage()).setModalResult(true);
@@ -157,7 +152,7 @@ public class ResourceModalPage extends BaseModalPage {
         form.add(submit);
         form.setDefaultButton(submit);
 
-        final AjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

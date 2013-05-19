@@ -213,7 +213,7 @@ public class Tasks extends BasePage {
                     ActionLink.ActionType.DELETE, ActionLink.ActionType.DRYRUN, ActionLink.ActionType.EXECUTE}),
                 restClient,
                 "id",
-                "Tasks",
+                TASKS,
                 pageRef);
 
         table.setCurrentPage(currentPage);

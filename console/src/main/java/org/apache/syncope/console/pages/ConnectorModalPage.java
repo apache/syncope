@@ -137,7 +137,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
         // form - first tab
 
-        final Form<ConnInstanceTO> connectorForm = new Form<ConnInstanceTO>("form");
+        final Form<ConnInstanceTO> connectorForm = new Form<ConnInstanceTO>(FORM);
         connectorForm.setModel(new CompoundPropertyModel<ConnInstanceTO>(connInstanceTO));
         connectorForm.setOutputMarkupId(true);
         add(connectorForm);
@@ -398,7 +398,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
         // form - submit / cancel buttons
 
-        final AjaxButton submit = new IndicatingAjaxButton("apply", new Model<String>(getString("submit"))) {
+        final AjaxButton submit = new IndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT))) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -444,7 +444,7 @@ public class ConnectorModalPage extends BaseModalPage {
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, roles);
         connectorForm.add(submit);
 
-        final IndicatingAjaxButton cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
+        final IndicatingAjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

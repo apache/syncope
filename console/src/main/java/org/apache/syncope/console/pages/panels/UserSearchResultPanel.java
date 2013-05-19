@@ -200,13 +200,13 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
                                 @Override
                                 public Page createPage() {
-                                    return new ResultStatusModalPage(editmodal, userTO);
+                                    return new ResultStatusModalPage.Builder(editmodal, userTO).build();
                                 }
                             });
 
                             editmodal.show(target);
                         } catch (SyncopeClientCompositeErrorException scce) {
-                            error(getString("operation_error") + ": " + scce.getMessage());
+                            error(getString(Constants.OPERATION_ERROR) + ": " + scce.getMessage());
                             target.add(feedbackPanel);
                         }
                     }

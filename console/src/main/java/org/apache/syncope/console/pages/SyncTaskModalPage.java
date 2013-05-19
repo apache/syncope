@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
-import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.wicket.PageReference;
@@ -31,7 +30,6 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Modal window with Task form (to stop and start execution).
@@ -39,9 +37,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
 
     private static final long serialVersionUID = 2148403203517274669L;
-
-    @SpringBean
-    private ResourceRestClient resourceRestClient;
 
     public SyncTaskModalPage(final ModalWindow window, final SyncTaskTO taskTO, final PageReference pageRef) {
 
