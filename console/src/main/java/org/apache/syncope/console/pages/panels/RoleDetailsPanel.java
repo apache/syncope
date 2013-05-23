@@ -35,7 +35,6 @@ import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -62,7 +61,7 @@ public class RoleDetailsPanel extends Panel {
 
     private ParentModel parentModel;
 
-    public RoleDetailsPanel(final String id, final RoleTO roleTO, final Form form, final boolean templateMode) {
+    public RoleDetailsPanel(final String id, final RoleTO roleTO, final boolean templateMode) {
         super(id);
 
         ownerContainer = new WebMarkupContainer("ownerContainer");
