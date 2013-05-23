@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages.panels;
 
 import static org.apache.wicket.Component.RENDER;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,7 +54,9 @@ public class RolePanel extends Panel {
 
     private final AjaxPalettePanel<String> entitlementsPalette;
 
-    public static class Builder {
+    public static class Builder implements Serializable {
+
+        private static final long serialVersionUID = 8150440254654306070L;
 
         private String id;
 
@@ -98,7 +101,7 @@ public class RolePanel extends Panel {
         super(builder.id);
 
         this.add(new RoleDetailsPanel(
-                "details", builder.roleTO, builder.form, builder.mode == RoleModalPage.Mode.TEMPLATE));
+                "details", builder.roleTO, builder.mode == RoleModalPage.Mode.TEMPLATE));
 
         if (builder.pageReference == null || builder.roleTO.getId() == 0) {
             this.add(new Label("statuspanel", ""));
