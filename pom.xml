@@ -295,7 +295,7 @@ under the License.
         
     <hc.client.version>4.2.5</hc.client.version>
 
-    <activiti.version>5.12</activiti.version>
+    <activiti.version>5.12.1</activiti.version>
 
     <cxf.version>2.7.5</cxf.version>	
     <spring.version>3.2.3.RELEASE</spring.version>
