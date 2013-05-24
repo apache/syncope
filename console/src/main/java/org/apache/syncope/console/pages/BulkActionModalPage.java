@@ -129,7 +129,7 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
                         final BulkActionRes res = (BulkActionRes) bulkActionExecutor.getClass().
                                 getMethod("bulkAction", BulkAction.class).invoke(bulkActionExecutor, bulkAction);
 
-                        setResponsePage(new BulkActionResultModalPage(pageRef, window, items, columns, res, idFieldName));
+                        setResponsePage(new BulkActionResultModalPage(window, items, columns, res, idFieldName));
                     } catch (Exception e) {
                         LOG.error("Operation {} not supported", bulkAction.getOperation(), e);
                     }

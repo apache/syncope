@@ -21,6 +21,8 @@ package org.apache.syncope.console.pages;
 import static org.apache.syncope.common.types.PropagationTaskExecStatus.CREATED;
 import static org.apache.syncope.common.types.PropagationTaskExecStatus.SUBMITTED;
 import static org.apache.syncope.common.types.PropagationTaskExecStatus.SUCCESS;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -37,9 +39,7 @@ import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.StatusUtils;
-import org.apache.syncope.console.pages.panels.RolePanel;
 import org.apache.wicket.Component;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.Behavior;
@@ -48,7 +48,6 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -73,7 +72,9 @@ public class ResultStatusModalPage extends BaseModalPage {
      */
     private final StatusUtils statusUtils;
 
-    public static class Builder {
+    public static class Builder implements Serializable {
+
+        private static final long serialVersionUID = 220361441802274899L;
 
         private ModalWindow window;
 

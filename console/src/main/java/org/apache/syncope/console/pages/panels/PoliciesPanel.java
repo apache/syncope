@@ -164,7 +164,7 @@ public class PoliciesPanel extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new PolicyModalPage(mwindow, accountPolicyTO, pageRef);
+                                return new PolicyModalPage(mwindow, accountPolicyTO);
                             }
                         });
 
@@ -216,7 +216,7 @@ public class PoliciesPanel extends Panel {
 
                     @Override
                     public Page createPage() {
-                        return new PolicyModalPage(mwindow, getPolicyTOInstance(policyType), pageRef);
+                        return new PolicyModalPage(mwindow, getPolicyTOInstance(policyType));
                     }
                 });
 

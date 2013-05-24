@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -62,7 +63,9 @@ public class ResourcesPanel extends Panel {
 
     private final List<String> allResources;
 
-    public static class Builder {
+    public static class Builder implements Serializable {
+
+        private static final long serialVersionUID = 8644108944633025494L;
 
         private String id;
 
