@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.common.mod;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.syncope.common.AbstractBaseBean;
 
 /**
@@ -25,6 +28,8 @@ import org.apache.syncope.common.AbstractBaseBean;
  * current reference id; use a ReferenceMod with a null id to try to reset the reference id; use a ReferenceMod with a
  * not null id to specify a new reference id.
  */
+@XmlRootElement(name = "referenceMod")
+@XmlType
 public class ReferenceMod extends AbstractBaseBean {
 
     private static final long serialVersionUID = -4188817853738067677L;
