@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionResultColumn;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
@@ -45,7 +44,6 @@ public class BulkActionResultModalPage<T, S> extends BaseModalPage {
     private static final long serialVersionUID = 2646115294319713724L;
 
     public BulkActionResultModalPage(
-            final PageReference pageRef,
             final ModalWindow window,
             final List<T> items,
             final List<IColumn<T, S>> columns,

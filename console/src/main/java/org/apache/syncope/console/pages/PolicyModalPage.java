@@ -33,7 +33,6 @@ import org.apache.syncope.console.pages.panels.PolicyBeanPanel;
 import org.apache.syncope.console.rest.PolicyRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -54,7 +53,7 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
     @SpringBean
     private PolicyRestClient policyRestClient;
 
-    public PolicyModalPage(final ModalWindow window, final T policyTO, final PageReference pageRef) {
+    public PolicyModalPage(final ModalWindow window, final T policyTO) {
         super();
 
         final Form form = new Form(FORM);
