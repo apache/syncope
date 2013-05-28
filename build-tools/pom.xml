@@ -156,7 +156,7 @@ under the License.
           </configuration>
           <deployables>
             <deployable>
-              <location>${basedir}/target/syncope-build-tools-${project.version}.war</location>
+              <location>${project.build.directory}/syncope-build-tools-${project.version}.war</location>
               <properties>
                 <context>syncope-build-tools</context>
               </properties>

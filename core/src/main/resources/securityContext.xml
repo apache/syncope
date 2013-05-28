@@ -46,13 +46,10 @@ under the License.
   </security:http>
 
   <bean id="syncopeUserDetailsService"
-        class="org.apache.syncope.core.security.SyncopeUserDetailsService">
-    <property name="adminUser" value="${adminUser}"/>
-  </bean>
+        class="org.apache.syncope.core.security.SyncopeUserDetailsService"/>
 
   <bean id="syncopeAuthenticationProvider"
         class="org.apache.syncope.core.security.SyncopeAuthenticationProvider">
-    <property name="adminUser" value="${adminUser}"/>
     <property name="adminPassword" value="${adminPassword}"/>
     <property name="adminPasswordAlgorithm" value="${adminPasswordAlgorithm}"/>
     <property name="syncopeUserDetailsService" ref="syncopeUserDetailsService"/>

@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest.data;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import javax.annotation.Resource;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -71,6 +72,9 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     @Autowired
     private ConnObjectUtil connObjectUtil;
 
+    @Resource(name = "adminUser")
+    private String adminUser;
+
     @Transactional(readOnly = true)
     public SyncopeUser getUserFromId(final Long userId) {
         if (userId == null) {
@@ -96,8 +100,19 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
     @Transactional(readOnly = true)
     public UserTO getAuthenticatedUserTO() {
-        SyncopeUser authUser = userDAO.find(SecurityContextHolder.getContext().getAuthentication().getName());
-        return getUserTO(authUser);
+        final UserTO authUserTO;
+
+        final String authUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (adminUser.equals(authUsername)) {
+            authUserTO = new UserTO();
+            authUserTO.setId(-1);
+            authUserTO.setUsername(adminUser);
+        } else {
+            SyncopeUser authUser = userDAO.find(authUsername);
+            authUserTO = getUserTO(authUser);
+        }
+
+        return authUserTO;
     }
 
     @Transactional(readOnly = true)

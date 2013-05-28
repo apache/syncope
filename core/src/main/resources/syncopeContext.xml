@@ -40,6 +40,10 @@ under the License.
     <property name="ignoreUnresolvablePlaceholders" value="true"/>
   </bean>
 
+  <bean id="adminUser" class="java.lang.String">
+    <constructor-arg value="${adminUser}"/>
+  </bean>
+
   <bean class="org.apache.syncope.core.util.ApplicationContextProvider"/>
 
   <context:component-scan base-package="org.apache.syncope.core.init"/>
