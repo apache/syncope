@@ -367,6 +367,7 @@ public class ConnectorModalPage extends BaseModalPage {
             public void onClick(final AjaxRequestTarget target) {
                 connInstanceTO.setBundleName(bundleTO.getBundleName());
                 connInstanceTO.setVersion(bundleTO.getVersion());
+                connInstanceTO.setConnectorName(bundleTO.getConnectorName());
 
                 if (restClient.check(connInstanceTO)) {
                     info(getString("success_connection"));
