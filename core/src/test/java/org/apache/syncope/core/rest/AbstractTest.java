@@ -107,7 +107,7 @@ public abstract class AbstractTest {
 
     protected static final String BASE_URL = "http://localhost:9080/syncope/rest/";
 
-    protected static final String ADMIN_UID = "admin";
+    protected static final String ADMIN_UNAME = "admin";
 
     protected static final String ADMIN_PWD = "password";
 
@@ -199,7 +199,7 @@ public abstract class AbstractTest {
     }
 
     protected void resetRestTemplate() {
-        setupRestTemplate(ADMIN_UID, ADMIN_PWD);
+        setupRestTemplate(ADMIN_UNAME, ADMIN_PWD);
         userService = new UserServiceProxy(BASE_URL, restTemplate);
         userWorkflowService = new UserWorkflowServiceProxy(BASE_URL, restTemplate);
         roleService = new RoleServiceProxy(BASE_URL, restTemplate);
@@ -238,7 +238,7 @@ public abstract class AbstractTest {
     }
 
     protected <T> T createServiceInstance(final Class<T> serviceClass) {
-        return createServiceInstance(serviceClass, ADMIN_UID);
+        return createServiceInstance(serviceClass, ADMIN_UNAME);
     }
 
     protected <T> T createServiceInstance(final Class<T> serviceClass, final String username) {

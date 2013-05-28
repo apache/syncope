@@ -19,6 +19,7 @@
 package org.apache.syncope.core.security;
 
 import java.util.Date;
+import javax.annotation.Resource;
 import org.apache.syncope.common.types.AuditElements.AuthenticationSubCategory;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
@@ -53,36 +54,14 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private UserDAO userDAO;
 
-    private SyncopeUserDetailsService userDetailsService;
-
+    @Resource(name = "adminUser")
     private String adminUser;
 
     private String adminPassword;
 
     private String adminPasswordAlgorithm;
 
-    public SyncopeUserDetailsService getSyncopeUserDetailsService() {
-        return userDetailsService;
-    }
-
-    public void setSyncopeUserDetailsService(final SyncopeUserDetailsService syncopeUserDetailsService) {
-        this.userDetailsService = syncopeUserDetailsService;
-    }
-
-    public String getAdminUser() {
-        return adminUser;
-    }
-
-    public void setAdminUser(final String adminUser) {
-        this.adminUser = adminUser;
-    }
-
-    /**
-     * @return the adminPassword
-     */
-    public String getAdminPassword() {
-        return adminPassword;
-    }
+    private SyncopeUserDetailsService userDetailsService;
 
     /**
      * @param adminPassword the adminPassword to set
@@ -92,17 +71,14 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     }
 
     /**
-     * @return the adminPasswordAlgorithm
-     */
-    public String getAdminPasswordAlgorithm() {
-        return adminPasswordAlgorithm;
-    }
-
-    /**
      * @param adminPasswordAlgorithm the adminPasswordAlgorithm to set
      */
     public void setAdminPasswordAlgorithm(final String adminPasswordAlgorithm) {
         this.adminPasswordAlgorithm = adminPasswordAlgorithm;
+    }
+
+    public void setSyncopeUserDetailsService(final SyncopeUserDetailsService syncopeUserDetailsService) {
+        this.userDetailsService = syncopeUserDetailsService;
     }
 
     @Override

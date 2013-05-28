@@ -21,6 +21,7 @@ package org.apache.syncope.core.security;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Resource;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -49,15 +50,8 @@ public class SyncopeUserDetailsService implements UserDetailsService {
     @Autowired
     private EntitlementDAO entitlementDAO;
 
+    @Resource(name = "adminUser")
     private String adminUser;
-
-    public String getAdminUser() {
-        return adminUser;
-    }
-
-    public void setAdminUser(String adminUser) {
-        this.adminUser = adminUser;
-    }
 
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException, DataAccessException {

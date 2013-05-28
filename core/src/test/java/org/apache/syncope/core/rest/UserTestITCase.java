@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.apache.syncope.core.rest.AbstractTest.ADMIN_PWD;
 import static org.apache.syncope.core.rest.AbstractTest.getUUIDString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -2217,6 +2218,12 @@ public class UserTestITCase extends AbstractTest {
         } catch (SyncopeClientCompositeErrorException scce) {
             assertNotNull(scce.getException(SyncopeClientExceptionType.NotFound));
         }
+    }
+    
+        @Test
+    public void issueSYNCOPE373() {
+        UserTO userTO = userService.readSelf();
+        assertEquals(ADMIN_UNAME, userTO.getUsername());
     }
 
     private boolean getBooleanAttribute(ConnObjectTO connObjectTO, String attrName) {
