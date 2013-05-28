@@ -16,7 +16,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
 <web-app xmlns="http://java.sun.com/xml/ns/javaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -24,7 +23,7 @@ under the License.
                              http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          version="2.5">
             
-  <display-name>Syncope console</display-name>
+  <display-name>Apache Syncope console</display-name>
 
   <context-param>
     <param-name>configuration</param-name>
@@ -59,7 +58,7 @@ under the License.
     <dispatcher>INCLUDE</dispatcher>
   </filter-mapping>
 
-    <!-- SESSION TIMEOUT (MINUTES)-->
+  <!-- SESSION TIMEOUT (MINUTES)-->
   <session-config>
     <session-timeout>30</session-timeout>
   </session-config>
