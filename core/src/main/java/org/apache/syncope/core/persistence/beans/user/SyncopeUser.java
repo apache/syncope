@@ -47,7 +47,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
@@ -58,6 +57,7 @@ import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.validation.entity.SyncopeUserCheck;
 import org.apache.syncope.core.util.PasswordEncoder;
+import org.apache.syncope.core.util.SecureRandomUtil;
 
 @Entity
 @Cacheable
@@ -397,7 +397,7 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public void generateToken(final int tokenLength, final int tokenExpireTime) {
-        this.token = RandomStringUtils.randomAlphanumeric(tokenLength);
+        this.token = SecureRandomUtil.generateRandomPassword(tokenLength);
 
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, tokenExpireTime);
@@ -484,6 +484,8 @@ public class SyncopeUser extends AbstractAttributable {
     public String getUsername() {
         return username;
     }
+
+    int PASSWORD_LENGTH = 8;
 
     public void setUsername(final String username) {
         this.username = username;

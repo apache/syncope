@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.types.IntMappingType;
@@ -222,7 +221,7 @@ public final class MappingUtil {
                     } catch (InvalidPasswordPolicySpecException e) {
                         LOG.error("Could not generate policy-compliant random password for {}", user, e);
 
-                        passwordAttrValue = RandomStringUtils.randomAlphanumeric(16);
+                        passwordAttrValue = SecureRandomUtil.generateRandomPassword(16);
                     }
                 }
             }

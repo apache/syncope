@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
@@ -62,6 +61,7 @@ import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.InvalidPasswordPolicySpecException;
 import org.apache.syncope.core.util.JexlUtil;
 import org.apache.syncope.core.util.MappingUtil;
+import org.apache.syncope.core.util.SecureRandomUtil;
 import org.apache.syncope.core.util.VirAttrCache;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
@@ -183,7 +183,7 @@ public class ConnObjectUtil {
             } catch (InvalidPasswordPolicySpecException e) {
                 LOG.error("Could not generate policy-compliant random password for {}", userTO, e);
 
-                password = RandomStringUtils.randomAlphanumeric(16);
+                password = SecureRandomUtil.generateRandomPassword(16);
             }
             userTO.setPassword(password);
         }
