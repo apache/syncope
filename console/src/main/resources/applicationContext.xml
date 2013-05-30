@@ -119,7 +119,7 @@ under the License.
     <constructor-arg ref="httpClientParams"/>
   </bean>
 
-  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" scope="session">
+  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" scope="prototype">
     <constructor-arg ref="httpClientFactory"/>
     <property name="messageConverters">
       <list>
