@@ -71,7 +71,7 @@ public class SyncopeSession extends WebSession {
 
     private static final long serialVersionUID = 7743446298924805872L;
 
-    public static final List<Locale> SUPPORTED_LOCALES = Arrays.asList(new Locale[] {
+    public static final List<Locale> SUPPORTED_LOCALES = Arrays.asList(new Locale[]{
         Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR")});
 
     private String userId;
