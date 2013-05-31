@@ -244,17 +244,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
-        // when requesting to add user to new resources, either directly or
-        // through role subscription, password is mandatory (issue 147)
-        // first, let's take current resources into account
         Set<String> currentResources = user.getResourceNames();
 
         // password
         if (StringUtils.isNotBlank(userMod.getPassword())) {
             setPassword(user, userMod.getPassword(), scce);
-
             user.setChangePwdDate(new Date());
-
             propByRes.addAll(ResourceOperation.UPDATE, currentResources);
         }
 
@@ -362,28 +357,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
                 propByRes.merge(fill(membership, membershipMod,
                         AttributableUtil.getInstance(AttributableType.MEMBERSHIP), scce));
-            }
-        }
-
-        // now, let's see if there are new resource subscriptions without providing password
-        if (StringUtils.isBlank(userMod.getPassword())) {
-            Set<String> updatedResources = user.getResourceNames();
-            updatedResources.removeAll(currentResources);
-
-            for (String resourceName : updatedResources) {
-                final ExternalResource resource = resourceDAO.find(resourceName);
-
-                if (!user.canDecodePassword() && resource != null && !resource.isRandomPwdIfNotProvided()
-                        && resource.getUmapping() != null && !MappingUtil.getMatchingMappingItems(
-                        resource.getUmapping().getItems(), "password", IntMappingType.Password).isEmpty()) {
-
-                    SyncopeClientException sce =
-                            new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
-                    sce.addElement("Password cannot be empty when subscribing to new resources");
-                    scce.addException(sce);
-
-                    throw scce;
-                }
             }
         }
 

@@ -317,35 +317,6 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void issue147() {
-        // 1. create an user without role nor resources
-        UserTO userTO = getUniqueSampleTO("147@t.com");
-
-        userTO = createUser(userTO);
-        assertNotNull(userTO);
-        assertTrue(userTO.getResources().isEmpty());
-
-        // 2. try to update by adding a resource, but no password: must fail
-        UserMod userMod = new UserMod();
-        userMod.setId(userTO.getId());
-        userMod.addResourceToBeAdded("ws-target-resource-2");
-
-        SyncopeClientException sce = null;
-        try {
-            userService.update(userMod.getId(), userMod);
-        } catch (SyncopeClientCompositeErrorException scce) {
-            sce = scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
-        }
-        assertNotNull(sce);
-
-        // 3. provide password: now update must work
-        userMod.setPassword("newPassword");
-        userTO = userService.update(userMod.getId(), userMod);
-        assertNotNull(userTO);
-        assertEquals(1, userTO.getResources().size());
-    }
-
-    @Test
     public void createUserWithDbPropagation() {
         UserTO userTO = getUniqueSampleTO("yyy@yyy.yyy");
         userTO.addResource(RESOURCE_NAME_TESTDB);
@@ -2219,11 +2190,40 @@ public class UserTestITCase extends AbstractTest {
             assertNotNull(scce.getException(SyncopeClientExceptionType.NotFound));
         }
     }
-    
-        @Test
+
+    @Test
     public void issueSYNCOPE373() {
         UserTO userTO = userService.readSelf();
         assertEquals(ADMIN_UNAME, userTO.getUsername());
+    }
+
+    @Test
+    public void issueSYNCOPE383() {
+        // 1. create user on testdb and testdb2
+        UserTO userTO = getUniqueSampleTO("syncope383@apache.org");
+        userTO.getResources().clear();
+        userTO = createUser(userTO);
+        assertNotNull(userTO);
+
+        // 2. assign resource without specifying a new pwd and check propagation failure
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.addResourceToBeAdded(RESOURCE_NAME_TESTDB);
+        userTO = userService.update(userMod.getId(), userMod);
+        assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
+        assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+
+        // 3. request to change password only on testdb
+        userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPassword(getUUIDString());
+        PropagationRequestTO pwdPropRequest = new PropagationRequestTO();
+        pwdPropRequest.addResource(RESOURCE_NAME_TESTDB);
+        userMod.setPwdPropRequest(pwdPropRequest);
+
+        userTO = userService.update(userMod.getId(), userMod);
+        assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
+        assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
     }
 
     private boolean getBooleanAttribute(ConnObjectTO connObjectTO, String attrName) {
