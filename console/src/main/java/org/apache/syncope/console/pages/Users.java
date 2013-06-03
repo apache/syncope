@@ -100,7 +100,7 @@ public class Users extends BasePage {
         final Form searchForm = new Form("searchForm");
         add(searchForm);
 
-        final UserSearchPanel searchPanel = new UserSearchPanel("searchPanel");
+        final UserSearchPanel searchPanel = new UserSearchPanel.Builder("searchPanel").build();
         searchForm.add(searchPanel);
 
         final ClearIndicatingAjaxButton searchButton =

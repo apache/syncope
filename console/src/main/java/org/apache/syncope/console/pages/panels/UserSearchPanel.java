@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.search.NodeCond;
@@ -35,17 +36,37 @@ public class UserSearchPanel extends AbstractSearchPanel {
     @SpringBean
     private RoleRestClient roleRestClient;
 
-    public UserSearchPanel(final String id) {
-        this(id, null, true);
+    public static class Builder implements Serializable {
+
+        private static final long serialVersionUID = 6308997285778809578L;
+
+        private String id;
+
+        private NodeCond initCond = null;
+
+        private boolean required = true;
+
+        public Builder(final String id) {
+            this.id = id;
+        }
+
+        public UserSearchPanel.Builder nodeCond(final NodeCond initCond) {
+            this.initCond = initCond;
+            return this;
+        }
+
+        public UserSearchPanel.Builder required(final boolean required) {
+            this.required = required;
+            return this;
+        }
+
+        public UserSearchPanel build() {
+            return new UserSearchPanel(this);
+        }
     }
 
-    public UserSearchPanel(final String id, final NodeCond initCond) {
-        this(id, initCond, true);
-    }
-
-    public UserSearchPanel(final String id, final NodeCond initCond, final boolean required) {
-        super(id, AttributableType.USER, initCond, required);
-
+    private UserSearchPanel(final Builder builder) {
+        super(builder.id, AttributableType.USER, builder.initCond, builder.required);
     }
 
     @Override

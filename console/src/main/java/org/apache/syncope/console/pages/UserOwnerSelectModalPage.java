@@ -45,7 +45,7 @@ public class UserOwnerSelectModalPage extends BaseModalPage {
         final Form searchForm = new Form("searchForm");
         add(searchForm);
 
-        final UserSearchPanel searchPanel = new UserSearchPanel("searchPanel");
+        final UserSearchPanel searchPanel = new UserSearchPanel.Builder("searchPanel").build();
         searchForm.add(searchPanel);
 
         searchForm.add(new IndicatingAjaxButton("search", new ResourceModel("search")) {

@@ -266,7 +266,8 @@ public class ReportletConfModalPage extends BaseModalPage {
                 Panel panel;
 
                 if (NodeCond.class.equals(field.getType())) {
-                    panel = new UserSearchPanel("value", (NodeCond) wrapper.getPropertyValue(fieldName), false);
+                    panel = new UserSearchPanel.Builder("value")
+                            .nodeCond((NodeCond) wrapper.getPropertyValue(fieldName)).required(false).build();
                     // This is needed in order to manually update this.reportletConf with search panel selections
                     panel.setDefaultModel(new Model<String>(fieldName));
                 } else if (List.class.equals(field.getType())) {
