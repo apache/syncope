@@ -21,7 +21,6 @@ package org.apache.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.commons.SearchCondWrapper;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -31,15 +30,7 @@ public class RoleSearchPanel extends AbstractSearchPanel {
     private static final long serialVersionUID = 5757183539269316263L;
 
     public RoleSearchPanel(final String id) {
-        this(id, null, true);
-    }
-
-    public RoleSearchPanel(final String id, final NodeCond initCond) {
-        this(id, initCond, true);
-    }
-
-    public RoleSearchPanel(final String id, final NodeCond initCond, final boolean required) {
-        super(id, AttributableType.ROLE, initCond, required);
+        super(id, AttributableType.ROLE, null, true);
     }
 
     @Override
@@ -52,7 +43,7 @@ public class RoleSearchPanel extends AbstractSearchPanel {
 
             @Override
             protected List<SearchCondWrapper.FilterType> load() {
-                List<SearchCondWrapper.FilterType> result = new ArrayList<SearchCondWrapper.FilterType>();
+                final List<SearchCondWrapper.FilterType> result = new ArrayList<SearchCondWrapper.FilterType>();
                 result.add(SearchCondWrapper.FilterType.ATTRIBUTE);
                 result.add(SearchCondWrapper.FilterType.ENTITLEMENT);
                 result.add(SearchCondWrapper.FilterType.RESOURCE);

@@ -54,7 +54,7 @@ public class RoleSummaryPanel extends Panel {
 
     public static class Builder implements Serializable {
 
-        private static final long serialVersionUID = 8150440254654306070L;
+        private static final long serialVersionUID = 4164563358509351832L;
 
         private String id;
 
