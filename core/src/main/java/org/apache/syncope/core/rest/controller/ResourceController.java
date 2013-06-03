@@ -40,6 +40,7 @@ import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
@@ -243,11 +244,15 @@ public class ResourceController extends AbstractController {
                 throw new IllegalArgumentException("Not supported for MEMBERSHIP");
         }
         if (attributable == null) {
-            throw new NotFoundException(type + " '" + id + "'");
+            throw new NotFoundException(type + " " + id );
         }
 
         final AttributableUtil attrUtil = AttributableUtil.getInstance(type);
 
+        AbstractMappingItem accountIdItem = attrUtil.getAccountIdItem(resource);
+        if (accountIdItem == null) {
+            throw new NotFoundException("AccountId mapping for " + type + " " + id + " on resource '" + resourceName + "'");
+        }
         final String accountIdValue =
                 MappingUtil.getAccountIdValue(attributable, resource, attrUtil.getAccountIdItem(resource));
 
