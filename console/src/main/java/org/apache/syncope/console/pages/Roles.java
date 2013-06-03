@@ -67,8 +67,8 @@ public class Roles extends BasePage {
         treePanel.setOutputMarkupId(true);
         add(treePanel);
 
-        final RoleSummaryPanel summaryPanel = new RoleSummaryPanel("summaryPanel", editRoleWin,
-                Roles.this.getPageReference());
+        final RoleSummaryPanel summaryPanel = new RoleSummaryPanel.Builder("summaryPanel")
+                .window(editRoleWin).callerPageRef(Roles.this.getPageReference()).build();
         add(summaryPanel);
 
         editRoleWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
@@ -144,8 +144,9 @@ public class Roles extends BasePage {
         if (event.getPayload() instanceof TreeNodeClickUpdate) {
             final TreeNodeClickUpdate update = (TreeNodeClickUpdate) event.getPayload();
 
-            final RoleSummaryPanel summaryPanel = new RoleSummaryPanel("summaryPanel", editRoleWin,
-                    Roles.this.getPageReference(), update.getSelectedNodeId());
+            final RoleSummaryPanel summaryPanel = new RoleSummaryPanel.Builder("summaryPanel")
+                    .window(editRoleWin).callerPageRef(Roles.this.getPageReference())
+                    .selectedNodeId(update.getSelectedNodeId()).build();
 
             addOrReplace(summaryPanel);
             update.getTarget().add(this);
