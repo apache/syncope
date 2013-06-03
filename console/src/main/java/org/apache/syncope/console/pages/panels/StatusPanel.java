@@ -165,39 +165,33 @@ public class StatusPanel extends Panel implements IHeaderContributor {
                 switch (item.getModelObject().getStatus()) {
 
                     case NOT_YET_SUBMITTED:
-                        image = new Image("icon", IMG_STATUES + StatusUtils.Status.UNDEFINED.toString()
-                                + Constants.PNG_EXT);
+                        image = newImage(StatusUtils.Status.UNDEFINED.toString());
                         alt = "undefined icon";
                         title = "Not yet submitted";
                         break;
 
                     case ACTIVE:
-                        image = new Image("icon", IMG_STATUES + StatusUtils.Status.ACTIVE.toString()
-                                + Constants.PNG_EXT);
+                        image = newImage(StatusUtils.Status.ACTIVE.toString());
                         alt = "active icon";
                         title = "Enabled";
                         break;
 
                     case UNDEFINED:
-                        image = new Image("icon", IMG_STATUES + StatusUtils.Status.UNDEFINED.toString()
-                                + Constants.PNG_EXT);
+                        image = newImage(StatusUtils.Status.UNDEFINED.toString());
                         checkVisibility = false;
                         alt = "undefined icon";
                         title = "Undefined status";
                         break;
 
                     case OBJECT_NOT_FOUND:
-                        image =
-                                new Image("icon", IMG_STATUES + StatusUtils.Status.OBJECT_NOT_FOUND.toString()
-                                + Constants.PNG_EXT);
+                        image = newImage(StatusUtils.Status.OBJECT_NOT_FOUND.toString());
                         checkVisibility = false;
                         alt = "notfound icon";
                         title = "User not found";
                         break;
 
                     default:
-                        image = new Image("icon", IMG_STATUES + StatusUtils.Status.SUSPENDED.toString()
-                                + Constants.PNG_EXT);
+                        image = newImage(StatusUtils.Status.SUSPENDED.toString());
                         alt = "inactive icon";
                         title = "Disabled";
                 }
@@ -265,6 +259,10 @@ public class StatusPanel extends Panel implements IHeaderContributor {
         };
         statusBeansListView.setReuseItems(true);
         checkGroup.add(statusBeansListView);
+    }
+
+    private Image newImage(final String imageStatus) {
+        return new Image("icon", IMG_STATUES + imageStatus + Constants.PNG_EXT);
     }
 
     public PropagationRequestTO getPropagationRequestTO() {

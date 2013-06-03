@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import java.io.Serializable;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.rest.RoleRestClient;
@@ -51,44 +52,68 @@ public class RoleSummaryPanel extends Panel {
 
     private TreeActionLinkPanel actionLink;
 
-    private final PageReference callerPageRef;
+    public static class Builder implements Serializable {
 
-    private final ModalWindow window;
+        private static final long serialVersionUID = 8150440254654306070L;
 
-    public RoleSummaryPanel(final String id, final ModalWindow window, final PageReference callerPageRef) {
-        this(id, window, callerPageRef, null);
+        private String id;
+
+        private ModalWindow window;
+
+        private PageReference callerPageRef;
+
+        private Long selectedNodeId = null;
+
+        public Builder(final String id) {
+            this.id = id;
+        }
+
+        public RoleSummaryPanel.Builder window(final ModalWindow window) {
+            this.window = window;
+            return this;
+        }
+
+        public RoleSummaryPanel.Builder callerPageRef(final PageReference callerPageRef) {
+            this.callerPageRef = callerPageRef;
+            return this;
+        }
+
+        public RoleSummaryPanel.Builder selectedNodeId(final Long selectedNodeId) {
+            this.selectedNodeId = selectedNodeId;
+            return this;
+        }
+
+        public RoleSummaryPanel build() {
+            return new RoleSummaryPanel(this);
+        }
     }
 
-    public RoleSummaryPanel(final String id, final ModalWindow window, final PageReference callerPageRef,
-            Long selectedNodeId) {
+    private RoleSummaryPanel(final Builder builder) {
+        super(builder.id);
 
-        super(id);
-
-        this.callerPageRef = callerPageRef;
-        this.window = window;
-
-        if (selectedNodeId == null || selectedNodeId == 0) {
+        if (builder.selectedNodeId == null || builder.selectedNodeId == 0) {
             this.selectedNode = null;
         } else {
             try {
-                this.selectedNode = restClient.read(selectedNodeId);
+                this.selectedNode = restClient.read(builder.selectedNodeId);
             } catch (SyncopeClientCompositeErrorException e) {
-                LOG.error("Could not read {}", selectedNodeId, e);
+                LOG.error("Could not read {}", builder.selectedNodeId, e);
                 this.selectedNode = null;
-                selectedNodeId = null;
+                builder.selectedNodeId = null;
             }
         }
 
-        fragment = new Fragment("roleSummaryPanel", selectedNodeId == null ? "fakerootFrag"
-                : (selectedNodeId == 0 ? "rootPanel" : "roleViewPanel"), this);
+        fragment = new Fragment("roleSummaryPanel", builder.selectedNodeId == null ? "fakerootFrag"
+                : (builder.selectedNodeId == 0 ? "rootPanel" : "roleViewPanel"), this);
 
-        if (selectedNodeId != null) {
-            if (selectedNodeId == 0) {
-                actionLink = new TreeActionLinkPanel("actionLink", selectedNodeId, new Model(), window, callerPageRef);
+        if (builder.selectedNodeId != null) {
+            if (builder.selectedNodeId == 0) {
+                actionLink = new TreeActionLinkPanel("actionLink", builder.selectedNodeId, new Model(),
+                        builder.window, builder.callerPageRef);
                 actionLink.setOutputMarkupId(true);
                 fragment.add(actionLink);
             } else {
-                roleTabPanel = new RoleTabPanel("nodeViewPanel", selectedNode, window, callerPageRef);
+                roleTabPanel = new RoleTabPanel("nodeViewPanel", selectedNode, builder.window, builder.callerPageRef);
                 roleTabPanel.setOutputMarkupId(true);
                 fragment.add(roleTabPanel);
             }
