@@ -419,8 +419,12 @@ public class SyncJob extends AbstractTaskJob {
             if (!dryRun && !syncTask.isFullReconciliation()) {
                 try {
                     ExternalResource resource = resourceDAO.find(syncTask.getResource().getName());
-                    resource.setUsyncToken(connector.getLatestSyncToken(ObjectClass.ACCOUNT));
-                    resource.setRsyncToken(connector.getLatestSyncToken(ObjectClass.GROUP));
+                    if (uMapping != null) {
+                        resource.setUsyncToken(connector.getLatestSyncToken(ObjectClass.ACCOUNT));
+                    }
+                    if (rMapping != null) {
+                        resource.setRsyncToken(connector.getLatestSyncToken(ObjectClass.GROUP));
+                    }
                     resourceDAO.save(resource);
                 } catch (Exception e) {
                     throw new JobExecutionException("While updating SyncToken", e);
