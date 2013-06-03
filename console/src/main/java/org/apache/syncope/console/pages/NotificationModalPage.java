@@ -91,7 +91,7 @@ class NotificationModalPage extends BaseModalPage {
         traceLevel.addRequiredLabel();
         form.add(traceLevel);
 
-        final UserSearchPanel about = new UserSearchPanel("about", notificationTO.getAbout());
+        final UserSearchPanel about = new UserSearchPanel.Builder("about").nodeCond(notificationTO.getAbout()).build();
         form.add(about);
 
         final AjaxDropDownChoicePanel<IntMappingType> recipientAttrType = new AjaxDropDownChoicePanel<IntMappingType>(
@@ -144,8 +144,8 @@ class NotificationModalPage extends BaseModalPage {
         recipientsContainer.add(checkRecipients);
 
         final UserSearchPanel recipients =
-                new UserSearchPanel("recipients",
-                notificationTO.getRecipients() == null ? null : notificationTO.getRecipients());
+                new UserSearchPanel.Builder("recipients")
+                .nodeCond(notificationTO.getRecipients() == null ? null : notificationTO.getRecipients()).build();
         recipientsContainer.add(recipients);
         recipients.setEnabled(checkRecipients.getModelObject());
 
