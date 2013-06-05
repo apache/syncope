@@ -22,13 +22,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.VirtualSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -195,7 +195,7 @@ public class VirtualAttributesPanel extends Panel {
                     }
                 });
 
-                schemaChoice.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_BLUR) {
+                schemaChoice.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -217,7 +217,7 @@ public class VirtualAttributesPanel extends Panel {
                     }
                 });
 
-                schemaChoice.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+                schemaChoice.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 

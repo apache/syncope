@@ -29,6 +29,7 @@ import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.syncope.console.commons.RoleUtils;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
@@ -143,7 +144,7 @@ public class ResourcesPanel extends Panel {
                 @Override
                 protected Recorder<T> newRecorderComponent() {
                     Recorder<T> recorder = super.newRecorderComponent();
-                    recorder.add(new AjaxFormComponentUpdatingBehavior("change") {
+                    recorder.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                         private static final long serialVersionUID = 5538299138211283825L;
 

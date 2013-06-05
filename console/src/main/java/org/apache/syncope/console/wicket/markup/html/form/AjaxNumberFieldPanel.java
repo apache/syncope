@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.console.wicket.markup.html.form;
 
-import org.apache.syncope.common.SyncopeConstants;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.TextField;
@@ -38,7 +38,7 @@ public class AjaxNumberFieldPanel extends FieldPanel<Number> {
         add(field.setLabel(new Model(name)).setOutputMarkupId(true));
 
         if (!isReadOnly()) {
-            field.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+            field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 

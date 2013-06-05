@@ -19,12 +19,12 @@
 package org.apache.syncope.console.pages.panels;
 
 import java.util.List;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.apache.wicket.Component;
@@ -73,13 +73,19 @@ public class DerivedAttributesPanel extends Panel {
 
             @Override
             protected List<String> load() {
+                List<String> derivedSchemaNames;
                 if (entityTO instanceof RoleTO) {
-                    return schemaRestClient.getDerivedSchemaNames(AttributableType.ROLE);
+                    derivedSchemaNames = getDerivedSchemaNames(AttributableType.ROLE);
                 } else if (entityTO instanceof UserTO) {
-                    return schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
+                    derivedSchemaNames = getDerivedSchemaNames(AttributableType.USER);
                 } else {
-                    return schemaRestClient.getDerivedSchemaNames(AttributableType.MEMBERSHIP);
+                    derivedSchemaNames = getDerivedSchemaNames(AttributableType.MEMBERSHIP);
                 }
+                return derivedSchemaNames;
+            }
+
+            private List<String> getDerivedSchemaNames(final AttributableType type) {
+                return schemaRestClient.getDerivedSchemaNames(type);
             }
         };
 
@@ -145,7 +151,7 @@ public class DerivedAttributesPanel extends Panel {
                 final DropDownChoice<String> schemaChoice = new DropDownChoice<String>("schema",
                         new PropertyModel<String>(attributeTO, "schema"), derivedSchemaNames);
 
-                schemaChoice.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_BLUR) {
+                schemaChoice.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 

@@ -19,6 +19,10 @@
 package org.apache.syncope.console.commons;
 
 public final class Constants {
+    
+    public static final String ON_CHANGE = "onchange";
+
+    public static final String ON_BLUR = "onblur";
 
     public static final String PNG_EXT = ".png";
 

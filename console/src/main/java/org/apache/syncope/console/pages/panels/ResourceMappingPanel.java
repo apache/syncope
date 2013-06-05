@@ -25,7 +25,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.MappingItemTO;
@@ -35,6 +34,7 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.pages.panels.ResourceConnConfPanel.ConnConfModEvent;
 import org.apache.syncope.console.rest.ConnectorRestClient;
@@ -63,8 +63,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Resource mapping panel.
@@ -72,11 +70,6 @@ import org.slf4j.LoggerFactory;
 public class ResourceMappingPanel extends Panel {
 
     private static final long serialVersionUID = -7982691107029848579L;
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(ResourceMappingPanel.class);
 
     /**
      * Mapping field style sheet.
@@ -207,33 +200,35 @@ public class ResourceMappingPanel extends Panel {
 
             @Override
             public int compare(final MappingItemTO left, final MappingItemTO right) {
+                int compared;
                 if (left == null && right == null) {
-                    return 0;
+                    compared = 0;
                 } else if (left == null) {
-                    return 1;
+                    compared = 1;
                 } else if (right == null) {
-                    return -1;
+                    compared = -1;
                 } else if (left.getPurpose() == MappingPurpose.BOTH && right.getPurpose() != MappingPurpose.BOTH) {
-                    return -1;
+                    compared = -1;
                 } else if (left.getPurpose() != MappingPurpose.BOTH && right.getPurpose() == MappingPurpose.BOTH) {
-                    return 1;
+                    compared = 1;
                 } else if (left.getPurpose() == MappingPurpose.PROPAGATION
                         && right.getPurpose() == MappingPurpose.SYNCHRONIZATION) {
-                    return -1;
+                    compared = -1;
                 } else if (left.getPurpose() == MappingPurpose.SYNCHRONIZATION
                         && right.getPurpose() == MappingPurpose.PROPAGATION) {
-                    return 1;
+                    compared = 1;
                 } else if (left.isAccountid()) {
-                    return -1;
+                    compared = -1;
                 } else if (right.isAccountid()) {
-                    return 1;
+                    compared = 1;
                 } else if (left.isPassword()) {
-                    return -1;
+                    compared = -1;
                 } else if (right.isPassword()) {
-                    return 1;
+                    compared = 1;
                 } else {
-                    return left.getIntAttrName().compareTo(right.getIntAttrName());
+                    compared = left.getIntAttrName().compareTo(right.getIntAttrName());
                 }
+                return compared;
             }
         });
 
@@ -298,7 +293,7 @@ public class ResourceMappingPanel extends Panel {
                 intAttrNames.setChoices(schemaNames);
                 intAttrNames.setRequired(true);
                 intAttrNames.setStyleSheet(FIELD_STYLE);
-                intAttrNames.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+                intAttrNames.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -324,7 +319,7 @@ public class ResourceMappingPanel extends Panel {
                         ? Collections.<AttributableType>singletonList(AttributableType.ROLE)
                         : Arrays.asList(AttributableType.values()));
                 entitiesPanel.setStyleSheet(DEF_FIELD_STYLE);
-                entitiesPanel.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+                entitiesPanel.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -369,7 +364,7 @@ public class ResourceMappingPanel extends Panel {
                 final AjaxCheckBoxPanel accountId = new AjaxCheckBoxPanel("accountId",
                         new ResourceModel("accountId", "accountId").getObject(),
                         new PropertyModel<Boolean>(mapItem, "accountid"));
-                accountId.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+                accountId.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -395,7 +390,7 @@ public class ResourceMappingPanel extends Panel {
                 final AjaxCheckBoxPanel password = new AjaxCheckBoxPanel("password",
                         new ResourceModel("password", "password").getObject(),
                         new PropertyModel<Boolean>(mapItem, "password"));
-                password.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+                password.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -423,7 +418,7 @@ public class ResourceMappingPanel extends Panel {
                 purpose.setChoices(Arrays.asList(MappingPurpose.values()));
                 purpose.setStyleSheet(FIELD_STYLE);
                 purpose.setRequired(true);
-                purpose.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+                purpose.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -434,7 +429,7 @@ public class ResourceMappingPanel extends Panel {
 
                 item.add(purpose);
 
-                intMappingTypes.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+                intMappingTypes.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -487,7 +482,7 @@ public class ResourceMappingPanel extends Panel {
         accountLink.setEnabled(accountLinkEnabled);
         accountLinkContainer.add(accountLink);
 
-        accountLinkCheckbox.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+        accountLinkCheckbox.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

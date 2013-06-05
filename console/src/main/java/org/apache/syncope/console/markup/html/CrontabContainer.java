@@ -19,7 +19,7 @@
 package org.apache.syncope.console.markup.html;
 
 import java.util.Arrays;
-import org.apache.syncope.common.SyncopeConstants;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
 import org.apache.syncope.console.commons.SelectOption;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -125,7 +125,7 @@ public class CrontabContainer extends WebMarkupContainer {
         daysOfWeek = new TextField("daysOfWeek", new Model(getCronField(cronExpression, 5)));
         add(daysOfWeek);
 
-        cronTemplateChooser.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+        cronTemplateChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

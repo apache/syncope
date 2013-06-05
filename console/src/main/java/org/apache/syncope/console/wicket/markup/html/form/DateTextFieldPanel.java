@@ -17,10 +17,10 @@
  * under the License.
  */
 package org.apache.syncope.console.wicket.markup.html.form;
-import org.apache.syncope.common.SyncopeConstants;
 
 
 import java.util.Date;
+import org.apache.syncope.console.commons.Constants;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -40,7 +40,7 @@ public class DateTextFieldPanel extends DateFieldPanel {
         field = DateTextField.forDatePattern("field", model, datePattern);
 
         if (!isReadOnly()) {
-            field.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+            field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 

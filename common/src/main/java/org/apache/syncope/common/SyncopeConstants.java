@@ -45,8 +45,4 @@ public class SyncopeConstants {
 
     public static final String DEFAULT_ENCODING = "UTF-8";
 
-    public static final String ON_CHANGE = "onchange";
-
-    public static final String ON_BLUR = "onblur";
-
 }
