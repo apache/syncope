@@ -33,7 +33,6 @@ import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.rest.ApprovalRestClient;
 import org.apache.syncope.console.rest.UserRequestRestClient;
-import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
@@ -67,9 +66,6 @@ public class Todo extends BasePage {
 
     @SpringBean
     private ApprovalRestClient approvalRestClient;
-
-    @SpringBean
-    private UserRestClient userRestClient;
 
     @SpringBean
     private UserRequestRestClient userRequestRestClient;

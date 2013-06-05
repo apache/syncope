@@ -30,7 +30,6 @@ import org.apache.syncope.console.rest.BaseRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -49,7 +48,6 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
     private static final long serialVersionUID = 4114026480146090962L;
 
     public BulkActionModalPage(
-            final PageReference pageRef,
             final ModalWindow window,
             final List<T> items,
             final List<IColumn<T, S>> columns,

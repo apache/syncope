@@ -36,7 +36,6 @@ import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.pages.panels.JQueryUITabbedPanel;
 import org.apache.syncope.console.rest.LoggerRestClient;
-import org.apache.syncope.console.rest.ReportRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -88,9 +87,6 @@ public class Reports extends BasePage {
     private static final int WIN_WIDTH = 700;
 
     @SpringBean
-    private ReportRestClient reportRestClient;
-
-    @SpringBean
     private LoggerRestClient loggerRestClient;
 
     @SpringBean
@@ -118,7 +114,7 @@ public class Reports extends BasePage {
         setupAudit();
     }
 
-    @SuppressWarnings({"rawtypes","unchecked"})
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private void setupReport() {
         reportContainer = new WebMarkupContainer("reportContainer");
         setWindowClosedCallback(window, reportContainer);
@@ -461,49 +457,49 @@ public class Reports extends BasePage {
             ListView<Enum<?>> categoryView =
                     new AltListView<Enum<?>>("categoryView", new ArrayList(category.getSubCategoryElements())) {
 
-                        private static final long serialVersionUID = 4949588177564901031L;
+                private static final long serialVersionUID = 4949588177564901031L;
 
-                        @Override
-                        protected void populateItem(final ListItem<Enum<?>> item) {
-                            final Enum<?> subcategory = item.getModelObject();
+                @Override
+                protected void populateItem(final ListItem<Enum<?>> item) {
+                    final Enum<?> subcategory = item.getModelObject();
 
-                            item.add(new Label("subcategory", subcategory.name()));
-                        }
-                    };
+                    item.add(new Label("subcategory", subcategory.name()));
+                }
+            };
             add(categoryView);
 
             ListView<Enum<?>> successView =
                     new AltListView<Enum<?>>("successView", new ArrayList(category.getSubCategoryElements())) {
 
-                        private static final long serialVersionUID = 4949588177564901031L;
+                private static final long serialVersionUID = 4949588177564901031L;
 
-                        @Override
-                        protected void populateItem(final ListItem<Enum<?>> item) {
-                            final Enum<?> subcategory = item.getModelObject();
+                @Override
+                protected void populateItem(final ListItem<Enum<?>> item) {
+                    final Enum<?> subcategory = item.getModelObject();
 
-                            final Check<AuditLoggerName> successCheck = new Check<AuditLoggerName>("successCheck",
-                                    new Model<AuditLoggerName>(
-                                    new AuditLoggerName(category, subcategory, Result.success)), successGroup);
-                            item.add(successCheck);
-                        }
-                    };
+                    final Check<AuditLoggerName> successCheck = new Check<AuditLoggerName>("successCheck",
+                            new Model<AuditLoggerName>(
+                            new AuditLoggerName(category, subcategory, Result.success)), successGroup);
+                    item.add(successCheck);
+                }
+            };
             successGroup.add(successView);
 
             ListView<Enum<?>> failureView =
                     new AltListView<Enum<?>>("failureView", new ArrayList(category.getSubCategoryElements())) {
 
-                        private static final long serialVersionUID = 4949588177564901031L;
+                private static final long serialVersionUID = 4949588177564901031L;
 
-                        @Override
-                        protected void populateItem(final ListItem<Enum<?>> item) {
-                            final Enum<?> subcategory = item.getModelObject();
+                @Override
+                protected void populateItem(final ListItem<Enum<?>> item) {
+                    final Enum<?> subcategory = item.getModelObject();
 
-                            final Check<AuditLoggerName> failureCheck = new Check<AuditLoggerName>("failureCheck",
-                                    new Model<AuditLoggerName>(
-                                    new AuditLoggerName(category, subcategory, Result.failure)), failureGroup);
-                            item.add(failureCheck);
-                        }
-                    };
+                    final Check<AuditLoggerName> failureCheck = new Check<AuditLoggerName>("failureCheck",
+                            new Model<AuditLoggerName>(
+                            new AuditLoggerName(category, subcategory, Result.failure)), failureGroup);
+                    item.add(failureCheck);
+                }
+            };
             failureGroup.add(failureView);
         }
     }

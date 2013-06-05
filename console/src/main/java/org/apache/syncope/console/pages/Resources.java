@@ -33,7 +33,6 @@ import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel;
 import org.apache.syncope.console.pages.panels.AjaxDataTablePanel;
 import org.apache.syncope.console.rest.ConnectorRestClient;
-import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
@@ -73,9 +72,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 public class Resources extends BasePage {
 
     private static final long serialVersionUID = -3789252860990261728L;
-
-    @SpringBean
-    private ResourceRestClient resourceRestClient;
 
     @SpringBean
     private ConnectorRestClient connectorRestClient;
