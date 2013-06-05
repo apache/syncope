@@ -46,13 +46,12 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class Tasks extends BasePage {
 
     private static final long serialVersionUID = 5289215853622289061L;
 
-    public Tasks(final PageParameters parameters) {
+    public Tasks() {
         super();
 
         add(new PropagationTasks("propagation", getPageReference()));

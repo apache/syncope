@@ -147,7 +147,6 @@ public class AjaxDataTablePanel<T, S> extends Panel {
                     @Override
                     public Page createPage() {
                         return new BulkActionModalPage<T, S>(
-                                getPage().getPageReference(),
                                 bulkModalWin,
                                 new ArrayList<T>(group.getModelObject()),
                                 columns,
