@@ -20,11 +20,11 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.Arrays;
 import java.util.List;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.TraceLevel;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.ResourceModalPage.ResourceEvent;
 import org.apache.syncope.console.rest.ConnectorRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -132,7 +132,7 @@ public class ResourceDetailsPanel extends Panel {
         final AjaxCheckBoxPanel resetToken = new AjaxCheckBoxPanel("resetToken", new ResourceModel("resetToken",
                 "resetToken").getObject(), new Model<Boolean>(null));
 
-        resetToken.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+        resetToken.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -187,7 +187,7 @@ public class ResourceDetailsPanel extends Panel {
         conn.addRequiredLabel();
         conn.setEnabled(createFlag);
 
-        conn.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+        conn.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

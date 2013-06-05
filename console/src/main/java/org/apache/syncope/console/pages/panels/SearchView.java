@@ -21,8 +21,8 @@ package org.apache.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.search.AttributeCond;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.SearchCondWrapper;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -98,7 +98,7 @@ public class SearchView extends ListView<SearchCondWrapper> {
         }
 
         final CheckBox notOperator = new CheckBox("notOperator", new PropertyModel(searchCondition, "notOperator"));
-        notOperator.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+        notOperator.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -110,7 +110,7 @@ public class SearchView extends ListView<SearchCondWrapper> {
 
         final DropDownChoice<AttributeCond.Type> type = new DropDownChoice<AttributeCond.Type>("type",
                 new PropertyModel<AttributeCond.Type>(searchCondition, "type"), attributeTypes);
-        type.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+        type.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -124,7 +124,7 @@ public class SearchView extends ListView<SearchCondWrapper> {
                 new PropertyModel<String>(searchCondition, "filterName"), (IModel) null);
         filterNameChooser.setOutputMarkupId(true);
         filterNameChooser.setRequired(required);
-        filterNameChooser.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+        filterNameChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -136,7 +136,7 @@ public class SearchView extends ListView<SearchCondWrapper> {
 
         final TextField<String> filterValue = new TextField<String>("filterValue", new PropertyModel<String>(
                 searchCondition, "filterValue"));
-        filterValue.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+        filterValue.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -150,7 +150,7 @@ public class SearchView extends ListView<SearchCondWrapper> {
                 new DropDownChoice<SearchCondWrapper.FilterType>("filterType",
                 new PropertyModel<SearchCondWrapper.FilterType>(searchCondition, "filterType"), filterTypes);
         filterTypeChooser.setOutputMarkupId(true);
-        filterTypeChooser.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+        filterTypeChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

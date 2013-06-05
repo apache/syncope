@@ -32,6 +32,7 @@ import org.apache.syncope.common.annotation.FormAttributeField;
 import org.apache.syncope.common.report.AbstractReportletConf;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -131,7 +132,7 @@ public class ReportletConfModalPage extends BaseModalPage {
         reportletClass.setChoices(reportRestClient.getReportletConfClasses());
         ((DropDownChoice) reportletClass.getField()).setNullValid(true);
         reportletClass.addRequiredLabel();
-        reportletClass.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+        reportletClass.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = 5538299138211283825L;
 

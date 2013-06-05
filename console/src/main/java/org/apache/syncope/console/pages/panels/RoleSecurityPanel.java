@@ -21,7 +21,7 @@ package org.apache.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.syncope.common.SyncopeConstants;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.PolicyTO;
 import org.apache.syncope.common.types.PolicyType;
@@ -114,7 +114,7 @@ public class RoleSecurityPanel extends Panel {
 
         passwordPolicy.setReadOnly(inhPasswordPolicy.getModelObject());
 
-        inhPasswordPolicy.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+        inhPasswordPolicy.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -146,7 +146,7 @@ public class RoleSecurityPanel extends Panel {
                 "inheritAccountPolicy", new PropertyModel<Boolean>(entityTO, "inheritAccountPolicy"));
         accountPolicy.setReadOnly(inhAccountPolicy.getModelObject());
 
-        inhAccountPolicy.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+        inhAccountPolicy.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -174,14 +174,18 @@ public class RoleSecurityPanel extends Panel {
 
         @Override
         public Object getDisplayValue(final Long object) {
+            Object displayValue;
             switch (type) {
                 case ACCOUNT:
-                    return accountPolicies.getObject().get(object);
+                    displayValue = accountPolicies.getObject().get(object);
+                    break;
                 case PASSWORD:
-                    return passwordPolicies.getObject().get(object);
+                    displayValue = passwordPolicies.getObject().get(object);
+                    break;
                 default:
-                    return "";
+                    displayValue = "";
             }
+            return displayValue;
         }
 
         @Override

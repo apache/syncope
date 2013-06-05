@@ -20,7 +20,6 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
@@ -235,7 +234,7 @@ public class PropagationTasks extends AbstractTasks {
         final DropDownChoice rowsChooser = new DropDownChoice(
                 "rowsChooser", new PropertyModel(this, "paginatorRows"), prefMan.getPaginatorChoices());
 
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

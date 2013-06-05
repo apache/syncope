@@ -20,7 +20,7 @@ package org.apache.syncope.console.wicket.markup.html.form;
 
 import java.io.Serializable;
 import java.util.List;
-import org.apache.syncope.common.SyncopeConstants;
+import org.apache.syncope.console.commons.Constants;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -68,7 +68,7 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
                 final FieldPanel fieldPanel = panelTemplate.clone();
 
                 if (eventTemplate) {
-                    fieldPanel.getField().add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+                    fieldPanel.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                         private static final long serialVersionUID = -1107858522700306810L;
 

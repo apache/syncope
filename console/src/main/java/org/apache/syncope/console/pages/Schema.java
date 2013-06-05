@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
@@ -308,7 +307,7 @@ public class Schema extends BasePage {
                 new PropertyModel<Integer>(schemaTypePanel, "pageRows"), prefMan.getPaginatorChoices(),
                 new SelectChoiceRenderer<Integer>());
 
-        rowChooser.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+        rowChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

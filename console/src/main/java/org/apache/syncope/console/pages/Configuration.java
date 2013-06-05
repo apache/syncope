@@ -360,7 +360,7 @@ public class Configuration extends BasePage {
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
                 "confPaginatorRows"), prefMan.getPaginatorChoices());
 
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -505,7 +505,7 @@ public class Configuration extends BasePage {
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
                 "notificationPaginatorRows"), prefMan.getPaginatorChoices());
 
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -643,7 +643,7 @@ public class Configuration extends BasePage {
             });
             level.setChoices(Arrays.asList(SyncopeLoggerLevel.values()));
             level.setOutputMarkupId(true);
-            level.add(new AjaxFormComponentUpdatingBehavior(SyncopeConstants.ON_CHANGE) {
+            level.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
