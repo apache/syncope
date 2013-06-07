@@ -32,7 +32,7 @@ public class StaticReportlet extends AbstractReportlet<StaticReportletConf> {
 
         if (StringUtils.hasText(conf.getStringField())) {
             handler.startElement("", "", "string", null);
-            handler.characters(conf.getStringField().toCharArray(), 0, conf.getStringField().length() - 1);
+            handler.characters(conf.getStringField().toCharArray(), 0, conf.getStringField().length());
             handler.endElement("", "", "string");
         }
 
