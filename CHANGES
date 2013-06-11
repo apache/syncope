@@ -2,6 +2,29 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.1.2
+================================================================================
+** Bug
+    * [SYNCOPE-369] - Wrong error message on failed login
+    * [SYNCOPE-371] - Console RuntimeException with multiple sessions for the same user
+    * [SYNCOPE-372] - Connector error before save
+    * [SYNCOPE-373] - 500 when self reading admin user
+    * [SYNCOPE-375] - QUARTZ tables are not written into an innodb mysql DB for an mvn generated and created project
+    * [SYNCOPE-376] - Console webapp does not start on Glassfish
+    * [SYNCOPE-377] - Exporting configuration via console causes exceptions to be thrown
+    * [SYNCOPE-380] - Deleting a role from admin console throws an exception
+    * [SYNCOPE-381] - Adding and saving roles with resources during save
+    * [SYNCOPE-382] - Core hangs for a very long time (1h+ and then resumes) after a CLI role create and list
+    * [SYNCOPE-383] - Failure assigning resource to an existing user
+    * [SYNCOPE-384] - Issues with CXF and Glassfish
+    * [SYNCOPE-385] - NPE when reading user assigned to resource with no mapping
+    * [SYNCOPE-386] - Database sync (no full reconciliation) fails with "Unsupported object class"
+    * [SYNCOPE-387] - Unable to synchronize deleted objects from OpenDJ
+
+** Improvement
+    * [SYNCOPE-374] - SyncopeUser tokens do not use secure random strings
+    * [SYNCOPE-390] - Default Reportlets improvements
+
 Release Notes - Syncope - Version 1.1.1
 ================================================================================
 ** Bug
