@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>1.1.2-SNAPSHOT</version>
+    <version>1.1.2</version>
   </parent>
 
   <name>Apache Syncope Console</name>
