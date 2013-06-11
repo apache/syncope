@@ -19,8 +19,16 @@
 package org.apache.syncope.common.mod;
 
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 
+@XmlRootElement(name = "roleMod")
+@XmlType
 public class RoleMod extends AbstractAttributableMod {
 
     private static final long serialVersionUID = 7455805264680210747L;
@@ -105,6 +113,8 @@ public class RoleMod extends AbstractAttributableMod {
         this.inheritVirtualAttributes = inheritVirtualAttributes;
     }
 
+    @XmlElement(name = "entitlement")
+    @XmlElementWrapper(name = "entitlements")
     public List<String> getEntitlements() {
         return entitlements;
     }
