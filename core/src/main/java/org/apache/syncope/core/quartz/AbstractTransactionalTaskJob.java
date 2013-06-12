@@ -22,6 +22,9 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Abstract job implementation for transactional execution.
+ */
 public abstract class AbstractTransactionalTaskJob extends AbstractTaskJob {
 
     @Transactional
