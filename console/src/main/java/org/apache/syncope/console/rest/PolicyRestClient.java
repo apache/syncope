@@ -97,14 +97,16 @@ public class PolicyRestClient extends BaseRestClient {
     }
 
     private PolicyType getPolicyType(final Class<? extends PolicyTO> clazz) {
+        PolicyType policyType;
         if (AccountPolicyTO.class.equals(clazz)) {
-            return PolicyType.ACCOUNT;
+            policyType = PolicyType.ACCOUNT;
         } else if (PasswordPolicyTO.class.equals(clazz)) {
-            return PolicyType.PASSWORD;
+            policyType = PolicyType.PASSWORD;
         } else if (SyncPolicyTO.class.equals(clazz)) {
-            return PolicyType.SYNC;
+            policyType = PolicyType.SYNC;
         } else {
             throw new IllegalArgumentException("Policy Type not supported");
         }
+        return policyType;
     }
 }

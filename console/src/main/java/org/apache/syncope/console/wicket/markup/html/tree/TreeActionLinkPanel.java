@@ -36,7 +36,6 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
@@ -54,7 +53,7 @@ public class TreeActionLinkPanel extends Panel {
 
     private Fragment fragment;
 
-    public TreeActionLinkPanel(final String id, final long idRole, final IModel inputModel, final ModalWindow window,
+    public TreeActionLinkPanel(final String id, final long idRole, final ModalWindow window,
             final PageReference pageRef) {
 
         super(id);

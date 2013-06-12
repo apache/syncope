@@ -37,9 +37,9 @@ public class DefaultMutableTreeNodeExpansion implements Set<DefaultMutableTreeNo
     private static MetaDataKey<DefaultMutableTreeNodeExpansion> KEY =
             new MetaDataKey<DefaultMutableTreeNodeExpansion>() {
 
-                private static final long serialVersionUID = 3109256773218160485L;
+        private static final long serialVersionUID = 3109256773218160485L;
 
-            };
+    };
 
     private Set<Long> ids = new HashSet<Long>();
 
@@ -60,33 +60,39 @@ public class DefaultMutableTreeNodeExpansion implements Set<DefaultMutableTreeNo
     @Override
     public boolean add(final DefaultMutableTreeNode node) {
         RoleTO roleTO = (RoleTO) node.getUserObject();
+        boolean isAdded;
         if (inverse) {
-            return ids.remove(roleTO.getId());
+            isAdded = ids.remove(roleTO.getId());
         } else {
-            return ids.add(roleTO.getId());
+            isAdded = ids.add(roleTO.getId());
         }
+        return isAdded;
     }
 
     @Override
     public boolean remove(final Object object) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) object;
         RoleTO roleTO = (RoleTO) node.getUserObject();
+        boolean isRemoved;
         if (inverse) {
-            return ids.add(roleTO.getId());
+            isRemoved = ids.add(roleTO.getId());
         } else {
-            return ids.remove(roleTO.getId());
+            isRemoved = ids.remove(roleTO.getId());
         }
+        return isRemoved;
     }
 
     @Override
     public boolean contains(final Object object) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) object;
         RoleTO roleTO = (RoleTO) node.getUserObject();
+        boolean isContained;
         if (inverse) {
-            return !ids.contains(roleTO.getId());
+            isContained = !ids.contains(roleTO.getId());
         } else {
-            return ids.contains(roleTO.getId());
+            isContained = ids.contains(roleTO.getId());
         }
+        return isContained;
     }
 
     @Override

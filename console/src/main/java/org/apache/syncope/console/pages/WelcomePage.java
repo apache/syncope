@@ -36,7 +36,13 @@ public class WelcomePage extends WebPage {
 
     public WelcomePage(final PageParameters parameters) {
         super(parameters);
+        setupNavigationPanel();
 
+
+    }
+
+    //To prevent warning: "leaking this in constructor java" 
+    private void setupNavigationPanel() {
         ((SyncopeApplication) getApplication()).setupNavigationPanel(this, xmlRolesReader, false);
     }
 }
