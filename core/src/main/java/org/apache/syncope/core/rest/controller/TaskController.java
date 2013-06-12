@@ -229,7 +229,7 @@ public class TaskController extends AbstractController {
     @PreAuthorize("hasRole('TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/jobClasses")
     public ModelAndView getJobClasses() {
-        Set<String> jobClasses = classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.JOB);
+        Set<String> jobClasses = classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.TASKJOB);
 
         auditManager.audit(Category.task, TaskSubCategory.getJobClasses, Result.success,
                 "Successfully listed all Job classes: " + jobClasses.size());

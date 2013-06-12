@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.init;
 
+import static org.apache.syncope.core.init.JobInstanceLoader.getJobName;
+import static org.apache.syncope.core.init.JobInstanceLoader.getTriggerName;
+
 import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,7 +35,7 @@ import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.ReportDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
-import org.apache.syncope.core.quartz.AbstractTaskJob;
+import org.apache.syncope.core.quartz.TaskJob;
 import org.apache.syncope.core.report.ReportJob;
 import org.apache.syncope.core.sync.DefaultSyncActions;
 import org.apache.syncope.core.sync.SyncActions;
@@ -157,15 +160,15 @@ public class JobInstanceLoader {
     public void registerJob(final Task task, final String jobClassName, final String cronExpression)
             throws ClassNotFoundException, SchedulerException, ParseException {
 
-        Class jobClass = Class.forName(jobClassName);
+        Class<?> jobClass = Class.forName(jobClassName);
         Job jobInstance = (Job) ApplicationContextProvider.getBeanFactory().
                 createBean(jobClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-        if (jobInstance instanceof AbstractTaskJob) {
-            ((AbstractTaskJob) jobInstance).setTaskId(task.getId());
+        if (jobInstance instanceof TaskJob) {
+            ((TaskJob) jobInstance).setTaskId(task.getId());
         }
         if (jobInstance instanceof SyncJob && task instanceof SyncTask) {
             String jobActionsClassName = ((SyncTask) task).getActionsClassName();
-            Class syncActionsClass = DefaultSyncActions.class;
+            Class<?> syncActionsClass = DefaultSyncActions.class;
             if (StringUtils.isNotBlank(jobActionsClassName)) {
                 try {
                     syncActionsClass = Class.forName(jobActionsClassName);
