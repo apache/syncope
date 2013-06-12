@@ -18,35 +18,15 @@
  */
 package org.apache.syncope.core.quartz;
 
-import org.apache.syncope.core.persistence.beans.SchedTask;
-import org.apache.syncope.core.persistence.beans.TaskExec;
+import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Sample implementation for execution a scheduled task.
- *
- * @see SchedTask
- */
-public class SampleJob extends AbstractTaskJob {
+public abstract class AbstractTransactionalTaskJob extends AbstractTaskJob {
 
+    @Transactional
     @Override
-    protected String doExecute(final boolean dryRun) throws JobExecutionException {
-        if (!(task instanceof SchedTask)) {
-            throw new JobExecutionException("Task " + taskId + " isn't a SchedTask");
-        }
-        final SchedTask schedTask = (SchedTask) this.task;
-
-        LOG.info("SampleJob {}running [SchedTask {}]", (dryRun
-                ? "dry "
-                : ""), schedTask.getId());
-
-        return (dryRun
-                ? "DRY "
-                : "") + "RUNNING";
-    }
-
-    @Override
-    protected boolean hasToBeRegistered(final TaskExec execution) {
-        return true;
+    public void execute(final JobExecutionContext context) throws JobExecutionException {
+        super.execute(context);
     }
 }

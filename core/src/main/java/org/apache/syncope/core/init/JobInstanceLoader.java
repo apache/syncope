@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.core.init;
 
+import static org.apache.syncope.core.init.JobInstanceLoader.getJobName;
+import static org.apache.syncope.core.init.JobInstanceLoader.getTriggerName;
+
+import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,6 +37,7 @@ import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.ReportDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.quartz.AbstractTaskJob;
+import org.apache.syncope.core.quartz.TaskJob;
 import org.apache.syncope.core.report.ReportJob;
 import org.apache.syncope.core.sync.DefaultSyncActions;
 import org.apache.syncope.core.sync.SyncActions;
@@ -155,14 +160,24 @@ public class JobInstanceLoader {
     }
 
     public void registerJob(final Task task, final String jobClassName, final String cronExpression)
-            throws ClassNotFoundException, SchedulerException, ParseException {
+            throws ClassNotFoundException, SchedulerException, IllegalArgumentException, InvocationTargetException, IllegalAccessException, ParseException, NoSuchMethodException {
 
         Class jobClass = Class.forName(jobClassName);
-        Job jobInstance = (Job) ApplicationContextProvider.getBeanFactory().
+        TaskJob jobInstance = (TaskJob) ApplicationContextProvider.getBeanFactory().
                 createBean(jobClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-        if (jobInstance instanceof AbstractTaskJob) {
-            ((AbstractTaskJob) jobInstance).setTaskId(task.getId());
-        }
+        
+        LOG.info("XXXXXXXXXXXXXXXXx {} {} {}", jobClassName, jobInstance.getClass().getName(), task.getId());
+        
+//        if (AbstractTaskJob.class.isAssignableFrom(jobClass)) {
+            LOG.info("QQQQQQQQ DENTRO");
+//            MethodInvoker invoker = new MethodInvoker();
+//invoker.setTargetMethod("setTaskId");
+//invoker.setTargetObject(jobInstance);
+//invoker.setArguments(new Object[]{task.getId()});
+//invoker.prepare();
+//invoker.invoke();
+            jobInstance.setTaskId(task.getId());
+//        }
         if (jobInstance instanceof SyncJob && task instanceof SyncTask) {
             String jobActionsClassName = ((SyncTask) task).getActionsClassName();
             Class syncActionsClass = DefaultSyncActions.class;

@@ -25,15 +25,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.syncope.core.notification.NotificationJob;
 import org.apache.syncope.core.persistence.validation.attrvalue.Validator;
 import org.apache.syncope.core.propagation.PropagationActions;
-import org.apache.syncope.core.report.ReportJob;
+import org.apache.syncope.core.quartz.TaskJob;
 import org.apache.syncope.core.report.Reportlet;
 import org.apache.syncope.core.sync.SyncActions;
 import org.apache.syncope.core.sync.SyncCorrelationRule;
 import org.apache.syncope.core.sync.impl.SyncJob;
-import org.quartz.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +51,7 @@ public class ImplementationClassNamesLoader {
     public enum Type {
 
         REPORTLET,
-        JOB,
+        TASKJOB,
         SYNC_ACTIONS,
         SYNC_CORRELATION_RULES,
         PROPAGATION_ACTIONS,
@@ -91,12 +89,10 @@ public class ImplementationClassNamesLoader {
                         classNames.get(Type.REPORTLET).add(clazz.getName());
                     }
 
-                    if ((interfaces.contains(Job.class))
-                            && !metadata.isAbstract() && !SyncJob.class.getName().equals(metadata.getClassName())
-                            && !ReportJob.class.getName().equals(metadata.getClassName())
-                            && !NotificationJob.class.getName().equals(metadata.getClassName())) {
+                    if ((interfaces.contains(TaskJob.class))
+                            && !metadata.isAbstract() && !SyncJob.class.getName().equals(metadata.getClassName())) {
 
-                        classNames.get(Type.JOB).add(metadata.getClassName());
+                        classNames.get(Type.TASKJOB).add(metadata.getClassName());
                     }
 
                     if (interfaces.contains(SyncActions.class) && !metadata.isAbstract()) {
