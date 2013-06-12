@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
+import static org.apache.wicket.Component.RENDER;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -417,17 +418,11 @@ public class Reports extends BasePage {
                 }
             });
             add(successGroup);
-            MetaDataRoleAuthorizationStrategy.authorize(successGroup, RENDER,
-                    xmlRolesReader.getAllAllowedRoles("Audit", "enable"));
-            MetaDataRoleAuthorizationStrategy.authorize(successGroup, RENDER,
-                    xmlRolesReader.getAllAllowedRoles("Audit", "disable"));
+            authorizeComponent(successGroup);
 
             final CheckGroupSelector successSelector = new CheckGroupSelector("successSelector", successGroup);
             add(successSelector);
-            MetaDataRoleAuthorizationStrategy.authorize(successSelector, RENDER,
-                    xmlRolesReader.getAllAllowedRoles("Audit", "enable"));
-            MetaDataRoleAuthorizationStrategy.authorize(successSelector, RENDER,
-                    xmlRolesReader.getAllAllowedRoles("Audit", "disable"));
+            authorizeComponent(successSelector);
 
             final CheckGroup<AuditLoggerName> failureGroup = new CheckGroup<AuditLoggerName>("failureGroup",
                     new AuditsByCategoryModel(category, Result.failure));
@@ -441,17 +436,11 @@ public class Reports extends BasePage {
                 }
             });
             add(failureGroup);
-            MetaDataRoleAuthorizationStrategy.authorize(failureGroup, RENDER,
-                    xmlRolesReader.getAllAllowedRoles("Audit", "enable"));
-            MetaDataRoleAuthorizationStrategy.authorize(failureGroup, RENDER,
-                    xmlRolesReader.getAllAllowedRoles("Audit", "disable"));
+            authorizeComponent(failureGroup);
 
             final CheckGroupSelector failureSelector = new CheckGroupSelector("failureSelector", failureGroup);
             add(failureSelector);
-            MetaDataRoleAuthorizationStrategy.authorize(failureSelector, RENDER,
-                    xmlRolesReader.getAllAllowedRoles("Audit", "enable"));
-            MetaDataRoleAuthorizationStrategy.authorize(failureSelector, RENDER,
-                    xmlRolesReader.getAllAllowedRoles("Audit", "disable"));
+            authorizeComponent(failureSelector);
 
             ListView<Enum<?>> categoryView =
                     new AltListView<Enum<?>>("categoryView", new ArrayList(category.getSubCategoryElements())) {
@@ -501,5 +490,12 @@ public class Reports extends BasePage {
             };
             failureGroup.add(failureView);
         }
+    }
+
+    private void authorizeComponent(final Component component) {
+        MetaDataRoleAuthorizationStrategy.authorize(component, RENDER,
+                xmlRolesReader.getAllAllowedRoles("Audit", "enable"));
+        MetaDataRoleAuthorizationStrategy.authorize(component, RENDER,
+                xmlRolesReader.getAllAllowedRoles("Audit", "disable"));
     }
 }

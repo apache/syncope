@@ -31,7 +31,7 @@ public class MetaHeaderItem extends HeaderItem implements Serializable {
 
     private final String value;
 
-    public MetaHeaderItem(String key, String value) {
+    public MetaHeaderItem(final String key, final String value) {
         this.key = key;
         this.value = value;
     }

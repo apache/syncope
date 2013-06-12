@@ -50,8 +50,7 @@ public class RoleTabPanel extends Panel {
 
         final Form form = new Form("roleForm");
 
-        final TreeActionLinkPanel actionLink = new TreeActionLinkPanel("actionLink", roleTO.getId(),
-                new CompoundPropertyModel(roleTO), window, pageRef);
+        final TreeActionLinkPanel actionLink = new TreeActionLinkPanel("actionLink", roleTO.getId(), window, pageRef);
 
         this.add(actionLink);
         this.add(new Label("displayName", roleTO.getDisplayName()));

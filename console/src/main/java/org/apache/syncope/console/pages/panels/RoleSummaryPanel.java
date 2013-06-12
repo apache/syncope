@@ -27,7 +27,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,7 +107,7 @@ public class RoleSummaryPanel extends Panel {
 
         if (builder.selectedNodeId != null) {
             if (builder.selectedNodeId == 0) {
-                actionLink = new TreeActionLinkPanel("actionLink", builder.selectedNodeId, new Model(),
+                actionLink = new TreeActionLinkPanel("actionLink", builder.selectedNodeId,
                         builder.window, builder.callerPageRef);
                 actionLink.setOutputMarkupId(true);
                 fragment.add(actionLink);
