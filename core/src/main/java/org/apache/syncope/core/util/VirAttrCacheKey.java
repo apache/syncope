@@ -64,16 +64,16 @@ public class VirAttrCacheKey {
 
     @Override
     public boolean equals(final Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
+        return EqualsBuilder.reflectionEquals(this, obj, true);
     }
 
     @Override
     public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+        return HashCodeBuilder.reflectionHashCode(this, true);
     }
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
+        return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE, true);
     }
 }

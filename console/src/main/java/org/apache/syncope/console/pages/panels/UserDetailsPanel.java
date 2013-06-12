@@ -55,7 +55,7 @@ public class UserDetailsPanel extends Panel {
         final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("usernameJexlHelp");
         add(jexlHelp);
 
-        final AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "usernameQuestionMarkJexlHelp");
+        final AjaxLink<?> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "usernameQuestionMarkJexlHelp");
         add(questionMarkJexlHelp);
 
         if (!templateMode) {
@@ -75,7 +75,7 @@ public class UserDetailsPanel extends Panel {
         final WebMarkupContainer pwdJexlHelp = JexlHelpUtil.getJexlHelpWebContainer("pwdJexlHelp");
         add(pwdJexlHelp);
 
-        final AjaxLink pwdQuestionMarkJexlHelp = JexlHelpUtil.getAjaxLink(pwdJexlHelp, "pwdQuestionMarkJexlHelp");
+        final AjaxLink<?> pwdQuestionMarkJexlHelp = JexlHelpUtil.getAjaxLink(pwdJexlHelp, "pwdQuestionMarkJexlHelp");
         add(pwdQuestionMarkJexlHelp);
 
         if (templateMode) {
