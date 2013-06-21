@@ -20,7 +20,6 @@ package org.apache.syncope.console.wicket.markup.html.form;
 
 import java.util.Calendar;
 import java.util.Date;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
