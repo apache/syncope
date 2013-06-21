@@ -25,7 +25,7 @@ public class InvalidPolicyType extends RuntimeException {
     public InvalidPolicyType() {
     }
 
-    public InvalidPolicyType(String msg) {
+    public InvalidPolicyType(final String msg) {
         super(msg);
     }
 }
