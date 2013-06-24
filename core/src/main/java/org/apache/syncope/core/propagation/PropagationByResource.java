@@ -196,8 +196,8 @@ public class PropagationByResource implements Serializable {
      */
     public boolean removeAll(final Collection<String> resourceNames) {
         return toBeCreated.removeAll(resourceNames)
-                || toBeUpdated.removeAll(resourceNames)
-                || toBeDeleted.removeAll(resourceNames);
+                | toBeUpdated.removeAll(resourceNames)
+                | toBeDeleted.removeAll(resourceNames);
     }
 
     /**
@@ -210,8 +210,8 @@ public class PropagationByResource implements Serializable {
      */
     public boolean retainAll(final Collection<String> resourceNames) {
         return toBeCreated.retainAll(resourceNames)
-                || toBeUpdated.retainAll(resourceNames)
-                || toBeDeleted.retainAll(resourceNames);
+                | toBeUpdated.retainAll(resourceNames)
+                | toBeDeleted.retainAll(resourceNames);
     }
 
     public boolean contains(final ResourceOperation type, final String resourceName) {
