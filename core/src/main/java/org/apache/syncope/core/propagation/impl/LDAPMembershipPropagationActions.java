@@ -35,6 +35,7 @@ import org.apache.syncope.core.propagation.DefaultPropagationActions;
 import org.apache.syncope.core.util.JexlUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +97,17 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
                 LOG.debug("Role accountLinks to propagate for membership: {}", roleAccountLinks);
 
                 Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
-                attributes.add(AttributeBuilder.build(getGroupMembershipAttrName(), roleAccountLinks));
+
+                Set<String> groups = new HashSet<String>(roleAccountLinks);
+                Attribute ldapGroups = AttributeUtil.find("ldapGroups", attributes);
+
+                if (ldapGroups != null) {
+                    for (Object obj : ldapGroups.getValue()) {
+                        groups.add(obj.toString());
+                    }
+                }
+
+                attributes.add(AttributeBuilder.build(getGroupMembershipAttrName(), groups));
                 task.setAttributes(attributes);
             }
         } else {
