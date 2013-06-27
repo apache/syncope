@@ -19,6 +19,8 @@
 package org.apache.syncope.core.rest;
 
 import static org.apache.syncope.core.rest.AbstractTest.ADMIN_PWD;
+import static org.apache.syncope.core.rest.AbstractTest.attributeMod;
+import static org.apache.syncope.core.rest.AbstractTest.attributeTO;
 import static org.apache.syncope.core.rest.AbstractTest.getUUIDString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -50,6 +52,7 @@ import org.apache.syncope.common.to.BulkActionRes.Status;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.MappingItemTO;
+import org.apache.syncope.common.to.MappingTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PolicyTO;
@@ -63,6 +66,8 @@ import org.apache.syncope.common.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.CipherAlgorithm;
+import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
@@ -91,6 +96,8 @@ public class UserTestITCase extends AbstractTest {
     private static final String RESOURCE_NAME_LDAP = "resource-ldap";
 
     private static final String RESOURCE_NAME_TESTDB = "resource-testdb";
+
+    private static final String RESOURCE_NAME_CSV = "resource-csv";
 
     private ConnObjectTO readConnectorObject(final String resourceName, final Long userId) {
         return resourceService.getConnectorObject(resourceName, AttributableType.USER, userId);
@@ -288,7 +295,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void testEnforceMandatoryConditionOnDerived() {
-        ResourceTO resourceTO = resourceService.read("resource-csv");
+        ResourceTO resourceTO = resourceService.read(RESOURCE_NAME_CSV);
         assertNotNull(resourceTO);
         resourceTO.setName("resource-csv-enforcing");
         resourceTO.setEnforceMandatoryCondition(true);
@@ -1327,7 +1334,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.getResources().clear();
         userTO.getMemberships().clear();
         userTO.getDerivedAttributes().clear();
-        userTO.addResource("resource-csv");
+        userTO.addResource(RESOURCE_NAME_CSV);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -1341,7 +1348,7 @@ public class UserTestITCase extends AbstractTest {
         final String resource = propagations.get(0).getResource();
 
         assertNotNull(status);
-        assertEquals("resource-csv", resource);
+        assertEquals(RESOURCE_NAME_CSV, resource);
         assertFalse(status.isSuccessful());
     }
 
@@ -1373,13 +1380,13 @@ public class UserTestITCase extends AbstractTest {
 
         userTO.addMembership(membershipTO);
 
-        userTO.addResource("resource-csv");
+        userTO.addResource(RESOURCE_NAME_CSV);
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
         assertNotNull(actual.getDerivedAttributeMap().get("csvuserid"));
 
-        ConnObjectTO connObjectTO = readConnectorObject("resource-csv", actual.getId());
+        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
         assertNotNull(connObjectTO);
         assertEquals("sx-dx", connObjectTO.getAttributeMap().get("ROLE").getValues().get(0));
     }
@@ -1400,13 +1407,13 @@ public class UserTestITCase extends AbstractTest {
         membershipTO.addDerivedAttribute(attributeTO("mderToBePropagated", null));
         userTO.addMembership(membershipTO);
 
-        userTO.addResource("resource-csv");
+        userTO.addResource(RESOURCE_NAME_CSV);
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
         assertNotNull(actual.getDerivedAttributeMap().get("csvuserid"));
 
-        ConnObjectTO connObjectTO = readConnectorObject("resource-csv", actual.getId());
+        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
         assertNotNull(connObjectTO);
         assertEquals("sx-dx", connObjectTO.getAttributeMap().get("MEMBERSHIP").getValues().get(0));
     }
@@ -1462,14 +1469,14 @@ public class UserTestITCase extends AbstractTest {
 
         userTO.addMembership(memb13);
 
-        userTO.addResource("resource-csv");
+        userTO.addResource(RESOURCE_NAME_CSV);
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
         assertEquals(2, actual.getMemberships().size());
         assertEquals(1, actual.getResources().size());
 
-        ConnObjectTO connObjectTO = readConnectorObject("resource-csv", actual.getId());
+        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
         assertNotNull(connObjectTO);
 
         // -----------------------------------
@@ -1484,7 +1491,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals(1, actual.getMemberships().size());
 
-        connObjectTO = readConnectorObject("resource-csv", actual.getId());
+        connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1501,7 +1508,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, actual.getMemberships().size());
         assertFalse(actual.getResources().isEmpty());
 
-        connObjectTO = readConnectorObject("resource-csv", actual.getId());
+        connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1519,7 +1526,7 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            readConnectorObject("resource-csv", actual.getId());
+            readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
             fail("Read should not succeeed");
         } catch (SyncopeClientCompositeErrorException e) {
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
@@ -2033,12 +2040,12 @@ public class UserTestITCase extends AbstractTest {
         userTO.addDerivedAttribute(csvuserid);
 
         userTO.getResources().clear();
-        userTO.addResource("resource-csv");
+        userTO.addResource(RESOURCE_NAME_CSV);
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
 
-        final ConnObjectTO connObjectTO = readConnectorObject("resource-csv", actual.getId());
+        final ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
         assertNull(connObjectTO.getAttributeMap().get("email"));
     }
 
@@ -2224,6 +2231,78 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.update(userMod.getId(), userMod);
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
         assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+    }
+
+    @Test
+    public void issueSYNCOPE397() {
+        ResourceTO csv = resourceService.read(RESOURCE_NAME_CSV);
+        // change mapping of resource-csv
+        MappingTO mappingTO = csv.getUmapping();
+
+        for (MappingItemTO item : csv.getUmapping().getItems()) {
+            if ("email".equals(item.getIntAttrName())) {
+                // unset internal attribute mail and set virtual attribute virtualdata as mapped to external email
+                item.setIntMappingType(IntMappingType.UserVirtualSchema);
+                item.setIntAttrName("virtualdata");
+                item.setPurpose(MappingPurpose.BOTH);
+                item.setExtAttrName("email");
+            }
+        }
+
+        resourceService.update(csv.getName(), csv);
+        csv = resourceService.read(RESOURCE_NAME_CSV);
+        assertNotNull(csv.getUmapping());
+
+        boolean found = false;
+        for (MappingItemTO item : csv.getUmapping().getItems()) {
+            if ("email".equals(item.getExtAttrName()) && "virtualdata".equals(item.getIntAttrName())) {
+                found = true;
+            }
+        }
+
+        assertTrue(found);
+
+        // create a new user
+        UserTO userTO = getUniqueSampleTO("syncope397@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getDerivedAttributes().clear();
+        userTO.getVirtualAttributes().clear();
+
+        userTO.addDerivedAttribute(attributeTO("csvuserid", null));
+        userTO.addDerivedAttribute(attributeTO("cn", null));
+        userTO.addVirtualAttribute(attributeTO("virtualdata", "test@testone.org"));
+        // assign resource-csv to user
+        userTO.addResource(RESOURCE_NAME_CSV);
+        // save user
+        UserTO created = createUser(userTO);
+        // make std controls about user
+        assertNotNull(created);
+        assertTrue(RESOURCE_NAME_CSV.equals(created.getResources().iterator().next()));
+        // update user
+        UserTO toBeUpdated = userService.read(created.getId());
+        UserMod userMod = new UserMod();
+        userMod.setId(toBeUpdated.getId());
+        userMod.setPassword("password2");
+        // assign new resource to user
+        userMod.addResourceToBeAdded("ws-target-resource-2");
+        //modify virtual attribute
+        userMod.addVirtualAttributeToBeRemoved("virtualdata");
+        userMod.addVirtualAttributeToBeUpdated(attributeMod("virtualdata", "test@testoneone.com"));
+        // check Syncope change password
+
+        PropagationRequestTO pwdPropRequest = new PropagationRequestTO();
+        //change pwd on Syncope
+        pwdPropRequest.addResource("ws-target-resource-2");
+        //change pwd on Syncope
+        pwdPropRequest.setOnSyncope(true);
+        userMod.setPwdPropRequest(pwdPropRequest);
+        toBeUpdated = userService.update(userMod.getId(), userMod);
+        assertNotNull(toBeUpdated);
+        assertEquals("test@testoneone.com", toBeUpdated.getVirtualAttributes().get(0).getValues().get(0));
+        // check if propagates correctly with assertEquals on size of tasks list
+
+        assertEquals(2, toBeUpdated.getPropagationStatusTOs().size());
     }
 
     private boolean getBooleanAttribute(ConnObjectTO connObjectTO, String attrName) {

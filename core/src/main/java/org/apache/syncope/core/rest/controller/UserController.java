@@ -348,8 +348,15 @@ public class UserController {
             updated.setPropByRes(pwdPropByRes);
 
             if (!pwdPropByRes.isEmpty()) {
-                tasks.addAll(propagationManager.getUserUpdateTaskIds(updated, changedPwd,
-                        userMod.getVirtualAttributesToBeRemoved(), userMod.getVirtualAttributesToBeUpdated()));
+                Set<String> toBeExcluded = new HashSet<String>(user.getResourceNames());
+                toBeExcluded.addAll(userMod.getResourcesToBeAdded());
+                toBeExcluded.removeAll(pwdResourceNames);
+                tasks.addAll(propagationManager.getUserUpdateTaskIds(
+                        updated,
+                        changedPwd,
+                        userMod.getVirtualAttributesToBeRemoved(), 
+                        userMod.getVirtualAttributesToBeUpdated(), 
+                        toBeExcluded));
             }
 
             final PropagationByResource nonPwdPropByRes = new PropagationByResource();
@@ -359,8 +366,12 @@ public class UserController {
             updated.setPropByRes(nonPwdPropByRes);
 
             if (!nonPwdPropByRes.isEmpty()) {
-                tasks.addAll(propagationManager.getUserUpdateTaskIds(updated, null,
-                        userMod.getVirtualAttributesToBeRemoved(), userMod.getVirtualAttributesToBeUpdated()));
+                tasks.addAll(propagationManager.getUserUpdateTaskIds(
+                        updated, 
+                        null,
+                        userMod.getVirtualAttributesToBeRemoved(), 
+                        userMod.getVirtualAttributesToBeUpdated(), 
+                        pwdResourceNames));
             }
 
             updated.setPropByRes(origPropByRes);

@@ -95,7 +95,7 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//div[@id='propagation']/span\");", "30000");
 
-        selenium.click("//div[6]/form/div/div[2]/div/div/div/div/a");
+        selenium.click("//*[@id=\"users-contain\"]/a");
 
         selenium.waitForCondition("selenium.isTextPresent(" + "\"Operation executed successfully\");", "30000");
     }
