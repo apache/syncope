@@ -33,6 +33,7 @@ under the License.
 
   <properties>
     <syncope.version></syncope.version>
+    <secretKey>${secretKey}</secretKey>
   </properties>
 
   <name>Apache Syncope sample project</name>
