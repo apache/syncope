@@ -30,6 +30,7 @@ import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.AttributeMod;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.connid.PasswordGenerator;
@@ -229,7 +230,8 @@ public final class MappingUtil {
             result = new AbstractMap.SimpleEntry<String, Attribute>(null,
                     AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
         } else {
-            if (schema != null && schema.isMultivalue()) {
+            if ((schema != null && schema.isMultivalue()) || AttributableUtil.getInstance(subject).getType()
+                    != mapItem.getIntMappingType().getAttributableType()) {
                 result = new AbstractMap.SimpleEntry<String, Attribute>(null, AttributeBuilder.build(extAttrName,
                         objValues));
             } else {
