@@ -727,7 +727,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
                 LOG.error("Could not update {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
             }
-            results.add(result);
+            updResults.add(result);
 
             LOG.debug("{} {} successfully updated", attrUtil.getType(), id);
         }
