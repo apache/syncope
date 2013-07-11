@@ -87,7 +87,7 @@ public class UserReportletConf extends AbstractReportletConf {
         return attrs;
     }
 
-    public void setAttrs(List<String> attrs) {
+    public void setAttrs(final List<String> attrs) {
         this.attrs = attrs;
     }
 
@@ -97,7 +97,7 @@ public class UserReportletConf extends AbstractReportletConf {
         return derAttrs;
     }
 
-    public void setDerAttrs(List<String> derAttrs) {
+    public void setDerAttrs(final List<String> derAttrs) {
         this.derAttrs = derAttrs;
     }
 
@@ -107,7 +107,7 @@ public class UserReportletConf extends AbstractReportletConf {
         return features;
     }
 
-    public void setFeatures(List<Feature> features) {
+    public void setFeatures(final List<Feature> features) {
         this.features = features;
     }
 
@@ -115,7 +115,7 @@ public class UserReportletConf extends AbstractReportletConf {
         return matchingCond;
     }
 
-    public void setMatchingCond(NodeCond matchingCond) {
+    public void setMatchingCond(final NodeCond matchingCond) {
         this.matchingCond = matchingCond;
     }
 
@@ -125,7 +125,7 @@ public class UserReportletConf extends AbstractReportletConf {
         return virAttrs;
     }
 
-    public void setVirAttrs(List<String> virAttrs) {
+    public void setVirAttrs(final List<String> virAttrs) {
         this.virAttrs = virAttrs;
     }
 }

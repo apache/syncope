@@ -16,16 +16,16 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
-
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 
   <xsl:template match="reportlet[@class='org.apache.syncope.core.report.UserReportlet']">
-    <h2>Reportlet: <xsl:value-of select="@name"/></h2>
+    
+    <h3>Reportlet: <xsl:value-of select="@name"/></h3>
+    
     <xsl:for-each select="user">
-      <h3>User <xsl:value-of select="@username"/></h3>
+      <h4>User <xsl:value-of select="@username"/></h4>
       
       <table style="border: 1px solid black;">
         <tr>
@@ -90,7 +90,7 @@ under the License.
           </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
-          <h5>THIS USER HASN'T ANY DERIVED ATTRIBUTE</h5>
+          <h5>THIS USER HASN'T DERIVED ATTRIBUTES</h5>
         </xsl:otherwise>
       </xsl:choose>
       <!--</xsl:if>-->
@@ -102,7 +102,7 @@ under the License.
           </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
-          <h5>THIS USER HASN'T ANY VIRTUAL ATTRIBUTE</h5>
+          <h5>THIS USER HASN'T VIRTUAL ATTRIBUTES</h5>
         </xsl:otherwise>
       </xsl:choose>
       
@@ -120,7 +120,7 @@ under the License.
                   </xsl:call-template>
                 </xsl:when>
                 <xsl:otherwise>
-                  <h5>THIS ROLE HASN'T ANY ATTRIBUTE</h5>
+                  <h5>THIS ROLE HASN'T ATTRIBUTES</h5>
                 </xsl:otherwise>
               </xsl:choose>
               <xsl:choose>
@@ -131,7 +131,7 @@ under the License.
                   </xsl:call-template>
                 </xsl:when>
                 <xsl:otherwise>
-                  <h5>THIS ROLE HASN'T ANY DERIVED ATTRIBUTE</h5>
+                  <h5>THIS ROLE HASN'T DERIVED ATTRIBUTES</h5>
                 </xsl:otherwise>
               </xsl:choose>
               <xsl:choose>
@@ -142,17 +142,18 @@ under the License.
                   </xsl:call-template>
                 </xsl:when>
                 <xsl:otherwise>
-                  <h5>THIS ROLE HASN'T ANY VIRTUAL ATTRIBUTE</h5>
+                  <h5>THIS ROLE HASN'T VIRTUAL ATTRIBUTES</h5>
                 </xsl:otherwise>
               </xsl:choose>
-              <xsl:call-template name="resources">
+              <!-- 'roleResources" is defined in roleReportlet2html.xsl -->
+              <xsl:call-template name="roleResources">
                 <xsl:with-param name="node" select="resources/resource"/>
               </xsl:call-template>
             </blockquote>
           </xsl:for-each>
         </xsl:when>
         <xsl:otherwise>
-          <h5>THIS USER ISN'T ASSIGNED TO ANY ROLE</h5>
+          <h5>THIS USER ISN'T ASSIGNED TO A ROLE</h5>
         </xsl:otherwise>
       </xsl:choose>
       <xsl:call-template name="resources">
@@ -160,6 +161,7 @@ under the License.
       </xsl:call-template>
       <hr/>
     </xsl:for-each>
+       
   </xsl:template>
 
   <xsl:template name="attributes">
