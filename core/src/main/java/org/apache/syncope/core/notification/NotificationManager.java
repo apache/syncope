@@ -111,9 +111,6 @@ public class NotificationManager {
     private VelocityEngine velocityEngine;
 
     @Autowired
-    private NotificationJob notificationJob;
-
-    @Autowired
     private EntitlementDAO entitlementDAO;
 
     @Autowired

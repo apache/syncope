@@ -22,5 +22,5 @@ import org.activiti.engine.impl.interceptor.Session;
 
 public interface SyncopeSession extends Session {
 
-    Class<? extends Session> getType();
+    Class<?> getType();
 }

@@ -21,18 +21,19 @@ package org.apache.syncope.core.workflow.user.activiti;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.activiti.engine.identity.Group;
 import org.activiti.engine.identity.GroupQuery;
-import org.activiti.engine.impl.interceptor.Session;
+import org.activiti.engine.impl.GroupQueryImpl;
+import org.activiti.engine.impl.Page;
 import org.activiti.engine.impl.persistence.entity.GroupEntity;
-import org.activiti.engine.impl.persistence.entity.GroupEntityManager;
-import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
+import org.activiti.engine.impl.persistence.entity.GroupIdentityManager;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class SyncopeGroupManager extends GroupEntityManager implements SyncopeSession {
+public class SyncopeGroupManager implements GroupIdentityManager, SyncopeSession {
 
     @Autowired
     private UserDAO userDAO;
@@ -41,8 +42,8 @@ public class SyncopeGroupManager extends GroupEntityManager implements SyncopeSe
     private RoleDAO roleDAO;
 
     @Override
-    public Class<? extends Session> getType() {
-        return GroupEntityManager.class;
+    public Class<?> getType() {
+        return GroupIdentityManager.class;
     }
 
     @Override
@@ -61,22 +62,6 @@ public class SyncopeGroupManager extends GroupEntityManager implements SyncopeSe
     }
 
     @Override
-    public GroupEntity findGroupById(final String groupId) {
-        GroupEntity result = null;
-
-        SyncopeRole role = null;
-        try {
-            role = roleDAO.find(Long.valueOf(groupId));
-        } catch (NumberFormatException e) {
-        }
-        if (role != null) {
-            result = new GroupEntity(groupId);
-        }
-
-        return result;
-    }
-
-    @Override
     public List<Group> findGroupsByUser(final String userId) {
         List<Group> result = Collections.emptyList();
         SyncopeUser user = userDAO.find(userId);
@@ -91,6 +76,28 @@ public class SyncopeGroupManager extends GroupEntityManager implements SyncopeSe
     }
 
     @Override
+    public List<Group> findGroupByQueryCriteria(final GroupQueryImpl query, final Page page) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long findGroupCountByQueryCriteria(final GroupQueryImpl query) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<Group> findGroupsByNativeQuery(final Map<String, Object> parameterMap, final int firstResult,
+            final int maxResults) {
+
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long findGroupCountByNativeQuery(final Map<String, Object> parameterMap) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void insertGroup(final Group group) {
         throw new UnsupportedOperationException();
     }
@@ -98,5 +105,13 @@ public class SyncopeGroupManager extends GroupEntityManager implements SyncopeSe
     @Override
     public void updateGroup(final GroupEntity updatedGroup) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void flush() {
+    }
+
+    @Override
+    public void close() {
     }
 }

@@ -21,21 +21,23 @@ package org.apache.syncope.core.workflow.user.activiti;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.activiti.engine.identity.Group;
 import org.activiti.engine.identity.User;
 import org.activiti.engine.identity.UserQuery;
-import org.activiti.engine.impl.interceptor.Session;
+import org.activiti.engine.impl.Page;
+import org.activiti.engine.impl.UserQueryImpl;
 import org.activiti.engine.impl.persistence.entity.GroupEntity;
 import org.activiti.engine.impl.persistence.entity.IdentityInfoEntity;
 import org.activiti.engine.impl.persistence.entity.UserEntity;
-import org.activiti.engine.impl.persistence.entity.UserEntityManager;
+import org.activiti.engine.impl.persistence.entity.UserIdentityManager;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class SyncopeUserManager extends UserEntityManager implements SyncopeSession {
+public class SyncopeUserManager implements UserIdentityManager, SyncopeSession {
 
     @Autowired
     private UserDAO userDAO;
@@ -47,8 +49,8 @@ public class SyncopeUserManager extends UserEntityManager implements SyncopeSess
     private EntitlementDAO entitlementDAO;
 
     @Override
-    public Class<? extends Session> getType() {
-        return UserEntityManager.class;
+    public Class<?> getType() {
+        return UserIdentityManager.class;
     }
 
     @Override
@@ -97,6 +99,34 @@ public class SyncopeUserManager extends UserEntityManager implements SyncopeSess
     }
 
     @Override
+    public void flush() {
+    }
+
+    @Override
+    public void close() {
+    }
+
+    @Override
+    public void insertUser(final User user) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void updateUser(final UserEntity updatedUser) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<User> findUserByQueryCriteria(final UserQueryImpl query, final Page page) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long findUserCountByQueryCriteria(final UserQueryImpl query) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public IdentityInfoEntity findUserInfoByUserIdAndKey(final String userId, final String key) {
         throw new UnsupportedOperationException();
     }
@@ -107,12 +137,19 @@ public class SyncopeUserManager extends UserEntityManager implements SyncopeSess
     }
 
     @Override
-    public void insertUser(final User user) {
+    public List<User> findPotentialStarterUsers(final String proceDefId) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void updateUser(final UserEntity updatedUser) {
+    public List<User> findUsersByNativeQuery(final Map<String, Object> parameterMap,
+            final int firstResult, final int maxResults) {
+
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long findUserCountByNativeQuery(final Map<String, Object> parameterMap) {
         throw new UnsupportedOperationException();
     }
 }
