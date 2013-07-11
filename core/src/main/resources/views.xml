@@ -16,7 +16,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
@@ -25,6 +24,19 @@ under the License.
     CREATE VIEW user_search AS
  
     SELECT u.id as subject_id, u.* FROM SyncopeUser u
+  </entry>
+  <entry key="user_search_unique_attr">
+    CREATE VIEW user_search_unique_attr AS
+
+    SELECT ua.owner_id AS subject_id,
+    ua.schema_name AS schema_name,
+    uav.booleanvalue AS booleanvalue,
+    uav.datevalue AS datevalue,
+    uav.doublevalue AS doublevalue,
+    uav.longvalue AS longvalue,
+    uav.stringvalue AS stringvalue
+    FROM UAttrUniqueValue uav, UAttr ua
+    WHERE uav.attribute_id = ua.id
   </entry>
   <entry key="user_search_attr">
     CREATE VIEW user_search_attr AS
@@ -36,22 +48,11 @@ under the License.
     uav.doublevalue AS doublevalue,
     uav.longvalue AS longvalue,
     uav.stringvalue AS stringvalue
-    FROM UAttrUniqueValue uav, UAttr ua
-    WHERE uav.attribute_id = ua.id
-
-    UNION ALL
-
-    SELECT ua.owner_id AS subject_id,
-    ua.schema_name AS schema_name,
-    uav.booleanvalue AS booleanvalue,
-    uav.datevalue AS datevalue,
-    uav.doublevalue AS doublevalue,
-    uav.longvalue AS longvalue,
-    uav.stringvalue AS stringvalue
     FROM UAttrValue uav, UAttr ua
     WHERE uav.attribute_id = ua.id
-
-    UNION ALL
+  </entry>
+  <entry key="user_search_null_attr">
+    CREATE VIEW user_search_null_attr AS
 
     SELECT u.id AS subject_id,
     USchema.name AS schema_name,
@@ -76,8 +77,9 @@ under the License.
 
     SELECT st.user_id AS subject_id, st.resource_name AS resource_name
     FROM SyncopeUser_ExternalResource st
-
-    UNION ALL
+  </entry>
+  <entry key="user_search_role_resource">
+    CREATE VIEW user_search_role_resource AS
 
     SELECT m.syncopeuser_id AS subject_id, st.resource_name AS resource_name
     FROM Membership m, SyncopeRole r, SyncopeRole_ExternalResource st
@@ -87,6 +89,19 @@ under the License.
     CREATE VIEW role_search AS
  
     SELECT r.id as subject_id, r.* FROM SyncopeRole r
+  </entry>
+  <entry key="role_search_unique_attr">
+    CREATE VIEW role_search_unique_attr AS
+
+    SELECT ra.owner_id AS subject_id,
+    ra.schema_name AS schema_name,
+    rav.booleanvalue AS booleanvalue,
+    rav.datevalue AS datevalue,
+    rav.doublevalue AS doublevalue,
+    rav.longvalue AS longvalue,
+    rav.stringvalue AS stringvalue
+    FROM RAttrUniqueValue rav, RAttr ra
+    WHERE rav.attribute_id = ra.id
   </entry>
   <entry key="role_search_attr">
     CREATE VIEW role_search_attr AS
@@ -98,22 +113,11 @@ under the License.
     rav.doublevalue AS doublevalue,
     rav.longvalue AS longvalue,
     rav.stringvalue AS stringvalue
-    FROM RAttrUniqueValue rav, RAttr ra
-    WHERE rav.attribute_id = ra.id
-
-    UNION ALL
-
-    SELECT ra.owner_id AS subject_id,
-    ra.schema_name AS schema_name,
-    rav.booleanvalue AS booleanvalue,
-    rav.datevalue AS datevalue,
-    rav.doublevalue AS doublevalue,
-    rav.longvalue AS longvalue,
-    rav.stringvalue AS stringvalue
     FROM RAttrValue rav, RAttr ra
     WHERE rav.attribute_id = ra.id
-
-    UNION ALL
+  </entry>
+  <entry key="role_search_null_attr">
+    CREATE VIEW role_search_null_attr AS
 
     SELECT r.id AS subject_id,
     RSchema.name AS schema_name,
