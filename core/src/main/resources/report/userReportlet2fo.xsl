@@ -16,9 +16,7 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
-
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:fo="http://www.w3.org/1999/XSL/Format"
                 version="1.0">
@@ -170,7 +168,8 @@ under the License.
                   <fo:block color="red" font-size="8pt" space-after="2mm">THIS ROLE HASN'T ANY VIRTUAL ATTRIBUTE</fo:block>
                 </xsl:otherwise>
               </xsl:choose>
-              <xsl:call-template name="resources">
+              <!-- 'roleResources" is defined in roleReportlet2fo.xsl -->
+              <xsl:call-template name="roleResources">
                 <xsl:with-param name="node" select="resources/resource"/>
               </xsl:call-template>
             </fo:block>
