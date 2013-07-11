@@ -363,10 +363,15 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
             query.append("subject_id IN (");
         }
 
-        query.append("SELECT DISTINCT subject_id ").append("FROM ").
-                append(attrUtil.searchView()).append("_resource WHERE ");
+        query.append("SELECT DISTINCT subject_id ").append("FROM ").append(attrUtil.searchView()).
+                append("_resource WHERE resource_name=?").
+                append(setParameter(parameters, cond.getResourceName()));
 
-        query.append("resource_name=?").append(setParameter(parameters, cond.getResourceName()));
+        if (attrUtil.getType() == AttributableType.USER) {
+            query.append(" UNION SELECT DISTINCT subject_id ").append("FROM ").append(attrUtil.searchView()).
+                    append("_role_resource WHERE resource_name=?").
+                    append(setParameter(parameters, cond.getResourceName()));
+        }
 
         query.append(')');
 
@@ -528,9 +533,25 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
             return EMPTY_ATTR_QUERY;
         }
 
-        StringBuilder query = new StringBuilder("SELECT DISTINCT subject_id FROM ").
-                append(attrUtil.searchView()).append("_attr WHERE ").append("schema_name='").append(schema.getName());
-        fillAttributeQuery(query, attrValue, schema, cond, not, parameters);
+        StringBuilder query = new StringBuilder("SELECT DISTINCT subject_id FROM ").append(attrUtil.searchView());
+        if (cond.getType() == AttributeCond.Type.ISNOTNULL) {
+            query.append(" WHERE subject_id NOT IN (SELECT subject_id FROM ").
+                    append(attrUtil.searchView()).append("_null_attr WHERE schema_name='").
+                    append(schema.getName()).append("')");
+        } else {
+            if (cond.getType() == AttributeCond.Type.ISNULL) {
+                query.append("_null_attr WHERE schema_name='").append(schema.getName()).append("'");
+            } else {
+                if (schema.isUniqueConstraint()) {
+                    query.append("_unique_attr ");
+                } else {
+                    query.append("_attr ");
+                }
+                query.append("WHERE schema_name='").append(schema.getName());
+
+                fillAttributeQuery(query, attrValue, schema, cond, not, parameters);
+            }
+        }
 
         return query.toString();
     }
