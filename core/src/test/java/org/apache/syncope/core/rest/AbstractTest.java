@@ -219,7 +219,7 @@ public abstract class AbstractTest {
 
     // END Spring MVC Initialization
     // BEGIN CXF Initialization
-    public void setupCXFServices() throws Exception {
+    protected void setupCXFServices() throws Exception {
         userService = createServiceInstance(UserService.class);
         userWorkflowService = createServiceInstance(UserWorkflowService.class);
         roleService = createServiceInstance(RoleService.class);
@@ -254,14 +254,14 @@ public abstract class AbstractTest {
         return serviceProxy;
     }
 
-    public WebClient createWebClient(final String path) {
+    protected WebClient createWebClient(final String path) {
         WebClient wc = restClientFactory.createWebClient().to(BASE_URL, false);
         wc.accept(MediaType.APPLICATION_JSON_TYPE).type(MediaType.APPLICATION_JSON_TYPE);
         wc.path(path);
         return wc;
     }
 
-    public void setupContentType(final Client restClient) {
+    protected void setupContentType(final Client restClient) {
         if (contentType == null) {
             String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
             if ((envContentType != null) && (!envContentType.isEmpty())) {
@@ -275,7 +275,7 @@ public abstract class AbstractTest {
 
     // END CXF Initialization
     @SuppressWarnings("unchecked")
-    public <T> T setupCredentials(final T proxy, final Class<?> serviceInterface, final String username,
+    protected <T> T setupCredentials(final T proxy, final Class<?> serviceInterface, final String username,
             final String password) {
         if (proxy instanceof SpringServiceProxy) {
             SpringServiceProxy service = (SpringServiceProxy) proxy;
@@ -295,7 +295,7 @@ public abstract class AbstractTest {
         }
     }
 
-    public <T> T getObject(final Response response, final Class<T> type, final Object serviceProxy) {
+    protected <T> T getObject(final Response response, final Class<T> type, final Object serviceProxy) {
         assertNotNull(response);
         assertNotNull(response.getLocation());
         if (enabledCXF) {
@@ -309,11 +309,11 @@ public abstract class AbstractTest {
         return restTemplate.getForObject(response.getLocation(), type);
     }
 
-    public void setEnabledCXF(final boolean enabledCXF) {
+    protected void setEnabledCXF(final boolean enabledCXF) {
         this.enabledCXF = enabledCXF;
     }
 
-    public void setContentType(final String contentType) {
+    protected void setContentType(final String contentType) {
         this.contentType = contentType;
     }
 

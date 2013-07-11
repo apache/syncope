@@ -103,10 +103,10 @@ public class SyncopeGroupQueryImpl implements GroupQuery {
     private void execute() {
         if (roleId != null) {
             SyncopeRole role = roleDAO.find(roleId);
-            if (role != null) {
-                result = Collections.singletonList(fromSyncopeRole(role));
-            } else {
+            if (role == null) {
                 result = Collections.emptyList();
+            } else {
+                result = Collections.singletonList(fromSyncopeRole(role));
             }
         }
         if (result == null) {
@@ -151,7 +151,7 @@ public class SyncopeGroupQueryImpl implements GroupQuery {
     }
 
     @Override
-    public GroupQuery potentialStarter(String procDefId) {
+    public GroupQuery potentialStarter(final String procDefId) {
         throw new UnsupportedOperationException();
     }
 }

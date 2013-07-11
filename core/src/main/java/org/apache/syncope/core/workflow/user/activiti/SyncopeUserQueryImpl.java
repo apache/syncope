@@ -81,6 +81,11 @@ public class SyncopeUserQueryImpl implements UserQuery {
     }
 
     @Override
+    public UserQuery userFullNameLike(final String fullNameLike) {
+        return this;
+    }
+
+    @Override
     public UserQuery userEmail(final String email) {
         return this;
     }
