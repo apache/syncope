@@ -2,6 +2,21 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.1.3
+================================================================================
+** Bug
+    * [SYNCOPE-370] - HTTP Status 404 adding a role to a user with IE8 
+    * [SYNCOPE-394] - Scheduled tasks are executed without transaction support
+    * [SYNCOPE-396] - removeAll and retainAll in PropagationByResource dont evaluate correctly boolean expression
+    * [SYNCOPE-397] - Double update propagation with virtual attributes on already associated resource when changing password and adding new resource
+    * [SYNCOPE-398] - secretKey does not get resolved during archetype:generate
+    * [SYNCOPE-399] - Role attribute mapping for user mapping item doesn't result in a multivalue property
+    * [SYNCOPE-400] - Poor search performance on MySQL
+    * [SYNCOPE-401] - Deploying syncope.war with MSSQL server settings to Tomcat on Windows results in Error listenerStart
+
+** Improvement
+    * [SYNCOPE-395] - Role Reportlet
+
 Release Notes - Syncope - Version 1.1.2
 ================================================================================
 ** Bug
