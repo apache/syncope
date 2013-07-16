@@ -362,14 +362,15 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 // this flush call is needed to generate a value for the execution id
                 taskDAO.flush();
             }
-        }
-
-        if (handler != null) {
-            handler.handle(
-                    task.getResource().getName(),
-                    PropagationTaskExecStatus.valueOf(execution.getStatus()),
-                    beforeObj,
-                    afterObj);
+            
+            if (handler != null) {
+                handler.handle(
+                        task.getResource().getName(),
+                        PropagationTaskExecStatus.valueOf(execution.getStatus()),
+                        taskExecutionMessage,
+                        beforeObj,
+                        afterObj);
+            }
         }
 
         actions.after(task, execution, afterObj);

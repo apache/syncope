@@ -2219,6 +2219,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.update(userMod.getId(), userMod);
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
         assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+        assertNotNull(userTO.getPropagationStatusTOs().get(0).getExecutionMessage());
 
         // 3. request to change password only on testdb
         userMod = new UserMod();

@@ -40,11 +40,12 @@ public class DefaultPropagationHandler implements PropagationHandler {
 
     @Override
     public void handle(final String resource, final PropagationTaskExecStatus executionStatus,
-            final ConnectorObject beforeObj, final ConnectorObject afterObj) {
+            final String taskExecutionMessage, final ConnectorObject beforeObj, final ConnectorObject afterObj) {
 
         final PropagationStatusTO propagation = new PropagationStatusTO();
         propagation.setResource(resource);
         propagation.setStatus(executionStatus);
+        propagation.setExecutionMessage(taskExecutionMessage);
 
         if (beforeObj != null) {
             propagation.setBeforeObj(connObjectUtil.getConnObjectTO(beforeObj));

@@ -55,6 +55,11 @@ public class PropagationStatusTO extends AbstractBaseBean {
      * Propagation task execution status.
      */
     private PropagationTaskExecStatus status;
+    
+    /**
+     * Propagation task execution message.
+     */
+    private String executionMessage;
 
     /**
      * After object getter.
@@ -126,5 +131,23 @@ public class PropagationStatusTO extends AbstractBaseBean {
      */
     public void setStatus(final PropagationTaskExecStatus status) {
         this.status = status;
+    }
+    
+    /**
+     * Propagation execution message getter.
+     *
+     * @return executionMessage.
+     */
+    public String getExecutionMessage() {
+        return executionMessage;
+    }
+
+    /**
+     * Propagation execution message setter.
+     *
+     * @param executionMessage
+     */
+    public void setExecutionMessage(final String executionMessage) {
+        this.executionMessage = executionMessage;
     }
 }

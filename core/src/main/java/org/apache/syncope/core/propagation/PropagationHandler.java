@@ -36,5 +36,5 @@ public interface PropagationHandler {
      * @param afterObj retrieved connector object after operation execution.
      */
     void handle(String resourceName, PropagationTaskExecStatus execStatus,
-            ConnectorObject beforeObj, ConnectorObject afterObj);
+            String taskExecutionMessage, ConnectorObject beforeObj, ConnectorObject afterObj);
 }
