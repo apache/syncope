@@ -41,6 +41,7 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.UserSubCategory;
+import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
@@ -50,6 +51,7 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
+import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.impl.DefaultPropagationHandler;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
@@ -300,7 +302,12 @@ public class UserController {
                 created, userTO.getPassword(), userTO.getVirtualAttributes());
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+        try {
+            taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            completeWhenErroredPrimaryPropagation(propagations, tasks);
+        }
 
         notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
 
@@ -354,8 +361,8 @@ public class UserController {
                 tasks.addAll(propagationManager.getUserUpdateTaskIds(
                         updated,
                         changedPwd,
-                        userMod.getVirtualAttributesToBeRemoved(), 
-                        userMod.getVirtualAttributesToBeUpdated(), 
+                        userMod.getVirtualAttributesToBeRemoved(),
+                        userMod.getVirtualAttributesToBeUpdated(),
                         toBeExcluded));
             }
 
@@ -367,10 +374,10 @@ public class UserController {
 
             if (!nonPwdPropByRes.isEmpty()) {
                 tasks.addAll(propagationManager.getUserUpdateTaskIds(
-                        updated, 
+                        updated,
                         null,
-                        userMod.getVirtualAttributesToBeRemoved(), 
-                        userMod.getVirtualAttributesToBeUpdated(), 
+                        userMod.getVirtualAttributesToBeRemoved(),
+                        userMod.getVirtualAttributesToBeUpdated(),
                         pwdResourceNames));
             }
 
@@ -378,7 +385,12 @@ public class UserController {
         }
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+        try {
+            taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            completeWhenErroredPrimaryPropagation(propagations, tasks);
+        }
 
         // 3. create notification tasks
         notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
@@ -699,7 +711,14 @@ public class UserController {
         userTO.setId(userId);
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+
+        try {
+            taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            completeWhenErroredPrimaryPropagation(propagations, tasks);
+        }
+
         userTO.setPropagationStatusTOs(propagations);
 
         uwfAdapter.delete(userId);
@@ -757,5 +776,33 @@ public class UserController {
         }
 
         return res;
+    }
+
+    private void completeWhenErroredPrimaryPropagation(
+            final List<PropagationStatusTO> propagations, final List<PropagationTask> tasks) {
+        
+        final String failedResource = propagations.get(propagations.size() - 1).getResource();
+        
+        LOG.debug("Propagation error: {} primary resource failed to propagate", failedResource);
+
+        for (PropagationTask propagationTask : tasks) {
+            if (!containsPropagationStatusTO(propagationTask.getResource().getName(), propagations)) {
+                final PropagationStatusTO propagationStatusTO = new PropagationStatusTO();
+                propagationStatusTO.setResource(propagationTask.getResource().getName());
+                propagationStatusTO.setStatus(PropagationTaskExecStatus.FAILURE);
+                propagationStatusTO.setExecutionMessage(
+                        "Propagation error: " + failedResource + " primary resource failed to propagate.");
+                propagations.add(propagationStatusTO);
+            }
+        }
+    }
+
+    private boolean containsPropagationStatusTO(final String resource, final List<PropagationStatusTO> propagations) {
+        for (PropagationStatusTO status : propagations) {
+            if (resource.equals(status.getResource())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
