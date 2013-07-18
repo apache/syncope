@@ -22,10 +22,15 @@ import java.util.List;
 import org.apache.syncope.common.to.PropagationStatusTO;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.connid.ConnObjectUtil;
+import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.propagation.PropagationHandler;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultPropagationHandler implements PropagationHandler {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(DefaultPropagationHandler.class);
 
     private final ConnObjectUtil connObjectUtil;
 
@@ -56,5 +61,33 @@ public class DefaultPropagationHandler implements PropagationHandler {
         }
 
         propagations.add(propagation);
+    }
+
+    public void completeWhenPrimaryResourceErrored(
+            final List<PropagationStatusTO> propagations, final List<PropagationTask> tasks) {
+
+        final String failedResource = propagations.get(propagations.size() - 1).getResource();
+
+        LOG.debug("Propagation error: {} primary resource failed to propagate", failedResource);
+
+        for (PropagationTask propagationTask : tasks) {
+            if (!containsPropagationStatusTO(propagationTask.getResource().getName(), propagations)) {
+                final PropagationStatusTO propagationStatusTO = new PropagationStatusTO();
+                propagationStatusTO.setResource(propagationTask.getResource().getName());
+                propagationStatusTO.setStatus(PropagationTaskExecStatus.FAILURE);
+                propagationStatusTO.setExecutionMessage(
+                        "Propagation error: " + failedResource + " primary resource failed to propagate.");
+                propagations.add(propagationStatusTO);
+            }
+        }
+    }
+
+    private boolean containsPropagationStatusTO(final String resource, final List<PropagationStatusTO> propagations) {
+        for (PropagationStatusTO status : propagations) {
+            if (resource.equals(status.getResource())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

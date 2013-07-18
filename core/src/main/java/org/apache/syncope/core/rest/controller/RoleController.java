@@ -42,6 +42,7 @@ import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.impl.DefaultPropagationHandler;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
@@ -281,7 +282,13 @@ public class RoleController {
         List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created, roleTO.getVirtualAttributes());
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
+        try {
+            taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
+        }
 
         final RoleTO savedTO = binder.getRoleTO(created.getResult());
         savedTO.setPropagationStatusTOs(propagations);
@@ -308,8 +315,13 @@ public class RoleController {
                 roleMod.getVirtualAttributesToBeRemoved(), roleMod.getVirtualAttributesToBeUpdated());
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
-
+        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
+        try {
+            taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
+        }
         final RoleTO updatedTO = binder.getRoleTO(updated.getResult());
         updatedTO.setPropagationStatusTOs(propagations);
 
@@ -340,7 +352,13 @@ public class RoleController {
         roleTO.setId(roleId);
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
+        try {
+            taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
+        }
         roleTO.setPropagationStatusTOs(propagations);
 
         rwfAdapter.delete(roleId);

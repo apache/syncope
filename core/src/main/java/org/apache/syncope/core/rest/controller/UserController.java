@@ -50,6 +50,7 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
+import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.impl.DefaultPropagationHandler;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
@@ -300,7 +301,13 @@ public class UserController {
                 created, userTO.getPassword(), userTO.getVirtualAttributes());
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
+        try {
+            taskExecutor.execute(tasks, propHanlder);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
+        }
 
         notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
 
@@ -354,8 +361,8 @@ public class UserController {
                 tasks.addAll(propagationManager.getUserUpdateTaskIds(
                         updated,
                         changedPwd,
-                        userMod.getVirtualAttributesToBeRemoved(), 
-                        userMod.getVirtualAttributesToBeUpdated(), 
+                        userMod.getVirtualAttributesToBeRemoved(),
+                        userMod.getVirtualAttributesToBeUpdated(),
                         toBeExcluded));
             }
 
@@ -367,10 +374,10 @@ public class UserController {
 
             if (!nonPwdPropByRes.isEmpty()) {
                 tasks.addAll(propagationManager.getUserUpdateTaskIds(
-                        updated, 
+                        updated,
                         null,
-                        userMod.getVirtualAttributesToBeRemoved(), 
-                        userMod.getVirtualAttributesToBeUpdated(), 
+                        userMod.getVirtualAttributesToBeRemoved(),
+                        userMod.getVirtualAttributesToBeUpdated(),
                         pwdResourceNames));
             }
 
@@ -378,7 +385,13 @@ public class UserController {
         }
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
+        try {
+            taskExecutor.execute(tasks, propHanlder);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
+        }
 
         // 3. create notification tasks
         notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
@@ -699,7 +712,14 @@ public class UserController {
         userTO.setId(userId);
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
+        try {
+            taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
+        }
+
         userTO.setPropagationStatusTOs(propagations);
 
         uwfAdapter.delete(userId);

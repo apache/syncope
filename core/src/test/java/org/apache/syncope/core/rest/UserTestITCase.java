@@ -241,13 +241,8 @@ public class UserTestITCase extends AbstractTest {
         userMod.setPassword("newPassword");
         userMod.addResourceToBeAdded("ws-target-resource-1");
 
-        sce = null;
-        try {
-            userTO = userService.update(userMod.getId(), userMod);
-        } catch (SyncopeClientCompositeErrorException scce) {
-            sce = scce.getException(SyncopeClientExceptionType.Propagation);
-        }
-        assertNotNull(sce);
+        userTO = userService.update(userMod.getId(), userMod);
+        assertNotNull(userTO.getPropagationStatusTOs().get(0).getExecutionMessage());
 
         // 4. update assigning a resource NOT forcing mandatory constraints
         // BUT not primary: must succeed
@@ -1815,12 +1810,15 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
     }
 
-    @Test(expected = SyncopeClientCompositeErrorException.class)
+    @Test
     public void issueSYNCOPE279() {
         UserTO userTO = getUniqueSampleTO("syncope279@apache.org");
         userTO.getResources().clear();
         userTO.addResource("ws-target-resource-timeout");
-        createUser(userTO);
+        userTO = createUser(userTO);
+        assertEquals("ws-target-resource-timeout", userTO.getPropagationStatusTOs().get(0).getResource());
+        assertNotNull(userTO.getPropagationStatusTOs().get(0).getExecutionMessage());
+        assertEquals(PropagationTaskExecStatus.UNSUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
     }
 
     @Test
@@ -1906,39 +1904,35 @@ public class UserTestITCase extends AbstractTest {
         pwdCipherAlgo.setValue("AES");
         configurationService.update(pwdCipherAlgo.getKey(), pwdCipherAlgo);
 
-        try {
-            // 3. create user with no resources
-            UserTO userTO = getUniqueSampleTO("syncope136_AES@apache.org");
-            userTO.getResources().clear();
+        // 3. create user with no resources
+        UserTO userTO = getUniqueSampleTO("syncope136_AES@apache.org");
+        userTO.getResources().clear();
 
-            userTO = userService.create(userTO).readEntity(UserTO.class);
-            assertNotNull(userTO);
+        userTO = userService.create(userTO).readEntity(UserTO.class);
+        assertNotNull(userTO);
 
-            // 4. update user, assign a propagation primary resource but don't provide any password
-            UserMod userMod = new UserMod();
-            userMod.setId(userTO.getId());
-            userMod.addResourceToBeAdded("ws-target-resource-1");
+        // 4. update user, assign a propagation primary resource but don't provide any password
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.addResourceToBeAdded("ws-target-resource-1");
 
-            userTO = userService.update(userMod.getId(), userMod);
-            assertNotNull(userTO);
+        userTO = userService.update(userMod.getId(), userMod);
+        assertNotNull(userTO);
 
-            // 5. verify that propagation was successful
-            List<PropagationStatusTO> props = userTO.getPropagationStatusTOs();
-            assertNotNull(props);
-            assertEquals(1, props.size());
-            PropagationStatusTO prop = props.iterator().next();
-            assertNotNull(prop);
-            assertEquals("ws-target-resource-1", prop.getResource());
-            assertEquals(PropagationTaskExecStatus.SUCCESS, prop.getStatus());
-        } catch (Exception e) {
-            LOG.error("Unexpected exception", e);
-        } finally {
-            // 6. restore initial cipher algorithm
-            pwdCipherAlgo.setValue(origpwdCipherAlgo);
-            configurationService.update(pwdCipherAlgo.getKey(), pwdCipherAlgo);
-        }
+        // 5. verify that propagation was successful
+        List<PropagationStatusTO> props = userTO.getPropagationStatusTOs();
+        assertNotNull(props);
+        assertEquals(1, props.size());
+        PropagationStatusTO prop = props.iterator().next();
+        assertNotNull(prop);
+        assertEquals("ws-target-resource-1", prop.getResource());
+        assertEquals(PropagationTaskExecStatus.SUBMITTED, prop.getStatus());
+        
+        // 6. restore initial cipher algorithm
+        pwdCipherAlgo.setValue(origpwdCipherAlgo);
+        configurationService.update(pwdCipherAlgo.getKey(), pwdCipherAlgo);
     }
-
+    
     @Test
     public void isseSYNCOPE136Random() {
         // 1. create user with no resources
@@ -2304,6 +2298,35 @@ public class UserTestITCase extends AbstractTest {
         // check if propagates correctly with assertEquals on size of tasks list
 
         assertEquals(2, toBeUpdated.getPropagationStatusTOs().size());
+    }
+
+    @Test
+    public void issueSYNCOPE402() {
+        // 1. create an user with strict mandatory attributes only
+        UserTO userTO = new UserTO();
+        String userId = getUUIDString() + "syncope402@syncope.apache.org";
+        userTO.setUsername(userId);
+        userTO.setPassword("password");
+
+        userTO.addAttribute(attributeTO("userId", userId));
+        userTO.addAttribute(attributeTO("fullname", userId));
+        userTO.addAttribute(attributeTO("surname", userId));
+
+        userTO = createUser(userTO);
+        assertNotNull(userTO);
+        assertTrue(userTO.getResources().isEmpty());
+
+        //2. update assigning a resource NOT forcing mandatory constraints
+        // AND primary: must fail with PropagationException
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPassword("newPassword");
+        userMod.addResourceToBeAdded("ws-target-resource-1");
+        userMod.addResourceToBeAdded("resource-testdb");
+        userTO = userService.update(userMod.getId(), userMod);
+        assertEquals("ws-target-resource-1", userTO.getPropagationStatusTOs().get(1).getResource());
+        assertNotNull(userTO.getPropagationStatusTOs().get(1).getExecutionMessage());
+        assertEquals(PropagationTaskExecStatus.UNSUBMITTED, userTO.getPropagationStatusTOs().get(1).getStatus());
     }
 
     private boolean getBooleanAttribute(ConnObjectTO connObjectTO, String attrName) {
