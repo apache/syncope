@@ -21,7 +21,7 @@ package org.apache.syncope.core.sync.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.ReferenceMod;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.types.ConflictResolutionAction;

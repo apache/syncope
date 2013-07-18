@@ -18,23 +18,24 @@
  */
 package org.apache.syncope.core.rest.data;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Map;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-
 /**
  * Jackson ObjectMapper that unwraps singleton map values and enable default
  * typing for handling abstract types serialization.
  */
 public class UnwrappedObjectMapper extends ObjectMapper {
+
+    private static final long serialVersionUID = -317191546835195103L;
 
     /**
      * Unwraps the given value if it implements the Map interface and contains
@@ -62,13 +63,6 @@ public class UnwrappedObjectMapper extends ObjectMapper {
     }
 
     @Override
-    public void writeValue(final JsonGenerator jgen, final Object value, final SerializationConfig config)
-            throws IOException, JsonGenerationException, JsonMappingException {
-
-        super.writeValue(jgen, unwrapMap(value), config);
-    }
-
-    @Override
     public void writeValue(final File resultFile, final Object value)
             throws IOException, JsonGenerationException, JsonMappingException {
 
@@ -90,16 +84,12 @@ public class UnwrappedObjectMapper extends ObjectMapper {
     }
 
     @Override
-    public byte[] writeValueAsBytes(final Object value)
-            throws IOException, JsonGenerationException, JsonMappingException {
-
+    public byte[] writeValueAsBytes(final Object value) throws JsonProcessingException {
         return super.writeValueAsBytes(unwrapMap(value));
     }
 
     @Override
-    public String writeValueAsString(final Object value)
-            throws IOException, JsonGenerationException, JsonMappingException {
-
+    public String writeValueAsString(final Object value) throws JsonProcessingException {
         return super.writeValueAsString(unwrapMap(value));
     }
 }

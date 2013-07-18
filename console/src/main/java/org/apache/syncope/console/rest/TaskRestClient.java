@@ -87,9 +87,8 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      * @param size per page.
      * @return paginated list.
      */
-    @SuppressWarnings("unchecked")
     public <T extends TaskTO> List<T> listTasks(final Class<T> reference, final int page, final int size) {
-        return (List<T>) getService(TaskService.class).list(getTaskType(reference), page, size);
+        return getService(TaskService.class).list(getTaskType(reference), page, size);
     }
 
     private TaskType getTaskType(final Class<?> reference) {

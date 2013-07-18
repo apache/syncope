@@ -27,7 +27,6 @@ public class ConfigurationTestITCaseJAXRS extends ConfigurationTestITCase {
 
     public ConfigurationTestITCaseJAXRS() {
         super();
-        setContentType(CONTENT_TYPE_XML);
         setEnabledCXF(true);
     }
 }

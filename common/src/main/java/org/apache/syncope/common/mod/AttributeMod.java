@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.mod;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.apache.syncope.common.AbstractBaseBean;
 
 @XmlRootElement

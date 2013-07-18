@@ -21,12 +21,11 @@ package org.apache.syncope.common.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.AttributeSchemaType;
 
 @XmlRootElement(name = "schema")
 @XmlType
-//@JsonTypeInfo(use=Id.CLASS, include=As.PROPERTY, property="class")
 public class SchemaTO extends AbstractSchemaTO {
 
     private static final long serialVersionUID = -8133983392476990308L;

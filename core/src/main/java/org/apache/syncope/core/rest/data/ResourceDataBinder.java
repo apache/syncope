@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
 import org.apache.syncope.common.to.ResourceTO;
@@ -330,7 +330,7 @@ public class ResourceDataBinder {
         resourceTO.setSyncPolicy(resource.getSyncPolicy() == null
                 ? null : resource.getSyncPolicy().getId());
 
-        resourceTO.setConnectorConfigurationProperties(resource.getConnInstanceConfiguration());
+        resourceTO.setConnConfProperties(resource.getConnInstanceConfiguration());
 
         resourceTO.setUsyncToken(resource.getUserializedSyncToken());
         resourceTO.setRsyncToken(resource.getRserializedSyncToken());

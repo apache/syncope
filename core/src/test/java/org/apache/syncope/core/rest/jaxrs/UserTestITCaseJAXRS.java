@@ -28,6 +28,5 @@ public class UserTestITCaseJAXRS extends UserTestITCase {
     public UserTestITCaseJAXRS() {
         super();
         setEnabledCXF(true);
-        setContentType(CONTENT_TYPE_XML);
     }
 }

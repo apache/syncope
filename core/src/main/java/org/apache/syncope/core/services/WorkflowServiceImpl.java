@@ -18,12 +18,11 @@
  */
 package org.apache.syncope.core.services;
 
-import java.util.List;
-
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.syncope.common.services.WorkflowService;
+import org.apache.syncope.common.services.WorkflowTasks;
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.util.CollectionWrapper;
@@ -33,7 +32,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class WorkflowServiceImpl implements WorkflowService, ContextAware {
-    
+
     @Autowired
     private WorkflowController workflowController;
 
@@ -49,7 +48,6 @@ public class WorkflowServiceImpl implements WorkflowService, ContextAware {
         }
     }
 
-
     @Override
     public void updateDefinition(final AttributableType kind, final WorkflowDefinitionTO definition) {
         switch (kind) {
@@ -64,14 +62,13 @@ public class WorkflowServiceImpl implements WorkflowService, ContextAware {
         }
     }
 
-
     @Override
-    public List<String> getDefinedTasks(final AttributableType kind) {
+    public WorkflowTasks getDefinedTasks(final AttributableType kind) {
         switch (kind) {
             case USER:
-                return CollectionWrapper.wrapStrings(workflowController.getDefinedUserTasks());
+                return new WorkflowTasks(CollectionWrapper.wrapStrings(workflowController.getDefinedUserTasks()));
             case ROLE:
-                return CollectionWrapper.wrapStrings(workflowController.getDefinedUserTasks());
+                return new WorkflowTasks(CollectionWrapper.wrapStrings(workflowController.getDefinedUserTasks()));
             default:
                 throw new BadRequestException();
         }
@@ -80,5 +77,4 @@ public class WorkflowServiceImpl implements WorkflowService, ContextAware {
     @Override
     public void setUriInfo(final UriInfo ui) {
     }
-
 }

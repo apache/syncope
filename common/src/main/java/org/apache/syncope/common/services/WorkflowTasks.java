@@ -21,28 +21,27 @@ package org.apache.syncope.common.services;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class ReportletConfClasses {
+public class WorkflowTasks {
 
-    private List<String> confClasses;
+    private List<String> tasks;
 
-    public ReportletConfClasses() {
-        this.confClasses = new ArrayList<String>();
+    public WorkflowTasks() {
+        this.tasks = new ArrayList<String>();
     }
 
-    public ReportletConfClasses(final Collection<String> confClasses) {
+    public WorkflowTasks(final Collection<String> tasks) {
         this();
-        this.confClasses.addAll(confClasses);
+        this.tasks.addAll(tasks);
     }
 
-    public List<String> getConfClasses() {
-        return confClasses;
+    public List<String> getTasks() {
+        return tasks;
     }
 
-    public void setConfClasses(final List<String> confClasses) {
-        this.confClasses = confClasses;
+    public void setTasks(final List<String> tasks) {
+        this.tasks = tasks;
     }
 }

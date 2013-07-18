@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.types;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +51,7 @@ public class ConnConfProperty extends AbstractBaseBean implements Comparable<Con
 
     @XmlElementWrapper(name = "values")
     @XmlElement(name = "value")
+    @JsonProperty("values")
     public List<?> getValues() {
         return values;
     }

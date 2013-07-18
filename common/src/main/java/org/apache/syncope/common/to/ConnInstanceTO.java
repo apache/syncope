@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -31,7 +33,6 @@ import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
-import org.codehaus.jackson.annotate.JsonIgnore;
 
 @XmlRootElement(name = "connector")
 @XmlType
@@ -106,6 +107,7 @@ public class ConnInstanceTO extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "configuration")
     @XmlElement(name = "property")
+    @JsonProperty("configuration")
     public Set<ConnConfProperty> getConfiguration() {
         return this.configuration;
     }
@@ -154,6 +156,7 @@ public class ConnInstanceTO extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "capabilities")
     @XmlElement(name = "capability")
+    @JsonProperty("capabilities")
     public Set<ConnectorCapability> getCapabilities() {
         return capabilities;
     }

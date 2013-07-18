@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
 import java.util.Set;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.AbstractBaseBean;
@@ -225,11 +228,14 @@ public class ResourceTO extends AbstractBaseBean {
         this.syncPolicy = syncPolicy;
     }
 
+    @XmlElementWrapper(name = "connConfProperties")
+    @XmlElement(name = "property")
+    @JsonProperty("connConfProperties")
     public Set<ConnConfProperty> getConnConfProperties() {
         return connConfProperties;
     }
 
-    public void setConnectorConfigurationProperties(final Set<ConnConfProperty> connConfProperties) {
+    public void setConnConfProperties(final Set<ConnConfProperty> connConfProperties) {
         this.connConfProperties = connConfProperties;
     }
 

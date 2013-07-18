@@ -28,6 +28,5 @@ public class VirtualSchemaTestITCaseJAXRS extends VirtualSchemaTestITCase {
     public VirtualSchemaTestITCaseJAXRS() {
         super();
         setEnabledCXF(true);
-        setContentType(CONTENT_TYPE_XML);
     }
 }

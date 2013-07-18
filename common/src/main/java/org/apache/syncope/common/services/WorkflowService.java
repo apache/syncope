@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.services;
 
-import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -50,6 +49,5 @@ public interface WorkflowService {
      */
     @GET
     @Path("tasks")
-    List<String> getDefinedTasks(@PathParam("kind") AttributableType kind);
-
+    WorkflowTasks getDefinedTasks(@PathParam("kind") AttributableType kind);
 }

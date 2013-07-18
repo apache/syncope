@@ -144,8 +144,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        @SuppressWarnings("unchecked")
-        List<PropagationTaskTO> tasks = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION);
+        List<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -155,9 +154,8 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void paginatedList() {
-        List<PropagationTaskTO> tasks = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION, 1, 2);
+        List<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION, 1, 2);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -167,7 +165,7 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(task);
         }
 
-        tasks = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION, 2, 2);
+        tasks = taskService.list(TaskType.PROPAGATION, 2, 2);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -176,7 +174,7 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(task);
         }
 
-        tasks = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION, 1000, 2);
+        tasks = taskService.list(TaskType.PROPAGATION, 1000, 2);
 
         assertNotNull(tasks);
         assertTrue(tasks.isEmpty());
@@ -512,8 +510,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     private NotificationTaskTO findNotificationTaskBySender(final String sender) {
-        @SuppressWarnings("unchecked")
-        List<NotificationTaskTO> tasks = (List<NotificationTaskTO>) taskService.list(TaskType.NOTIFICATION);
+        List<NotificationTaskTO> tasks = taskService.list(TaskType.NOTIFICATION);
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
@@ -887,17 +884,15 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void bulkAction() {
-        @SuppressWarnings("unchecked")
-        final List<PropagationTaskTO> before = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION);
+        final List<PropagationTaskTO> before = taskService.list(TaskType.PROPAGATION);
 
         // create user with testdb resource
         final UserTO userTO = UserTestITCase.getUniqueSampleTO("taskBulk@apache.org");
         userTO.addResource("resource-testdb");
         createUser(userTO);
 
-        @SuppressWarnings("unchecked")
-        final List<PropagationTaskTO> after =
-                new ArrayList<PropagationTaskTO>((List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION));
+        final List<PropagationTaskTO> after = new ArrayList<PropagationTaskTO>(
+                taskService.<PropagationTaskTO>list(TaskType.PROPAGATION));
 
         after.removeAll(before);
 

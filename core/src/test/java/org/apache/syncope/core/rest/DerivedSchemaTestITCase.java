@@ -41,9 +41,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        @SuppressWarnings("unchecked")
-        List<DerivedSchemaTO> derivedSchemas = (List<DerivedSchemaTO>) schemaService.list(AttributableType.USER,
-                SchemaType.DERIVED);
+        List<DerivedSchemaTO> derivedSchemas = schemaService.list(AttributableType.USER, SchemaType.DERIVED);
         assertFalse(derivedSchemas.isEmpty());
         for (DerivedSchemaTO derivedSchemaTO : derivedSchemas) {
             assertNotNull(derivedSchemaTO);

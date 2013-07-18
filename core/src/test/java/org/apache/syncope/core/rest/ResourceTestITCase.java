@@ -120,7 +120,7 @@ public class ResourceTestITCase extends AbstractTest {
         p.setValues(Collections.singletonList("http://invalidurl/"));
 
         Set<ConnConfProperty> connectorConfigurationProperties = new HashSet<ConnConfProperty>(Arrays.asList(p));
-        resourceTO.setConnectorConfigurationProperties(connectorConfigurationProperties);
+        resourceTO.setConnConfProperties(connectorConfigurationProperties);
 
         Response response = resourceService.create(resourceTO);
         ResourceTO actual = getObject(response, ResourceTO.class, resourceService);

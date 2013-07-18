@@ -35,7 +35,7 @@ import javax.persistence.OneToOne;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.TraceLevel;

@@ -16,12 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.test;
+package org.apache.syncope.common;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -36,7 +37,6 @@ import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditLoggerName;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 
 public class JSONTest {

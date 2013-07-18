@@ -74,8 +74,8 @@ under the License.
 
   <!-- JSON (via Jackson) -->
   <bean id="jacksonObjectMapper" class="org.apache.syncope.core.rest.data.UnwrappedObjectMapper"/>
-  <bean id="mappingJacksonHttpMessageConverter"
-        class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+  <bean id="mappingJacksonHttpMessageConverter" 
+        class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
     <property name="objectMapper" ref="jacksonObjectMapper"/>
   </bean>
 
@@ -104,7 +104,7 @@ under the License.
     </property>
   </bean>
 
-  <bean id="jsonProvider" class="org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider">
+  <bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider">
     <property name="mapper" ref="jacksonObjectMapper"/>
   </bean>
 

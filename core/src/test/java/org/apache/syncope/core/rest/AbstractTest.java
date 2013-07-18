@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.apache.syncope.common.types.PolicyType.GLOBAL_SYNC;
-import static org.apache.syncope.common.types.PolicyType.SYNC;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -73,13 +71,10 @@ import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.services.UserWorkflowService;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.to.AbstractSchemaTO;
-import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.AttributeTO;
-import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PolicyTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.PolicyType;
@@ -91,7 +86,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
@@ -111,11 +106,8 @@ public abstract class AbstractTest {
 
     protected static final String ADMIN_PWD = "password";
 
-    public static final String CONTENT_TYPE_JSON = "application/json";
-
-    public static final String CONTENT_TYPE_XML = "application/xml";
-
-    public static final String DEFAULT_CONTENT_TYPE = CONTENT_TYPE_JSON;
+    // JSON is not working completely, so let's stay with XML as default for the moment
+    private static final String DEFAULT_CONTENT_TYPE = MediaType.APPLICATION_XML;
 
     private static final String ENV_KEY_CONTENT_TYPE = "jaxrsContentType";
 
@@ -123,7 +115,7 @@ public abstract class AbstractTest {
     private RestTemplate restTemplate;
 
     @Autowired
-    private MappingJacksonHttpMessageConverter mappingJacksonHttpMessageConverter;
+    private MappingJackson2HttpMessageConverter mappingJacksonHttpMessageConverter;
 
     @Autowired
     private PreemptiveAuthHttpRequestFactory httpClientFactory;
@@ -254,20 +246,13 @@ public abstract class AbstractTest {
         return serviceProxy;
     }
 
-    protected WebClient createWebClient(final String path) {
-        WebClient wc = restClientFactory.createWebClient().to(BASE_URL, false);
-        wc.accept(MediaType.APPLICATION_JSON_TYPE).type(MediaType.APPLICATION_JSON_TYPE);
-        wc.path(path);
-        return wc;
-    }
-
     protected void setupContentType(final Client restClient) {
         if (contentType == null) {
             String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
-            if ((envContentType != null) && (!envContentType.isEmpty())) {
-                contentType = envContentType;
-            } else {
+            if (envContentType == null || envContentType.isEmpty()) {
                 contentType = DEFAULT_CONTENT_TYPE;
+            } else {
+                contentType = envContentType;
             }
         }
         restClient.type(contentType).accept(contentType);
@@ -311,10 +296,6 @@ public abstract class AbstractTest {
 
     protected void setEnabledCXF(final boolean enabledCXF) {
         this.enabledCXF = enabledCXF;
-    }
-
-    protected void setContentType(final String contentType) {
-        this.contentType = contentType;
     }
 
     private static <T> T getObjectCXF(final Response response, final Class<T> type, final Object serviceProxy) {

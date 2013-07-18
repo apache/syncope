@@ -28,7 +28,5 @@ public class SchemaTestITCaseJAXRS extends SchemaTestITCase {
     public SchemaTestITCaseJAXRS() {
         super();
         setEnabledCXF(true);
-        // JSON is currently not working (fix after CXF migration is complete)
-        setContentType(CONTENT_TYPE_XML);
     }
 }

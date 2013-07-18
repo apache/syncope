@@ -132,23 +132,21 @@ public class SchemaTestITCase extends AbstractTest {
         assertNull(firstname);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void list() {
-        List<SchemaTO> userSchemas = (List<SchemaTO>) schemaService.list(AttributableType.USER, SchemaType.NORMAL);
+        List<SchemaTO> userSchemas = schemaService.list(AttributableType.USER, SchemaType.NORMAL);
         assertFalse(userSchemas.isEmpty());
         for (SchemaTO schemaTO : userSchemas) {
             assertNotNull(schemaTO);
         }
 
-        List<SchemaTO> roleSchemas = (List<SchemaTO>) schemaService.list(AttributableType.ROLE, SchemaType.NORMAL);
+        List<SchemaTO> roleSchemas = schemaService.list(AttributableType.ROLE, SchemaType.NORMAL);
         assertFalse(roleSchemas.isEmpty());
         for (SchemaTO schemaTO : roleSchemas) {
             assertNotNull(schemaTO);
         }
 
-        List<SchemaTO> membershipSchemas = (List<SchemaTO>) schemaService.list(AttributableType.MEMBERSHIP,
-                SchemaType.NORMAL);
+        List<SchemaTO> membershipSchemas = schemaService.list(AttributableType.MEMBERSHIP, SchemaType.NORMAL);
         assertFalse(membershipSchemas.isEmpty());
         for (SchemaTO schemaTO : membershipSchemas) {
             assertNotNull(schemaTO);

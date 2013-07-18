@@ -292,17 +292,17 @@ under the License.
     <connid.ad.version>1.1.1</connid.ad.version>
 
     <commons-jexl.version>2.1.1</commons-jexl.version>
-    <commons-lang.version>2.6</commons-lang.version>
+    <commons-lang.version>3.1</commons-lang.version>
         
     <hc.client.version>4.2.5</hc.client.version>
 
     <activiti.version>5.13</activiti.version>
 
-    <cxf.version>2.7.5</cxf.version>	
+    <cxf.version>2.7.6-SNAPSHOT</cxf.version>	
     <spring.version>3.2.3.RELEASE</spring.version>
     <spring-security.version>3.1.4.RELEASE</spring-security.version>
     <aspectj.version>1.7.3</aspectj.version>
-    <jackson.version>1.9.12</jackson.version>
+    <jackson.version>2.2.2</jackson.version>
     <xstream.version>1.4.4</xstream.version>
     <velocity.version>1.7</velocity.version>
     <quartz.version>2.1.7</quartz.version>
@@ -400,8 +400,8 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
         <version>${commons-lang.version}</version>
       </dependency>
 
@@ -627,18 +627,18 @@ under the License.
       <!-- /CXF -->
 
       <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-core-asl</artifactId>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
         <version>${jackson.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-mapper-asl</artifactId>
+        <groupId>com.fasterxml.jackson.module</groupId>
+        <artifactId>jackson-module-jaxb-annotations</artifactId>
         <version>${jackson.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-jaxrs</artifactId>
+        <groupId>com.fasterxml.jackson.jaxrs</groupId>
+        <artifactId>jackson-jaxrs-json-provider</artifactId>
         <version>${jackson.version}</version>
       </dependency>
 

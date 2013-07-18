@@ -100,8 +100,7 @@ public interface ReportService {
      * @return Returns a list of reports according to pagination
      */
     @GET
-    List<ReportTO> list(@QueryParam("page") int page,
-            @QueryParam("size") @DefaultValue("25") int size);
+    List<ReportTO> list(@QueryParam("page") int page, @QueryParam("size") @DefaultValue("25") int size);
 
     /**
      * @param reportId ID of report to be read

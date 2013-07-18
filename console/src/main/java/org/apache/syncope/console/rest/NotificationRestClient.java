@@ -61,6 +61,6 @@ public class NotificationRestClient extends BaseRestClient {
     }
 
     public List<String> getEvents() {
-        return getService(WorkflowService.class).getDefinedTasks(AttributableType.USER);
+        return getService(WorkflowService.class).getDefinedTasks(AttributableType.USER).getTasks();
     }
 }

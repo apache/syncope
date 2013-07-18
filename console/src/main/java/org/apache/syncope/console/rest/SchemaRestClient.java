@@ -65,7 +65,7 @@ public class SchemaRestClient extends BaseRestClient {
         List<SchemaTO> schemas = null;
 
         try {
-            schemas = (List<SchemaTO>) getService(SchemaService.class).list(type, SchemaType.NORMAL);
+            schemas = getService(SchemaService.class).list(type, SchemaType.NORMAL);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all schemas", e);
         }
@@ -83,8 +83,7 @@ public class SchemaRestClient extends BaseRestClient {
 
         try {
             @SuppressWarnings("unchecked")
-            final List<SchemaTO> schemas = (List<SchemaTO>) getService(SchemaService.class).list(type,
-                    SchemaType.NORMAL);
+            final List<SchemaTO> schemas = getService(SchemaService.class).list(type, SchemaType.NORMAL);
             for (SchemaTO schemaTO : schemas) {
                 schemaNames.add(schemaTO.getName());
             }
@@ -106,7 +105,7 @@ public class SchemaRestClient extends BaseRestClient {
         List<DerivedSchemaTO> userDerivedSchemas = null;
 
         try {
-            userDerivedSchemas = (List<DerivedSchemaTO>) getService(SchemaService.class).list(type, SchemaType.DERIVED);
+            userDerivedSchemas = getService(SchemaService.class).list(type, SchemaType.DERIVED);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all user derived schemas", e);
         }
@@ -124,10 +123,9 @@ public class SchemaRestClient extends BaseRestClient {
 
         try {
             @SuppressWarnings("unchecked")
-            final List<DerivedSchemaTO> userDerivedSchemas = (List<DerivedSchemaTO>) getService(SchemaService.class)
-                    .list(type, SchemaType.DERIVED);
+            final List<DerivedSchemaTO> userDerSchemas = getService(SchemaService.class).list(type, SchemaType.DERIVED);
 
-            for (DerivedSchemaTO schemaTO : userDerivedSchemas) {
+            for (DerivedSchemaTO schemaTO : userDerSchemas) {
                 userDerivedSchemasNames.add(schemaTO.getName());
             }
         } catch (SyncopeClientCompositeErrorException e) {
@@ -147,7 +145,7 @@ public class SchemaRestClient extends BaseRestClient {
         List<VirtualSchemaTO> userVirtualSchemas = null;
 
         try {
-            userVirtualSchemas = (List<VirtualSchemaTO>) getService(SchemaService.class).list(type, SchemaType.VIRTUAL);
+            userVirtualSchemas = getService(SchemaService.class).list(type, SchemaType.VIRTUAL);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all user derived schemas", e);
         }
@@ -165,9 +163,8 @@ public class SchemaRestClient extends BaseRestClient {
 
         try {
             @SuppressWarnings("unchecked")
-            final List<VirtualSchemaTO> userVirtualSchemas = (List<VirtualSchemaTO>) getService(SchemaService.class)
-                    .list(type, SchemaType.VIRTUAL);
-            for (VirtualSchemaTO schemaTO : userVirtualSchemas) {
+            final List<VirtualSchemaTO> userVirSchemas = getService(SchemaService.class).list(type, SchemaType.VIRTUAL);
+            for (VirtualSchemaTO schemaTO : userVirSchemas) {
                 userVirtualSchemasNames.add(schemaTO.getName());
             }
         } catch (SyncopeClientCompositeErrorException e) {

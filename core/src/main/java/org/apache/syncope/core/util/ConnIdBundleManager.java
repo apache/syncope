@@ -35,7 +35,7 @@ import java.util.Properties;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.identityconnectors.common.IOUtil;
 import org.identityconnectors.common.security.GuardedString;

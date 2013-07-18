@@ -80,5 +80,4 @@ public interface UserRequestService {
     @DELETE
     @Path("{requestId}")
     void delete(@PathParam("requestId") Long requestId);
-
 }

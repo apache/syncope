@@ -512,17 +512,13 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // set connector configuration
         connectorTO.setConfiguration(conf);
 
-        Boolean verify = connectorService.check(connectorTO);
-
-        assertTrue(verify);
+        assertTrue(connectorService.check(connectorTO));
 
         conf.remove(password);
         password.setValues(Collections.singletonList("password"));
         conf.add(password);
 
-        verify = connectorService.check(connectorTO);
-
-        assertFalse(verify);
+        assertFalse(connectorService.check(connectorTO));
     }
 
     @Test
@@ -627,7 +623,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
                 throw (RuntimeException) clientExceptionMapper.fromResponse(response);
             }
 
-            connectorTO = getObject(response, ConnInstanceTO.class, configurationService);
+            connectorTO = getObject(response, ConnInstanceTO.class, connectorService);
             assertNotNull(connectorTO);
             // ----------------------------------------
 
@@ -644,7 +640,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
             endpoint.setValues(Collections.singletonList("http://localhost:9080/wssample/services/provisioning"));
             conf.add(endpoint);
 
-            resourceTO.setConnectorConfigurationProperties(conf);
+            resourceTO.setConnConfProperties(conf);
 
             MappingTO mapping = new MappingTO();
             resourceTO.setUmapping(mapping);

@@ -148,7 +148,7 @@ public class UserTestITCase extends AbstractTest {
     @SuppressWarnings("unchecked")
     public void createUserWithNoPropagation() {
         // get task list
-        List<PropagationTaskTO> tasks = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION);
+        List<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -164,7 +164,7 @@ public class UserTestITCase extends AbstractTest {
         createUser(userTO);
 
         // get the new task list
-        tasks = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION);
+        tasks = taskService.list(TaskType.PROPAGATION);
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
@@ -386,7 +386,7 @@ public class UserTestITCase extends AbstractTest {
     @SuppressWarnings("unchecked")
     public void create() {
         // get task list
-        List<PropagationTaskTO> tasks = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION);
+        List<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -433,7 +433,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("virtualvalue", newUserTO.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
 
         // get the new task list
-        tasks = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION);
+        tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -901,7 +901,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     @SuppressWarnings("unchecked")
     public void updatePasswordOnly() {
-        List<PropagationTaskTO> beforeTasks = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION);
+        List<PropagationTaskTO> beforeTasks = taskService.list(TaskType.PROPAGATION);
         assertNotNull(beforeTasks);
         assertFalse(beforeTasks.isEmpty());
 
@@ -926,7 +926,7 @@ public class UserTestITCase extends AbstractTest {
         passwordTestUser.setPassword("newPassword123", CipherAlgorithm.SHA1, 0);
         assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
 
-        List<PropagationTaskTO> afterTasks = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION);
+        List<PropagationTaskTO> afterTasks = taskService.list(TaskType.PROPAGATION);
         assertNotNull(afterTasks);
         assertFalse(afterTasks.isEmpty());
 
@@ -937,7 +937,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void verifyTaskRegistration() {
         // get task list
-        List<PropagationTaskTO> tasks = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION);
+        List<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -960,7 +960,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // get the new task list
-        tasks = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION);
+        tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -985,7 +985,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // get the new task list
-        tasks = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION);
+        tasks = taskService.list(TaskType.PROPAGATION);
 
         maxId = newMaxId;
         newMaxId = getMaxTaskId(tasks);
@@ -1005,7 +1005,7 @@ public class UserTestITCase extends AbstractTest {
         userService.delete(userTO.getId());
 
         // get the new task list
-        tasks = (List<PropagationTaskTO>) taskService.list(TaskType.PROPAGATION);
+        tasks = taskService.list(TaskType.PROPAGATION);
 
         maxId = newMaxId;
         newMaxId = getMaxTaskId(tasks);

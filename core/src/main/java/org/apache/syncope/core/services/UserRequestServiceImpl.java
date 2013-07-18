@@ -86,5 +86,4 @@ public class UserRequestServiceImpl implements UserRequestService, ContextAware 
     public void setUriInfo(final UriInfo uriInfo) {
         this.uriInfo = uriInfo;
     }
-
 }

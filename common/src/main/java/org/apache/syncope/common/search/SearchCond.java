@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.search;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public interface SearchCond {
 

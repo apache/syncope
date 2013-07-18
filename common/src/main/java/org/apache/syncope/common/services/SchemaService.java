@@ -59,7 +59,8 @@ public interface SchemaService {
      * @return List of schemas with matching kind and type
      */
     @GET
-    List<? extends AbstractSchemaTO> list(@PathParam("kind") AttributableType kind, @PathParam("type") SchemaType type);
+    <T extends AbstractSchemaTO> List<T> list(
+            @PathParam("kind") AttributableType kind, @PathParam("type") SchemaType type);
 
     /**
      * @param kind Kind for schemas to be read
@@ -82,5 +83,4 @@ public interface SchemaService {
     @Path("{name}")
     <T extends AbstractSchemaTO> void update(@PathParam("kind") AttributableType kind,
             @PathParam("type") SchemaType type, @PathParam("name") String schemaName, T schemaTO);
-
 }

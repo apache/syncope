@@ -115,13 +115,13 @@ public class TaskServiceImpl implements TaskService, ContextAware {
     }
 
     @Override
-    public List<? extends TaskTO> list(final TaskType taskType) {
-        return taskController.list(taskType.toString());
+    public <T extends TaskTO> List<T> list(final TaskType taskType) {
+        return (List<T>) taskController.list(taskType.toString());
     }
 
     @Override
-    public List<? extends TaskTO> list(final TaskType taskType, final int page, final int size) {
-        return taskController.list(taskType.toString(), page, size);
+    public <T extends TaskTO> List<T> list(final TaskType taskType, final int page, final int size) {
+        return (List<T>) taskController.list(taskType.toString(), page, size);
     }
 
     @SuppressWarnings("unchecked")

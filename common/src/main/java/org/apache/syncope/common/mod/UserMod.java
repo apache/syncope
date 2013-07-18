@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.mod;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.HashSet;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
@@ -25,7 +26,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.to.PropagationRequestTO;
-import org.codehaus.jackson.annotate.JsonIgnore;
 
 @XmlRootElement(name = "userMod")
 @XmlType
