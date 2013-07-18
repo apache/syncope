@@ -302,7 +302,7 @@ under the License.
     <spring.version>3.2.3.RELEASE</spring.version>
     <spring-security.version>3.1.4.RELEASE</spring-security.version>
     <aspectj.version>1.7.3</aspectj.version>
-    <jackson.version>1.9.12</jackson.version>
+    <jackson.version>1.9.13</jackson.version>
     <xstream.version>1.4.4</xstream.version>
     <velocity.version>1.7</velocity.version>
     <quartz.version>2.1.7</quartz.version>
