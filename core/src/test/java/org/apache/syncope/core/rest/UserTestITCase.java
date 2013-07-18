@@ -255,9 +255,9 @@ public class UserTestITCase extends AbstractTest {
         try {
             userTO = userService.update(userMod.getId(), userMod);
         } catch (SyncopeClientCompositeErrorException scce) {
-            sce = scce.getException(SyncopeClientExceptionType.Propagation);
+            sce = scce.getException(SyncopeClientExceptionType.InvalidSyncopeUser);
         }
-        assertNull(sce);
+        assertNotNull(sce);
     }
 
     @Test
@@ -593,7 +593,7 @@ public class UserTestITCase extends AbstractTest {
         Exception exception = null;
         try {
             jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
-                    new String[] {userTO.getUsername()}, Integer.class);
+                    new String[]{userTO.getUsername()}, Integer.class);
         } catch (EmptyResultDataAccessException e) {
             exception = e;
         }
@@ -1927,12 +1927,12 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(prop);
         assertEquals("ws-target-resource-1", prop.getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, prop.getStatus());
-        
+
         // 6. restore initial cipher algorithm
         pwdCipherAlgo.setValue(origpwdCipherAlgo);
         configurationService.update(pwdCipherAlgo.getKey(), pwdCipherAlgo);
     }
-    
+
     @Test
     public void isseSYNCOPE136Random() {
         // 1. create user with no resources

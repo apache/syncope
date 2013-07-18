@@ -28,7 +28,6 @@ under the License.
 <%@page import="org.apache.syncope.core.persistence.dao.MissingConfKeyException"%>
 <%@page import="org.apache.syncope.common.validation.SyncopeClientException"%>
 <%@page import="org.apache.syncope.common.validation.SyncopeClientCompositeErrorException"%>
-<%@page import="org.apache.syncope.core.propagation.PropagationException"%>
 <%@page import="org.apache.syncope.core.workflow.WorkflowException"%>
 <%@page import="org.apache.syncope.common.types.SyncopeClientExceptionType"%>
 <%@page import="org.apache.syncope.core.persistence.dao.NotFoundException"%>
@@ -88,13 +87,6 @@ under the License.
                 SyncopeClientExceptionType.Workflow.getHeaderValue());
         response.setHeader(
                 SyncopeClientExceptionType.Workflow.getElementHeaderName(), "Currently unavailable. Please try later.");
-
-        statusCode = HttpServletResponse.SC_BAD_REQUEST;
-    } else if (ex instanceof PropagationException) {
-        response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                SyncopeClientExceptionType.Propagation.getHeaderValue());
-        response.setHeader(SyncopeClientExceptionType.Propagation.getElementHeaderName(),
-                ((PropagationException) ex).getResourceName());
 
         statusCode = HttpServletResponse.SC_BAD_REQUEST;
     } else if (ex instanceof SyncopeClientCompositeErrorException) {

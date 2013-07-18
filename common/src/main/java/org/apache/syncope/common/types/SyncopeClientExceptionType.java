@@ -60,7 +60,6 @@ public enum SyncopeClientExceptionType {
     InvalidSyncTask("Syncope.InvalidSyncTask", "Syncope.InvalidSyncTask.element"),
     InvalidValues("Syncope.InvalidValues", "Syncope.InvalidValues.attributeName"),
     NotFound("Syncope.NotFound", "Syncope.NotFound.entity"),
-    Propagation("Syncope.Propagation", "Syncope.Propagation.resourceName"),
     RejectedUserCreate("Syncope.RejectUserCreate", "Syncope.RejectUserCreate.userId"),
     RequiredValuesMissing("Syncope.RequiredValuesMissing", "Syncope.RequiredValuesMissing.attributeName"),
     Scheduling("Syncope.Scheduling", "Syncope.Scheduling.message"),
