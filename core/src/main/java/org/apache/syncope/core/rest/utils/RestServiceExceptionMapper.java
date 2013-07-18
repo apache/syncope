@@ -38,7 +38,6 @@ import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
-import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.workflow.WorkflowException;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
@@ -186,9 +185,6 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
             return responseBuilder.build();
         } else if (ex instanceof WorkflowException) {
             return buildResponse(responseBuilder, SyncopeClientExceptionType.Workflow, getExMessage(ex));
-        } else if (ex instanceof PropagationException) {
-            return buildResponse(responseBuilder, SyncopeClientExceptionType.Propagation, getMessage(ex,
-                    ((PropagationException) ex).getResourceName()));
         } else if (ex instanceof InvalidSearchConditionException) {
             return buildResponse(responseBuilder, SyncopeClientExceptionType.InvalidSearchCondition, getExMessage(ex));
         } else if (ex instanceof PersistenceException) {
