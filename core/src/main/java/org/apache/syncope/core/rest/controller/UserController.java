@@ -41,7 +41,6 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.UserSubCategory;
-import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
@@ -302,11 +301,12 @@ public class UserController {
                 created, userTO.getPassword(), userTO.getVirtualAttributes());
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
+        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
         try {
-            taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+            taskExecutor.execute(tasks, propHanlder);
         } catch (PropagationException e) {
             LOG.error("Error propagation primary resource", e);
-            completeWhenErroredPrimaryPropagation(propagations, tasks);
+            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
         }
 
         notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
@@ -385,11 +385,12 @@ public class UserController {
         }
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
+        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
         try {
-            taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+            taskExecutor.execute(tasks, propHanlder);
         } catch (PropagationException e) {
             LOG.error("Error propagation primary resource", e);
-            completeWhenErroredPrimaryPropagation(propagations, tasks);
+            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
         }
 
         // 3. create notification tasks
@@ -711,12 +712,12 @@ public class UserController {
         userTO.setId(userId);
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-
+        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
         try {
             taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
         } catch (PropagationException e) {
             LOG.error("Error propagation primary resource", e);
-            completeWhenErroredPrimaryPropagation(propagations, tasks);
+            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
         }
 
         userTO.setPropagationStatusTOs(propagations);
@@ -776,33 +777,5 @@ public class UserController {
         }
 
         return res;
-    }
-
-    private void completeWhenErroredPrimaryPropagation(
-            final List<PropagationStatusTO> propagations, final List<PropagationTask> tasks) {
-        
-        final String failedResource = propagations.get(propagations.size() - 1).getResource();
-        
-        LOG.debug("Propagation error: {} primary resource failed to propagate", failedResource);
-
-        for (PropagationTask propagationTask : tasks) {
-            if (!containsPropagationStatusTO(propagationTask.getResource().getName(), propagations)) {
-                final PropagationStatusTO propagationStatusTO = new PropagationStatusTO();
-                propagationStatusTO.setResource(propagationTask.getResource().getName());
-                propagationStatusTO.setStatus(PropagationTaskExecStatus.FAILURE);
-                propagationStatusTO.setExecutionMessage(
-                        "Propagation error: " + failedResource + " primary resource failed to propagate.");
-                propagations.add(propagationStatusTO);
-            }
-        }
-    }
-
-    private boolean containsPropagationStatusTO(final String resource, final List<PropagationStatusTO> propagations) {
-        for (PropagationStatusTO status : propagations) {
-            if (resource.equals(status.getResource())) {
-                return true;
-            }
-        }
-        return false;
     }
 }
