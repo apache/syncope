@@ -45,12 +45,12 @@ public class DefaultPropagationHandler implements PropagationHandler {
 
     @Override
     public void handle(final String resource, final PropagationTaskExecStatus executionStatus,
-            final String taskExecutionMessage, final ConnectorObject beforeObj, final ConnectorObject afterObj) {
+            final String failureReason, final ConnectorObject beforeObj, final ConnectorObject afterObj) {
 
         final PropagationStatusTO propagation = new PropagationStatusTO();
         propagation.setResource(resource);
         propagation.setStatus(executionStatus);
-        propagation.setExecutionMessage(taskExecutionMessage);
+        propagation.setFailureReason(failureReason);
 
         if (beforeObj != null) {
             propagation.setBeforeObj(connObjectUtil.getConnObjectTO(beforeObj));
@@ -75,7 +75,7 @@ public class DefaultPropagationHandler implements PropagationHandler {
                 final PropagationStatusTO propagationStatusTO = new PropagationStatusTO();
                 propagationStatusTO.setResource(propagationTask.getResource().getName());
                 propagationStatusTO.setStatus(PropagationTaskExecStatus.FAILURE);
-                propagationStatusTO.setExecutionMessage(
+                propagationStatusTO.setFailureReason(
                         "Propagation error: " + failedResource + " primary resource failed to propagate.");
                 propagations.add(propagationStatusTO);
             }

@@ -242,7 +242,7 @@ public class UserTestITCase extends AbstractTest {
         userMod.addResourceToBeAdded("ws-target-resource-1");
 
         userTO = userService.update(userMod.getId(), userMod);
-        assertNotNull(userTO.getPropagationStatusTOs().get(0).getExecutionMessage());
+        assertNotNull(userTO.getPropagationStatusTOs().get(0).getFailureReason());
 
         // 4. update assigning a resource NOT forcing mandatory constraints
         // BUT not primary: must succeed
@@ -1817,7 +1817,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.addResource("ws-target-resource-timeout");
         userTO = createUser(userTO);
         assertEquals("ws-target-resource-timeout", userTO.getPropagationStatusTOs().get(0).getResource());
-        assertNotNull(userTO.getPropagationStatusTOs().get(0).getExecutionMessage());
+        assertNotNull(userTO.getPropagationStatusTOs().get(0).getFailureReason());
         assertEquals(PropagationTaskExecStatus.UNSUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
     }
 
@@ -2213,7 +2213,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.update(userMod.getId(), userMod);
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
         assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
-        assertNotNull(userTO.getPropagationStatusTOs().get(0).getExecutionMessage());
+        assertNotNull(userTO.getPropagationStatusTOs().get(0).getFailureReason());
 
         // 3. request to change password only on testdb
         userMod = new UserMod();
@@ -2325,7 +2325,7 @@ public class UserTestITCase extends AbstractTest {
         userMod.addResourceToBeAdded("resource-testdb");
         userTO = userService.update(userMod.getId(), userMod);
         assertEquals("ws-target-resource-1", userTO.getPropagationStatusTOs().get(1).getResource());
-        assertNotNull(userTO.getPropagationStatusTOs().get(1).getExecutionMessage());
+        assertNotNull(userTO.getPropagationStatusTOs().get(1).getFailureReason());
         assertEquals(PropagationTaskExecStatus.UNSUBMITTED, userTO.getPropagationStatusTOs().get(1).getStatus());
     }
 

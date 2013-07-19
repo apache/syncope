@@ -275,6 +275,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         execution.setStatus(PropagationTaskExecStatus.CREATED.name());
 
         String taskExecutionMessage = null;
+        String failureReason = null;
 
         // Flag to state whether any propagation has been attempted
         Set<String> propagationAttempted = new HashSet<String>();
@@ -314,11 +315,17 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             if (e instanceof ConnectorException && e.getCause() != null) {
                 taskExecutionMessage = e.getCause().getMessage();
+                failureReason = e.getMessage() + "\n\n Cause: " + e.getCause().getMessage().split("\n")[0];
             } else {
                 StringWriter exceptionWriter = new StringWriter();
                 exceptionWriter.write(e.getMessage() + "\n\n");
                 e.printStackTrace(new PrintWriter(exceptionWriter));
                 taskExecutionMessage = exceptionWriter.toString();
+                if (e.getCause() != null) {
+                    failureReason = e.getMessage() + "\n\n Cause: " + e.getCause().getMessage().split("\n")[0];
+                } else {
+                    failureReason = e.getMessage();
+                }
             }
 
             try {
@@ -362,12 +369,12 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 // this flush call is needed to generate a value for the execution id
                 taskDAO.flush();
             }
-            
+
             if (handler != null) {
                 handler.handle(
                         task.getResource().getName(),
                         PropagationTaskExecStatus.valueOf(execution.getStatus()),
-                        taskExecutionMessage,
+                        failureReason,
                         beforeObj,
                         afterObj);
             }

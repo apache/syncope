@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConnObjectTO;
@@ -40,6 +41,7 @@ import org.apache.syncope.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.StatusUtils;
 import org.apache.wicket.Component;
+import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.Behavior;
@@ -164,6 +166,17 @@ public class ResultStatusModalPage extends BaseModalPage {
 
                     final Image image;
                     final String alt, title;
+                    final ModalWindow failureWindow = new ModalWindow("failureWindow");
+                    final AjaxLink<?> failureWindowLink = new AjaxLink<Void>("showFailureWindow") {
+
+                        private static final long serialVersionUID = -7978723352517770644L;
+
+                        @Override
+                        public void onClick(AjaxRequestTarget target) {
+                            failureWindow.show(target);
+                        }
+                    };
+
                     switch (propTO.getStatus()) {
 
                         case SUCCESS:
@@ -173,6 +186,8 @@ public class ResultStatusModalPage extends BaseModalPage {
                                     + Constants.PNG_EXT);
                             alt = "success icon";
                             title = "success";
+                            failureWindow.setVisible(false);
+                            failureWindowLink.setEnabled(false);
                             break;
 
                         default:
@@ -192,8 +207,30 @@ public class ResultStatusModalPage extends BaseModalPage {
                             tag.put("title", title);
                         }
                     });
+                    final FailureMessageModalPage executionFailureMessagePage;
+                    if (propTO.getFailureReason() != null) {
+                        executionFailureMessagePage = new FailureMessageModalPage(failureWindow.getContentId(), propTO.
+                                getFailureReason());
+                    } else {
+                        executionFailureMessagePage = new FailureMessageModalPage(failureWindow.getContentId(),
+                                StringUtils.EMPTY);
+                    }
 
-                    attrhead.add(image);
+                    failureWindow.setPageCreator(new ModalWindow.PageCreator() {
+
+                        private static final long serialVersionUID = -7834632442532690940L;
+
+                        @Override
+                        public Page createPage() {
+                            return executionFailureMessagePage;
+                        }
+                    });
+                    failureWindow.setCookieName("failureWindow");
+                    failureWindow.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+                    //attrhead.add(image);
+                    failureWindowLink.add(image);
+                    attrhead.add(failureWindowLink);
+                    attrhead.add(failureWindow);
                 }
             };
             fragment.add(propRes);
