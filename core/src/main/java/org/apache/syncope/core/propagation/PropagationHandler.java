@@ -32,9 +32,10 @@ public interface PropagationHandler {
      *
      * @param resourceName resource name.
      * @param execStatus propagation execution status.
+     * @param failureReason propagation execution failure message.
      * @param beforeObj retrieved connector object before operation execution.
      * @param afterObj retrieved connector object after operation execution.
      */
     void handle(String resourceName, PropagationTaskExecStatus execStatus,
-            String taskExecutionMessage, ConnectorObject beforeObj, ConnectorObject afterObj);
+            String failureReason, ConnectorObject beforeObj, ConnectorObject afterObj);
 }

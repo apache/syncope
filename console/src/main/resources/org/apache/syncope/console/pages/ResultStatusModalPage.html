@@ -91,12 +91,16 @@ under the License.
       display: table-cell;
       width: 220px;
       height: 30px;
-      padding: 3px 0px 5px 0px;
+      padding: 10px 0px 5px 0px;
     }
 
     div#resource img{
       width: 12px;
       height: 12px;
+      position: relative;
+      left: 3px;
+      top: 1px;
+      opacity: 1;
     }
 
     div#attrhead {
@@ -106,8 +110,8 @@ under the License.
       height: 30px;
       padding: 3px 0px 5px 0px;
       text-align: center;
-      vertical-align: bottom;
-      font-size: 8px;
+      vertical-align: middle;
+      font-size: 11px;
     }
   </style>
 </wicket:head>
@@ -159,13 +163,18 @@ under the License.
       <div id="resource">
         <div>
           <span wicket:id="resource">[resource name]</span>
-          <img wicket:id="icon"/>
-        </div>
+          <a wicket:id="showFailureWindow" href="#">
+            <img wicket:id="icon"/>
+          </a>
+         
+          <div id="propagation">
+            <wicket:message key="propresult">[propagation result message]</wicket:message>
+            &nbsp;
+            <span wicket:id="propagation">[propagation result]</span>
+          </div>
+         
+          <div wicket:id="failureWindow"></div>
 
-        <div id="propagation">
-          <wicket:message key="propresult">[propagation result message]</wicket:message>
-          &nbsp;
-          <span wicket:id="propagation">[propagation result]</span>
         </div>
       </div>
 
@@ -184,13 +193,18 @@ under the License.
       <div id="resource">
         <div>
           <span wicket:id="resource">[resource name]</span>
-          <img wicket:id="icon"/>
-        </div>
+          <a wicket:id="showFailureWindow" href="#">
+            <img wicket:id="icon"/>
+          </a>
 
-        <div id="propagation">
-          <wicket:message key="propresult">[propagation result message]</wicket:message>
-          &nbsp;
-          <span wicket:id="propagation">[propagation result]</span>
+          <div id="propagation">
+            <wicket:message key="propresult">[propagation result message]</wicket:message>
+            &nbsp;
+            <span wicket:id="propagation">[propagation result]</span>
+            <div wicket:id="failureWindow"></div>
+
+          </div>
+         
         </div>
       </div>
     </div>
