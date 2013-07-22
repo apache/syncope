@@ -20,26 +20,17 @@ under the License.
 <style>
   .w_content_3 {
     padding: 0;
-  }
-
-  .w_body_1{
     color: #333333;
     font-family: Verdana,Tahoma,sans-serif;
     font-size: 62.5%;
   }
 </style>
-<html>
-  <head>
-    <title></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  </head>
-  <body class="w_body_1">
-    <div class="w_content_3">
-      <div>
-          <div style="margin: 1em">
-            <pre wicket:id="failureMessage"></pre> 
-          </div>
+<wicket:extend>
+  <div class="w_content_3">
+    <div>
+      <div style="margin: 1em">
+        <pre wicket:id="failureMessage"></pre> 
       </div>
     </div>
-  </body>
-</html>
+  </div>
+</wicket:extend>
