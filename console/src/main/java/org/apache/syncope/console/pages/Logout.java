@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
@@ -35,14 +33,6 @@ public class Logout extends BasePage {
 
         SyncopeSession.get().invalidate();
 
-        // TODO: check that this is indeed not necessary anymore.
-        //        getRequestCycle().setRedirect(true);
-
         setResponsePage(getApplication().getHomePage());
-
-        PreemptiveAuthHttpRequestFactory requestFactory =
-                ((PreemptiveAuthHttpRequestFactory) SyncopeSession.get().getRestTemplate().getRequestFactory());
-
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().clear();
     }
 }

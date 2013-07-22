@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console.pages;
 
-import static org.apache.wicket.Component.ENABLE;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

@@ -25,9 +25,9 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -41,12 +41,9 @@ public class XMLRolesReader {
      */
     private static final Logger LOG = LoggerFactory.getLogger(XMLRolesReader.class);
 
-    @Autowired
-    private String authorizations;
-
     private Document doc;
 
-    public void init() {
+    public void setAuthorizations(final String authorizations) {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
         try {
@@ -67,12 +64,8 @@ public class XMLRolesReader {
      * @return roles list comma separated
      */
     public String getAllAllowedRoles(final String pageId, final String actionId) {
-
         if (doc == null) {
-            init();
-        }
-        if (doc == null) {
-            return "";
+            return StringUtils.EMPTY;
         }
 
         final StringBuilder roles = new StringBuilder();

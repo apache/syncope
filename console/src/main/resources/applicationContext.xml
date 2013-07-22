@@ -19,21 +19,14 @@ under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:aop="http://www.springframework.org/schema/aop"
-       xmlns:p="http://www.springframework.org/schema/p"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:oxm="http://www.springframework.org/schema/oxm"
-       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:cxf="http://cxf.apache.org/core"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd
-                           http://www.springframework.org/schema/oxm
-                           http://www.springframework.org/schema/oxm/spring-oxm.xsd
-                           http://www.springframework.org/schema/tx
-                           http://www.springframework.org/schema/tx/spring-tx.xsd
-                           http://www.springframework.org/schema/aop
-                           http://www.springframework.org/schema/aop/spring-aop.xsd">
+                           http://cxf.apache.org/core 
+                           http://cxf.apache.org/schemas/core.xsd">
 
   <context:component-scan base-package="org.apache.syncope.console.rest"/>
 
@@ -63,78 +56,62 @@ under the License.
     <constructor-arg value="${licenseUrl}"/>
   </bean>
 
-  <bean id="authorizations" class="java.lang.String">
-    <constructor-arg value="authorizations.xml"/>
-  </bean>
-
   <bean id="syncopeApplication" class="org.apache.syncope.console.SyncopeApplication"/>
 
-  <bean id="jacksonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
+  <bean id="preferenceManager" class="org.apache.syncope.console.commons.PreferenceManager"/>
 
-  <bean id="mappingJacksonHttpMessageConverter" 
-        class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
-    <property name="objectMapper" ref="jacksonObjectMapper"/>
+  <bean id="xmlRolesReader" class="org.apache.syncope.console.commons.XMLRolesReader">
+    <property name="authorizations" value="authorizations.xml"/>
   </bean>
 
-  <bean id="httpClientConnManager" class="org.apache.http.impl.conn.PoolingClientConnectionManager"/>
+  <bean id="roleTreeBuilder" class="org.apache.syncope.console.commons.RoleTreeBuilder"/>
 
-  <bean id="httpHostHeader" class="org.apache.http.message.BasicHeader">
-    <constructor-arg value="Host"/>
-    <constructor-arg value="${host}"/>
-  </bean>
-  
-  <bean id="httpClientParams" class="org.apache.syncope.client.http.HttpClientParams">
-    <property name="parameterMap">
-      <map key-type="java.lang.String">
-        <entry>
-          <key>
-            <value>http.protocol.handle-authentication</value>
-          </key>
-          <value type="java.lang.Boolean">false</value>
+  <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.JAXBElementProvider">
+    <property name="depthProperties">
+      <bean id="depthProperties" class="org.apache.cxf.staxutils.DocumentDepthProperties">
+        <property name="innerElementCountThreshold" value="500"/>
+      </bean>
+    </property>
+    <property name="marshallerProperties">
+      <map>
+        <entry key="jaxb.formatted.output">
+          <value type="java.lang.Boolean">true</value>
         </entry>
+      </map>
+    </property>
+    <property name="collectionWrapperMap">
+      <map>
         <entry>
           <key>
-            <value>http.auth.credential-charset</value>
+            <value>org.apache.syncope.common.to.PolicyTO</value>
           </key>
-          <value type="java.lang.String">UTF-8</value>
-        </entry>
-        <entry>
-          <key>
-            <value>http.default-headers</value>
-          </key>
-          <list>
-            <ref bean="httpHostHeader"/>
-          </list>
+          <value>policies</value>
         </entry>
       </map>
     </property>
   </bean>
 
-  <bean id="httpClientFactory" class="org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory"
-        scope="prototype">
-    <constructor-arg value="${host}"/>
-    <constructor-arg value="${port}"/>
-    <constructor-arg value="${scheme}"/>
-    <constructor-arg ref="httpClientConnManager"/>
-    <constructor-arg ref="httpClientParams"/>
-  </bean>
+  <bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider"/>
 
-  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" scope="prototype">
-    <constructor-arg ref="httpClientFactory"/>
-    <property name="messageConverters">
+  <bean id="exceptionMapper" class="org.apache.syncope.client.rest.RestClientExceptionMapper"/>
+
+  <bean id="restClientFactory" class="org.apache.syncope.client.rest.RestClientFactoryBean" scope="prototype">
+    <property name="address" value="${scheme}://${host}:${port}/${rootPath}"/>
+    <property name="threadSafe" value="true"/>
+    <property name="inheritHeaders" value="true"/>
+    <property name="contentType" value="application/xml"/>
+    <property name="features">
       <list>
-        <ref bean="mappingJacksonHttpMessageConverter"/>
+        <cxf:logging/>
       </list>
     </property>
-    <property name="errorHandler">
-      <bean id="syncopeClientErrorHandler" class="org.apache.syncope.common.validation.SyncopeClientErrorHandler"/>
+    <property name="providers">
+      <list>
+        <ref bean="jaxbProvider"/>
+        <ref bean="jsonProvider"/>
+        <ref bean="exceptionMapper"/>
+      </list>
     </property>
   </bean>
-
-  <bean id="preferenceManager" class="org.apache.syncope.console.commons.PreferenceManager"/>
-
-  <bean id="xmlRolesReader" class="org.apache.syncope.console.commons.XMLRolesReader"/>
-
-  <bean id="roleTreeBuilder" class="org.apache.syncope.console.commons.RoleTreeBuilder"/>
 
 </beans>

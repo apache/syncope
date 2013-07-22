@@ -22,16 +22,15 @@ import java.security.AccessControlException;
 import java.util.Locale;
 import java.util.Set;
 import org.apache.http.HttpResponse;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
 import org.apache.syncope.common.services.EntitlementService;
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.EntitlementTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
@@ -58,8 +57,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * Syncope Login page.
@@ -114,19 +111,14 @@ public class Login extends WebPage {
                 try {
                     String[] entitlements = authenticate(userIdField.getRawInput(), passwordField.getRawInput());
 
-                    SyncopeSession.get().setUserId(userIdField.getRawInput());
+                    SyncopeSession.get().setUsername(userIdField.getRawInput());
+                    SyncopeSession.get().setPassword(passwordField.getRawInput());
                     SyncopeSession.get().setEntitlements(entitlements);
                     SyncopeSession.get().setVersion(getSyncopeVersion());
 
                     setResponsePage(WelcomePage.class, parameters);
                 } catch (AccessControlException e) {
                     error(getString("login-error"));
-
-                    PreemptiveAuthHttpRequestFactory requestFactory =
-                            ((PreemptiveAuthHttpRequestFactory) SyncopeSession.
-                            get().getRestTemplate().getRequestFactory());
-
-                    ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().clear();
                 }
             }
         };
@@ -180,18 +172,9 @@ public class Login extends WebPage {
         add(selfRegFrag);
     }
 
-    private String[] authenticate(final String userId, final String password) {
-        final RestTemplate restTemplate = SyncopeSession.get().getRestTemplate();
-
-        // 1. Set provided credentials to check
-        PreemptiveAuthHttpRequestFactory requestFactory =
-                ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory());
-
-        ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userId, password));
-
-        // 2. Search authorizations for user specified by credentials
-        Set<EntitlementTO> entitlements = SyncopeSession.get().getService(EntitlementService.class).getMyEntitlements();
+    private String[] authenticate(final String username, final String password) {
+        Set<EntitlementTO> entitlements = SyncopeSession.get().
+                getService(EntitlementService.class, username, password).getMyEntitlements();
         return CollectionWrapper.unwrap(entitlements).toArray(new String[0]);
     }
 
@@ -199,7 +182,7 @@ public class Login extends WebPage {
         Boolean result = null;
         try {
             result = SyncopeSession.get().getService(UserRequestService.class).isCreateAllowed();
-        } catch (HttpClientErrorException e) {
+        } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While seeking if self registration is allowed", e);
         }
 
@@ -209,15 +192,10 @@ public class Login extends WebPage {
     }
 
     private String getSyncopeVersion() {
-        final RestTemplate restTemplate = SyncopeSession.get().getRestTemplate();
-
-        PreemptiveAuthHttpRequestFactory requestFactory = ((PreemptiveAuthHttpRequestFactory) restTemplate.
-                getRequestFactory());
-
         String version = "";
         try {
             HttpGet get = new HttpGet(baseURL + "../version.jsp");
-            HttpResponse response = requestFactory.getHttpClient().execute(get);
+            HttpResponse response = new DefaultHttpClient().execute(get);
             version = EntityUtils.toString(response.getEntity()).trim();
         } catch (Exception e) {
             LOG.error("While fetching version from core", e);

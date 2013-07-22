@@ -30,14 +30,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.apache.cxf.jaxrs.client.Client;
-import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.HttpStatus;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
-import org.apache.syncope.client.rest.utils.RestClientExceptionMapper;
+import org.apache.syncope.client.rest.RestClientExceptionMapper;
+import org.apache.syncope.client.rest.RestClientFactoryBean;
 import org.apache.syncope.client.services.proxy.ConfigurationServiceProxy;
 import org.apache.syncope.client.services.proxy.ConnectorServiceProxy;
 import org.apache.syncope.client.services.proxy.EntitlementServiceProxy;
@@ -121,7 +120,7 @@ public abstract class AbstractTest {
     private PreemptiveAuthHttpRequestFactory httpClientFactory;
 
     @Autowired
-    protected JAXRSClientFactoryBean restClientFactory;
+    protected RestClientFactoryBean restClientFactory;
 
     @Autowired
     protected DataSource testDataSource;
@@ -166,6 +165,11 @@ public abstract class AbstractTest {
     @Before
     public void setup() throws Exception {
         if (enabledCXF) {
+            String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
+            contentType = (envContentType == null || envContentType.isEmpty())
+                    ? DEFAULT_CONTENT_TYPE
+                    : envContentType;
+
             setupCXFServices();
         } else {
             resetRestTemplate();
@@ -208,8 +212,8 @@ public abstract class AbstractTest {
         schemaService = new SchemaServiceProxy(BASE_URL, restTemplate);
         userRequestService = new UserRequestServiceProxy(BASE_URL, restTemplate);
     }
-
     // END Spring MVC Initialization
+
     // BEGIN CXF Initialization
     protected void setupCXFServices() throws Exception {
         userService = createServiceInstance(UserService.class);
@@ -230,38 +234,14 @@ public abstract class AbstractTest {
     }
 
     protected <T> T createServiceInstance(final Class<T> serviceClass) {
-        return createServiceInstance(serviceClass, ADMIN_UNAME);
+        return restClientFactory.createServiceInstance(serviceClass, ADMIN_UNAME, ADMIN_PWD);
     }
-
-    protected <T> T createServiceInstance(final Class<T> serviceClass, final String username) {
-        return createServiceInstance(serviceClass, username, ADMIN_PWD);
-    }
-
-    protected <T> T createServiceInstance(final Class<T> serviceClass, final String username, final String password) {
-        restClientFactory.setUsername(username);
-        restClientFactory.setPassword(password);
-        restClientFactory.setServiceClass(serviceClass);
-        T serviceProxy = restClientFactory.create(serviceClass);
-        setupContentType(WebClient.client(serviceProxy));
-        return serviceProxy;
-    }
-
-    protected void setupContentType(final Client restClient) {
-        if (contentType == null) {
-            String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
-            if (envContentType == null || envContentType.isEmpty()) {
-                contentType = DEFAULT_CONTENT_TYPE;
-            } else {
-                contentType = envContentType;
-            }
-        }
-        restClient.type(contentType).accept(contentType);
-    }
-
     // END CXF Initialization
+
     @SuppressWarnings("unchecked")
     protected <T> T setupCredentials(final T proxy, final Class<?> serviceInterface, final String username,
             final String password) {
+
         if (proxy instanceof SpringServiceProxy) {
             SpringServiceProxy service = (SpringServiceProxy) proxy;
             if (username == null && password == null) {
@@ -271,12 +251,7 @@ public abstract class AbstractTest {
             }
             return proxy;
         } else {
-            restClientFactory.setUsername(username);
-            restClientFactory.setPassword(password);
-            restClientFactory.setServiceClass(serviceInterface);
-            T serviceProxy = (T) restClientFactory.create(serviceInterface);
-            setupContentType(WebClient.client(serviceProxy));
-            return serviceProxy;
+            return (T) restClientFactory.createServiceInstance(serviceInterface, username, password);
         }
     }
 

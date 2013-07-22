@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.rest.utils;
+package org.apache.syncope.client.rest;
 
 import java.security.AccessControlException;
 import java.util.ArrayList;

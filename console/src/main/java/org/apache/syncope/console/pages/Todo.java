@@ -170,7 +170,7 @@ public class Todo extends BasePage {
                         editApprovalWin.show(target);
                     }
                 }, ActionLink.ActionType.EDIT, "Approval",
-                        SyncopeSession.get().getUserId().equals(formTO.getOwner()));
+                        SyncopeSession.get().getUsername().equals(formTO.getOwner()));
 
                 cellItem.add(panel);
             }

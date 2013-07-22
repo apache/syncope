@@ -125,9 +125,9 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
             }
         };
 
-        editProfileLink.add(new Label("username", SyncopeSession.get().getUserId()));
+        editProfileLink.add(new Label("username", SyncopeSession.get().getUsername()));
 
-        if ("admin".equals(SyncopeSession.get().getUserId())) {
+        if ("admin".equals(SyncopeSession.get().getUsername())) {
             editProfileLink.setEnabled(false);
         }
 

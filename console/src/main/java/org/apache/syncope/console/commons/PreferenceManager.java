@@ -54,15 +54,16 @@ public class PreferenceManager {
 
     private static final List<Integer> PAGINATOR_CHOICES = Arrays.asList(new Integer[]{10, 25, 50});
 
-    @Autowired
-    private ObjectMapper mapper;
+    private final ObjectMapper mapper;
 
     private final CookieUtils cookieUtils;
 
     public PreferenceManager() {
+        this.mapper = new ObjectMapper();
+        
         CookieDefaults cookieDefaults = new CookieDefaults();
         cookieDefaults.setMaxAge(ONE_YEAR_TIME);
-        cookieUtils = new CookieUtils(cookieDefaults);
+        this.cookieUtils = new CookieUtils(cookieDefaults);
     }
 
     public List<Integer> getPaginatorChoices() {

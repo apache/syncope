@@ -55,6 +55,11 @@ under the License.
     <appender-ref ref="main"/>
   </logger>
     
+  <logger name="org.apache.cxf" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="main"/>
+  </logger>
+    
   <root>
     <level value="INFO"/>
     <appender-ref ref="main"/>

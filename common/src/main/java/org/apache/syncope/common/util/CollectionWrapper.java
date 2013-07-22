@@ -33,17 +33,11 @@ import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.ValidatorTO;
 import org.apache.syncope.common.types.AuditLoggerName;
 import org.apache.syncope.common.types.SyncopeLoggerLevel;
-import org.springframework.web.servlet.ModelAndView;
 
 public final class CollectionWrapper {
 
     private CollectionWrapper() {
         // empty constructor for static utility class
-    }
-
-    @SuppressWarnings("unchecked")
-    public static List<String> wrapStrings(final ModelAndView modelAndView) {
-        return (List<String>) modelAndView.getModel().values().iterator().next();
     }
 
     public static Set<EntitlementTO> wrap(final Collection<String> collection) {

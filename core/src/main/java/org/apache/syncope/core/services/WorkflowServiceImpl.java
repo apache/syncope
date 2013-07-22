@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.services;
 
+import java.util.List;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.UriInfo;
 
@@ -25,7 +26,6 @@ import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.services.WorkflowTasks;
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.rest.controller.WorkflowController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -63,12 +63,17 @@ public class WorkflowServiceImpl implements WorkflowService, ContextAware {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public WorkflowTasks getDefinedTasks(final AttributableType kind) {
         switch (kind) {
             case USER:
-                return new WorkflowTasks(CollectionWrapper.wrapStrings(workflowController.getDefinedUserTasks()));
+                return new WorkflowTasks((List<String>) workflowController.getDefinedUserTasks().
+                        getModel().values().iterator().next());
+
             case ROLE:
-                return new WorkflowTasks(CollectionWrapper.wrapStrings(workflowController.getDefinedUserTasks()));
+                return new WorkflowTasks((List<String>) workflowController.getDefinedRoleTasks().
+                        getModel().values().iterator().next());
+
             default:
                 throw new BadRequestException();
         }
