@@ -232,6 +232,8 @@ public class ConnObjectUtil {
             return (T) AttributableOperations.diff(((UserTO) updated), ((UserTO) original), true);
         }
         if (AttributableType.ROLE == attrUtil.getType()) {
+            // reading from connector object cannot change entitlements
+            ((RoleTO) updated).setEntitlements(((RoleTO) original).getEntitlements());
             return (T) AttributableOperations.diff(((RoleTO) updated), ((RoleTO) original), true);
         }
 
@@ -244,7 +246,9 @@ public class ConnObjectUtil {
         final T attributableTO = attrUtil.newAttributableTO();
 
         // 1. fill with data from connector object
-        for (AbstractMappingItem item : attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)) {
+        for (AbstractMappingItem item : attrUtil.getMappingItems(
+                syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)) {
+
             Attribute attribute = obj.getAttributeByName(item.getExtAttrName());
 
             AttributeTO attributeTO;

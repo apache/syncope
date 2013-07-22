@@ -62,6 +62,8 @@ public class RoleTO extends AbstractAttributableTO {
     private Long accountPolicy;
 
     public RoleTO() {
+        super();
+
         entitlements = new ArrayList<String>();
     }
 
