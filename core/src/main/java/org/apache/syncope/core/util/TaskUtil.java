@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
 
+@SuppressWarnings("unchecked")
 public final class TaskUtil {
 
     private final TaskType type;
@@ -85,23 +86,23 @@ public final class TaskUtil {
     }
 
     public <T extends Task> Class<T> taskClass() {
-        Class result = null;
+        Class<T> result = null;
 
         switch (type) {
             case PROPAGATION:
-                result = PropagationTask.class;
+                result = (Class<T>) PropagationTask.class;
                 break;
 
             case SCHEDULED:
-                result = SchedTask.class;
+                result = (Class<T>) SchedTask.class;
                 break;
 
             case SYNCHRONIZATION:
-                result = SyncTask.class;
+                result = (Class<T>) SyncTask.class;
                 break;
 
             case NOTIFICATION:
-                result = NotificationTask.class;
+                result = (Class<T>) NotificationTask.class;
                 break;
 
             default:
@@ -137,23 +138,23 @@ public final class TaskUtil {
     }
 
     public <T extends TaskTO> Class<T> taskTOClass() {
-        Class result = null;
+        Class<T> result = null;
 
         switch (type) {
             case PROPAGATION:
-                result = PropagationTaskTO.class;
+                result = (Class<T>) PropagationTaskTO.class;
                 break;
 
             case SCHEDULED:
-                result = SchedTaskTO.class;
+                result = (Class<T>) SchedTaskTO.class;
                 break;
 
             case SYNCHRONIZATION:
-                result = SyncTaskTO.class;
+                result = (Class<T>) SyncTaskTO.class;
                 break;
 
             case NOTIFICATION:
-                result = NotificationTaskTO.class;
+                result = (Class<T>) NotificationTaskTO.class;
                 break;
 
             default:
