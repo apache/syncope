@@ -26,7 +26,7 @@ import org.apache.syncope.common.types.SyncPolicySpec;
 
 @XmlRootElement(name = "syncPolicy")
 @XmlType
-public class SyncPolicyTO extends PolicyTO {
+public class SyncPolicyTO extends AbstractPolicyTO {
 
     private static final long serialVersionUID = 993024634238024242L;
 

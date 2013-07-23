@@ -28,7 +28,7 @@ import org.apache.syncope.common.services.PolicyService;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.CorrelationRuleClassTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
-import org.apache.syncope.common.to.PolicyTO;
+import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.util.CollectionWrapper;
@@ -43,8 +43,8 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     private PolicyController policyController;
 
     @Override
-    public <T extends PolicyTO> Response create(final PolicyType type, final T policyTO) {
-        PolicyTO policy = policyController.create(policyTO);
+    public <T extends AbstractPolicyTO> Response create(final PolicyType type, final T policyTO) {
+        AbstractPolicyTO policy = policyController.create(policyTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(policy.getId() + "").build();
         return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, policy.getId()).build();
     }
@@ -55,18 +55,18 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public <T extends PolicyTO> List<T> list(final PolicyType type) {
+    public <T extends AbstractPolicyTO> List<T> list(final PolicyType type) {
         return policyController.list(type);
     }
 
     @Override
-    public <T extends PolicyTO> T read(final PolicyType type, final Long policyId) {
+    public <T extends AbstractPolicyTO> T read(final PolicyType type, final Long policyId) {
         return policyController.read(policyId);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends PolicyTO> T readGlobal(final PolicyType type) {
+    public <T extends AbstractPolicyTO> T readGlobal(final PolicyType type) {
         T result = null;
 
         switch (type) {
@@ -93,7 +93,7 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public <T extends PolicyTO> void update(final PolicyType type, final Long policyId, final T policyTO) {
+    public <T extends AbstractPolicyTO> void update(final PolicyType type, final Long policyId, final T policyTO) {
         switch (type) {
             case ACCOUNT:
             case GLOBAL_ACCOUNT:

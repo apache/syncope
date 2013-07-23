@@ -55,7 +55,7 @@ import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
-import org.apache.syncope.common.to.PolicyTO;
+import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.PropagationStatusTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
@@ -198,7 +198,7 @@ public class UserTestITCase extends AbstractTest {
         } finally {
             for (PasswordPolicyTO policyTO : policies) {
                 Response response = policyService.create(PolicyType.GLOBAL_PASSWORD, policyTO);
-                PolicyTO cPolicyTO = getObject(response, PasswordPolicyTO.class, policyService);
+                AbstractPolicyTO cPolicyTO = getObject(response, PasswordPolicyTO.class, policyService);
                 assertNotNull(cPolicyTO);
             }
         }

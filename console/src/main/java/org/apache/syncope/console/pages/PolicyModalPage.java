@@ -21,7 +21,7 @@ package org.apache.syncope.console.pages;
 import java.util.Arrays;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
-import org.apache.syncope.common.to.PolicyTO;
+import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.AbstractPolicySpec;
 import org.apache.syncope.common.types.AccountPolicySpec;
@@ -46,7 +46,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 /**
  * Modal window with Resource form.
  */
-public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
+public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
 
     private static final long serialVersionUID = -7325772767481076679L;
 
@@ -152,7 +152,7 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
         form.add(cancel);
     }
 
-    private AbstractPolicySpec getPolicySpecification(final PolicyTO policyTO) {
+    private AbstractPolicySpec getPolicySpecification(final AbstractPolicyTO policyTO) {
         AbstractPolicySpec spec;
 
         switch (policyTO.getType()) {
@@ -181,7 +181,7 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
         return spec;
     }
 
-    private void setPolicySpecification(final PolicyTO policyTO, final AbstractPolicySpec specification) {
+    private void setPolicySpecification(final AbstractPolicyTO policyTO, final AbstractPolicySpec specification) {
 
         switch (policyTO.getType()) {
             case GLOBAL_ACCOUNT:

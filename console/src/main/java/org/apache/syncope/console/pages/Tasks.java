@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
-import org.apache.syncope.common.to.TaskTO;
+import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.pages.panels.AjaxDataTablePanel;
 import org.apache.syncope.console.pages.panels.NotificationTasks;
@@ -74,9 +74,9 @@ public class Tasks extends BasePage {
 
         private SortableDataProviderComparator<TaskExecTO> comparator;
 
-        private TaskTO taskTO;
+        private AbstractTaskTO taskTO;
 
-        public TaskExecutionsProvider(final TaskTO taskTO) {
+        public TaskExecutionsProvider(final AbstractTaskTO taskTO) {
             super();
 
             //Default sorting
@@ -119,7 +119,7 @@ public class Tasks extends BasePage {
         }
     }
 
-    public static class TasksProvider<T extends TaskTO> extends SortableDataProvider<T, String> {
+    public static class TasksProvider<T extends AbstractTaskTO> extends SortableDataProvider<T, String> {
 
         private static final long serialVersionUID = -20112718133295756L;
 
@@ -195,18 +195,18 @@ public class Tasks extends BasePage {
      * @param currentPage current page index.
      * @return data table.
      */
-    public static AjaxDataTablePanel<TaskTO, String> updateTaskTable(
-            final List<IColumn<TaskTO, String>> columns,
+    public static AjaxDataTablePanel<AbstractTaskTO, String> updateTaskTable(
+            final List<IColumn<AbstractTaskTO, String>> columns,
             final TasksProvider dataProvider,
             final WebMarkupContainer container,
             final int currentPage,
             final PageReference pageRef,
             final BaseRestClient restClient) {
 
-        final AjaxDataTablePanel<TaskTO, String> table = new AjaxDataTablePanel<TaskTO, String>(
+        final AjaxDataTablePanel<AbstractTaskTO, String> table = new AjaxDataTablePanel<AbstractTaskTO, String>(
                 "datatable",
                 columns,
-                (ISortableDataProvider<TaskTO, String>) dataProvider,
+                (ISortableDataProvider<AbstractTaskTO, String>) dataProvider,
                 dataProvider.paginatorRows,
                 Arrays.asList(new ActionLink.ActionType[]{
                     ActionLink.ActionType.DELETE, ActionLink.ActionType.DRYRUN, ActionLink.ActionType.EXECUTE}),

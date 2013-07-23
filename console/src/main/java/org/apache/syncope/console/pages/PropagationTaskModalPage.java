@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.common.to.TaskTO;
+import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.model.PropertyModel;
 
@@ -29,7 +29,7 @@ public class PropagationTaskModalPage extends TaskModalPage {
 
     private static final long serialVersionUID = 523379887023786151L;
 
-    public PropagationTaskModalPage(final TaskTO taskTO) {
+    public PropagationTaskModalPage(final AbstractTaskTO taskTO) {
         super(taskTO);
 
         final AjaxTextFieldPanel accountId = new AjaxTextFieldPanel("accountId", getString("accountId"),

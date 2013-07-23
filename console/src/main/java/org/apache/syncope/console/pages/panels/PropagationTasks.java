@@ -21,7 +21,7 @@ package org.apache.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.to.PropagationTaskTO;
-import org.apache.syncope.common.to.TaskTO;
+import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.PropagationTaskModalPage;
@@ -65,9 +65,9 @@ public class PropagationTasks extends AbstractTasks {
 
     private ModalWindow window;
 
-    private final List<IColumn<TaskTO, String>> columns;
+    private final List<IColumn<AbstractTaskTO, String>> columns;
 
-    private AjaxDataTablePanel<TaskTO, String> table;
+    private AjaxDataTablePanel<AbstractTaskTO, String> table;
 
     public PropagationTasks(final String id, final PageReference pageRef) {
         super(id);
@@ -80,33 +80,33 @@ public class PropagationTasks extends AbstractTasks {
 
         paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_PROPAGATION_TASKS_PAGINATOR_ROWS);
 
-        columns = new ArrayList<IColumn<TaskTO, String>>();
+        columns = new ArrayList<IColumn<AbstractTaskTO, String>>();
 
-        columns.add(new PropertyColumn<TaskTO, String>(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("id", this, null), "id", "id"));
 
-        columns.add(new PropertyColumn<TaskTO, String>(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("resource", this, null), "resource", "resource"));
 
-        columns.add(new PropertyColumn<TaskTO, String>(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("accountId", this, null), "accountId", "accountId"));
 
-        columns.add(new PropertyColumn<TaskTO, String>(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("propagationMode", this, null), "propagationMode", "propagationMode"));
 
-        columns.add(new PropertyColumn<TaskTO, String>(new StringResourceModel(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(new StringResourceModel(
                 "propagationOperation", this, null), "propagationOperation", "propagationOperation"));
 
-        columns.add(new DatePropertyColumn<TaskTO>(
+        columns.add(new DatePropertyColumn<AbstractTaskTO>(
                 new StringResourceModel("startDate", this, null), "startDate", "startDate"));
 
-        columns.add(new DatePropertyColumn<TaskTO>(
+        columns.add(new DatePropertyColumn<AbstractTaskTO>(
                 new StringResourceModel("endDate", this, null), "endDate", "endDate"));
 
-        columns.add(new PropertyColumn<TaskTO, String>(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new ActionColumn<TaskTO, String>(new StringResourceModel("actions", this, null, "")) {
+        columns.add(new ActionColumn<AbstractTaskTO, String>(new StringResourceModel("actions", this, null, "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -116,9 +116,9 @@ public class PropagationTasks extends AbstractTasks {
             }
 
             @Override
-            public ActionLinksPanel getActions(final String componentId, final IModel<TaskTO> model) {
+            public ActionLinksPanel getActions(final String componentId, final IModel<AbstractTaskTO> model) {
 
-                final TaskTO taskTO = model.getObject();
+                final AbstractTaskTO taskTO = model.getObject();
 
                 final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, pageRef);
 

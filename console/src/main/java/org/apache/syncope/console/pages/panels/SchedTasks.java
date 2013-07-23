@@ -21,7 +21,7 @@ package org.apache.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.to.SchedTaskTO;
-import org.apache.syncope.common.to.TaskTO;
+import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.SchedTaskModalPage;
@@ -62,9 +62,9 @@ public class SchedTasks extends AbstractTasks {
 
     private ModalWindow window;
 
-    private final List<IColumn<TaskTO, String>> columns;
+    private final List<IColumn<AbstractTaskTO, String>> columns;
 
-    private AjaxDataTablePanel<TaskTO, String> table;
+    private AjaxDataTablePanel<AbstractTaskTO, String> table;
 
     public SchedTasks(final String id, final PageReference pageRef) {
         super(id);
@@ -84,29 +84,29 @@ public class SchedTasks extends AbstractTasks {
 
         paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_SCHED_TASKS_PAGINATOR_ROWS);
 
-        columns = new ArrayList<IColumn<TaskTO, String>>();
+        columns = new ArrayList<IColumn<AbstractTaskTO, String>>();
 
-        columns.add(new PropertyColumn<TaskTO, String>(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("id", this, null), "id", "id"));
-        columns.add(new PropertyColumn<TaskTO, String>(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("name", this, null), "name", "name"));
-        columns.add(new PropertyColumn<TaskTO, String>(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("description", this, null), "description", "description"));
-        columns.add(new PropertyColumn<TaskTO, String>(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("class", this, null), "jobClassName", "jobClassName"));
-        columns.add(new DatePropertyColumn<TaskTO>(
+        columns.add(new DatePropertyColumn<AbstractTaskTO>(
                 new StringResourceModel("lastExec", this, null), "lastExec", "lastExec"));
-        columns.add(new DatePropertyColumn<TaskTO>(
+        columns.add(new DatePropertyColumn<AbstractTaskTO>(
                 new StringResourceModel("nextExec", this, null), "nextExec", "nextExec"));
-        columns.add(new PropertyColumn<TaskTO, String>(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new ActionColumn<TaskTO, String>(new StringResourceModel("actions", this, null, "")) {
+        columns.add(new ActionColumn<AbstractTaskTO, String>(new StringResourceModel("actions", this, null, "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
-            public ActionLinksPanel getActions(final String componentId, final IModel<TaskTO> model) {
+            public ActionLinksPanel getActions(final String componentId, final IModel<AbstractTaskTO> model) {
 
                 final SchedTaskTO taskTO = (SchedTaskTO) model.getObject();
 

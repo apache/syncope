@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
-import org.apache.syncope.common.to.PolicyTO;
+import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Category;
@@ -59,7 +59,7 @@ public class PolicyController extends AbstractController {
     private PolicyDataBinder binder;
 
     @PreAuthorize("hasRole('POLICY_CREATE')")
-    public <T extends PolicyTO> T create(final T policyTO) {
+    public <T extends AbstractPolicyTO> T create(final T policyTO) {
         LOG.debug("Creating policy " + policyTO);
 
         final Policy policy = binder.getPolicy(null, policyTO);
@@ -70,7 +70,7 @@ public class PolicyController extends AbstractController {
         return binder.getPolicyTO(policyDAO.save(policy));
     }
 
-    private <T extends PolicyTO, K extends Policy> T update(final T policyTO, final K policy) {
+    private <T extends AbstractPolicyTO, K extends Policy> T update(final T policyTO, final K policy) {
         LOG.debug("Updating policy " + policyTO);
 
         binder.getPolicy(policy, policyTO);
@@ -114,7 +114,7 @@ public class PolicyController extends AbstractController {
 
     @PreAuthorize("hasRole('POLICY_LIST')")
     @SuppressWarnings("unchecked")
-    public <T extends PolicyTO> List<T> list(final PolicyType type) {
+    public <T extends AbstractPolicyTO> List<T> list(final PolicyType type) {
         LOG.debug("Listing policies");
 
         List<? extends Policy> policies = policyDAO.find(type);
@@ -176,7 +176,7 @@ public class PolicyController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('POLICY_READ')")
-    public <T extends PolicyTO> T read(final Long id) {
+    public <T extends AbstractPolicyTO> T read(final Long id) {
         LOG.debug("Reading policy with id {}", id);
 
         Policy policy = policyDAO.find(id);
@@ -191,13 +191,13 @@ public class PolicyController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('POLICY_DELETE')")
-    public PolicyTO delete(final Long id) {
+    public AbstractPolicyTO delete(final Long id) {
         Policy policy = policyDAO.find(id);
         if (policy == null) {
             throw new NotFoundException("Policy " + id + " not found");
         }
 
-        PolicyTO policyToDelete = binder.getPolicyTO(policy);
+        AbstractPolicyTO policyToDelete = binder.getPolicyTO(policy);
         policyDAO.delete(id);
 
         auditManager.audit(Category.policy, PolicySubCategory.delete, Result.success,

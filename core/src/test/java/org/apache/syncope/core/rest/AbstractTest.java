@@ -50,7 +50,7 @@ import org.apache.syncope.common.services.UserWorkflowService;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.to.AttributeTO;
-import org.apache.syncope.common.to.PolicyTO;
+import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
@@ -235,7 +235,7 @@ public abstract class AbstractTest {
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends PolicyTO> T createPolicy(final PolicyType policyType, final T policy) {
+    protected <T extends AbstractPolicyTO> T createPolicy(final PolicyType policyType, final T policy) {
         Response response = policyService.create(policyType, policy);
         if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
             Exception ex = clientExceptionMapper.fromResponse(response);

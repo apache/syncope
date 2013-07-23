@@ -21,7 +21,7 @@ package org.apache.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.syncope.common.to.PolicyTO;
+import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.console.rest.PolicyRestClient;
@@ -62,7 +62,7 @@ public class ResourceSecurityPanel extends Panel {
             @Override
             protected Map<Long, String> load() {
                 Map<Long, String> res = new HashMap<Long, String>();
-                for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD, false)) {
+                for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD, false)) {
                     res.put(policyTO.getId(), policyTO.getDescription());
                 }
                 return res;
@@ -76,7 +76,7 @@ public class ResourceSecurityPanel extends Panel {
             @Override
             protected Map<Long, String> load() {
                 Map<Long, String> res = new HashMap<Long, String>();
-                for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT, false)) {
+                for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT, false)) {
                     res.put(policyTO.getId(), policyTO.getDescription());
                 }
                 return res;
@@ -90,7 +90,7 @@ public class ResourceSecurityPanel extends Panel {
             @Override
             protected Map<Long, String> load() {
                 Map<Long, String> res = new HashMap<Long, String>();
-                for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.SYNC, false)) {
+                for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.SYNC, false)) {
                     res.put(policyTO.getId(), policyTO.getDescription());
                 }
                 return res;

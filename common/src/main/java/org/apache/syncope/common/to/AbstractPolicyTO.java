@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
@@ -28,8 +31,8 @@ import org.apache.syncope.common.types.PolicyType;
 @XmlRootElement(name = "policy")
 @XmlType
 @XmlSeeAlso({AccountPolicyTO.class, PasswordPolicyTO.class, SyncPolicyTO.class})
-//@JsonTypeInfo(use=Id.CLASS, include=As.PROPERTY, property="class")
-public abstract class PolicyTO extends AbstractBaseBean {
+@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY, property = "@class")
+public abstract class AbstractPolicyTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -2903888572649721035L;
 
@@ -51,7 +54,7 @@ public abstract class PolicyTO extends AbstractBaseBean {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
@@ -59,7 +62,7 @@ public abstract class PolicyTO extends AbstractBaseBean {
         return type;
     }
 
-    public void setType(PolicyType type) {
+    public void setType(final PolicyType type) {
         this.type = type;
     }
 }

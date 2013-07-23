@@ -27,7 +27,7 @@ import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
-import org.apache.syncope.common.to.TaskTO;
+import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.TaskSubCategory;
@@ -93,7 +93,7 @@ public class TaskController extends AbstractController {
     private ImplementationClassNamesLoader classNamesLoader;
 
     @PreAuthorize("hasRole('TASK_CREATE')")
-    public TaskTO createSchedTask(final SchedTaskTO taskTO) {
+    public AbstractTaskTO createSchedTask(final SchedTaskTO taskTO) {
         LOG.debug("Creating task " + taskTO);
 
         TaskUtil taskUtil = TaskUtil.getInstance(taskTO);
@@ -121,12 +121,12 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_UPDATE')")
-    public TaskTO updateSync(final SyncTaskTO taskTO) {
+    public AbstractTaskTO updateSync(final SyncTaskTO taskTO) {
         return updateSched(taskTO);
     }
 
     @PreAuthorize("hasRole('TASK_UPDATE')")
-    public TaskTO updateSched(final SchedTaskTO taskTO) {
+    public AbstractTaskTO updateSched(final SchedTaskTO taskTO) {
         LOG.debug("Task update called with parameter {}", taskTO);
 
         SchedTask task = taskDAO.find(taskTO.getId());
@@ -165,7 +165,7 @@ public class TaskController extends AbstractController {
 
     @PreAuthorize("hasRole('TASK_LIST')")
     @SuppressWarnings("unchecked")
-    public <T extends TaskTO> List<T> list(final TaskType taskType) {
+    public <T extends AbstractTaskTO> List<T> list(final TaskType taskType) {
         TaskUtil taskUtil = TaskUtil.getInstance(taskType);
 
         List<Task> tasks = taskDAO.findAll(taskUtil.taskClass());
@@ -182,7 +182,7 @@ public class TaskController extends AbstractController {
 
     @PreAuthorize("hasRole('TASK_LIST')")
     @SuppressWarnings("unchecked")
-    public <T extends TaskTO> List<T> list(final TaskType taskType, final int page, final int size) {
+    public <T extends AbstractTaskTO> List<T> list(final TaskType taskType, final int page, final int size) {
         TaskUtil taskUtil = TaskUtil.getInstance(taskType);
 
         List<Task> tasks = taskDAO.findAll(page, size, taskUtil.taskClass());
@@ -219,7 +219,7 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
-    public TaskTO read(final Long taskId) {
+    public AbstractTaskTO read(final Long taskId) {
         Task task = taskDAO.find(taskId);
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
@@ -365,14 +365,14 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_DELETE')")
-    public TaskTO delete(final Long taskId) {
+    public AbstractTaskTO delete(final Long taskId) {
         Task task = taskDAO.find(taskId);
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
         }
         TaskUtil taskUtil = TaskUtil.getInstance(task);
 
-        TaskTO taskToDelete = binder.getTaskTO(task, taskUtil);
+        AbstractTaskTO taskToDelete = binder.getTaskTO(task, taskUtil);
 
         if (TaskType.SCHEDULED == taskUtil.getType() || TaskType.SYNCHRONIZATION == taskUtil.getType()) {
             jobInstanceLoader.unregisterJob(task);

@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "schedTask")
 @XmlType
-public class SchedTaskTO extends TaskTO {
+public class SchedTaskTO extends AbstractTaskTO {
 
     private static final long serialVersionUID = -5722284116974636425L;
 

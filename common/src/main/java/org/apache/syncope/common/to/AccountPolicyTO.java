@@ -26,7 +26,7 @@ import org.apache.syncope.common.types.PolicyType;
 
 @XmlRootElement(name = "accountPolicy")
 @XmlType
-public class AccountPolicyTO extends PolicyTO {
+public class AccountPolicyTO extends AbstractPolicyTO {
 
     private static final long serialVersionUID = -1557150042828800134L;
 

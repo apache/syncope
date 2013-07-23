@@ -21,7 +21,7 @@ package org.apache.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.to.NotificationTaskTO;
-import org.apache.syncope.common.to.TaskTO;
+import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.NotificationTaskModalPage;
@@ -60,9 +60,9 @@ public class NotificationTasks extends AbstractTasks {
 
     private ModalWindow window;
 
-    private final List<IColumn<TaskTO, String>> columns;
+    private final List<IColumn<AbstractTaskTO, String>> columns;
 
-    private AjaxDataTablePanel<TaskTO, String> table;
+    private AjaxDataTablePanel<AbstractTaskTO, String> table;
 
     public NotificationTasks(final String id, final PageReference pageRef) {
         super(id);
@@ -75,29 +75,29 @@ public class NotificationTasks extends AbstractTasks {
 
         paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS);
 
-        columns = new ArrayList<IColumn<TaskTO, String>>();
+        columns = new ArrayList<IColumn<AbstractTaskTO, String>>();
 
-        columns.add(new PropertyColumn<TaskTO, String>(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("id", this, null), "id", "id"));
-        columns.add(new PropertyColumn<TaskTO, String>(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("sender", this, null), "sender", "sender"));
-        columns.add(new PropertyColumn<TaskTO, String>(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("recipients", this, null), "recipients", "recipients"));
-        columns.add(new PropertyColumn<TaskTO, String>(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("subject", this, null), "subject", "subject"));
-        columns.add(new PropertyColumn<TaskTO, String>(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("traceLevel", this, null), "traceLevel", "traceLevel"));
-        columns.add(new PropertyColumn<TaskTO, String>(
+        columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new ActionColumn<TaskTO, String>(new StringResourceModel("actions", this, null, "")) {
+        columns.add(new ActionColumn<AbstractTaskTO, String>(new StringResourceModel("actions", this, null, "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
-            public ActionLinksPanel getActions(final String componentId, final IModel<TaskTO> model) {
+            public ActionLinksPanel getActions(final String componentId, final IModel<AbstractTaskTO> model) {
 
-                final TaskTO taskTO = model.getObject();
+                final AbstractTaskTO taskTO = model.getObject();
 
                 final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, pageRef);
 

@@ -33,7 +33,7 @@ import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
-import org.apache.syncope.common.to.TaskTO;
+import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.CollectionWrapper;
@@ -54,8 +54,8 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService,
     }
 
     @Override
-    public Response create(final TaskTO taskTO) {
-        TaskTO createdTask;
+    public Response create(final AbstractTaskTO taskTO) {
+        AbstractTaskTO createdTask;
         if (taskTO instanceof SyncTaskTO || taskTO instanceof SchedTaskTO) {
             createdTask = controller.createSchedTask((SchedTaskTO) taskTO);
         } else {
@@ -93,18 +93,18 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService,
     }
 
     @Override
-    public <T extends TaskTO> List<T> list(final TaskType taskType) {
+    public <T extends AbstractTaskTO> List<T> list(final TaskType taskType) {
         return controller.list(taskType);
     }
 
     @Override
-    public <T extends TaskTO> List<T> list(final TaskType taskType, final int page, final int size) {
+    public <T extends AbstractTaskTO> List<T> list(final TaskType taskType, final int page, final int size) {
         return controller.list(taskType, page, size);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends TaskTO> T read(final TaskType taskType, final Long taskId) {
+    public <T extends AbstractTaskTO> T read(final TaskType taskType, final Long taskId) {
         return (T) controller.read(taskId);
     }
 
@@ -120,7 +120,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService,
     }
 
     @Override
-    public void update(final Long taskId, final TaskTO taskTO) {
+    public void update(final Long taskId, final AbstractTaskTO taskTO) {
         if (taskTO instanceof SyncTaskTO) {
             controller.updateSync((SyncTaskTO) taskTO);
         } else if (taskTO instanceof SchedTaskTO) {

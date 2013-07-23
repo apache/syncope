@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,19 +35,9 @@ import org.apache.syncope.common.AbstractBaseBean;
 
 @XmlRootElement(name = "task")
 @XmlType
-@XmlSeeAlso({ SyncTaskTO.class, NotificationTaskTO.class, SyncTaskTO.class,
-    SchedTaskTO.class, PropagationTaskTO.class })
-
-/* This will help CXF marshalling but is incompatible with spring services 
-@JsonTypeInfo(use=Id.NAME, include=As.PROPERTY, property="type")
-@JsonSubTypes({
-    @JsonSubTypes.Type(value=NotificationTaskTO.class, name="notificationTask"),
-    @JsonSubTypes.Type(value=PropagationTaskTO.class, name="propagationTask"),
-    @JsonSubTypes.Type(value=SchedTaskTO.class, name="schedTask"),
-    @JsonSubTypes.Type(value=SyncTaskTO.class, name="syncTask")
-})
-*/
-public abstract class TaskTO extends AbstractBaseBean {
+@XmlSeeAlso({SyncTaskTO.class, NotificationTaskTO.class, SyncTaskTO.class, SchedTaskTO.class, PropagationTaskTO.class})
+@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY, property = "@class")
+public abstract class AbstractTaskTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 386450127003321197L;
 
@@ -62,7 +55,7 @@ public abstract class TaskTO extends AbstractBaseBean {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(final long id) {
         this.id = id;
     }
 
@@ -70,15 +63,15 @@ public abstract class TaskTO extends AbstractBaseBean {
         return latestExecStatus;
     }
 
-    public void setLatestExecStatus(String latestExecStatus) {
+    public void setLatestExecStatus(final String latestExecStatus) {
         this.latestExecStatus = latestExecStatus;
     }
 
-    public boolean addExecution(TaskExecTO execution) {
+    public boolean addExecution(final TaskExecTO execution) {
         return executions.add(execution);
     }
 
-    public boolean removeExecution(TaskExecTO execution) {
+    public boolean removeExecution(final TaskExecTO execution) {
         return executions.remove(execution);
     }
 
@@ -88,7 +81,7 @@ public abstract class TaskTO extends AbstractBaseBean {
         return executions;
     }
 
-    public void setExecutions(List<TaskExecTO> executions) {
+    public void setExecutions(final List<TaskExecTO> executions) {
         this.executions = executions;
     }
 
@@ -98,7 +91,7 @@ public abstract class TaskTO extends AbstractBaseBean {
                 : new Date(startDate.getTime());
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(final Date startDate) {
         if (startDate != null) {
             this.startDate = new Date(startDate.getTime());
         }
@@ -110,7 +103,7 @@ public abstract class TaskTO extends AbstractBaseBean {
                 : new Date(endDate.getTime());
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(final Date endDate) {
         if (endDate != null) {
             this.endDate = new Date(endDate.getTime());
         }

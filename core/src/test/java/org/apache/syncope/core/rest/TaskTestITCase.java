@@ -50,7 +50,7 @@ import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
-import org.apache.syncope.common.to.TaskTO;
+import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.PolicyType;
@@ -148,7 +148,7 @@ public class TaskTestITCase extends AbstractTest {
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
-        for (TaskTO task : tasks) {
+        for (AbstractTaskTO task : tasks) {
             assertNotNull(task);
         }
     }
@@ -161,7 +161,7 @@ public class TaskTestITCase extends AbstractTest {
         assertFalse(tasks.isEmpty());
         assertEquals(2, tasks.size());
 
-        for (TaskTO task : tasks) {
+        for (AbstractTaskTO task : tasks) {
             assertNotNull(task);
         }
 
@@ -170,7 +170,7 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
-        for (TaskTO task : tasks) {
+        for (AbstractTaskTO task : tasks) {
             assertNotNull(task);
         }
 
@@ -693,7 +693,7 @@ public class TaskTestITCase extends AbstractTest {
     private TaskExecTO execSyncTask(final Long taskId, final int maxWaitSeconds,
             final boolean dryRun) {
 
-        TaskTO taskTO = taskService.read(TaskType.SYNCHRONIZATION, taskId);
+        AbstractTaskTO taskTO = taskService.read(TaskType.SYNCHRONIZATION, taskId);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
 
@@ -901,7 +901,7 @@ public class TaskTestITCase extends AbstractTest {
         final BulkAction bulkAction = new BulkAction();
         bulkAction.setOperation(BulkAction.Type.DELETE);
 
-        for (TaskTO taskTO : after) {
+        for (AbstractTaskTO taskTO : after) {
             bulkAction.addTarget(String.valueOf(taskTO.getId()));
         }
 

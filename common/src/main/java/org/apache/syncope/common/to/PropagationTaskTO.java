@@ -27,7 +27,7 @@ import org.apache.syncope.common.types.ResourceOperation;
 
 @XmlRootElement(name = "propagationTask")
 @XmlType
-public class PropagationTaskTO extends TaskTO {
+public class PropagationTaskTO extends AbstractTaskTO {
 
     private static final long serialVersionUID = 386450127003321197L;
 

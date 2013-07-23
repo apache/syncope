@@ -22,7 +22,7 @@ import org.apache.syncope.common.to.NotificationTaskTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
-import org.apache.syncope.common.to.TaskTO;
+import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
@@ -56,7 +56,7 @@ public final class TaskUtil {
         return getInstance(type);
     }
 
-    public static TaskUtil getInstance(Class<? extends TaskTO> taskClass) {
+    public static TaskUtil getInstance(Class<? extends AbstractTaskTO> taskClass) {
         TaskType type;
         if (taskClass == PropagationTaskTO.class) {
             type = TaskType.PROPAGATION;
@@ -73,7 +73,7 @@ public final class TaskUtil {
         return getInstance(type);
     }
 
-    public static TaskUtil getInstance(final TaskTO taskTO) {
+    public static TaskUtil getInstance(final AbstractTaskTO taskTO) {
         return getInstance(taskTO.getClass());
     }
 
@@ -137,7 +137,7 @@ public final class TaskUtil {
         return result;
     }
 
-    public <T extends TaskTO> Class<T> taskTOClass() {
+    public <T extends AbstractTaskTO> Class<T> taskTOClass() {
         Class<T> result = null;
 
         switch (type) {
@@ -163,7 +163,7 @@ public final class TaskUtil {
         return result;
     }
 
-    public <T extends TaskTO> T newTaskTO() {
+    public <T extends AbstractTaskTO> T newTaskTO() {
         T result = null;
 
         switch (type) {

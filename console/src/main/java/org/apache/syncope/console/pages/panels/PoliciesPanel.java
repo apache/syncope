@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
-import org.apache.syncope.common.to.PolicyTO;
+import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
@@ -114,26 +114,26 @@ public class PoliciesPanel extends Panel {
 
         setWindowClosedCallback(mwindow, container);
 
-        final List<IColumn<PolicyTO, String>> columns = new ArrayList<IColumn<PolicyTO, String>>();
+        final List<IColumn<AbstractPolicyTO, String>> columns = new ArrayList<IColumn<AbstractPolicyTO, String>>();
 
-        columns.add(new PropertyColumn<PolicyTO, String>(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn<AbstractPolicyTO, String>(new ResourceModel("id"), "id", "id"));
 
-        columns.add(new PropertyColumn<PolicyTO, String>(
+        columns.add(new PropertyColumn<AbstractPolicyTO, String>(
                 new ResourceModel("description"), "description", "description"));
 
-        columns.add(new AbstractColumn<PolicyTO, String>(new ResourceModel("type")) {
+        columns.add(new AbstractColumn<AbstractPolicyTO, String>(new ResourceModel("type")) {
 
             private static final long serialVersionUID = 8263694778917279290L;
 
             @Override
-            public void populateItem(final Item<ICellPopulator<PolicyTO>> cellItem, final String componentId,
-                    final IModel<PolicyTO> model) {
+            public void populateItem(final Item<ICellPopulator<AbstractPolicyTO>> cellItem, final String componentId,
+                    final IModel<AbstractPolicyTO> model) {
 
                 cellItem.add(new Label(componentId, getString(model.getObject().getType().name())));
             }
         });
 
-        columns.add(new AbstractColumn<PolicyTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<AbstractPolicyTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -143,10 +143,10 @@ public class PoliciesPanel extends Panel {
             }
 
             @Override
-            public void populateItem(final Item<ICellPopulator<PolicyTO>> cellItem, final String componentId,
-                    final IModel<PolicyTO> model) {
+            public void populateItem(final Item<ICellPopulator<AbstractPolicyTO>> cellItem, final String componentId,
+                    final IModel<AbstractPolicyTO> model) {
 
-                final PolicyTO accountPolicyTO = model.getObject();
+                final AbstractPolicyTO accountPolicyTO = model.getObject();
 
                 final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, pageRef);
 
@@ -264,11 +264,11 @@ public class PoliciesPanel extends Panel {
         });
     }
 
-    private class PolicyDataProvider extends SortableDataProvider<PolicyTO, String> {
+    private class PolicyDataProvider extends SortableDataProvider<AbstractPolicyTO, String> {
 
         private static final long serialVersionUID = -6976327453925166730L;
 
-        private SortableDataProviderComparator<PolicyTO> comparator;
+        private SortableDataProviderComparator<AbstractPolicyTO> comparator;
 
         public PolicyDataProvider() {
             super();
@@ -276,7 +276,7 @@ public class PoliciesPanel extends Panel {
             //Default sorting
             setSort("description", SortOrder.ASCENDING);
 
-            comparator = new SortableDataProviderComparator<PolicyTO>(this);
+            comparator = new SortableDataProviderComparator<AbstractPolicyTO>(this);
         }
 
         @Override
@@ -285,9 +285,9 @@ public class PoliciesPanel extends Panel {
         }
 
         @Override
-        public Iterator<PolicyTO> iterator(final long first, final long count) {
+        public Iterator<AbstractPolicyTO> iterator(final long first, final long count) {
 
-            final List<PolicyTO> policies = policyRestClient.getPolicies(policyType, true);
+            final List<AbstractPolicyTO> policies = policyRestClient.getPolicies(policyType, true);
 
             Collections.sort(policies, comparator);
 
@@ -295,13 +295,13 @@ public class PoliciesPanel extends Panel {
         }
 
         @Override
-        public IModel<PolicyTO> model(final PolicyTO object) {
-            return new CompoundPropertyModel<PolicyTO>(object);
+        public IModel<AbstractPolicyTO> model(final AbstractPolicyTO object) {
+            return new CompoundPropertyModel<AbstractPolicyTO>(object);
         }
     }
 
-    private PolicyTO getPolicyTOInstance(final PolicyType policyType) {
-        PolicyTO policyTO;
+    private AbstractPolicyTO getPolicyTOInstance(final PolicyType policyType) {
+        AbstractPolicyTO policyTO;
         switch (policyType) {
             case GLOBAL_ACCOUNT:
                 policyTO = new AccountPolicyTO(true);

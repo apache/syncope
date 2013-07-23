@@ -23,7 +23,7 @@ import static org.apache.syncope.common.types.PolicyType.GLOBAL_PASSWORD;
 import static org.apache.syncope.common.types.PolicyType.GLOBAL_SYNC;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
-import org.apache.syncope.common.to.PolicyTO;
+import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.AccountPolicySpec;
 import org.apache.syncope.common.types.PasswordPolicySpec;
@@ -61,8 +61,8 @@ public class PolicyDataBinder {
      * @return policy TO.
      */
     @SuppressWarnings("unchecked")
-    public <T extends PolicyTO> T getPolicyTO(final Policy policy) {
-        final PolicyTO policyTO;
+    public <T extends AbstractPolicyTO> T getPolicyTO(final Policy policy) {
+        final AbstractPolicyTO policyTO;
 
         final boolean isGlobal = isGlobalPolicy(policy.getType());
 
@@ -106,7 +106,7 @@ public class PolicyDataBinder {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Policy> T getPolicy(T policy, final PolicyTO policyTO) {
+    public <T extends Policy> T getPolicy(T policy, final AbstractPolicyTO policyTO) {
         if (policy != null && policy.getType() != policyTO.getType()) {
             throw new IllegalArgumentException(
                     String.format("Cannot update %s from %s", policy.getType(), policyTO.getType()));

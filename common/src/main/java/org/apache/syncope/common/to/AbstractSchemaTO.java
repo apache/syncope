@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
@@ -27,6 +28,7 @@ import org.apache.syncope.common.AbstractBaseBean;
 @XmlRootElement(name = "abstractSchema")
 @XmlType
 @XmlSeeAlso({SchemaTO.class, DerSchemaTO.class, VirSchemaTO.class})
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public abstract class AbstractSchemaTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 4088388951694301759L;

@@ -27,7 +27,7 @@ import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
-import org.apache.syncope.common.to.TaskTO;
+import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
@@ -69,7 +69,7 @@ public abstract class TaskModalPage extends BaseModalPage {
 
     protected Form form;
 
-    public TaskModalPage(final TaskTO taskTO) {
+    public TaskModalPage(final AbstractTaskTO taskTO) {
         final ModalWindow taskExecMessageWin = new ModalWindow("taskExecMessageWin");
         taskExecMessageWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         taskExecMessageWin.setCookieName("task-exec-message-win-modal");
@@ -199,9 +199,9 @@ public abstract class TaskModalPage extends BaseModalPage {
 
         private SortableDataProviderComparator<TaskExecTO> comparator;
 
-        private TaskTO taskTO;
+        private AbstractTaskTO taskTO;
 
-        public TaskExecutionsProvider(final TaskTO taskTO) {
+        public TaskExecutionsProvider(final AbstractTaskTO taskTO) {
             //Default sorting
             this.taskTO = taskTO;
             setSort("startDate", SortOrder.DESCENDING);
@@ -238,8 +238,8 @@ public abstract class TaskModalPage extends BaseModalPage {
         }
     }
 
-    private TaskTO getCurrentTaskExecution(final TaskTO taskTO) {
-        final TaskTO currentTask = taskTO.getId() == 0
+    private AbstractTaskTO getCurrentTaskExecution(final AbstractTaskTO taskTO) {
+        final AbstractTaskTO currentTask = taskTO.getId() == 0
                 ? taskTO
                 : taskTO instanceof PropagationTaskTO
                 ? taskRestClient.readPropagationTask(taskTO.getId())

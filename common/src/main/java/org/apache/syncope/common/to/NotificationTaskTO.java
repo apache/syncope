@@ -30,7 +30,7 @@ import org.apache.syncope.common.types.TraceLevel;
 
 @XmlRootElement(name = "notificationTask")
 @XmlType
-public class NotificationTaskTO extends TaskTO {
+public class NotificationTaskTO extends AbstractTaskTO {
 
     private static final long serialVersionUID = 371671242591093846L;
 

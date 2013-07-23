@@ -28,7 +28,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.CorrelationRuleClassTO;
-import org.apache.syncope.common.to.PolicyTO;
+import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.types.PolicyType;
 
 @Path("policies/{type}")
@@ -42,7 +42,7 @@ public interface PolicyService {
      * @return Response containing URI location for created resource
      */
     @POST
-    <T extends PolicyTO> Response create(@PathParam("type") PolicyType type, T policyTO);
+    <T extends AbstractPolicyTO> Response create(@PathParam("type") PolicyType type, T policyTO);
 
     /**
      * @param type Deletes policy with given type
@@ -52,7 +52,7 @@ public interface PolicyService {
      */
     @DELETE
     @Path("{policyId}")
-    <T extends PolicyTO> void delete(@PathParam("type") PolicyType type, @PathParam("policyId") Long policyId);
+    <T extends AbstractPolicyTO> void delete(@PathParam("type") PolicyType type, @PathParam("policyId") Long policyId);
 
     /**
      * @param type Type selector for requested policies
@@ -61,7 +61,7 @@ public interface PolicyService {
      * @return List of policies with matching type.
      */
     @GET
-    <T extends PolicyTO> List<T> list(@PathParam("type") PolicyType type);
+    <T extends AbstractPolicyTO> List<T> list(@PathParam("type") PolicyType type);
 
     /**
      * @param type Request for policy with given type
@@ -72,7 +72,7 @@ public interface PolicyService {
      */
     @GET
     @Path("{policyId}")
-    <T extends PolicyTO> T read(@PathParam("type") PolicyType type, @PathParam("policyId") Long policyId);
+    <T extends AbstractPolicyTO> T read(@PathParam("type") PolicyType type, @PathParam("policyId") Long policyId);
 
     /**
      * @param type PolicyType to read global policy from
@@ -82,7 +82,7 @@ public interface PolicyService {
      */
     @GET
     @Path("0")
-    <T extends PolicyTO> T readGlobal(@PathParam("type") PolicyType type);
+    <T extends AbstractPolicyTO> T readGlobal(@PathParam("type") PolicyType type);
 
     /**
      * @param type PolicyType to be updated.
@@ -93,7 +93,7 @@ public interface PolicyService {
      */
     @PUT
     @Path("{policyId}")
-    <T extends PolicyTO> void update(@PathParam("type") PolicyType type, @PathParam("policyId") Long policyId,
+    <T extends AbstractPolicyTO> void update(@PathParam("type") PolicyType type, @PathParam("policyId") Long policyId,
             T policyTO);
 
     /**

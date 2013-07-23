@@ -29,7 +29,7 @@ import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.SyncTaskTO;
-import org.apache.syncope.common.to.TaskTO;
+import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
@@ -87,7 +87,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      * @param size per page.
      * @return paginated list.
      */
-    public <T extends TaskTO> List<T> listTasks(final Class<T> reference, final int page, final int size) {
+    public <T extends AbstractTaskTO> List<T> listTasks(final Class<T> reference, final int page, final int size) {
         return getService(TaskService.class).list(getTaskType(reference), page, size);
     }
 
@@ -122,7 +122,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      *
      * @param taskId task to delete
      */
-    public void delete(final Long taskId, final Class<? extends TaskTO> taskToClass) {
+    public void delete(final Long taskId, final Class<? extends AbstractTaskTO> taskToClass) {
         getService(TaskService.class).delete(taskId);
     }
 

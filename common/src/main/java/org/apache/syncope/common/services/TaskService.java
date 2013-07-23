@@ -37,7 +37,7 @@ import org.apache.syncope.common.to.JobClassTO;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.TaskExecTO;
-import org.apache.syncope.common.to.TaskTO;
+import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.types.TaskType;
 
 @Path("tasks")
@@ -56,7 +56,7 @@ public interface TaskService {
      * @return Response containing URI location for created resource
      */
     @POST
-    Response create(TaskTO taskTO);
+    Response create(AbstractTaskTO taskTO);
 
     /**
      * @param taskId Id of task to be deleted
@@ -102,7 +102,7 @@ public interface TaskService {
     @GET
     @Path("{type}/list")
     // TODO '/list' path will be removed once CXF/JAX-B bug is solved
-    <T extends TaskTO> List<T> list(@PathParam("type") TaskType taskType);
+    <T extends AbstractTaskTO> List<T> list(@PathParam("type") TaskType taskType);
 
     /**
      * @param taskType Type of tasks to be listed
@@ -112,7 +112,7 @@ public interface TaskService {
      */
     @GET
     @Path("{type}")
-    <T extends TaskTO> List<T> list(@PathParam("type") TaskType taskType, @QueryParam("page") int page,
+    <T extends AbstractTaskTO> List<T> list(@PathParam("type") TaskType taskType, @QueryParam("page") int page,
             @QueryParam("size") @DefaultValue("25") int size);
 
     /**
@@ -123,7 +123,7 @@ public interface TaskService {
     @GET
     @Path("{type}/{taskId}")
     // TODO TaskType can be removed once CXF migration is done
-    <T extends TaskTO> T read(@PathParam("type") TaskType taskType, @PathParam("taskId") Long taskId);
+    <T extends AbstractTaskTO> T read(@PathParam("type") TaskType taskType, @PathParam("taskId") Long taskId);
 
     /**
      * @param executionId Id if task execution to be read
@@ -147,7 +147,7 @@ public interface TaskService {
      */
     @PUT
     @Path("{taskId}")
-    void update(@PathParam("taskId") Long taskId, TaskTO taskTO);
+    void update(@PathParam("taskId") Long taskId, AbstractTaskTO taskTO);
     
     @POST
     @Path("bulk")

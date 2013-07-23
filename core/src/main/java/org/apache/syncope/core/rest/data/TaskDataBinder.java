@@ -26,7 +26,7 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
-import org.apache.syncope.common.to.TaskTO;
+import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.types.TaskType;
@@ -226,8 +226,8 @@ public class TaskDataBinder {
         }
     }
 
-    public TaskTO getTaskTO(final Task task, final TaskUtil taskUtil) {
-        TaskTO taskTO = taskUtil.newTaskTO();
+    public AbstractTaskTO getTaskTO(final Task task, final TaskUtil taskUtil) {
+        AbstractTaskTO taskTO = taskUtil.newTaskTO();
         BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
 
         TaskExec latestExec = taskExecDAO.findLatestStarted(task);

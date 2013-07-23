@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.syncope.common.services.PolicyService;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
-import org.apache.syncope.common.to.PolicyTO;
+import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.util.CollectionWrapper;
@@ -37,7 +37,7 @@ public class PolicyRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
 
-    public <T extends PolicyTO> T getGlobalPolicy(final PolicyType type) {
+    public <T extends AbstractPolicyTO> T getGlobalPolicy(final PolicyType type) {
         T policy = null;
         try {
             policy = getService(PolicyService.class).readGlobal(type);
@@ -48,7 +48,7 @@ public class PolicyRestClient extends BaseRestClient {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends PolicyTO> List<T> getPolicies(final PolicyType type, final boolean includeGlobal) {
+    public <T extends AbstractPolicyTO> List<T> getPolicies(final PolicyType type, final boolean includeGlobal) {
         final List<T> res = new ArrayList<T>();
 
         try {
@@ -59,7 +59,7 @@ public class PolicyRestClient extends BaseRestClient {
 
         if (includeGlobal) {
             try {
-                PolicyTO globalPolicy = getGlobalPolicy(type);
+                AbstractPolicyTO globalPolicy = getGlobalPolicy(type);
                 if (globalPolicy != null) {
                     res.add(0, (T) globalPolicy);
                 }
@@ -71,15 +71,15 @@ public class PolicyRestClient extends BaseRestClient {
         return res;
     }
 
-    public <T extends PolicyTO> void createPolicy(final T policy) {
+    public <T extends AbstractPolicyTO> void createPolicy(final T policy) {
         getService(PolicyService.class).create(policy.getType(), policy);
     }
 
-    public <T extends PolicyTO> void updatePolicy(final T policy) {
+    public <T extends AbstractPolicyTO> void updatePolicy(final T policy) {
         getService(PolicyService.class).update(policy.getType(), policy.getId(), policy);
     }
 
-    public void delete(final Long id, final Class<? extends PolicyTO> policyClass) {
+    public void delete(final Long id, final Class<? extends AbstractPolicyTO> policyClass) {
         getService(PolicyService.class).delete(getPolicyType(policyClass), id);
     }
 
@@ -96,7 +96,7 @@ public class PolicyRestClient extends BaseRestClient {
         return rules;
     }
 
-    private PolicyType getPolicyType(final Class<? extends PolicyTO> clazz) {
+    private PolicyType getPolicyType(final Class<? extends AbstractPolicyTO> clazz) {
         PolicyType policyType;
         if (AccountPolicyTO.class.equals(clazz)) {
             policyType = PolicyType.ACCOUNT;
