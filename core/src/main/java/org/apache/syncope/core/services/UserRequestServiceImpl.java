@@ -22,45 +22,50 @@ import java.net.URI;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.UserRequestTO;
-import org.apache.syncope.common.types.UserRequestType;
 import org.apache.syncope.core.rest.controller.UserRequestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserRequestServiceImpl implements UserRequestService, ContextAware {
+public class UserRequestServiceImpl extends AbstractServiceImpl implements UserRequestService, ContextAware {
 
     @Autowired
-    private UserRequestController userRequestController;
-
-    private UriInfo uriInfo;
+    private UserRequestController controller;
 
     @Override
     public Response getOptions() {
         return Response.ok().header("Allow", "GET,POST,OPTIONS,HEAD")
-                .header(SYNCOPE_CREATE_ALLOWED, userRequestController.isCreateAllowedByConf()).build();
+                .header(SYNCOPE_CREATE_ALLOWED, controller.isCreateAllowed()).
+                build();
     }
 
     @Override
     public boolean isCreateAllowed() {
-        return userRequestController.isCreateAllowedByConf();
+        return controller.isCreateAllowed();
     }
 
     @Override
     public Response create(final UserRequestTO userRequestTO) {
-        UserRequestTO outUserRequestTO = null;
-        if (userRequestTO.getType() == UserRequestType.CREATE) {
-            outUserRequestTO = userRequestController.create(userRequestTO.getUserTO());
-        } else if (userRequestTO.getType() == UserRequestType.UPDATE) {
-            outUserRequestTO = userRequestController.update(userRequestTO.getUserMod());
-        } else if (userRequestTO.getType() == UserRequestType.DELETE) {
-            outUserRequestTO = userRequestController.delete(userRequestTO.getUserId());
+        UserRequestTO outUserRequestTO;
+        switch (userRequestTO.getType()) {
+            case CREATE:
+                outUserRequestTO = controller.create(userRequestTO.getUserTO());
+                break;
+
+            case UPDATE:
+                outUserRequestTO = controller.update(userRequestTO.getUserMod());
+                break;
+
+            case DELETE:
+            default:
+                outUserRequestTO = controller.delete(userRequestTO.getUserId());
+                break;
         }
+
         URI location = uriInfo.getAbsolutePathBuilder().path("" + outUserRequestTO.getId()).build();
         return Response.created(location)
                 .header(SyncopeConstants.REST_HEADER_ID, outUserRequestTO.getId())
@@ -69,21 +74,16 @@ public class UserRequestServiceImpl implements UserRequestService, ContextAware 
 
     @Override
     public List<UserRequestTO> list() {
-        return userRequestController.list();
+        return controller.list();
     }
 
     @Override
     public UserRequestTO read(final Long requestId) {
-        return userRequestController.read(requestId);
+        return controller.read(requestId);
     }
 
     @Override
     public void delete(final Long requestId) {
-        userRequestController.deleteRequest(requestId);
-    }
-
-    @Override
-    public void setUriInfo(final UriInfo uriInfo) {
-        this.uriInfo = uriInfo;
+        controller.deleteRequest(requestId);
     }
 }

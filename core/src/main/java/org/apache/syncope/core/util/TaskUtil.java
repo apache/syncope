@@ -23,33 +23,80 @@ import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskTO;
+import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
 
-@SuppressWarnings("unchecked")
-public enum TaskUtil {
+public final class TaskUtil {
 
-    PROPAGATION,
-    SCHED,
-    SYNC,
-    NOTIFICATION;
+    private final TaskType type;
+
+    public static TaskUtil getInstance(final TaskType type) {
+        return new TaskUtil(type);
+    }
+
+    public static TaskUtil getInstance(final Task task) {
+        TaskType type;
+        if (task instanceof SyncTask) {
+            type = TaskType.SYNCHRONIZATION;
+        } else if (task instanceof SchedTask) {
+            type = TaskType.SCHEDULED;
+        } else if (task instanceof PropagationTask) {
+            type = TaskType.PROPAGATION;
+        } else if (task instanceof NotificationTask) {
+            type = TaskType.NOTIFICATION;
+        } else {
+            throw new IllegalArgumentException("Invalid task: " + task);
+        }
+
+        return getInstance(type);
+    }
+
+    public static TaskUtil getInstance(Class<? extends TaskTO> taskClass) {
+        TaskType type;
+        if (taskClass == PropagationTaskTO.class) {
+            type = TaskType.PROPAGATION;
+        } else if (taskClass == NotificationTaskTO.class) {
+            type = TaskType.NOTIFICATION;
+        } else if (taskClass == SchedTaskTO.class) {
+            type = TaskType.SCHEDULED;
+        } else if (taskClass == SyncTaskTO.class) {
+            type = TaskType.SYNCHRONIZATION;
+        } else {
+            throw new IllegalArgumentException("Invalid TaskTO class: " + taskClass.getName());
+        }
+
+        return getInstance(type);
+    }
+
+    public static TaskUtil getInstance(final TaskTO taskTO) {
+        return getInstance(taskTO.getClass());
+    }
+
+    private TaskUtil(final TaskType type) {
+        this.type = type;
+    }
+
+    public TaskType getType() {
+        return type;
+    }
 
     public <T extends Task> Class<T> taskClass() {
         Class result = null;
 
-        switch (this) {
+        switch (type) {
             case PROPAGATION:
                 result = PropagationTask.class;
                 break;
 
-            case SCHED:
+            case SCHEDULED:
                 result = SchedTask.class;
                 break;
 
-            case SYNC:
+            case SYNCHRONIZATION:
                 result = SyncTask.class;
                 break;
 
@@ -66,16 +113,16 @@ public enum TaskUtil {
     public <T extends Task> T newTask() {
         T result = null;
 
-        switch (this) {
+        switch (type) {
             case PROPAGATION:
                 result = (T) new PropagationTask();
                 break;
 
-            case SCHED:
+            case SCHEDULED:
                 result = (T) new SchedTask();
                 break;
 
-            case SYNC:
+            case SYNCHRONIZATION:
                 result = (T) new SyncTask();
                 break;
 
@@ -92,16 +139,16 @@ public enum TaskUtil {
     public <T extends TaskTO> Class<T> taskTOClass() {
         Class result = null;
 
-        switch (this) {
+        switch (type) {
             case PROPAGATION:
                 result = PropagationTaskTO.class;
                 break;
 
-            case SCHED:
+            case SCHEDULED:
                 result = SchedTaskTO.class;
                 break;
 
-            case SYNC:
+            case SYNCHRONIZATION:
                 result = SyncTaskTO.class;
                 break;
 
@@ -118,16 +165,16 @@ public enum TaskUtil {
     public <T extends TaskTO> T newTaskTO() {
         T result = null;
 
-        switch (this) {
+        switch (type) {
             case PROPAGATION:
                 result = (T) new PropagationTaskTO();
                 break;
 
-            case SCHED:
+            case SCHEDULED:
                 result = (T) new SchedTaskTO();
                 break;
 
-            case SYNC:
+            case SYNCHRONIZATION:
                 result = (T) new SyncTaskTO();
                 break;
 

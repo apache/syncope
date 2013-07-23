@@ -21,11 +21,8 @@ package org.apache.syncope.core.services;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
-/**
- * While @Context can also be set on fields this variant is needed to make it compatible with spring proxies
- */
 public interface ContextAware {
 
     @Context
-    void setUriInfo(UriInfo ui);
+    void setUriInfo(UriInfo uriInfo);
 }

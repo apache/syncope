@@ -50,7 +50,6 @@ import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import org.apache.syncope.core.rest.jaxrs.CXFPatchedAuthenticator;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -68,8 +67,6 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertFalse(allEntitlements.isEmpty());
 
         // 2. as admin, read own entitlements
-        super.resetRestTemplate();
-
         Set<EntitlementTO> adminEntitlements = entitlementService.getMyEntitlements();
 
         assertEquals(allEntitlements, adminEntitlements);
@@ -116,7 +113,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
-        SchemaService schemaService2 = setupCredentials(schemaService, SchemaService.class,
+        SchemaService schemaService2 = createServiceInstance(SchemaService.class,
                 userTO.getUsername(), "password123");
 
         schemaTO = schemaService2.read(AttributableType.USER, SchemaType.NORMAL, schemaName);
@@ -134,8 +131,6 @@ public class AuthenticationTestITCase extends AbstractTest {
             assertNotNull(e);
         }
 
-        // reset admin credentials for restTemplate
-        super.resetRestTemplate();
         assertEquals(0, getFailedLogins(userService, userTO.getId()));
     }
 
@@ -154,13 +149,12 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserService userService2 = setupCredentials(userService, UserService.class,
-                userTO.getUsername(), "password123");
+        UserService userService2 = createServiceInstance(UserService.class, userTO.getUsername(), "password123");
 
         UserTO readUserTO = userService2.read(1L);
         assertNotNull(readUserTO);
 
-        UserService userService3 = setupCredentials(userService, UserService.class, "verdi", ADMIN_PWD);
+        UserService userService3 = createServiceInstance(UserService.class, "verdi", ADMIN_PWD);
 
         SyncopeClientException exception = null;
         try {
@@ -170,9 +164,6 @@ public class AuthenticationTestITCase extends AbstractTest {
             exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
         }
         assertNotNull(exception);
-
-        // reset admin credentials for restTemplate
-        super.resetRestTemplate();
     }
 
     @Test
@@ -190,8 +181,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserService userService2 = setupCredentials(userService, UserService.class,
-                userTO.getUsername(), "password123");
+        UserService userService2 = createServiceInstance(UserService.class, userTO.getUsername(), "password123");
 
         AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
         isNullCond.setSchema("loginDate");
@@ -206,7 +196,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         }
         assertTrue(userIds.contains(1L));
 
-        UserService userService3 = setupCredentials(userService, UserService.class, "verdi", "password");
+        UserService userService3 = createServiceInstance(UserService.class, "verdi", "password");
 
         matchedUsers = userService3.search(searchCondition);
 
@@ -218,16 +208,10 @@ public class AuthenticationTestITCase extends AbstractTest {
             userIds.add(user.getId());
         }
         assertFalse(userIds.contains(1L));
-
-        // reset admin credentials for restTemplate
-        super.resetRestTemplate();
     }
 
     @Test
     public void checkFailedLogins() {
-        // Workaround for CXF issue.. remove after upgrade to 2.7.3
-        CXFAuthenticator.addAuthenticator();
-        Authenticator.setDefault(new CXFPatchedAuthenticator());
         UserTO userTO = UserTestITCase.getUniqueSampleTO("checkFailedLogin@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
@@ -242,22 +226,17 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(userTO);
         long userId = userTO.getId();
 
-        UserService userService2 = setupCredentials(userService, UserService.class,
-                userTO.getUsername(), "password123");
+        UserService userService2 = createServiceInstance(UserService.class, userTO.getUsername(), "password123");
         assertEquals(0, getFailedLogins(userService2, userId));
 
         // authentications failed ...
-        UserService userService3 = setupCredentials(userService, UserService.class,
-                userTO.getUsername(), "wrongpwd1");
+        UserService userService3 = createServiceInstance(UserService.class, userTO.getUsername(), "wrongpwd1");
         assertReadFails(userService3, userId);
         assertReadFails(userService3, userId);
 
-        // reset admin credentials for restTemplate
-        super.resetRestTemplate();
         assertEquals(2, getFailedLogins(userService, userId));
 
-        UserService userService4 = setupCredentials(userService, UserService.class,
-                userTO.getUsername(), "password123");
+        UserService userService4 = createServiceInstance(UserService.class, userTO.getUsername(), "password123");
         assertEquals(0, getFailedLogins(userService4, userId));
     }
 
@@ -277,28 +256,20 @@ public class AuthenticationTestITCase extends AbstractTest {
         long userId = userTO.getId();
         assertNotNull(userTO);
 
-        UserService userService2 = setupCredentials(userService, UserService.class,
-                userTO.getUsername(), "password123");
+        UserService userService2 = createServiceInstance(UserService.class, userTO.getUsername(), "password123");
         assertEquals(0, getFailedLogins(userService2, userId));
 
         // authentications failed ...
-        UserService userService3 = setupCredentials(userService, UserService.class,
-                userTO.getUsername(), "wrongpwd1");
+        UserService userService3 = createServiceInstance(UserService.class, userTO.getUsername(), "wrongpwd1");
         assertReadFails(userService3, userId);
         assertReadFails(userService3, userId);
         assertReadFails(userService3, userId);
 
-        // reset admin credentials for restTemplate
-        super.resetRestTemplate();
         assertEquals(3, getFailedLogins(userService, userId));
 
         // last authentication before suspension
-        // TODO remove after CXF migration is complete
-        userService3 = setupCredentials(userService, UserService.class, userTO.getUsername(), "wrongpwd1");
+        userService3 = createServiceInstance(UserService.class, userTO.getUsername(), "wrongpwd1");
         assertReadFails(userService3, userId);
-
-        // reset admin credentials for restTemplate
-        super.resetRestTemplate();
 
         userTO = userService.read(userTO.getId());
 
@@ -308,18 +279,14 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertEquals("suspended", userTO.getStatus());
 
         // Access with correct credentials should fail as user is suspended
-        // TODO remove after CXF migration is complete
-        userService2 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
+        userService2 = createServiceInstance(UserService.class, userTO.getUsername(), "password123");
         assertReadFails(userService2, userId);
 
-        // reset admin credentials for restTemplate
-        super.resetRestTemplate();
         userTO = userService.reactivate(userTO.getId());
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        // TODO remove after CXF migration is complete
-        userService2 = setupCredentials(userService, UserService.class, userTO.getUsername(), "password123");
+        userService2 = createServiceInstance(UserService.class, userTO.getUsername(), "password123");
         assertEquals(0, getFailedLogins(userService2, userId));
     }
 
@@ -332,7 +299,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         parentRole.addEntitlement("ROLE_1");
         parentRole.setParent(1L);
 
-        parentRole =  createRole(roleService, parentRole);
+        parentRole = createRole(roleService, parentRole);
         assertNotNull(parentRole);
 
         // Child role, with no entitlements
@@ -353,8 +320,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         role1Admin = createUser(role1Admin);
         assertNotNull(role1Admin);
 
-        UserService userService2 = setupCredentials(userService, UserService.class,
-                role1Admin.getUsername(), "password");
+        UserService userService2 = createServiceInstance(UserService.class, role1Admin.getUsername(), "password");
 
         // User with role 1, created by user with child role created above
         UserTO role1User = UserTestITCase.getUniqueSampleTO("syncope48user@apache.org");

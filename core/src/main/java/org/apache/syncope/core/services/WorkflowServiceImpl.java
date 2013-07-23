@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.core.services;
 
-import java.util.List;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.services.WorkflowTasks;
@@ -31,18 +29,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class WorkflowServiceImpl implements WorkflowService, ContextAware {
+public class WorkflowServiceImpl extends AbstractServiceImpl implements WorkflowService, ContextAware {
 
     @Autowired
-    private WorkflowController workflowController;
+    private WorkflowController controller;
 
     @Override
     public WorkflowDefinitionTO getDefinition(final AttributableType kind) {
         switch (kind) {
             case USER:
-                return workflowController.getUserDefinition();
+                return controller.getUserDefinition();
+
             case ROLE:
-                return workflowController.getRoleDefinition();
+                return controller.getRoleDefinition();
+
             default:
                 throw new BadRequestException();
         }
@@ -52,11 +52,13 @@ public class WorkflowServiceImpl implements WorkflowService, ContextAware {
     public void updateDefinition(final AttributableType kind, final WorkflowDefinitionTO definition) {
         switch (kind) {
             case USER:
-                workflowController.updateUserDefinition(definition);
+                controller.updateUserDefinition(definition);
                 break;
+
             case ROLE:
-                workflowController.updateRoleDefinition(definition);
+                controller.updateRoleDefinition(definition);
                 break;
+
             default:
                 throw new BadRequestException();
         }
@@ -67,19 +69,13 @@ public class WorkflowServiceImpl implements WorkflowService, ContextAware {
     public WorkflowTasks getDefinedTasks(final AttributableType kind) {
         switch (kind) {
             case USER:
-                return new WorkflowTasks((List<String>) workflowController.getDefinedUserTasks().
-                        getModel().values().iterator().next());
+                return new WorkflowTasks(controller.getDefinedUserTasks());
 
             case ROLE:
-                return new WorkflowTasks((List<String>) workflowController.getDefinedRoleTasks().
-                        getModel().values().iterator().next());
+                return new WorkflowTasks(controller.getDefinedRoleTasks());
 
             default:
                 throw new BadRequestException();
         }
-    }
-
-    @Override
-    public void setUriInfo(final UriInfo ui) {
     }
 }

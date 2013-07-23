@@ -48,7 +48,7 @@ public interface ConfigurationService {
      */
     @GET
     @Path("stream")
-    Response dbExport();
+    Response export();
 
     /**
      * @param key Deletes configuration with matching key.

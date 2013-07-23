@@ -29,6 +29,7 @@ import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.TaskTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.init.JobInstanceLoader;
@@ -149,10 +150,10 @@ public class TaskDataBinder {
         task.setName(taskTO.getName());
         task.setDescription(taskTO.getDescription());
 
-        if (taskUtil == TaskUtil.SCHED) {
+        if (taskUtil.getType() == TaskType.SCHEDULED) {
             task.setJobClassName(taskTO.getJobClassName());
         }
-        if (taskUtil == TaskUtil.SYNC) {
+        if (taskUtil.getType() == TaskType.SYNCHRONIZATION) {
             if (!(taskTO instanceof SyncTaskTO)) {
                 throw new ClassCastException("taskUtil is type SyncTask but taskTO is not SyncTaskTO: " + taskTO.
                         getClass().getName());
@@ -180,7 +181,7 @@ public class TaskDataBinder {
             task.setDescription(taskTO.getDescription());
         }
 
-        if (taskUtil == TaskUtil.SYNC) {
+        if (taskUtil.getType() == TaskType.SYNCHRONIZATION) {
             if (!(task instanceof SyncTask)) {
                 throw new ClassCastException("taskUtil is type SyncTask but task is not SyncTask: " + task.getClass().
                         getName());
@@ -246,7 +247,7 @@ public class TaskDataBinder {
             taskTO.addExecution(getTaskExecTO(execution));
         }
 
-        switch (taskUtil) {
+        switch (taskUtil.getType()) {
             case PROPAGATION:
                 if (!(task instanceof PropagationTask)) {
                     throw new ClassCastException("taskUtil is type Propagation but task is not PropagationTask: "
@@ -254,7 +255,7 @@ public class TaskDataBinder {
                 }
                 break;
 
-            case SCHED:
+            case SCHEDULED:
                 if (!(task instanceof SchedTask)) {
                     throw new ClassCastException("taskUtil is type Sched but task is not SchedTask: "
                             + task.getClass().getName());
@@ -264,7 +265,7 @@ public class TaskDataBinder {
                 ((SchedTaskTO) taskTO).setDescription(((SchedTask) task).getDescription());
                 break;
 
-            case SYNC:
+            case SYNCHRONIZATION:
                 if (!(task instanceof SyncTask)) {
                     throw new ClassCastException("taskUtil is type Sync but task is not SyncTask: "
                             + task.getClass().getName());

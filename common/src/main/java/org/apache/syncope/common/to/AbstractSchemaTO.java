@@ -26,7 +26,7 @@ import org.apache.syncope.common.AbstractBaseBean;
 
 @XmlRootElement(name = "abstractSchema")
 @XmlType
-@XmlSeeAlso({SchemaTO.class, DerivedSchemaTO.class, VirtualSchemaTO.class})
+@XmlSeeAlso({SchemaTO.class, DerSchemaTO.class, VirSchemaTO.class})
 public abstract class AbstractSchemaTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 4088388951694301759L;

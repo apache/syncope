@@ -16,18 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.http;
+package org.apache.syncope.core.services;
 
-import java.util.Map;
-import org.apache.http.params.SyncBasicHttpParams;
+import javax.ws.rs.core.UriInfo;
 
-public class HttpClientParams extends SyncBasicHttpParams {
+abstract class AbstractServiceImpl implements ContextAware {
 
-    public void setParameterMap(final Map<String, Object> parameters) {
-        clear();
-        
-        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
-            setParameter(entry.getKey(), entry.getValue());
-        }
+    protected UriInfo uriInfo;
+
+    @Override
+    public void setUriInfo(final UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
     }
 }

@@ -33,7 +33,6 @@ import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.common.validation.SyncopeClientErrorHandler;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
@@ -53,8 +52,6 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
     private static final String BASIC_REALM_UNAUTHORIZED = "Basic realm=\"Apache Syncope authentication\"";
 
     private static final Logger LOG = LoggerFactory.getLogger(RestServiceExceptionMapper.class);
-
-    public static final String EXCEPTION_TYPE_HEADER = "ExceptionType";
 
     @Override
     public Response toResponse(final Exception ex) {
@@ -118,7 +115,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
     private Response getCompositeExceptionResponse(final SyncopeClientCompositeErrorException ex) {
         ResponseBuilder responseBuilder = Response.status(ex.getStatusCode().value());
         for (SyncopeClientException sce : ex.getExceptions()) {
-            responseBuilder.header(EXCEPTION_TYPE_HEADER, sce.getType().getHeaderValue());
+            responseBuilder.header(
+                    SyncopeClientCompositeErrorException.EXCEPTION_TYPE_HEADER, sce.getType().getHeaderValue());
 
             for (String attributeName : sce.getElements()) {
                 responseBuilder.header(sce.getType().getElementHeaderName(), attributeName);
@@ -172,9 +170,10 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
             SyncopeClientExceptionType exType = SyncopeClientExceptionType.valueOf("Invalid"
                     + ((InvalidEntityException) ex).getEntityClassSimpleName());
 
-            responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER, exType.getHeaderValue());
+            responseBuilder.header(
+                    SyncopeClientCompositeErrorException.EXCEPTION_TYPE_HEADER, exType.getHeaderValue());
 
-            for (@SuppressWarnings("rawtypes") Map.Entry<Class, Set<EntityViolationType>> violation
+            for (Map.Entry<Class<?>, Set<EntityViolationType>> violation
                     : ((InvalidEntityException) ex).getViolations().entrySet()) {
 
                 for (EntityViolationType violationType : violation.getValue()) {
@@ -197,7 +196,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
     private Response buildResponse(final ResponseBuilder responseBuilder, final SyncopeClientExceptionType hType,
             final String msg) {
 
-        return responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER, hType.getHeaderValue()).
+        return responseBuilder.header(
+                SyncopeClientCompositeErrorException.EXCEPTION_TYPE_HEADER, hType.getHeaderValue()).
                 header(hType.getElementHeaderName(), msg).
                 build();
     }

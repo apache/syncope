@@ -56,7 +56,7 @@ under the License.
   </logger>
     
   <logger name="org.apache.cxf" additivity="false">
-    <level value="INFO"/>
+    <level value="ERROR"/>
     <appender-ref ref="main"/>
   </logger>
     

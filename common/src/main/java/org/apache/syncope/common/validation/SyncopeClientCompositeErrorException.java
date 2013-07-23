@@ -29,6 +29,8 @@ public class SyncopeClientCompositeErrorException extends HttpClientErrorExcepti
 
     private static final long serialVersionUID = 7882118041134372129L;
 
+    public static final String EXCEPTION_TYPE_HEADER = "ExceptionType";
+
     private Set<SyncopeClientException> exceptions;
 
     public SyncopeClientCompositeErrorException(final HttpStatus statusCode) {

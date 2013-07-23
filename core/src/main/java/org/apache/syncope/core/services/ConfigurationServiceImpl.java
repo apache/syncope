@@ -27,7 +27,6 @@ import java.util.Set;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ConfigurationService;
@@ -41,16 +40,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ConfigurationServiceImpl implements ConfigurationService, ContextAware {
+public class ConfigurationServiceImpl extends AbstractServiceImpl implements ConfigurationService, ContextAware {
 
     @Autowired
-    private ConfigurationController configurationController;
-
-    private UriInfo uriInfo;
+    private ConfigurationController controller;
 
     @Override
     public Response create(final ConfigurationTO configurationTO) {
-        ConfigurationTO created = configurationController.create(new DummyHTTPServletResponse(), configurationTO);
+        ConfigurationTO created = controller.create(configurationTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
         return Response.created(location).
                 header(SyncopeConstants.REST_HEADER_ID, created.getKey()).
@@ -58,12 +55,12 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
     }
 
     @Override
-    public Response dbExport() {
+    public Response export() {
         StreamingOutput sout = new StreamingOutput() {
 
             @Override
             public void write(final OutputStream os) throws IOException {
-                configurationController.dbExportInternal(os);
+                controller.export(os);
             }
         };
         return Response.ok(sout)
@@ -75,41 +72,34 @@ public class ConfigurationServiceImpl implements ConfigurationService, ContextAw
 
     @Override
     public void delete(final String key) {
-        configurationController.delete(key);
+        controller.delete(key);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Set<MailTemplateTO> getMailTemplates() {
-        return CollectionWrapper.wrapMailTemplates(
-                (Set<String>) configurationController.getMailTemplates().getModel().values().iterator().next());
+        return CollectionWrapper.wrapMailTemplates(controller.getMailTemplates());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Set<ValidatorTO> getValidators() {
-        return CollectionWrapper.wrapValidators(
-                (Set<String>) configurationController.getValidators().getModel().values().iterator().next());
+        return CollectionWrapper.wrapValidators(controller.getValidators());
     }
 
     @Override
     public List<ConfigurationTO> list() {
-        return configurationController.list(null);
+        return controller.list();
     }
 
     @Override
     public ConfigurationTO read(final String key) {
-        return configurationController.read(null, key);
+        return controller.read(key);
 
     }
 
     @Override
     public void update(final String key, final ConfigurationTO configurationTO) {
-        configurationController.update(configurationTO);
-    }
-
-    @Override
-    public void setUriInfo(final UriInfo ui) {
-        this.uriInfo = ui;
+        controller.update(configurationTO);
     }
 }

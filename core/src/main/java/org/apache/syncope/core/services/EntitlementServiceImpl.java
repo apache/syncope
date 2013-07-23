@@ -24,25 +24,25 @@ import java.util.Set;
 import org.apache.syncope.common.services.EntitlementService;
 import org.apache.syncope.common.to.EntitlementTO;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.core.rest.controller.AuthenticationController;
+import org.apache.syncope.core.rest.controller.EntitlementController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EntitlementServiceImpl implements EntitlementService {
+public class EntitlementServiceImpl extends AbstractServiceImpl implements EntitlementService, ContextAware {
 
     @Autowired
-    private AuthenticationController authenticationController;
+    private EntitlementController controller;
 
     @Override
     public Set<EntitlementTO> getAllEntitlements() {
-        Set<String> entitlements = new HashSet<String>(authenticationController.listEntitlements());
+        Set<String> entitlements = new HashSet<String>(controller.listEntitlements());
         return CollectionWrapper.wrap(entitlements);
     }
 
     @Override
     public Set<EntitlementTO> getMyEntitlements() {
-        Set<String> entitlements = authenticationController.getEntitlements();
+        Set<String> entitlements = controller.getEntitlements();
         return CollectionWrapper.wrap(entitlements);
     }
 }

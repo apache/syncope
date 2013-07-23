@@ -113,7 +113,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
     @Test
     public void dbExport() throws IOException {
-        Response response = configurationService.dbExport();
+        Response response = configurationService.export();
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatus());
         String contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);

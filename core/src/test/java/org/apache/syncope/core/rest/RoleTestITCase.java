@@ -194,7 +194,7 @@ public class RoleTestITCase extends AbstractTest {
         assertTrue(userTO.getMembershipMap().containsKey(1L));
         assertFalse(userTO.getMembershipMap().containsKey(3L));
 
-        RoleService roleService2 = setupCredentials(roleService, RoleService.class, "rossini", ADMIN_PWD);
+        RoleService roleService2 = createServiceInstance(RoleService.class, "rossini", ADMIN_PWD);
 
         SyncopeClientException exception = null;
         try {
@@ -297,7 +297,7 @@ public class RoleTestITCase extends AbstractTest {
         roleMod.setName("Managing Director");
 
         // 3. try to update as verdi, not owner of role 7 - fail
-        RoleService roleService2 = setupCredentials(roleService, RoleService.class, "verdi", ADMIN_PWD);
+        RoleService roleService2 = createServiceInstance(RoleService.class, "verdi", ADMIN_PWD);
 
         try {
             roleService2.update(roleMod.getId(), roleMod);
@@ -308,9 +308,8 @@ public class RoleTestITCase extends AbstractTest {
             assertNotNull(e);
         }
 
-        // 4. update as puccini, owner of role 7 because owner of role 6 with
-        // inheritance - success
-        RoleService roleService3 = setupCredentials(roleService, RoleService.class, "puccini", ADMIN_PWD);
+        // 4. update as puccini, owner of role 7 because owner of role 6 with inheritance - success
+        RoleService roleService3 = createServiceInstance(RoleService.class, "puccini", ADMIN_PWD);
 
         roleTO = roleService3.update(roleMod.getId(), roleMod);
         assertEquals("Managing Director", roleTO.getName());

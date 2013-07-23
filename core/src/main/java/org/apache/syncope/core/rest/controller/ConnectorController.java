@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
@@ -56,18 +55,11 @@ import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 
-@Controller
-@RequestMapping("/connector")
-public class ConnInstanceController extends AbstractController {
+@Component
+public class ConnectorController extends AbstractController {
 
     @Autowired
     private AuditManager auditManager;
@@ -85,8 +77,7 @@ public class ConnInstanceController extends AbstractController {
     private ConnectorFactory connFactory;
 
     @PreAuthorize("hasRole('CONNECTOR_CREATE')")
-    @RequestMapping(method = RequestMethod.POST, value = "/create")
-    public ConnInstanceTO create(final HttpServletResponse response, @RequestBody final ConnInstanceTO connInstanceTO) {
+    public ConnInstanceTO create(final ConnInstanceTO connInstanceTO) {
         LOG.debug("ConnInstance create called with configuration {}", connInstanceTO);
 
         ConnInstance connInstance = binder.getConnInstance(connInstanceTO);
@@ -109,13 +100,11 @@ public class ConnInstanceController extends AbstractController {
             throw scce;
         }
 
-        response.setStatus(HttpServletResponse.SC_CREATED);
         return binder.getConnInstanceTO(connInstance);
     }
 
     @PreAuthorize("hasRole('CONNECTOR_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public ConnInstanceTO update(@RequestBody final ConnInstanceTO connInstanceTO) {
+    public ConnInstanceTO update(final ConnInstanceTO connInstanceTO) {
         LOG.debug("Connector update called with configuration {}", connInstanceTO);
 
         ConnInstance connInstance = binder.updateConnInstance(connInstanceTO.getId(), connInstanceTO);
@@ -142,8 +131,7 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_DELETE')")
-    @RequestMapping(method = RequestMethod.GET, value = "/delete/{connInstanceId}")
-    public ConnInstanceTO delete(@PathVariable("connInstanceId") final Long connInstanceId) {
+    public ConnInstanceTO delete(final Long connInstanceId) {
         ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connInstanceId + "'");
@@ -173,9 +161,8 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/list")
     @Transactional(readOnly = true)
-    public List<ConnInstanceTO> list(@RequestParam(value = "lang", required = false) final String lang) {
+    public List<ConnInstanceTO> list(final String lang) {
         if (StringUtils.isBlank(lang)) {
             CurrentLocale.set(Locale.ENGLISH);
         } else {
@@ -201,9 +188,8 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/read/{connInstanceId}")
     @Transactional(readOnly = true)
-    public ConnInstanceTO read(@PathVariable("connInstanceId") final Long connInstanceId) {
+    public ConnInstanceTO read(final Long connInstanceId) {
         ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connInstanceId + "'");
@@ -216,9 +202,8 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/bundle/list")
     @Transactional(readOnly = true)
-    public List<ConnBundleTO> getBundles(@RequestParam(value = "lang", required = false) final String lang) {
+    public List<ConnBundleTO> getBundles(final String lang) {
         if (StringUtils.isBlank(lang)) {
             CurrentLocale.set(Locale.ENGLISH);
         } else {
@@ -270,12 +255,8 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
-    @RequestMapping(method = RequestMethod.POST, value = "/schemaNames/list")
     @Transactional(readOnly = true)
-    public List<String> getSchemaNames(@RequestBody final ConnInstanceTO connInstanceTO,
-            @RequestParam(required = false, value = "includeSpecial", defaultValue = "false")
-            final boolean includeSpecial) {
-
+    public List<String> getSchemaNames(final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
         final ConnInstance connInstance = connInstanceDAO.find(connInstanceTO.getId());
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connInstanceTO.getId() + "'");
@@ -299,9 +280,8 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
-    @RequestMapping(method = RequestMethod.POST, value = "/supportedObjectClasses/list")
     @Transactional(readOnly = true)
-    public List<String> getSupportedObjectClasses(@RequestBody final ConnInstanceTO connInstanceTO) {
+    public List<String> getSupportedObjectClasses(final ConnInstanceTO connInstanceTO) {
         final ConnInstance connInstance = connInstanceDAO.find(connInstanceTO.getId());
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connInstanceTO.getId() + "'");
@@ -329,10 +309,8 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/{connInstanceId}/configurationProperty/list")
     @Transactional(readOnly = true)
-    public List<ConnConfProperty> getConfigurationProperties(
-            @PathVariable("connInstanceId") final Long connInstanceId) {
+    public List<ConnConfProperty> getConfigurationProperties(final Long connInstanceId) {
 
         final ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
         if (connInstance == null) {
@@ -349,9 +327,8 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
-    @RequestMapping(method = RequestMethod.POST, value = "/check")
     @Transactional(readOnly = true)
-    public ModelAndView check(@RequestBody final ConnInstanceTO connInstanceTO) {
+    public boolean check(final ConnInstanceTO connInstanceTO) {
         final Connector connector =
                 connFactory.createConnector(binder.getConnInstance(connInstanceTO), connInstanceTO.getConfiguration());
 
@@ -370,13 +347,12 @@ public class ConnInstanceController extends AbstractController {
             result = false;
         }
 
-        return new ModelAndView().addObject(result);
+        return result;
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/{resourceName}/readByResource")
     @Transactional(readOnly = true)
-    public ConnInstanceTO readByResource(@PathVariable("resourceName") final String resourceName) {
+    public ConnInstanceTO readByResource(final String resourceName) {
         ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceName + "'");
@@ -391,7 +367,6 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_RELOAD')")
-    @RequestMapping(method = RequestMethod.POST, value = "/reload")
     @Transactional(readOnly = true)
     public void reload() {
         connFactory.unload();
@@ -402,24 +377,20 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE")
-    @RequestMapping(method = RequestMethod.POST, value = "/bulk")
-    public BulkActionRes bulkAction(@RequestBody final BulkAction bulkAction) {
+    public BulkActionRes bulkAction(final BulkAction bulkAction) {
         LOG.debug("Bulk action '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
 
         BulkActionRes res = new BulkActionRes();
 
-        switch (bulkAction.getOperation()) {
-            case DELETE:
-                for (String id : bulkAction.getTargets()) {
-                    try {
-                        res.add(delete(Long.valueOf(id)).getId(), BulkActionRes.Status.SUCCESS);
-                    } catch (Exception e) {
-                        LOG.error("Error performing delete for connector {}", id, e);
-                        res.add(id, BulkActionRes.Status.FAILURE);
-                    }
+        if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
+            for (String id : bulkAction.getTargets()) {
+                try {
+                    res.add(delete(Long.valueOf(id)).getId(), BulkActionRes.Status.SUCCESS);
+                } catch (Exception e) {
+                    LOG.error("Error performing delete for connector {}", id, e);
+                    res.add(id, BulkActionRes.Status.FAILURE);
                 }
-                break;
-            default:
+            }
         }
 
         return res;

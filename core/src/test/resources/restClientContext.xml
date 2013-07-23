@@ -25,64 +25,8 @@ under the License.
                            http://cxf.apache.org/core 
                            http://cxf.apache.org/schemas/core.xsd">
 
-  <bean id="httpClientConnManager"
-        class="org.apache.http.impl.conn.PoolingClientConnectionManager"/>
-
-  <bean id="httpClientParams" class="org.apache.syncope.client.http.HttpClientParams">
-    <property name="parameterMap">
-      <map key-type="java.lang.String">
-        <entry>
-          <key>
-            <value>http.protocol.handle-authentication</value>
-          </key>
-          <value type="java.lang.Boolean">
-            false
-          </value>
-        </entry>
-      </map>
-    </property>
-  </bean>
-
-  <bean id="httpClientFactory"
-        class="org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory">
-    <constructor-arg value="localhost"/>
-    <constructor-arg value="9080"/>
-    <constructor-arg value="http"/>
-    <constructor-arg ref="httpClientConnManager"/>
-    <constructor-arg ref="httpClientParams"/>
-  </bean>
-
-  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
-    <constructor-arg ref="httpClientFactory"/>
-    <property name="messageConverters">
-      <list>
-        <ref bean="mappingJacksonHttpMessageConverter"/>
-        <ref bean="mappingXstreamHttpMessageConverter"/>
-      </list>
-    </property>
-    <property name="errorHandler">
-      <bean id="syncopeClientErrorHandler"
-            class="org.apache.syncope.common.validation.SyncopeClientErrorHandler"/>
-    </property>
-  </bean>
-
-  <!-- JSON (via Jackson) -->
   <bean id="jacksonObjectMapper" class="org.apache.syncope.core.rest.data.UnwrappedObjectMapper"/>
-  <bean id="mappingJacksonHttpMessageConverter" 
-        class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-    <property name="objectMapper" ref="jacksonObjectMapper"/>
-  </bean>
 
-  <!-- XML (via XStream) -->
-  <bean id="xStreamXmlMarshaller" class="org.springframework.oxm.xstream.XStreamMarshaller">
-    <property name="autodetectAnnotations" value="true"/>
-  </bean>
-  <bean id="mappingXstreamHttpMessageConverter"
-        class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter">
-    <constructor-arg ref="xStreamXmlMarshaller"/>
-  </bean>
-
-  <!-- CXF Configuration - BEGIN -->
   <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.JAXBElementProvider">
     <property name="depthProperties">
       <bean id="depthProperties" class="org.apache.cxf.staxutils.DocumentDepthProperties">
@@ -105,7 +49,7 @@ under the License.
   <bean id="exceptionMapper" class="org.apache.syncope.client.rest.RestClientExceptionMapper"/>
 
   <bean id="restClientFactory" class="org.apache.syncope.client.rest.RestClientFactoryBean">
-    <property name="address" value="http://localhost:9080/syncope/cxf"/>
+    <property name="address" value="http://localhost:9080/syncope/rest"/>
     <property name="threadSafe" value="true"/>
     <property name="inheritHeaders" value="true"/>
     <property name="contentType" value="application/xml"/>
@@ -122,6 +66,5 @@ under the License.
       </list>
     </property>
   </bean>
-  <!-- CXF Configuration - END -->
 
 </beans>

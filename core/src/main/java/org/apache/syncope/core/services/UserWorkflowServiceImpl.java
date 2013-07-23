@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.syncope.common.services.UserWorkflowService;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
-import org.apache.syncope.core.rest.controller.UserController;
+import org.apache.syncope.core.rest.controller.UserWorkflowController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,33 +31,33 @@ import org.springframework.stereotype.Service;
 public class UserWorkflowServiceImpl implements UserWorkflowService {
 
     @Autowired
-    private UserController userController;
+    private UserWorkflowController controller;
 
     @Override
     public WorkflowFormTO claimForm(final String taskId) {
-        return userController.claimForm(taskId);
+        return controller.claimForm(taskId);
     }
     
 
     @Override
     public UserTO executeWorkflow(final String taskId, final UserTO userTO) {
-        return userController.executeWorkflow(userTO, taskId);
+        return controller.executeWorkflow(userTO, taskId);
     }
 
     @Override
     public WorkflowFormTO getFormForUser(final Long userId) {
-        return userController.getFormForUser(userId);
+        return controller.getFormForUser(userId);
     }
 
     @Override
     public List<WorkflowFormTO> getForms() {
-        return userController.getForms();
+        return controller.getForms();
     }
     
 
     @Override
     public UserTO submitForm(final WorkflowFormTO form) {
-        return userController.submitForm(form);
+        return controller.submitForm(form);
     }
     
 }

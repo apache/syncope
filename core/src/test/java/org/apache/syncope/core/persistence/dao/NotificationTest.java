@@ -119,7 +119,7 @@ public class NotificationTest extends AbstractDAOTest {
         notification.setSubject("Test notification");
         notification.setTemplate("test");
 
-        Map<Class, Set<EntityViolationType>> violations;
+        Map<Class<?>, Set<EntityViolationType>> violations;
         try {
             notificationDAO.save(notification);
             violations = null;

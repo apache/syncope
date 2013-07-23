@@ -16,17 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest.jaxrs;
+package org.apache.syncope.common.to;
 
-import org.apache.syncope.core.rest.UserTestITCase;
-import org.junit.FixMethodOrder;
-import org.junit.runners.MethodSorters;
+import javax.xml.bind.annotation.XmlRootElement;
 
-@FixMethodOrder(MethodSorters.JVM)
-public class UserTestITCaseJAXRS extends UserTestITCase {
+@XmlRootElement(name = "virtualSchema")
+public class VirSchemaTO extends AbstractSchemaTO {
 
-    public UserTestITCaseJAXRS() {
-        super();
-        setEnabledCXF(true);
+    private static final long serialVersionUID = -8198557479659701343L;
+    
+    private boolean readonly;
+    
+    public boolean isReadonly() {
+        return readonly;
     }
+
+    public void setReadonly(final boolean readonly) {
+        this.readonly = readonly;
+    }
+
 }

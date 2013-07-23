@@ -31,15 +31,11 @@ import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
 
-@Controller
-@RequestMapping("/workflow")
+@Component
 public class WorkflowController extends AbstractController {
 
     @Autowired
@@ -61,14 +57,12 @@ public class WorkflowController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/definition/user")
     @Transactional(readOnly = true)
     public WorkflowDefinitionTO getUserDefinition() throws WorkflowException {
         return getDefinition(uwfAdapter);
     }
 
     @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/definition/role")
     @Transactional(readOnly = true)
     public WorkflowDefinitionTO getRoleDefinition() throws WorkflowException {
         return getDefinition(rwfAdapter);
@@ -82,13 +76,11 @@ public class WorkflowController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
-    @RequestMapping(method = RequestMethod.PUT, value = "/definition/user")
     public void updateUserDefinition(@RequestBody final WorkflowDefinitionTO definition) {
         updateDefinition(uwfAdapter, definition);
     }
 
     @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
-    @RequestMapping(method = RequestMethod.PUT, value = "/definition/role")
     public void updateRoleDefinition(@RequestBody final WorkflowDefinitionTO definition) {
         updateDefinition(rwfAdapter, definition);
     }
@@ -103,14 +95,12 @@ public class WorkflowController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('WORKFLOW_TASK_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/tasks/user")
-    public ModelAndView getDefinedUserTasks() {
-        return new ModelAndView().addObject(getDefinedTasks(uwfAdapter));
+    public List<String> getDefinedUserTasks() {
+        return getDefinedTasks(uwfAdapter);
     }
 
     @PreAuthorize("hasRole('WORKFLOW_TASK_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/tasks/role")
-    public ModelAndView getDefinedRoleTasks() {
-        return new ModelAndView().addObject(getDefinedTasks(rwfAdapter));
+    public List<String> getDefinedRoleTasks() {
+        return getDefinedTasks(rwfAdapter);
     }
 }

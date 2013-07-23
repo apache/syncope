@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ConnectorService;
 import org.apache.syncope.common.to.BulkAction;
@@ -32,45 +31,43 @@ import org.apache.syncope.common.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.ConnConfProperty;
-import org.apache.syncope.core.rest.controller.ConnInstanceController;
+import org.apache.syncope.core.rest.controller.ConnectorController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ConnectorServiceImpl implements ConnectorService, ContextAware {
+public class ConnectorServiceImpl extends AbstractServiceImpl implements ConnectorService, ContextAware {
 
     @Autowired
-    private ConnInstanceController connInstanceController;
-
-    private UriInfo uriInfo;
+    private ConnectorController controller;
 
     @Override
     public Response create(final ConnInstanceTO connInstanceTO) {
-        ConnInstanceTO connInstance = connInstanceController.create(new DummyHTTPServletResponse(), connInstanceTO);
+        ConnInstanceTO connInstance = controller.create(connInstanceTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(connInstance.getId() + "").build();
         return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, connInstance.getId()).build();
     }
 
     @Override
     public void delete(final Long connInstanceId) {
-        connInstanceController.delete(connInstanceId);
+        controller.delete(connInstanceId);
     }
 
     @Override
     public List<ConnBundleTO> getBundles(final String lang) {
-        return connInstanceController.getBundles(lang);
+        return controller.getBundles(lang);
     }
 
     @Override
     public List<ConnConfProperty> getConfigurationProperties(final Long connInstanceId) {
-        return connInstanceController.getConfigurationProperties(connInstanceId);
+        return controller.getConfigurationProperties(connInstanceId);
     }
 
     @Override
     public List<SchemaTO> getSchemaNames(final Long connInstanceId, final ConnInstanceTO connInstanceTO,
             final boolean includeSpecial) {
 
-        List<String> schemaNames = connInstanceController.getSchemaNames(connInstanceTO, includeSpecial);
+        List<String> schemaNames = controller.getSchemaNames(connInstanceTO, includeSpecial);
         List<SchemaTO> result = new ArrayList<SchemaTO>(schemaNames.size());
         for (String name : schemaNames) {
             SchemaTO schemaTO = new SchemaTO();
@@ -84,7 +81,7 @@ public class ConnectorServiceImpl implements ConnectorService, ContextAware {
     public List<ConnIdObjectClassTO> getSupportedObjectClasses(final Long connInstanceId,
             final ConnInstanceTO connInstanceTO) {
 
-        List<String> objectClasses = connInstanceController.getSupportedObjectClasses(connInstanceTO);
+        List<String> objectClasses = controller.getSupportedObjectClasses(connInstanceTO);
         List<ConnIdObjectClassTO> result = new ArrayList<ConnIdObjectClassTO>(objectClasses.size());
         for (String objectClass : objectClasses) {
             result.add(new ConnIdObjectClassTO(objectClass));
@@ -94,41 +91,36 @@ public class ConnectorServiceImpl implements ConnectorService, ContextAware {
 
     @Override
     public List<ConnInstanceTO> list(final String lang) {
-        return connInstanceController.list(lang);
+        return controller.list(lang);
     }
 
     @Override
     public ConnInstanceTO read(final Long connInstanceId) {
-        return connInstanceController.read(connInstanceId);
+        return controller.read(connInstanceId);
     }
 
     @Override
     public ConnInstanceTO readByResource(final String resourceName) {
-        return connInstanceController.readByResource(resourceName);
+        return controller.readByResource(resourceName);
     }
 
     @Override
     public void update(final Long connInstanceId, final ConnInstanceTO connInstanceTO) {
-        connInstanceController.update(connInstanceTO);
+        controller.update(connInstanceTO);
     }
 
     @Override
     public boolean check(final ConnInstanceTO connInstanceTO) {
-        return (Boolean) connInstanceController.check(connInstanceTO).getModel().values().iterator().next();
-    }
-
-    @Override
-    public void setUriInfo(final UriInfo ui) {
-        this.uriInfo = ui;
+        return controller.check(connInstanceTO);
     }
 
     @Override
     public void reload() {
-        connInstanceController.reload();
+        controller.reload();
     }
 
     @Override
     public BulkActionRes bulkAction(final BulkAction bulkAction) {
-        return connInstanceController.bulkAction(bulkAction);
+        return controller.bulkAction(bulkAction);
     }
 }

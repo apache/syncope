@@ -30,13 +30,10 @@ import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.stereotype.Component;
 
-@Controller
-@RequestMapping("/auth")
-public class AuthenticationController extends AbstractController {
+@Component
+public class EntitlementController extends AbstractController {
 
     @Autowired
     private AuditManager auditManager;
@@ -44,7 +41,6 @@ public class AuthenticationController extends AbstractController {
     @Autowired
     private EntitlementDAO entitlementDAO;
 
-    @RequestMapping(method = RequestMethod.GET, value = "/allentitlements")
     public List<String> listEntitlements() {
         List<Entitlement> entitlements = entitlementDAO.findAll();
         List<String> result = new ArrayList<String>(entitlements.size());
@@ -55,7 +51,6 @@ public class AuthenticationController extends AbstractController {
         return result;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/entitlements")
     public Set<String> getEntitlements() {
         Set<String> result = EntitlementUtil.getOwnedEntitlementNames();
 

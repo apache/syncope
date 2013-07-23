@@ -21,32 +21,33 @@ package org.apache.syncope.core.rest.controller;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityExistsException;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.to.AbstractSchemaTO;
+import org.apache.syncope.common.to.DerSchemaTO;
 import org.apache.syncope.common.to.SchemaTO;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.Result;
-import org.apache.syncope.common.types.AuditElements.SchemaSubCategory;
+import org.apache.syncope.common.to.VirSchemaTO;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.AuditElements;
+import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
+import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
+import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
+import org.apache.syncope.core.persistence.dao.VirSchemaDAO;
 import org.apache.syncope.core.rest.data.SchemaDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.stereotype.Component;
 
-@Controller
-@RequestMapping("/schema")
+@Component
 public class SchemaController extends AbstractController {
 
     @Autowired
@@ -56,12 +57,41 @@ public class SchemaController extends AbstractController {
     private SchemaDAO schemaDAO;
 
     @Autowired
+    private DerSchemaDAO derSchemaDAO;
+
+    @Autowired
+    private VirSchemaDAO virSchemaDAO;
+
+    @Autowired
     private SchemaDataBinder binder;
 
+    private boolean doesSchemaExist(final SchemaType schemaType, final String name, final AttributableUtil attrUtil) {
+        boolean found;
+
+        switch (schemaType) {
+            case VIRTUAL:
+                found = virSchemaDAO.find(name, attrUtil.virSchemaClass()) != null;
+                break;
+
+            case DERIVED:
+                found = derSchemaDAO.find(name, attrUtil.derSchemaClass()) != null;
+                break;
+
+            case NORMAL:
+                found = schemaDAO.find(name, attrUtil.schemaClass()) != null;
+                break;
+
+            default:
+                found = false;
+        }
+
+        return found;
+    }
+
     @PreAuthorize("hasRole('SCHEMA_CREATE')")
-    @RequestMapping(method = RequestMethod.POST, value = "/{kind}/create")
-    public SchemaTO create(final HttpServletResponse response, @RequestBody final SchemaTO schemaTO,
-            @PathVariable("kind") final String kind) {
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractSchemaTO> T create(final AttributableType attrType, final SchemaType schemaType,
+            final T schemaTO) {
 
         if (StringUtils.isBlank(schemaTO.getName())) {
             SyncopeClientCompositeErrorException sccee =
@@ -72,95 +102,199 @@ public class SchemaController extends AbstractController {
             throw sccee;
         }
 
-        AttributableUtil attrUtil = getAttributableUtil(kind);
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(attrType);
 
-        if (schemaDAO.find(schemaTO.getName(), attrUtil.schemaClass()) != null) {
-            throw new EntityExistsException(attrUtil.schemaClass().getSimpleName()
-                    + " '" + schemaTO.getName() + "'");
+        if (doesSchemaExist(schemaType, schemaTO.getName(), attrUtil)) {
+            throw new EntityExistsException(schemaType + "/" + attrType + "/" + schemaTO.getName());
         }
 
-        AbstractSchema schema = attrUtil.newSchema();
-        binder.create(schemaTO, schema);
-        schema = schemaDAO.save(schema);
+        T created;
+        switch (schemaType) {
+            case VIRTUAL:
+                AbstractVirSchema virSchema = attrUtil.newVirSchema();
+                binder.create((VirSchemaTO) schemaTO, virSchema);
+                virSchema = virSchemaDAO.save(virSchema);
 
-        auditManager.audit(Category.schema, SchemaSubCategory.create, Result.success,
-                "Successfully created schema: " + kind + "/" + schema.getName());
+                created = (T) binder.getVirSchemaTO(virSchema);
+                break;
 
-        response.setStatus(HttpServletResponse.SC_CREATED);
-        return binder.getSchemaTO(schema, attrUtil);
+            case DERIVED:
+                AbstractDerSchema derSchema = attrUtil.newDerSchema();
+                binder.create((DerSchemaTO) schemaTO, derSchema);
+                derSchema = derSchemaDAO.save(derSchema);
+
+                created = (T) binder.getDerSchemaTO(derSchema);
+                break;
+
+            case NORMAL:
+            default:
+                AbstractSchema normalSchema = attrUtil.newSchema();
+                binder.create((SchemaTO) schemaTO, normalSchema);
+                normalSchema = schemaDAO.save(normalSchema);
+
+                created = (T) binder.getSchemaTO(normalSchema, attrUtil);
+        }
+
+        auditManager.audit(AuditElements.Category.schema, AuditElements.SchemaSubCategory.create,
+                AuditElements.Result.success,
+                "Successfully created schema: " + schemaType + "/" + attrType + "/" + created.getName());
+
+        return created;
     }
 
     @PreAuthorize("hasRole('SCHEMA_DELETE')")
-    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/delete/{schema}")
-    public SchemaTO delete(@PathVariable("kind") final String kind, @PathVariable("schema") final String schemaName)
-            throws NotFoundException {
+    public void delete(final AttributableType attrType, final SchemaType schemaType, final String schemaName) {
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(attrType);
 
-        Class<? extends AbstractSchema> reference = getAttributableUtil(kind).schemaClass();
-        AbstractSchema schema = schemaDAO.find(schemaName, reference);
-        if (schema == null) {
-            throw new NotFoundException("Schema '" + schemaName + "'");
+        if (!doesSchemaExist(schemaType, schemaName, attrUtil)) {
+            throw new NotFoundException(schemaType + "/" + attrType + "/" + schemaName);
         }
 
-        SchemaTO schemaToDelete = binder.getSchemaTO(schema, getAttributableUtil(kind));
+        switch (schemaType) {
+            case VIRTUAL:
+                virSchemaDAO.delete(schemaName, attrUtil);
+                break;
 
-        schemaDAO.delete(schemaName, getAttributableUtil(kind));
+            case DERIVED:
+                derSchemaDAO.delete(schemaName, attrUtil);
+                break;
 
-        auditManager.audit(Category.schema, SchemaSubCategory.delete, Result.success,
-                "Successfully deleted schema: " + kind + "/" + schema.getName());
+            case NORMAL:
+            default:
+                schemaDAO.delete(schemaName, attrUtil);
+        }
 
-        return schemaToDelete;
+        auditManager.audit(AuditElements.Category.schema, AuditElements.SchemaSubCategory.delete,
+                AuditElements.Result.success,
+                "Successfully deleted schema: " + schemaType + "/" + attrType + "/" + schemaName);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
-    public List<SchemaTO> list(@PathVariable("kind") final String kind) {
-        AttributableUtil attributableUtil = getAttributableUtil(kind);
-        List<AbstractSchema> schemas = schemaDAO.findAll(attributableUtil.schemaClass());
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractSchemaTO> List<T> list(final AttributableType attrType, final SchemaType schemaType) {
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(attrType);
 
-        List<SchemaTO> schemaTOs = new ArrayList<SchemaTO>(schemas.size());
-        for (AbstractSchema schema : schemas) {
-            schemaTOs.add(binder.getSchemaTO(schema, attributableUtil));
+        List<T> result;
+        switch (schemaType) {
+            case VIRTUAL:
+                List<AbstractVirSchema> virSchemas = virSchemaDAO.findAll(attrUtil.virSchemaClass());
+                result = (List<T>) new ArrayList<VirSchemaTO>(virSchemas.size());
+                for (AbstractVirSchema derSchema : virSchemas) {
+                    result.add((T) binder.getVirSchemaTO(derSchema));
+                }
+                break;
+
+            case DERIVED:
+                List<AbstractDerSchema> derSchemas = derSchemaDAO.findAll(attrUtil.derSchemaClass());
+                result = (List<T>) new ArrayList<DerSchemaTO>(derSchemas.size());
+                for (AbstractDerSchema derSchema : derSchemas) {
+                    result.add((T) binder.getDerSchemaTO(derSchema));
+                }
+                break;
+
+            case NORMAL:
+            default:
+                List<AbstractSchema> schemas = schemaDAO.findAll(attrUtil.schemaClass());
+                result = (List<T>) new ArrayList<SchemaTO>(schemas.size());
+                for (AbstractSchema schema : schemas) {
+                    result.add((T) binder.getSchemaTO(schema, attrUtil));
+                }
         }
 
-        auditManager.audit(Category.schema, SchemaSubCategory.list, Result.success,
-                "Successfully listed all schemas: " + kind + "/" + schemaTOs.size());
+        auditManager.audit(AuditElements.Category.schema, AuditElements.SchemaSubCategory.list,
+                AuditElements.Result.success,
+                "Successfully listed schemas: " + schemaType + "/" + attrType + " " + result.size());
 
-        return schemaTOs;
+        return result;
     }
 
     @PreAuthorize("hasRole('SCHEMA_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/read/{schema}")
-    public SchemaTO read(@PathVariable("kind") final String kind, @PathVariable("schema") final String schemaName)
-            throws NotFoundException {
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractSchemaTO> T read(final AttributableType attrType, final SchemaType schemaType,
+            final String schemaName) {
 
-        AttributableUtil attributableUtil = getAttributableUtil(kind);
-        AbstractSchema schema = schemaDAO.find(schemaName, attributableUtil.schemaClass());
-        if (schema == null) {
-            throw new NotFoundException("Schema '" + schemaName + "'");
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(attrType);
+
+        T read;
+        switch (schemaType) {
+            case VIRTUAL:
+                AbstractVirSchema virSchema = virSchemaDAO.find(schemaName, attrUtil.virSchemaClass());
+                if (virSchema == null) {
+                    throw new NotFoundException("Virtual Schema '" + schemaName + "'");
+                }
+
+                read = (T) binder.getVirSchemaTO(virSchema);
+                break;
+
+            case DERIVED:
+                AbstractDerSchema derSchema = derSchemaDAO.find(schemaName, attrUtil.derSchemaClass());
+                if (derSchema == null) {
+                    throw new NotFoundException("Derived schema '" + schemaName + "'");
+                }
+
+                read = (T) binder.getDerSchemaTO(derSchema);
+                break;
+
+            case NORMAL:
+            default:
+                AbstractSchema schema = schemaDAO.find(schemaName, attrUtil.schemaClass());
+                if (schema == null) {
+                    throw new NotFoundException("Schema '" + schemaName + "'");
+                }
+
+                read = (T) binder.getSchemaTO(schema, attrUtil);
         }
 
-        auditManager.audit(Category.schema, SchemaSubCategory.read, Result.success,
-                "Successfully read schema: " + kind + "/" + schema.getName());
+        auditManager.audit(AuditElements.Category.schema, AuditElements.SchemaSubCategory.read,
+                AuditElements.Result.success,
+                "Successfully read schema: " + schemaType + "/" + attrType + "/" + schemaName);
 
-        return binder.getSchemaTO(schema, attributableUtil);
+        return read;
     }
 
     @PreAuthorize("hasRole('SCHEMA_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST, value = "/{kind}/update")
-    public SchemaTO update(@RequestBody final SchemaTO schemaTO, @PathVariable("kind") final String kind)
-            throws NotFoundException {
+    public <T extends AbstractSchemaTO> void update(final AttributableType attrType, final SchemaType schemaType,
+            final String schemaName, final T schemaTO) {
 
-        AttributableUtil attributableUtil = getAttributableUtil(kind);
-        AbstractSchema schema = schemaDAO.find(schemaTO.getName(), attributableUtil.schemaClass());
-        if (schema == null) {
-            throw new NotFoundException("Schema '" + schemaTO.getName() + "'");
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(attrType);
+
+        if (!doesSchemaExist(schemaType, schemaName, attrUtil)) {
+            throw new NotFoundException(schemaType + "/" + attrType + "/" + schemaName);
         }
 
-        binder.update(schemaTO, schema, attributableUtil);
-        schema = schemaDAO.save(schema);
+        switch (schemaType) {
+            case VIRTUAL:
+                AbstractVirSchema virSchema = virSchemaDAO.find(schemaName, attrUtil.virSchemaClass());
+                if (virSchema == null) {
+                    throw new NotFoundException("Virtual Schema '" + schemaName + "'");
+                }
 
-        auditManager.audit(Category.schema, SchemaSubCategory.update, Result.success,
-                "Successfully updated schema: " + kind + "/" + schema.getName());
+                binder.update((VirSchemaTO) schemaTO, virSchema);
+                virSchemaDAO.save(virSchema);
+                break;
 
-        return binder.getSchemaTO(schema, attributableUtil);
+            case DERIVED:
+                AbstractDerSchema derSchema = derSchemaDAO.find(schemaName, attrUtil.derSchemaClass());
+                if (derSchema == null) {
+                    throw new NotFoundException("Derived schema '" + schemaName + "'");
+                }
+
+                binder.update((DerSchemaTO) schemaTO, derSchema);
+                derSchemaDAO.save(derSchema);
+                break;
+
+            case NORMAL:
+            default:
+                AbstractSchema schema = schemaDAO.find(schemaName, attrUtil.schemaClass());
+                if (schema == null) {
+                    throw new NotFoundException("Schema '" + schemaName + "'");
+                }
+
+                binder.update((SchemaTO) schemaTO, schema, attrUtil);
+                schemaDAO.save(schema);
+        }
+
+        auditManager.audit(AuditElements.Category.schema, AuditElements.SchemaSubCategory.update,
+                AuditElements.Result.success,
+                "Successfully updated schema: " + schemaType + "/" + attrType + "/" + schemaName);
     }
 }

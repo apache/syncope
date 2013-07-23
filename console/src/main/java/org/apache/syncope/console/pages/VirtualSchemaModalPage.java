@@ -19,7 +19,7 @@
 package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.AbstractBaseBean;
-import org.apache.syncope.common.to.VirtualSchemaTO;
+import org.apache.syncope.common.to.VirSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
@@ -52,7 +52,7 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
             AbstractBaseBean schema, final boolean createFlag) {
 
         if (schema == null) {
-            schema = new VirtualSchemaTO();
+            schema = new VirSchemaTO();
         }
 
         final Form schemaForm = new Form(FORM);
@@ -74,7 +74,7 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form form) {
-                VirtualSchemaTO schemaTO = (VirtualSchemaTO) form.getDefaultModelObject();
+                VirSchemaTO schemaTO = (VirSchemaTO) form.getDefaultModelObject();
                 try {
                     if (createFlag) {
                         schemaRestClient.createVirtualSchema(kind, schemaTO);

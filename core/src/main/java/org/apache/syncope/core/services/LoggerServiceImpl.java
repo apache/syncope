@@ -34,21 +34,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class LoggerServiceImpl implements LoggerService {
+public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerService, ContextAware {
 
     @Autowired
-    private LoggerController loggerController;
+    private LoggerController controller;
 
     @Override
     public void delete(final LoggerType type, final String name) {
         switch (type) {
             case NORMAL:
-                loggerController.deleteLog(name);
+                controller.deleteLog(name);
                 break;
 
             case AUDIT:
                 try {
-                    loggerController.disableAudit(AuditLoggerName.fromLoggerName(name));
+                    controller.disableAudit(AuditLoggerName.fromLoggerName(name));
                 } catch (IllegalArgumentException e) {
                     throw new BadRequestException(e);
                 } catch (ParseException e) {
@@ -66,10 +66,10 @@ public class LoggerServiceImpl implements LoggerService {
     public List<LoggerTO> list(final LoggerType type) {
         switch (type) {
             case NORMAL:
-                return loggerController.listLogs();
+                return controller.listLogs();
 
             case AUDIT:
-                List<AuditLoggerName> auditLogger = loggerController.listAudits();
+                List<AuditLoggerName> auditLogger = controller.listAudits();
                 return CollectionWrapper.unwrapLogger(auditLogger);
 
             default:
@@ -92,12 +92,12 @@ public class LoggerServiceImpl implements LoggerService {
     public void update(final LoggerType type, final String name, final LoggerTO logger) {
         switch (type) {
             case NORMAL:
-                loggerController.setLogLevel(name, logger.getLevel().getLevel());
+                controller.setLogLevel(name, logger.getLevel().getLevel());
                 break;
 
             case AUDIT:
                 try {
-                    loggerController.enableAudit(AuditLoggerName.fromLoggerName(name));
+                    controller.enableAudit(AuditLoggerName.fromLoggerName(name));
                 } catch (IllegalArgumentException e) {
                     throw new BadRequestException(e);
                 } catch (ParseException e) {
@@ -109,5 +109,4 @@ public class LoggerServiceImpl implements LoggerService {
                 throw new BadRequestException();
         }
     }
-
 }

@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.controller;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
 import org.apache.cocoon.optional.pipeline.components.sax.fop.FopSerializer;
 import org.apache.cocoon.pipeline.NonCachingPipeline;
 import org.apache.cocoon.pipeline.Pipeline;
@@ -39,7 +36,6 @@ import org.apache.cocoon.sax.component.XMLGenerator;
 import org.apache.cocoon.sax.component.XMLSerializer;
 import org.apache.cocoon.sax.component.XSLTTransformer;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
@@ -67,17 +63,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 
-@Controller
-@RequestMapping("/report")
+@Component
 public class ReportController extends AbstractController {
 
     @Autowired
@@ -98,15 +87,8 @@ public class ReportController extends AbstractController {
     @Autowired
     private ReportDataBinder binder;
 
-    @RequestMapping(method = RequestMethod.POST, value = "/create")
-    public ReportTO create(final HttpServletResponse response, @RequestBody final ReportTO reportTO) {
-        ReportTO createdReportTO = createInternal(reportTO);
-        response.setStatus(HttpServletResponse.SC_CREATED);
-        return createdReportTO;
-    }
-
     @PreAuthorize("hasRole('REPORT_CREATE')")
-    public ReportTO createInternal(final ReportTO reportTO) {
+    public ReportTO create(final ReportTO reportTO) {
         LOG.debug("Creating report " + reportTO);
 
         Report report = new Report();
@@ -133,8 +115,7 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public ReportTO update(@RequestBody final ReportTO reportTO) {
+    public ReportTO update(final ReportTO reportTO) {
         LOG.debug("Report update called with parameter {}", reportTO);
 
         Report report = reportDAO.find(reportTO.getId());
@@ -165,13 +146,11 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/count")
-    public ModelAndView count() {
-        return new ModelAndView().addObject(reportDAO.count());
+    public int count() {
+        return reportDAO.count();
     }
 
     @PreAuthorize("hasRole('REPORT_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/list")
     public List<ReportTO> list() {
         List<Report> reports = reportDAO.findAll();
         List<ReportTO> result = new ArrayList<ReportTO>(reports.size());
@@ -186,8 +165,7 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/list/{page}/{size}")
-    public List<ReportTO> list(@PathVariable("page") final int page, @PathVariable("size") final int size) {
+    public List<ReportTO> list(final int page, final int size) {
         List<Report> reports = reportDAO.findAll(page, size);
         List<ReportTO> result = new ArrayList<ReportTO>(reports.size());
         for (Report report : reports) {
@@ -200,15 +178,9 @@ public class ReportController extends AbstractController {
         return result;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/reportletConfClasses")
-    public ModelAndView getReportletConfClasses() {
-        Set<String> reportletConfClasses = getReportletConfClassesInternal();
-        return new ModelAndView().addObject(reportletConfClasses);
-    }
-
     @PreAuthorize("hasRole('REPORT_LIST')")
     @SuppressWarnings("rawtypes")
-    public Set<String> getReportletConfClassesInternal() {
+    public Set<String> getReportletConfClasses() {
         Set<String> reportletConfClasses = new HashSet<String>();
 
         for (Class<Reportlet> reportletClass : binder.getAllReportletClasses()) {
@@ -220,12 +192,12 @@ public class ReportController extends AbstractController {
 
         auditManager.audit(Category.report, ReportSubCategory.getReportletConfClasses, Result.success,
                 "Successfully listed all ReportletConf classes: " + reportletConfClasses.size());
+
         return reportletConfClasses;
     }
 
     @PreAuthorize("hasRole('REPORT_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/read/{reportId}")
-    public ReportTO read(@PathVariable("reportId") final Long reportId) {
+    public ReportTO read(final Long reportId) {
         Report report = reportDAO.find(reportId);
         if (report == null) {
             throw new NotFoundException("Report " + reportId);
@@ -238,9 +210,8 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/execution/read/{executionId}")
     @Transactional(readOnly = true)
-    public ReportExecTO readExecution(@PathVariable("executionId") final Long executionId) {
+    public ReportExecTO readExecution(final Long executionId) {
         ReportExec reportExec = reportExecDAO.find(executionId);
         if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionId);
@@ -252,31 +223,8 @@ public class ReportController extends AbstractController {
         return binder.getReportExecTO(reportExec);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/execution/export/{executionId}")
-    @Transactional(readOnly = true)
-    public void exportExecutionResult(final HttpServletResponse response,
-            @PathVariable("executionId") final Long executionId,
-            @RequestParam(value = "fmt", required = false) final ReportExecExportFormat fmt) {
-
-        OutputStream os;
-        try {
-            os = response.getOutputStream();
-        } catch (IOException e) {
-            throw new IllegalStateException("Could not get output stream", e);
-        }
-        ReportExec reportExec = getAndCheckReportExecInternal(executionId);
-
-        ReportExecExportFormat format = (fmt == null) ? ReportExecExportFormat.XML : fmt;
-
-        response.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        response.addHeader(SyncopeConstants.CONTENT_DISPOSITION_HEADER,
-                "attachment; filename=" + reportExec.getReport().getName() + "." + format.name().toLowerCase());
-
-        exportExecutionResultInternal(os, reportExec, format);
-    }
-
     @PreAuthorize("hasRole('REPORT_READ')")
-    public void exportExecutionResultInternal(final OutputStream os, final ReportExec reportExec,
+    public void exportExecutionResult(final OutputStream os, final ReportExec reportExec,
             final ReportExecExportFormat format) {
 
         LOG.debug("Exporting result of {} as {}", reportExec, format);
@@ -340,7 +288,7 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_READ')")
-    public ReportExec getAndCheckReportExecInternal(final Long executionId) {
+    public ReportExec getAndCheckReportExec(final Long executionId) {
         ReportExec reportExec = reportExecDAO.find(executionId);
         if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionId);
@@ -359,8 +307,7 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_EXECUTE')")
-    @RequestMapping(method = RequestMethod.POST, value = "/execute/{reportId}")
-    public ReportExecTO execute(@PathVariable("reportId") final Long reportId) {
+    public ReportExecTO execute(final Long reportId) {
         Report report = reportDAO.find(reportId);
         if (report == null) {
             throw new NotFoundException("Report " + reportId);
@@ -402,8 +349,7 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_DELETE')")
-    @RequestMapping(method = RequestMethod.GET, value = "/delete/{reportId}")
-    public ReportTO delete(@PathVariable("reportId") final Long reportId) {
+    public ReportTO delete(final Long reportId) {
         Report report = reportDAO.find(reportId);
         if (report == null) {
             throw new NotFoundException("Report " + reportId);
@@ -422,8 +368,7 @@ public class ReportController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('REPORT_DELETE')")
-    @RequestMapping(method = RequestMethod.GET, value = "/execution/delete/{executionId}")
-    public ReportExecTO deleteExecution(@PathVariable("executionId") final Long executionId) {
+    public ReportExecTO deleteExecution(final Long executionId) {
         ReportExec reportExec = reportExecDAO.find(executionId);
         if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionId);

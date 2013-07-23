@@ -304,7 +304,7 @@ under the License.
 
     <activiti.version>5.13</activiti.version>
 
-    <cxf.version>2.7.6-SNAPSHOT</cxf.version>	
+    <cxf.version>2.7.7-SNAPSHOT</cxf.version>	
     <spring.version>3.2.3.RELEASE</spring.version>
     <spring-security.version>3.1.4.RELEASE</spring-security.version>
     <aspectj.version>1.7.3</aspectj.version>
@@ -552,11 +552,6 @@ under the License.
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-web</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-webmvc</artifactId>
         <version>${spring.version}</version>
       </dependency>
       <dependency>

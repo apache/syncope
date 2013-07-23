@@ -23,7 +23,6 @@ import java.util.List;
 
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.mod.RoleMod;
@@ -36,26 +35,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RoleServiceImpl implements RoleService, ContextAware {
+public class RoleServiceImpl extends AbstractServiceImpl implements RoleService, ContextAware {
 
     @Autowired
-    private RoleController roleController;
-
-    private UriInfo uriInfo;
+    private RoleController controller;
 
     @Override
     public List<RoleTO> children(final Long roleId) {
-        return roleController.children(roleId);
+        return controller.children(roleId);
     }
 
     @Override
     public int count() {
-        return roleController.list().size();
+        return controller.list().size();
     }
 
     @Override
     public Response create(final RoleTO roleTO) {
-        RoleTO created = roleController.create(new DummyHTTPServletResponse(), roleTO);
+        RoleTO created = controller.create(roleTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getId() + "").build();
         return Response.created(location)
                 .header(SyncopeConstants.REST_HEADER_ID, created.getId())
@@ -65,12 +62,12 @@ public class RoleServiceImpl implements RoleService, ContextAware {
 
     @Override
     public RoleTO delete(final Long roleId) {
-        return roleController.delete(roleId);
+        return controller.delete(roleId);
     }
 
     @Override
     public List<RoleTO> list() {
-        return roleController.list();
+        return controller.list();
     }
 
     @Override
@@ -80,42 +77,38 @@ public class RoleServiceImpl implements RoleService, ContextAware {
 
     @Override
     public RoleTO parent(final Long roleId) {
-        return roleController.parent(roleId);
+        return controller.parent(roleId);
     }
 
     @Override
     public RoleTO read(final Long roleId) {
-        return roleController.read(roleId);
+        return controller.read(roleId);
     }
 
     @Override
     public List<RoleTO> search(final NodeCond searchCondition) throws InvalidSearchConditionException {
-        return roleController.search(searchCondition);
+        return controller.search(searchCondition);
     }
 
     @Override
-    public List<RoleTO> search(final NodeCond searchCondition, final int page, final int size) throws InvalidSearchConditionException {
-        return roleController.search(searchCondition, page, size);
+    public List<RoleTO> search(final NodeCond searchCondition, final int page, final int size)
+            throws InvalidSearchConditionException {
+
+        return controller.search(searchCondition, page, size);
     }
 
     @Override
     public int searchCount(final NodeCond searchCondition) throws InvalidSearchConditionException {
-        return (Integer) roleController.searchCount(searchCondition).getModel().values().iterator().next();
+        return controller.searchCount(searchCondition);
     }
 
     @Override
     public RoleTO selfRead(final Long roleId) {
-        return roleController.selfRead(roleId);
-    }
-
-    @Override
-    public void setUriInfo(final UriInfo ui) {
-        this.uriInfo = ui;
+        return controller.selfRead(roleId);
     }
 
     @Override
     public RoleTO update(final Long roleId, final RoleMod roleMod) {
-        return roleController.update(roleMod);
+        return controller.update(roleMod);
     }
-
 }

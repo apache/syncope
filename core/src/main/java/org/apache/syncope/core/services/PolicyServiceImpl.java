@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.PolicyService;
 import org.apache.syncope.common.to.AccountPolicyTO;
@@ -38,16 +37,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PolicyServiceImpl implements PolicyService, ContextAware {
+public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyService, ContextAware {
 
     @Autowired
     private PolicyController policyController;
 
-    private UriInfo uriInfo;
-
     @Override
     public <T extends PolicyTO> Response create(final PolicyType type, final T policyTO) {
-        PolicyTO policy = policyController.createInternal(policyTO);
+        PolicyTO policy = policyController.create(policyTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(policy.getId() + "").build();
         return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, policy.getId()).build();
     }
@@ -58,9 +55,8 @@ public class PolicyServiceImpl implements PolicyService, ContextAware {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T extends PolicyTO> List<T> list(final PolicyType type) {
-        return (List<T>) policyController.list(type.toString());
+        return policyController.list(type);
     }
 
     @Override
@@ -120,11 +116,6 @@ public class PolicyServiceImpl implements PolicyService, ContextAware {
     }
 
     @Override
-    public void setUriInfo(final UriInfo ui) {
-        this.uriInfo = ui;
-    }
-
-    @Override
     public Set<CorrelationRuleClassTO> getSyncCorrelationRuleClasses(final PolicyType type) {
         Set<CorrelationRuleClassTO> result = null;
 
@@ -132,10 +123,8 @@ public class PolicyServiceImpl implements PolicyService, ContextAware {
             case SYNC:
             case GLOBAL_SYNC:
 
-                @SuppressWarnings("unchecked")
-                final Set<String> classes = (Set<String>) policyController.getSyncCorrelationRuleClasses().getModel().
-                        values().iterator().next();
-                result = CollectionWrapper.wrapSyncCorrelationRuleClasses(classes);
+                result = CollectionWrapper.wrapSyncCorrelationRuleClasses(
+                        policyController.getSyncCorrelationRuleClasses());
                 break;
 
             default:

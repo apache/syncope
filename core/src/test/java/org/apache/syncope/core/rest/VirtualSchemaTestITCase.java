@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
-import org.apache.syncope.common.to.VirtualSchemaTO;
+import org.apache.syncope.common.to.VirSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
@@ -41,26 +41,26 @@ public class VirtualSchemaTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<VirtualSchemaTO> vSchemas = schemaService.list(AttributableType.USER, SchemaType.VIRTUAL);
+        List<VirSchemaTO> vSchemas = schemaService.list(AttributableType.USER, SchemaType.VIRTUAL);
         assertFalse(vSchemas.isEmpty());
-        for (VirtualSchemaTO vSchemaTO : vSchemas) {
+        for (VirSchemaTO vSchemaTO : vSchemas) {
             assertNotNull(vSchemaTO);
         }
     }
 
     @Test
     public void read() {
-        VirtualSchemaTO vSchemaTO = schemaService.read(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL,
+        VirSchemaTO vSchemaTO = schemaService.read(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL,
                 "mvirtualdata");
         assertNotNull(vSchemaTO);
     }
 
     @Test
     public void create() {
-        VirtualSchemaTO schema = new VirtualSchemaTO();
+        VirSchemaTO schema = new VirSchemaTO();
         schema.setName("virtual");
 
-        VirtualSchemaTO actual = createSchema(AttributableType.USER, SchemaType.VIRTUAL, schema);
+        VirSchemaTO actual = createSchema(AttributableType.USER, SchemaType.VIRTUAL, schema);
         assertNotNull(actual);
 
         actual = schemaService.read(AttributableType.USER, SchemaType.VIRTUAL, actual.getName());
@@ -69,7 +69,7 @@ public class VirtualSchemaTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        VirtualSchemaTO schema = schemaService.read(AttributableType.ROLE, SchemaType.VIRTUAL,
+        VirSchemaTO schema = schemaService.read(AttributableType.ROLE, SchemaType.VIRTUAL,
                 "rvirtualdata");
         assertNotNull(schema);
 
@@ -88,7 +88,7 @@ public class VirtualSchemaTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE323() {
-        VirtualSchemaTO actual = schemaService.read(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, "mvirtualdata");
+        VirSchemaTO actual = schemaService.read(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, "mvirtualdata");
         assertNotNull(actual);
 
         try {

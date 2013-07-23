@@ -25,10 +25,10 @@ import java.util.List;
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.to.AbstractSchemaTO;
-import org.apache.syncope.common.to.DerivedSchemaTO;
+import org.apache.syncope.common.to.DerSchemaTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.ValidatorTO;
-import org.apache.syncope.common.to.VirtualSchemaTO;
+import org.apache.syncope.common.to.VirSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.util.CollectionWrapper;
@@ -100,9 +100,9 @@ public class SchemaRestClient extends BaseRestClient {
      * @return List of derived schemas.
      */
     @SuppressWarnings("unchecked")
-    public List<DerivedSchemaTO> getDerivedSchemas(final AttributableType type) {
+    public List<DerSchemaTO> getDerivedSchemas(final AttributableType type) {
 
-        List<DerivedSchemaTO> userDerivedSchemas = null;
+        List<DerSchemaTO> userDerivedSchemas = null;
 
         try {
             userDerivedSchemas = getService(SchemaService.class).list(type, SchemaType.DERIVED);
@@ -123,9 +123,9 @@ public class SchemaRestClient extends BaseRestClient {
 
         try {
             @SuppressWarnings("unchecked")
-            final List<DerivedSchemaTO> userDerSchemas = getService(SchemaService.class).list(type, SchemaType.DERIVED);
+            final List<DerSchemaTO> userDerSchemas = getService(SchemaService.class).list(type, SchemaType.DERIVED);
 
-            for (DerivedSchemaTO schemaTO : userDerSchemas) {
+            for (DerSchemaTO schemaTO : userDerSchemas) {
                 userDerivedSchemasNames.add(schemaTO.getName());
             }
         } catch (SyncopeClientCompositeErrorException e) {
@@ -141,8 +141,8 @@ public class SchemaRestClient extends BaseRestClient {
      * @return List of derived schemas.
      */
     @SuppressWarnings("unchecked")
-    public List<VirtualSchemaTO> getVirtualSchemas(final AttributableType type) {
-        List<VirtualSchemaTO> userVirtualSchemas = null;
+    public List<VirSchemaTO> getVirtualSchemas(final AttributableType type) {
+        List<VirSchemaTO> userVirtualSchemas = null;
 
         try {
             userVirtualSchemas = getService(SchemaService.class).list(type, SchemaType.VIRTUAL);
@@ -163,8 +163,8 @@ public class SchemaRestClient extends BaseRestClient {
 
         try {
             @SuppressWarnings("unchecked")
-            final List<VirtualSchemaTO> userVirSchemas = getService(SchemaService.class).list(type, SchemaType.VIRTUAL);
-            for (VirtualSchemaTO schemaTO : userVirSchemas) {
+            final List<VirSchemaTO> userVirSchemas = getService(SchemaService.class).list(type, SchemaType.VIRTUAL);
+            for (VirSchemaTO schemaTO : userVirSchemas) {
                 userVirtualSchemasNames.add(schemaTO.getName());
             }
         } catch (SyncopeClientCompositeErrorException e) {
@@ -226,7 +226,7 @@ public class SchemaRestClient extends BaseRestClient {
      *
      * @param schemaTO
      */
-    public void createDerivedSchema(final AttributableType type, final DerivedSchemaTO schemaTO) {
+    public void createDerivedSchema(final AttributableType type, final DerSchemaTO schemaTO) {
         getService(SchemaService.class).create(type, SchemaType.DERIVED, schemaTO);
     }
 
@@ -235,7 +235,7 @@ public class SchemaRestClient extends BaseRestClient {
      *
      * @param schemaTO
      */
-    public void createVirtualSchema(final AttributableType type, final VirtualSchemaTO schemaTO) {
+    public void createVirtualSchema(final AttributableType type, final VirSchemaTO schemaTO) {
         getService(SchemaService.class).create(type, SchemaType.VIRTUAL, schemaTO);
     }
 
@@ -245,8 +245,8 @@ public class SchemaRestClient extends BaseRestClient {
      * @param name (e.g.:surname)
      * @return DerivedSchemaTO
      */
-    public DerivedSchemaTO readDerivedSchema(final AttributableType type, final String name) {
-        DerivedSchemaTO derivedSchemaTO = null;
+    public DerSchemaTO readDerivedSchema(final AttributableType type, final String name) {
+        DerSchemaTO derivedSchemaTO = null;
         try {
             derivedSchemaTO = getService(SchemaService.class).read(type, SchemaType.DERIVED, name);
         } catch (SyncopeClientCompositeErrorException e) {
@@ -260,7 +260,7 @@ public class SchemaRestClient extends BaseRestClient {
      *
      * @param schemaTO updated
      */
-    public void updateDerivedSchema(final AttributableType type, final DerivedSchemaTO schemaTO) {
+    public void updateDerivedSchema(final AttributableType type, final DerSchemaTO schemaTO) {
         getService(SchemaService.class).update(type, SchemaType.DERIVED, schemaTO.getName(), schemaTO);
     }
 
@@ -269,7 +269,7 @@ public class SchemaRestClient extends BaseRestClient {
      *
      * @param schemaTO updated
      */
-    public void updateVirtualSchema(final AttributableType type, final VirtualSchemaTO schemaTO) {
+    public void updateVirtualSchema(final AttributableType type, final VirSchemaTO schemaTO) {
         getService(SchemaService.class).update(type, SchemaType.VIRTUAL, schemaTO.getName(), schemaTO);
     }
 
@@ -278,8 +278,8 @@ public class SchemaRestClient extends BaseRestClient {
      *
      * @param name (e.g.:surname)
      */
-    public DerivedSchemaTO deleteDerivedSchema(final AttributableType type, final String name) {
-        DerivedSchemaTO schemaTO = getService(SchemaService.class).read(type, SchemaType.DERIVED, name);
+    public DerSchemaTO deleteDerivedSchema(final AttributableType type, final String name) {
+        DerSchemaTO schemaTO = getService(SchemaService.class).read(type, SchemaType.DERIVED, name);
         getService(SchemaService.class).delete(type, SchemaType.DERIVED, name);
         return schemaTO;
     }
@@ -289,8 +289,8 @@ public class SchemaRestClient extends BaseRestClient {
      *
      * @param name (e.g.:surname)
      */
-    public VirtualSchemaTO deleteVirtualSchema(final AttributableType type, final String name) {
-        VirtualSchemaTO schemaTO = getService(SchemaService.class).read(type, SchemaType.VIRTUAL, name);
+    public VirSchemaTO deleteVirtualSchema(final AttributableType type, final String name) {
+        VirSchemaTO schemaTO = getService(SchemaService.class).read(type, SchemaType.VIRTUAL, name);
         getService(SchemaService.class).delete(type, SchemaType.VIRTUAL, name);
         return schemaTO;
     }

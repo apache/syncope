@@ -19,7 +19,7 @@
 package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.AbstractBaseBean;
-import org.apache.syncope.common.to.DerivedSchemaTO;
+import org.apache.syncope.common.to.DerSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
@@ -54,7 +54,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
             AbstractBaseBean schema, final boolean createFlag) {
 
         if (schema == null) {
-            schema = new DerivedSchemaTO();
+            schema = new DerSchemaTO();
         }
 
         final Form schemaForm = new Form(FORM);
@@ -85,7 +85,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form form) {
-                DerivedSchemaTO schemaTO = (DerivedSchemaTO) form.getDefaultModelObject();
+                DerSchemaTO schemaTO = (DerSchemaTO) form.getDefaultModelObject();
 
                 try {
                     if (createFlag) {

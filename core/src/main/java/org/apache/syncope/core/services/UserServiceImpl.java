@@ -21,7 +21,6 @@ package org.apache.syncope.core.services;
 import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
@@ -36,145 +35,140 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserServiceImpl implements UserService, ContextAware {
+public class UserServiceImpl extends AbstractServiceImpl implements UserService, ContextAware {
 
     @Autowired
-    private UserController userController;
-
-    private UriInfo uriInfo;
+    private UserController controller;
 
     @Override
     public UserTO activate(final long userId, final String token) {
-        return userController.activate(userId, token);
+        return controller.activate(userId, token);
     }
 
     @Override
     public UserTO activate(final long userId, final String token, final PropagationRequestTO propagationRequestTO) {
-        return userController.activate(userId, token, propagationRequestTO);
+        return controller.activate(userId, token, propagationRequestTO);
     }
 
     @Override
     public UserTO activateByUsername(final String username, final String token) {
-        return userController.activate(username, token);
+        return controller.activate(username, token);
     }
 
     @Override
     public UserTO activateByUsername(final String username, final String token,
             final PropagationRequestTO propagationRequestTO) {
-        return userController.activate(username, token, propagationRequestTO);
+        return controller.activate(username, token, propagationRequestTO);
     }
 
     @Override
     public int count() {
-        return userController.countInternal();
+        return controller.count();
     }
 
     @Override
     public Response create(final UserTO userTO) {
-        UserTO created = userController.createInternal(userTO);
+        UserTO created = controller.create(userTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getId() + "").build();
-        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, created.getId()).entity(created)
+        return Response.created(location).
+                header(SyncopeConstants.REST_HEADER_ID, created.getId()).
+                entity(created)
                 .build();
     }
 
     @Override
     public UserTO delete(final Long userId) {
-        return userController.delete(userId);
+        return controller.delete(userId);
     }
 
     @Override
     public List<UserTO> list() {
-        return userController.list();
+        return controller.list();
     }
 
     @Override
     public List<UserTO> list(final int page, final int size) {
-        return userController.list(page, size);
+        return controller.list(page, size);
     }
 
     @Override
     public UserTO reactivate(final long userId) {
-        return userController.reactivate(userId);
+        return controller.reactivate(userId);
     }
 
     @Override
     public UserTO reactivate(final long userId, final PropagationRequestTO propagationRequestTO) {
-        return userController.reactivate(userId, propagationRequestTO);
+        return controller.reactivate(userId, propagationRequestTO);
     }
 
     @Override
     public UserTO reactivateByUsername(final String username) {
-        return userController.reactivate(username);
+        return controller.reactivate(username);
     }
 
     @Override
     public UserTO reactivateByUsername(final String username, final PropagationRequestTO propagationRequestTO) {
-        return userController.reactivate(username, propagationRequestTO);
+        return controller.reactivate(username, propagationRequestTO);
     }
 
     @Override
     public UserTO read(final Long userId) {
-        return userController.read(userId);
+        return controller.read(userId);
     }
 
     @Override
     public UserTO read(final String username) {
-        return userController.read(username);
+        return controller.read(username);
     }
 
     @Override
     public UserTO readSelf() {
-        return userController.read();
+        return controller.read();
     }
 
     @Override
     public List<UserTO> search(final NodeCond searchCondition) throws InvalidSearchConditionException {
-        return userController.search(searchCondition);
+        return controller.search(searchCondition);
     }
 
     @Override
     public List<UserTO> search(final NodeCond searchCondition, final int page, final int size)
             throws InvalidSearchConditionException {
-        return userController.search(searchCondition, page, size);
+        return controller.search(searchCondition, page, size);
     }
 
     @Override
     public int searchCount(final NodeCond searchCondition) throws InvalidSearchConditionException {
-        return userController.searchCountInternal(searchCondition);
+        return controller.searchCount(searchCondition);
     }
 
     @Override
     public UserTO suspend(final long userId) {
-        return userController.suspend(userId);
+        return controller.suspend(userId);
     }
 
     @Override
     public UserTO suspend(final long userId, final PropagationRequestTO propagationRequestTO) {
-        return userController.suspend(userId, propagationRequestTO);
+        return controller.suspend(userId, propagationRequestTO);
     }
 
     @Override
     public UserTO suspendByUsername(final String username) {
-        return userController.suspend(username);
+        return controller.suspend(username);
     }
 
     @Override
     public UserTO suspendByUsername(final String username, final PropagationRequestTO propagationRequestTO) {
-        return userController.suspend(username, propagationRequestTO);
+        return controller.suspend(username, propagationRequestTO);
     }
 
     @Override
     public UserTO update(final Long userId, final UserMod userMod) {
-        return userController.update(userMod);
-    }
-
-    @Override
-    public void setUriInfo(final UriInfo uriInfo) {
-        this.uriInfo = uriInfo;
+        return controller.update(userMod);
     }
 
     @Override
     public BulkActionRes bulkAction(final BulkAction bulkAction) {
-        return userController.bulkAction(bulkAction);
+        return controller.bulkAction(bulkAction);
     }
 }

@@ -40,16 +40,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
 
-@Controller
-@RequestMapping("/user/request")
+@Component
 public class UserRequestController {
 
     /**
@@ -69,24 +63,17 @@ public class UserRequestController {
     @Autowired
     private UserRequestDataBinder binder;
 
-    public Boolean isCreateAllowedByConf() {
+    public boolean isCreateAllowed() {
         final SyncopeConf createRequestAllowed = confDAO.find("createRequest.allowed", "false");
+
+        auditManager.audit(Category.userRequest, UserRequestSubCategory.isCreateAllowed, Result.success,
+                "Successfully checked whether self create is allowed");
 
         return Boolean.valueOf(createRequestAllowed.getValue());
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/create/allowed")
-    @Transactional(readOnly = true)
-    public ModelAndView isCreateAllowed() {
-        auditManager.audit(Category.userRequest, UserRequestSubCategory.isCreateAllowed, Result.success,
-                "Successfully checked whether self create is allowed");
-
-        return new ModelAndView().addObject(isCreateAllowedByConf());
-    }
-
-    @RequestMapping(method = RequestMethod.POST, value = "/create")
-    public UserRequestTO create(@RequestBody final UserTO userTO) {
-        if (!isCreateAllowedByConf()) {
+    public UserRequestTO create(final UserTO userTO) {
+        if (!isCreateAllowed()) {
             LOG.error("Create requests are not allowed");
 
             throw new UnauthorizedRoleException(-1L);
@@ -111,8 +98,7 @@ public class UserRequestController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public UserRequestTO update(@RequestBody final UserMod userMod) {
+    public UserRequestTO update(final UserMod userMod) {
         LOG.debug("Request user update called with {}", userMod);
 
         try {
@@ -132,7 +118,6 @@ public class UserRequestController {
     }
 
     @PreAuthorize("hasRole('USER_REQUEST_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/list")
     @Transactional(readOnly = true)
     public List<UserRequestTO> list() {
         List<UserRequestTO> result = new ArrayList<UserRequestTO>();
@@ -148,9 +133,8 @@ public class UserRequestController {
     }
 
     @PreAuthorize("hasRole('USER_REQUEST_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/read/{requestId}")
     @Transactional(readOnly = true)
-    public UserRequestTO read(@PathVariable("requestId") final Long requestId) {
+    public UserRequestTO read(final Long requestId) {
         UserRequest request = userRequestDAO.find(requestId);
         if (request == null) {
             throw new NotFoundException("User request " + requestId);
@@ -163,8 +147,7 @@ public class UserRequestController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(method = RequestMethod.GET, value = "/delete/{userId}")
-    public UserRequestTO delete(@PathVariable("userId") final Long userId) {
+    public UserRequestTO delete(final Long userId) {
         LOG.debug("Request user delete called with {}", userId);
 
         try {
@@ -184,8 +167,7 @@ public class UserRequestController {
     }
 
     @PreAuthorize("hasRole('USER_REQUEST_DELETE')")
-    @RequestMapping(method = RequestMethod.GET, value = "/deleteRequest/{requestId}")
-    public UserRequestTO deleteRequest(@PathVariable("requestId") final Long requestId) {
+    public UserRequestTO deleteRequest(final Long requestId) {
         UserRequest request = userRequestDAO.find(requestId);
         if (request == null) {
             throw new NotFoundException("User request " + requestId);

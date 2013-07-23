@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.AbstractBaseBean;
 
-@XmlRootElement(name = "connector")
+@XmlRootElement(name = "connObject")
 @XmlType
 public class ConnObjectTO extends AbstractBaseBean {
 

@@ -34,7 +34,7 @@ import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
 
-@XmlRootElement(name = "connector")
+@XmlRootElement(name = "connInstance")
 @XmlType
 public class ConnInstanceTO extends AbstractBaseBean {
 

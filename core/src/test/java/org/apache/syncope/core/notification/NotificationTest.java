@@ -59,7 +59,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -230,7 +229,7 @@ public class NotificationTest {
         membershipTO.setRoleId(7);
         userTO.addMembership(membershipTO);
 
-        userController.create(new MockHttpServletResponse(), userTO);
+        userController.create(userTO);
 
         // 3. force Quartz job execution and verify e-mail
         notificationJob.execute(null);
@@ -285,7 +284,7 @@ public class NotificationTest {
         membershipTO.setRoleId(7);
         userTO.addMembership(membershipTO);
 
-        userController.create(new MockHttpServletResponse(), userTO);
+        userController.create(userTO);
 
         // 3. force Quartz job execution and verify e-mail
         notificationJob.execute(null);

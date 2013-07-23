@@ -21,7 +21,6 @@ package org.apache.syncope.core.rest.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.types.AuditElements.Category;
@@ -34,14 +33,9 @@ import org.apache.syncope.core.persistence.dao.NotificationDAO;
 import org.apache.syncope.core.rest.data.NotificationDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.stereotype.Component;
 
-@Controller
-@RequestMapping("/notification")
+@Component
 public class NotificationController extends AbstractController {
 
     @Autowired
@@ -54,8 +48,7 @@ public class NotificationController extends AbstractController {
     private NotificationDataBinder binder;
 
     @PreAuthorize("hasRole('NOTIFICATION_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/read/{notificationId}")
-    public NotificationTO read(@PathVariable("notificationId") final Long notificationId) {
+    public NotificationTO read(final Long notificationId) {
         Notification notification = notificationDAO.find(notificationId);
         if (notification == null) {
             LOG.error("Could not find notification '" + notificationId + "'");
@@ -67,7 +60,6 @@ public class NotificationController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('NOTIFICATION_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/list")
     public List<NotificationTO> list() {
         List<Notification> notifications = notificationDAO.findAll();
 
@@ -82,25 +74,20 @@ public class NotificationController extends AbstractController {
         return notificationTOs;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/create")
-    public NotificationTO create(final HttpServletResponse response, @RequestBody final NotificationTO notificationTO) {
-        NotificationTO savedNotificationTO = createInternal(notificationTO);
-        response.setStatus(HttpServletResponse.SC_CREATED);
-        return savedNotificationTO;
-    }
-
     @PreAuthorize("hasRole('NOTIFICATION_CREATE')")
-    public NotificationTO createInternal(final NotificationTO notificationTO) {
+    public NotificationTO create(final NotificationTO notificationTO) {
         LOG.debug("Notification create called with parameter {}", notificationTO);
+
         Notification notification = notificationDAO.save(binder.createNotification(notificationTO));
+
         auditManager.audit(Category.notification, NotificationSubCategory.create, Result.success,
                 "Successfully created notification: " + notification.getId());
+
         return binder.getNotificationTO(notification);
     }
 
     @PreAuthorize("hasRole('NOTIFICATION_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public NotificationTO update(@RequestBody final NotificationTO notificationTO) {
+    public NotificationTO update(final NotificationTO notificationTO) {
         LOG.debug("ConnNotificationtor update called with parameter {}", notificationTO);
 
         Notification notification = notificationDAO.find(notificationTO.getId());
@@ -120,8 +107,7 @@ public class NotificationController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_DELETE')")
-    @RequestMapping(method = RequestMethod.GET, value = "/delete/{notificationId}")
-    public NotificationTO delete(@PathVariable("notificationId") final Long notificationId) {
+    public NotificationTO delete(final Long notificationId) {
         Notification notification = notificationDAO.find(notificationId);
         if (notification == null) {
             LOG.error("Could not find notificatin '" + notificationId + "'");

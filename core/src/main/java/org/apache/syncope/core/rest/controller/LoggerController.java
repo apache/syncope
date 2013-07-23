@@ -40,19 +40,14 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import org.springframework.stereotype.Component;
 
-@Controller
-@RequestMapping("/logger")
+@Component
 public class LoggerController extends AbstractController {
 
     @Autowired
@@ -76,14 +71,12 @@ public class LoggerController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('LOG_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/log/list")
     @Transactional(readOnly = true)
     public List<LoggerTO> listLogs() {
         return list(SyncopeLoggerType.LOG);
     }
 
     @PreAuthorize("hasRole('AUDIT_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/audit/list")
     @Transactional(readOnly = true)
     public List<AuditLoggerName> listAudits() {
         List<AuditLoggerName> result = new ArrayList<AuditLoggerName>();
@@ -141,14 +134,12 @@ public class LoggerController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('LOG_SET_LEVEL')")
-    @RequestMapping(method = RequestMethod.POST, value = "/log/{name}/{level}")
-    public LoggerTO setLogLevel(@PathVariable("name") final String name, @PathVariable("level") final Level level) {
+    public LoggerTO setLogLevel(final String name, final Level level) {
         return setLevel(name, level, SyncopeLoggerType.LOG);
     }
 
     @PreAuthorize("hasRole('AUDIT_ENABLE')")
-    @RequestMapping(method = RequestMethod.PUT, value = "/audit/enable")
-    public void enableAudit(@RequestBody final AuditLoggerName auditLoggerName) {
+    public void enableAudit(final AuditLoggerName auditLoggerName) {
         try {
             setLevel(auditLoggerName.toLoggerName(), Level.DEBUG, SyncopeLoggerType.AUDIT);
         } catch (IllegalArgumentException e) {
@@ -189,14 +180,12 @@ public class LoggerController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('LOG_DELETE')")
-    @RequestMapping(method = RequestMethod.GET, value = "/log/delete/{name}")
-    public LoggerTO deleteLog(@PathVariable("name") final String name) throws NotFoundException {
+    public LoggerTO deleteLog(final String name) throws NotFoundException {
         return delete(name, SyncopeLoggerType.LOG);
     }
 
     @PreAuthorize("hasRole('AUDIT_DISABLE')")
-    @RequestMapping(method = RequestMethod.PUT, value = "/audit/disable")
-    public void disableAudit(@RequestBody final AuditLoggerName auditLoggerName) {
+    public void disableAudit(final AuditLoggerName auditLoggerName) {
         try {
             delete(auditLoggerName.toLoggerName(), SyncopeLoggerType.AUDIT);
         } catch (NotFoundException e) {

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.SchedTaskTO;
@@ -35,6 +34,7 @@ import org.apache.syncope.common.types.AuditElements.TaskSubCategory;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
@@ -60,16 +60,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.stereotype.Component;
 
-@Controller
-@RequestMapping("/task")
+@Component
 public class TaskController extends AbstractController {
 
     @Autowired
@@ -99,23 +92,11 @@ public class TaskController extends AbstractController {
     @Autowired
     private ImplementationClassNamesLoader classNamesLoader;
 
-    @RequestMapping(method = RequestMethod.POST, value = "/create/sync")
-    public TaskTO createSyncTask(final HttpServletResponse response, @RequestBody final SyncTaskTO taskTO) {
-        return createSchedTask(response, taskTO);
-    }
-
-    @RequestMapping(method = RequestMethod.POST, value = "/create/sched")
-    public TaskTO createSchedTask(final HttpServletResponse response, @RequestBody final SchedTaskTO taskTO) {
-        TaskTO createdTaskTO = createSchedTaskInternal(taskTO);
-        response.setStatus(HttpServletResponse.SC_CREATED);
-        return createdTaskTO;
-    }
-
     @PreAuthorize("hasRole('TASK_CREATE')")
-    public TaskTO createSchedTaskInternal(final SchedTaskTO taskTO) {
+    public TaskTO createSchedTask(final SchedTaskTO taskTO) {
         LOG.debug("Creating task " + taskTO);
 
-        TaskUtil taskUtil = getTaskUtil(taskTO);
+        TaskUtil taskUtil = TaskUtil.getInstance(taskTO);
 
         SchedTask task = binder.createSchedTask(taskTO, taskUtil);
         task = taskDAO.save(task);
@@ -140,14 +121,12 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST, value = "/update/sync")
-    public TaskTO updateSync(@RequestBody final SyncTaskTO taskTO) {
+    public TaskTO updateSync(final SyncTaskTO taskTO) {
         return updateSched(taskTO);
     }
 
     @PreAuthorize("hasRole('TASK_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST, value = "/update/sched")
-    public TaskTO updateSched(@RequestBody final SchedTaskTO taskTO) {
+    public TaskTO updateSched(final SchedTaskTO taskTO) {
         LOG.debug("Task update called with parameter {}", taskTO);
 
         SchedTask task = taskDAO.find(taskTO.getId());
@@ -155,7 +134,7 @@ public class TaskController extends AbstractController {
             throw new NotFoundException("Task " + taskTO.getId());
         }
 
-        TaskUtil taskUtil = getTaskUtil(task);
+        TaskUtil taskUtil = TaskUtil.getInstance(task);
 
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
@@ -179,25 +158,20 @@ public class TaskController extends AbstractController {
         return binder.getTaskTO(task, taskUtil);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/count")
-    public ModelAndView count(@PathVariable("kind") final String kind) {
-        return new ModelAndView().addObject(countInternal(kind));
+    @PreAuthorize("hasRole('TASK_LIST')")
+    public int count(final TaskType taskType) {
+        return taskDAO.count(TaskUtil.getInstance(taskType).taskClass());
     }
 
     @PreAuthorize("hasRole('TASK_LIST')")
-    public int countInternal(final String kind) {
-        return taskDAO.count(getTaskUtil(kind).taskClass());
-    }
-
-    @PreAuthorize("hasRole('TASK_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
-    public List<TaskTO> list(@PathVariable("kind") final String kind) {
-        TaskUtil taskUtil = getTaskUtil(kind);
+    @SuppressWarnings("unchecked")
+    public <T extends TaskTO> List<T> list(final TaskType taskType) {
+        TaskUtil taskUtil = TaskUtil.getInstance(taskType);
 
         List<Task> tasks = taskDAO.findAll(taskUtil.taskClass());
-        List<TaskTO> taskTOs = new ArrayList<TaskTO>(tasks.size());
+        List<T> taskTOs = new ArrayList<T>(tasks.size());
         for (Task task : tasks) {
-            taskTOs.add(binder.getTaskTO(task, taskUtil));
+            taskTOs.add((T) binder.getTaskTO(task, taskUtil));
         }
 
         auditManager.audit(Category.task, TaskSubCategory.list, Result.success,
@@ -207,16 +181,14 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list/{page}/{size}")
-    public List<TaskTO> list(@PathVariable("kind") final String kind, @PathVariable("page") final int page,
-            @PathVariable("size") final int size) {
-
-        TaskUtil taskUtil = getTaskUtil(kind);
+    @SuppressWarnings("unchecked")
+    public <T extends TaskTO> List<T> list(final TaskType taskType, final int page, final int size) {
+        TaskUtil taskUtil = TaskUtil.getInstance(taskType);
 
         List<Task> tasks = taskDAO.findAll(page, size, taskUtil.taskClass());
-        List<TaskTO> taskTOs = new ArrayList<TaskTO>(tasks.size());
+        List<T> taskTOs = new ArrayList<T>(tasks.size());
         for (Task task : tasks) {
-            taskTOs.add(binder.getTaskTO(task, taskUtil));
+            taskTOs.add((T) binder.getTaskTO(task, taskUtil));
         }
 
         auditManager.audit(Category.task, TaskSubCategory.list, Result.success,
@@ -227,35 +199,32 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/jobClasses")
-    public ModelAndView getJobClasses() {
+    public Set<String> getJobClasses() {
         Set<String> jobClasses = classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.TASKJOB);
 
         auditManager.audit(Category.task, TaskSubCategory.getJobClasses, Result.success,
                 "Successfully listed all Job classes: " + jobClasses.size());
 
-        return new ModelAndView().addObject(jobClasses);
+        return jobClasses;
     }
 
     @PreAuthorize("hasRole('TASK_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/syncActionsClasses")
-    public ModelAndView getSyncActionsClasses() {
+    public Set<String> getSyncActionsClasses() {
         Set<String> actionsClasses = classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.SYNC_ACTIONS);
 
         auditManager.audit(Category.task, TaskSubCategory.getSyncActionsClasses, Result.success,
                 "Successfully listed all SyncActions classes: " + actionsClasses.size());
 
-        return new ModelAndView().addObject(actionsClasses);
+        return actionsClasses;
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/read/{taskId}")
-    public TaskTO read(@PathVariable("taskId") final Long taskId) {
+    public TaskTO read(final Long taskId) {
         Task task = taskDAO.find(taskId);
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
         }
-        TaskUtil taskUtil = getTaskUtil(task);
+        TaskUtil taskUtil = TaskUtil.getInstance(task);
 
         auditManager.audit(Category.task, TaskSubCategory.read, Result.success,
                 "Successfully read task: " + task.getId() + "/" + taskUtil);
@@ -264,8 +233,7 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/execution/read/{executionId}")
-    public TaskExecTO readExecution(@PathVariable("executionId") final Long executionId) {
+    public TaskExecTO readExecution(final Long executionId) {
         TaskExec taskExec = taskExecDAO.find(executionId);
         if (taskExec == null) {
             throw new NotFoundException("Task execution " + executionId);
@@ -278,19 +246,16 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_EXECUTE')")
-    @RequestMapping(method = RequestMethod.POST, value = "/execute/{taskId}")
-    public TaskExecTO execute(@PathVariable("taskId") final Long taskId,
-            @RequestParam(value = "dryRun", defaultValue = "false") final boolean dryRun) {
-
+    public TaskExecTO execute(final Long taskId, final boolean dryRun) {
         Task task = taskDAO.find(taskId);
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
         }
-        TaskUtil taskUtil = getTaskUtil(task);
+        TaskUtil taskUtil = TaskUtil.getInstance(task);
 
         TaskExecTO result = null;
         LOG.debug("Execution started for {}", task);
-        switch (taskUtil) {
+        switch (taskUtil.getType()) {
             case PROPAGATION:
                 final TaskExec propExec = taskExecutor.execute((PropagationTask) task);
                 result = binder.getTaskExecTO(propExec);
@@ -301,8 +266,8 @@ public class TaskController extends AbstractController {
                 result = binder.getTaskExecTO(notExec);
                 break;
 
-            case SCHED:
-            case SYNC:
+            case SCHEDULED:
+            case SYNCHRONIZATION:
                 try {
                     jobInstanceLoader.registerJob(task,
                             ((SchedTask) task).getJobClassName(),
@@ -345,11 +310,7 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/execution/report/{executionId}")
-    public TaskExecTO report(@PathVariable("executionId") final Long executionId,
-            @RequestParam("executionStatus") final PropagationTaskExecStatus status,
-            @RequestParam("message") final String message) {
-
+    public TaskExecTO report(final Long executionId, final PropagationTaskExecStatus status, final String message) {
         TaskExec exec = taskExecDAO.find(executionId);
         if (exec == null) {
             throw new NotFoundException("Task execution " + executionId);
@@ -358,8 +319,8 @@ public class TaskController extends AbstractController {
         SyncopeClientException sce = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidPropagationTaskExecReport);
 
-        TaskUtil taskUtil = getTaskUtil(exec.getTask());
-        if (TaskUtil.PROPAGATION == taskUtil) {
+        TaskUtil taskUtil = TaskUtil.getInstance(exec.getTask());
+        if (TaskType.PROPAGATION == taskUtil.getType()) {
             PropagationTask task = (PropagationTask) exec.getTask();
             if (task.getPropagationMode() != PropagationMode.TWO_PHASES) {
                 sce.addElement("Propagation mode: " + task.getPropagationMode());
@@ -404,17 +365,16 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_DELETE')")
-    @RequestMapping(method = RequestMethod.GET, value = "/delete/{taskId}")
-    public TaskTO delete(@PathVariable("taskId") final Long taskId) {
+    public TaskTO delete(final Long taskId) {
         Task task = taskDAO.find(taskId);
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
         }
-        TaskUtil taskUtil = getTaskUtil(task);
+        TaskUtil taskUtil = TaskUtil.getInstance(task);
 
         TaskTO taskToDelete = binder.getTaskTO(task, taskUtil);
 
-        if (TaskUtil.SCHED == taskUtil || TaskUtil.SYNC == taskUtil) {
+        if (TaskType.SCHEDULED == taskUtil.getType() || TaskType.SYNCHRONIZATION == taskUtil.getType()) {
             jobInstanceLoader.unregisterJob(task);
         }
 
@@ -427,8 +387,7 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_DELETE')")
-    @RequestMapping(method = RequestMethod.GET, value = "/execution/delete/{executionId}")
-    public TaskExecTO deleteExecution(@PathVariable("executionId") final Long executionId) {
+    public TaskExecTO deleteExecution(final Long executionId) {
         TaskExec taskExec = taskExecDAO.find(executionId);
         if (taskExec == null) {
             throw new NotFoundException("Task execution " + executionId);
@@ -447,8 +406,7 @@ public class TaskController extends AbstractController {
             + "(hasRole('TASK_EXECUTE') and "
             + "(#bulkAction.operation == #bulkAction.operation.EXECUTE or "
             + "#bulkAction.operation == #bulkAction.operation.DRYRUN))")
-    @RequestMapping(method = RequestMethod.POST, value = "/bulk")
-    public BulkActionRes bulkAction(@RequestBody final BulkAction bulkAction) {
+    public BulkActionRes bulkAction(final BulkAction bulkAction) {
         LOG.debug("Bulk action '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
 
         BulkActionRes res = new BulkActionRes();
@@ -464,6 +422,7 @@ public class TaskController extends AbstractController {
                     }
                 }
                 break;
+
             case DRYRUN:
                 for (String taskId : bulkAction.getTargets()) {
                     try {
@@ -475,6 +434,7 @@ public class TaskController extends AbstractController {
                     }
                 }
                 break;
+
             case EXECUTE:
                 for (String taskId : bulkAction.getTargets()) {
                     try {
@@ -486,6 +446,7 @@ public class TaskController extends AbstractController {
                     }
                 }
                 break;
+
             default:
         }
 

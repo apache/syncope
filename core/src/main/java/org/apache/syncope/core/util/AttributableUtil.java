@@ -71,15 +71,16 @@ import org.apache.syncope.core.persistence.beans.user.UVirAttr;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
 import org.apache.syncope.core.sync.SyncCorrelationRule;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unchecked")
-public class AttributableUtil {
+public final class AttributableUtil {
 
     /**
      * Logger.
      */
-    protected static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AttributableUtil.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AttributableUtil.class);
 
     private final AttributableType type;
 
@@ -346,9 +347,11 @@ public class AttributableUtil {
             case USER:
                 result = (T) new USchema();
                 break;
+
             case ROLE:
                 result = (T) new RSchema();
                 break;
+
             case MEMBERSHIP:
                 result = (T) new MSchema();
                 break;

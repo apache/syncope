@@ -32,7 +32,6 @@ import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 import org.apache.http.HttpStatus;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
-import org.apache.syncope.common.validation.SyncopeClientErrorHandler;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,9 +80,10 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
 
     private SyncopeClientCompositeErrorException checkCompositeException(final Response response) {
         final int statusCode = response.getStatus();
-        List<Object> exTypesInHeaders = response.getHeaders().get(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER);
+        List<Object> exTypesInHeaders = response.getHeaders().
+                get(SyncopeClientCompositeErrorException.EXCEPTION_TYPE_HEADER);
         if (exTypesInHeaders == null) {
-            LOG.debug("No " + SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER + " provided");
+            LOG.debug("No " + SyncopeClientCompositeErrorException.EXCEPTION_TYPE_HEADER + " provided");
             return null;
         }
 
@@ -97,7 +97,7 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
             try {
                 exceptionType = SyncopeClientExceptionType.getFromHeaderValue(exTypeAsString);
             } catch (IllegalArgumentException e) {
-                LOG.error("Unexpected value of " + SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER + ": "
+                LOG.error("Unexpected value of " + SyncopeClientCompositeErrorException.EXCEPTION_TYPE_HEADER + ": "
                         + exTypeAsString, e);
             }
             if (exceptionType != null) {

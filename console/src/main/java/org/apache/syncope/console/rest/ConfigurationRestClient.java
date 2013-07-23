@@ -70,6 +70,6 @@ public class ConfigurationRestClient extends BaseRestClient {
     }
 
     public Response dbExport() {
-        return getService(ConfigurationService.class).dbExport();
+        return getService(ConfigurationService.class).export();
     }
 }

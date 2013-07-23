@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.NotificationService;
@@ -32,16 +31,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class NotificationServiceImpl implements NotificationService, ContextAware {
+public class NotificationServiceImpl extends AbstractServiceImpl implements NotificationService, ContextAware {
 
     @Autowired
-    private NotificationController notificationController;
-
-    private UriInfo uriInfo;
+    private NotificationController controller;
 
     @Override
     public Response create(final NotificationTO notificationTO) {
-        NotificationTO createdNotificationTO = notificationController.createInternal(notificationTO);
+        NotificationTO createdNotificationTO = controller.create(notificationTO);
         URI location = uriInfo.getAbsolutePathBuilder().path("" + createdNotificationTO.getId()).build();
         return Response.created(location)
                 .header(SyncopeConstants.REST_HEADER_ID, createdNotificationTO.getId())
@@ -50,26 +47,21 @@ public class NotificationServiceImpl implements NotificationService, ContextAwar
 
     @Override
     public NotificationTO read(final Long notificationId) {
-        return notificationController.read(notificationId);
+        return controller.read(notificationId);
     }
 
     @Override
     public List<NotificationTO> list() {
-        return notificationController.list();
+        return controller.list();
     }
 
     @Override
     public void update(final Long notificationId, final NotificationTO notificationTO) {
-        notificationController.update(notificationTO);
+        controller.update(notificationTO);
     }
 
     @Override
     public void delete(final Long notificationId) {
-        notificationController.delete(notificationId);
-    }
-
-    @Override
-    public void setUriInfo(final UriInfo ui) {
-        this.uriInfo = ui;
+        controller.delete(notificationId);
     }
 }

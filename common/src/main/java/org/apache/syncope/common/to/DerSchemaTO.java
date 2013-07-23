@@ -16,17 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest.jaxrs;
+package org.apache.syncope.common.to;
 
-import org.apache.syncope.core.rest.SearchTestITCase;
-import org.junit.FixMethodOrder;
-import org.junit.runners.MethodSorters;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
-@FixMethodOrder(MethodSorters.JVM)
-public class SearchTestITCaseJAXRS extends SearchTestITCase {
+@XmlRootElement(name = "derivedSchema")
+@XmlType
+public class DerSchemaTO extends AbstractSchemaTO {
 
-    public SearchTestITCaseJAXRS() {
-        super();
-        setEnabledCXF(true);
+    private static final long serialVersionUID = -6747399803792103108L;
+
+    private String expression;
+
+    public String getExpression() {
+        return expression;
+    }
+
+    public void setExpression(final String expression) {
+        this.expression = expression;
     }
 }

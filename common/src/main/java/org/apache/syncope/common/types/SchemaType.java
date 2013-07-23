@@ -20,9 +20,9 @@ package org.apache.syncope.common.types;
 
 import javax.xml.bind.annotation.XmlEnum;
 import org.apache.syncope.common.to.AbstractSchemaTO;
-import org.apache.syncope.common.to.DerivedSchemaTO;
+import org.apache.syncope.common.to.DerSchemaTO;
 import org.apache.syncope.common.to.SchemaTO;
-import org.apache.syncope.common.to.VirtualSchemaTO;
+import org.apache.syncope.common.to.VirSchemaTO;
 
 @XmlEnum
 public enum SchemaType {
@@ -30,31 +30,39 @@ public enum SchemaType {
     /**
      * Standard schema for normal attributes to be stored within syncope.
      */
-    NORMAL("schema", SchemaTO.class),
+    NORMAL(SchemaTO.class),
     /**
      * Derived schema calculated based on other attributes.
      */
-    DERIVED("derivedSchema", DerivedSchemaTO.class),
+    DERIVED(DerSchemaTO.class),
     /**
      * Virtual schema for attributes fetched from remote resources only.
      */
-    VIRTUAL("virtualSchema", VirtualSchemaTO.class);
-
-    // TODO remove name once CXF migration is complete
-    private final String name;
+    VIRTUAL(VirSchemaTO.class);
 
     private final Class<? extends AbstractSchemaTO> toClass;
 
-    private SchemaType(final String name, final Class<? extends AbstractSchemaTO> toClass) {
-        this.name = name;
+    private SchemaType(final Class<? extends AbstractSchemaTO> toClass) {
         this.toClass = toClass;
-    }
-
-    public String toSpringURL() {
-        return name;
     }
 
     public Class<? extends AbstractSchemaTO> getToClass() {
         return toClass;
+    }
+
+    public static SchemaType fromToClass(final Class<? extends AbstractSchemaTO> toClass) {
+        SchemaType schemaType = null;
+
+        if (SchemaTO.class.equals(toClass)) {
+            schemaType = SchemaType.NORMAL;
+        } else if (DerSchemaTO.class.equals(toClass)) {
+            schemaType = SchemaType.DERIVED;
+        } else if (VirSchemaTO.class.equals(toClass)) {
+            schemaType = SchemaType.VIRTUAL;
+        } else {
+            throw new IllegalArgumentException("Unexpected class: " + toClass.getName());
+        }
+
+        return schemaType;
     }
 }

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
@@ -56,16 +55,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
 
-@Controller
-@RequestMapping("/role")
+@Component
 public class RoleController {
 
     /**
@@ -104,9 +97,8 @@ public class RoleController {
     private ConnObjectUtil connObjectUtil;
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/read/{roleId}")
     @Transactional(readOnly = true)
-    public RoleTO read(@PathVariable("roleId") final Long roleId) {
+    public RoleTO read(final Long roleId) {
         SyncopeRole role = binder.getRoleFromId(roleId);
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
@@ -121,9 +113,8 @@ public class RoleController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(method = RequestMethod.GET, value = "/selfRead/{roleId}")
     @Transactional(readOnly = true)
-    public RoleTO selfRead(@PathVariable("roleId") final Long roleId) {
+    public RoleTO selfRead(final Long roleId) {
         // Explicit search instead of using binder.getRoleFromId() in order to bypass auth checks - will do here
         SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
@@ -151,9 +142,8 @@ public class RoleController {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/parent/{roleId}")
     @Transactional(readOnly = true)
-    public RoleTO parent(@PathVariable("roleId") final Long roleId) {
+    public RoleTO parent(final Long roleId) {
         SyncopeRole role = binder.getRoleFromId(roleId);
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
@@ -174,9 +164,8 @@ public class RoleController {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/children/{roleId}")
     @Transactional(readOnly = true)
-    public List<RoleTO> children(@PathVariable("roleId") final Long roleId) {
+    public List<RoleTO> children(final Long roleId) {
         SyncopeRole role = binder.getRoleFromId(roleId);
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
@@ -196,19 +185,16 @@ public class RoleController {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @RequestMapping(method = RequestMethod.POST, value = "/search")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
-    public List<RoleTO> search(@RequestBody final NodeCond searchCondition)
+    public List<RoleTO> search(final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
         return search(searchCondition, -1, -1);
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @RequestMapping(method = RequestMethod.POST, value = "/search/{page}/{size}")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
-    public List<RoleTO> search(@RequestBody final NodeCond searchCondition, @PathVariable("page") final int page,
-            @PathVariable("size") final int size)
+    public List<RoleTO> search(final NodeCond searchCondition, final int page, final int size)
             throws InvalidSearchConditionException {
 
         LOG.debug("Role search called with condition {}", searchCondition);
@@ -234,9 +220,8 @@ public class RoleController {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @RequestMapping(method = RequestMethod.POST, value = "/search/count")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
-    public ModelAndView searchCount(@RequestBody final NodeCond searchCondition)
+    public int searchCount(final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
         if (!searchCondition.isValid()) {
@@ -245,11 +230,9 @@ public class RoleController {
         }
 
         final Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-        return new ModelAndView().addObject(searchDAO.count(adminRoleIds, searchCondition,
-                AttributableUtil.getInstance(AttributableType.ROLE)));
+        return searchDAO.count(adminRoleIds, searchCondition, AttributableUtil.getInstance(AttributableType.ROLE));
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/list")
     @Transactional(readOnly = true)
     public List<RoleTO> list() {
         List<SyncopeRole> roles = roleDAO.findAll();
@@ -266,8 +249,7 @@ public class RoleController {
     }
 
     @PreAuthorize("hasRole('ROLE_CREATE')")
-    @RequestMapping(method = RequestMethod.POST, value = "/create")
-    public RoleTO create(final HttpServletResponse response, @RequestBody final RoleTO roleTO) {
+    public RoleTO create(final RoleTO roleTO) {
         LOG.debug("Role create called with parameters {}", roleTO);
 
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
@@ -298,13 +280,11 @@ public class RoleController {
         auditManager.audit(Category.role, RoleSubCategory.create, Result.success,
                 "Successfully created role: " + savedTO.getId());
 
-        response.setStatus(HttpServletResponse.SC_CREATED);
         return savedTO;
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public RoleTO update(@RequestBody final RoleMod roleMod) {
+    public RoleTO update(final RoleMod roleMod) {
         LOG.debug("Role update called with {}", roleMod);
 
         SyncopeRole role = binder.getRoleFromId(roleMod.getId());
@@ -334,8 +314,7 @@ public class RoleController {
     }
 
     @PreAuthorize("hasRole('ROLE_DELETE')")
-    @RequestMapping(method = RequestMethod.GET, value = "/delete/{roleId}")
-    public RoleTO delete(@PathVariable("roleId") final Long roleId) {
+    public RoleTO delete(final Long roleId) {
         LOG.debug("Role delete called for {}", roleId);
 
         // Generate propagation tasks for deleting users from role resources, if they are on those resources only

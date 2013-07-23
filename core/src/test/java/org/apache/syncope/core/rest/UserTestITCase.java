@@ -128,7 +128,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void selfRead() {
-        UserService userService2 = setupCredentials(userService, UserService.class, "rossini", ADMIN_PWD);
+        UserService userService2 = createServiceInstance(UserService.class, "rossini", ADMIN_PWD);
 
         try {
             userService2.read(1L);
@@ -452,7 +452,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
 
         // 3. verify password
-        UserService userService1 = super.setupCredentials(userService, UserService.class, newUserTO.getUsername(),
+        UserService userService1 = createServiceInstance(UserService.class, newUserTO.getUsername(),
                 "password123");
         try {
             UserTO user = userService1.readSelf();
@@ -461,7 +461,7 @@ public class UserTestITCase extends AbstractTest {
             fail("Credentials should be valid and not cause AccessControlException");
         }
 
-        UserService userService2 = super.setupCredentials(userService, UserService.class, newUserTO.getUsername(),
+        UserService userService2 = createServiceInstance(UserService.class, newUserTO.getUsername(),
                 "passwordXX");
         try {
             userService2.readSelf();
@@ -469,7 +469,6 @@ public class UserTestITCase extends AbstractTest {
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
-        resetRestTemplate();
 
         // 4. try (and fail) to create another user with same (unique) values
         userTO = getSampleTO(userTO.getUsername());
@@ -560,8 +559,7 @@ public class UserTestITCase extends AbstractTest {
         assertNull(form.getOwner());
 
         // 3. claim task from rossini, not in role 7 (designated for approval in workflow definition): fail
-        UserWorkflowService userService2 =
-                setupCredentials(userWorkflowService, UserWorkflowService.class, "rossini", ADMIN_PWD);
+        UserWorkflowService userService2 = createServiceInstance(UserWorkflowService.class, "rossini", ADMIN_PWD);
 
         try {
             userService2.claimForm(form.getTaskId());
@@ -571,8 +569,7 @@ public class UserTestITCase extends AbstractTest {
         }
 
         // 4. claim task from bellini, in role 7
-        UserWorkflowService userService3 =
-                setupCredentials(userWorkflowService, UserWorkflowService.class, "bellini", ADMIN_PWD);
+        UserWorkflowService userService3 = createServiceInstance(UserWorkflowService.class, "bellini", ADMIN_PWD);
 
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);
@@ -593,14 +590,11 @@ public class UserTestITCase extends AbstractTest {
         Exception exception = null;
         try {
             jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
-                    new String[]{userTO.getUsername()}, Integer.class);
+                    new String[] {userTO.getUsername()}, Integer.class);
         } catch (EmptyResultDataAccessException e) {
             exception = e;
         }
         assertNotNull(exception);
-
-        // reset admin credentials for restTemplate
-        super.resetRestTemplate();
     }
 
     @Test
@@ -1828,15 +1822,8 @@ public class UserTestITCase extends AbstractTest {
         userTO.getResources().clear();
         userTO.addResource(RESOURCE_NAME_TESTDB);
         userTO.addResource("resource-testdb2");
-        try {
-            userTO = createUser(userTO);
-        } catch (SyncopeClientCompositeErrorException scce) {
-            // TODO Dirty workaround for AUTO generation Id strategy problem in AbstractVirAttr.
-            // Must be removed after fix of SYNCOPE-298
-            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.DataIntegrityViolation);
-            assertNotNull(sce);
-            return;
-        }
+        
+        userTO = createUser(userTO);
         assertNotNull(userTO);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));
         assertTrue(userTO.getResources().contains("resource-testdb2"));

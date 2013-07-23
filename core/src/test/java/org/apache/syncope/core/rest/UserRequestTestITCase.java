@@ -81,13 +81,10 @@ public class UserRequestTestITCase extends AbstractTest {
         assertNotNull(configurationTO);
 
         // 4. as anonymous, request user create works
-        UserRequestService userRequestService2 = setupCredentials(userRequestService, UserRequestService.class, null, null);
+        UserRequestService userRequestService2 = createServiceInstance(UserRequestService.class, null, null);
         response = createUserRequest(userRequestService2, new UserRequestTO(userTO));
 
-        // 5. switch back to admin
-        super.resetRestTemplate(); // TODO remove after CXF migration is complete
-
-        // 6. try to find user
+        // 5. try to find user
         AttributeCond attrCond = new AttributeCond(AttributeCond.Type.EQ);
         attrCond.setSchema("userId");
         attrCond.setExpression(userTO.getUsername());
@@ -95,7 +92,7 @@ public class UserRequestTestITCase extends AbstractTest {
         final List<UserTO> matchingUsers = userService.search(NodeCond.getLeafCond(attrCond));
         assertTrue(matchingUsers.isEmpty());
 
-        // 7. actually create user
+        // 6. actually create user
         userTO = createUser(userTO);
         assertNotNull(userTO);
     }
@@ -122,7 +119,7 @@ public class UserRequestTestITCase extends AbstractTest {
         }
 
         // 3. auth as user just created
-        UserRequestService userRequestService2 = setupCredentials(userRequestService, UserRequestService.class,
+        UserRequestService userRequestService2 = createServiceInstance(UserRequestService.class,
                 userTO.getUsername(), initialPassword);
 
         // 4. update with same password: not matching password policy
@@ -137,27 +134,23 @@ public class UserRequestTestITCase extends AbstractTest {
         userMod.setPassword("new" + initialPassword);
         createUserRequest(userRequestService2, new UserRequestTO(userMod));
 
-        // 6. switch back to admin
-        super.resetRestTemplate();
-
-        // 7. user password has not changed yet
-        UserService userService1 = super.setupCredentials(userService, UserService.class, userTO.getUsername(),
-                userMod.getPassword());
+        // 6. user password has not changed yet
+        UserService userService1 = createServiceInstance(UserService.class,
+                userTO.getUsername(), userMod.getPassword());
         try {
             userService1.readSelf();
             fail("Credentials are not updated yet, thus request should raise AccessControlException");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
-        resetRestTemplate();
 
-        // 8. actually update user
+        // 7. actually update user
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
 
-        // 9. user password has now changed
-        UserService userService2 = super.setupCredentials(userService, UserService.class, userTO.getUsername(),
-                userMod.getPassword());
+        // 8. user password has now changed
+        UserService userService2 = createServiceInstance(UserService.class,
+                userTO.getUsername(), userMod.getPassword());
         try {
             UserTO user = userService2.readSelf();
             assertNotNull(user);
@@ -184,23 +177,20 @@ public class UserRequestTestITCase extends AbstractTest {
         }
 
         // 3. auth as user just created
-        UserRequestService userRequestService2 = setupCredentials(userRequestService, UserRequestService.class,
+        UserRequestService userRequestService2 = createServiceInstance(UserRequestService.class,
                 userTO.getUsername(), initialPassword);
 
         // 4. now request user delete works
         createUserRequest(userRequestService2, new UserRequestTO(userTO.getId()));
 
-        // 5. switch back to admin
-        super.resetRestTemplate();
-
-        // 6. user still exists
+        // 5. user still exists
         UserTO actual = userService.read(userTO.getId());
         assertNotNull(actual);
 
-        // 7. actually delete user
+        // 6. actually delete user
         userService.delete(userTO.getId());
 
-        // 8. user does not exist any more
+        // 7. user does not exist any more
         try {
             userService.read(userTO.getId());
             fail();
@@ -209,7 +199,7 @@ public class UserRequestTestITCase extends AbstractTest {
         }
     }
 
-    private Response createUserRequest(UserRequestService service, final UserRequestTO userRequestTO) {
+    private Response createUserRequest(final UserRequestService service, final UserRequestTO userRequestTO) {
         Response response = service.create(userRequestTO);
         if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
             throw (RuntimeException) clientExceptionMapper.fromResponse(response);

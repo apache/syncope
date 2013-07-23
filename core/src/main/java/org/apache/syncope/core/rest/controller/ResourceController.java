@@ -21,7 +21,6 @@ package org.apache.syncope.core.rest.controller;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityExistsException;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
@@ -62,17 +61,10 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 
-@Controller
-@RequestMapping("/resource")
+@Component
 public class ResourceController extends AbstractController {
 
     @Autowired
@@ -106,8 +98,7 @@ public class ResourceController extends AbstractController {
     private ConnectorFactory connFactory;
 
     @PreAuthorize("hasRole('RESOURCE_CREATE')")
-    @RequestMapping(method = RequestMethod.POST, value = "/create")
-    public ResourceTO create(final HttpServletResponse response, @RequestBody final ResourceTO resourceTO) {
+    public ResourceTO create(final ResourceTO resourceTO) {
         LOG.debug("Resource creation: {}", resourceTO);
 
         if (StringUtils.isBlank(resourceTO.getName())) {
@@ -128,13 +119,11 @@ public class ResourceController extends AbstractController {
         auditManager.audit(Category.resource, ResourceSubCategory.create, Result.success,
                 "Successfully created resource: " + resource.getName());
 
-        response.setStatus(HttpServletResponse.SC_CREATED);
         return binder.getResourceTO(resource);
     }
 
     @PreAuthorize("hasRole('RESOURCE_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST, value = "/update")
-    public ResourceTO update(@RequestBody final ResourceTO resourceTO) {
+    public ResourceTO update(final ResourceTO resourceTO) {
         LOG.debug("Role update request: {}", resourceTO);
 
         ExternalResource resource = resourceDAO.find(resourceTO.getName());
@@ -152,8 +141,7 @@ public class ResourceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('RESOURCE_DELETE')")
-    @RequestMapping(method = RequestMethod.GET, value = "/delete/{resourceName}")
-    public ResourceTO delete(@PathVariable("resourceName") final String resourceName) {
+    public ResourceTO delete(final String resourceName) {
         ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceName + "'");
@@ -171,8 +159,7 @@ public class ResourceController extends AbstractController {
 
     @PreAuthorize("hasRole('RESOURCE_READ')")
     @Transactional(readOnly = true)
-    @RequestMapping(method = RequestMethod.GET, value = "/read/{resourceName}")
-    public ResourceTO read(@PathVariable("resourceName") final String resourceName) {
+    public ResourceTO read(final String resourceName) {
         ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceName + "'");
@@ -185,20 +172,18 @@ public class ResourceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('RESOURCE_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/propagationActionsClasses")
-    public ModelAndView getPropagationActionsClasses() {
+    public Set<String> getPropagationActionsClasses() {
         Set<String> actionsClasses = classNamesLoader.getClassNames(
                 ImplementationClassNamesLoader.Type.PROPAGATION_ACTIONS);
 
         auditManager.audit(Category.resource, AuditElements.ResourceSubCategory.getPropagationActionsClasses,
                 Result.success, "Successfully listed all PropagationActions classes: " + actionsClasses.size());
 
-        return new ModelAndView().addObject(actionsClasses);
+        return actionsClasses;
     }
 
     @Transactional(readOnly = true)
-    @RequestMapping(method = RequestMethod.GET, value = "/list")
-    public List<ResourceTO> list(@RequestParam(required = false, value = "connInstanceId") final Long connInstanceId) {
+    public List<ResourceTO> list(final Long connInstanceId) {
         List<ExternalResource> resources;
 
         if (connInstanceId == null) {
@@ -220,10 +205,7 @@ public class ResourceController extends AbstractController {
 
     @PreAuthorize("hasRole('RESOURCE_GETCONNECTOROBJECT')")
     @Transactional(readOnly = true)
-    @RequestMapping(method = RequestMethod.GET, value = "/{resourceName}/read/{type}/{id}")
-    public ConnObjectTO getConnectorObject(@PathVariable("resourceName") final String resourceName,
-            @PathVariable("type") final AttributableType type, @PathVariable("id") final Long id) {
-
+    public ConnObjectTO getConnectorObject(final String resourceName, final AttributableType type, final Long id) {
         ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceName + "'");
@@ -244,14 +226,15 @@ public class ResourceController extends AbstractController {
                 throw new IllegalArgumentException("Not supported for MEMBERSHIP");
         }
         if (attributable == null) {
-            throw new NotFoundException(type + " " + id );
+            throw new NotFoundException(type + " " + id);
         }
 
         final AttributableUtil attrUtil = AttributableUtil.getInstance(type);
 
         AbstractMappingItem accountIdItem = attrUtil.getAccountIdItem(resource);
         if (accountIdItem == null) {
-            throw new NotFoundException("AccountId mapping for " + type + " " + id + " on resource '" + resourceName + "'");
+            throw new NotFoundException("AccountId mapping for " + type + " " + id + " on resource '" + resourceName
+                    + "'");
         }
         final String accountIdValue =
                 MappingUtil.getAccountIdValue(attributable, resource, attrUtil.getAccountIdItem(resource));
@@ -282,9 +265,8 @@ public class ResourceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
-    @RequestMapping(method = RequestMethod.POST, value = "/check")
     @Transactional(readOnly = true)
-    public ModelAndView check(@RequestBody final ResourceTO resourceTO) {
+    public boolean check(final ResourceTO resourceTO) {
         final ConnInstance connInstance = binder.getConnInstance(resourceTO);
 
         final Connector connector = connFactory.createConnector(connInstance, connInstance.getConfiguration());
@@ -304,28 +286,24 @@ public class ResourceController extends AbstractController {
             result = false;
         }
 
-        return new ModelAndView().addObject(result);
+        return result;
     }
 
     @PreAuthorize("hasRole('RESOURCE_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE")
-    @RequestMapping(method = RequestMethod.POST, value = "/bulk")
-    public BulkActionRes bulkAction(@RequestBody final BulkAction bulkAction) {
+    public BulkActionRes bulkAction(final BulkAction bulkAction) {
         LOG.debug("Bulk action '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
 
         BulkActionRes res = new BulkActionRes();
 
-        switch (bulkAction.getOperation()) {
-            case DELETE:
-                for (String name : bulkAction.getTargets()) {
-                    try {
-                        res.add(delete(name).getName(), BulkActionRes.Status.SUCCESS);
-                    } catch (Exception e) {
-                        LOG.error("Error performing delete for resource {}", name, e);
-                        res.add(name, BulkActionRes.Status.FAILURE);
-                    }
+        if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
+            for (String name : bulkAction.getTargets()) {
+                try {
+                    res.add(delete(name).getName(), BulkActionRes.Status.SUCCESS);
+                } catch (Exception e) {
+                    LOG.error("Error performing delete for resource {}", name, e);
+                    res.add(name, BulkActionRes.Status.FAILURE);
                 }
-                break;
-            default:
+            }
         }
 
         return res;

@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ResourceService;
@@ -39,16 +38,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ResourceServiceImpl implements ResourceService, ContextAware {
+public class ResourceServiceImpl extends AbstractServiceImpl implements ResourceService, ContextAware {
 
     @Autowired
-    private ResourceController resourceController;
-
-    private UriInfo uriInfo;
+    private ResourceController controller;
 
     @Override
     public Response create(final ResourceTO resourceTO) {
-        ResourceTO resource = resourceController.create(new DummyHTTPServletResponse(), resourceTO);
+        ResourceTO resource = controller.create(resourceTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(resource.getName()).build();
         return Response.created(location)
                 .header(SyncopeConstants.REST_HEADER_ID, resource.getName())
@@ -57,54 +54,46 @@ public class ResourceServiceImpl implements ResourceService, ContextAware {
 
     @Override
     public void update(final String resourceName, final ResourceTO resourceTO) {
-        resourceController.update(resourceTO);
+        controller.update(resourceTO);
     }
 
     @Override
     public void delete(final String resourceName) {
-        resourceController.delete(resourceName);
+        controller.delete(resourceName);
     }
 
     @Override
     public ResourceTO read(final String resourceName) {
-        return resourceController.read(resourceName);
+        return controller.read(resourceName);
     }
 
     @Override
     public Set<PropagationActionClassTO> getPropagationActionsClasses() {
-        @SuppressWarnings("unchecked")
-        Set<String> classes = (Set<String>) resourceController.getPropagationActionsClasses().getModel().values()
-                .iterator().next();
-        return CollectionWrapper.wrapPropagationActionClasses(classes);
+        return CollectionWrapper.wrapPropagationActionClasses(controller.getPropagationActionsClasses());
     }
 
     @Override
     public List<ResourceTO> list() {
-        return resourceController.list(null);
+        return controller.list(null);
     }
 
     @Override
     public List<ResourceTO> list(final Long connInstanceId) {
-        return resourceController.list(connInstanceId);
+        return controller.list(connInstanceId);
     }
 
     @Override
     public ConnObjectTO getConnectorObject(final String resourceName, final AttributableType type, final Long id) {
-        return resourceController.getConnectorObject(resourceName, type, id);
+        return controller.getConnectorObject(resourceName, type, id);
     }
 
     @Override
     public boolean check(final ResourceTO resourceTO) {
-        return (Boolean) resourceController.check(resourceTO).getModel().values().iterator().next();
-    }
-
-    @Override
-    public void setUriInfo(final UriInfo ui) {
-        this.uriInfo = ui;
+        return controller.check(resourceTO);
     }
 
     @Override
     public BulkActionRes bulkAction(final BulkAction bulkAction) {
-        return resourceController.bulkAction(bulkAction);
+        return controller.bulkAction(bulkAction);
     }
 }

@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
-import org.apache.syncope.common.to.DerivedSchemaTO;
+import org.apache.syncope.common.to.DerSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
@@ -41,27 +41,27 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<DerivedSchemaTO> derivedSchemas = schemaService.list(AttributableType.USER, SchemaType.DERIVED);
+        List<DerSchemaTO> derivedSchemas = schemaService.list(AttributableType.USER, SchemaType.DERIVED);
         assertFalse(derivedSchemas.isEmpty());
-        for (DerivedSchemaTO derivedSchemaTO : derivedSchemas) {
+        for (DerSchemaTO derivedSchemaTO : derivedSchemas) {
             assertNotNull(derivedSchemaTO);
         }
     }
 
     @Test
     public void read() {
-        DerivedSchemaTO derivedSchemaTO = schemaService.read(AttributableType.USER, SchemaType.DERIVED,
+        DerSchemaTO derivedSchemaTO = schemaService.read(AttributableType.USER, SchemaType.DERIVED,
                 "cn");
         assertNotNull(derivedSchemaTO);
     }
 
     @Test
     public void create() {
-        DerivedSchemaTO schema = new DerivedSchemaTO();
+        DerSchemaTO schema = new DerSchemaTO();
         schema.setName("derived");
         schema.setExpression("derived_sx + '_' + derived_dx");
 
-        DerivedSchemaTO actual = createSchema(AttributableType.USER, SchemaType.DERIVED, schema);
+        DerSchemaTO actual = createSchema(AttributableType.USER, SchemaType.DERIVED, schema);
         assertNotNull(actual);
 
         actual = schemaService.read(AttributableType.USER, SchemaType.DERIVED, actual.getName());
@@ -71,7 +71,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        DerivedSchemaTO schema = schemaService.read(AttributableType.ROLE, SchemaType.DERIVED,
+        DerSchemaTO schema = schemaService.read(AttributableType.ROLE, SchemaType.DERIVED,
                 "rderiveddata");
         assertNotNull(schema);
 
@@ -94,7 +94,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        DerivedSchemaTO schema = schemaService.read(AttributableType.MEMBERSHIP, SchemaType.DERIVED,
+        DerSchemaTO schema = schemaService.read(AttributableType.MEMBERSHIP, SchemaType.DERIVED,
                 "mderiveddata");
         assertNotNull(schema);
         assertEquals("mderived_sx + '-' + mderived_dx", schema.getExpression());
@@ -117,7 +117,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE323() {
-        DerivedSchemaTO actual = schemaService.read(AttributableType.ROLE, SchemaType.DERIVED, "rderiveddata");
+        DerSchemaTO actual = schemaService.read(AttributableType.ROLE, SchemaType.DERIVED, "rderiveddata");
         assertNotNull(actual);
 
         try {

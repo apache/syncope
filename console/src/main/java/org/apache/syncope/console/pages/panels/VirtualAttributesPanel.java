@@ -26,7 +26,7 @@ import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.to.VirtualSchemaTO;
+import org.apache.syncope.common.to.VirSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.rest.SchemaRestClient;
@@ -68,14 +68,14 @@ public class VirtualAttributesPanel extends Panel {
 
         setOutputMarkupId(true);
 
-        final IModel<Map<String, VirtualSchemaTO>> schemas =
-                new LoadableDetachableModel<Map<String, VirtualSchemaTO>>() {
+        final IModel<Map<String, VirSchemaTO>> schemas =
+                new LoadableDetachableModel<Map<String, VirSchemaTO>>() {
 
             private static final long serialVersionUID = -5489981430516587774L;
 
             @Override
-            protected Map<String, VirtualSchemaTO> load() {
-                final List<VirtualSchemaTO> schemaTOs;
+            protected Map<String, VirSchemaTO> load() {
+                final List<VirSchemaTO> schemaTOs;
                 if (entityTO instanceof RoleTO) {
                     schemaTOs = schemaRestClient.getVirtualSchemas(AttributableType.ROLE);
                 } else if (entityTO instanceof UserTO) {
@@ -84,9 +84,9 @@ public class VirtualAttributesPanel extends Panel {
                     schemaTOs = schemaRestClient.getVirtualSchemas(AttributableType.MEMBERSHIP);
                 }
 
-                final Map<String, VirtualSchemaTO> schemas = new HashMap<String, VirtualSchemaTO>();
+                final Map<String, VirSchemaTO> schemas = new HashMap<String, VirSchemaTO>();
 
-                for (VirtualSchemaTO schemaTO : schemaTOs) {
+                for (VirSchemaTO schemaTO : schemaTOs) {
                     schemas.put(schemaTO.getName(), schemaTO);
                 }
 
@@ -160,7 +160,7 @@ public class VirtualAttributesPanel extends Panel {
                 }
 
                 if (attributeTO.getSchema() != null) {
-                    VirtualSchemaTO attributeSchema = schemas.getObject().get(attributeTO.getSchema());
+                    VirSchemaTO attributeSchema = schemas.getObject().get(attributeTO.getSchema());
                     if (attributeSchema != null) {
                         attributeTO.setReadonly(attributeSchema.isReadonly());
                     }
@@ -204,7 +204,7 @@ public class VirtualAttributesPanel extends Panel {
 
                         attributeTO.setSchema(schemaChoice.getModelObject());
 
-                        VirtualSchemaTO attributeSchema =
+                        VirSchemaTO attributeSchema =
                                 schemas.getObject().get(attributeTO.getSchema());
                         if (attributeSchema != null) {
                             attributeTO.setReadonly(attributeSchema.isReadonly());

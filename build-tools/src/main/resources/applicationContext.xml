@@ -16,7 +16,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -24,7 +23,7 @@ under the License.
                            http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <bean id="testDataSource"
-          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        class="org.springframework.jdbc.datasource.DriverManagerDataSource">
     <property name="driverClassName" value="${testdb.driver}"/>
     <property name="url" value="${testdb.url}"/>
     <property name="username" value="${testdb.username}"/>

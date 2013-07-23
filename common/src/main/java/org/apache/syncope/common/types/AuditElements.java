@@ -192,17 +192,7 @@ public final class AuditElements {
         create,
         read,
         update,
-        delete,
-        listDerived,
-        createDerived,
-        readDerived,
-        updateDerived,
-        deleteDerived,
-        listVirtual,
-        createVirtual,
-        readVirtual,
-        updateVirtual,
-        deleteVirtual
+        delete
 
     }
 

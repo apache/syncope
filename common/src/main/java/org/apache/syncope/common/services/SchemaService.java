@@ -34,53 +34,52 @@ import org.apache.syncope.common.types.SchemaType;
 public interface SchemaService {
 
     /**
-     * @param kind Kind for schema to be created
-     * @param type Type for schema to be created
+     * @param attrType Kind for schema to be created
+     * @param schemaType Type for schema to be created
      * @param schemaTO Schema to be created
      * @return Response containing URI location for created resource.
      */
     @POST
-    <T extends AbstractSchemaTO> Response create(@PathParam("kind") AttributableType kind,
-            @PathParam("type") SchemaType type, T schemaTO);
+    <T extends AbstractSchemaTO> Response create(@PathParam("kind") AttributableType attrType,
+            @PathParam("type") SchemaType schemaType, T schemaTO);
 
     /**
-     * @param kind Kind for schema to be deleted
-     * @param type Type for schema to be deleted
+     * @param attrType Kind for schema to be deleted
      * @param schemaName Name of schema to be deleted
      */
     @DELETE
     @Path("{name}")
-    void delete(@PathParam("kind") AttributableType kind, @PathParam("type") SchemaType type,
+    void delete(@PathParam("kind") AttributableType attrType, @PathParam("type") SchemaType schemaType,
             @PathParam("name") String schemaName);
 
     /**
-     * @param kind Kind for schemas to be listed
-     * @param type Type for schemas to be listed
+     * @param attrType Kind for schemas to be listed
+     * @param schemaType Type for schemas to be listed
      * @return List of schemas with matching kind and type
      */
     @GET
     <T extends AbstractSchemaTO> List<T> list(
-            @PathParam("kind") AttributableType kind, @PathParam("type") SchemaType type);
+            @PathParam("kind") AttributableType attrType, @PathParam("type") SchemaType schemaType);
 
     /**
-     * @param kind Kind for schemas to be read
-     * @param type Type for schemas to be read
+     * @param attrType Kind for schemas to be read
+     * @param schemaType Type for schemas to be read
      * @param schemaName Name of schema to be read
      * @return Returns schema with matching name, kind and type
      */
     @GET
     @Path("{name}")
-    <T extends AbstractSchemaTO> T read(@PathParam("kind") AttributableType kind, @PathParam("type") SchemaType type,
-            @PathParam("name") String schemaName);
+    <T extends AbstractSchemaTO> T read(@PathParam("kind") AttributableType attrType,
+            @PathParam("type") SchemaType schemaType, @PathParam("name") String schemaName);
 
     /**
-     * @param kind Kind for schemas to be updated
-     * @param type Type for schemas to be updated
+     * @param attrType Kind for schemas to be updated
+     * @param schemaType Type for schemas to be updated
      * @param schemaName Name of schema to be updated
      * @param schemaTO New schema to be stored
      */
     @PUT
     @Path("{name}")
-    <T extends AbstractSchemaTO> void update(@PathParam("kind") AttributableType kind,
-            @PathParam("type") SchemaType type, @PathParam("name") String schemaName, T schemaTO);
+    <T extends AbstractSchemaTO> void update(@PathParam("kind") AttributableType attrType,
+            @PathParam("type") SchemaType schemaType, @PathParam("name") String schemaName, T schemaTO);
 }

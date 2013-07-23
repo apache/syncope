@@ -24,7 +24,6 @@ import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.UriInfo;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.services.ReportletConfClasses;
@@ -38,19 +37,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ReportServiceImpl implements ReportService, ContextAware {
+public class ReportServiceImpl extends AbstractServiceImpl implements ReportService, ContextAware {
 
     @Autowired
-    private ReportController reportController;
+    private ReportController controller;
 
     @Autowired
     private ReportDAO reportDAO;
 
-    private UriInfo uriInfo;
-
     @Override
     public Response create(final ReportTO reportTO) {
-        ReportTO createdReportTO = reportController.createInternal(reportTO);
+        ReportTO createdReportTO = controller.create(reportTO);
         URI location = uriInfo.getAbsolutePathBuilder().path("" + createdReportTO.getId()).build();
         return Response.created(location)
                 .header(SyncopeConstants.REST_HEADER_ID, createdReportTO.getId())
@@ -59,7 +56,7 @@ public class ReportServiceImpl implements ReportService, ContextAware {
 
     @Override
     public void update(final Long reportId, final ReportTO reportTO) {
-        reportController.update(reportTO);
+        controller.update(reportTO);
     }
 
     @Override
@@ -69,38 +66,38 @@ public class ReportServiceImpl implements ReportService, ContextAware {
 
     @Override
     public List<ReportTO> list() {
-        return reportController.list();
+        return controller.list();
     }
 
     @Override
     public List<ReportTO> list(final int page, final int size) {
-        return reportController.list(page, size);
+        return controller.list(page, size);
     }
 
     @Override
     public ReportletConfClasses getReportletConfClasses() {
-        return new ReportletConfClasses(reportController.getReportletConfClassesInternal());
+        return new ReportletConfClasses(controller.getReportletConfClasses());
     }
 
     @Override
     public ReportTO read(final Long reportId) {
-        return reportController.read(reportId);
+        return controller.read(reportId);
     }
 
     @Override
     public ReportExecTO readExecution(final Long executionId) {
-        return reportController.readExecution(executionId);
+        return controller.readExecution(executionId);
     }
 
     @Override
     public Response exportExecutionResult(final Long executionId, final ReportExecExportFormat fmt) {
         final ReportExecExportFormat format = (fmt == null) ? ReportExecExportFormat.XML : fmt;
-        final ReportExec reportExec = reportController.getAndCheckReportExecInternal(executionId);
+        final ReportExec reportExec = controller.getAndCheckReportExec(executionId);
         StreamingOutput sout = new StreamingOutput() {
 
             @Override
             public void write(final OutputStream os) throws IOException {
-                reportController.exportExecutionResultInternal(os, reportExec, format);
+                controller.exportExecutionResult(os, reportExec, format);
             }
         };
         String disposition = "attachment; filename=" + reportExec.getReport().getName() + "." + format.name().
@@ -112,21 +109,16 @@ public class ReportServiceImpl implements ReportService, ContextAware {
 
     @Override
     public ReportExecTO execute(final Long reportId) {
-        return reportController.execute(reportId);
+        return controller.execute(reportId);
     }
 
     @Override
     public void delete(final Long reportId) {
-        reportController.delete(reportId);
+        controller.delete(reportId);
     }
 
     @Override
     public void deleteExecution(final Long executionId) {
-        reportController.deleteExecution(executionId);
-    }
-
-    @Override
-    public void setUriInfo(final UriInfo uriInfo) {
-        this.uriInfo = uriInfo;
+        controller.deleteExecution(executionId);
     }
 }
