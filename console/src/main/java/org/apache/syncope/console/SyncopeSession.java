@@ -20,8 +20,10 @@ package org.apache.syncope.console;
 
 import java.text.DateFormat;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import org.apache.syncope.client.rest.RestClientFactoryBean;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
@@ -51,6 +53,8 @@ public class SyncopeSession extends WebSession {
 
     private final RestClientFactoryBean restClientFactory;
 
+    private final Map<Class<?>, Object> restServices = new HashMap<Class<?>, Object>();
+
     public static SyncopeSession get() {
         return (SyncopeSession) Session.get();
     }
@@ -65,11 +69,15 @@ public class SyncopeSession extends WebSession {
     }
 
     public <T> T getService(final Class<T> service) {
-        return restClientFactory.createServiceInstance(service, username, password);
+        return getService(service, this.username, this.password);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getService(final Class<T> service, final String username, final String password) {
-        return restClientFactory.createServiceInstance(service, username, password);
+        if (!restServices.containsKey(service)) {
+            restServices.put(service, restClientFactory.createServiceInstance(service, username, password));
+        }
+        return (T) restServices.get(service);
     }
 
     public String getUsername() {

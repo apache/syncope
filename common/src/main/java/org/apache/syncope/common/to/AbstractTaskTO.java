@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -77,6 +78,7 @@ public abstract class AbstractTaskTO extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "excecutions")
     @XmlElement(name = "excecution")
+    @JsonProperty("excecutions")
     public List<TaskExecTO> getExecutions() {
         return executions;
     }

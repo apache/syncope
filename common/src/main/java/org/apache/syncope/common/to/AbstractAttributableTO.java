@@ -19,6 +19,7 @@
 package org.apache.syncope.common.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -106,12 +107,12 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     @XmlElementWrapper(name = "derivedAttributes")
     @XmlElement(name = "attribute")
+    @JsonProperty("derivedAttributes")
     public List<AttributeTO> getDerivedAttributes() {
         return derivedAttributes;
     }
 
     public void setDerivedAttributes(final List<AttributeTO> derivedAttributes) {
-
         this.derivedAttributes = derivedAttributes;
     }
 
@@ -125,6 +126,7 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     @XmlElementWrapper(name = "virtualAttributes")
     @XmlElement(name = "attribute")
+    @JsonProperty("virtualAttributes")
     public List<AttributeTO> getVirtualAttributes() {
         return virtualAttributes;
     }
@@ -143,6 +145,7 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     @XmlElementWrapper(name = "resources")
     @XmlElement(name = "resource")
+    @JsonProperty("resources")
     public Set<String> getResources() {
         return resources;
     }
@@ -172,6 +175,7 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     @XmlElementWrapper(name = "propagationStatuses")
     @XmlElement(name = "propagationStatus")
+    @JsonProperty("propagationStatuses")
     public List<PropagationStatusTO> getPropagationStatusTOs() {
         return propagationStatusTOs;
     }

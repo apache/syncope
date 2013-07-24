@@ -52,7 +52,7 @@ under the License.
     <property name="address" value="http://localhost:9080/syncope/rest"/>
     <property name="threadSafe" value="true"/>
     <property name="inheritHeaders" value="true"/>
-    <property name="contentType" value="application/xml"/>
+    <property name="contentType" value="application/json"/>
     <property name="features">
       <list>
         <cxf:logging/>

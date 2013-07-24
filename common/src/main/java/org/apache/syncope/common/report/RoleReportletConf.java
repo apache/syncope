@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.report;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
@@ -30,14 +31,14 @@ import org.apache.syncope.common.annotation.FormAttributeField;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.types.IntMappingType;
 
-@XmlRootElement(name = "RoleReportletConfiguration")
+@XmlRootElement(name = "roleReportletConf")
 @XmlType
 public class RoleReportletConf extends AbstractReportletConf {
 
     private static final long serialVersionUID = -8488503068032439699L;
 
     @XmlEnum
-    @XmlType(name = "RoleReportletConfigurationFeature")
+    @XmlType(name = "roleReportletConfFeature")
     public enum Feature {
 
         id,
@@ -76,8 +77,9 @@ public class RoleReportletConf extends AbstractReportletConf {
         features = new ArrayList<Feature>();
     }
 
-    @XmlElementWrapper(name = "normalAttributes")
+    @XmlElementWrapper(name = "attributes")
     @XmlElement(name = "attribute")
+    @JsonProperty("attributes")
     public List<String> getAttrs() {
         return attrs;
     }
@@ -88,6 +90,7 @@ public class RoleReportletConf extends AbstractReportletConf {
 
     @XmlElementWrapper(name = "derivedAttributes")
     @XmlElement(name = "attribute")
+    @JsonProperty("derivedAttributes")
     public List<String> getDerAttrs() {
         return derAttrs;
     }
@@ -98,6 +101,7 @@ public class RoleReportletConf extends AbstractReportletConf {
 
     @XmlElementWrapper(name = "features")
     @XmlElement(name = "feature")
+    @JsonProperty("features")
     public List<Feature> getFeatures() {
         return features;
     }
@@ -116,6 +120,7 @@ public class RoleReportletConf extends AbstractReportletConf {
 
     @XmlElementWrapper(name = "virtualAttributes")
     @XmlElement(name = "attribute")
+    @JsonProperty("virtualAttributes")
     public List<String> getVirAttrs() {
         return virAttrs;
     }

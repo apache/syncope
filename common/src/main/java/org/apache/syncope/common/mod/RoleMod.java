@@ -19,6 +19,7 @@
 package org.apache.syncope.common.mod;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -112,8 +113,9 @@ public class RoleMod extends AbstractAttributableMod {
         this.inheritVirtualAttributes = inheritVirtualAttributes;
     }
 
-    @XmlElement(name = "entitlement")
     @XmlElementWrapper(name = "entitlements")
+    @XmlElement(name = "entitlement")
+    @JsonProperty("entitlements")
     public List<String> getEntitlements() {
         return entitlements;
     }

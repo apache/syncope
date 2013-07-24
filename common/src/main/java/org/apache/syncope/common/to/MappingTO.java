@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -114,6 +115,7 @@ public class MappingTO extends AbstractBaseBean {
     @SuppressWarnings("unchecked")
     @XmlElementWrapper(name = "items")
     @XmlElement(name = "item")
+    @JsonProperty("items")
     public <T extends MappingItemTO> List<T> getItems() {
         return (List<T>) items;
     }

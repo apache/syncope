@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
@@ -61,6 +62,7 @@ public class PropagationRequestTO extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "resources")
     @XmlElement(name = "resource")
+    @JsonProperty("resources")
     public Set<String> getResources() {
         return resources;
     }

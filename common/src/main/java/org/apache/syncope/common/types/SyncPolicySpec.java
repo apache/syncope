@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.types;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
@@ -73,6 +74,7 @@ public class SyncPolicySpec extends AbstractPolicySpec {
 
     @XmlElementWrapper(name = "userAltSearchSchemas")
     @XmlElement(name = "userAltSearchSchema")
+    @JsonProperty("userAltSearchSchemas")
     public List<String> getuAltSearchSchemas() {
         return uAltSearchSchemas;
     }
@@ -83,6 +85,7 @@ public class SyncPolicySpec extends AbstractPolicySpec {
 
     @XmlElementWrapper(name = "roleAltSearchSchemas")
     @XmlElement(name = "roleAltSearchSchema")
+    @JsonProperty("roleAltSearchSchemas")
     public List<String> getrAltSearchSchemas() {
         return rAltSearchSchemas;
     }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,6 +74,7 @@ public class NotificationTO extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "events")
     @XmlElement(name = "event")
+    @JsonProperty("events")
     public List<String> getEvents() {
         return events;
     }

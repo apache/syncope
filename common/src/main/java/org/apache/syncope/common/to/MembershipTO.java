@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -66,6 +67,7 @@ public class MembershipTO extends AbstractAttributableTO {
     @Override
     @XmlElementWrapper(name = "resources")
     @XmlElement(name = "resource")
+    @JsonProperty("resources")
     public Set<String> getResources() {
         return Collections.<String>emptySet();
     }

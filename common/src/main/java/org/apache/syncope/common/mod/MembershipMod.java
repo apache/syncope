@@ -19,6 +19,7 @@
 package org.apache.syncope.common.mod;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collections;
 import java.util.Set;
 
@@ -55,6 +56,7 @@ public class MembershipMod extends AbstractAttributableMod {
 
     @XmlElementWrapper(name = "resourcesToBeAdded")
     @XmlElement(name = "resource")
+    @JsonProperty("resourcesToBeAdded")
     @Override
     public Set<String> getResourcesToBeAdded() {
         return Collections.emptySet();
@@ -62,6 +64,7 @@ public class MembershipMod extends AbstractAttributableMod {
 
     @XmlElementWrapper(name = "resourcesToBeRemoved")
     @XmlElement(name = "resource")
+    @JsonProperty("resourcesToBeRemoved")
     @Override
     public Set<String> getResourcesToBeRemoved() {
         return Collections.emptySet();

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.mod;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,14 +37,23 @@ import org.apache.syncope.common.AbstractBaseBean;
 public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     private static final long serialVersionUID = 3241118574016303198L;
+
     protected long id;
+
     protected Set<AttributeMod> attributesToBeUpdated;
+
     protected Set<String> attributesToBeRemoved;
+
     protected Set<String> derivedAttributesToBeAdded;
+
     protected Set<String> derivedAttributesToBeRemoved;
+
     protected Set<AttributeMod> virtualAttributesToBeUpdated;
+
     protected Set<String> virtualAttributesToBeRemoved;
+
     protected Set<String> resourcesToBeAdded;
+
     protected Set<String> resourcesToBeRemoved;
 
     /**
@@ -92,6 +102,7 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "attributesToBeRemoved")
     @XmlElement(name = "attribute")
+    @JsonProperty("attributesToBeRemoved")
     public Set<String> getAttributesToBeRemoved() {
         return attributesToBeRemoved;
     }
@@ -124,6 +135,7 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "attributesToBeUpdated")
     @XmlElement(name = "attributeMod")
+    @JsonProperty("attributesToBeUpdated")
     public Set<AttributeMod> getAttributesToBeUpdated() {
         return attributesToBeUpdated;
     }
@@ -155,6 +167,7 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "derivedAttributesToBeAdded")
     @XmlElement(name = "attributeName")
+    @JsonProperty("derivedAttributesToBeAdded")
     public Set<String> getDerivedAttributesToBeAdded() {
         return derivedAttributesToBeAdded;
     }
@@ -174,6 +187,7 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "derivedAttributesToBeRemoved")
     @XmlElement(name = "attribute")
+    @JsonProperty("derivedAttributesToBeRemoved")
     public Set<String> getDerivedAttributesToBeRemoved() {
         return derivedAttributesToBeRemoved;
     }
@@ -185,6 +199,7 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "virtualAttributesToBeRemoved")
     @XmlElement(name = "attribute")
+    @JsonProperty("virtualAttributesToBeRemoved")
     public Set<String> getVirtualAttributesToBeRemoved() {
         return virtualAttributesToBeRemoved;
     }
@@ -214,8 +229,9 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return virtualAttributesToBeUpdated.remove(virtualAttributeToBeUpdated);
     }
 
-    @XmlElementWrapper(name = "derivedAttributesToBeUpdated")
+    @XmlElementWrapper(name = "virtualAttributesToBeUpdated")
     @XmlElement(name = "attribute")
+    @JsonProperty("virtualAttributesToBeUpdated")
     public Set<AttributeMod> getVirtualAttributesToBeUpdated() {
         return virtualAttributesToBeUpdated;
     }
@@ -235,6 +251,7 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "resourcesToBeAdded")
     @XmlElement(name = "resource")
+    @JsonProperty("resourcesToBeAdded")
     public Set<String> getResourcesToBeAdded() {
         return resourcesToBeAdded;
     }
@@ -253,6 +270,7 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "resourcesToBeRemoved")
     @XmlElement(name = "resource")
+    @JsonProperty("resourcesToBeRemoved")
     public Set<String> getResourcesToBeRemoved() {
         return resourcesToBeRemoved;
     }

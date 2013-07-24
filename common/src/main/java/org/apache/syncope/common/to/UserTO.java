@@ -19,6 +19,7 @@
 package org.apache.syncope.common.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,25 +70,26 @@ public class UserTO extends AbstractAttributableTO {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
 
-    public boolean addMembership(MembershipTO membershipTO) {
+    public boolean addMembership(final MembershipTO membershipTO) {
         return memberships.add(membershipTO);
     }
 
-    public boolean removeMembership(MembershipTO membershipTO) {
+    public boolean removeMembership(final MembershipTO membershipTO) {
         return memberships.remove(membershipTO);
     }
 
     @XmlElementWrapper(name = "memberships")
     @XmlElement(name = "membership")
+    @JsonProperty("memberships")
     public List<MembershipTO> getMemberships() {
         return memberships;
     }
 
-    public void setMemberships(List<MembershipTO> memberships) {
+    public void setMemberships(final List<MembershipTO> memberships) {
         this.memberships = memberships;
     }
 
@@ -112,7 +114,7 @@ public class UserTO extends AbstractAttributableTO {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(final String status) {
         this.status = status;
     }
 
@@ -120,7 +122,7 @@ public class UserTO extends AbstractAttributableTO {
         return token;
     }
 
-    public void setToken(String token) {
+    public void setToken(final String token) {
         this.token = token;
     }
 
@@ -130,7 +132,7 @@ public class UserTO extends AbstractAttributableTO {
                 : new Date(tokenExpireTime.getTime());
     }
 
-    public void setTokenExpireTime(Date tokenExpireTime) {
+    public void setTokenExpireTime(final Date tokenExpireTime) {
         if (tokenExpireTime != null) {
             this.tokenExpireTime = new Date(tokenExpireTime.getTime());
         }
@@ -140,7 +142,7 @@ public class UserTO extends AbstractAttributableTO {
         return username;
     }
 
-    public void setUsername(String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
@@ -160,19 +162,19 @@ public class UserTO extends AbstractAttributableTO {
         return lastLoginDate;
     }
 
-    public void setChangePwdDate(Date changePwdDate) {
+    public void setChangePwdDate(final Date changePwdDate) {
         this.changePwdDate = changePwdDate;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public void setCreationDate(final Date creationDate) {
         this.creationDate = creationDate;
     }
 
-    public void setFailedLogins(Integer failedLogins) {
+    public void setFailedLogins(final Integer failedLogins) {
         this.failedLogins = failedLogins;
     }
 
-    public void setLastLoginDate(Date lastLoginDate) {
+    public void setLastLoginDate(final Date lastLoginDate) {
         this.lastLoginDate = lastLoginDate;
     }
 
@@ -181,7 +183,7 @@ public class UserTO extends AbstractAttributableTO {
         return new ReflectionToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE) {
 
             @Override
-            protected boolean accept(Field f) {
+            protected boolean accept(final Field f) {
                 return super.accept(f) && !f.getName().equals("password");
             }
         }.toString();

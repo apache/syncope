@@ -19,6 +19,7 @@
 package org.apache.syncope.common.mod;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
@@ -68,6 +69,7 @@ public class UserMod extends AbstractAttributableMod {
 
     @XmlElementWrapper(name = "membershipsToBeAdded")
     @XmlElement(name = "membership")
+    @JsonProperty("membershipsToBeAdded")
     public Set<MembershipMod> getMembershipsToBeAdded() {
         return membershipsToBeAdded;
     }
@@ -91,6 +93,7 @@ public class UserMod extends AbstractAttributableMod {
 
     @XmlElementWrapper(name = "membershipsToBeRemoved")
     @XmlElement(name = "membership")
+    @JsonProperty("membershipsToBeRemoved")
     public Set<Long> getMembershipsToBeRemoved() {
         return membershipsToBeRemoved;
     }

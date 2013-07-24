@@ -19,6 +19,7 @@
 package org.apache.syncope.common.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -141,6 +142,7 @@ public class RoleTO extends AbstractAttributableTO {
 
     @XmlElementWrapper(name = "entitlements")
     @XmlElement(name = "entitlement")
+    @JsonProperty("entitlements")
     public List<String> getEntitlements() {
         return entitlements;
     }

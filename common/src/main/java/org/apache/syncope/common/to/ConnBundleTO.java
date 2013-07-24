@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,6 +82,7 @@ public class ConnBundleTO extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "properties")
     @XmlElement(name = "connConfPropSchema")
+    @JsonProperty("properties")
     public List<ConnConfPropSchema> getProperties() {
         return properties;
     }

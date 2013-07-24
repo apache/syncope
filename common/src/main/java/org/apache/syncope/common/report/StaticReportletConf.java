@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.report;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,7 +30,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.apache.syncope.common.types.TraceLevel;
 
-@XmlRootElement
+@XmlRootElement(name = "staticReportletConf")
 @XmlType
 public class StaticReportletConf extends AbstractReportletConf {
 
@@ -78,6 +79,7 @@ public class StaticReportletConf extends AbstractReportletConf {
 
     @XmlElementWrapper(name = "listField")
     @XmlElement(name = "field")
+    @JsonProperty("listField")
     public List<String> getListField() {
         return listField;
     }

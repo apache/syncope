@@ -19,6 +19,7 @@
 package org.apache.syncope.common.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -116,6 +117,7 @@ public class WorkflowFormTO extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "workflowFormProperties")
     @XmlElement(name = "workflowFormProperty")
+    @JsonProperty("workflowFormProperties")
     public List<WorkflowFormPropertyTO> getProperties() {
         return properties;
     }

@@ -24,9 +24,9 @@ import static org.junit.Assert.fail;
 import java.util.UUID;
 
 import javax.sql.DataSource;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.HttpStatus;
@@ -78,9 +78,6 @@ public abstract class AbstractTest {
 
     protected static final String ADMIN_PWD = "password";
 
-    // JSON is not working completely, so let's stay with XML as default for the moment
-    private static final String DEFAULT_CONTENT_TYPE = MediaType.APPLICATION_XML;
-
     private static final String ENV_KEY_CONTENT_TYPE = "jaxrsContentType";
 
     @Autowired
@@ -125,9 +122,10 @@ public abstract class AbstractTest {
     @Before
     public void setup() throws Exception {
         final String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
-        restClientFactory.setContentType((envContentType == null || envContentType.isEmpty())
-                ? DEFAULT_CONTENT_TYPE
-                : envContentType);
+        if (StringUtils.isNotBlank(envContentType)) {
+            restClientFactory.setContentType(envContentType);
+        }
+        LOG.info("Performing IT with content type {}", restClientFactory.getContentType());
 
         userService = createServiceInstance(UserService.class);
         userWorkflowService = createServiceInstance(UserWorkflowService.class);

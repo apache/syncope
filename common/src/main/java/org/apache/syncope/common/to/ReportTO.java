@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -91,8 +92,9 @@ public class ReportTO extends AbstractBaseBean {
         return this.reportletConfs.remove(reportlet);
     }
 
-    @XmlElementWrapper(name = "reportletConfigurations")
-    @XmlElement(name="reportletconf")
+    @XmlElementWrapper(name = "reportletConfs")
+    @XmlElement(name = "reportletConf")
+    @JsonProperty("reportletConfs")
     public List<AbstractReportletConf> getReportletConfs() {
         return reportletConfs;
     }
@@ -119,6 +121,7 @@ public class ReportTO extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "executions")
     @XmlElement(name = "execution")
+    @JsonProperty("executions")
     public List<ReportExecTO> getExecutions() {
         return executions;
     }

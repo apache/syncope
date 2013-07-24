@@ -19,6 +19,7 @@
 package org.apache.syncope.common.mod;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,6 +67,7 @@ public class AttributeMod extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "valuesToBeAdded")
     @XmlElement(name = "value")
+    @JsonProperty("valuesToBeAdded")
     public List<String> getValuesToBeAdded() {
         return valuesToBeAdded;
     }
@@ -84,6 +86,7 @@ public class AttributeMod extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "valuesToBeRemoved")
     @XmlElement(name = "value")
+    @JsonProperty("valuesToBeRemoved")
     public List<String> getValuesToBeRemoved() {
         return valuesToBeRemoved;
     }

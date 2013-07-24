@@ -19,6 +19,7 @@
 package org.apache.syncope.common.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,6 +55,7 @@ public class ConnObjectTO extends AbstractBaseBean {
 
     @XmlElementWrapper(name = "attributes")
     @XmlElement(name = "attribute")
+    @JsonProperty("attributes")
     public List<AttributeTO> getAttributes() {
         return attributes;
     }

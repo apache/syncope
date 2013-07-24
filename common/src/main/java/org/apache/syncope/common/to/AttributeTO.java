@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -95,8 +97,9 @@ public class AttributeTO extends AbstractBaseBean {
     /**
      * @return attribute values as strings
      */
-    //@XmlElementWrapper(name = "values")
+    @XmlElementWrapper(name = "values")
     @XmlElement(name = "value")
+    @JsonProperty("values")
     public List<String> getValues() {
         return values;
     }
