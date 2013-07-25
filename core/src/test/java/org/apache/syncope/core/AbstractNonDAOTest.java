@@ -23,7 +23,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:syncopeContext.xml", "classpath:persistenceContext.xml",
-    "classpath:schedulingContext.xml", "classpath:workflowContext.xml"})
+@ContextConfiguration(locations = {
+    "classpath:syncopeContext.xml",
+    "classpath:persistenceContext.xml",
+    "classpath:schedulingContext.xml",
+    "classpath:workflowContext.xml"
+})
 public abstract class AbstractNonDAOTest extends AbstractTest {
 }

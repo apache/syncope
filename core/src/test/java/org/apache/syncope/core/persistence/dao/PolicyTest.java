@@ -143,7 +143,7 @@ public class PolicyTest extends AbstractDAOTest {
         Policy policy = policyDAO.find(1L);
         assertNotNull("find to delete did not work", policy);
 
-        policyDAO.delete(policy.getId());
+        policyDAO.delete(policy);
 
         Policy actual = policyDAO.find(1L);
         assertNull("delete did not work", actual);

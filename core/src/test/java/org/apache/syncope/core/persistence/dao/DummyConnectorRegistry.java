@@ -23,12 +23,11 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 public class DummyConnectorRegistry implements ConnectorRegistry {
 
     @Override
-    public void registerConnector(ExternalResource resource)
+    public void registerConnector(final ExternalResource resource)
             throws NotFoundException {
     }
 
     @Override
-    public void unregisterConnector(String id) {
+    public void unregisterConnector(final String id) {
     }
-
 }

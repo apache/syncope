@@ -59,6 +59,16 @@ public class SchemaTest extends AbstractDAOTest {
 
     @Test
     public void deleteFullname() {
+        // fullname is mapped as AccountId for ws-target-resource-2, need to swap it otherwise validation errors 
+        // will be raised
+        for (AbstractMappingItem item : resourceDAO.find("ws-target-resource-2").getUmapping().getItems()) {
+            if ("fullname".equals(item.getIntAttrName())) {
+                item.setAccountid(false);
+            } else if ("surname".equals(item.getIntAttrName())) {
+                item.setAccountid(true);
+            }
+        }
+
         // search for user schema fullname
         USchema schema = schemaDAO.find("fullname", USchema.class);
         assertNotNull(schema);

@@ -19,49 +19,34 @@
 package org.apache.syncope.core.persistence.validation.entity;
 
 import java.util.Set;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+import org.apache.syncope.core.util.ApplicationContextProvider;
 
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
- * AOP proxy intercepting DAO calls.
+ * JPA validation listener implementing bean validation.
  */
-@Component
-@Aspect
-public class EntityValidationInterceptor {
+public class EntityValidationListener {
 
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(EntityValidationInterceptor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EntityValidationListener.class);
 
-    @Autowired
-    private Validator validator;
-
-    /**
-     * Validate bean prior saving to DB.
-     *
-     * @param pjp Aspect's ProceedingJoinPoint
-     * @return DAO method's return value
-     * @throws Throwable if anything goes wrong
-     */
-    @Around("execution(* org.apache.syncope.core.persistence.dao..*.save(..))")
-    public final Object save(final ProceedingJoinPoint pjp) throws Throwable {
-
-        Set<ConstraintViolation<Object>> violations = validator.validate(pjp.getArgs()[0]);
+    @PrePersist
+    @PreUpdate
+    public void validate(final Object object) {
+        final Validator validator = ApplicationContextProvider.getApplicationContext().getBean(Validator.class);
+        Set<ConstraintViolation<Object>> violations = validator.validate(object);
         if (!violations.isEmpty()) {
             LOG.error("Bean validation errors found: {}", violations);
-            throw new InvalidEntityException(pjp.getArgs()[0].getClass().getSimpleName(), violations);
+            throw new InvalidEntityException(object.getClass().getSimpleName(), violations);
         }
-
-        return pjp.proceed();
     }
 }

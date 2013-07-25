@@ -198,7 +198,7 @@ public class PolicyController extends AbstractController {
         }
 
         AbstractPolicyTO policyToDelete = binder.getPolicyTO(policy);
-        policyDAO.delete(id);
+        policyDAO.delete(policy);
 
         auditManager.audit(Category.policy, PolicySubCategory.delete, Result.success,
                 "Successfully deleted policy: " + id);

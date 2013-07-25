@@ -57,52 +57,6 @@ public class PolicyValidator extends AbstractValidator implements ConstraintVali
             return false;
         }
 
-        switch (object.getType()) {
-            case GLOBAL_PASSWORD:
-                // just one GLOBAL_PASSWORD policy
-                final PasswordPolicy passwordPolicy = policyDAO.getGlobalPasswordPolicy();
-
-                if (passwordPolicy != null && !passwordPolicy.getId().equals(object.getId())) {
-                    context.buildConstraintViolationWithTemplate(
-                            getTemplate(EntityViolationType.InvalidPasswordPolicy, "Password policy already exists")).
-                            addNode(object.getClass().getSimpleName()).addConstraintViolation();
-
-                    return false;
-                }
-                break;
-
-            case GLOBAL_ACCOUNT:
-                // just one GLOBAL_ACCOUNT policy
-                final AccountPolicy accountPolicy = policyDAO.getGlobalAccountPolicy();
-
-                if (accountPolicy != null && !accountPolicy.getId().equals(object.getId())) {
-                    context.buildConstraintViolationWithTemplate(getTemplate(
-                            EntityViolationType.InvalidAccountPolicy, "Global Account policy already exists")).
-                            addNode(object.getClass().getSimpleName()).addConstraintViolation();
-
-                    return false;
-                }
-                break;
-
-            case GLOBAL_SYNC:
-                // just one GLOBAL_SYNC policy
-                final SyncPolicy syncPolicy = policyDAO.getGlobalSyncPolicy();
-
-                if (syncPolicy != null && !syncPolicy.getId().equals(object.getId())) {
-                    context.buildConstraintViolationWithTemplate(getTemplate(
-                            EntityViolationType.InvalidSyncPolicy, "Global Sync policy already exists")).
-                            addNode(object.getClass().getSimpleName()).addConstraintViolation();
-
-                    return false;
-                }
-                break;
-
-            case PASSWORD:
-            case ACCOUNT:
-            case SYNC:
-            default:
-        }
-
         return true;
     }
 }

@@ -307,7 +307,6 @@ under the License.
     <cxf.version>2.7.7-SNAPSHOT</cxf.version>	
     <spring.version>3.2.3.RELEASE</spring.version>
     <spring-security.version>3.1.4.RELEASE</spring-security.version>
-    <aspectj.version>1.7.3</aspectj.version>
     <jackson.version>2.2.2</jackson.version>
     <xstream.version>1.4.4</xstream.version>
     <velocity.version>1.7</velocity.version>
@@ -536,11 +535,6 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
-        <artifactId>spring-aop</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
         <artifactId>spring-jdbc</artifactId>
         <version>${spring.version}</version>
       </dependency>
@@ -585,12 +579,6 @@ under the License.
         <version>${spring-security.version}</version>            
       </dependency>
       <!-- /Spring -->
-
-      <dependency>
-        <groupId>org.aspectj</groupId>
-        <artifactId>aspectjweaver</artifactId>
-        <version>${aspectj.version}</version>
-      </dependency>
 
       <dependency>
         <groupId>javax.ws.rs</groupId>

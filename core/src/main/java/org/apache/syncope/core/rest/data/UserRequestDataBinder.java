@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.data;
 
 import javax.persistence.RollbackException;
-
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.UserTO;
@@ -81,6 +80,7 @@ public class UserRequestDataBinder {
         SyncopeUser user = new SyncopeUser();
         userDataBinder.create(user, userTO);
         userDAO.save(user);
+        userDAO.flush();
 
         throw new RollbackException();
     }
@@ -90,6 +90,7 @@ public class UserRequestDataBinder {
         SyncopeUser user = getUserFromId(userMod.getId());
         userDataBinder.update(user, userMod);
         userDAO.save(user);
+        userDAO.flush();
 
         throw new RollbackException();
     }
@@ -98,6 +99,7 @@ public class UserRequestDataBinder {
     public void testDelete(final Long userId) throws NotFoundException, UnauthorizedRoleException {
         SyncopeUser user = getUserFromId(userId);
         userDAO.delete(user);
+        userDAO.flush();
 
         throw new RollbackException();
     }

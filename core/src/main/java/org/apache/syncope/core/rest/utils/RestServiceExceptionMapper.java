@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.persistence.EntityExistsException;
 import javax.persistence.PersistenceException;
+import javax.persistence.RollbackException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.transaction.TransactionSystemException;
 
 @Provider
 public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, ResponseExceptionMapper<Exception> {
@@ -85,17 +87,17 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                     getExMessage(ex));
         }
 
-        Response response = processBadRequestExceptions(ex);
+        Response response = processNotFoundExceptions(ex);
         if (response != null) {
             return response;
         }
 
-        response = processNotFoundExceptions(ex);
+        response = processInvalidEntityExceptions(ex);
         if (response != null) {
             return response;
         }
 
-        response = processServerErrorExceptions(ex);
+        response = processBadRequestExceptions(ex);
         if (response != null) {
             return response;
         }
@@ -125,21 +127,6 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         return responseBuilder.build();
     }
 
-    private Response processServerErrorExceptions(final Exception ex) {
-        ResponseBuilder responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
-        if (ex instanceof org.apache.ibatis.exceptions.PersistenceException) {
-            return buildResponse(responseBuilder, SyncopeClientExceptionType.Workflow, getMessage(ex,
-                    "Currently unavailable. Please try later."));
-        } else if (ex instanceof JpaSystemException) {
-            return buildResponse(responseBuilder, SyncopeClientExceptionType.DataIntegrityViolation, getExMessage(ex));
-
-        } else if (ex instanceof ConfigurationException) {
-            return buildResponse(responseBuilder, SyncopeClientExceptionType.InvalidConnIdConf, getExMessage(ex));
-        }
-
-        return null;
-    }
-
     private Response processNotFoundExceptions(final Exception ex) {
         ResponseBuilder responseBuilder = Response.status(Response.Status.NOT_FOUND);
 
@@ -156,6 +143,39 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         return null;
     }
 
+    private Response processInvalidEntityExceptions(final Exception ex) {
+        InvalidEntityException iee = null;
+
+        if (ex instanceof InvalidEntityException) {
+            iee = (InvalidEntityException) ex;
+        }
+        if (ex instanceof TransactionSystemException && ex.getCause() instanceof RollbackException
+                && ex.getCause().getCause() instanceof InvalidEntityException) {
+
+            iee = (InvalidEntityException) ex.getCause().getCause();
+        }
+
+        if (iee != null) {
+            ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
+
+            SyncopeClientExceptionType exType =
+                    SyncopeClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
+
+            builder.header(SyncopeClientCompositeErrorException.EXCEPTION_TYPE_HEADER, exType.getHeaderValue());
+
+            for (Map.Entry<Class<?>, Set<EntityViolationType>> violation : iee.getViolations().entrySet()) {
+                for (EntityViolationType violationType : violation.getValue()) {
+                    builder.header(exType.getElementHeaderName(),
+                            violationType.name() + ": " + violationType.getMessage());
+                }
+            }
+
+            return builder.build();
+        }
+
+        return null;
+    }
+
     private Response processBadRequestExceptions(final Exception ex) {
         ResponseBuilder responseBuilder = Response.status(Response.Status.BAD_REQUEST);
 
@@ -165,29 +185,19 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
             } else {
                 return ((BadRequestException) ex).getResponse();
             }
-
-        } else if (ex instanceof InvalidEntityException) {
-            SyncopeClientExceptionType exType = SyncopeClientExceptionType.valueOf("Invalid"
-                    + ((InvalidEntityException) ex).getEntityClassSimpleName());
-
-            responseBuilder.header(
-                    SyncopeClientCompositeErrorException.EXCEPTION_TYPE_HEADER, exType.getHeaderValue());
-
-            for (Map.Entry<Class<?>, Set<EntityViolationType>> violation
-                    : ((InvalidEntityException) ex).getViolations().entrySet()) {
-
-                for (EntityViolationType violationType : violation.getValue()) {
-                    responseBuilder.header(exType.getElementHeaderName(),
-                            violation.getClass().getSimpleName() + ": " + violationType);
-                }
-            }
-            return responseBuilder.build();
         } else if (ex instanceof WorkflowException) {
             return buildResponse(responseBuilder, SyncopeClientExceptionType.Workflow, getExMessage(ex));
         } else if (ex instanceof InvalidSearchConditionException) {
             return buildResponse(responseBuilder, SyncopeClientExceptionType.InvalidSearchCondition, getExMessage(ex));
         } else if (ex instanceof PersistenceException) {
             return buildResponse(responseBuilder, SyncopeClientExceptionType.GenericPersistence, getExMessage(ex));
+        } else if (ex instanceof org.apache.ibatis.exceptions.PersistenceException) {
+            return buildResponse(responseBuilder, SyncopeClientExceptionType.Workflow, getMessage(ex,
+                    "Currently unavailable. Please try later."));
+        } else if (ex instanceof JpaSystemException) {
+            return buildResponse(responseBuilder, SyncopeClientExceptionType.DataIntegrityViolation, getExMessage(ex));
+        } else if (ex instanceof ConfigurationException) {
+            return buildResponse(responseBuilder, SyncopeClientExceptionType.InvalidConnIdConf, getExMessage(ex));
         }
 
         return null;

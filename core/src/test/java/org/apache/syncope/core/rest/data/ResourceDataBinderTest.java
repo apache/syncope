@@ -46,7 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ResourceDataTest extends AbstractNonDAOTest {
+public class ResourceDataBinderTest extends AbstractNonDAOTest {
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -87,9 +87,6 @@ public class ResourceDataTest extends AbstractNonDAOTest {
         assertEquals(resourceTOs, Arrays.asList(actual));
     }
 
-    /**
-     * @see http://code.google.com/p/syncope/issues/detail?id=42
-     */
     @Test
     public void issue42() {
         USchema userId = schemaDAO.find("userId", USchema.class);

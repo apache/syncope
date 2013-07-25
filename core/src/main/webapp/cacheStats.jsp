@@ -74,8 +74,7 @@ under the License.
     <%
         ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
 
-        EntityManagerFactory emf = context.getBean(
-                EntityManagerFactory.class);
+        EntityManagerFactory emf = context.getBean(EntityManagerFactory.class);
         OpenJPAEntityManagerFactory oemf = OpenJPAPersistence.cast(emf);
 
         QueryStatistics<QueryKey> queryStatistics =
@@ -86,14 +85,10 @@ under the License.
         String action = request.getParameter("do");
         StringBuilder info = new StringBuilder(512);
 
-        if ("activate".equals(action)
-                && !statistics.isEnabled()) {
-
+        if ("activate".equals(action) && !statistics.isEnabled()) {
             statistics.enable();
             info.append("Statistics enabled\n");
-        } else if ("deactivate".equals(action)
-                && !statistics.isEnabled()) {
-
+        } else if ("deactivate".equals(action) && !statistics.isEnabled()) {
             statistics.disable();
             info.append("Statistics disabled\n");
         } else if ("clear".equals(action)) {
@@ -102,8 +97,7 @@ under the License.
             info.append("Statistics cleared\n");
         }
 
-        SimpleDateFormat sdf = new SimpleDateFormat(
-                SyncopeConstants.DEFAULT_DATE_PATTERN);
+        SimpleDateFormat sdf = new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN);
         if (info.length() > 0) {
     %>
     <p/><div class="success">
@@ -113,10 +107,8 @@ under the License.
     <p/>
     <a href="?">Reload</a>
     <p/>
-       <a href="?do=<%=(statistics.isEnabled()
-            ? "deactivate" : "activate")%>">
-      <%=(statistics.isEnabled()
-              ? "DEACTIVATE" : "ACTIVATE")%></a>
+    <a href="?do=<%=(statistics.isEnabled() ? "deactivate" : "activate")%>">
+      <%=(statistics.isEnabled() ? "DEACTIVATE" : "ACTIVATE")%></a>
     <a href="?do=clear">CLEAR</a>
     <p/>
     Last update: <%=sdf.format(statistics.since())%><br/>

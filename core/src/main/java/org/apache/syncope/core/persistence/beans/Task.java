@@ -26,12 +26,13 @@ import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
 
 @Entity
-@Inheritance
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "DTYPE")
-public class Task extends AbstractBaseBean {
+public abstract class Task extends AbstractBaseBean {
 
     private static final long serialVersionUID = 5837401178128177511L;
 

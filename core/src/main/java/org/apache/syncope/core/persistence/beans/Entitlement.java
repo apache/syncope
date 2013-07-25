@@ -23,11 +23,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-import org.apache.syncope.core.persistence.validation.entity.EntitlementCheck;
-
 @Entity
 @Cacheable
-@EntitlementCheck
 public class Entitlement extends AbstractBaseBean {
 
     private static final long serialVersionUID = 8044745999246422483L;

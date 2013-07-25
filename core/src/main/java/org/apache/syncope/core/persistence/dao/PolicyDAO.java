@@ -42,5 +42,5 @@ public interface PolicyDAO extends DAO {
 
     <T extends Policy> T save(T policy);
 
-    void delete(Long id);
+    <T extends Policy> void delete(T policy);
 }

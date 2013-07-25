@@ -126,10 +126,6 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring-aop</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
       <artifactId>spring-tx</artifactId>
     </dependency>
     <dependency>
@@ -163,11 +159,6 @@ under the License.
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.aspectj</groupId>
-      <artifactId>aspectjweaver</artifactId>
     </dependency>
 	
     <dependency>
@@ -590,7 +581,6 @@ under the License.
                   org.apache.openjpa*;version="[2,3)",
                   org.apache.syncope.common*;version=${project.version},
                   org.apache.velocity*;version="[1.7,2)",
-                  org.aspectj.lang*;version="[1.7,2)",
                   org.codehaus.jackson*;version="[1.9,2)",
                   org.jasypt.digest;version="[1.9,2)",
                   org.quartz*;version="[2.1,3)",

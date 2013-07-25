@@ -18,14 +18,22 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
+import static org.apache.syncope.common.types.PolicyType.ACCOUNT;
+import static org.apache.syncope.common.types.PolicyType.GLOBAL_ACCOUNT;
+import static org.apache.syncope.common.types.PolicyType.GLOBAL_PASSWORD;
+import static org.apache.syncope.common.types.PolicyType.GLOBAL_SYNC;
+import static org.apache.syncope.common.types.PolicyType.PASSWORD;
+import static org.apache.syncope.common.types.PolicyType.SYNC;
 import java.util.List;
 import javax.persistence.TypedQuery;
+import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
+import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -77,11 +85,48 @@ public class PolicyDAOImpl extends AbstractDAOImpl implements PolicyDAO {
 
     @Override
     public <T extends Policy> T save(final T policy) {
+        switch (policy.getType()) {
+            case GLOBAL_PASSWORD:
+                // just one GLOBAL_PASSWORD policy
+                final PasswordPolicy passwordPolicy = getGlobalPasswordPolicy();
+
+                if (passwordPolicy != null && !passwordPolicy.getId().equals(policy.getId())) {
+                    throw new InvalidEntityException(PasswordPolicy.class, EntityViolationType.InvalidPasswordPolicy,
+                            "Global Password policy already exists");
+                }
+                break;
+
+            case GLOBAL_ACCOUNT:
+                // just one GLOBAL_ACCOUNT policy
+                final AccountPolicy accountPolicy = getGlobalAccountPolicy();
+
+                if (accountPolicy != null && !accountPolicy.getId().equals(policy.getId())) {
+                    throw new InvalidEntityException(PasswordPolicy.class, EntityViolationType.InvalidAccountPolicy,
+                            "Global Account policy already exists");
+                }
+                break;
+
+            case GLOBAL_SYNC:
+                // just one GLOBAL_SYNC policy
+                final SyncPolicy syncPolicy = getGlobalSyncPolicy();
+
+                if (syncPolicy != null && !syncPolicy.getId().equals(policy.getId())) {
+                    throw new InvalidEntityException(PasswordPolicy.class, EntityViolationType.InvalidSyncPolicy,
+                            "Global Synchronization policy already exists");
+                }
+                break;
+
+            case PASSWORD:
+            case ACCOUNT:
+            case SYNC:
+            default:
+        }
+
         return entityManager.merge(policy);
     }
 
     @Override
-    public void delete(final Long id) {
-        entityManager.remove(find(id));
+    public <T extends Policy> void delete(final T policy) {
+        entityManager.remove(policy);
     }
 }

@@ -88,6 +88,7 @@ public class NotificationTestITCase extends AbstractTest {
         SyncopeClientException exception = null;
         try {
             notificationService.update(notificationTO.getId(), notificationTO);
+            fail();
         } catch (SyncopeClientCompositeErrorException e) {
             exception = e.getException(SyncopeClientExceptionType.InvalidNotification);
         }

@@ -22,6 +22,8 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.types.AbstractPolicySpec;
@@ -30,6 +32,7 @@ import org.apache.syncope.core.persistence.validation.entity.PolicyCheck;
 import org.apache.syncope.core.util.XMLSerializer;
 
 @Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @PolicyCheck
 public abstract class Policy extends AbstractBaseBean {
 

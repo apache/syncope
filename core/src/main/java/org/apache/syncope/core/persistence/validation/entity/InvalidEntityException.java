@@ -26,14 +26,44 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
 import org.apache.syncope.common.types.EntityViolationType;
 
+/**
+ * Exception thrown when any JPA entity fails bean validation.
+ */
 public class InvalidEntityException extends ValidationException {
 
     private static final long serialVersionUID = 3249297275444409691L;
 
-    private String entityClassSimpleName;
+    private final String entityClassSimpleName;
 
-    private final Map<Class<?>, Set<EntityViolationType>> violations;
+    private final Map<Class<?>, Set<EntityViolationType>> violations =
+            new HashMap<Class<?>, Set<EntityViolationType>>();
 
+    /**
+     * Constructs a singleton map of violations from given parameters.
+     *
+     * @param entityClass class of invalid entity
+     * @param entityViolationType type of violation found
+     * @param message message to be associated to the violation
+     */
+    public InvalidEntityException(final Class<?> entityClass,
+            final EntityViolationType entityViolationType, final String message) {
+
+        super();
+
+        this.entityClassSimpleName = entityClass.getSimpleName();
+
+        entityViolationType.setMessage(message.trim());
+
+        this.violations.put(entityClass, EnumSet.noneOf(EntityViolationType.class));
+        this.violations.get(entityClass).add(entityViolationType);
+    }
+
+    /**
+     * Constructs a map of violations out of given <tt>ConstraintViolation</tt> set.
+     *
+     * @param entityClassSimpleName simple class name of invalid entity
+     * @param violations as returned by bean validation
+     */
     public InvalidEntityException(final String entityClassSimpleName,
             final Set<ConstraintViolation<Object>> violations) {
 
@@ -41,7 +71,6 @@ public class InvalidEntityException extends ValidationException {
 
         this.entityClassSimpleName = entityClassSimpleName;
 
-        this.violations = new HashMap<Class<?>, Set<EntityViolationType>>();
         for (ConstraintViolation<Object> violation : violations) {
             int firstComma = violation.getMessageTemplate().indexOf(';');
 

@@ -180,16 +180,10 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    /*
-     * This test has been introduced to verify and solve the following issue:
-     * http://code.google.com/p/syncope/issues/detail?id=172. Creations of a new user without having a global password
-     * policy stored into the local repository used to fail with a null pointer exception. This bug has been fixed
-     * introducing a simple control.
-     */
     public void issue172() {
         List<PasswordPolicyTO> policies = policyService.list(PolicyType.GLOBAL_PASSWORD);
         for (PasswordPolicyTO policyTO : policies) {
-            policyService.delete(PolicyType.PASSWORD, policyTO.getId());
+            policyService.delete(PolicyType.GLOBAL_PASSWORD, policyTO.getId());
         }
 
         try {
