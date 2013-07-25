@@ -24,7 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.Authenticator;
 import java.security.AccessControlException;
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +31,6 @@ import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.cxf.transport.http.CXFAuthenticator;
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;

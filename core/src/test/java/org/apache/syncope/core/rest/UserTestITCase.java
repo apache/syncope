@@ -418,6 +418,14 @@ public class UserTestITCase extends AbstractTest {
         UserTO newUserTO = createUser(userTO);
 
         assertNotNull(newUserTO);
+
+        // issue SYNCOPE-15
+        assertNotNull(newUserTO.getCreationDate());
+        assertNotNull(newUserTO.getCreator());
+        assertNotNull(newUserTO.getLastChangeDate());
+        assertNotNull(newUserTO.getLastModifier());
+        assertEquals(newUserTO.getCreationDate(), newUserTO.getLastChangeDate());
+
         assertFalse(newUserTO.getAttributes().contains(attrWithInvalidSchemaTO));
 
         // check for changePwdDate
@@ -452,8 +460,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
 
         // 3. verify password
-        UserService userService1 = createServiceInstance(UserService.class, newUserTO.getUsername(),
-                "password123");
+        UserService userService1 = createServiceInstance(UserService.class, newUserTO.getUsername(), "password123");
         try {
             UserTO user = userService1.readSelf();
             assertNotNull(user);
@@ -461,8 +468,7 @@ public class UserTestITCase extends AbstractTest {
             fail("Credentials should be valid and not cause AccessControlException");
         }
 
-        UserService userService2 = createServiceInstance(UserService.class, newUserTO.getUsername(),
-                "passwordXX");
+        UserService userService2 = createServiceInstance(UserService.class, newUserTO.getUsername(), "passwordXX");
         try {
             userService2.readSelf();
             fail("Credentials are invalid, thus request should raise AccessControlException");
@@ -876,6 +882,13 @@ public class UserTestITCase extends AbstractTest {
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
+
+        // issue SYNCOPE-15
+        assertNotNull(userTO.getCreationDate());
+        assertNotNull(userTO.getCreator());
+        assertNotNull(userTO.getLastChangeDate());
+        assertNotNull(userTO.getLastModifier());
+        assertTrue(userTO.getCreationDate().before(userTO.getLastChangeDate()));
 
         SyncopeUser passwordTestUser = new SyncopeUser();
         passwordTestUser.setPassword("new2Password", CipherAlgorithm.SHA1, 0);
@@ -1822,7 +1835,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.getResources().clear();
         userTO.addResource(RESOURCE_NAME_TESTDB);
         userTO.addResource("resource-testdb2");
-        
+
         userTO = createUser(userTO);
         assertNotNull(userTO);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));

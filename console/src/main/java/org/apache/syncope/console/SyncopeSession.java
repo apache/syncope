@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.rest.RestClientFactoryBean;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
@@ -74,10 +75,17 @@ public class SyncopeSession extends WebSession {
 
     @SuppressWarnings("unchecked")
     public <T> T getService(final Class<T> service, final String username, final String password) {
-        if (!restServices.containsKey(service)) {
-            restServices.put(service, restClientFactory.createServiceInstance(service, username, password));
+        T res;
+        if (restServices.containsKey(service)) {
+            res = (T) restServices.get(service);
+        } else {
+            res = restClientFactory.createServiceInstance(service, username, password);
+            if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+                restServices.put(service, restClientFactory.createServiceInstance(service, username, password));
+            }
         }
-        return (T) restServices.get(service);
+
+        return res;
     }
 
     public String getUsername() {

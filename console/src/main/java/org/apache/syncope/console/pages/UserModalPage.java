@@ -135,8 +135,7 @@ public abstract class UserModalPage extends BaseModalPage {
         //--------------------------------
         // Resources panel
         //--------------------------------
-        form.add(new ResourcesPanel.Builder("resources")
-                .attributableTO(userTO).statusPanel(null).build());
+        form.add(new ResourcesPanel.Builder("resources").attributableTO(userTO).statusPanel(null).build());
         //--------------------------------
 
         //--------------------------------

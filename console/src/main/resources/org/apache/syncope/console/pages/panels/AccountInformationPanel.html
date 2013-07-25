@@ -17,98 +17,51 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html>
-    <wicket:head>
-        <style>
-            div.information{
-                margin-top: 30px; 
-                border: 1px solid #DDDDDD; 
-                font-size: 8px;
-                color: #555555;
-                display: inline-table; 
-                width: 100%; 
-                clear: both; 
-                float:none;
-            }
+  <wicket:extend>
 
-            div.infolabel{
-                margin-left: 5px; 
-                float:left; 
-                width: 150px;
-                font-weight: bold
-            }
+    <div class="infoleft">
+      <div class="infolabel">
+        <wicket:message key="lastLoginDate"/>:
+      </div>
+      <div>
+        <span wicket:id="lastLoginDate" />
+      </div>
+    </div>
 
-            div.infoleft{
-                float:left; 
-                display: inline-table; 
-                width: 50%
-            }
+    <div class="inforight">
+      <div class="infolabel">
+        <wicket:message key="failedLogins"/>:
+      </div>
+      <div>
+        <span wicket:id="failedLogins" />
+      </div>
+    </div>
 
-            div.inforight{ 
-                display: inline-table; 
-                width: 50%
-            }
+    <div class="infoleft">
+      <div class="infolabel">
+        <wicket:message key="changePwdDate"/>:
+      </div>
+      <div>
+        <span wicket:id="changePwdDate" />
+      </div>
+    </div>
 
-            div.inforow{
-                display: inline-table;
-                width: 100%
-            }
-        </style>
-    </wicket:head>
-    <wicket:panel>
-        <div class="information">
-            <div class="infoleft">
-                <div class="infolabel"> 
-                    <wicket:message key="creationDate"/>:
-                </div>
-                <div>
-                    <span wicket:id="creationDate" />
-                </div>
-            </div>
+    <div class="inforight">
+      <div class="infolabel">
+        <wicket:message key="tokenExpireTime"/>
+      </div>
+      <div>
+        <span wicket:id="tokenExpireTime" />
+      </div>
+    </div>
 
-            <div class="inforight">
-                <div class="infolabel">
-                    <wicket:message key="lastLoginDate"/>:
-                </div>
-                <div>
-                    <span wicket:id="lastLoginDate" />
-                </div>
-            </div>
-
-            <div class="infoleft">
-                <div class="infolabel">
-                    <wicket:message key="changePwdDate"/>:
-                </div>
-                <div>
-                    <span wicket:id="changePwdDate" />
-                </div>
-            </div>
-
-            <div class="inforight">
-                <div class="infolabel">
-                    <wicket:message key="failedLogins"/>:
-                </div>
-                <div>
-                    <span wicket:id="failedLogins" />
-                </div>
-            </div>
-
-            <div class="inforow">
-                <div class="infolabel">
-                    <wicket:message key="token"/>:
-                </div>
-                <div>
-                    <span wicket:id="token" />
-                </div>
-            </div>
-
-            <div class="inforow">
-                <div class="infolabel">
-                    <wicket:message key="tokenExpireTime"/>
-                </div>
-                <div>
-                    <span wicket:id="tokenExpireTime" />
-                </div>
-            </div>
-        </div>
-    </wicket:panel>
+    <div class="inforow">
+      <div class="infolabel">
+        <wicket:message key="token"/>:
+      </div>
+      <div>
+        <span wicket:id="token" />
+      </div>
+    </div>
+  </wicket:extend>
 </html>

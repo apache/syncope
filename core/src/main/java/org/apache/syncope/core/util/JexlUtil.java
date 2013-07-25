@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.core.util;
 
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -50,7 +54,7 @@ public class JexlUtil {
      */
     private static final Logger LOG = LoggerFactory.getLogger(JexlUtil.class);
 
-    private static final String[] IGNORE_FIELDS = {"password", "clearPassword", "serialVersionUID"};
+    private static final String[] IGNORE_FIELDS = {"password", "clearPassword", "serialVersionUID", "class"};
 
     @Autowired
     private JexlEngine jexlEngine;
@@ -89,34 +93,45 @@ public class JexlUtil {
     }
 
     public JexlContext addFieldsToContext(final Object attributable, final JexlContext jexlContext) {
-        JexlContext context = jexlContext == null
-                ? new MapContext()
-                : jexlContext;
+        JexlContext context = jexlContext == null ? new MapContext() : jexlContext;
 
-        final Field[] fields = attributable.getClass().getDeclaredFields();
-        for (int i = 0; i < fields.length; i++) {
-            try {
-                Field field = fields[i];
-                field.setAccessible(true);
-                final String fieldName = field.getName();
-                if ((!field.isSynthetic()) && (!fieldName.startsWith("pc"))
+        try {
+            for (PropertyDescriptor desc : Introspector.getBeanInfo(attributable.getClass()).getPropertyDescriptors()) {
+                final Class<?> type = desc.getPropertyType();
+                final String fieldName = desc.getName();
+
+                if ((!fieldName.startsWith("pc"))
                         && (!ArrayUtils.contains(IGNORE_FIELDS, fieldName))
-                        && (!Iterable.class.isAssignableFrom(field.getType()))
-                        && (!field.getType().isArray())) {
+                        && (!Iterable.class.isAssignableFrom(type))
+                        && (!type.isArray())) {
+                    try {
+                        final Method getter = desc.getReadMethod();
 
-                    final Object fieldValue = field.get(attributable);
+                        final Object fieldValue;
 
-                    context.set(fieldName, fieldValue == null
-                            ? ""
-                            : (field.getType().equals(Date.class)
-                            ? DataFormat.format((Date) fieldValue, false)
-                            : fieldValue));
+                        if (getter == null) {
+                            final Field field = attributable.getClass().getDeclaredField(fieldName);
+                            field.setAccessible(true);
+                            fieldValue = field.get(attributable);
+                        } else {
+                            fieldValue = getter.invoke(attributable);
+                        }
 
-                    LOG.debug("Add field {} with value {}", fieldName, fieldValue);
+                        context.set(fieldName, fieldValue == null
+                                ? ""
+                                : (type.equals(Date.class)
+                                ? DataFormat.format((Date) fieldValue, false)
+                                : fieldValue));
+
+                        LOG.debug("Add field {} with value {}", fieldName, fieldValue);
+
+                    } catch (Exception iae) {
+                        LOG.error("Reading '{}' value error", fieldName, iae);
+                    }
                 }
-            } catch (Exception e) {
-                LOG.error("Reading class attributes error", e);
             }
+        } catch (IntrospectionException ie) {
+            LOG.error("Reading class attributes error", ie);
         }
 
         return context;

@@ -291,6 +291,12 @@ public class RoleTestITCase extends AbstractTest {
         // 1. read role as admin
         RoleTO roleTO = roleService.read(7L);
 
+        // issue SYNCOPE-15
+        assertNotNull(roleTO.getCreationDate());
+        assertNotNull(roleTO.getLastChangeDate());
+        assertEquals("admin", roleTO.getCreator());
+        assertEquals("admin", roleTO.getLastModifier());
+
         // 2. prepare update
         RoleMod roleMod = new RoleMod();
         roleMod.setId(roleTO.getId());
@@ -313,6 +319,13 @@ public class RoleTestITCase extends AbstractTest {
 
         roleTO = roleService3.update(roleMod.getId(), roleMod);
         assertEquals("Managing Director", roleTO.getName());
+
+        // issue SYNCOPE-15
+        assertNotNull(roleTO.getCreationDate());
+        assertNotNull(roleTO.getLastChangeDate());
+        assertEquals("admin", roleTO.getCreator());
+        assertEquals("puccini", roleTO.getLastModifier());
+        assertTrue(roleTO.getCreationDate().before(roleTO.getLastChangeDate()));
     }
 
     /**

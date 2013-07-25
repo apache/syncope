@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,6 +51,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
 
     @XmlElementWrapper(name = "recipients")
     @XmlElement(name = "recipient")
+    @JsonProperty("recipients")
     public Set<String> getRecipients() {
         return recipients;
     }

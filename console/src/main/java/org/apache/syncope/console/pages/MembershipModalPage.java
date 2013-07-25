@@ -22,6 +22,7 @@ import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.pages.panels.AttributesPanel;
 import org.apache.syncope.console.pages.panels.DerivedAttributesPanel;
+import org.apache.syncope.console.pages.panels.SysInfoPanel;
 import org.apache.syncope.console.pages.panels.VirtualAttributesPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -90,6 +91,7 @@ public class MembershipModalPage extends BaseModalPage {
         // Attributes panel
         //--------------------------------
         form.add(new AttributesPanel("attributes", membershipTO, form, templateMode));
+        form.add(new SysInfoPanel("systeminformation", membershipTO));
         //--------------------------------
 
         //--------------------------------

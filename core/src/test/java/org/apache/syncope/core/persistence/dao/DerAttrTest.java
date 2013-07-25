@@ -192,7 +192,7 @@ public class DerAttrTest extends AbstractDAOTest {
         assertNotNull(value);
         assertFalse(value.isEmpty());
         assertTrue(value.startsWith("active - vivaldi - 2010-10-20"));
-        assertTrue(value.endsWith("[]"));
+        assertTrue(value.endsWith("[0]"));
     }
 
     @Test

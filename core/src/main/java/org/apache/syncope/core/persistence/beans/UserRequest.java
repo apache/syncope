@@ -60,7 +60,7 @@ public class UserRequest extends AbstractBaseBean {
     public UserTO getUserTO() {
         return type != UserRequestType.CREATE
                 ? null
-                : XMLSerializer.<UserTO> deserialize(payload);
+                : XMLSerializer.<UserTO>deserialize(payload);
     }
 
     public void setUserTO(final UserTO userTO) {
@@ -71,7 +71,7 @@ public class UserRequest extends AbstractBaseBean {
     public UserMod getUserMod() {
         return type != UserRequestType.UPDATE
                 ? null
-                : XMLSerializer.<UserMod> deserialize(payload);
+                : XMLSerializer.<UserMod>deserialize(payload);
     }
 
     public void setUserMod(final UserMod userMod) {

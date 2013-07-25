@@ -54,8 +54,6 @@ public class UserTO extends AbstractAttributableTO {
 
     private Date lastLoginDate;
 
-    private Date creationDate;
-
     private Date changePwdDate;
 
     private Integer failedLogins;
@@ -150,10 +148,6 @@ public class UserTO extends AbstractAttributableTO {
         return changePwdDate;
     }
 
-    public Date getCreationDate() {
-        return creationDate;
-    }
-
     public Integer getFailedLogins() {
         return failedLogins;
     }
@@ -164,10 +158,6 @@ public class UserTO extends AbstractAttributableTO {
 
     public void setChangePwdDate(final Date changePwdDate) {
         this.changePwdDate = changePwdDate;
-    }
-
-    public void setCreationDate(final Date creationDate) {
-        this.creationDate = creationDate;
     }
 
     public void setFailedLogins(final Integer failedLogins) {

@@ -19,51 +19,49 @@
 package org.apache.syncope.console.pages.panels;
 
 import org.apache.syncope.common.to.AbstractAttributableTO;
-import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.to.AbstractSysInfoTO;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
-public class AccountInformationPanel extends SysInfoPanel {
+public class SysInfoPanel extends Panel {
 
-    private static final long serialVersionUID = 4228064224811390808L;
+    private static final long serialVersionUID = 4228064224811390809L;
 
-    public <T extends AbstractAttributableTO> AccountInformationPanel(final String id, final UserTO userTO) {
-        super(id, userTO);
+    public <T extends AbstractAttributableTO> SysInfoPanel(
+            final String id, final AbstractSysInfoTO sysInfoTO) {
 
-        // ------------------------
-        // Change password date
-        // ------------------------
-        add(new Label("changePwdDate", new Model(userTO.getChangePwdDate() != null
-                ? SyncopeSession.get().getDateFormat().format(userTO.getChangePwdDate()) : "")));
-        // ------------------------
+        super(id);
 
         // ------------------------
-        // Last login date
+        // Creation date
         // ------------------------
-        add(new Label("lastLoginDate", new Model(userTO.getLastLoginDate() != null
-                ? SyncopeSession.get().getDateFormat().format(userTO.getLastLoginDate()) : "")));
+        add(new Label("creationDate", new Model<String>(sysInfoTO.getCreationDate() != null
+                ? SyncopeSession.get().getDateFormat().format(sysInfoTO.getCreationDate()) : "")));
         // ------------------------
 
         // ------------------------
-        // Failed logins
+        // Last change date
         // ------------------------
-        add(new Label("failedLogins", new Model(userTO.getFailedLogins() != null
-                ? userTO.getFailedLogins() : "")));
+        add(new Label("lastChangeDate", new Model<String>(sysInfoTO.getLastChangeDate() != null
+                ? SyncopeSession.get().getDateFormat().format(sysInfoTO.getCreationDate()) : "")));
+        // ------------------------
+
+
+        // ------------------------
+        // Creator
+        // ------------------------
+        add(new Label("creator", new Model<String>(sysInfoTO.getCreator() != null
+                ? sysInfoTO.getCreator() : "")));
         // ------------------------
 
         // ------------------------
-        // Token
+        // Last modifier
         // ------------------------
-        add(new Label("token", new Model(userTO.getToken() != null
-                ? userTO.getToken() : "")));
+        add(new Label("lastModifier", new Model<String>(sysInfoTO.getLastModifier() != null
+                ? sysInfoTO.getLastModifier() : "")));
         // ------------------------
 
-        // ------------------------
-        // Token expire time
-        // ------------------------
-        add(new Label("tokenExpireTime", new Model(userTO.getTokenExpireTime() != null
-                ? userTO.getTokenExpireTime() : "")));
-        // ------------------------
     }
 }

@@ -25,14 +25,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.TraceLevel;
 
 @XmlRootElement(name = "resource")
 @XmlType
-public class ResourceTO extends AbstractBaseBean {
+public class ResourceTO extends AbstractSysInfoTO {
 
     private static final long serialVersionUID = -9193551354041698963L;
 

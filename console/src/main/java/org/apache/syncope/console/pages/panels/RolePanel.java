@@ -114,6 +114,8 @@ public class RolePanel extends Panel {
             this.add(statusPanel);
         }
 
+        this.add(new SysInfoPanel("systeminformation", builder.roleTO));
+
         //--------------------------------
         // Attributes panel
         this.add(new AttributesPanel(

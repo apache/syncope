@@ -285,6 +285,12 @@ public class ResourceDataBinder {
 
         ResourceTO resourceTO = new ResourceTO();
 
+        // set sys info
+        resourceTO.setCreator(resource.getCreator());
+        resourceTO.setCreationDate(resource.getCreationDate());
+        resourceTO.setLastModifier(resource.getLastModifier());
+        resourceTO.setLastChangeDate(resource.getLastChangeDate());
+
         // set the resource name
         resourceTO.setName(resource.getName());
 

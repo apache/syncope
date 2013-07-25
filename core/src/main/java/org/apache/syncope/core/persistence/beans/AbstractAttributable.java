@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AbstractAttributable extends AbstractBaseBean {
+public abstract class AbstractAttributable extends AbstractSysInfo {
 
     private static final long serialVersionUID = -4801685541488201119L;
 

@@ -157,6 +157,6 @@ public class AttrTest extends AbstractDAOTest {
         assertNotNull(value);
         assertFalse(value.isEmpty());
         assertTrue(value.startsWith("vivaldi - 2010-10-20"));
-        assertTrue(value.endsWith("[]"));
+        assertTrue(value.endsWith("[0]"));
     }
 }

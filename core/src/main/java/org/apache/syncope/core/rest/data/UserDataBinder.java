@@ -225,9 +225,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // set username
         user.setUsername(userTO.getUsername());
-
-        // set creation date (at execution time)
-        user.setCreationDate(new Date());
     }
 
     /**
@@ -388,6 +385,13 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         MembershipTO membershipTO;
         for (Membership membership : user.getMemberships()) {
             membershipTO = new MembershipTO();
+
+            // set sys info
+            membershipTO.setCreator(membership.getCreator());
+            membershipTO.setCreationDate(membership.getCreationDate());
+            membershipTO.setLastModifier(membership.getLastModifier());
+            membershipTO.setLastChangeDate(membership.getLastChangeDate());
+
             membershipTO.setId(membership.getId());
             membershipTO.setRoleId(membership.getSyncopeRole().getId());
             membershipTO.setRoleName(membership.getSyncopeRole().getName());

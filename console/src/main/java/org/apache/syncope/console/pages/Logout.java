@@ -32,7 +32,7 @@ public class Logout extends BasePage {
         super(parameters);
 
         SyncopeSession.get().invalidate();
-
+        
         setResponsePage(getApplication().getHomePage());
     }
 }

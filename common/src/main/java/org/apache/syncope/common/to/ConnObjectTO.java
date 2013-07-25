@@ -29,11 +29,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.AbstractBaseBean;
 
 @XmlRootElement(name = "connObject")
 @XmlType
-public class ConnObjectTO extends AbstractBaseBean {
+public class ConnObjectTO extends AbstractSysInfoTO {
 
     private static final long serialVersionUID = 5139554911265442497L;
 

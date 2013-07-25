@@ -288,6 +288,13 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         connObjectUtil.retrieveVirAttrValues(role, AttributableUtil.getInstance(AttributableType.ROLE));
 
         RoleTO roleTO = new RoleTO();
+
+        // set sys info
+        roleTO.setCreator(role.getCreator());
+        roleTO.setCreationDate(role.getCreationDate());
+        roleTO.setLastModifier(role.getLastModifier());
+        roleTO.setLastChangeDate(role.getLastChangeDate());
+
         roleTO.setId(role.getId());
         roleTO.setName(role.getName());
 

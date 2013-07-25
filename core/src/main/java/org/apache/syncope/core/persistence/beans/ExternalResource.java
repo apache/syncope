@@ -50,7 +50,7 @@ import org.identityconnectors.framework.common.objects.SyncToken;
  */
 @Entity
 @ExternalResourceCheck
-public class ExternalResource extends AbstractBaseBean {
+public class ExternalResource extends AbstractSysInfo {
 
     private static final long serialVersionUID = -6937712883512073278L;
 

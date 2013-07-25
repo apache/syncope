@@ -59,6 +59,9 @@ import org.apache.syncope.core.persistence.validation.entity.SyncopeUserCheck;
 import org.apache.syncope.core.util.PasswordEncoder;
 import org.apache.syncope.core.util.SecureRandomUtil;
 
+/**
+ * Syncope user bean.
+ */
 @Entity
 @Cacheable
 @SyncopeUserCheck
@@ -128,13 +131,6 @@ public class SyncopeUser extends AbstractAttributable {
     @Column(nullable = true)
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastLoginDate;
-
-    /**
-     * Creation date.
-     */
-    @NotNull
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date creationDate;
 
     /**
      * Change password date.
@@ -447,18 +443,6 @@ public class SyncopeUser extends AbstractAttributable {
         this.changePwdDate = changePwdDate == null
                 ? null
                 : new Date(changePwdDate.getTime());
-    }
-
-    public Date getCreationDate() {
-        return creationDate == null
-                ? null
-                : new Date(creationDate.getTime());
-    }
-
-    public void setCreationDate(final Date creationDate) {
-        this.creationDate = creationDate == null
-                ? null
-                : new Date(creationDate.getTime());
     }
 
     public Integer getFailedLogins() {

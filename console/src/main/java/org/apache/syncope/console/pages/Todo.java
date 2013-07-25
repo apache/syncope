@@ -372,7 +372,7 @@ public class Todo extends BasePage {
         @Override
         public Iterator<WorkflowFormTO> iterator(final long first, final long count) {
 
-            List<WorkflowFormTO> list = approvalRestClient.getForms();
+            final List<WorkflowFormTO> list = approvalRestClient.getForms();
 
             Collections.sort(list, comparator);
 
