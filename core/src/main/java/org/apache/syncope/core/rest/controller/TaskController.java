@@ -93,7 +93,7 @@ public class TaskController extends AbstractController {
     private ImplementationClassNamesLoader classNamesLoader;
 
     @PreAuthorize("hasRole('TASK_CREATE')")
-    public AbstractTaskTO createSchedTask(final SchedTaskTO taskTO) {
+    public <T extends SchedTaskTO> T createSchedTask(final T taskTO) {
         LOG.debug("Creating task " + taskTO);
 
         TaskUtil taskUtil = TaskUtil.getInstance(taskTO);
@@ -121,12 +121,12 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_UPDATE')")
-    public AbstractTaskTO updateSync(final SyncTaskTO taskTO) {
+    public SyncTaskTO updateSync(final SyncTaskTO taskTO) {
         return updateSched(taskTO);
     }
 
     @PreAuthorize("hasRole('TASK_UPDATE')")
-    public AbstractTaskTO updateSched(final SchedTaskTO taskTO) {
+    public <T extends SchedTaskTO> T updateSched(final SchedTaskTO taskTO) {
         LOG.debug("Task update called with parameter {}", taskTO);
 
         SchedTask task = taskDAO.find(taskTO.getId());
@@ -219,7 +219,7 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
-    public AbstractTaskTO read(final Long taskId) {
+    public <T extends AbstractTaskTO> T read(final Long taskId) {
         Task task = taskDAO.find(taskId);
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
@@ -365,14 +365,14 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_DELETE')")
-    public AbstractTaskTO delete(final Long taskId) {
+    public <T extends AbstractTaskTO> T delete(final Long taskId) {
         Task task = taskDAO.find(taskId);
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
         }
         TaskUtil taskUtil = TaskUtil.getInstance(task);
 
-        AbstractTaskTO taskToDelete = binder.getTaskTO(task, taskUtil);
+        T taskToDelete = binder.getTaskTO(task, taskUtil);
 
         if (TaskType.SCHEDULED == taskUtil.getType() || TaskType.SYNCHRONIZATION == taskUtil.getType()) {
             jobInstanceLoader.unregisterJob(task);

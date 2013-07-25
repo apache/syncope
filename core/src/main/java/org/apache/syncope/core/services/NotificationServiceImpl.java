@@ -39,7 +39,7 @@ public class NotificationServiceImpl extends AbstractServiceImpl implements Noti
     @Override
     public Response create(final NotificationTO notificationTO) {
         NotificationTO createdNotificationTO = controller.create(notificationTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path("" + createdNotificationTO.getId()).build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(createdNotificationTO.getId())).build();
         return Response.created(location)
                 .header(SyncopeConstants.REST_HEADER_ID, createdNotificationTO.getId())
                 .build();

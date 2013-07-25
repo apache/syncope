@@ -38,6 +38,7 @@ import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
+import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.types.TaskType;
 
 @Path("tasks")
@@ -53,10 +54,11 @@ public interface TaskService {
 
     /**
      * @param taskTO Task to be created
+     * @param <T> type of taskTO
      * @return Response containing URI location for created resource
      */
     @POST
-    Response create(AbstractTaskTO taskTO);
+    <T extends SchedTaskTO> Response create(T taskTO);
 
     /**
      * @param taskId Id of task to be deleted
@@ -97,6 +99,7 @@ public interface TaskService {
 
     /**
      * @param taskType Type of tasks to be listed
+     * @param <T> type of taskTO
      * @return Returns list of tasks with matching type
      */
     @GET
@@ -108,22 +111,22 @@ public interface TaskService {
      * @param taskType Type of tasks to be listed
      * @param page Page number of tasks in relation to page size
      * @param size Number of tasks listed per page
+     * @param <T> type of taskTO
      * @return Returns paginated list of task with matching type
      */
     @GET
     @Path("{type}")
-    <T extends AbstractTaskTO> List<T> list(@PathParam("type") TaskType taskType, @QueryParam("page") int page,
-            @QueryParam("size") @DefaultValue("25") int size);
+    <T extends AbstractTaskTO> List<T> list(@PathParam("type") TaskType taskType,
+            @QueryParam("page") int page, @QueryParam("size") @DefaultValue("25") int size);
 
     /**
-     * @param taskType Type of task to be read
      * @param taskId Id of task to be read
+     * @param <T> type of taskTO
      * @return Returns task with matching id
      */
     @GET
-    @Path("{type}/{taskId}")
-    // TODO TaskType can be removed once CXF migration is done
-    <T extends AbstractTaskTO> T read(@PathParam("type") TaskType taskType, @PathParam("taskId") Long taskId);
+    @Path("{taskId}")
+    <T extends AbstractTaskTO> T read(@PathParam("taskId") Long taskId);
 
     /**
      * @param executionId Id if task execution to be read
@@ -148,7 +151,7 @@ public interface TaskService {
     @PUT
     @Path("{taskId}")
     void update(@PathParam("taskId") Long taskId, AbstractTaskTO taskTO);
-    
+
     @POST
     @Path("bulk")
     BulkActionRes bulkAction(BulkAction bulkAction);

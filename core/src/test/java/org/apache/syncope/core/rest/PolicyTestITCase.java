@@ -50,7 +50,7 @@ public class PolicyTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        SyncPolicyTO policyTO = policyService.read(PolicyType.SYNC, 1L);
+        SyncPolicyTO policyTO = policyService.read(1L);
 
         assertNotNull(policyTO);
     }
@@ -79,7 +79,7 @@ public class PolicyTestITCase extends AbstractTest {
         policy.setDescription("global password policy");
 
         try {
-            createPolicy(PolicyType.PASSWORD, policy);
+            createPolicy(policy);
             fail();
         } catch (SyncopeClientCompositeErrorException sccee) {
             assertNotNull(sccee.getException(SyncopeClientExceptionType.InvalidPasswordPolicy));
@@ -92,7 +92,7 @@ public class PolicyTestITCase extends AbstractTest {
         policy.setSpecification(new SyncPolicySpec());
 
         try {
-            createPolicy(PolicyType.SYNC, policy);
+            createPolicy(policy);
             fail();
         } catch (SyncopeClientCompositeErrorException sccee) {
             assertNotNull(sccee.getException(SyncopeClientExceptionType.InvalidSyncPolicy));
@@ -103,7 +103,7 @@ public class PolicyTestITCase extends AbstractTest {
     public void create() {
         SyncPolicyTO policy = buildSyncPolicyTO();
 
-        SyncPolicyTO policyTO = createPolicy(PolicyType.SYNC, policy);
+        SyncPolicyTO policyTO = createPolicy(policy);
 
         assertNotNull(policyTO);
         assertEquals(PolicyType.SYNC, policyTO.getType());
@@ -113,17 +113,17 @@ public class PolicyTestITCase extends AbstractTest {
     @Test
     public void update() {
         // get global password
-        PasswordPolicyTO globalPolicy = policyService.read(PolicyType.PASSWORD, 2L);
+        PasswordPolicyTO globalPolicy = policyService.read(2L);
 
         PasswordPolicyTO policy = new PasswordPolicyTO();
         policy.setDescription("A simple password policy");
         policy.setSpecification(globalPolicy.getSpecification());
 
         // create a new password policy using global password as a template
-        policy = createPolicy(PolicyType.PASSWORD, policy);
+        policy = createPolicy(policy);
 
         // read new password policy
-        policy = policyService.read(PolicyType.PASSWORD, policy.getId());
+        policy = policyService.read(policy.getId());
 
         assertNotNull("find to update did not work", policy);
 
@@ -132,8 +132,8 @@ public class PolicyTestITCase extends AbstractTest {
         policy.setSpecification(policySpec);
 
         // update new password policy
-        policyService.update(PolicyType.PASSWORD, policy.getId(), policy);
-        policy = policyService.read(PolicyType.PASSWORD, policy.getId());
+        policyService.update(policy.getId(), policy);
+        policy = policyService.read(policy.getId());
 
         assertNotNull(policy);
         assertEquals(PolicyType.PASSWORD, policy.getType());
@@ -145,14 +145,14 @@ public class PolicyTestITCase extends AbstractTest {
     public void delete() {
         SyncPolicyTO policy = buildSyncPolicyTO();
 
-        SyncPolicyTO policyTO = createPolicy(PolicyType.SYNC, policy);
+        SyncPolicyTO policyTO = createPolicy(policy);
         assertNotNull(policyTO);
 
-        policyService.delete(PolicyType.SYNC, policyTO.getId());
+        policyService.delete(policyTO.getId());
 
         Throwable t = null;
         try {
-            policyService.read(PolicyType.SYNC, policyTO.getId());
+            policyService.read(policyTO.getId());
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;
         }
@@ -162,7 +162,7 @@ public class PolicyTestITCase extends AbstractTest {
 
     @Test
     public void getCorrelationRules() {
-        assertEquals(1, policyService.getSyncCorrelationRuleClasses(PolicyType.SYNC).size());
+        assertEquals(1, policyService.getSyncCorrelationRuleClasses().size());
     }
 
     private SyncPolicyTO buildSyncPolicyTO() {

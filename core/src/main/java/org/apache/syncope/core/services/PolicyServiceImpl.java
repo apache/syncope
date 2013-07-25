@@ -43,14 +43,14 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     private PolicyController policyController;
 
     @Override
-    public <T extends AbstractPolicyTO> Response create(final PolicyType type, final T policyTO) {
+    public <T extends AbstractPolicyTO> Response create(final T policyTO) {
         AbstractPolicyTO policy = policyController.create(policyTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(policy.getId() + "").build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(policy.getId())).build();
         return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, policy.getId()).build();
     }
 
     @Override
-    public void delete(final PolicyType type, final Long policyId) {
+    public void delete(final Long policyId) {
         policyController.delete(policyId);
     }
 
@@ -60,7 +60,7 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public <T extends AbstractPolicyTO> T read(final PolicyType type, final Long policyId) {
+    public <T extends AbstractPolicyTO> T read(final Long policyId) {
         return policyController.read(policyId);
     }
 
@@ -93,8 +93,8 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public <T extends AbstractPolicyTO> void update(final PolicyType type, final Long policyId, final T policyTO) {
-        switch (type) {
+    public <T extends AbstractPolicyTO> void update(final Long policyId, final T policyTO) {
+        switch (policyTO.getType()) {
             case ACCOUNT:
             case GLOBAL_ACCOUNT:
                 policyController.update((AccountPolicyTO) policyTO);
@@ -116,21 +116,7 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public Set<CorrelationRuleClassTO> getSyncCorrelationRuleClasses(final PolicyType type) {
-        Set<CorrelationRuleClassTO> result = null;
-
-        switch (type) {
-            case SYNC:
-            case GLOBAL_SYNC:
-
-                result = CollectionWrapper.wrapSyncCorrelationRuleClasses(
-                        policyController.getSyncCorrelationRuleClasses());
-                break;
-
-            default:
-                throw new BadRequestException();
-        }
-
-        return result;
+    public Set<CorrelationRuleClassTO> getSyncCorrelationRuleClasses() {
+        return CollectionWrapper.wrapSyncCorrelationRuleClasses(policyController.getSyncCorrelationRuleClasses());
     }
 }

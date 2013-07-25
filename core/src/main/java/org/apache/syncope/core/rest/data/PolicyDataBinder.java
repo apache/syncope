@@ -62,7 +62,7 @@ public class PolicyDataBinder {
      */
     @SuppressWarnings("unchecked")
     public <T extends AbstractPolicyTO> T getPolicyTO(final Policy policy) {
-        final AbstractPolicyTO policyTO;
+        final T policyTO;
 
         final boolean isGlobal = isGlobalPolicy(policy.getType());
 
@@ -73,7 +73,7 @@ public class PolicyDataBinder {
                     throw new ClassCastException("Expected " + PasswordPolicySpec.class.getName()
                             + ", found " + policy.getSpecification().getClass().getName());
                 }
-                policyTO = new PasswordPolicyTO(isGlobal);
+                policyTO = (T) new PasswordPolicyTO(isGlobal);
                 ((PasswordPolicyTO) policyTO).setSpecification((PasswordPolicySpec) policy.getSpecification());
                 break;
 
@@ -83,7 +83,7 @@ public class PolicyDataBinder {
                     throw new ClassCastException("Expected " + AccountPolicySpec.class.getName()
                             + ", found " + policy.getSpecification().getClass().getName());
                 }
-                policyTO = new AccountPolicyTO(isGlobal);
+                policyTO = (T) new AccountPolicyTO(isGlobal);
                 ((AccountPolicyTO) policyTO).setSpecification((AccountPolicySpec) policy.getSpecification());
                 break;
 
@@ -95,14 +95,14 @@ public class PolicyDataBinder {
                             + ", found " + policy.getSpecification().getClass().getName());
 
                 }
-                policyTO = new SyncPolicyTO(isGlobal);
+                policyTO = (T) new SyncPolicyTO(isGlobal);
                 ((SyncPolicyTO) policyTO).setSpecification((SyncPolicySpec) policy.getSpecification());
         }
 
         policyTO.setId(policy.getId());
         policyTO.setDescription(policy.getDescription());
 
-        return (T) policyTO;
+        return policyTO;
     }
 
     @SuppressWarnings("unchecked")

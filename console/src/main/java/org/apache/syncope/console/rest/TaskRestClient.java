@@ -106,15 +106,15 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     public PropagationTaskTO readPropagationTask(final Long taskId) {
-        return getService(TaskService.class).read(TaskType.PROPAGATION, taskId);
+        return getService(TaskService.class).read(taskId);
     }
 
     public NotificationTaskTO readNotificationTask(final Long taskId) {
-        return getService(TaskService.class).read(TaskType.NOTIFICATION, taskId);
+        return getService(TaskService.class).read(taskId);
     }
 
     public <T extends SchedTaskTO> T readSchedTask(final Class<T> reference, final Long taskId) {
-        return getService(TaskService.class).read(getTaskType(reference), taskId);
+        return getService(TaskService.class).read(taskId);
     }
 
     /**

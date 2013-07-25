@@ -53,7 +53,7 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService,
     @Override
     public Response create(final RoleTO roleTO) {
         RoleTO created = controller.create(roleTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(created.getId() + "").build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getId())).build();
         return Response.created(location)
                 .header(SyncopeConstants.REST_HEADER_ID, created.getId())
                 .entity(created)

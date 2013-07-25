@@ -173,7 +173,7 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(newMaxId > maxId);
 
         // get last task
-        PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, newMaxId);
+        PropagationTaskTO taskTO = taskService.read(newMaxId);
 
         assertNotNull(taskTO);
         assertTrue(taskTO.getExecutions().isEmpty());
@@ -183,7 +183,7 @@ public class UserTestITCase extends AbstractTest {
     public void issue172() {
         List<PasswordPolicyTO> policies = policyService.list(PolicyType.GLOBAL_PASSWORD);
         for (PasswordPolicyTO policyTO : policies) {
-            policyService.delete(PolicyType.GLOBAL_PASSWORD, policyTO.getId());
+            policyService.delete(policyTO.getId());
         }
 
         try {
@@ -191,7 +191,7 @@ public class UserTestITCase extends AbstractTest {
             createUser(userTO);
         } finally {
             for (PasswordPolicyTO policyTO : policies) {
-                Response response = policyService.create(PolicyType.GLOBAL_PASSWORD, policyTO);
+                Response response = policyService.create(policyTO);
                 AbstractPolicyTO cPolicyTO = getObject(response, PasswordPolicyTO.class, policyService);
                 assertNotNull(cPolicyTO);
             }
@@ -386,7 +386,7 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(tasks.isEmpty());
 
         long maxId = getMaxTaskId(tasks);
-        PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, maxId);
+        PropagationTaskTO taskTO = taskService.read(maxId);
 
         assertNotNull(taskTO);
         int maxTaskExecutions = taskTO.getExecutions().size();
@@ -448,7 +448,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(newMaxId, maxId);
 
         // get last task
-        taskTO = taskService.read(TaskType.PROPAGATION, newMaxId);
+        taskTO = taskService.read(newMaxId);
 
         assertNotNull(taskTO);
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
@@ -995,7 +995,7 @@ public class UserTestITCase extends AbstractTest {
         // all update executions have to be registered
         assertTrue(newMaxId > maxId);
 
-        final PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, newMaxId);
+        final PropagationTaskTO taskTO = taskService.read(newMaxId);
 
         assertNotNull(taskTO);
         assertEquals(1, taskTO.getExecutions().size());

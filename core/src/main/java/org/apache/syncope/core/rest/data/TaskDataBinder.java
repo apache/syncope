@@ -226,8 +226,8 @@ public class TaskDataBinder {
         }
     }
 
-    public AbstractTaskTO getTaskTO(final Task task, final TaskUtil taskUtil) {
-        AbstractTaskTO taskTO = taskUtil.newTaskTO();
+    public <T extends AbstractTaskTO> T getTaskTO(final Task task, final TaskUtil taskUtil) {
+        T taskTO = taskUtil.newTaskTO();
         BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
 
         TaskExec latestExec = taskExecDAO.findLatestStarted(task);

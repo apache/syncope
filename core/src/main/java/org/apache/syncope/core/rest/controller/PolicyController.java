@@ -191,13 +191,13 @@ public class PolicyController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('POLICY_DELETE')")
-    public AbstractPolicyTO delete(final Long id) {
+    public <T extends AbstractPolicyTO> T delete(final Long id) {
         Policy policy = policyDAO.find(id);
         if (policy == null) {
             throw new NotFoundException("Policy " + id + " not found");
         }
 
-        AbstractPolicyTO policyToDelete = binder.getPolicyTO(policy);
+        T policyToDelete = binder.getPolicyTO(policy);
         policyDAO.delete(policy);
 
         auditManager.audit(Category.policy, PolicySubCategory.delete, Result.success,

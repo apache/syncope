@@ -21,10 +21,7 @@ package org.apache.syncope.console.rest;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.services.PolicyService;
-import org.apache.syncope.common.to.AccountPolicyTO;
-import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.AbstractPolicyTO;
-import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.springframework.stereotype.Component;
@@ -72,15 +69,15 @@ public class PolicyRestClient extends BaseRestClient {
     }
 
     public <T extends AbstractPolicyTO> void createPolicy(final T policy) {
-        getService(PolicyService.class).create(policy.getType(), policy);
+        getService(PolicyService.class).create(policy);
     }
 
     public <T extends AbstractPolicyTO> void updatePolicy(final T policy) {
-        getService(PolicyService.class).update(policy.getType(), policy.getId(), policy);
+        getService(PolicyService.class).update(policy.getId(), policy);
     }
 
     public void delete(final Long id, final Class<? extends AbstractPolicyTO> policyClass) {
-        getService(PolicyService.class).delete(getPolicyType(policyClass), id);
+        getService(PolicyService.class).delete(id);
     }
 
     public List<String> getCorrelationRuleClasses() {
@@ -88,25 +85,11 @@ public class PolicyRestClient extends BaseRestClient {
 
         try {
             rules = CollectionWrapper.unwrapSyncCorrelationRuleClasses(
-                    getService(PolicyService.class).getSyncCorrelationRuleClasses(PolicyType.SYNC));
+                    getService(PolicyService.class).getSyncCorrelationRuleClasses());
         } catch (Exception e) {
             LOG.error("While getting all correlation rule classes", e);
         }
 
         return rules;
-    }
-
-    private PolicyType getPolicyType(final Class<? extends AbstractPolicyTO> clazz) {
-        PolicyType policyType;
-        if (AccountPolicyTO.class.equals(clazz)) {
-            policyType = PolicyType.ACCOUNT;
-        } else if (PasswordPolicyTO.class.equals(clazz)) {
-            policyType = PolicyType.PASSWORD;
-        } else if (SyncPolicyTO.class.equals(clazz)) {
-            policyType = PolicyType.SYNC;
-        } else {
-            throw new IllegalArgumentException("Policy Type not supported");
-        }
-        return policyType;
     }
 }

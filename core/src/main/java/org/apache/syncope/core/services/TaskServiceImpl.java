@@ -38,7 +38,6 @@ import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.rest.controller.TaskController;
-import org.apache.syncope.core.util.TaskUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,16 +53,15 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService,
     }
 
     @Override
-    public Response create(final AbstractTaskTO taskTO) {
-        AbstractTaskTO createdTask;
+    public <T extends SchedTaskTO> Response create(final T taskTO) {
+        T createdTask;
         if (taskTO instanceof SyncTaskTO || taskTO instanceof SchedTaskTO) {
-            createdTask = controller.createSchedTask((SchedTaskTO) taskTO);
+            createdTask = controller.createSchedTask(taskTO);
         } else {
             throw new BadRequestException();
         }
 
-        TaskType taskType = TaskUtil.getInstance(taskTO.getClass()).getType();
-        URI location = uriInfo.getAbsolutePathBuilder().path(taskType.toString() + "/" + createdTask.getId()).build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(createdTask.getId())).build();
         return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, createdTask.getId()).build();
     }
 
@@ -102,10 +100,9 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService,
         return controller.list(taskType, page, size);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractTaskTO> T read(final TaskType taskType, final Long taskId) {
-        return (T) controller.read(taskId);
+    public <T extends AbstractTaskTO> T read(final Long taskId) {
+        return controller.read(taskId);
     }
 
     @Override

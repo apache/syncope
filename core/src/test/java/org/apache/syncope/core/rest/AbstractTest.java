@@ -55,7 +55,6 @@ import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.SchemaType;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -233,8 +232,8 @@ public abstract class AbstractTest {
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends AbstractPolicyTO> T createPolicy(final PolicyType policyType, final T policy) {
-        Response response = policyService.create(policyType, policy);
+    protected <T extends AbstractPolicyTO> T createPolicy(final T policy) {
+        Response response = policyService.create(policy);
         if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
             Exception ex = clientExceptionMapper.fromResponse(response);
             if (ex != null) {

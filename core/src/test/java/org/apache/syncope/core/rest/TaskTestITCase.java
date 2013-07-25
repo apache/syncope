@@ -53,7 +53,6 @@ import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.IntMappingType;
-import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.types.TraceLevel;
@@ -111,7 +110,7 @@ public class TaskTestITCase extends AbstractTest {
         SyncTaskTO actual = getObject(response, SyncTaskTO.class, taskService);
         assertNotNull(actual);
 
-        task = taskService.read(TaskType.SYNCHRONIZATION, actual.getId());
+        task = taskService.read(actual.getId());
         assertNotNull(task);
         assertEquals(actual.getId(), task.getId());
         assertEquals(actual.getJobClassName(), task.getJobClassName());
@@ -121,7 +120,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        SchedTaskTO task = taskService.read(TaskType.SCHEDULED, SCHED_TASK_ID);
+        SchedTaskTO task = taskService.read(SCHED_TASK_ID);
         assertNotNull(task);
 
         SchedTaskTO taskMod = new SchedTaskTO();
@@ -129,7 +128,7 @@ public class TaskTestITCase extends AbstractTest {
         taskMod.setCronExpression(null);
 
         taskService.update(taskMod.getId(), taskMod);
-        SchedTaskTO actual = taskService.read(TaskType.SCHEDULED, taskMod.getId());
+        SchedTaskTO actual = taskService.read(taskMod.getId());
         assertNotNull(actual);
         assertEquals(task.getId(), actual.getId());
         assertNull(actual.getCronExpression());
@@ -182,7 +181,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, 3L);
+        PropagationTaskTO taskTO = taskService.read(3L);
 
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
@@ -251,7 +250,7 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(usersPre);
 
             // Update sync task
-            SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, SYNC_TASK_ID);
+            SyncTaskTO task = taskService.read(SYNC_TASK_ID);
             assertNotNull(task);
 
             // add custom SyncJob actions
@@ -271,7 +270,7 @@ public class TaskTestITCase extends AbstractTest {
             task.setUserTemplate(template);
 
             taskService.update(task.getId(), task);
-            SyncTaskTO actual = taskService.read(TaskType.SYNCHRONIZATION, task.getId());
+            SyncTaskTO actual = taskService.read(task.getId());
             assertNotNull(actual);
             assertEquals(task.getId(), actual.getId());
             assertEquals(TestSyncActions.class.getName(), actual.getActionsClassName());
@@ -329,7 +328,7 @@ public class TaskTestITCase extends AbstractTest {
     @Test
     public void reconcileFromDB() {
         // update sync task
-        SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, 7L);
+        SyncTaskTO task = taskService.read(7L);
         assertNotNull(task);
 
         // add user template
@@ -342,7 +341,7 @@ public class TaskTestITCase extends AbstractTest {
         task.setUserTemplate(template);
 
         taskService.update(task.getId(), task);
-        SyncTaskTO actual = taskService.read(TaskType.SYNCHRONIZATION, task.getId());
+        SyncTaskTO actual = taskService.read(task.getId());
         assertNotNull(actual);
         assertEquals(task.getId(), actual.getId());
         assertEquals(template, actual.getUserTemplate());
@@ -375,7 +374,7 @@ public class TaskTestITCase extends AbstractTest {
     public void reconcileFromLDAP()
             throws InvalidSearchConditionException {
         // Update sync task
-        SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, 11L);
+        SyncTaskTO task = taskService.read(11L);
         assertNotNull(task);
 
         //  add user template
@@ -386,7 +385,7 @@ public class TaskTestITCase extends AbstractTest {
         task.setRoleTemplate(template);
 
         taskService.update(task.getId(), task);
-        SyncTaskTO actual = taskService.read(TaskType.SYNCHRONIZATION, task.getId());
+        SyncTaskTO actual = taskService.read(task.getId());
         assertNotNull(actual);
         assertEquals(task.getId(), actual.getId());
         assertEquals(template, actual.getRoleTemplate());
@@ -470,7 +469,7 @@ public class TaskTestITCase extends AbstractTest {
                 } catch (InterruptedException e) {
                 }
 
-                taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getId());
+                taskTO = taskService.read(taskTO.getId());
 
                 assertNotNull(taskTO);
                 assertNotNull(taskTO.getExecutions());
@@ -500,7 +499,7 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(execution);
 
             // 4. verify
-            taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getId());
+            taskTO = taskService.read(taskTO.getId());
             assertNotNull(taskTO);
             assertEquals(1, taskTO.getExecutions().size());
         } finally {
@@ -608,13 +607,13 @@ public class TaskTestITCase extends AbstractTest {
             //-----------------------------
 
             // Update sync task
-            SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, 9L);
+            SyncTaskTO task = taskService.read(9L);
             assertNotNull(task);
 
             task.setUserTemplate(template);
 
             taskService.update(task.getId(), task);
-            SyncTaskTO actual = taskService.read(TaskType.SYNCHRONIZATION, task.getId());
+            SyncTaskTO actual = taskService.read(task.getId());
             assertNotNull(actual);
             assertEquals(task.getId(), actual.getId());
             assertFalse(actual.getUserTemplate().getResources().isEmpty());
@@ -649,7 +648,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals("issueSYNCOPE144", actual.getName());
         assertEquals("issueSYNCOPE144 Description", actual.getDescription());
 
-        task = taskService.read(TaskType.SCHEDULED, actual.getId());
+        task = taskService.read(actual.getId());
         assertNotNull(task);
         assertEquals("issueSYNCOPE144", task.getName());
         assertEquals("issueSYNCOPE144 Description", task.getDescription());
@@ -693,7 +692,7 @@ public class TaskTestITCase extends AbstractTest {
     private TaskExecTO execSyncTask(final Long taskId, final int maxWaitSeconds,
             final boolean dryRun) {
 
-        AbstractTaskTO taskTO = taskService.read(TaskType.SYNCHRONIZATION, taskId);
+        AbstractTaskTO taskTO = taskService.read(taskId);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
 
@@ -711,7 +710,7 @@ public class TaskTestITCase extends AbstractTest {
             } catch (InterruptedException e) {
             }
 
-            taskTO = taskService.read(TaskType.SYNCHRONIZATION, taskTO.getId());
+            taskTO = taskService.read(taskTO.getId());
 
             assertNotNull(taskTO);
             assertNotNull(taskTO.getExecutions());
@@ -739,7 +738,7 @@ public class TaskTestITCase extends AbstractTest {
             assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
 
             // update sync task
-            SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, SYNC_TASK_ID);
+            SyncTaskTO task = taskService.read(SYNC_TASK_ID);
             assertNotNull(task);
 
             // add user template
@@ -758,7 +757,7 @@ public class TaskTestITCase extends AbstractTest {
             task.setUserTemplate(template);
 
             taskService.update(task.getId(), task);
-            SyncTaskTO actual = taskService.read(TaskType.SYNCHRONIZATION, task.getId());
+            SyncTaskTO actual = taskService.read(task.getId());
             assertNotNull(actual);
             assertEquals(task.getId(), actual.getId());
 
@@ -782,10 +781,10 @@ public class TaskTestITCase extends AbstractTest {
         // -----------------------------
         // Add a custom correlation rule
         // -----------------------------
-        SyncPolicyTO policyTO = policyService.read(PolicyType.SYNC, 9L);
+        SyncPolicyTO policyTO = policyService.read(9L);
         policyTO.getSpecification().setUserJavaRule(TestSyncRule.class.getName());
 
-        policyService.update(PolicyType.SYNC, policyTO.getId(), policyTO);
+        policyService.update(policyTO.getId(), policyTO);
         // -----------------------------
 
         SyncTaskTO task = new SyncTaskTO();
@@ -822,7 +821,7 @@ public class TaskTestITCase extends AbstractTest {
 
         execSyncTask(actual.getId(), 50, false);
 
-        SyncTaskTO executed = taskService.read(TaskType.SYNCHRONIZATION, actual.getId());
+        SyncTaskTO executed = taskService.read(actual.getId());
         assertEquals(1, executed.getExecutions().size());
 
         // asser for just one match
@@ -849,7 +848,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals("virtualvalue", userTO.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
 
         // Update sync task
-        SyncTaskTO task = taskService.read(TaskType.SYNCHRONIZATION, 12L);
+        SyncTaskTO task = taskService.read(12L);
         assertNotNull(task);
 
         //  add user template

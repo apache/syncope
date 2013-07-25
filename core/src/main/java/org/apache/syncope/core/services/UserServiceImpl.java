@@ -69,7 +69,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
     @Override
     public Response create(final UserTO userTO) {
         UserTO created = controller.create(userTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(created.getId() + "").build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getId())).build();
         return Response.created(location).
                 header(SyncopeConstants.REST_HEADER_ID, created.getId()).
                 entity(created)
