@@ -104,7 +104,6 @@ public interface TaskService {
      */
     @GET
     @Path("{type}/list")
-    // TODO '/list' path will be removed once CXF/JAX-B bug is solved
     <T extends AbstractTaskTO> List<T> list(@PathParam("type") TaskType taskType);
 
     /**
@@ -115,7 +114,7 @@ public interface TaskService {
      * @return Returns paginated list of task with matching type
      */
     @GET
-    @Path("{type}")
+    @Path("{type}/list")
     <T extends AbstractTaskTO> List<T> list(@PathParam("type") TaskType taskType,
             @QueryParam("page") int page, @QueryParam("size") @DefaultValue("25") int size);
 

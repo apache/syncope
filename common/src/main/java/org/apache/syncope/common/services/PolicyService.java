@@ -57,7 +57,6 @@ public interface PolicyService {
      */
     @GET
     @Path("{type}/list")
-    // TODO '/list' path will be removed once CXF/JAX-B bug is solved
     <T extends AbstractPolicyTO> List<T> list(@PathParam("type") PolicyType type);
 
     /**
