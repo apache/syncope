@@ -36,7 +36,7 @@ public class SyncPolicySpec extends AbstractPolicySpec {
      * SyncopeUser attributes and fields for matching during synchronization.
      */
     @SchemaList(extended = true)
-    private List<String> uAltSearchSchemas;
+    private List<String> uAltSearchSchemas = new ArrayList<String>();
 
     @ClassList
     private String userJavaRule;
@@ -45,7 +45,7 @@ public class SyncPolicySpec extends AbstractPolicySpec {
      * SyncopeRole attributes and fields for matching during synchronization.
      */
     @SchemaList(extended = true)
-    private List<String> rAltSearchSchemas;
+    private List<String> rAltSearchSchemas = new ArrayList<String>();
 
     @ClassList
     private String roleJavaRule;
@@ -54,13 +54,6 @@ public class SyncPolicySpec extends AbstractPolicySpec {
      * Conflict resolution action.
      */
     private ConflictResolutionAction conflictResolutionAction;
-
-    public SyncPolicySpec() {
-        super();
-
-        uAltSearchSchemas = new ArrayList<String>();
-        rAltSearchSchemas = new ArrayList<String>();
-    }
 
     public ConflictResolutionAction getConflictResolutionAction() {
         return conflictResolutionAction == null
@@ -79,21 +72,12 @@ public class SyncPolicySpec extends AbstractPolicySpec {
         return uAltSearchSchemas;
     }
 
-    public void setuAltSearchSchemas(final List<String> uAltSearchSchemas) {
-        this.uAltSearchSchemas = uAltSearchSchemas;
-    }
-
     @XmlElementWrapper(name = "roleAltSearchSchemas")
     @XmlElement(name = "roleAltSearchSchema")
     @JsonProperty("roleAltSearchSchemas")
     public List<String> getrAltSearchSchemas() {
         return rAltSearchSchemas;
     }
-
-    public void setrAltSearchSchemas(final List<String> rAltSearchSchemas) {
-        this.rAltSearchSchemas = rAltSearchSchemas;
-    }
-
 
     public String getRoleJavaRule() {
         return roleJavaRule;

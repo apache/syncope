@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.syncope.common.mod.RoleMod;
@@ -66,9 +65,9 @@ public class RoleTestITCase extends AbstractTest {
         // inherited so setter execution should be ignored
         roleTO.setPasswordPolicy(2L);
 
-        roleTO.addAttribute(attributeTO("icon", "anIcon"));
+        roleTO.getAttributes().add(attributeTO("icon", "anIcon"));
 
-        roleTO.addResource("resource-ldap");
+        roleTO.getResources().add("resource-ldap");
         return roleTO;
     }
 
@@ -79,7 +78,7 @@ public class RoleTestITCase extends AbstractTest {
     @Test
     public void createWithException() {
         RoleTO newRoleTO = new RoleTO();
-        newRoleTO.addAttribute(attributeTO("attr1", "value1"));
+        newRoleTO.getAttributes().add(attributeTO("attr1", "value1"));
 
         try {
             createRole(roleService, newRoleTO);
@@ -92,7 +91,7 @@ public class RoleTestITCase extends AbstractTest {
     @Test
     public void create() {
         RoleTO roleTO = buildRoleTO("lastRole");
-        roleTO.addVirtualAttribute(attributeTO("rvirtualdata", "rvirtualvalue"));
+        roleTO.getVirtualAttributes().add(attributeTO("rvirtualdata", "rvirtualvalue"));
         roleTO.setRoleOwner(8L);
 
         roleTO = createRole(roleService, roleTO);
@@ -144,7 +143,7 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.setName("toBeDeleted" + getUUIDString());
         roleTO.setParent(8L);
 
-        roleTO.addResource("resource-ldap");
+        roleTO.getResources().add("resource-ldap");
 
         roleTO = createRole(roleService, roleTO);
         assertNotNull(roleTO);
@@ -228,7 +227,7 @@ public class RoleTestITCase extends AbstractTest {
         roleMod.setId(roleTO.getId());
         String modName = "finalRole" + getUUIDString();
         roleMod.setName(modName);
-        roleMod.addAttributeToBeUpdated(attributeMod("show", "FALSE"));
+        roleMod.getAttributesToBeUpdated().add(attributeMod("show", "FALSE"));
 
         // change password policy inheritance
         roleMod.setInheritPasswordPolicy(Boolean.FALSE);
@@ -249,7 +248,7 @@ public class RoleTestITCase extends AbstractTest {
     @Test
     public void updateRemovingVirAttribute() {
         RoleTO roleTO = buildBasicRoleTO("withvirtual" + getUUIDString());
-        roleTO.addVirtualAttribute(attributeTO("rvirtualdata", null));
+        roleTO.getVirtualAttributes().add(attributeTO("rvirtualdata", null));
 
         roleTO = createRole(roleService, roleTO);
 
@@ -258,7 +257,7 @@ public class RoleTestITCase extends AbstractTest {
 
         final RoleMod roleMod = new RoleMod();
         roleMod.setId(roleTO.getId());
-        roleMod.addVirtualAttributeToBeRemoved("rvirtualdata");
+        roleMod.getVirtualAttributesToBeRemoved().add("rvirtualdata");
 
         roleTO = roleService.update(roleMod.getId(), roleMod);
 
@@ -269,7 +268,7 @@ public class RoleTestITCase extends AbstractTest {
     @Test
     public void updateRemovingDerAttribute() {
         RoleTO roleTO = buildBasicRoleTO("withderived" + getUUIDString());
-        roleTO.addDerivedAttribute(attributeTO("rderivedschema", null));
+        roleTO.getDerivedAttributes().add(attributeTO("rderivedschema", null));
 
         roleTO = createRole(roleService, roleTO);
 
@@ -278,7 +277,7 @@ public class RoleTestITCase extends AbstractTest {
 
         final RoleMod roleMod = new RoleMod();
         roleMod.setId(roleTO.getId());
-        roleMod.addDerivedAttributeToBeRemoved("rderivedschema");
+        roleMod.getDerivedAttributesToBeRemoved().add("rderivedschema");
 
         roleTO = roleService.update(roleMod.getId(), roleMod);
 
@@ -360,8 +359,8 @@ public class RoleTestITCase extends AbstractTest {
     @Test
     public void issueSYNCOPE228() {
         RoleTO roleTO = buildRoleTO("issueSYNCOPE228");
-        roleTO.addEntitlement("USER_READ");
-        roleTO.addEntitlement("SCHEMA_READ");
+        roleTO.getEntitlements().add("USER_READ");
+        roleTO.getEntitlements().add("SCHEMA_READ");
 
         roleTO = createRole(roleService, roleTO);
         assertNotNull(roleTO);
@@ -380,7 +379,8 @@ public class RoleTestITCase extends AbstractTest {
 
         roleMod = new RoleMod();
         roleMod.setId(roleTO.getId());
-        roleMod.setEntitlements(new ArrayList<String>());
+        roleMod.setModEntitlements(true);
+        roleMod.getEntitlements().clear();
 
         roleTO = roleService.update(roleMod.getId(), roleMod);
         assertNotNull(roleTO);

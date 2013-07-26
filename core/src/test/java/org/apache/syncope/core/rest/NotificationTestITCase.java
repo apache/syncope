@@ -146,7 +146,7 @@ public class NotificationTestITCase extends AbstractTest {
     private NotificationTO buildNotificationTO() {
         NotificationTO notificationTO = new NotificationTO();
         notificationTO.setTraceLevel(TraceLevel.SUMMARY);
-        notificationTO.addEvent("create");
+        notificationTO.getEvents().add("create");
 
         AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
         fullnameLeafCond1.setSchema("fullname");

@@ -22,9 +22,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class UserRequestOptionsTO {
+
     private boolean createAllowed;
 
-    public UserRequestOptionsTO(boolean createAllowed) {
+    public UserRequestOptionsTO(final boolean createAllowed) {
         super();
         this.createAllowed = createAllowed;
     }

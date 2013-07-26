@@ -16,129 +16,131 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:extend>
-  <div style="margin:10px">
-    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
-    <form wicket:id="form">
-      <div id="tabs">
-        <ul>
-          <li class="tabs-selected"><a href="#profile"><span><wicket:message key="profile"/></span></a></li>
-          <li><a href="#crontab"><span><wicket:message key="crontab"/></span></a></li>
-          <li><a href="#executions"><span><wicket:message key="executions"/></span></a></li>
-        </ul>
-        <div id="profile">
-          <div id="users-contain" class="ui-widget">
-            <span wicket:id="profile">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:extend>
+    <div style="margin:10px">
+      <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+      <form wicket:id="form">
+        <div id="tabs">
+          <ul>
+            <li class="tabs-selected"><a href="#profile"><span><wicket:message key="profile"/></span></a></li>
+            <li><a href="#crontab"><span><wicket:message key="crontab"/></span></a></li>
+            <li><a href="#executions"><span><wicket:message key="executions"/></span></a></li>
+          </ul>
+          <div id="profile">
+            <div id="users-contain" class="ui-widget">
+              <span wicket:id="profile">
+                <div id="formtable">
+
+                  <div class="tablerow alt">
+                    <div class="tablecolumn_label short_dynamicsize">
+                      <span wicket:id="idLabel">[Id]</span>
+                    </div>
+                    <div class="tablecolumn_field medium_dynamicsize">
+                      <span wicket:id="id">[id]</span>
+                    </div>
+                  </div>
+
+                  <div class="tablerow">
+                    <div class="tablecolumn_label short_dynamicsize">
+                      <span wicket:id="nameLabel">[Name]</span>
+                    </div>
+                    <div class="tablecolumn_field medium_dynamicsize">
+                      <span wicket:id="name">[name]</span>
+                    </div>
+                  </div>
+
+                  <div class="tablerow alt">
+                    <div class="tablecolumn_label short_dynamicsize">
+                      <label for="lastExec"><wicket:message key="lastExec"/></label>
+                    </div>
+                    <div class="tablecolumn_field medium_dynamicsize">
+                      <span wicket:id="lastExec">[lastExec]</span>
+                    </div>
+                  </div>
+
+                  <div class="tablerow">
+                    <div class="tablecolumn_label short_dynamicsize">
+                      <label for="nextExec"><wicket:message key="nextExec"/></label>
+                    </div>
+                    <div class="tablecolumn_field medium_dynamicsize">
+                      <span wicket:id="nextExec">[nextExec]</span>
+                    </div>
+                  </div>
+
+                  <div class="tablerow alt">
+                    <div class="tablecolumn_label short_dynamicsize">
+                      <label for="reportlets"><wicket:message key="reportlets"/></label>
+                    </div>
+                    <div class="tablecolumn_field medium_dynamicsize">
+                      <div style="display: inline-table;">
+                        <div id="selections" style="display: table-cell;">
+                          <select wicket:id="reportletConfs" class="selectionSelect"></select>	
+                        </div>
+                        <div id="orderingButtons" style="display: table-cell; width: 30px; vertical-align: middle; padding-left: 5px;">
+                          <div style="padding-bottom: 5px;">
+                            <a wicket:id="upButton"><img src="img/up-icon.png" alt="move up icon"/></a>
+                          </div>
+                          <div style="padding-top: 5px;">
+                            <a wicket:id="downButton"><img src="img/down-icon.png" alt="move down icon"/></a>
+                          </div>
+                        </div>
+                      </div>
+                      <div id="actionButtons" style="padding-top: 5px;">
+                        <div style="padding-left: 35px;float: left;">
+                          <a wicket:id="addButton"><img src="img/plus-icon.png" alt="plus icon"/></a>
+                        </div>
+                        <div style="padding-left: 15px;float: left;">
+                          <a wicket:id="editButton"><img src="img/actions/edit.png" alt="edit icon"/></a>
+                        </div>
+                        <div style="padding-left: 15px;float: left;">
+                          <a wicket:id="removeButton"><img src="img/minus-icon.png" alt="minus icon"/></a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </span>
+            </div>
+          </div>
+          <div id="crontab">
+            <span wicket:id="crontab">
               <div id="formtable">
-
                 <div class="tablerow alt">
-                  <div class="tablecolumn_label short_dynamicsize">
-                    <span wicket:id="idLabel">[Id]</span>
-                  </div>
-                  <div class="tablecolumn_field medium_dynamicsize">
-                    <span wicket:id="id">[id]</span>
-                  </div>
+                  <label for="cron"><wicket:message key="cron"/></label>
                 </div>
-
                 <div class="tablerow">
-                  <div class="tablecolumn_label short_dynamicsize">
-                    <span wicket:id="nameLabel">[Name]</span>
-                  </div>
-                  <div class="tablecolumn_field medium_dynamicsize">
-                    <span wicket:id="name">[name]</span>
-                  </div>
+                  <input type="text" id="seconds" class="text ui-widget-content ui-corner-all" wicket:id="seconds" style="width: 50px;float: left" />
+                  <input type="text" id="minutes" class="text ui-widget-content ui-corner-all" wicket:id="minutes" style="width: 50px;float: left" />
+                  <input type="text" id="hours" class="text ui-widget-content ui-corner-all" wicket:id="hours" style="width: 50px;float: left" />
+                  <input type="text" id="daysOfMonth" class="text ui-widget-content ui-corner-all" wicket:id="daysOfMonth" style="width: 50px;float: left" />
+                  <input type="text" id="months" class="text ui-widget-content ui-corner-all" wicket:id="months" style="width: 50px;float: left" />
+                  <input type="text" id="daysOfWeek" class="text ui-widget-content ui-corner-all" wicket:id="daysOfWeek" style="width: 50px" />
                 </div>
-
                 <div class="tablerow alt">
-                  <div class="tablecolumn_label short_dynamicsize">
-                    <label for="lastExec"><wicket:message key="lastExec"/></label>
-                  </div>
-                  <div class="tablecolumn_field medium_dynamicsize">
-                    <span wicket:id="lastExec">[lastExec]</span>
-                  </div>
+                  <label for="cronExpression"><wicket:message key="templates"/></label>
                 </div>
-
                 <div class="tablerow">
-                  <div class="tablecolumn_label short_dynamicsize">
-                    <label for="nextExec"><wicket:message key="nextExec"/></label>
-                  </div>
-                  <div class="tablecolumn_field medium_dynamicsize">
-                    <span wicket:id="nextExec">[nextExec]</span>
-                  </div>
-                </div>
-
-                <div class="tablerow alt">
-                  <div class="tablecolumn_label short_dynamicsize">
-                    <label for="reportlets"><wicket:message key="reportlets"/></label>
-                  </div>
-                  <div class="tablecolumn_field medium_dynamicsize">
-                    <div style="display: inline-table;">
-                      <div id="selections" style="display: table-cell;">
-                        <select wicket:id="reportletConfs" class="selectionSelect"></select>	
-                      </div>
-                      <div id="orderingButtons" style="display: table-cell; width: 30px; vertical-align: middle; padding-left: 5px;">
-                        <div style="padding-bottom: 5px;">
-                          <a wicket:id="upButton"><img src="img/up-icon.png" alt="move up icon"/></a>
-                        </div>
-                        <div style="padding-top: 5px;">
-                          <a wicket:id="downButton"><img src="img/down-icon.png" alt="move down icon"/></a>
-                        </div>
-                      </div>
-                    </div>
-                    <div id="actionButtons" style="padding-top: 5px;">
-                      <div style="padding-left: 35px;float: left;">
-                        <a wicket:id="addButton"><img src="img/plus-icon.png" alt="plus icon"/></a>
-                      </div>
-                      <div style="padding-left: 15px;float: left;">
-                        <a wicket:id="editButton"><img src="img/actions/edit.png" alt="edit icon"/></a>
-                      </div>
-                      <div style="padding-left: 15px;float: left;">
-                        <a wicket:id="removeButton"><img src="img/minus-icon.png" alt="minus icon"/></a>
-                      </div>
-                    </div>
-                  </div>
+                  <select class="text ui-widget-content ui-corner-all" wicket:id="cronTemplateChooser" style="width: 250px"/>
                 </div>
               </div>
             </span>
           </div>
+          <div id="executions" class="ui-widget">
+            <span wicket:id="executionContainer" id="executionContainer">
+              <table class="ui-widget ui-widget-content"
+                     wicket:id="executionsTable" style="width: 100%"/>
+            </span>
+          </div>
         </div>
-        <div id="crontab">
-          <span wicket:id="crontab">
-            <div id="formtable">
-              <div class="tablerow alt">
-                <label for="cron"><wicket:message key="cron"/></label>
-              </div>
-              <div class="tablerow">
-                <input type="text" id="seconds" class="text ui-widget-content ui-corner-all" wicket:id="seconds" style="width: 50px;float: left" />
-                <input type="text" id="minutes" class="text ui-widget-content ui-corner-all" wicket:id="minutes" style="width: 50px;float: left" />
-                <input type="text" id="hours" class="text ui-widget-content ui-corner-all" wicket:id="hours" style="width: 50px;float: left" />
-                <input type="text" id="daysOfMonth" class="text ui-widget-content ui-corner-all" wicket:id="daysOfMonth" style="width: 50px;float: left" />
-                <input type="text" id="months" class="text ui-widget-content ui-corner-all" wicket:id="months" style="width: 50px;float: left" />
-                <input type="text" id="daysOfWeek" class="text ui-widget-content ui-corner-all" wicket:id="daysOfWeek" style="width: 50px" />
-              </div>
-              <div class="tablerow alt">
-                <label for="cronExpression"><wicket:message key="templates"/></label>
-              </div>
-              <div class="tablerow">
-                <select class="text ui-widget-content ui-corner-all" wicket:id="cronTemplateChooser" style="width: 250px"/>
-              </div>
-            </div>
-          </span>
+        <div style="margin: 20px 10px 0">
+          <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="apply"/>
+          <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="cancel"/>
         </div>
-        <div id="executions" class="ui-widget">
-          <span wicket:id="executionContainer" id="executionContainer">
-            <table class="ui-widget ui-widget-content"
-                   wicket:id="executionsTable" style="width: 100%"/>
-          </span>
-        </div>
-      </div>
-      <div style="margin: 20px 10px 0">
-        <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="apply"/>
-        <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="cancel"/>
-      </div>
-    </form>
-  </div>
-  <div wicket:id="reportletConfWin"/>
-  <div wicket:id="reportExecMessageWin"/>
-  <div wicket:id="reportExecExportWin"/>
-</wicket:extend>
+      </form>
+    </div>
+    <div wicket:id="reportletConfWin"/>
+    <div wicket:id="reportExecMessageWin"/>
+    <div wicket:id="reportExecExportWin"/>
+  </wicket:extend>
+</html>

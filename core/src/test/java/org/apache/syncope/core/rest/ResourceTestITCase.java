@@ -18,16 +18,15 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.apache.syncope.core.rest.AbstractTest.getUUIDString;
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -117,10 +116,10 @@ public class ResourceTestITCase extends AbstractTest {
         schema.setName("endpoint");
         schema.setRequired(true);
         p.setSchema(schema);
-        p.setValues(Collections.singletonList("http://invalidurl/"));
+        p.getValues().add("http://invalidurl/");
 
         Set<ConnConfProperty> connectorConfigurationProperties = new HashSet<ConnConfProperty>(Arrays.asList(p));
-        resourceTO.setConnConfProperties(connectorConfigurationProperties);
+        resourceTO.getConnConfProperties().addAll(connectorConfigurationProperties);
 
         Response response = resourceService.create(resourceTO);
         ResourceTO actual = getObject(response, ResourceTO.class, resourceService);
@@ -481,7 +480,7 @@ public class ResourceTestITCase extends AbstractTest {
         mapping.addItem(item);
 
         resourceTO.setRmapping(mapping);
-        
+
         resourceTO = createResource(resourceTO);
         assertNotNull(resourceTO);
         assertEquals(2, resourceTO.getRmapping().getItems().size());

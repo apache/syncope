@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.sync;
 
-import java.util.Collections;
-
 import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
@@ -45,9 +43,10 @@ public class TestSyncActions extends DefaultSyncActions {
         if (attrTO == null) {
             attrTO = new AttributeTO();
             attrTO.setSchema("fullname");
-            subject.addAttribute(attrTO);
+            subject.getAttributes().add(attrTO);
         }
-        attrTO.setValues(Collections.singletonList(String.valueOf(counter++)));
+        attrTO.getValues().clear();
+        attrTO.getValues().add(String.valueOf(counter++));
 
         return delta;
     }
@@ -57,7 +56,7 @@ public class TestSyncActions extends DefaultSyncActions {
             final SyncResultsHandler handler, final SyncDelta delta, final T subject, final K subjectMod)
             throws JobExecutionException {
 
-        subjectMod.addAttributeToBeRemoved("fullname");
+        subjectMod.getAttributesToBeRemoved().add("fullname");
 
         AttributeMod fullnameMod = null;
         for (AttributeMod attrMod : subjectMod.getAttributesToBeUpdated()) {
@@ -68,10 +67,11 @@ public class TestSyncActions extends DefaultSyncActions {
         if (fullnameMod == null) {
             fullnameMod = new AttributeMod();
             fullnameMod.setSchema("fullname");
-            subjectMod.addAttributeToBeUpdated(fullnameMod);
+            subjectMod.getAttributesToBeUpdated().add(fullnameMod);
         }
 
-        fullnameMod.setValuesToBeAdded(Collections.singletonList(String.valueOf(counter++)));
+        fullnameMod.getValuesToBeAdded().clear();
+        fullnameMod.getValuesToBeAdded().add(String.valueOf(counter++));
 
         return delta;
     }

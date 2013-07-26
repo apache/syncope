@@ -21,7 +21,7 @@ package org.apache.syncope.common.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "executionReport")
+@XmlRootElement(name = "reportExec")
 @XmlType
 public class ReportExecTO extends AbstractExecTO {
 

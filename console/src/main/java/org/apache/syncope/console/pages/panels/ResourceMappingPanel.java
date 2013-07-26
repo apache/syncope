@@ -357,7 +357,7 @@ public class ResourceMappingPanel extends Panel {
                 final AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel("mandatoryCondition",
                         new ResourceModel("mandatoryCondition", "mandatoryCondition").getObject(),
                         new PropertyModel<String>(mapItem, "mandatoryCondition"));
-                mandatory.setChoices(Arrays.asList(new String[]{"true", "false"}));
+                mandatory.setChoices(Arrays.asList(new String[] {"true", "false"}));
                 mandatory.setStyleSheet(SHORT_FIELD_STYLE);
                 item.add(mandatory);
 
@@ -504,7 +504,7 @@ public class ResourceMappingPanel extends Panel {
     private List<String> getSchemaNames(final Long connectorId, final Set<ConnConfProperty> conf) {
         final ConnInstanceTO connInstanceTO = new ConnInstanceTO();
         connInstanceTO.setId(connectorId);
-        connInstanceTO.setConfiguration(conf);
+        connInstanceTO.getConfiguration().addAll(conf);
 
         return connRestClient.getSchemaNames(connInstanceTO);
     }
@@ -512,7 +512,7 @@ public class ResourceMappingPanel extends Panel {
     private void setEnabled() {
         final ConnInstanceTO connInstanceTO = new ConnInstanceTO();
         connInstanceTO.setId(this.resourceTO.getConnectorId());
-        connInstanceTO.setConfiguration(this.resourceTO.getConnConfProperties());
+        connInstanceTO.getConfiguration().addAll(this.resourceTO.getConnConfProperties());
 
         List<ConnIdObjectClassTO> objectClasses = connRestClient.getSupportedObjectClasses(connInstanceTO);
 

@@ -36,7 +36,6 @@ import org.apache.syncope.core.persistence.beans.SyncopeLogger;
 import org.apache.syncope.core.persistence.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import org.apache.syncope.common.util.BeanUtils;
 import org.springframework.stereotype.Component;
 
 @Component

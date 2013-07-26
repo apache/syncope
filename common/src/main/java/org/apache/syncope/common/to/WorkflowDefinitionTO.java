@@ -37,7 +37,7 @@ public class WorkflowDefinitionTO extends AbstractBaseBean {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(final String id) {
         this.id = id;
     }
 
@@ -45,8 +45,7 @@ public class WorkflowDefinitionTO extends AbstractBaseBean {
         return xmlDefinition;
     }
 
-    public void setXmlDefinition(String xmlDefinition) {
+    public void setXmlDefinition(final String xmlDefinition) {
         this.xmlDefinition = xmlDefinition;
     }
-
 }

@@ -19,8 +19,8 @@
 package org.apache.syncope.core.rest.data;
 
 import org.apache.syncope.common.to.NotificationTO;
+import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.core.persistence.beans.Notification;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 @Component

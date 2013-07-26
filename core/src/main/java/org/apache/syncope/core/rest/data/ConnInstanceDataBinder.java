@@ -25,6 +25,7 @@ import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
@@ -32,7 +33,6 @@ import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.util.ConnIdBundleManager;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -213,7 +213,7 @@ public class ConnInstanceDataBinder {
 
                 ConnConfProperty property = new ConnConfProperty();
                 property.setSchema(connConfPropSchema);
-                connInstanceTO.addConfiguration(property);
+                connInstanceTO.getConfiguration().add(property);
             }
         }
         return connInstanceTO;

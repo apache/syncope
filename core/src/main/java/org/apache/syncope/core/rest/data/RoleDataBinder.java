@@ -240,7 +240,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         }
 
         // entitlements
-        if (roleMod.getEntitlements() != null) {
+        if (roleMod.isModEntitlements()) {
             role.getEntitlements().clear();
             for (String entitlementName : roleMod.getEntitlements()) {
                 Entitlement entitlement = entitlementDAO.find(entitlementName);
@@ -334,7 +334,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         fillTO(roleTO, allAttributes, allDerAttributes, allVirAttributes, role.getResources());
 
         for (Entitlement entitlement : role.getEntitlements()) {
-            roleTO.addEntitlement(entitlement.getName());
+            roleTO.getEntitlements().add(entitlement.getName());
         }
 
         roleTO.setPasswordPolicy(role.getPasswordPolicy() == null

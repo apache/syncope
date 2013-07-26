@@ -169,14 +169,14 @@ public abstract class AbstractTest {
     protected static AttributeTO attributeTO(final String schema, final String value) {
         AttributeTO attr = new AttributeTO();
         attr.setSchema(schema);
-        attr.addValue(value);
+        attr.getValues().add(value);
         return attr;
     }
 
     protected static AttributeMod attributeMod(final String schema, final String valueToBeAdded) {
         AttributeMod attr = new AttributeMod();
         attr.setSchema(schema);
-        attr.addValueToBeAdded(valueToBeAdded);
+        attr.getValuesToBeAdded().add(valueToBeAdded);
         return attr;
     }
 

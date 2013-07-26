@@ -25,6 +25,7 @@ import org.apache.syncope.common.report.AbstractReportletConf;
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
+import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.init.JobInstanceLoader;
 import org.apache.syncope.core.persistence.beans.Report;
@@ -38,7 +39,6 @@ import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
@@ -134,7 +134,7 @@ public class ReportDataBinder {
                 : latestExec.getEndDate());
 
         for (ReportExec reportExec : report.getExecs()) {
-            reportTO.addExecution(getReportExecTO(reportExec));
+            reportTO.getExecutions().add(getReportExecTO(reportExec));
         }
 
         String triggerName = JobInstanceLoader.getTriggerName(JobInstanceLoader.getJobName(report));

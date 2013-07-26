@@ -147,7 +147,7 @@ public abstract class TaskModalPage extends BaseModalPage {
                         try {
                             taskRestClient.deleteExecution(taskExecutionTO.getId());
 
-                            taskTO.removeExecution(taskExecutionTO);
+                            taskTO.getExecutions().remove(taskExecutionTO);
 
                             info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientCompositeErrorException scce) {
@@ -249,7 +249,8 @@ public abstract class TaskModalPage extends BaseModalPage {
                 ? taskRestClient.readSchedTask(SyncTaskTO.class, taskTO.getId())
                 : taskRestClient.readSchedTask(SchedTaskTO.class, taskTO.getId());
 
-        taskTO.setExecutions(currentTask.getExecutions());
+        taskTO.getExecutions().clear();
+        taskTO.getExecutions().addAll(currentTask.getExecutions());
         return taskTO;
     }
 }

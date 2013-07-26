@@ -44,16 +44,6 @@ public class MembershipMod extends AbstractAttributableMod {
         this.role = role;
     }
 
-    @Override
-    public boolean addResourceToBeAdded(String resource) {
-        return false;
-    }
-
-    @Override
-    public boolean addResourceToBeRemoved(String resource) {
-        return false;
-    }
-
     @XmlElementWrapper(name = "resourcesToBeAdded")
     @XmlElement(name = "resource")
     @JsonProperty("resourcesToBeAdded")
@@ -68,24 +58,6 @@ public class MembershipMod extends AbstractAttributableMod {
     @Override
     public Set<String> getResourcesToBeRemoved() {
         return Collections.emptySet();
-    }
-
-    @Override
-    public boolean removeResourceToBeAdded(String resource) {
-        return false;
-    }
-
-    @Override
-    public boolean removeResourceToBeRemoved(String resource) {
-        return false;
-    }
-
-    @Override
-    public void setResourcesToBeAdded(Set<String> resourcesToBeAdded) {
-    }
-
-    @Override
-    public void setResourcesToBeRemoved(Set<String> resourcesToBeRemoved) {
     }
 
     @JsonIgnore

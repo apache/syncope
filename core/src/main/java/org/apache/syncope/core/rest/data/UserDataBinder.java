@@ -33,6 +33,7 @@ import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.connid.ConnObjectUtil;
@@ -54,7 +55,6 @@ import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.PasswordEncoder;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -65,8 +65,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = {Throwable.class})
 public class UserDataBinder extends AbstractAttributableDataBinder {
 
-    private static final String[] IGNORE_USER_PROPERTIES = {"memberships", "attributes", "derivedAttributes",
-        "virtualAttributes", "resources"};
+    private static final String[] IGNORE_USER_PROPERTIES = {
+        "memberships", "attributes", "derivedAttributes", "virtualAttributes", "resources"};
 
     @Autowired
     private ConnObjectUtil connObjectUtil;
@@ -399,7 +399,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             fillTO(membershipTO, membership.getAttributes(), membership.getDerivedAttributes(), membership.
                     getVirtualAttributes(), membership.getResources());
 
-            userTO.addMembership(membershipTO);
+            userTO.getMemberships().add(membershipTO);
         }
 
         return userTO;

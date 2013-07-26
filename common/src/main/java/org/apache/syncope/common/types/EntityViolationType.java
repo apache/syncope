@@ -56,7 +56,7 @@ public enum EntityViolationType {
 
     private String message;
 
-    private EntityViolationType(final String message) {
+    EntityViolationType(final String message) {
         this.message = message;
     }
 

@@ -32,6 +32,7 @@ import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AbstractMapping;
@@ -51,7 +52,6 @@ import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.util.JexlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -336,7 +336,7 @@ public class ResourceDataBinder {
         resourceTO.setSyncPolicy(resource.getSyncPolicy() == null
                 ? null : resource.getSyncPolicy().getId());
 
-        resourceTO.setConnConfProperties(resource.getConnInstanceConfiguration());
+        resourceTO.getConnConfProperties().addAll(resource.getConnInstanceConfiguration());
 
         resourceTO.setUsyncToken(resource.getUserializedSyncToken());
         resourceTO.setRsyncToken(resource.getRserializedSyncToken());

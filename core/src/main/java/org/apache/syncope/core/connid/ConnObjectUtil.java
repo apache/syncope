@@ -233,7 +233,7 @@ public class ConnObjectUtil {
         }
         if (AttributableType.ROLE == attrUtil.getType()) {
             // reading from connector object cannot change entitlements
-            ((RoleTO) updated).setEntitlements(((RoleTO) original).getEntitlements());
+            ((RoleTO) updated).getEntitlements().addAll(((RoleTO) original).getEntitlements());
             return (T) AttributableOperations.diff(((RoleTO) updated), ((RoleTO) original), true);
         }
 
@@ -290,12 +290,12 @@ public class ConnObjectUtil {
                         attributeTO = new AttributeTO();
                         attributeTO.setSchema(StringUtils.EMPTY);
                         if (attribute.getValue().isEmpty() || attribute.getValue().get(0) == null) {
-                            attributeTO.addValue(StringUtils.EMPTY);
+                            attributeTO.getValues().add(StringUtils.EMPTY);
                         } else {
-                            attributeTO.addValue(attribute.getValue().get(0).toString());
+                            attributeTO.getValues().add(attribute.getValue().get(0).toString());
                         }
 
-                        ((RoleTO) attributableTO).addAttribute(attributeTO);
+                        ((RoleTO) attributableTO).getAttributes().add(attributeTO);
                     }
                     break;
 
@@ -308,18 +308,18 @@ public class ConnObjectUtil {
                             ? Collections.emptyList()
                             : attribute.getValue()) {
                         if (value != null) {
-                            attributeTO.addValue(value.toString());
+                            attributeTO.getValues().add(value.toString());
                         }
                     }
 
-                    attributableTO.addAttribute(attributeTO);
+                    attributableTO.getAttributes().add(attributeTO);
                     break;
 
                 case UserDerivedSchema:
                 case RoleDerivedSchema:
                     attributeTO = new AttributeTO();
                     attributeTO.setSchema(item.getIntAttrName());
-                    attributableTO.addDerivedAttribute(attributeTO);
+                    attributableTO.getDerivedAttributes().add(attributeTO);
                     break;
 
                 case UserVirtualSchema:
@@ -332,11 +332,11 @@ public class ConnObjectUtil {
                             : attribute.getValue()) {
 
                         if (value != null) {
-                            attributeTO.addValue(value.toString());
+                            attributeTO.getValues().add(value.toString());
                         }
                     }
 
-                    attributableTO.addVirtualAttribute(attributeTO);
+                    attributableTO.getVirtualAttributes().add(attributeTO);
                     break;
 
                 default:
@@ -371,7 +371,7 @@ public class ConnObjectUtil {
                     } else {
                         membTBU = new MembershipTO();
                         membTBU.setRoleId(membTO.getRoleId());
-                        ((UserTO) attributableTO).addMembership(membTBU);
+                        ((UserTO) attributableTO).getMemberships().add(membTBU);
                     }
                     fillFromTemplate(membTBU, membTO);
                 }
@@ -389,7 +389,7 @@ public class ConnObjectUtil {
                 ((RoleTO) attributableTO).setUserOwner(((RoleTO) template).getUserOwner());
                 ((RoleTO) attributableTO).setRoleOwner(((RoleTO) template).getRoleOwner());
 
-                ((RoleTO) attributableTO).setEntitlements(((RoleTO) template).getEntitlements());
+                ((RoleTO) attributableTO).getEntitlements().addAll(((RoleTO) template).getEntitlements());
 
                 ((RoleTO) attributableTO).setAccountPolicy(((RoleTO) template).getAccountPolicy());
                 ((RoleTO) attributableTO).setPasswordPolicy(((RoleTO) template).getPasswordPolicy());
@@ -405,7 +405,7 @@ public class ConnObjectUtil {
             fillFromTemplate(attributableTO, template);
 
             for (String resource : template.getResources()) {
-                attributableTO.addResource(resource);
+                attributableTO.getResources().add(resource);
             }
         }
 
@@ -463,15 +463,15 @@ public class ConnObjectUtil {
                 for (Object value : attr.getValue()) {
                     if (value != null) {
                         if (value instanceof GuardedString || value instanceof GuardedByteArray) {
-                            attrTO.addValue(getPassword(value));
+                            attrTO.getValues().add(getPassword(value));
                         } else {
-                            attrTO.addValue(value.toString());
+                            attrTO.getValues().add(value.toString());
                         }
                     }
                 }
             }
 
-            connObjectTO.addAttribute(attrTO);
+            connObjectTO.getAttributes().add(attrTO);
         }
 
         return connObjectTO;
@@ -562,7 +562,7 @@ public class ConnObjectUtil {
                             if (attribute != null && attribute.getValue() != null) {
                                 for (Object obj : attribute.getValue()) {
                                     if (obj != null) {
-                                        virAttr.addValue(obj.toString());
+                                        virAttr.getValues().add(obj.toString());
                                     }
                                 }
                             }
@@ -607,14 +607,14 @@ public class ConnObjectUtil {
                     && (!currentAttrMap.containsKey(templateAttr.getSchema())
                     || currentAttrMap.get(templateAttr.getSchema()).getValues().isEmpty())) {
 
-                attributableTO.addAttribute(evaluateAttrTemplate(attributableTO, templateAttr));
+                attributableTO.getAttributes().add(evaluateAttrTemplate(attributableTO, templateAttr));
             }
         }
 
         currentAttrMap = attributableTO.getDerivedAttributeMap();
         for (AttributeTO templateDerAttr : template.getDerivedAttributes()) {
             if (!currentAttrMap.containsKey(templateDerAttr.getSchema())) {
-                attributableTO.addDerivedAttribute(templateDerAttr);
+                attributableTO.getDerivedAttributes().add(templateDerAttr);
             }
         }
 
@@ -624,7 +624,7 @@ public class ConnObjectUtil {
                     && (!currentAttrMap.containsKey(templateVirAttr.getSchema())
                     || currentAttrMap.get(templateVirAttr.getSchema()).getValues().isEmpty())) {
 
-                attributableTO.addVirtualAttribute(evaluateAttrTemplate(attributableTO, templateVirAttr));
+                attributableTO.getVirtualAttributes().add(evaluateAttrTemplate(attributableTO, templateVirAttr));
             }
         }
     }
@@ -637,7 +637,7 @@ public class ConnObjectUtil {
             for (String value : template.getValues()) {
                 String evaluated = jexlUtil.evaluate(value, attributableTO);
                 if (StringUtils.isNotBlank(evaluated)) {
-                    result.addValue(evaluated);
+                    result.getValues().add(evaluated);
                 }
             }
         }

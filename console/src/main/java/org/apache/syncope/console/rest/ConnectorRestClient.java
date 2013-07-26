@@ -33,9 +33,9 @@ import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.ConnConfProperty;
+import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.SyncopeSession;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -57,7 +57,8 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public void create(final ConnInstanceTO connectorTO) {
-        connectorTO.setConfiguration(filterProperties(connectorTO.getConfiguration()));
+        connectorTO.getConfiguration().clear();
+        connectorTO.getConfiguration().addAll(filterProperties(connectorTO.getConfiguration()));
         getService(ConnectorService.class).create(connectorTO);
     }
 
@@ -80,7 +81,8 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public void update(final ConnInstanceTO connectorTO) {
-        connectorTO.setConfiguration(filterProperties(connectorTO.getConfiguration()));
+        connectorTO.getConfiguration().clear();
+        connectorTO.getConfiguration().addAll(filterProperties(connectorTO.getConfiguration()));
         getService(ConnectorService.class).update(connectorTO.getId(), connectorTO);
     }
 
@@ -136,7 +138,7 @@ public class ConnectorRestClient extends BaseRestClient {
                     }
                 }
             }
-            prop.setValues(parsed);
+            prop.getValues().addAll(parsed);
             newProperties.add(prop);
         }
         return newProperties;
@@ -151,7 +153,7 @@ public class ConnectorRestClient extends BaseRestClient {
     public boolean check(final ConnInstanceTO connectorTO) {
         ConnInstanceTO toBeChecked = new ConnInstanceTO();
         BeanUtils.copyProperties(connectorTO, toBeChecked, new String[] {"configuration"});
-        toBeChecked.setConfiguration(filterProperties(connectorTO.getConfiguration()));
+        toBeChecked.getConfiguration().addAll(filterProperties(connectorTO.getConfiguration()));
 
         boolean check = false;
         try {

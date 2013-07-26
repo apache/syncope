@@ -234,10 +234,6 @@ public class ResourceTO extends AbstractSysInfoTO {
         return connConfProperties;
     }
 
-    public void setConnConfProperties(final Set<ConnConfProperty> connConfProperties) {
-        this.connConfProperties = connConfProperties;
-    }
-
     public TraceLevel getSyncTraceLevel() {
         return syncTraceLevel;
     }

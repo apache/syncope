@@ -21,7 +21,7 @@ package org.apache.syncope.common.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "taskExecution")
+@XmlRootElement(name = "taskExec")
 @XmlType
 public class TaskExecTO extends AbstractExecTO {
 
@@ -33,7 +33,7 @@ public class TaskExecTO extends AbstractExecTO {
         return task;
     }
 
-    public void setTask(long task) {
+    public void setTask(final long task) {
         this.task = task;
     }
 }

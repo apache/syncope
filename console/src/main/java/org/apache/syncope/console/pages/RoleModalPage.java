@@ -151,7 +151,8 @@ public class RoleModalPage extends BaseModalPage {
     protected void submitAction(final AjaxRequestTarget target, final Form form) {
         final RoleTO roleTO = (RoleTO) form.getDefaultModelObject();
         final List<String> entitlementList = new ArrayList<String>(rolePanel.getSelectedEntitlements());
-        roleTO.setEntitlements(entitlementList);
+        roleTO.getEntitlements().clear();
+        roleTO.getEntitlements().addAll(entitlementList);
 
         final RoleTO result;
         if (createFlag) {

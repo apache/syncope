@@ -137,9 +137,7 @@ public class AttributesPanel extends Panel {
         add(attributeView);
     }
 
-    private void initEntityData(final AbstractAttributableTO entityTO,
-            final Collection<SchemaTO> schemas) {
-
+    private void initEntityData(final AbstractAttributableTO entityTO, final Collection<SchemaTO> schemas) {
         final List<AttributeTO> entityData = new ArrayList<AttributeTO>();
 
         final Map<String, AttributeTO> attrMap = entityTO.getAttributeMap();
@@ -149,20 +147,18 @@ public class AttributesPanel extends Panel {
             attributeTO.setSchema(schema.getName());
 
             if (attrMap.get(schema.getName()) == null || attrMap.get(schema.getName()).getValues().isEmpty()) {
-
-                List<String> values = new ArrayList<String>();
-                values.add("");
-                attributeTO.setValues(values);
+                attributeTO.getValues().add("");
 
                 // is important to set readonly only after values setting
                 attributeTO.setReadonly(schema.isReadonly());
             } else {
-                attributeTO.setValues(attrMap.get(schema.getName()).getValues());
+                attributeTO.getValues().addAll(attrMap.get(schema.getName()).getValues());
             }
             entityData.add(attributeTO);
         }
 
-        entityTO.setAttributes(entityData);
+        entityTO.getAttributes().clear();
+        entityTO.getAttributes().addAll(entityData);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

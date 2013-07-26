@@ -20,6 +20,7 @@ package org.apache.syncope.common.mod;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -51,7 +52,9 @@ public class RoleMod extends AbstractAttributableMod {
 
     private Boolean inheritPasswordPolicy;
 
-    private List<String> entitlements;
+    private boolean modEntitlements;
+    
+    private List<String> entitlements = new ArrayList<String>();
 
     private ReferenceMod passwordPolicy;
 
@@ -113,15 +116,19 @@ public class RoleMod extends AbstractAttributableMod {
         this.inheritVirtualAttributes = inheritVirtualAttributes;
     }
 
+    public boolean isModEntitlements() {
+        return modEntitlements;
+    }
+
+    public void setModEntitlements(final boolean modEntitlements) {
+        this.modEntitlements = modEntitlements;
+    }    
+
     @XmlElementWrapper(name = "entitlements")
     @XmlElement(name = "entitlement")
     @JsonProperty("entitlements")
     public List<String> getEntitlements() {
         return entitlements;
-    }
-
-    public void setEntitlements(final List<String> entitlements) {
-        this.entitlements = entitlements;
     }
 
     public ReferenceMod getPasswordPolicy() {

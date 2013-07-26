@@ -94,16 +94,4 @@ public class ConnBundleTO extends AbstractBaseBean {
     public void setVersion(final String version) {
         this.version = version;
     }
-
-    public void setProperties(final List<ConnConfPropSchema> properties) {
-        this.properties = properties;
-    }
-
-    public boolean addProperty(final ConnConfPropSchema property) {
-        return properties.add(property);
-    }
-
-    public boolean removeProperty(final ConnConfPropSchema property) {
-        return properties.remove(property);
-    }
 }

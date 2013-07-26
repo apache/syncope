@@ -42,7 +42,7 @@ public class UserTO extends AbstractAttributableTO {
 
     private String password;
 
-    private List<MembershipTO> memberships;
+    private List<MembershipTO> memberships = new ArrayList<MembershipTO>();
 
     private String status;
 
@@ -58,12 +58,6 @@ public class UserTO extends AbstractAttributableTO {
 
     private Integer failedLogins;
 
-    public UserTO() {
-        super();
-
-        memberships = new ArrayList<MembershipTO>();
-    }
-
     public String getPassword() {
         return password;
     }
@@ -72,23 +66,11 @@ public class UserTO extends AbstractAttributableTO {
         this.password = password;
     }
 
-    public boolean addMembership(final MembershipTO membershipTO) {
-        return memberships.add(membershipTO);
-    }
-
-    public boolean removeMembership(final MembershipTO membershipTO) {
-        return memberships.remove(membershipTO);
-    }
-
     @XmlElementWrapper(name = "memberships")
     @XmlElement(name = "membership")
     @JsonProperty("memberships")
     public List<MembershipTO> getMemberships() {
         return memberships;
-    }
-
-    public void setMemberships(final List<MembershipTO> memberships) {
-        this.memberships = memberships;
     }
 
     @JsonIgnore

@@ -74,45 +74,11 @@ public class UserMod extends AbstractAttributableMod {
         return membershipsToBeAdded;
     }
 
-    public boolean addMembershipToBeAdded(final MembershipMod membershipMod) {
-        return membershipsToBeAdded.add(membershipMod);
-    }
-
-    public boolean removeMembershipToBeAdded(final MembershipMod membershipMod) {
-        return membershipsToBeAdded.remove(membershipMod);
-    }
-
-    public void setMembershipsToBeAdded(final Set<MembershipMod> membershipsToBeAdded) {
-        if (this.membershipsToBeAdded != membershipsToBeAdded) {
-            this.membershipsToBeAdded.clear();
-            if (membershipsToBeAdded != null && !membershipsToBeAdded.isEmpty()) {
-                this.membershipsToBeAdded.addAll(membershipsToBeAdded);
-            }
-        }
-    }
-
     @XmlElementWrapper(name = "membershipsToBeRemoved")
     @XmlElement(name = "membership")
     @JsonProperty("membershipsToBeRemoved")
     public Set<Long> getMembershipsToBeRemoved() {
         return membershipsToBeRemoved;
-    }
-
-    public boolean addMembershipToBeRemoved(final Long membershipToBeRemoved) {
-        return membershipsToBeRemoved.add(membershipToBeRemoved);
-    }
-
-    public boolean removeMembershipToBeRemoved(final Long membershipToBeRemoved) {
-        return membershipsToBeRemoved.remove(membershipToBeRemoved);
-    }
-
-    public void setMembershipsToBeRemoved(final Set<Long> membershipsToBeRemoved) {
-        if (this.membershipsToBeRemoved != membershipsToBeRemoved) {
-            this.membershipsToBeRemoved.clear();
-            if (membershipsToBeRemoved != null && !membershipsToBeRemoved.isEmpty()) {
-                this.membershipsToBeRemoved.addAll(membershipsToBeRemoved);
-            }
-        }
     }
 
     public PropagationRequestTO getPwdPropRequest() {

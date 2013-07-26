@@ -28,7 +28,6 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -123,7 +122,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         endpointSchema.setRequired(true);
         ConnConfProperty endpoint = new ConnConfProperty();
         endpoint.setSchema(endpointSchema);
-        endpoint.setValues(Collections.singletonList("http://localhost:8888/wssample/services"));
+        endpoint.getValues().add("http://localhost:8888/wssample/services");
 
         ConnConfPropSchema servicenameSchema = new ConnConfPropSchema();
         servicenameSchema.setName("servicename");
@@ -131,18 +130,18 @@ public class ConnInstanceTestITCase extends AbstractTest {
         servicenameSchema.setRequired(true);
         ConnConfProperty servicename = new ConnConfProperty();
         servicename.setSchema(servicenameSchema);
-        servicename.setValues(Collections.singletonList("Provisioning"));
+        endpoint.getValues().add("Provisioning");
 
         conf.add(endpoint);
         conf.add(servicename);
 
         // set connector configuration
-        connectorTO.setConfiguration(conf);
+        connectorTO.getConfiguration().addAll(conf);
 
         // set connector capabilities
-        connectorTO.addCapability(ConnectorCapability.TWO_PHASES_CREATE);
-        connectorTO.addCapability(ConnectorCapability.ONE_PHASE_CREATE);
-        connectorTO.addCapability(ConnectorCapability.TWO_PHASES_UPDATE);
+        connectorTO.getCapabilities().add(ConnectorCapability.TWO_PHASES_CREATE);
+        connectorTO.getCapabilities().add(ConnectorCapability.ONE_PHASE_CREATE);
+        connectorTO.getCapabilities().add(ConnectorCapability.TWO_PHASES_UPDATE);
 
         Response response = connectorService.create(connectorTO);
         if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
@@ -165,7 +164,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // check for the updating
         connectorTO.setId(actual.getId());
 
-        connectorTO.removeCapability(ConnectorCapability.TWO_PHASES_UPDATE);
+        connectorTO.getCapabilities().remove(ConnectorCapability.TWO_PHASES_UPDATE);
         actual = null;
         try {
             connectorService.update(connectorTO.getId(), connectorTO);
@@ -224,7 +223,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         endpointSchema.setRequired(true);
         ConnConfProperty endpoint = new ConnConfProperty();
         endpoint.setSchema(endpointSchema);
-        endpoint.setValues(Collections.singletonList("http://localhost:8888/wssample/services"));
+        endpoint.getValues().add("http://localhost:8888/wssample/services");
+        conf.add(endpoint);
 
         ConnConfPropSchema servicenameSchema = new ConnConfPropSchema();
         servicenameSchema.setName("servicename");
@@ -232,13 +232,11 @@ public class ConnInstanceTestITCase extends AbstractTest {
         servicenameSchema.setRequired(true);
         ConnConfProperty servicename = new ConnConfProperty();
         servicename.setSchema(servicenameSchema);
-        servicename.setValues(Collections.singletonList("Provisioning"));
-
-        conf.add(endpoint);
+        servicename.getValues().add("Provisioning");
         conf.add(servicename);
 
         // set connector configuration
-        connectorTO.setConfiguration(conf);
+        connectorTO.getConfiguration().addAll(conf);
 
         connectorService.update(connectorTO.getId(), connectorTO);
         ConnInstanceTO actual = connectorService.read(connectorTO.getId());
@@ -324,7 +322,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // ----------------------------------
         // Check for spring bean update after connector instance update.
         // ----------------------------------
-        connInstanceTO.addCapability(ConnectorCapability.SEARCH);
+        connInstanceTO.getCapabilities().add(ConnectorCapability.SEARCH);
 
         connectorService.update(connInstanceTO.getId(), connInstanceTO);
         ConnInstanceTO actual = connectorService.read(connInstanceTO.getId());
@@ -445,21 +443,14 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // set the connector configuration using PropertyTO
         Set<ConnConfProperty> conf = new HashSet<ConnConfProperty>();
 
-        ConnConfPropSchema userSchema = new ConnConfPropSchema();
-        userSchema.setName("user");
-        userSchema.setType(String.class.getName());
-        userSchema.setRequired(false);
-        ConnConfProperty user = new ConnConfProperty();
-        user.setSchema(userSchema);
-        user.setValues(Collections.singletonList("sa"));
-
-        ConnConfPropSchema keyColumnSchema = new ConnConfPropSchema();
-        keyColumnSchema.setName("keyColumn");
-        keyColumnSchema.setType(String.class.getName());
-        keyColumnSchema.setRequired(true);
-        ConnConfProperty keyColumn = new ConnConfProperty();
-        keyColumn.setSchema(keyColumnSchema);
-        keyColumn.setValues(Collections.singletonList("id"));
+        ConnConfPropSchema jdbcDriverSchema = new ConnConfPropSchema();
+        jdbcDriverSchema.setName("jdbcDriver");
+        jdbcDriverSchema.setType(String.class.getName());
+        jdbcDriverSchema.setRequired(true);
+        ConnConfProperty jdbcDriver = new ConnConfProperty();
+        jdbcDriver.setSchema(jdbcDriverSchema);
+        jdbcDriver.getValues().add("org.h2.Driver");
+        conf.add(jdbcDriver);
 
         ConnConfPropSchema jdbcUrlTemplateSchema = new ConnConfPropSchema();
         jdbcUrlTemplateSchema.setName("jdbcUrlTemplate");
@@ -467,23 +458,17 @@ public class ConnInstanceTestITCase extends AbstractTest {
         jdbcUrlTemplateSchema.setRequired(true);
         ConnConfProperty jdbcUrlTemplate = new ConnConfProperty();
         jdbcUrlTemplate.setSchema(jdbcUrlTemplateSchema);
-        jdbcUrlTemplate.setValues(Collections.singletonList("jdbc:h2:tcp://localhost:9092/testdb"));
+        jdbcUrlTemplate.getValues().add("jdbc:h2:tcp://localhost:9092/testdb");
+        conf.add(jdbcUrlTemplate);
 
-        ConnConfPropSchema passwordColumnSchema = new ConnConfPropSchema();
-        passwordColumnSchema.setName("passwordColumn");
-        passwordColumnSchema.setType(String.class.getName());
-        passwordColumnSchema.setRequired(true);
-        ConnConfProperty passwordColumn = new ConnConfProperty();
-        passwordColumn.setSchema(passwordColumnSchema);
-        passwordColumn.setValues(Collections.singletonList("password"));
-
-        ConnConfPropSchema tableSchema = new ConnConfPropSchema();
-        tableSchema.setName("table");
-        tableSchema.setType(String.class.getName());
-        tableSchema.setRequired(true);
-        ConnConfProperty table = new ConnConfProperty();
-        table.setSchema(tableSchema);
-        table.setValues(Collections.singletonList("test"));
+        ConnConfPropSchema userSchema = new ConnConfPropSchema();
+        userSchema.setName("user");
+        userSchema.setType(String.class.getName());
+        userSchema.setRequired(false);
+        ConnConfProperty user = new ConnConfProperty();
+        user.setSchema(userSchema);
+        user.getValues().add("sa");
+        conf.add(user);
 
         ConnConfPropSchema passwordSchema = new ConnConfPropSchema();
         passwordSchema.setName("password");
@@ -491,31 +476,44 @@ public class ConnInstanceTestITCase extends AbstractTest {
         passwordSchema.setRequired(true);
         ConnConfProperty password = new ConnConfProperty();
         password.setSchema(passwordSchema);
-        password.setValues(Collections.singletonList("sa"));
-
-        ConnConfPropSchema jdbcDriverSchema = new ConnConfPropSchema();
-        jdbcDriverSchema.setName("jdbcDriver");
-        jdbcDriverSchema.setType(String.class.getName());
-        jdbcDriverSchema.setRequired(true);
-        ConnConfProperty jdbcDriver = new ConnConfProperty();
-        jdbcDriver.setSchema(jdbcDriverSchema);
-        jdbcDriver.setValues(Collections.singletonList("org.h2.Driver"));
-
-        conf.add(user);
-        conf.add(keyColumn);
-        conf.add(jdbcUrlTemplate);
-        conf.add(passwordColumn);
-        conf.add(table);
+        password.getValues().add("sa");
         conf.add(password);
-        conf.add(jdbcDriver);
+        
+        ConnConfPropSchema tableSchema = new ConnConfPropSchema();
+        tableSchema.setName("table");
+        tableSchema.setType(String.class.getName());
+        tableSchema.setRequired(true);
+        ConnConfProperty table = new ConnConfProperty();
+        table.setSchema(tableSchema);
+        table.getValues().add("test");
+        conf.add(table);
+
+        ConnConfPropSchema keyColumnSchema = new ConnConfPropSchema();
+        keyColumnSchema.setName("keyColumn");
+        keyColumnSchema.setType(String.class.getName());
+        keyColumnSchema.setRequired(true);
+        ConnConfProperty keyColumn = new ConnConfProperty();
+        keyColumn.setSchema(keyColumnSchema);
+        keyColumn.getValues().add("id");
+        conf.add(keyColumn);
+
+        ConnConfPropSchema passwordColumnSchema = new ConnConfPropSchema();
+        passwordColumnSchema.setName("passwordColumn");
+        passwordColumnSchema.setType(String.class.getName());
+        passwordColumnSchema.setRequired(true);
+        ConnConfProperty passwordColumn = new ConnConfProperty();
+        passwordColumn.setSchema(passwordColumnSchema);
+        passwordColumn.getValues().add("password");
+        conf.add(passwordColumn);
 
         // set connector configuration
-        connectorTO.setConfiguration(conf);
+        connectorTO.getConfiguration().addAll(conf);
 
         assertTrue(connectorService.check(connectorTO));
 
         conf.remove(password);
-        password.setValues(Collections.singletonList("password"));
+        password.getValues().clear();
+        password.getValues().add("password");
         conf.add(password);
 
         assertFalse(connectorService.check(connectorTO));
@@ -596,7 +594,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         userSchema.setRequired(true);
         ConnConfProperty endpoint = new ConnConfProperty();
         endpoint.setSchema(userSchema);
-        endpoint.setValues(Collections.singletonList("http://localhost:9080/does_not_work"));
+        endpoint.getValues().add("http://localhost:9080/does_not_work");
         endpoint.setOverridable(true);
 
         ConnConfPropSchema keyColumnSchema = new ConnConfPropSchema();
@@ -605,15 +603,14 @@ public class ConnInstanceTestITCase extends AbstractTest {
         keyColumnSchema.setRequired(true);
         ConnConfProperty servicename = new ConnConfProperty();
         servicename.setSchema(keyColumnSchema);
-        servicename.setValues(
-                Collections.singletonList("org.connid.bundles.soap.provisioning.interfaces.Provisioning"));
+        servicename.getValues().add("org.connid.bundles.soap.provisioning.interfaces.Provisioning");
         servicename.setOverridable(false);
 
         conf.add(endpoint);
         conf.add(servicename);
 
         // set connector configuration
-        connectorTO.setConfiguration(conf);
+        connectorTO.getConfiguration().addAll(conf);
 
         try {
             assertFalse(connectorService.check(connectorTO));
@@ -637,10 +634,11 @@ public class ConnInstanceTestITCase extends AbstractTest {
             resourceTO.setConnectorId(connectorTO.getId());
 
             conf = new HashSet<ConnConfProperty>();
-            endpoint.setValues(Collections.singletonList("http://localhost:9080/wssample/services/provisioning"));
+            endpoint.getValues().clear();
+            endpoint.getValues().add("http://localhost:9080/wssample/services/provisioning");
             conf.add(endpoint);
 
-            resourceTO.setConnConfProperties(conf);
+            resourceTO.getConnConfProperties().addAll(conf);
 
             MappingTO mapping = new MappingTO();
             resourceTO.setUmapping(mapping);

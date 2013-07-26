@@ -56,23 +56,6 @@ public class NotificationTaskTO extends AbstractTaskTO {
         return recipients;
     }
 
-    public boolean addRecipient(final String recipient) {
-        return recipients.add(recipient);
-    }
-
-    public boolean removeRecipient(final String recipient) {
-        return recipients.remove(recipient);
-    }
-
-    public void setRecipients(final Set<String> recipients) {
-        if (this.recipients != recipients) {
-            this.recipients.clear();
-            if (recipients != null) {
-                this.recipients.addAll(recipients);
-            }
-        }
-    }
-
     public String getSender() {
         return sender;
     }

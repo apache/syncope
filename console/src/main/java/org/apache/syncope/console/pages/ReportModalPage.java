@@ -128,37 +128,37 @@ public class ReportModalPage extends BaseModalPage {
         final AjaxButton submit =
                 new ClearIndicatingAjaxButton(APPLY, new ResourceModel(APPLY), getPageReference()) {
 
-                    private static final long serialVersionUID = -958724007591692537L;
+            private static final long serialVersionUID = -958724007591692537L;
 
-                    @Override
-                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                        ReportTO reportTO = (ReportTO) form.getModelObject();
-                        reportTO.setCronExpression(StringUtils.hasText(reportTO.getCronExpression())
-                                ? crontab.getCronExpression()
-                                : null);
+            @Override
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                ReportTO reportTO = (ReportTO) form.getModelObject();
+                reportTO.setCronExpression(StringUtils.hasText(reportTO.getCronExpression())
+                        ? crontab.getCronExpression()
+                        : null);
 
-                        try {
-                            if (reportTO.getId() > 0) {
-                                reportRestClient.update(reportTO);
-                            } else {
-                                reportRestClient.create(reportTO);
-                            }
-
-                            ((BasePage) callerPageRef.getPage()).setModalResult(true);
-
-                            window.close(target);
-                        } catch (SyncopeClientCompositeErrorException e) {
-                            LOG.error("While creating or updating report", e);
-                            error(getString(Constants.ERROR) + ":" + e.getMessage());
-                            target.add(feedbackPanel);
-                        }
+                try {
+                    if (reportTO.getId() > 0) {
+                        reportRestClient.update(reportTO);
+                    } else {
+                        reportRestClient.create(reportTO);
                     }
 
-                    @Override
-                    protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                        target.add(feedbackPanel);
-                    }
-                };
+                    ((BasePage) callerPageRef.getPage()).setModalResult(true);
+
+                    window.close(target);
+                } catch (SyncopeClientCompositeErrorException e) {
+                    LOG.error("While creating or updating report", e);
+                    error(getString(Constants.ERROR) + ":" + e.getMessage());
+                    target.add(feedbackPanel);
+                }
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                target.add(feedbackPanel);
+            }
+        };
 
         if (reportTO.getId() > 0) {
             MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getAllAllowedRoles("Reports",
@@ -173,13 +173,13 @@ public class ReportModalPage extends BaseModalPage {
         final AjaxButton cancel =
                 new ClearIndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL), getPageReference()) {
 
-                    private static final long serialVersionUID = -958724007591692537L;
+            private static final long serialVersionUID = -958724007591692537L;
 
-                    @Override
-                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                        window.close(target);
-                    }
-                };
+            @Override
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                window.close(target);
+            }
+        };
 
         cancel.setDefaultFormProcessing(false);
         form.add(cancel);
@@ -211,7 +211,7 @@ public class ReportModalPage extends BaseModalPage {
                 }
                 if (modalReportletConf != null) {
                     if (foundIdx == -1) {
-                        reportTO.addReportletConf(modalReportletConf);
+                        reportTO.getReportletConfs().add(modalReportletConf);
                     } else {
                         reportTO.getReportletConfs().set(foundIdx, modalReportletConf);
                     }
@@ -250,18 +250,18 @@ public class ReportModalPage extends BaseModalPage {
         reportlets = new ListChoice<AbstractReportletConf>("reportletConfs", new Model(), reportTO.getReportletConfs(),
                 new IChoiceRenderer<ReportletConf>() {
 
-                    private static final long serialVersionUID = 1048000918946220007L;
+            private static final long serialVersionUID = 1048000918946220007L;
 
-                    @Override
-                    public Object getDisplayValue(final ReportletConf object) {
-                        return object.getName();
-                    }
+            @Override
+            public Object getDisplayValue(final ReportletConf object) {
+                return object.getName();
+            }
 
-                    @Override
-                    public String getIdValue(final ReportletConf object, int index) {
-                        return object.getName();
-                    }
-                }) {
+            @Override
+            public String getIdValue(final ReportletConf object, int index) {
+                return object.getName();
+            }
+        }) {
 
             private static final long serialVersionUID = 4022366881854379834L;
 
@@ -338,7 +338,7 @@ public class ReportModalPage extends BaseModalPage {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                reportTO.removeReportletConf(reportlets.getModelObject());
+                reportTO.getReportletConfs().remove(reportlets.getModelObject());
                 reportlets.setModelObject(null);
                 target.add(reportlets);
             }
@@ -504,7 +504,7 @@ public class ReportModalPage extends BaseModalPage {
                         try {
                             reportRestClient.deleteExecution(taskExecutionTO.getId());
 
-                            reportTO.removeExecution(taskExecutionTO);
+                            reportTO.getExecutions().remove(taskExecutionTO);
 
                             info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientCompositeErrorException scce) {
@@ -533,7 +533,8 @@ public class ReportModalPage extends BaseModalPage {
                             final ReportTO currentReportTO = reportTO.getId() == 0
                                     ? reportTO
                                     : reportRestClient.read(reportTO.getId());
-                            reportTO.setExecutions(currentReportTO.getExecutions());
+                            reportTO.getExecutions().clear();
+                            reportTO.getExecutions().addAll(currentReportTO.getExecutions());
                             final AjaxFallbackDefaultDataTable currentTable =
                                     new AjaxFallbackDefaultDataTable("executionsTable", columns,
                                     new ReportExecutionsProvider(reportTO), 10);

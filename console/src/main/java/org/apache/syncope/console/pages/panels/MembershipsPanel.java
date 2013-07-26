@@ -188,7 +188,7 @@ public class MembershipsPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        userTO.removeMembership(membershipTO);
+                        userTO.getMemberships().remove(membershipTO);
                         target.add(membershipsContainer);
 
                         RoleTO roleTO = RoleUtils.findRole(roleTreeBuilder, membershipTO.getRoleId());
@@ -240,7 +240,8 @@ public class MembershipsPanel extends Panel {
                     }
                 }
 
-                MembershipsPanel.this.userTO.setMemberships(updatedUserTO.getMemberships());
+                MembershipsPanel.this.userTO.getMemberships().clear();
+                MembershipsPanel.this.userTO.getMemberships().addAll(updatedUserTO.getMemberships());
                 target.add(container);
             }
         });

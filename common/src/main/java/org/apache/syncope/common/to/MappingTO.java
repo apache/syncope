@@ -20,7 +20,6 @@ package org.apache.syncope.common.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -39,13 +38,7 @@ public class MappingTO extends AbstractBaseBean {
 
     private String accountLink;
 
-    private final List<MappingItemTO> items;
-
-    public MappingTO() {
-        super();
-
-        items = new ArrayList<MappingItemTO>();
-    }
+    private final List<MappingItemTO> items = new ArrayList<MappingItemTO>();
 
     public String getAccountLink() {
         return accountLink;
@@ -126,14 +119,5 @@ public class MappingTO extends AbstractBaseBean {
 
     public boolean removeItem(final MappingItemTO item) {
         return this.items.remove(item);
-    }
-
-    public void setItems(final Collection<MappingItemTO> items) {
-        if (this.items != items) {
-            this.items.clear();
-            if (items != null && !items.isEmpty()) {
-                this.items.addAll(items);
-            }
-        }
     }
 }

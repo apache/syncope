@@ -76,28 +76,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(final long id) {
         this.id = id;
-    }
-
-    /**
-     * Convenience method for removing entire attribute instead removing each value in an AttributeMod object
-     *
-     * @param name (schema) of attribute to be removed.
-     * @return true on success.
-     */
-    public boolean addAttributeToBeRemoved(String attribute) {
-        return attributesToBeRemoved.add(attribute);
-    }
-
-    /**
-     * Convenience method for removing entire attribute instead removing each value in an AttributeMod object
-     *
-     * @param name (schema) of attribute to be removed.
-     * @return true on success.
-     */
-    public boolean removeAttributeToBeRemoved(String attribute) {
-        return attributesToBeRemoved.remove(attribute);
     }
 
     @XmlElementWrapper(name = "attributesToBeRemoved")
@@ -107,62 +87,11 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return attributesToBeRemoved;
     }
 
-    public void setAttributesToBeRemoved(Set<String> attributesToBeRemoved) {
-        this.attributesToBeRemoved = attributesToBeRemoved;
-    }
-
-    /**
-     * Add an attribute modification object. AttributeMod itself indicates how the attribute should be modified.
-     *
-     * @param attribute modification object
-     * @see AttributeMod
-     * @return true on success
-     */
-    public boolean addAttributeToBeUpdated(AttributeMod attribute) {
-        return attributesToBeUpdated.add(attribute);
-    }
-
-    /**
-     * Remove an attribute modification object. AttributeMod itself indicates how the attribute should be modified.
-     *
-     * @param attribute modification object
-     * @see AttributeMod
-     * @return true on success
-     */
-    public boolean removeAttributeToBeUpdated(AttributeMod attribute) {
-        return attributesToBeUpdated.remove(attribute);
-    }
-
     @XmlElementWrapper(name = "attributesToBeUpdated")
     @XmlElement(name = "attributeMod")
     @JsonProperty("attributesToBeUpdated")
     public Set<AttributeMod> getAttributesToBeUpdated() {
         return attributesToBeUpdated;
-    }
-
-    public void setAttributesToBeUpdated(Set<AttributeMod> attributesToBeUpdated) {
-        this.attributesToBeUpdated = attributesToBeUpdated;
-    }
-
-    /**
-     * Add an attribute modification object. AttributeMod itself indicates how the attribute should be modified.
-     *
-     * @param attribute modification object
-     * @see AttributeMod
-     * @return true on success
-     */
-    public boolean addDerivedAttributeToBeAdded(String derivedAttribute) {
-        return derivedAttributesToBeAdded.add(derivedAttribute);
-    }
-
-    /**
-     * Add a derivedattribute. Value is calculated by its definition.
-     *
-     * @param derivedAttribute
-     * @return true on success
-     */
-    public boolean removeDerivedAttributeToBeAdded(String derivedAttribute) {
-        return derivedAttributesToBeAdded.remove(derivedAttribute);
     }
 
     @XmlElementWrapper(name = "derivedAttributesToBeAdded")
@@ -172,29 +101,11 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return derivedAttributesToBeAdded;
     }
 
-    public void setDerivedAttributesToBeAdded(Set<String> derivedAttributesToBeAdded) {
-
-        this.derivedAttributesToBeAdded = derivedAttributesToBeAdded;
-    }
-
-    public boolean addDerivedAttributeToBeRemoved(String derivedAttribute) {
-        return derivedAttributesToBeRemoved.add(derivedAttribute);
-    }
-
-    public boolean removeDerivedAttributeToBeRemoved(String derivedAttribute) {
-        return derivedAttributesToBeRemoved.remove(derivedAttribute);
-    }
-
     @XmlElementWrapper(name = "derivedAttributesToBeRemoved")
     @XmlElement(name = "attribute")
     @JsonProperty("derivedAttributesToBeRemoved")
     public Set<String> getDerivedAttributesToBeRemoved() {
         return derivedAttributesToBeRemoved;
-    }
-
-    public void setDerivedAttributesToBeRemoved(Set<String> derivedAttributesToBeRemoved) {
-
-        this.derivedAttributesToBeRemoved = derivedAttributesToBeRemoved;
     }
 
     @XmlElementWrapper(name = "virtualAttributesToBeRemoved")
@@ -204,49 +115,11 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return virtualAttributesToBeRemoved;
     }
 
-    public boolean addVirtualAttributeToBeRemoved(String virtualAttributeToBeRemoved) {
-
-        return virtualAttributesToBeRemoved.add(virtualAttributeToBeRemoved);
-    }
-
-    public boolean removeVirtualAttributeToBeRemoved(String virtualAttributeToBeRemoved) {
-
-        return virtualAttributesToBeRemoved.remove(virtualAttributeToBeRemoved);
-    }
-
-    public void setVirtualAttributesToBeRemoved(Set<String> virtualAttributesToBeRemoved) {
-
-        this.virtualAttributesToBeRemoved = virtualAttributesToBeRemoved;
-    }
-
-    public boolean addVirtualAttributeToBeUpdated(AttributeMod virtualAttributeToBeUpdated) {
-
-        return virtualAttributesToBeUpdated.add(virtualAttributeToBeUpdated);
-    }
-
-    public boolean removeVirtualAttributeToBeUpdated(AttributeMod virtualAttributeToBeUpdated) {
-
-        return virtualAttributesToBeUpdated.remove(virtualAttributeToBeUpdated);
-    }
-
     @XmlElementWrapper(name = "virtualAttributesToBeUpdated")
     @XmlElement(name = "attribute")
     @JsonProperty("virtualAttributesToBeUpdated")
     public Set<AttributeMod> getVirtualAttributesToBeUpdated() {
         return virtualAttributesToBeUpdated;
-    }
-
-    public void setVirtualAttributesToBeUpdated(Set<AttributeMod> virtualAttributesToBeUpdated) {
-
-        this.virtualAttributesToBeUpdated = virtualAttributesToBeUpdated;
-    }
-
-    public boolean addResourceToBeAdded(String resource) {
-        return resourcesToBeAdded.add(resource);
-    }
-
-    public boolean removeResourceToBeAdded(String resource) {
-        return resourcesToBeAdded.remove(resource);
     }
 
     @XmlElementWrapper(name = "resourcesToBeAdded")
@@ -256,27 +129,11 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return resourcesToBeAdded;
     }
 
-    public void setResourcesToBeAdded(Set<String> resourcesToBeAdded) {
-        this.resourcesToBeAdded = resourcesToBeAdded;
-    }
-
-    public boolean addResourceToBeRemoved(String resource) {
-        return resourcesToBeRemoved.add(resource);
-    }
-
-    public boolean removeResourceToBeRemoved(String resource) {
-        return resourcesToBeRemoved.remove(resource);
-    }
-
     @XmlElementWrapper(name = "resourcesToBeRemoved")
     @XmlElement(name = "resource")
     @JsonProperty("resourcesToBeRemoved")
     public Set<String> getResourcesToBeRemoved() {
         return resourcesToBeRemoved;
-    }
-
-    public void setResourcesToBeRemoved(Set<String> resourcesToBeRemoved) {
-        this.resourcesToBeRemoved = resourcesToBeRemoved;
     }
 
     /**

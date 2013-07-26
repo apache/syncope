@@ -66,21 +66,4 @@ public class PropagationRequestTO extends AbstractBaseBean {
     public Set<String> getResources() {
         return resources;
     }
-
-    public boolean addResource(final String resource) {
-        return this.resources.add(resource);
-    }
-
-    public boolean removeResource(final String resource) {
-        return this.resources.remove(resource);
-    }
-
-    public void setResources(final Set<String> resources) {
-        if (this.resources != resources) {
-            this.resources.clear();
-            if (resources != null && !resources.isEmpty()) {
-                this.resources.addAll(resources);
-            }
-        }
-    }
 }

@@ -49,17 +49,13 @@ public class WorkflowFormPropertyTO extends AbstractBaseBean {
 
     private String datePattern;
 
-    private Map<String, String> enumValues;
-
-    public WorkflowFormPropertyTO() {
-        enumValues = new HashMap<String, String>();
-    }
+    private Map<String, String> enumValues = new HashMap<String, String>();
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(final String id) {
         this.id = id;
     }
 
@@ -67,7 +63,7 @@ public class WorkflowFormPropertyTO extends AbstractBaseBean {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -75,7 +71,7 @@ public class WorkflowFormPropertyTO extends AbstractBaseBean {
         return readable;
     }
 
-    public void setReadable(boolean readable) {
+    public void setReadable(final boolean readable) {
         this.readable = readable;
     }
 
@@ -83,7 +79,7 @@ public class WorkflowFormPropertyTO extends AbstractBaseBean {
         return required;
     }
 
-    public void setRequired(boolean required) {
+    public void setRequired(final boolean required) {
         this.required = required;
     }
 
@@ -91,7 +87,7 @@ public class WorkflowFormPropertyTO extends AbstractBaseBean {
         return type;
     }
 
-    public void setType(WorkflowFormPropertyType type) {
+    public void setType(final WorkflowFormPropertyType type) {
         this.type = type;
     }
 
@@ -99,7 +95,7 @@ public class WorkflowFormPropertyTO extends AbstractBaseBean {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(final String value) {
         this.value = value;
     }
 
@@ -107,7 +103,7 @@ public class WorkflowFormPropertyTO extends AbstractBaseBean {
         return writable;
     }
 
-    public void setWritable(boolean writable) {
+    public void setWritable(final boolean writable) {
         this.writable = writable;
     }
 
@@ -115,25 +111,11 @@ public class WorkflowFormPropertyTO extends AbstractBaseBean {
         return datePattern;
     }
 
-    public void setDatePattern(String datePattern) {
+    public void setDatePattern(final String datePattern) {
         this.datePattern = datePattern;
     }
 
     public Map<String, String> getEnumValues() {
         return enumValues;
-    }
-
-    public void putEnumValue(String key, String value) {
-        this.enumValues.put(key, value);
-    }
-
-    public void removeEnumValue(String key) {
-        this.enumValues.remove(key);
-    }
-
-    public void setEnumValues(Map<String, String> enumValues) {
-        if (enumValues != null) {
-            this.enumValues = enumValues;
-        }
     }
 }

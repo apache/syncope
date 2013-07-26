@@ -40,33 +40,36 @@ public class UserRequestTO extends AbstractBaseBean {
     private Long userId;
 
     private UserRequestType type;
-    
+
     public UserRequestTO() {
     }
 
     /**
-     * Request to create a user
+     * Request to create an user.
+     *
      * @param userTO
      */
-    public UserRequestTO(UserTO userTO) {
+    public UserRequestTO(final UserTO userTO) {
         this.type = UserRequestType.CREATE;
         this.userTO = userTO;
     }
 
     /**
-     * Request to update a user
+     * Request to update an user.
+     *
      * @param userMod
      */
-    public UserRequestTO(UserMod userMod) {
+    public UserRequestTO(final UserMod userMod) {
         this.userMod = userMod;
         this.type = UserRequestType.UPDATE;
     }
 
     /**
-     * Request to delete a user
+     * Request to delete a user.
+     *
      * @param userId
      */
-    public UserRequestTO(long userId) {
+    public UserRequestTO(final long userId) {
         this.type = UserRequestType.DELETE;
         this.userId = userId;
     }
@@ -83,7 +86,7 @@ public class UserRequestTO extends AbstractBaseBean {
         return type;
     }
 
-    public void setType(UserRequestType type) {
+    public void setType(final UserRequestType type) {
         this.type = type;
     }
 
@@ -93,7 +96,7 @@ public class UserRequestTO extends AbstractBaseBean {
                 : userTO;
     }
 
-    public void setUserTO(UserTO userTO) {
+    public void setUserTO(final UserTO userTO) {
         this.userTO = userTO;
     }
 
@@ -103,7 +106,7 @@ public class UserRequestTO extends AbstractBaseBean {
                 : userMod;
     }
 
-    public void setUserMod(UserMod userMod) {
+    public void setUserMod(final UserMod userMod) {
         this.userMod = userMod;
     }
 
@@ -113,7 +116,7 @@ public class UserRequestTO extends AbstractBaseBean {
                 : userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(final Long userId) {
         this.userId = userId;
     }
 }

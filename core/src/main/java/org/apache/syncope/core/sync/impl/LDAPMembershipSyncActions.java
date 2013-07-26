@@ -97,12 +97,12 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
         while (propertyIterator.hasNext()) {
             ConnConfProperty property = propertyIterator.next();
             if ("groupMemberAttribute".equals(property.getSchema().getName())
-                && property.getValues() != null && !property.getValues().isEmpty()) {
-                groupMembershipName = (String)property.getValues().get(0);
+                    && property.getValues() != null && !property.getValues().isEmpty()) {
+                groupMembershipName = (String) property.getValues().get(0);
                 break;
             }
         }
-        
+
         return groupMembershipName;
     }
 
@@ -152,7 +152,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
 
             MembershipMod membershipMod = new MembershipMod();
             membershipMod.setRole(roleTO.getId());
-            userMod.addMembershipToBeAdded(membershipMod);
+            userMod.getMembershipsToBeAdded().add(membershipMod);
         }
 
         return userMod;
@@ -170,7 +170,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     protected List<Object> getMembAttrValues(final SyncDelta delta, final Connector connector) {
         List<Object> result = Collections.<Object>emptyList();
         String groupMemberName = getGroupMembershipAttrName(connector);
-        
+
         // first, try to read the configured attribute from delta, returned by the ongoing synchronization
         Attribute membAttr = delta.getObject().getAttributeByName(groupMemberName);
         // if not found, perform an additional read on the underlying connector for the same connector object
@@ -242,7 +242,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
         for (Map.Entry<Long, Long> member : membersBeforeRoleUpdate.entrySet()) {
             UserMod userMod = new UserMod();
             userMod.setId(member.getKey());
-            userMod.addMembershipToBeRemoved(member.getValue());
+            userMod.getMembershipsToBeRemoved().add(member.getValue());
             userUpdate(userMod, resource.getName());
         }
     }

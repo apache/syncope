@@ -91,8 +91,8 @@ public class JSONTest {
     @Test
     public void testMap() throws IOException {
         WorkflowFormPropertyTO prop = new WorkflowFormPropertyTO();
-        prop.putEnumValue("key1", "value1");
-        prop.putEnumValue("key2", "value2");
+        prop.getEnumValues().put("key1", "value1");
+        prop.getEnumValues().put("key2", "value2");
 
         ObjectMapper mapper = new ObjectMapper();
 
@@ -107,8 +107,8 @@ public class JSONTest {
     public void testReportletConfImplementations() throws IOException {
         ReportTO report = new ReportTO();
         report.setName("testReportForCreate");
-        report.addReportletConf(new UserReportletConf("first"));
-        report.addReportletConf(new UserReportletConf("second"));
+        report.getReportletConfs().add(new UserReportletConf("first"));
+        report.getReportletConfs().add(new UserReportletConf("second"));
 
         ObjectMapper mapper = new ObjectMapper();
 

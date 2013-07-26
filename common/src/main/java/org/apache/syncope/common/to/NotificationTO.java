@@ -40,7 +40,7 @@ public class NotificationTO extends AbstractBaseBean {
 
     private Long id;
 
-    private List<String> events;
+    private List<String> events = new ArrayList<String>();
 
     private NodeCond about;
 
@@ -60,15 +60,11 @@ public class NotificationTO extends AbstractBaseBean {
 
     private TraceLevel traceLevel;
 
-    public NotificationTO() {
-        events = new ArrayList<String>();
-    }
-
     public NodeCond getAbout() {
         return about;
     }
 
-    public void setAbout(NodeCond about) {
+    public void setAbout(final NodeCond about) {
         this.about = about;
     }
 
@@ -77,18 +73,6 @@ public class NotificationTO extends AbstractBaseBean {
     @JsonProperty("events")
     public List<String> getEvents() {
         return events;
-    }
-
-    public boolean addEvent(final String event) {
-        return event != null && !events.contains(event) && events.add(event);
-    }
-
-    public boolean removeEvent(final String event) {
-        return event != null && events.remove(event);
-    }
-
-    public void setEvents(List<String> events) {
-        this.events = events;
     }
 
     public Long getId() {

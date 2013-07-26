@@ -76,7 +76,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         RoleTO authRoleTO = new RoleTO();
         authRoleTO.setName("authRole" + getUUIDString());
         authRoleTO.setParent(8L);
-        authRoleTO.addEntitlement("SCHEMA_READ");
+        authRoleTO.getEntitlements().add("SCHEMA_READ");
 
         authRoleTO = createRole(roleService, authRoleTO);
         assertNotNull(authRoleTO);
@@ -99,9 +99,9 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.setRoleId(authRoleTO.getId());
         AttributeTO testAttributeTO = new AttributeTO();
         testAttributeTO.setSchema("testAttribute");
-        testAttributeTO.addValue("a value");
-        membershipTO.addAttribute(testAttributeTO);
-        userTO.addMembership(membershipTO);
+        testAttributeTO.getValues().add("a value");
+        membershipTO.getAttributes().add(testAttributeTO);
+        userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -140,9 +140,9 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.setRoleId(7L);
         AttributeTO testAttributeTO = new AttributeTO();
         testAttributeTO.setSchema("testAttribute");
-        testAttributeTO.addValue("a value");
-        membershipTO.addAttribute(testAttributeTO);
-        userTO.addMembership(membershipTO);
+        testAttributeTO.getValues().add("a value");
+        membershipTO.getAttributes().add(testAttributeTO);
+        userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -172,9 +172,9 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.setRoleId(7L);
         AttributeTO testAttributeTO = new AttributeTO();
         testAttributeTO.setSchema("testAttribute");
-        testAttributeTO.addValue("a value");
-        membershipTO.addAttribute(testAttributeTO);
-        userTO.addMembership(membershipTO);
+        testAttributeTO.getValues().add("a value");
+        membershipTO.getAttributes().add(testAttributeTO);
+        userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -216,9 +216,9 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.setRoleId(7L);
         AttributeTO testAttributeTO = new AttributeTO();
         testAttributeTO.setSchema("testAttribute");
-        testAttributeTO.addValue("a value");
-        membershipTO.addAttribute(testAttributeTO);
-        userTO.addMembership(membershipTO);
+        testAttributeTO.getValues().add("a value");
+        membershipTO.getAttributes().add(testAttributeTO);
+        userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -246,9 +246,9 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.setRoleId(7L);
         AttributeTO testAttributeTO = new AttributeTO();
         testAttributeTO.setSchema("testAttribute");
-        testAttributeTO.addValue("a value");
-        membershipTO.addAttribute(testAttributeTO);
-        userTO.addMembership(membershipTO);
+        testAttributeTO.getValues().add("a value");
+        membershipTO.getAttributes().add(testAttributeTO);
+        userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
         long userId = userTO.getId();
@@ -293,8 +293,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         // Parent role, able to create users with role 1
         RoleTO parentRole = new RoleTO();
         parentRole.setName("parentAdminRole" + getUUIDString());
-        parentRole.addEntitlement("USER_CREATE");
-        parentRole.addEntitlement("ROLE_1");
+        parentRole.getEntitlements().add("USER_CREATE");
+        parentRole.getEntitlements().add("ROLE_1");
         parentRole.setParent(1L);
 
         parentRole = createRole(roleService, parentRole);
@@ -313,7 +313,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         role1Admin.setPassword("password");
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(childRole.getId());
-        role1Admin.addMembership(membershipTO);
+        role1Admin.getMemberships().add(membershipTO);
 
         role1Admin = createUser(role1Admin);
         assertNotNull(role1Admin);
@@ -324,7 +324,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         UserTO role1User = UserTestITCase.getUniqueSampleTO("syncope48user@apache.org");
         membershipTO = new MembershipTO();
         membershipTO.setRoleId(1L);
-        role1User.addMembership(membershipTO);
+        role1User.getMemberships().add(membershipTO);
 
         Response response = userService2.create(role1User);
         assertNotNull(response);

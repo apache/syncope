@@ -75,26 +75,6 @@ public class AttributeTO extends AbstractBaseBean {
     }
 
     /**
-     * @param value an attribute value to be added
-     * @return whether the operation succeeded or not
-     */
-    public boolean addValue(final String value) {
-        return value == null || isReadonly()
-                ? false
-                : values.add(value);
-    }
-
-    /**
-     * @param value an attribute value to be removed
-     * @return whether the operation succeeded or not
-     */
-    public boolean removeValue(final String value) {
-        return value == null || isReadonly()
-                ? false
-                : values.remove(value);
-    }
-
-    /**
      * @return attribute values as strings
      */
     @XmlElementWrapper(name = "values")
@@ -102,15 +82,6 @@ public class AttributeTO extends AbstractBaseBean {
     @JsonProperty("values")
     public List<String> getValues() {
         return values;
-    }
-
-    /**
-     * @param values set of (string) values
-     */
-    public void setValues(final List<String> values) {
-        if (!isReadonly()) {
-            this.values = values;
-        }
     }
 
     public boolean isReadonly() {

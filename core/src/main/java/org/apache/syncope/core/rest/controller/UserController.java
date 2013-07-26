@@ -259,7 +259,7 @@ public class UserController {
         notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
 
         final UserTO savedTO = binder.getUserTO(created.getResult().getKey());
-        savedTO.setPropagationStatusTOs(propagations);
+        savedTO.getPropagationStatusTOs().addAll(propagations);
 
         LOG.debug("About to return created user\n{}", savedTO);
 
@@ -344,7 +344,7 @@ public class UserController {
 
         // 4. prepare result, including propagation status on external resources
         final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey());
-        updatedTO.setPropagationStatusTOs(propagations);
+        updatedTO.getPropagationStatusTOs().addAll(propagations);
 
         auditManager.audit(Category.user, UserSubCategory.update, Result.success,
                 "Successfully updated user: " + updatedTO.getUsername());
@@ -533,7 +533,7 @@ public class UserController {
             propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
         }
 
-        userTO.setPropagationStatusTOs(propagations);
+        userTO.getPropagationStatusTOs().addAll(propagations);
 
         uwfAdapter.delete(userId);
 

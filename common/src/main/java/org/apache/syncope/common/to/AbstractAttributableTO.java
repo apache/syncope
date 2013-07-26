@@ -97,31 +97,11 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         return result;
     }
 
-    public boolean addDerivedAttribute(final AttributeTO derivedAttribute) {
-        return derivedAttributes.add(derivedAttribute);
-    }
-
-    public boolean removeDerivedAttribute(final AttributeTO derivedAttribute) {
-        return derivedAttributes.remove(derivedAttribute);
-    }
-
     @XmlElementWrapper(name = "derivedAttributes")
     @XmlElement(name = "attribute")
     @JsonProperty("derivedAttributes")
     public List<AttributeTO> getDerivedAttributes() {
         return derivedAttributes;
-    }
-
-    public void setDerivedAttributes(final List<AttributeTO> derivedAttributes) {
-        this.derivedAttributes = derivedAttributes;
-    }
-
-    public boolean addVirtualAttribute(final AttributeTO virtualAttribute) {
-        return virtualAttributes.add(virtualAttribute);
-    }
-
-    public boolean removeVirtualAttribute(final AttributeTO virtualAttribute) {
-        return virtualAttributes.remove(virtualAttribute);
     }
 
     @XmlElementWrapper(name = "virtualAttributes")
@@ -131,31 +111,11 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         return virtualAttributes;
     }
 
-    public void setVirtualAttributes(final List<AttributeTO> virtualAttributes) {
-        this.virtualAttributes = virtualAttributes;
-    }
-
-    public boolean addResource(final String resource) {
-        return resources.add(resource);
-    }
-
-    public boolean removeResource(final String resource) {
-        return resources.remove(resource);
-    }
-
     @XmlElementWrapper(name = "resources")
     @XmlElement(name = "resource")
     @JsonProperty("resources")
     public Set<String> getResources() {
         return resources;
-    }
-
-    public void setResources(final Set<String> resources) {
-        this.resources = resources;
-    }
-
-    public boolean addPropagationTO(final PropagationStatusTO status) {
-        return propagationStatusTOs.add(status);
     }
 
     public boolean removePropagationTO(final String resource) {
@@ -178,12 +138,5 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
     @JsonProperty("propagationStatuses")
     public List<PropagationStatusTO> getPropagationStatusTOs() {
         return propagationStatusTOs;
-    }
-
-    public void setPropagationStatusTOs(final List<PropagationStatusTO> propagationStatusTOs) {
-        if (this.propagationStatusTOs != propagationStatusTOs) {
-            this.propagationStatusTOs.clear();
-            this.propagationStatusTOs.addAll(propagationStatusTOs);
-        }
     }
 }

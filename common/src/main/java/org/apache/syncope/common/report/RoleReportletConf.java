@@ -84,38 +84,11 @@ public class RoleReportletConf extends AbstractReportletConf {
         return attrs;
     }
 
-    public void setAttrs(final List<String> attrs) {
-        this.attrs = attrs;
-    }
-
     @XmlElementWrapper(name = "derivedAttributes")
     @XmlElement(name = "attribute")
     @JsonProperty("derivedAttributes")
     public List<String> getDerAttrs() {
         return derAttrs;
-    }
-
-    public void setDerAttrs(final List<String> derAttrs) {
-        this.derAttrs = derAttrs;
-    }
-
-    @XmlElementWrapper(name = "features")
-    @XmlElement(name = "feature")
-    @JsonProperty("features")
-    public List<Feature> getFeatures() {
-        return features;
-    }
-
-    public void setFeatures(final List<Feature> features) {
-        this.features = features;
-    }
-
-    public NodeCond getMatchingCond() {
-        return matchingCond;
-    }
-
-    public void setMatchingCond(final NodeCond matchingCond) {
-        this.matchingCond = matchingCond;
     }
 
     @XmlElementWrapper(name = "virtualAttributes")
@@ -125,7 +98,18 @@ public class RoleReportletConf extends AbstractReportletConf {
         return virAttrs;
     }
 
-    public void setVirAttrs(final List<String> virAttrs) {
-        this.virAttrs = virAttrs;
+    @XmlElementWrapper(name = "features")
+    @XmlElement(name = "feature")
+    @JsonProperty("features")
+    public List<Feature> getFeatures() {
+        return features;
+    }
+
+    public NodeCond getMatchingCond() {
+        return matchingCond;
+    }
+
+    public void setMatchingCond(final NodeCond matchingCond) {
+        this.matchingCond = matchingCond;
     }
 }

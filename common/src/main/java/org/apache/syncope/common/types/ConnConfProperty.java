@@ -37,7 +37,7 @@ public class ConnConfProperty extends AbstractBaseBean implements Comparable<Con
 
     private ConnConfPropSchema schema;
 
-    private List<?> values = new ArrayList<Object>();
+    private List<Object> values = new ArrayList<Object>();
 
     private boolean overridable;
 
@@ -52,12 +52,8 @@ public class ConnConfProperty extends AbstractBaseBean implements Comparable<Con
     @XmlElementWrapper(name = "values")
     @XmlElement(name = "value")
     @JsonProperty("values")
-    public List<?> getValues() {
+    public List<Object> getValues() {
         return values;
-    }
-
-    public void setValues(final List<?> values) {
-        this.values = values;
     }
 
     public boolean isOverridable() {

@@ -59,15 +59,15 @@ public class UserReportletConf extends AbstractReportletConf {
     private NodeCond matchingCond;
 
     @FormAttributeField(schema = IntMappingType.UserSchema)
-    private List<String> attrs;
+    private List<String> attrs = new ArrayList<String>();
 
     @FormAttributeField(schema = IntMappingType.UserDerivedSchema)
-    private List<String> derAttrs;
+    private List<String> derAttrs = new ArrayList<String>();
 
     @FormAttributeField(schema = IntMappingType.UserVirtualSchema)
-    private List<String> virAttrs;
+    private List<String> virAttrs = new ArrayList<String>();
 
-    private List<Feature> features;
+    private List<Feature> features = new ArrayList<Feature>();
 
     public UserReportletConf() {
         super();
@@ -75,11 +75,6 @@ public class UserReportletConf extends AbstractReportletConf {
 
     public UserReportletConf(final String name) {
         super(name);
-
-        attrs = new ArrayList<String>();
-        derAttrs = new ArrayList<String>();
-        virAttrs = new ArrayList<String>();
-        features = new ArrayList<Feature>();
     }
 
     @XmlElementWrapper(name = "attributes")
@@ -89,38 +84,11 @@ public class UserReportletConf extends AbstractReportletConf {
         return attrs;
     }
 
-    public void setAttrs(final List<String> attrs) {
-        this.attrs = attrs;
-    }
-
     @XmlElementWrapper(name = "derivedAttributes")
     @XmlElement(name = "attribute")
     @JsonProperty("derivedAttributes")
     public List<String> getDerAttrs() {
         return derAttrs;
-    }
-
-    public void setDerAttrs(final List<String> derAttrs) {
-        this.derAttrs = derAttrs;
-    }
-
-    @XmlElementWrapper(name = "features")
-    @XmlElement(name = "feature")
-    @JsonProperty("features")
-    public List<Feature> getFeatures() {
-        return features;
-    }
-
-    public void setFeatures(final List<Feature> features) {
-        this.features = features;
-    }
-
-    public NodeCond getMatchingCond() {
-        return matchingCond;
-    }
-
-    public void setMatchingCond(final NodeCond matchingCond) {
-        this.matchingCond = matchingCond;
     }
 
     @XmlElementWrapper(name = "virtualAttributes")
@@ -130,7 +98,18 @@ public class UserReportletConf extends AbstractReportletConf {
         return virAttrs;
     }
 
-    public void setVirAttrs(final List<String> virAttrs) {
-        this.virAttrs = virAttrs;
+    @XmlElementWrapper(name = "features")
+    @XmlElement(name = "feature")
+    @JsonProperty("features")
+    public List<Feature> getFeatures() {
+        return features;
+    }
+
+    public NodeCond getMatchingCond() {
+        return matchingCond;
+    }
+
+    public void setMatchingCond(final NodeCond matchingCond) {
+        this.matchingCond = matchingCond;
     }
 }

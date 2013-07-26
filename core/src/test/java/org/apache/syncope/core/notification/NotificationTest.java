@@ -227,7 +227,7 @@ public class NotificationTest {
         UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7);
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         userController.create(userTO);
 
@@ -282,7 +282,7 @@ public class NotificationTest {
         UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7);
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         userController.create(userTO);
 

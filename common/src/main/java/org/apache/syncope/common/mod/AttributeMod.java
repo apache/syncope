@@ -57,14 +57,6 @@ public class AttributeMod extends AbstractBaseBean {
         this.schema = schema;
     }
 
-    public boolean addValueToBeAdded(String value) {
-        return valuesToBeAdded.add(value);
-    }
-
-    public boolean removeValueToBeAdded(String value) {
-        return valuesToBeAdded.remove(value);
-    }
-
     @XmlElementWrapper(name = "valuesToBeAdded")
     @XmlElement(name = "value")
     @JsonProperty("valuesToBeAdded")
@@ -72,27 +64,11 @@ public class AttributeMod extends AbstractBaseBean {
         return valuesToBeAdded;
     }
 
-    public void setValuesToBeAdded(List<String> valuesToBeAdded) {
-        this.valuesToBeAdded = valuesToBeAdded;
-    }
-
-    public boolean addValueToBeRemoved(String value) {
-        return valuesToBeRemoved.add(value);
-    }
-
-    public boolean removeValueToBeRemoved(String value) {
-        return valuesToBeRemoved.remove(value);
-    }
-
     @XmlElementWrapper(name = "valuesToBeRemoved")
     @XmlElement(name = "value")
     @JsonProperty("valuesToBeRemoved")
     public List<String> getValuesToBeRemoved() {
         return valuesToBeRemoved;
-    }
-
-    public void setValuesToBeRemoved(List<String> valuesToBeRemoved) {
-        this.valuesToBeRemoved = valuesToBeRemoved;
     }
 
     @JsonIgnore

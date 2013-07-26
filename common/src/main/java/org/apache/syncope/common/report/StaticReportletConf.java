@@ -84,10 +84,6 @@ public class StaticReportletConf extends AbstractReportletConf {
         return listField;
     }
 
-    public void setListField(List<String> listField) {
-        this.listField = listField;
-    }
-
     public Long getLongField() {
         return longField;
     }

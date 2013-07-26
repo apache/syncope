@@ -273,7 +273,7 @@ public class RoleController {
         }
 
         final RoleTO savedTO = binder.getRoleTO(created.getResult());
-        savedTO.setPropagationStatusTOs(propagations);
+        savedTO.getPropagationStatusTOs().addAll(propagations);
 
         LOG.debug("About to return created role\n{}", savedTO);
 
@@ -303,7 +303,7 @@ public class RoleController {
             propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
         }
         final RoleTO updatedTO = binder.getRoleTO(updated.getResult());
-        updatedTO.setPropagationStatusTOs(propagations);
+        updatedTO.getPropagationStatusTOs().addAll(propagations);
 
         auditManager.audit(Category.role, RoleSubCategory.update, Result.success,
                 "Successfully updated role: " + role.getId());
@@ -338,7 +338,7 @@ public class RoleController {
             LOG.error("Error propagation primary resource", e);
             propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
         }
-        roleTO.setPropagationStatusTOs(propagations);
+        roleTO.getPropagationStatusTOs().addAll(propagations);
 
         rwfAdapter.delete(roleId);
 

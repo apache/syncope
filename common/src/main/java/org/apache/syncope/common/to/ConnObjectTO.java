@@ -36,31 +36,13 @@ public class ConnObjectTO extends AbstractSysInfoTO {
 
     private static final long serialVersionUID = 5139554911265442497L;
 
-    private List<AttributeTO> attributes;
-
-    public ConnObjectTO() {
-        super();
-
-        attributes = new ArrayList<AttributeTO>();
-    }
-
-    public boolean addAttribute(final AttributeTO attribute) {
-        return attributes.add(attribute);
-    }
-
-    public boolean removeAttribute(final AttributeTO attribute) {
-        return attributes.remove(attribute);
-    }
+    private List<AttributeTO> attributes = new ArrayList<AttributeTO>();
 
     @XmlElementWrapper(name = "attributes")
     @XmlElement(name = "attribute")
     @JsonProperty("attributes")
     public List<AttributeTO> getAttributes() {
         return attributes;
-    }
-
-    public void setAttributes(final List<AttributeTO> attributes) {
-        this.attributes = attributes;
     }
 
     @JsonIgnore

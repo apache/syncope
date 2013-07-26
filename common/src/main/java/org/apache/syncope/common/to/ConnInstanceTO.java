@@ -129,45 +129,11 @@ public class ConnInstanceTO extends AbstractBaseBean {
         return result;
     }
 
-    public boolean addConfiguration(final ConnConfProperty property) {
-        return this.configuration.add(property);
-    }
-
-    public boolean removeConfiguration(final ConnConfProperty property) {
-        return this.configuration.remove(property);
-    }
-
-    public void setConfiguration(final Set<ConnConfProperty> configuration) {
-        if (this.configuration != configuration) {
-            this.configuration.clear();
-            if (configuration != null && !configuration.isEmpty()) {
-                this.configuration.addAll(configuration);
-            }
-        }
-    }
-
-    public boolean addCapability(final ConnectorCapability capability) {
-        return capabilities.add(capability);
-    }
-
-    public boolean removeCapability(final ConnectorCapability capability) {
-        return capabilities.remove(capability);
-    }
-
     @XmlElementWrapper(name = "capabilities")
     @XmlElement(name = "capability")
     @JsonProperty("capabilities")
     public Set<ConnectorCapability> getCapabilities() {
         return capabilities;
-    }
-
-    public void setCapabilities(final Set<ConnectorCapability> capabilities) {
-        if (this.capabilities != capabilities) {
-            this.capabilities.clear();
-            if (capabilities != null && !capabilities.isEmpty()) {
-                this.capabilities.addAll(capabilities);
-            }
-        }
     }
 
     public String getDisplayName() {

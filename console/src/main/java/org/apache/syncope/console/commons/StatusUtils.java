@@ -152,7 +152,7 @@ public class StatusUtils implements Serializable {
                 if ("Syncope".equals(status.getResourceName())) {
                     propagationRequestTO.setOnSyncope(true);
                 } else {
-                    propagationRequestTO.addResource(status.getResourceName());
+                    propagationRequestTO.getResources().add(status.getResourceName());
                 }
 
             }

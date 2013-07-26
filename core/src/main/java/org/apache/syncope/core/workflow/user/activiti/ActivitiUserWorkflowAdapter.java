@@ -62,6 +62,7 @@ import org.apache.syncope.common.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.WorkflowFormPropertyType;
+import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.propagation.PropagationByResource;
@@ -73,7 +74,6 @@ import org.apache.syncope.core.workflow.user.AbstractUserWorkflowAdapter;
 import org.identityconnectors.common.security.EncryptorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.transaction.annotation.Transactional;
@@ -515,7 +515,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 propertyTO.setDatePattern((String) fProp.getType().getInformation("datePattern"));
             }
             if (propertyTO.getType() == WorkflowFormPropertyType.Enum) {
-                propertyTO.setEnumValues((Map<String, String>) fProp.getType().getInformation("values"));
+                propertyTO.getEnumValues().putAll((Map<String, String>) fProp.getType().getInformation("values"));
             }
 
             formTO.addProperty(propertyTO);

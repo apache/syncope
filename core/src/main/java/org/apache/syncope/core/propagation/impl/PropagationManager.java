@@ -545,7 +545,7 @@ public class PropagationManager {
 
                 final AttributeMod attributeMod = new AttributeMod();
                 attributeMod.setSchema(schema);
-                attributeMod.setValuesToBeAdded(virAttr.getValues());
+                attributeMod.getValuesToBeAdded().addAll(virAttr.getValues());
 
                 vAttrsToBeUpdated.put(schema, attributeMod);
             }

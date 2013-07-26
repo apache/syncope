@@ -68,23 +68,11 @@ public abstract class AbstractTaskTO extends AbstractBaseBean {
         this.latestExecStatus = latestExecStatus;
     }
 
-    public boolean addExecution(final TaskExecTO execution) {
-        return executions.add(execution);
-    }
-
-    public boolean removeExecution(final TaskExecTO execution) {
-        return executions.remove(execution);
-    }
-
     @XmlElementWrapper(name = "excecutions")
     @XmlElement(name = "excecution")
     @JsonProperty("excecutions")
     public List<TaskExecTO> getExecutions() {
         return executions;
-    }
-
-    public void setExecutions(final List<TaskExecTO> executions) {
-        this.executions = executions;
     }
 
     public Date getStartDate() {

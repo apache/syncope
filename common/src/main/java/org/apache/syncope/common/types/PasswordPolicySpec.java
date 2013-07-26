@@ -266,10 +266,6 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return prefixesNotPermitted;
     }
 
-    public void setPrefixesNotPermitted(final List<String> prefixesNotPermitted) {
-        this.prefixesNotPermitted = prefixesNotPermitted;
-    }
-
     @XmlElementWrapper(name = "schemasNotPermitted")
     @XmlElement(name = "schema")
     @JsonProperty("schemasNotPermitted")
@@ -280,10 +276,6 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
         return schemasNotPermitted;
     }
 
-    public void setSchemasNotPermitted(final List<String> schemasNotPermitted) {
-        this.schemasNotPermitted = schemasNotPermitted;
-    }
-
     @XmlElementWrapper(name = "suffixesNotPermitted")
     @XmlElement(name = "suffix")
     @JsonProperty("suffixesNotPermitted")
@@ -292,10 +284,6 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
             suffixesNotPermitted = new ArrayList<String>();
         }
         return suffixesNotPermitted;
-    }
-
-    public void setSuffixesNotPermitted(final List<String> suffixesNotPermitted) {
-        this.suffixesNotPermitted = suffixesNotPermitted;
     }
 
     public boolean isUppercaseRequired() {
@@ -314,10 +302,6 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
             wordsNotPermitted = new ArrayList<String>();
         }
         return wordsNotPermitted;
-    }
-
-    public void setWordsNotPermitted(final List<String> wordsNotPermitted) {
-        this.wordsNotPermitted = wordsNotPermitted;
     }
 
     public boolean isAlphanumericRequired() {

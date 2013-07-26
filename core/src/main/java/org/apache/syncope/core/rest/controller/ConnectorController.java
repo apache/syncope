@@ -239,7 +239,7 @@ public class ConnectorController extends AbstractController {
                     connConfPropSchema.setOrder(configurationProperty.getOrder());
                     connConfPropSchema.setConfidential(configurationProperty.isConfidential());
 
-                    connBundleTO.addProperty(connConfPropSchema);
+                    connBundleTO.getProperties().add(connConfPropSchema);
                 }
 
                 LOG.debug("Connector bundle: {}", connBundleTO);

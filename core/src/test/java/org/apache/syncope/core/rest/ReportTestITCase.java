@@ -94,8 +94,8 @@ public class ReportTestITCase extends AbstractTest {
     public void create() {
         ReportTO report = new ReportTO();
         report.setName("testReportForCreate" + getUUIDString());
-        report.addReportletConf(new UserReportletConf("first"));
-        report.addReportletConf(new UserReportletConf("second"));
+        report.getReportletConfs().add(new UserReportletConf("first"));
+        report.getReportletConfs().add(new UserReportletConf("second"));
 
         report = createReport(report);
         assertNotNull(report);
@@ -110,14 +110,14 @@ public class ReportTestITCase extends AbstractTest {
     public void update() {
         ReportTO report = new ReportTO();
         report.setName("testReportForUpdate" + getUUIDString());
-        report.addReportletConf(new UserReportletConf("first"));
-        report.addReportletConf(new UserReportletConf("second"));
+        report.getReportletConfs().add(new UserReportletConf("first"));
+        report.getReportletConfs().add(new UserReportletConf("second"));
 
         report = createReport(report);
         assertNotNull(report);
         assertEquals(2, report.getReportletConfs().size());
 
-        report.addReportletConf(new UserReportletConf("last"));
+        report.getReportletConfs().add(new UserReportletConf("last"));
 
         reportService.update(report.getId(), report);
         ReportTO updated = reportService.read(report.getId());
@@ -129,8 +129,8 @@ public class ReportTestITCase extends AbstractTest {
     public void delete() {
         ReportTO report = new ReportTO();
         report.setName("testReportForDelete" + getUUIDString());
-        report.addReportletConf(new UserReportletConf("first"));
-        report.addReportletConf(new UserReportletConf("second"));
+        report.getReportletConfs().add(new UserReportletConf("first"));
+        report.getReportletConfs().add(new UserReportletConf("second"));
 
         report = createReport(report);
         assertNotNull(report);

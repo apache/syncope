@@ -715,32 +715,32 @@ public abstract class AbstractAttributableDataBinder {
         for (AbstractAttr attribute : attributes) {
             attributeTO = new AttributeTO();
             attributeTO.setSchema(attribute.getSchema().getName());
-            attributeTO.setValues(attribute.getValuesAsStrings());
+            attributeTO.getValues().addAll(attribute.getValuesAsStrings());
             attributeTO.setReadonly(attribute.getSchema().isReadonly());
 
-            abstractAttributableTO.addAttribute(attributeTO);
+            abstractAttributableTO.getAttributes().add(attributeTO);
         }
 
         for (AbstractDerAttr derivedAttribute : derivedAttributes) {
             attributeTO = new AttributeTO();
             attributeTO.setSchema(derivedAttribute.getDerivedSchema().getName());
-            attributeTO.addValue(derivedAttribute.getValue(attributes));
+            attributeTO.getValues().add(derivedAttribute.getValue(attributes));
             attributeTO.setReadonly(true);
 
-            abstractAttributableTO.addDerivedAttribute(attributeTO);
+            abstractAttributableTO.getDerivedAttributes().add(attributeTO);
         }
 
         for (AbstractVirAttr virtualAttribute : virtualAttributes) {
             attributeTO = new AttributeTO();
             attributeTO.setSchema(virtualAttribute.getVirtualSchema().getName());
-            attributeTO.setValues(virtualAttribute.getValues());
+            attributeTO.getValues().addAll(virtualAttribute.getValues());
             attributeTO.setReadonly(virtualAttribute.getVirtualSchema().isReadonly());
 
-            abstractAttributableTO.addVirtualAttribute(attributeTO);
+            abstractAttributableTO.getVirtualAttributes().add(attributeTO);
         }
 
         for (ExternalResource resource : resources) {
-            abstractAttributableTO.addResource(resource.getName());
+            abstractAttributableTO.getResources().add(resource.getName());
         }
     }
 }

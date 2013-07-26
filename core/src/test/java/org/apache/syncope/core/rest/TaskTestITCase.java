@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
@@ -96,14 +95,14 @@ public class TaskTestITCase extends AbstractTest {
         task.setResource("ws-target-resource-2");
 
         UserTO userTemplate = new UserTO();
-        userTemplate.addResource("ws-target-resource-2");
+        userTemplate.getResources().add("ws-target-resource-2");
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
-        userTemplate.addMembership(membershipTO);
+        userTemplate.getMemberships().add(membershipTO);
         task.setUserTemplate(userTemplate);
 
         RoleTO roleTemplate = new RoleTO();
-        roleTemplate.addResource("resource-ldap");
+        roleTemplate.getResources().add("resource-ldap");
         task.setRoleTemplate(roleTemplate);
 
         Response response = taskService.create(task);
@@ -233,13 +232,13 @@ public class TaskTestITCase extends AbstractTest {
         inUserTO.setPassword("password123");
         String userName = "test9";
         inUserTO.setUsername(userName);
-        inUserTO.addAttribute(attributeTO("firstname", "nome9"));
-        inUserTO.addAttribute(attributeTO("surname", "cognome"));
-        inUserTO.addAttribute(attributeTO("type", "a type"));
-        inUserTO.addAttribute(attributeTO("fullname", "nome cognome"));
-        inUserTO.addAttribute(attributeTO("userId", "puccini@syncope.apache.org"));
-        inUserTO.addAttribute(attributeTO("email", "puccini@syncope.apache.org"));
-        inUserTO.addDerivedAttribute(attributeTO("csvuserid", null));
+        inUserTO.getAttributes().add(attributeTO("firstname", "nome9"));
+        inUserTO.getAttributes().add(attributeTO("surname", "cognome"));
+        inUserTO.getAttributes().add(attributeTO("type", "a type"));
+        inUserTO.getAttributes().add(attributeTO("fullname", "nome cognome"));
+        inUserTO.getAttributes().add(attributeTO("userId", "puccini@syncope.apache.org"));
+        inUserTO.getAttributes().add(attributeTO("email", "puccini@syncope.apache.org"));
+        inUserTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
 
         inUserTO = createUser(inUserTO);
         assertNotNull(inUserTO);
@@ -258,14 +257,15 @@ public class TaskTestITCase extends AbstractTest {
 
             // add user template
             UserTO template = new UserTO();
-            template.addAttribute(attributeTO("type", "email == 'test8@syncope.apache.org'? 'TYPE_8': 'TYPE_OTHER'"));
-            template.addDerivedAttribute(attributeTO("cn", null));
-            template.addResource("resource-testdb");
+            template.getAttributes().add(attributeTO("type",
+                    "email == 'test8@syncope.apache.org'? 'TYPE_8': 'TYPE_OTHER'"));
+            template.getDerivedAttributes().add(attributeTO("cn", null));
+            template.getResources().add("resource-testdb");
 
             MembershipTO membershipTO = new MembershipTO();
             membershipTO.setRoleId(8L);
-            membershipTO.addAttribute(attributeTO("subscriptionDate", "'2009-08-18T16:33:12.203+0200'"));
-            template.addMembership(membershipTO);
+            membershipTO.getAttributes().add(attributeTO("subscriptionDate", "'2009-08-18T16:33:12.203+0200'"));
+            template.getMemberships().add(membershipTO);
 
             task.setUserTemplate(template);
 
@@ -333,10 +333,10 @@ public class TaskTestITCase extends AbstractTest {
 
         // add user template
         UserTO template = new UserTO();
-        template.addAttribute(attributeTO("type", "'type a'"));
-        template.addAttribute(attributeTO("userId", "'reconciled@syncope.apache.org'"));
-        template.addAttribute(attributeTO("fullname", "'reconciled fullname'"));
-        template.addAttribute(attributeTO("surname", "'surname'"));
+        template.getAttributes().add(attributeTO("type", "'type a'"));
+        template.getAttributes().add(attributeTO("userId", "'reconciled@syncope.apache.org'"));
+        template.getAttributes().add(attributeTO("fullname", "'reconciled fullname'"));
+        template.getAttributes().add(attributeTO("surname", "'surname'"));
 
         task.setUserTemplate(template);
 
@@ -380,7 +380,7 @@ public class TaskTestITCase extends AbstractTest {
         //  add user template
         RoleTO template = new RoleTO();
         template.setParent(8L);
-        template.addAttribute(attributeTO("show", "'true'"));
+        template.getAttributes().add(attributeTO("show", "'true'"));
 
         task.setRoleTemplate(template);
 
@@ -526,7 +526,7 @@ public class TaskTestITCase extends AbstractTest {
         // 1. Create notification
         NotificationTO notification = new NotificationTO();
         notification.setTraceLevel(TraceLevel.FAILURES);
-        notification.addEvent("create");
+        notification.getEvents().add("create");
 
         MembershipCond membCond = new MembershipCond();
         membCond.setRoleId(7L);
@@ -554,7 +554,7 @@ public class TaskTestITCase extends AbstractTest {
         UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope86@syncope.apache.org");
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7);
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -570,20 +570,20 @@ public class TaskTestITCase extends AbstractTest {
         userTO.setPassword("password123");
         userTO.setUsername("testuser2");
 
-        userTO.addAttribute(attributeTO("firstname", "testuser2"));
-        userTO.addAttribute(attributeTO("surname", "testuser2"));
-        userTO.addAttribute(attributeTO("type", "a type"));
-        userTO.addAttribute(attributeTO("fullname", "a type"));
-        userTO.addAttribute(attributeTO("userId", "testuser2@syncope.apache.org"));
-        userTO.addAttribute(attributeTO("email", "testuser2@syncope.apache.org"));
+        userTO.getAttributes().add(attributeTO("firstname", "testuser2"));
+        userTO.getAttributes().add(attributeTO("surname", "testuser2"));
+        userTO.getAttributes().add(attributeTO("type", "a type"));
+        userTO.getAttributes().add(attributeTO("fullname", "a type"));
+        userTO.getAttributes().add(attributeTO("userId", "testuser2@syncope.apache.org"));
+        userTO.getAttributes().add(attributeTO("email", "testuser2@syncope.apache.org"));
 
-        userTO.addResource("ws-target-resource-nopropagation2");
-        userTO.addResource("ws-target-resource-nopropagation4");
+        userTO.getResources().add("ws-target-resource-nopropagation2");
+        userTO.getResources().add("ws-target-resource-nopropagation4");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
 
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -601,9 +601,9 @@ public class TaskTestITCase extends AbstractTest {
             membershipTO = new MembershipTO();
             membershipTO.setRoleId(10L);
 
-            template.addMembership(membershipTO);
+            template.getMemberships().add(membershipTO);
 
-            template.addResource("ws-target-resource-nopropagation4");
+            template.getResources().add("ws-target-resource-nopropagation4");
             //-----------------------------
 
             // Update sync task
@@ -729,7 +729,7 @@ public class TaskTestITCase extends AbstractTest {
 
         // create user with testdb resource
         UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope272@syncope.apache.org");
-        userTO.addResource("resource-testdb");
+        userTO.getResources().add("resource-testdb");
 
         userTO = createUser(userTO);
         try {
@@ -745,14 +745,14 @@ public class TaskTestITCase extends AbstractTest {
 
             AttributeTO newAttrTO = new AttributeTO();
             newAttrTO.setSchema("firstname");
-            newAttrTO.setValues(Collections.singletonList(""));
+            newAttrTO.getValues().add("");
 
             UserTO template = new UserTO();
-            template.addAttribute(newAttrTO);
-            template.addAttribute(attributeTO("userId", "'test'"));
-            template.addAttribute(attributeTO("fullname", "'test'"));
-            template.addAttribute(attributeTO("surname", "'test'"));
-            template.addResource("resource-testdb");
+            template.getAttributes().add(newAttrTO);
+            template.getAttributes().add(attributeTO("userId", "'test'"));
+            template.getAttributes().add(attributeTO("fullname", "'test'"));
+            template.getAttributes().add(attributeTO("surname", "'test'"));
+            template.getResources().add("resource-testdb");
 
             task.setUserTemplate(template);
 
@@ -801,21 +801,21 @@ public class TaskTestITCase extends AbstractTest {
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("s258_1@apache.org");
         userTO.getResources().clear();
-        userTO.addResource("ws-target-resource-2");
+        userTO.getResources().add("ws-target-resource-2");
 
         userTO = createUser(userTO);
 
         userTO = UserTestITCase.getUniqueSampleTO("s258_2@apache.org");
         userTO.getResources().clear();
-        userTO.addResource("ws-target-resource-2");
+        userTO.getResources().add("ws-target-resource-2");
 
         userTO = createUser(userTO);
 
         // change email in order to unmatch the second user
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.addAttributeToBeRemoved("email");
-        userMod.addAttributeToBeUpdated(attributeMod("email", "s258@apache.org"));
+        userMod.getAttributesToBeRemoved().add("email");
+        userMod.getAttributesToBeUpdated().add(attributeMod("email", "s258@apache.org"));
 
         userTO = userService.update(userMod.getId(), userMod);
 
@@ -835,11 +835,11 @@ public class TaskTestITCase extends AbstractTest {
 
         AttributeTO csvuserid = new AttributeTO();
         csvuserid.setSchema("csvuserid");
-        userTO.addDerivedAttribute(csvuserid);
+        userTO.getDerivedAttributes().add(csvuserid);
 
         userTO.getResources().clear();
-        userTO.addResource("ws-target-resource-2");
-        userTO.addResource("resource-csv");
+        userTO.getResources().add("ws-target-resource-2");
+        userTO.getResources().add("resource-csv");
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -853,13 +853,13 @@ public class TaskTestITCase extends AbstractTest {
 
         //  add user template
         UserTO template = new UserTO();
-        template.addResource("resource-db-virattr");
+        template.getResources().add("resource-db-virattr");
 
         AttributeTO userId = attributeTO("userId", "'s307@apache.org'");
-        template.addAttribute(userId);
+        template.getAttributes().add(userId);
 
         AttributeTO email = attributeTO("email", "'s307@apache.org'");
-        template.addAttribute(email);
+        template.getAttributes().add(email);
 
         task.setUserTemplate(template);
 
@@ -887,7 +887,7 @@ public class TaskTestITCase extends AbstractTest {
 
         // create user with testdb resource
         final UserTO userTO = UserTestITCase.getUniqueSampleTO("taskBulk@apache.org");
-        userTO.addResource("resource-testdb");
+        userTO.getResources().add("resource-testdb");
         createUser(userTO);
 
         final List<PropagationTaskTO> after = new ArrayList<PropagationTaskTO>(

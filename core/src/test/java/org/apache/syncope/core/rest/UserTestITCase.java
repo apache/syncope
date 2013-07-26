@@ -113,16 +113,16 @@ public class UserTestITCase extends AbstractTest {
         userTO.setPassword("password123");
         userTO.setUsername(uid);
 
-        userTO.addAttribute(attributeTO("fullname", uid));
-        userTO.addAttribute(attributeTO("firstname", uid));
-        userTO.addAttribute(attributeTO("surname", "surname"));
-        userTO.addAttribute(attributeTO("type", "a type"));
-        userTO.addAttribute(attributeTO("userId", uid));
-        userTO.addAttribute(attributeTO("email", uid));
+        userTO.getAttributes().add(attributeTO("fullname", uid));
+        userTO.getAttributes().add(attributeTO("firstname", uid));
+        userTO.getAttributes().add(attributeTO("surname", "surname"));
+        userTO.getAttributes().add(attributeTO("type", "a type"));
+        userTO.getAttributes().add(attributeTO("userId", uid));
+        userTO.getAttributes().add(attributeTO("email", uid));
         DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        userTO.addAttribute(attributeTO("loginDate", sdf.format(new Date())));
-        userTO.addDerivedAttribute(attributeTO("cn", null));
-        userTO.addVirtualAttribute(attributeTO("virtualdata", "virtualvalue"));
+        userTO.getAttributes().add(attributeTO("loginDate", sdf.format(new Date())));
+        userTO.getDerivedAttributes().add(attributeTO("cn", null));
+        userTO.getVirtualAttributes().add(attributeTO("virtualdata", "virtualvalue"));
         return userTO;
     }
 
@@ -159,7 +159,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("xxx@xxx.xxx");
 
         userTO.setPassword("password123");
-        userTO.addResource("ws-target-resource-nopropagation");
+        userTO.getResources().add("ws-target-resource-nopropagation");
 
         createUser(userTO);
 
@@ -206,9 +206,9 @@ public class UserTestITCase extends AbstractTest {
         userTO.setUsername(userId);
         userTO.setPassword("password");
 
-        userTO.addAttribute(attributeTO("userId", userId));
-        userTO.addAttribute(attributeTO("fullname", userId));
-        userTO.addAttribute(attributeTO("surname", userId));
+        userTO.getAttributes().add(attributeTO("userId", userId));
+        userTO.getAttributes().add(attributeTO("fullname", userId));
+        userTO.getAttributes().add(attributeTO("surname", userId));
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -218,7 +218,7 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("newPassword");
-        userMod.addResourceToBeAdded("ws-target-resource-2");
+        userMod.getResourcesToBeAdded().add("ws-target-resource-2");
 
         SyncopeClientException sce = null;
         try {
@@ -233,7 +233,7 @@ public class UserTestITCase extends AbstractTest {
         userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("newPassword");
-        userMod.addResourceToBeAdded("ws-target-resource-1");
+        userMod.getResourcesToBeAdded().add("ws-target-resource-1");
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO.getPropagationStatusTOs().get(0).getFailureReason());
@@ -243,7 +243,7 @@ public class UserTestITCase extends AbstractTest {
         userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("newPassword");
-        userMod.addResourceToBeAdded("resource-db");
+        userMod.getResourcesToBeAdded().add("resource-db");
 
         sce = null;
         try {
@@ -257,7 +257,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void testEnforceMandatoryCondition() {
         UserTO userTO = getUniqueSampleTO("enforce@apache.org");
-        userTO.addResource("ws-target-resource-2");
+        userTO.getResources().add("ws-target-resource-2");
         userTO.setPassword("newPassword");
 
         AttributeTO type = null;
@@ -267,7 +267,7 @@ public class UserTestITCase extends AbstractTest {
             }
         }
         assertNotNull(type);
-        userTO.removeAttribute(type);
+        userTO.getAttributes().remove(type);
 
         SyncopeClientException sce = null;
         try {
@@ -277,7 +277,7 @@ public class UserTestITCase extends AbstractTest {
         }
         assertNotNull(sce);
 
-        userTO.addAttribute(type);
+        userTO.getAttributes().add(type);
         userTO = createUser(userTO);
         assertNotNull(userTO);
     }
@@ -294,7 +294,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(resourceTO);
 
         UserTO userTO = getUniqueSampleTO("syncope222@apache.org");
-        userTO.addResource(resourceTO.getName());
+        userTO.getResources().add(resourceTO.getName());
         userTO.setPassword("newPassword");
 
         SyncopeClientException sce = null;
@@ -305,7 +305,7 @@ public class UserTestITCase extends AbstractTest {
         }
         assertNotNull(sce);
 
-        userTO.addDerivedAttribute(attributeTO("csvuserid", null));
+        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -315,7 +315,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void createUserWithDbPropagation() {
         UserTO userTO = getUniqueSampleTO("yyy@yyy.yyy");
-        userTO.addResource(RESOURCE_NAME_TESTDB);
+        userTO.getResources().add(RESOURCE_NAME_TESTDB);
         userTO = createUser(userTO);
         assertNotNull(userTO);
         assertEquals(1, userTO.getPropagationStatusTOs().size());
@@ -337,7 +337,7 @@ public class UserTestITCase extends AbstractTest {
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
 
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         createUser(userTO);
     }
@@ -349,7 +349,7 @@ public class UserTestITCase extends AbstractTest {
         // configured to be minLength=16
         userTO.setPassword("password1");
 
-        userTO.setResources(Collections.singleton("ws-target-resource-nopropagation"));
+        userTO.getResources().add("ws-target-resource-nopropagation");
 
         createUser(userTO);
     }
@@ -364,7 +364,7 @@ public class UserTestITCase extends AbstractTest {
         final MembershipTO membership = new MembershipTO();
         membership.setRoleId(8L);
 
-        userTO.addMembership(membership);
+        userTO.getMemberships().add(membership);
 
         createUser(userTO);
     }
@@ -372,7 +372,7 @@ public class UserTestITCase extends AbstractTest {
     @Test(expected = SyncopeClientCompositeErrorException.class)
     public void createWithException() {
         UserTO newUserTO = new UserTO();
-        newUserTO.addAttribute(attributeTO("userId", "userId@nowhere.org"));
+        newUserTO.getAttributes().add(attributeTO("userId", "userId@nowhere.org"));
         createUser(newUserTO);
     }
 
@@ -396,17 +396,17 @@ public class UserTestITCase extends AbstractTest {
         // add a membership
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         // add an attribute with no values: must be ignored
-        membershipTO.addAttribute(attributeTO("subscriptionDate", null));
+        membershipTO.getAttributes().add(attributeTO("subscriptionDate", null));
 
         // add an attribute with a non-existing schema: must be ignored
         AttributeTO attrWithInvalidSchemaTO = attributeTO("invalid schema", "a value");
-        userTO.addAttribute(attrWithInvalidSchemaTO);
+        userTO.getAttributes().add(attrWithInvalidSchemaTO);
 
         // add an attribute with null value: must be ignored
-        userTO.addAttribute(attributeTO("activationDate", null));
+        userTO.getAttributes().add(attributeTO("activationDate", null));
 
         // 1. create user
         UserTO newUserTO = createUser(userTO);
@@ -474,7 +474,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = getSampleTO(userTO.getUsername());
         AttributeTO userIdAttr = getManadatoryAttrByName(userTO.getAttributes(), "userId");
         userIdAttr.getValues().clear();
-        userIdAttr.addValue("a.b@c.com");
+        userIdAttr.getValues().add("a.b@c.com");
 
         SyncopeClientException sce = null;
         try {
@@ -499,11 +499,11 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getSampleTO("a.b@c.it");
 
         AttributeTO type = getManadatoryAttrByName(userTO.getAttributes(), "type");
-        userTO.removeAttribute(type);
+        userTO.getAttributes().remove(type);
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         SyncopeClientCompositeErrorException ex = null;
         try {
@@ -515,10 +515,10 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(ex);
         assertNotNull(ex.getException(SyncopeClientExceptionType.RequiredValuesMissing));
 
-        userTO.addAttribute(attributeTO("type", "F"));
+        userTO.getAttributes().add(attributeTO("type", "F"));
 
         AttributeTO surname = getManadatoryAttrByName(userTO.getAttributes(), "surname");
-        userTO.removeAttribute(surname);
+        userTO.getAttributes().remove(surname);
 
         // 2. create user without surname (mandatory when type == 'F')
         ex = null;
@@ -536,12 +536,12 @@ public class UserTestITCase extends AbstractTest {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
 
         UserTO userTO = getUniqueSampleTO("createWithReject@syncope.apache.org");
-        userTO.addResource(RESOURCE_NAME_TESTDB);
+        userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
         // User with role 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(9L);
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         // 1. create user with role 9
         userTO = createUser(userTO);
@@ -602,12 +602,12 @@ public class UserTestITCase extends AbstractTest {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
 
         UserTO userTO = getUniqueSampleTO("createWithApproval@syncope.apache.org");
-        userTO.addResource(RESOURCE_NAME_TESTDB);
+        userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
         // User with role 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(9L);
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         // 1. create user with role 9 (and verify that no propagation occurred)
         userTO = createUser(userTO);
@@ -685,7 +685,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getSampleTO("qqgf.z@nn.com");
 
         // specify a propagation
-        userTO.addResource(RESOURCE_NAME_TESTDB);
+        userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
         userTO = createUser(userTO);
 
@@ -713,7 +713,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getSampleTO("delete.by.username@apache.org");
 
         // specify a propagation
-        userTO.addResource(RESOURCE_NAME_TESTDB);
+        userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
         userTO = createUser(userTO);
 
@@ -803,7 +803,7 @@ public class UserTestITCase extends AbstractTest {
 
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.addDerivedAttributeToBeRemoved("cn");
+        userMod.getDerivedAttributesToBeRemoved().add("cn");
 
         userTO = userService.update(userMod.getId(), userMod);
 
@@ -846,8 +846,8 @@ public class UserTestITCase extends AbstractTest {
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
-        membershipTO.addAttribute(attributeTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
-        userTO.addMembership(membershipTO);
+        membershipTO.getAttributes().add(attributeTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
+        userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
 
@@ -856,23 +856,23 @@ public class UserTestITCase extends AbstractTest {
 
         MembershipMod membershipMod = new MembershipMod();
         membershipMod.setRole(8L);
-        membershipMod.addAttributeToBeUpdated(attributeMod("subscriptionDate", "2010-08-18T16:33:12.203+0200"));
+        membershipMod.getAttributesToBeUpdated().add(attributeMod("subscriptionDate", "2010-08-18T16:33:12.203+0200"));
 
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("new2Password");
 
-        userMod.addAttributeToBeRemoved("userId");
+        userMod.getAttributesToBeRemoved().add("userId");
         String newUserId = getUUIDString() + "t.w@spre.net";
-        userMod.addAttributeToBeUpdated(attributeMod("userId", newUserId));
+        userMod.getAttributesToBeUpdated().add(attributeMod("userId", newUserId));
 
-        userMod.addAttributeToBeRemoved("fullname");
+        userMod.getAttributesToBeRemoved().add("fullname");
         String newFullName = getUUIDString() + "g.h@t.com";
-        userMod.addAttributeToBeUpdated(attributeMod("fullname", newFullName));
+        userMod.getAttributesToBeUpdated().add(attributeMod("fullname", newFullName));
 
-        userMod.addDerivedAttributeToBeAdded("cn");
-        userMod.addMembershipToBeAdded(membershipMod);
-        userMod.addMembershipToBeRemoved(userTO.getMemberships().iterator().next().getId());
+        userMod.getDerivedAttributesToBeAdded().add("cn");
+        userMod.getMembershipsToBeAdded().add(membershipMod);
+        userMod.getMembershipsToBeRemoved().add(userTO.getMemberships().iterator().next().getId());
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
@@ -909,8 +909,8 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("pwdonly@t.com");
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
-        membershipTO.addAttribute(attributeTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
-        userTO.addMembership(membershipTO);
+        membershipTO.getAttributes().add(attributeTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
+        userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
 
@@ -954,7 +954,7 @@ public class UserTestITCase extends AbstractTest {
         // add a membership
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         // 1. create user
         userTO = createUser(userTO);
@@ -979,7 +979,7 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
 
-        userMod.addAttributeToBeUpdated(attributeMod("surname", "surname"));
+        userMod.getAttributesToBeUpdated().add(attributeMod("surname", "surname"));
 
         userTO = userService.update(userMod.getId(), userMod);
 
@@ -1024,7 +1024,7 @@ public class UserTestITCase extends AbstractTest {
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(11L);
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
 
@@ -1051,7 +1051,7 @@ public class UserTestITCase extends AbstractTest {
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(11L);
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
 
@@ -1076,7 +1076,7 @@ public class UserTestITCase extends AbstractTest {
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
 
@@ -1102,7 +1102,7 @@ public class UserTestITCase extends AbstractTest {
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
 
@@ -1134,8 +1134,8 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("suspreactonresource@syncope.apache.org");
         userTO.getMemberships().clear();
         userTO.getResources().clear();
-        userTO.addResource(RESOURCE_NAME_TESTDB);
-        userTO.addResource(RESOURCE_NAME_LDAP);
+        userTO.getResources().add(RESOURCE_NAME_TESTDB);
+        userTO.getResources().add(RESOURCE_NAME_LDAP);
         userTO = createUser(userTO);
         assertNotNull(userTO);
         assertEquals(ActivitiDetector.isActivitiEnabledForUsers()
@@ -1146,8 +1146,8 @@ public class UserTestITCase extends AbstractTest {
         // Suspend with effect on syncope, ldap and db => user should be suspended in syncope and all resources
         PropagationRequestTO propagationRequestTO = new PropagationRequestTO();
         propagationRequestTO.setOnSyncope(true);
-        propagationRequestTO.addResource(RESOURCE_NAME_TESTDB);
-        propagationRequestTO.addResource(RESOURCE_NAME_LDAP);
+        propagationRequestTO.getResources().add(RESOURCE_NAME_TESTDB);
+        propagationRequestTO.getResources().add(RESOURCE_NAME_LDAP);
         userTO = userService.suspend(userId, propagationRequestTO);
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
@@ -1161,7 +1161,7 @@ public class UserTestITCase extends AbstractTest {
         // Suspend and reactivate only on ldap => db and syncope should still show suspended
         propagationRequestTO = new PropagationRequestTO();
         propagationRequestTO.setOnSyncope(false);
-        propagationRequestTO.addResource(RESOURCE_NAME_LDAP);
+        propagationRequestTO.getResources().add(RESOURCE_NAME_LDAP);
         userTO = userService.suspend(userId, propagationRequestTO);
         userTO = userService.reactivate(userId, propagationRequestTO);
         assertNotNull(userTO);
@@ -1173,7 +1173,7 @@ public class UserTestITCase extends AbstractTest {
         // Reactivate on syncope and db => syncope and db should show the user as active
         propagationRequestTO = new PropagationRequestTO();
         propagationRequestTO.setOnSyncope(true);
-        propagationRequestTO.addResource(RESOURCE_NAME_TESTDB);
+        propagationRequestTO.getResources().add(RESOURCE_NAME_TESTDB);
 
         userTO = userService.reactivate(userId, propagationRequestTO);
         assertNotNull(userTO);
@@ -1199,10 +1199,10 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
 
         AttributeMod loginDateMod = new AttributeMod();
-        loginDateMod.addValueToBeAdded("2000-01-01");
+        loginDateMod.getValuesToBeAdded().add("2000-01-01");
 
         userMod.setId(userTO.getId());
-        userMod.addAttributeToBeUpdated(loginDateMod);
+        userMod.getAttributesToBeUpdated().add(loginDateMod);
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
@@ -1215,7 +1215,7 @@ public class UserTestITCase extends AbstractTest {
     @Test(expected = EmptyResultDataAccessException.class)
     public void issue213() {
         UserTO userTO = getUniqueSampleTO("issue213@syncope.apache.org");
-        userTO.addResource(RESOURCE_NAME_TESTDB);
+        userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -1231,7 +1231,7 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
 
         userMod.setId(userTO.getId());
-        userMod.addResourceToBeRemoved(RESOURCE_NAME_TESTDB);
+        userMod.getResourcesToBeRemoved().add(RESOURCE_NAME_TESTDB);
 
         userTO = userService.update(userMod.getId(), userMod);
 
@@ -1243,7 +1243,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void issue234() {
         UserTO inUserTO = getUniqueSampleTO("issue234@syncope.apache.org");
-        inUserTO.addResource(RESOURCE_NAME_LDAP);
+        inUserTO.getResources().add(RESOURCE_NAME_LDAP);
 
         UserTO userTO = createUser(inUserTO);
         assertNotNull(userTO);
@@ -1265,7 +1265,7 @@ public class UserTestITCase extends AbstractTest {
         // 1. create a new user without virtual attributes
         UserTO original = getUniqueSampleTO("issue270@syncope.apache.org");
         // be sure to remove all virtual attributes
-        original.setVirtualAttributes(Collections.<AttributeTO>emptyList());
+        original.getVirtualAttributes().clear();
 
         original = createUser(original);
 
@@ -1276,7 +1276,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO toBeUpdated = userService.read(original.getId());
 
         AttributeTO virtual = attributeTO("virtualdata", "virtualvalue");
-        toBeUpdated.addVirtualAttribute(virtual);
+        toBeUpdated.getVirtualAttributes().add(virtual);
 
         // 2. try to update by adding a resource, but no password: must fail
         UserMod userMod = AttributableOperations.diff(toBeUpdated, original);
@@ -1306,7 +1306,7 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("123password");
-        userMod.addResourceToBeAdded(RESOURCE_NAME_TESTDB);
+        userMod.getResourcesToBeAdded().add(RESOURCE_NAME_TESTDB);
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
@@ -1330,7 +1330,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.getResources().clear();
         userTO.getMemberships().clear();
         userTO.getDerivedAttributes().clear();
-        userTO.addResource(RESOURCE_NAME_CSV);
+        userTO.getResources().add(RESOURCE_NAME_CSV);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -1351,7 +1351,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void issue288() {
         UserTO userTO = getSampleTO("issue288@syncope.apache.org");
-        userTO.addAttribute(attributeTO("aLong", "STRING"));
+        userTO.getAttributes().add(attributeTO("aLong", "STRING"));
 
         try {
             createUser(userTO);
@@ -1369,14 +1369,14 @@ public class UserTestITCase extends AbstractTest {
         userTO.getDerivedAttributes().clear();
         userTO.getVirtualAttributes().clear();
 
-        userTO.addDerivedAttribute(attributeTO("csvuserid", null));
+        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(1L);
 
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
-        userTO.addResource(RESOURCE_NAME_CSV);
+        userTO.getResources().add(RESOURCE_NAME_CSV);
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
@@ -1394,16 +1394,16 @@ public class UserTestITCase extends AbstractTest {
         userTO.getMemberships().clear();
         userTO.getDerivedAttributes().clear();
         userTO.getVirtualAttributes().clear();
-        userTO.addDerivedAttribute(attributeTO("csvuserid", null));
+        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(1L);
-        membershipTO.addAttribute(attributeTO("mderived_sx", "sx"));
-        membershipTO.addAttribute(attributeTO("mderived_dx", "dx"));
-        membershipTO.addDerivedAttribute(attributeTO("mderToBePropagated", null));
-        userTO.addMembership(membershipTO);
+        membershipTO.getAttributes().add(attributeTO("mderived_sx", "sx"));
+        membershipTO.getAttributes().add(attributeTO("mderived_dx", "dx"));
+        membershipTO.getDerivedAttributes().add(attributeTO("mderToBePropagated", null));
+        userTO.getMemberships().add(membershipTO);
 
-        userTO.addResource(RESOURCE_NAME_CSV);
+        userTO.getResources().add(RESOURCE_NAME_CSV);
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
@@ -1420,7 +1420,7 @@ public class UserTestITCase extends AbstractTest {
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         // 1. create user
         UserTO actual = createUser(userTO);
@@ -1433,8 +1433,8 @@ public class UserTestITCase extends AbstractTest {
 
         UserMod userMod = new UserMod();
         userMod.setId(actual.getId());
-        userMod.addVirtualAttributeToBeRemoved("virtualdata");
-        userMod.addVirtualAttributeToBeUpdated(attributeMod("virtualdata", "virtualupdated"));
+        userMod.getVirtualAttributesToBeRemoved().add("virtualdata");
+        userMod.getVirtualAttributesToBeUpdated().add(attributeMod("virtualdata", "virtualupdated"));
 
         // 3. update virtual attribute
         actual = userService.update(userMod.getId(), userMod);
@@ -1453,19 +1453,19 @@ public class UserTestITCase extends AbstractTest {
         userTO.getMemberships().clear();
         userTO.getDerivedAttributes().clear();
         userTO.getVirtualAttributes().clear();
-        userTO.addDerivedAttribute(attributeTO("csvuserid", null));
+        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
 
         MembershipTO memb12 = new MembershipTO();
         memb12.setRoleId(12L);
 
-        userTO.addMembership(memb12);
+        userTO.getMemberships().add(memb12);
 
         MembershipTO memb13 = new MembershipTO();
         memb13.setRoleId(13L);
 
-        userTO.addMembership(memb13);
+        userTO.getMemberships().add(memb13);
 
-        userTO.addResource(RESOURCE_NAME_CSV);
+        userTO.getResources().add(RESOURCE_NAME_CSV);
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
@@ -1481,7 +1481,7 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
         userMod.setId(actual.getId());
 
-        userMod.addMembershipToBeRemoved(actual.getMemberships().get(0).getId());
+        userMod.getMembershipsToBeRemoved().add(actual.getMemberships().get(0).getId());
 
         actual = userService.update(userMod.getId(), userMod);
         assertNotNull(actual);
@@ -1497,7 +1497,7 @@ public class UserTestITCase extends AbstractTest {
         userMod = new UserMod();
         userMod.setId(actual.getId());
 
-        userMod.addResourceToBeRemoved(actual.getResources().iterator().next());
+        userMod.getResourcesToBeRemoved().add(actual.getResources().iterator().next());
 
         actual = userService.update(userMod.getId(), userMod);
         assertNotNull(actual);
@@ -1514,7 +1514,7 @@ public class UserTestITCase extends AbstractTest {
         userMod = new UserMod();
         userMod.setId(actual.getId());
 
-        userMod.addMembershipToBeRemoved(actual.getMemberships().get(0).getId());
+        userMod.getMembershipsToBeRemoved().add(actual.getMemberships().get(0).getId());
 
         actual = userService.update(userMod.getId(), userMod);
         assertNotNull(actual);
@@ -1536,18 +1536,18 @@ public class UserTestITCase extends AbstractTest {
         userTO.getMemberships().clear();
         userTO.getDerivedAttributes().clear();
         userTO.getVirtualAttributes().clear();
-        userTO.addDerivedAttribute(attributeTO("csvuserid", null));
+        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
 
         MembershipTO memb12 = new MembershipTO();
         memb12.setRoleId(12L);
-        memb12.addAttribute(attributeTO("postalAddress", "postalAddress"));
-        userTO.addMembership(memb12);
+        memb12.getAttributes().add(attributeTO("postalAddress", "postalAddress"));
+        userTO.getMemberships().add(memb12);
 
         MembershipTO memb13 = new MembershipTO();
         memb13.setRoleId(13L);
-        userTO.addMembership(memb13);
+        userTO.getMemberships().add(memb13);
 
-        userTO.addResource(RESOURCE_NAME_LDAP);
+        userTO.getResources().add(RESOURCE_NAME_LDAP);
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
@@ -1576,7 +1576,7 @@ public class UserTestITCase extends AbstractTest {
                 ? actual.getMemberships().get(0)
                 : actual.getMemberships().get(1);
 
-        userMod.addMembershipToBeRemoved(membershipTO.getId());
+        userMod.getMembershipsToBeRemoved().add(membershipTO.getId());
 
         actual = userService.update(userMod.getId(), userMod);
         assertNotNull(actual);
@@ -1601,7 +1601,7 @@ public class UserTestITCase extends AbstractTest {
         // 1. create user with LDAP resource, succesfully propagated
         UserTO userTO = getSampleTO("syncope185@syncope.apache.org");
         userTO.getVirtualAttributes().clear();
-        userTO.addResource(RESOURCE_NAME_LDAP);
+        userTO.getResources().add(RESOURCE_NAME_LDAP);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -1658,7 +1658,7 @@ public class UserTestITCase extends AbstractTest {
         // create user and check virtual attribute value propagation
         // ----------------------------------
         UserTO userTO = getUniqueSampleTO("260@a.com");
-        userTO.addResource("ws-target-resource-2");
+        userTO.getResources().add("ws-target-resource-2");
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -1679,10 +1679,10 @@ public class UserTestITCase extends AbstractTest {
 
         AttributeMod attrMod = new AttributeMod();
         attrMod.setSchema("virtualdata");
-        attrMod.addValueToBeRemoved("virtualvalue");
-        attrMod.addValueToBeAdded("virtualvalue2");
+        attrMod.getValuesToBeRemoved().add("virtualvalue");
+        attrMod.getValuesToBeAdded().add("virtualvalue2");
 
-        userMod.addVirtualAttributeToBeUpdated(attrMod);
+        userMod.getVirtualAttributesToBeUpdated().add(attrMod);
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
@@ -1723,10 +1723,10 @@ public class UserTestITCase extends AbstractTest {
 
         attrMod = new AttributeMod();
         attrMod.setSchema("surname");
-        attrMod.addValueToBeRemoved("Surname");
-        attrMod.addValueToBeAdded("Surname2");
+        attrMod.getValuesToBeRemoved().add("Surname");
+        attrMod.getValuesToBeAdded().add("Surname2");
 
-        userMod.addAttributeToBeUpdated(attrMod);
+        userMod.getAttributesToBeUpdated().add(attrMod);
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
@@ -1748,7 +1748,7 @@ public class UserTestITCase extends AbstractTest {
         // ----------------------------------
         userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.addVirtualAttributeToBeRemoved("virtualdata");
+        userMod.getVirtualAttributesToBeRemoved().add("virtualdata");
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
@@ -1773,7 +1773,7 @@ public class UserTestITCase extends AbstractTest {
         // ----------------------------------
         UserTO userTO = getUniqueSampleTO("syncope267@apache.org");
         userTO.getResources().clear();
-        userTO.addResource("resource-db-virattr");
+        userTO.getResources().add("resource-db-virattr");
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -1805,7 +1805,7 @@ public class UserTestITCase extends AbstractTest {
         userMod.setId(userTO.getId());
 
         // this resource has not a mapping for Password
-        userMod.addResourceToBeAdded("ws-target-resource-update");
+        userMod.getResourcesToBeAdded().add("ws-target-resource-update");
 
         userTO = userService.update(userTO.getId(), userMod);
         assertNotNull(userTO);
@@ -1815,7 +1815,7 @@ public class UserTestITCase extends AbstractTest {
     public void issueSYNCOPE279() {
         UserTO userTO = getUniqueSampleTO("syncope279@apache.org");
         userTO.getResources().clear();
-        userTO.addResource("ws-target-resource-timeout");
+        userTO.getResources().add("ws-target-resource-timeout");
         userTO = createUser(userTO);
         assertEquals("ws-target-resource-timeout", userTO.getPropagationStatusTOs().get(0).getResource());
         assertNotNull(userTO.getPropagationStatusTOs().get(0).getFailureReason());
@@ -1827,8 +1827,8 @@ public class UserTestITCase extends AbstractTest {
         // 1. create user on testdb and testdb2
         UserTO userTO = getUniqueSampleTO("syncope123@apache.org");
         userTO.getResources().clear();
-        userTO.addResource(RESOURCE_NAME_TESTDB);
-        userTO.addResource("resource-testdb2");
+        userTO.getResources().add(RESOURCE_NAME_TESTDB);
+        userTO.getResources().add("resource-testdb2");
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -1858,7 +1858,7 @@ public class UserTestITCase extends AbstractTest {
         userMod.setId(userTO.getId());
         userMod.setPassword(getUUIDString());
         PropagationRequestTO pwdPropRequest = new PropagationRequestTO();
-        pwdPropRequest.addResource(RESOURCE_NAME_TESTDB);
+        pwdPropRequest.getResources().add(RESOURCE_NAME_TESTDB);
         userMod.setPwdPropRequest(pwdPropRequest);
 
         userTO = userService.update(userMod.getId(), userMod);
@@ -1908,7 +1908,7 @@ public class UserTestITCase extends AbstractTest {
         // 4. update user, assign a propagation primary resource but don't provide any password
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.addResourceToBeAdded("ws-target-resource-1");
+        userMod.getResourcesToBeAdded().add("ws-target-resource-1");
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
@@ -1939,7 +1939,7 @@ public class UserTestITCase extends AbstractTest {
         // 2. update user, assign a propagation primary resource but don't provide any password
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.addResourceToBeAdded(RESOURCE_NAME_LDAP);
+        userMod.getResourcesToBeAdded().add(RESOURCE_NAME_LDAP);
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
@@ -1961,12 +1961,12 @@ public class UserTestITCase extends AbstractTest {
 
         AttributeTO virAttrTO = new AttributeTO();
         virAttrTO.setSchema("virtualdata");
-        virAttrTO.addValue("virattrcache");
-        userTO.addVirtualAttribute(virAttrTO);
+        virAttrTO.getValues().add("virattrcache");
+        userTO.getVirtualAttributes().add(virAttrTO);
 
         userTO.getMemberships().clear();
         userTO.getResources().clear();
-        userTO.addResource("resource-db-virattr");
+        userTO.getResources().add("resource-db-virattr");
 
         // 1. create user
         UserTO actual = createUser(userTO);
@@ -2004,10 +2004,10 @@ public class UserTestITCase extends AbstractTest {
 
         AttributeMod virtualdata = new AttributeMod();
         virtualdata.setSchema("virtualdata");
-        virtualdata.addValueToBeAdded("virtualupdated");
+        virtualdata.getValuesToBeAdded().add("virtualupdated");
 
-        userMod.addVirtualAttributeToBeRemoved("virtualdata");
-        userMod.addVirtualAttributeToBeUpdated(virtualdata);
+        userMod.getVirtualAttributesToBeRemoved().add("virtualdata");
+        userMod.getVirtualAttributesToBeUpdated().add(virtualdata);
 
         // 3. update virtual attribute
         actual = userService.update(actual.getId(), userMod);
@@ -2025,10 +2025,10 @@ public class UserTestITCase extends AbstractTest {
 
         AttributeTO csvuserid = new AttributeTO();
         csvuserid.setSchema("csvuserid");
-        userTO.addDerivedAttribute(csvuserid);
+        userTO.getDerivedAttributes().add(csvuserid);
 
         userTO.getResources().clear();
-        userTO.addResource(RESOURCE_NAME_CSV);
+        userTO.getResources().add(RESOURCE_NAME_CSV);
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
@@ -2045,10 +2045,10 @@ public class UserTestITCase extends AbstractTest {
 
             AttributeMod attributeMod = new AttributeMod();
             attributeMod.setSchema("type");
-            attributeMod.addValueToBeAdded("a type");
+            attributeMod.getValuesToBeAdded().add("a type");
 
-            userMod.addAttributeToBeRemoved("type");
-            userMod.addAttributeToBeUpdated(attributeMod);
+            userMod.getAttributesToBeRemoved().add("type");
+            userMod.getAttributesToBeUpdated().add(attributeMod);
 
             UserTO userTO = userService.update(i, userMod);
             assertEquals("a type", userTO.getAttributeMap().get("type").getValues().get(0));
@@ -2104,17 +2104,17 @@ public class UserTestITCase extends AbstractTest {
         RoleTO roleTO = new RoleTO();
         roleTO.setName("SYNCOPE354-" + getUUIDString());
         roleTO.setParent(8L);
-        roleTO.addResource(RESOURCE_NAME_LDAP);
+        roleTO.getResources().add(RESOURCE_NAME_LDAP);
 
         roleTO = createRole(roleService, roleTO);
         assertNotNull(roleTO);
 
         // 2. create user with LDAP resource and membership of the above role
         UserTO userTO = getUniqueSampleTO("syncope354@syncope.apache.org");
-        userTO.addResource(RESOURCE_NAME_LDAP);
+        userTO.getResources().add(RESOURCE_NAME_LDAP);
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(roleTO.getId());
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
@@ -2129,7 +2129,7 @@ public class UserTestITCase extends AbstractTest {
         // 4. remove membership
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.addMembershipToBeRemoved(userTO.getMemberships().iterator().next().getId());
+        userMod.getMembershipsToBeRemoved().add(userTO.getMemberships().iterator().next().getId());
 
         userTO = userService.update(userMod.getId(), userMod);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
@@ -2155,7 +2155,7 @@ public class UserTestITCase extends AbstractTest {
         RoleTO roleTO = new RoleTO();
         roleTO.setName("SYNCOPE357-" + getUUIDString());
         roleTO.setParent(8L);
-        roleTO.addResource(RESOURCE_NAME_LDAP);
+        roleTO.getResources().add(RESOURCE_NAME_LDAP);
 
         roleTO = createRole(roleService, roleTO);
         assertNotNull(roleTO);
@@ -2164,7 +2164,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("syncope357@syncope.apache.org");
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(roleTO.getId());
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
@@ -2203,7 +2203,7 @@ public class UserTestITCase extends AbstractTest {
         // 2. assign resource without specifying a new pwd and check propagation failure
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.addResourceToBeAdded(RESOURCE_NAME_TESTDB);
+        userMod.getResourcesToBeAdded().add(RESOURCE_NAME_TESTDB);
         userTO = userService.update(userMod.getId(), userMod);
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
         assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
@@ -2214,7 +2214,7 @@ public class UserTestITCase extends AbstractTest {
         userMod.setId(userTO.getId());
         userMod.setPassword(getUUIDString());
         PropagationRequestTO pwdPropRequest = new PropagationRequestTO();
-        pwdPropRequest.addResource(RESOURCE_NAME_TESTDB);
+        pwdPropRequest.getResources().add(RESOURCE_NAME_TESTDB);
         userMod.setPwdPropRequest(pwdPropRequest);
 
         userTO = userService.update(userMod.getId(), userMod);
@@ -2258,11 +2258,11 @@ public class UserTestITCase extends AbstractTest {
         userTO.getDerivedAttributes().clear();
         userTO.getVirtualAttributes().clear();
 
-        userTO.addDerivedAttribute(attributeTO("csvuserid", null));
-        userTO.addDerivedAttribute(attributeTO("cn", null));
-        userTO.addVirtualAttribute(attributeTO("virtualdata", "test@testone.org"));
+        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
+        userTO.getDerivedAttributes().add(attributeTO("cn", null));
+        userTO.getVirtualAttributes().add(attributeTO("virtualdata", "test@testone.org"));
         // assign resource-csv to user
-        userTO.addResource(RESOURCE_NAME_CSV);
+        userTO.getResources().add(RESOURCE_NAME_CSV);
         // save user
         UserTO created = createUser(userTO);
         // make std controls about user
@@ -2274,15 +2274,15 @@ public class UserTestITCase extends AbstractTest {
         userMod.setId(toBeUpdated.getId());
         userMod.setPassword("password2");
         // assign new resource to user
-        userMod.addResourceToBeAdded("ws-target-resource-2");
+        userMod.getResourcesToBeAdded().add("ws-target-resource-2");
         //modify virtual attribute
-        userMod.addVirtualAttributeToBeRemoved("virtualdata");
-        userMod.addVirtualAttributeToBeUpdated(attributeMod("virtualdata", "test@testoneone.com"));
+        userMod.getVirtualAttributesToBeRemoved().add("virtualdata");
+        userMod.getVirtualAttributesToBeUpdated().add(attributeMod("virtualdata", "test@testoneone.com"));
         // check Syncope change password
 
         PropagationRequestTO pwdPropRequest = new PropagationRequestTO();
         //change pwd on Syncope
-        pwdPropRequest.addResource("ws-target-resource-2");
+        pwdPropRequest.getResources().add("ws-target-resource-2");
         //change pwd on Syncope
         pwdPropRequest.setOnSyncope(true);
         userMod.setPwdPropRequest(pwdPropRequest);
@@ -2302,9 +2302,9 @@ public class UserTestITCase extends AbstractTest {
         userTO.setUsername(userId);
         userTO.setPassword("password");
 
-        userTO.addAttribute(attributeTO("userId", userId));
-        userTO.addAttribute(attributeTO("fullname", userId));
-        userTO.addAttribute(attributeTO("surname", userId));
+        userTO.getAttributes().add(attributeTO("userId", userId));
+        userTO.getAttributes().add(attributeTO("fullname", userId));
+        userTO.getAttributes().add(attributeTO("surname", userId));
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -2315,8 +2315,8 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("newPassword");
-        userMod.addResourceToBeAdded("ws-target-resource-1");
-        userMod.addResourceToBeAdded("resource-testdb");
+        userMod.getResourcesToBeAdded().add("ws-target-resource-1");
+        userMod.getResourcesToBeAdded().add("resource-testdb");
         userTO = userService.update(userMod.getId(), userMod);
         assertEquals("ws-target-resource-1", userTO.getPropagationStatusTOs().get(1).getResource());
         assertNotNull(userTO.getPropagationStatusTOs().get(1).getFailureReason());

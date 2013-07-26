@@ -30,6 +30,7 @@ import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.types.TaskType;
+import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.init.JobInstanceLoader;
@@ -51,7 +52,6 @@ import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -244,7 +244,7 @@ public class TaskDataBinder {
                 : latestExec.getEndDate());
 
         for (TaskExec execution : task.getExecs()) {
-            taskTO.addExecution(getTaskExecTO(execution));
+            taskTO.getExecutions().add(getTaskExecTO(execution));
         }
 
         switch (taskUtil.getType()) {

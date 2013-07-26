@@ -22,13 +22,13 @@ import java.util.List;
 import org.apache.syncope.common.types.AbstractPolicySpec;
 import org.apache.syncope.common.types.AccountPolicySpec;
 import org.apache.syncope.common.types.PasswordPolicySpec;
+import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 @Component

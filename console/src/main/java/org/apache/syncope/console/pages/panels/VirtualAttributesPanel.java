@@ -107,7 +107,7 @@ public class VirtualAttributesPanel extends Panel {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                entityTO.addVirtualAttribute(new AttributeTO());
+                entityTO.getVirtualAttributes().add(new AttributeTO());
                 target.add(attributesContainer);
             }
 
@@ -134,12 +134,12 @@ public class VirtualAttributesPanel extends Panel {
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-                        entityTO.removeVirtualAttribute(attributeTO);
+                        entityTO.getVirtualAttributes().add(attributeTO);
                         target.add(attributesContainer);
                     }
 
                     @Override
-                    protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
+                    protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
                         super.updateAjaxAttributes(attributes);
 
                         final AjaxCallListener ajaxCallListener = new AjaxCallListener() {
@@ -156,7 +156,7 @@ public class VirtualAttributesPanel extends Panel {
                 });
 
                 if (attributeTO.getValues().isEmpty()) {
-                    attributeTO.addValue("");
+                    attributeTO.getValues().add("");
                 }
 
                 if (attributeTO.getSchema() != null) {

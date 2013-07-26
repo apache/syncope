@@ -182,7 +182,7 @@ public class SchemaTestITCase extends AbstractTest {
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("issue258@syncope.apache.org");
-        userTO.addAttribute(attributeTO(schemaTO.getName(), "1.2"));
+        userTO.getAttributes().add(attributeTO(schemaTO.getName(), "1.2"));
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -206,14 +206,14 @@ public class SchemaTestITCase extends AbstractTest {
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("issue259@syncope.apache.org");
-        userTO.addAttribute(attributeTO(schemaTO.getName(), "1"));
+        userTO.getAttributes().add(attributeTO(schemaTO.getName(), "1"));
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
         UserTO newUserTO = AttributableOperations.clone(userTO);
         MembershipTO membership = new MembershipTO();
         membership.setRoleId(2L);
-        newUserTO.addMembership(membership);
+        newUserTO.getMemberships().add(membership);
 
         UserMod userMod = AttributableOperations.diff(newUserTO, userTO);
 
@@ -230,7 +230,7 @@ public class SchemaTestITCase extends AbstractTest {
         assertNotNull(schemaTO);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("issue260@syncope.apache.org");
-        userTO.addAttribute(attributeTO(schemaTO.getName(), "1.2"));
+        userTO.getAttributes().add(attributeTO(schemaTO.getName(), "1.2"));
         userTO = createUser(userTO);
         assertNotNull(userTO);
 

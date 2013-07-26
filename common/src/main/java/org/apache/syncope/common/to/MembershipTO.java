@@ -55,16 +55,6 @@ public class MembershipTO extends AbstractAttributableTO {
     }
 
     @Override
-    public boolean addResource(String resource) {
-        return false;
-    }
-
-    @Override
-    public boolean removeResource(String resource) {
-        return false;
-    }
-
-    @Override
     @XmlElementWrapper(name = "resources")
     @XmlElement(name = "resource")
     @JsonProperty("resources")
@@ -73,25 +63,7 @@ public class MembershipTO extends AbstractAttributableTO {
     }
 
     @Override
-    public void setResources(Set<String> resources) {
-    }
-
-    @Override
-    public boolean addPropagationTO(PropagationStatusTO status) {
-        return false;
-    }
-
-    @Override
-    public boolean removePropagationTO(String resource) {
-        return false;
-    }
-
-    @Override
     public List<PropagationStatusTO> getPropagationStatusTOs() {
         return Collections.<PropagationStatusTO>emptyList();
-    }
-
-    @Override
-    public void setPropagationStatusTOs(List<PropagationStatusTO> propagationTOs) {
     }
 }

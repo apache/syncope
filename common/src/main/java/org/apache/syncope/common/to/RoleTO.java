@@ -55,17 +55,11 @@ public class RoleTO extends AbstractAttributableTO {
 
     private boolean inheritAccountPolicy;
 
-    private final List<String> entitlements;
+    private final List<String> entitlements = new ArrayList<String>();
 
     private Long passwordPolicy;
 
     private Long accountPolicy;
-
-    public RoleTO() {
-        super();
-
-        entitlements = new ArrayList<String>();
-    }
 
     public String getName() {
         return name;
@@ -132,28 +126,11 @@ public class RoleTO extends AbstractAttributableTO {
         this.inheritVirtualAttributes = inheritVirtualAttributes;
     }
 
-    public boolean addEntitlement(final String entitlement) {
-        return entitlements.add(entitlement);
-    }
-
-    public boolean removeEntitlement(final String entitlement) {
-        return entitlements.remove(entitlement);
-    }
-
     @XmlElementWrapper(name = "entitlements")
     @XmlElement(name = "entitlement")
     @JsonProperty("entitlements")
     public List<String> getEntitlements() {
         return entitlements;
-    }
-
-    public void setEntitlements(final List<String> entitlements) {
-        if (this.entitlements != entitlements) {
-            this.entitlements.clear();
-            if (entitlements != null && !entitlements.isEmpty()) {
-                this.entitlements.addAll(entitlements);
-            }
-        }
     }
 
     public Long getPasswordPolicy() {

@@ -45,11 +45,11 @@ public class ReportTO extends AbstractBaseBean {
 
     private String name;
 
-    private List<AbstractReportletConf> reportletConfs;
+    private List<AbstractReportletConf> reportletConfs = new ArrayList<AbstractReportletConf>();
 
     private String cronExpression;
 
-    private List<ReportExecTO> executions;
+    private List<ReportExecTO> executions = new ArrayList<ReportExecTO>();
 
     private String latestExecStatus;
 
@@ -60,13 +60,6 @@ public class ReportTO extends AbstractBaseBean {
     private Date startDate;
 
     private Date endDate;
-
-    public ReportTO() {
-        super();
-
-        reportletConfs = new ArrayList<AbstractReportletConf>();
-        executions = new ArrayList<ReportExecTO>();
-    }
 
     public long getId() {
         return id;
@@ -84,23 +77,11 @@ public class ReportTO extends AbstractBaseBean {
         this.name = name;
     }
 
-    public boolean addReportletConf(AbstractReportletConf reportlet) {
-        return this.reportletConfs.add(reportlet);
-    }
-
-    public boolean removeReportletConf(AbstractReportletConf reportlet) {
-        return this.reportletConfs.remove(reportlet);
-    }
-
     @XmlElementWrapper(name = "reportletConfs")
     @XmlElement(name = "reportletConf")
     @JsonProperty("reportletConfs")
     public List<AbstractReportletConf> getReportletConfs() {
         return reportletConfs;
-    }
-
-    public void setReportletConfs(List<AbstractReportletConf> reportlets) {
-        this.reportletConfs = reportlets;
     }
 
     public String getCronExpression() {
@@ -111,23 +92,11 @@ public class ReportTO extends AbstractBaseBean {
         this.cronExpression = cronExpression;
     }
 
-    public boolean addExecution(ReportExecTO execution) {
-        return executions.add(execution);
-    }
-
-    public boolean removeExecution(ReportExecTO execution) {
-        return executions.remove(execution);
-    }
-
     @XmlElementWrapper(name = "executions")
     @XmlElement(name = "execution")
     @JsonProperty("executions")
     public List<ReportExecTO> getExecutions() {
         return executions;
-    }
-
-    public void setExecutions(List<ReportExecTO> executions) {
-        this.executions = executions;
     }
 
     public String getLatestExecStatus() {

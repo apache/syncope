@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
@@ -351,7 +350,7 @@ public class ConnectorModalPage extends BaseModalPage {
                         "connPropAttrOverridable", new PropertyModel<Boolean>(property, "overridable"));
 
                 item.add(overridable);
-                connInstanceTO.addConfiguration(property);
+                connInstanceTO.getConfiguration().add(property);
             }
         };
         connPropView.setOutputMarkupId(true);
@@ -408,10 +407,10 @@ public class ConnectorModalPage extends BaseModalPage {
                 conn.setConnectorName(bundleTO.getConnectorName());
                 conn.setBundleName(bundleTO.getBundleName());
                 conn.setVersion(bundleTO.getVersion());
-                conn.setConfiguration(new HashSet<ConnConfProperty>(connPropView.getModelObject()));
+                conn.getConfiguration().addAll(connPropView.getModelObject());
 
                 // Set the model object's capabilites to capabilitiesPalette's converted Set
-                conn.setCapabilities(selectedCapabilities.isEmpty()
+                conn.getCapabilities().addAll(selectedCapabilities.isEmpty()
                         ? EnumSet.noneOf(ConnectorCapability.class)
                         : EnumSet.copyOf(selectedCapabilities));
                 try {
@@ -483,7 +482,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 final ConnConfProperty propertyTO = new ConnConfProperty();
                 propertyTO.setSchema(key);
                 if (connInstanceTO.getId() != 0 && connInstanceTO.getConfigurationMap().containsKey(key.getName())) {
-                    propertyTO.setValues(connInstanceTO.getConfigurationMap().get(key.getName()).getValues());
+                    propertyTO.getValues().add(connInstanceTO.getConfigurationMap().get(key.getName()).getValues());
                     propertyTO.setOverridable(connInstanceTO.getConfigurationMap().get(key.getName()).isOverridable());
                 }
                 props.add(propertyTO);

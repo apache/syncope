@@ -96,8 +96,8 @@ public class PasswordGenerator {
             if ((policySpec.getMaxLength() != 0) && ((policySpec.getMaxLength() < fpps.getMaxLength()))) {
                 fpps.setMaxLength(policySpec.getMaxLength());
             }
-            fpps.setPrefixesNotPermitted(policySpec.getPrefixesNotPermitted());
-            fpps.setSuffixesNotPermitted(policySpec.getSuffixesNotPermitted());
+            fpps.getPrefixesNotPermitted().addAll(policySpec.getPrefixesNotPermitted());
+            fpps.getSuffixesNotPermitted().addAll(policySpec.getSuffixesNotPermitted());
 
             if (!fpps.isNonAlphanumericRequired()) {
                 fpps.setNonAlphanumericRequired(policySpec.isNonAlphanumericRequired());
