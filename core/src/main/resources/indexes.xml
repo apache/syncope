@@ -87,4 +87,5 @@ under the License.
   <entry key="RAttrValue_longvalueIndex">CREATE INDEX RAttrValue_longvalueIndex ON RAttrValue(longvalue)</entry>
   <entry key="RAttrValue_doublevalueIndex">CREATE INDEX RAttrValue_doublevalueIndex ON RAttrValue(doublevalue)</entry>
   <entry key="RAttrValue_booleanvalueIndex">CREATE INDEX RAttrValue_booleanvalueIndex ON RAttrValue(booleanvalue)</entry>
+  <entry key="Task_executedIndex">CREATE INDEX Task_executedIndex ON Task(executed)</entry>
 </properties>
