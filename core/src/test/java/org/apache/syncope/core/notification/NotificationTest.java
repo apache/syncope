@@ -306,7 +306,7 @@ public class NotificationTest {
         assertTrue(task.isExecuted());
         assertTrue(StringUtils.isNotBlank(task.getLatestExecStatus()));
     }
-    
+
     @Test
     public void notifyByMailEmptyAbout() throws Exception {
         // 1. create suitable notification for subsequent tests
@@ -314,7 +314,7 @@ public class NotificationTest {
         notification.addEvent("create");
 
         notification.setAbout(null);
-        
+
         MembershipCond membCond = new MembershipCond();
         membCond.setRoleId(8L);
         notification.setRecipients(NodeCond.getLeafCond(membCond));
@@ -339,9 +339,9 @@ public class NotificationTest {
         UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7);
-        userTO.addMembership(membershipTO);
+        userTO.getMemberships().add(membershipTO);
 
-        userController.create(new MockHttpServletResponse(), userTO);
+        userController.create(userTO);
 
         // 3. force Quartz job execution and verify e-mail
         notificationJob.execute(null);
