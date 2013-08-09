@@ -43,6 +43,11 @@ public class AccountPolicySpec extends AbstractPolicySpec {
     private int minLength;
 
     /**
+     * Pattern (regular expression) that must match.
+     */
+    private String pattern;
+
+    /**
      * Substrings not permitted.
      */
     private List<String> wordsNotPermitted;
@@ -117,6 +122,14 @@ public class AccountPolicySpec extends AbstractPolicySpec {
 
     public void setMinLength(final int minLength) {
         this.minLength = minLength;
+    }
+
+    public String getPattern() {
+        return pattern;
+    }
+
+    public void setPattern(final String pattern) {
+        this.pattern = pattern;
     }
 
     @XmlElementWrapper(name = "prefixesNotPermitted")
