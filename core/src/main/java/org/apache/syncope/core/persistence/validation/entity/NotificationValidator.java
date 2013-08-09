@@ -45,7 +45,7 @@ public class NotificationValidator extends AbstractValidator implements
                     getTemplate(EntityViolationType.InvalidNotification, "No events")).
                     addNode("events").addConstraintViolation();
         }
-        if (!value.getAbout().isValid()) {
+        if (value.getAbout() != null && !value.getAbout().isValid()) {
             isValid = false;
 
             context.buildConstraintViolationWithTemplate(

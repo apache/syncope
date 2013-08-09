@@ -307,4 +307,58 @@ public class NotificationTest {
         assertTrue(task.isExecuted());
         assertTrue(StringUtils.isNotBlank(task.getLatestExecStatus()));
     }
+    
+    @Test
+    public void notifyByMailEmptyAbout() throws Exception {
+        // 1. create suitable notification for subsequent tests
+        Notification notification = new Notification();
+        notification.addEvent("create");
+
+        notification.setAbout(null);
+        
+        MembershipCond membCond = new MembershipCond();
+        membCond.setRoleId(8L);
+        notification.setRecipients(NodeCond.getLeafCond(membCond));
+        notification.setSelfAsRecipient(true);
+
+        notification.setRecipientAttrName("email");
+        notification.setRecipientAttrType(IntMappingType.UserSchema);
+
+        Random random = new Random(System.currentTimeMillis());
+        String sender = "syncopetest-" + random.nextLong() + "@syncope.apache.org";
+        notification.setSender(sender);
+        String subject = "Test notification " + random.nextLong();
+        notification.setSubject(subject);
+        notification.setTemplate("optin");
+
+        Notification actual = notificationDAO.save(notification);
+        assertNotNull(actual);
+
+        notificationDAO.flush();
+
+        // 2. create user
+        UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(7);
+        userTO.addMembership(membershipTO);
+
+        userController.create(new MockHttpServletResponse(), userTO);
+
+        // 3. force Quartz job execution and verify e-mail
+        notificationJob.execute(null);
+        assertTrue(verifyMail(sender, subject));
+
+        // 4. get NotificationTask id
+        Long taskId = null;
+        for (NotificationTask task : taskDAO.findAll(NotificationTask.class)) {
+            if (sender.equals(task.getSender())) {
+                taskId = task.getId();
+            }
+        }
+        assertNotNull(taskId);
+
+        // 5. execute Notification task and verify e-mail
+        taskController.execute(taskId, false);
+        assertTrue(verifyMail(sender, subject));
+    }
 }

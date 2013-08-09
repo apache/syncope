@@ -56,7 +56,6 @@ public class Notification extends AbstractBaseBean {
     @Column(name = "events")
     private List<String> events;
 
-    @NotNull
     @Lob
     private String xmlAbout;
 
@@ -100,19 +99,11 @@ public class Notification extends AbstractBaseBean {
     }
 
     public NodeCond getAbout() {
-        NodeCond result = XMLSerializer.<NodeCond>deserialize(xmlAbout);
-        if (result == null) {
-            result = new NodeCond();
-        }
-        return result;
+        return xmlAbout == null ? null : XMLSerializer.<NodeCond>deserialize(xmlAbout);
     }
 
     public void setAbout(NodeCond about) {
-        if (about == null) {
-            about = new NodeCond();
-        }
-
-        xmlAbout = XMLSerializer.serialize(about);
+        xmlAbout = about == null ? null : XMLSerializer.serialize(about);
     }
 
     public NodeCond getRecipients() {

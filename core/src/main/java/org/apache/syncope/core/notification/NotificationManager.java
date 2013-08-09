@@ -199,7 +199,10 @@ public class NotificationManager {
         }
 
         for (Notification notification : notificationDAO.findAll()) {
-            if (searchDAO.matches(user, notification.getAbout(), AttributableUtil.getInstance(AttributableType.USER))) {
+            if (notification.getAbout() == null
+                    || searchDAO.matches(user, notification.getAbout(),
+                    AttributableUtil.getInstance(AttributableType.USER))) {
+
                 Set<String> events = new HashSet<String>(notification.getEvents());
                 events.retainAll(performedTasks);
 

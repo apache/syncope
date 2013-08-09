@@ -90,8 +90,31 @@ class NotificationModalPage extends BaseModalPage {
         traceLevel.addRequiredLabel();
         form.add(traceLevel);
 
+        final WebMarkupContainer aboutContainer = new WebMarkupContainer("aboutContainer");
+        aboutContainer.setOutputMarkupId(true);
+
+        form.add(aboutContainer);
+        
+        final AjaxCheckBoxPanel checkAbout =
+                new AjaxCheckBoxPanel("checkAbout", "checkAbout",
+                new Model<Boolean>(notificationTO.getAbout() == null));
+        aboutContainer.add(checkAbout);
+        
         final UserSearchPanel about = new UserSearchPanel.Builder("about").nodeCond(notificationTO.getAbout()).build();
-        form.add(about);
+        aboutContainer.add(about);
+        about.setEnabled(!checkAbout.getModelObject());
+        
+        checkAbout.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                about.setEnabled(!checkAbout.getModelObject());
+                target.add(about);
+                target.add(aboutContainer);
+            }
+        });
 
         final AjaxDropDownChoicePanel<IntMappingType> recipientAttrType = new AjaxDropDownChoicePanel<IntMappingType>(
                 "recipientAttrType", new ResourceModel("recipientAttrType", "recipientAttrType").getObject(),
@@ -186,7 +209,7 @@ class NotificationModalPage extends BaseModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                notificationTO.setAbout(about.buildSearchCond());
+                notificationTO.setAbout(checkAbout.getModelObject() ? null : about.buildSearchCond());
                 notificationTO.setRecipients(checkRecipients.getModelObject() ? recipients.buildSearchCond() : null);
 
                 try {
