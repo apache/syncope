@@ -19,6 +19,7 @@
 package org.apache.syncope.core.policy;
 
 import java.util.regex.Pattern;
+
 import org.apache.syncope.common.types.AccountPolicySpec;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -28,11 +29,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, SyncopeUser> {
 
-    private static final Pattern PATTERN = Pattern.compile("[a-zA-Z0-9-_@. ]+");
-
-    private static final Pattern LCPATTERN = Pattern.compile("[a-z0-9-_@. ]+");
-
-    private static final Pattern UCPATTERN = Pattern.compile("[A-Z0-9-_@. ]+");
+    private static final Pattern DEFAULT_PATTERN = Pattern.compile("[a-zA-Z0-9-_@. ]+");
 
     @Autowired(required = false)
     private UserSuspender userSuspender;
@@ -69,12 +66,18 @@ public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, Syn
             }
         }
 
-        // check syntax
-        if ((policy.isAllLowerCase() && !LCPATTERN.matcher(user.getUsername()).matches())
-                || (policy.isAllUpperCase() && !UCPATTERN.matcher(user.getUsername()).matches())
-                || !PATTERN.matcher(user.getUsername()).matches()) {
+        // check case
+        if (policy.isAllUpperCase() && !user.getUsername().equals(user.getUsername().toUpperCase())) {
+            throw new AccountPolicyException("No lowercase characters permitted");
+        }
+        if (policy.isAllLowerCase() && !user.getUsername().equals(user.getUsername().toLowerCase())) {
+            throw new AccountPolicyException("No uppercase characters permitted");
+        }
 
-            throw new AccountPolicyException("Invalid username syntax");
+        // check pattern
+        Pattern pattern = (policy.getPattern() == null) ? DEFAULT_PATTERN : Pattern.compile(policy.getPattern());
+        if (!pattern.matcher(user.getUsername()).matches()) {
+            throw new AccountPolicyException("Username does not match pattern");
         }
 
         // check prefix

@@ -93,6 +93,7 @@ public class PolicyBeanPanel extends Panel {
     };
 
     final IModel<List<String>> correlationRules = new LoadableDetachableModel<List<String>>() {
+
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
@@ -151,7 +152,7 @@ public class PolicyBeanPanel extends Panel {
 
                         item.add(getActivationControl(
                                 component,
-                                propDesc.getReadMethod().invoke(policy, new Object[]{}) != null,
+                                propDesc.getReadMethod().invoke(policy, new Object[] {}) != null,
                                 null,
                                 null));
 
@@ -169,7 +170,7 @@ public class PolicyBeanPanel extends Panel {
 
                         item.add(getActivationControl(
                                 component,
-                                (Enum<?>) propDesc.getReadMethod().invoke(policy, new Object[]{}) != null,
+                                (Enum<?>) propDesc.getReadMethod().invoke(policy, new Object[] {}) != null,
                                 values[0],
                                 values[0]));
 
@@ -197,7 +198,7 @@ public class PolicyBeanPanel extends Panel {
                             }
 
                             Collection collection =
-                                    (Collection) propDesc.getReadMethod().invoke(policy, new Object[]{});
+                                    (Collection) propDesc.getReadMethod().invoke(policy, new Object[] {});
 
                             if (collection == null) {
                                 collection = new ArrayList();
@@ -225,7 +226,7 @@ public class PolicyBeanPanel extends Panel {
                             reinitializedValue.add("");
 
                             item.add(getActivationControl(component,
-                                    !((Collection) propDesc.getReadMethod().invoke(policy, new Object[]{})).isEmpty(),
+                                    !((Collection) propDesc.getReadMethod().invoke(policy, new Object[] {})).isEmpty(),
                                     new ArrayList<String>(), (Serializable) reinitializedValue));
                         }
                     } else if (field.getType().equals(int.class) || field.getType().equals(Integer.class)) {
@@ -235,7 +236,15 @@ public class PolicyBeanPanel extends Panel {
                         item.add(component);
 
                         item.add(getActivationControl(component,
-                                (Integer) propDesc.getReadMethod().invoke(policy, new Object[]{}) > 0, 0, 0));
+                                (Integer) propDesc.getReadMethod().invoke(policy, new Object[] {}) > 0, 0, 0));
+                    } else if (field.getType().equals(String.class)) {
+                        component = new AjaxTextFieldPanel("field", field.getName(),
+                                new PropertyModel(policy, field.getName()));
+
+                        item.add(component);
+
+                        item.add(getActivationControl(component,
+                                propDesc.getReadMethod().invoke(policy, new Object[] {}) != null, null, null));
                     } else {
                         item.add(new AjaxCheckBoxPanel("check", field.getName(), new Model()));
                         item.add(new Label("field", new Model(null)));
