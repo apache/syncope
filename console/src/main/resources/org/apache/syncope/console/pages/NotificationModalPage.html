@@ -88,28 +88,38 @@ under the License.
           </div>
 
           <div id="about">
-            <span wicket:id="about"/>
-          </div>
+            <span wicket:id="aboutContainer">
+           	<div class="tablerow" style="width: auto;">
+           	  <div class="tablecolumn_field" style="width: auto; padding-right: 5px;">
+           	    <span wicket:id="checkAbout">[checkAbout]</span>
+           	  </div>
+           	  <div class="tablecolumn_label" style="width: auto;">
+           	    <label for="checkAbout"><wicket:message key="checkAbout"/></label>
+           	  </div>
+           	</div>
+               <span wicket:id="about"/>
+             </span>
+          </div>  
 
           <div id="events">
             <span wicket:id="events"/>
           </div>
 
           <div id="recipients">
-            <div class="tablerow">
-              <div class="tablecolumn_field">
+           	<div class="tablerow" style="width: auto; display: block;">
+           	  <div class="tablecolumn_field" style="width: auto; padding-right: 5px;">
                 <span wicket:id="selfAsRecipient">[selfAsRecipient]</span>
               </div>
-              <div class="tablecolumn_label">
+           	  <div class="tablecolumn_label" style="width: auto;">
                 <label for="selfAsRecipient"><wicket:message key="selfAsRecipient"/></label>
               </div>
             </div>
             <span wicket:id="recipientsContainer">
-              <div class="tablerow">
-                <div class="tablecolumn_field">
+           	<div class="tablerow" style="width: auto;">
+           	  <div class="tablecolumn_field" style="width: auto; padding-right: 5px;">
                   <span wicket:id="checkRecipients">[checkRecipients]</span>
                 </div>
-                <div class="tablecolumn_label">
+           	  <div class="tablecolumn_label" style="width: auto;">
                   <label for="checkRecipients"><wicket:message key="checkRecipients"/></label>
                 </div>
               </div>
