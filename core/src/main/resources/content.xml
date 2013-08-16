@@ -29,6 +29,7 @@ under the License.
   <SyncopeConf confKey="token.length" confValue="256"/>
   <SyncopeConf confKey="token.expireTime" confValue="60"/>
   <SyncopeConf confKey="createRequest.allowed" confValue="true"/>
+  <SyncopeConf confKey="notification.maxRetries" confValue="0"/>
     
   <!-- Authentication and authorization -->
   <Entitlement name="SCHEMA_CREATE"/>

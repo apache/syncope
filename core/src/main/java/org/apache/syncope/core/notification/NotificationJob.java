@@ -91,6 +91,8 @@ public class NotificationJob implements Job {
 
     private String smtpPassword;
 
+    private long maxRetries;
+
     private void init() {
         smtpHost = confDAO.find("smtp.host", "").getValue();
         smtpPort = 25;
@@ -103,6 +105,13 @@ public class NotificationJob implements Job {
         smtpPassword = confDAO.find("smtp.password", "").getValue();
 
         LOG.debug("SMTP details fetched: {}:{} / {}:[PASSWORD_NOT_SHOWN]", smtpHost, smtpPort, smtpUsername);
+
+        try {
+            maxRetries = Long.valueOf(confDAO.find("notification.maxRetries", "0").getValue());
+        } catch (NumberFormatException e) {
+            LOG.error("Invalid maximum number of retries, retries disabled", e);
+            maxRetries = 0;
+        }
     }
 
     public TaskExec executeSingle(final NotificationTask task) {
@@ -111,6 +120,8 @@ public class NotificationJob implements Job {
         TaskExec execution = new TaskExec();
         execution.setTask(task);
         execution.setStartDate(new Date());
+
+        boolean retryPossible = true;
 
         if (StringUtils.isBlank(smtpHost) || StringUtils.isBlank(task.getSender())
                 || StringUtils.isBlank(task.getSubject()) || task.getRecipients().isEmpty()
@@ -126,6 +137,7 @@ public class NotificationJob implements Job {
             LOG.error(message);
 
             execution.setStatus(Status.NOT_SENT.name());
+            retryPossible = false;
 
             if (task.getTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal()) {
                 execution.setMessage(message);
@@ -187,7 +199,7 @@ public class NotificationJob implements Job {
                         execution.setMessage(report.toString());
                     }
 
-                    auditManager.audit(Category.notification, NotificationSubCategory.sent, Result.success,
+                    auditManager.audit(Category.notification, NotificationSubCategory.send, Result.success,
                             "Successfully sent notification to " + to);
                 } catch (Exception e) {
                     LOG.error("Could not send e-mail", e);
@@ -201,7 +213,7 @@ public class NotificationJob implements Job {
                         execution.setMessage(exceptionWriter.toString());
                     }
 
-                    auditManager.audit(Category.notification, NotificationSubCategory.sent, Result.failure,
+                    auditManager.audit(Category.notification, NotificationSubCategory.send, Result.failure,
                             "Could not send notification to " + to, e);
                 }
 
@@ -211,8 +223,11 @@ public class NotificationJob implements Job {
 
         if (hasToBeRegistered(execution)) {
             execution = notificationManager.storeExec(execution);
+            if (retryPossible && (Status.valueOf(execution.getStatus()) == Status.NOT_SENT)) {
+                handleRetries(execution);
+            }
         } else {
-            notificationManager.setTaskExecuted(execution.getTask().getId());
+            notificationManager.setTaskExecuted(execution.getTask().getId(), true);
         }
 
         return execution;
@@ -241,5 +256,28 @@ public class NotificationJob implements Job {
         return (Status.valueOf(execution.getStatus()) == Status.NOT_SENT
                 && task.getTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
                 || task.getTraceLevel() == TraceLevel.ALL;
+    }
+
+    private void handleRetries(final TaskExec execution) {
+        if (maxRetries <= 0) {
+            return;
+        }
+
+        long failedExecutionsCount = notificationManager.countExecutionsWithStatus(
+                execution.getTask().getId(), Status.NOT_SENT.name());
+
+        if (failedExecutionsCount <= maxRetries) {
+            LOG.debug("Execution of notification task {} will be retried [{}/{}]",
+                    execution.getTask(), failedExecutionsCount, maxRetries);
+            notificationManager.setTaskExecuted(execution.getTask().getId(), false);
+
+            auditManager.audit(Category.notification, NotificationSubCategory.retry, Result.success,
+                    "Notification task " + execution.getTask().getId() + " will be retried");
+        } else {
+            LOG.error("Maximum number of retries reached for task {} - giving up", execution.getTask());
+
+            auditManager.audit(Category.notification, NotificationSubCategory.retry, Result.failure,
+                    "Giving up retries on notification task " + execution.getTask().getId());
+        }
     }
 }

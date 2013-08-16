@@ -263,20 +263,44 @@ public class NotificationManager {
         NotificationTask task = taskDAO.find(execution.getTask().getId());
         task.addExec(execution);
         task.setExecuted(true);
-        task = taskDAO.save(task);
-        // NotificationTasks always have a single execution at most
-        return task.getExecs().get(0);
+        taskDAO.save(task);
+        // this flush call is needed to generate a value for the execution id
+        taskDAO.flush();
+        return execution;
     }
 
     /**
-     * Mark NotificationTask with provided id as executed.
+     * Set execution state of NotificationTask with provided id.
      *
      * @param taskId task to be updated
+     * @param executed execution state
      */
-    public void setTaskExecuted(final Long taskId) {
+    public void setTaskExecuted(final Long taskId, final boolean executed) {
         NotificationTask task = taskDAO.find(taskId);
-        task.setExecuted(true);
+        task.setExecuted(executed);
         taskDAO.save(task);
+    }
+
+    /**
+     * Count the number of task executions of a given task with a given status.
+     *
+     * @param taskId task id
+     * @param status status
+     * @return number of task executions
+     */
+    public long countExecutionsWithStatus(final Long taskId, final String status) {
+        NotificationTask task = taskDAO.find(taskId);
+        long count = 0;
+        for (TaskExec taskExec : task.getExecs()) {
+            if (status == null) {
+                if (taskExec.getStatus() == null) {
+                    count++;
+                }
+            } else if (status.equals(taskExec.getStatus())) {
+                count++;
+            }
+        }
+        return count;
     }
 
     protected Map<String, String> findAllSyncopeConfs() {

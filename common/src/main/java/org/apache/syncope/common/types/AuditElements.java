@@ -125,7 +125,8 @@ public final class AuditElements {
         read,
         update,
         delete,
-        sent
+        send,
+        retry
 
     }
 
