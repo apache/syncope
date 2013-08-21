@@ -321,7 +321,7 @@ under the License.
                   org.apache.syncope.client*;version=${project.version},
                   org.apache.syncope.common*;version=${project.version},
                   org.apache.wicket*;version="[6,7)",
-                  org.codehaus.jackson*;version="[1.9,2)",
+                  com.fasterxml.jackson*;version="[2.2.2,2.3)",
                   org.springframework*;version="[3,4)",
                   ch.qos.logback.classic;resolution:=optional,
                   javax.swing.tree;resolution:=optional,

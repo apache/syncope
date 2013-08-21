@@ -28,8 +28,7 @@ under the License.
     <prefer-application-packages>
       <package-name>org.apache.commons.*</package-name>
       <package-name>org.slf4j.*</package-name>
-      <package-name>org.codehaus.jackson.*</package-name>
-      <package-name>net.sf.cglib.*</package-name>
+      <package-name>com.fasterxml.jackson.*</package-name>
     </prefer-application-packages>
   </container-descriptor>
 

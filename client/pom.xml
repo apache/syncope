@@ -90,7 +90,7 @@ under the License.
             </Export-Package>
             <Import-Package>
               org.apache.http*;version="[4,5)",
-              org.codehaus.jackson.annotate;version="[1.9,2)",
+              com.fasterxml.jackson.annotation;version="[2.2.2,2.3)",
               org.springframework*;version="[3,4)",
               ch.qos.logback.classic;resolution:=optional,
               org.slf4j;resolution:=optional,
