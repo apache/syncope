@@ -20,6 +20,7 @@ package org.apache.syncope.core.notification;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
@@ -123,6 +124,9 @@ public class NotificationTest {
 
     @Autowired
     private NotificationJob notificationJob;
+
+    @Autowired
+    private NotificationManager notificationManager;
 
     @BeforeClass
     public static void startGreenMail() {
@@ -359,5 +363,75 @@ public class NotificationTest {
         // 5. execute Notification task and verify e-mail
         taskController.execute(taskId, false);
         assertTrue(verifyMail(sender, subject));
+    }
+
+    @Test
+    public void notifyByMailWithRetry() throws Exception {
+        // 1. create suitable notification for subsequent tests
+        Notification notification = new Notification();
+        notification.addEvent("create");
+
+        notification.setAbout(null);
+
+        MembershipCond membCond = new MembershipCond();
+        membCond.setRoleId(8L);
+        notification.setRecipients(NodeCond.getLeafCond(membCond));
+        notification.setSelfAsRecipient(true);
+
+        notification.setRecipientAttrName("email");
+        notification.setRecipientAttrType(IntMappingType.UserSchema);
+
+        Random random = new Random(System.currentTimeMillis());
+        String sender = "syncopetest-" + random.nextLong() + "@syncope.apache.org";
+        notification.setSender(sender);
+        String subject = "Test notification " + random.nextLong();
+        notification.setSubject(subject);
+        notification.setTemplate("optin");
+
+        Notification actual = notificationDAO.save(notification);
+        assertNotNull(actual);
+
+        notificationDAO.flush();
+
+        // 2. create user
+        UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(7);
+        userTO.getMemberships().add(membershipTO);
+
+        userController.create(userTO);
+
+        // 3. Set number of retries
+        SyncopeConf retryConf = confDAO.find("notification.maxRetries");
+        retryConf.setValue("5");
+        confDAO.save(retryConf);
+        confDAO.flush();
+
+        // 4. Stop mail server to force error sending mail
+        stopGreenMail();
+
+        // 5. force Quartz job execution multiple times
+        for (int i = 0; i < 10; i++) {
+            notificationJob.execute(null);
+        }
+
+        // 6. get NotificationTask, count number of executions
+        NotificationTask foundTask = null;
+        for (NotificationTask task : taskDAO.findAll(NotificationTask.class)) {
+            if (sender.equals(task.getSender())) {
+                foundTask = task;
+            }
+        }
+        assertNotNull(foundTask);
+        assertEquals(6, notificationManager.countExecutionsWithStatus(foundTask.getId(),
+                NotificationJob.Status.NOT_SENT.name()));
+
+        // 7. start mail server again
+        startGreenMail();
+
+        // 8. reset number of retries
+        retryConf.setValue("0");
+        confDAO.save(retryConf);
+        confDAO.flush();
     }
 }
