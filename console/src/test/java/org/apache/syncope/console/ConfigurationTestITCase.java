@@ -154,12 +154,6 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.click("//div[2]/form/div[3]/ul/li[2]/a/span");
 
-        selenium.select("//td[3]/select", "label=MEMBERSHIP");
-
-        selenium.waitForCondition("selenium.isElementPresent(\"//td[4]/select[option='8 otherchild']\");", "30000");
-
-        selenium.select("//td[4]/select", "label=8 otherchild");
-
         selenium.click("//div[2]/form/div[3]/ul/li[3]/a/span");
 
         selenium.click("//div[2]/form/div[3]/div[3]/span/span/div/div[2]/div/select/option");
