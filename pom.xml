@@ -334,7 +334,7 @@ under the License.
 
     <tomcat.version>7.0.42</tomcat.version>
 
-    <jasypt.version>1.9.0</jasypt.version>
+    <jasypt.version>1.9.1</jasypt.version>
  
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
     <connid.location>file:${bundles.directory}/</connid.location>
