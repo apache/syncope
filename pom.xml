@@ -277,6 +277,12 @@ under the License.
       <organization>Tirasa</organization>
       <organizationUrl>http://www.tirasa.net/</organizationUrl>
     </contributor>
+    <contributor>
+      <name>Guido Wimmel</name>
+      <email>guido.wimmel at gmx.net</email>
+      <organization>Stadtwerke München Services GmbH</organization>
+      <organizationUrl>http://www.swm.de/</organizationUrl>
+    </contributor>
   </contributors>
 
   <prerequisites>
