@@ -306,7 +306,7 @@ under the License.
     <commons-jexl.version>2.1.1</commons-jexl.version>
     <commons-lang.version>2.6</commons-lang.version>
         
-    <hc.client.version>4.2.5</hc.client.version>
+    <hc.client.version>4.2.6</hc.client.version>
 
     <activiti.version>5.13</activiti.version>
 
