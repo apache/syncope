@@ -265,7 +265,7 @@ under the License.
     <commons-jexl.version>2.1.1</commons-jexl.version>
     <commons-lang.version>2.6</commons-lang.version>
         
-    <httpcomponents.version>4.2.5</httpcomponents.version>
+    <httpcomponents.version>4.2.6</httpcomponents.version>
 
     <activiti.version>5.9</activiti.version>
 
