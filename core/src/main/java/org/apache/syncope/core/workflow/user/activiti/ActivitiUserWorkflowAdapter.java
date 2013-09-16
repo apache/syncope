@@ -50,6 +50,10 @@ import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.FormType;
 import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.history.HistoricActivityInstance;
+import org.activiti.engine.history.HistoricDetail;
+import org.activiti.engine.history.HistoricTaskInstance;
+import org.activiti.engine.impl.persistence.entity.HistoricFormPropertyEntity;
+import org.activiti.engine.query.Query;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -171,11 +175,10 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     private Set<String> getPerformedTasks(final SyncopeUser user) {
-        Set<String> result = new HashSet<String>();
+        final Set<String> result = new HashSet<String>();
 
-        List<HistoricActivityInstance> tasks = historyService.createHistoricActivityInstanceQuery().executionId(
-                user.getWorkflowId()).list();
-        for (HistoricActivityInstance task : tasks) {
+        for (HistoricActivityInstance task : historyService.createHistoricActivityInstanceQuery().executionId(user.
+                getWorkflowId()).list()) {
             result.add(task.getActivityId());
         }
 
@@ -491,22 +494,90 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return result;
     }
 
+    private WorkflowFormTO getFormTO(final Task task) {
+        return getFormTO(task, formService.getTaskFormData(task.getId()));
+    }
+
+    private WorkflowFormTO getFormTO(final Task task, final TaskFormData fd) {
+        final WorkflowFormTO formTO =
+                getFormTO(task.getProcessInstanceId(), task.getId(), fd.getFormKey(), fd.getFormProperties());
+
+        BeanUtils.copyProperties(task, formTO);
+        return formTO;
+    }
+
+    private WorkflowFormTO getFormTO(final HistoricTaskInstance task) {
+        final List<HistoricFormPropertyEntity> props = new ArrayList<HistoricFormPropertyEntity>();
+
+        for (HistoricDetail historicDetail : historyService.createHistoricDetailQuery().taskId(task.getId()).list()) {
+
+            if (historicDetail instanceof HistoricFormPropertyEntity) {
+                props.add((HistoricFormPropertyEntity) historicDetail);
+            }
+        }
+
+        final WorkflowFormTO formTO = getHFormTO(task.getProcessInstanceId(), task.getId(), task.getFormKey(), props);
+        BeanUtils.copyProperties(task, formTO);
+
+        final HistoricActivityInstance historicActivityInstance = historyService.createHistoricActivityInstanceQuery().
+                executionId(task.getExecutionId()).activityType("userTask").activityName(task.getName()).singleResult();
+
+        if (historicActivityInstance != null) {
+            formTO.setCreateTime(historicActivityInstance.getStartTime());
+            formTO.setDueDate(historicActivityInstance.getEndTime());
+        }
+
+        return formTO;
+    }
+
     @SuppressWarnings("unchecked")
-    private WorkflowFormTO getFormTO(final Task task, final TaskFormData formData) {
+    private WorkflowFormTO getHFormTO(
+            final String processInstanceId,
+            final String taskId,
+            final String formKey,
+            final List<HistoricFormPropertyEntity> props) {
+
         WorkflowFormTO formTO = new WorkflowFormTO();
 
-        SyncopeUser user = userDAO.findByWorkflowId(task.getProcessInstanceId());
+        SyncopeUser user = userDAO.findByWorkflowId(processInstanceId);
         if (user == null) {
-            throw new NotFoundException("User with workflow id " + task.getProcessInstanceId());
+            throw new NotFoundException("User with workflow id " + processInstanceId);
         }
         formTO.setUserId(user.getId());
 
-        formTO.setTaskId(task.getId());
-        formTO.setKey(formData.getFormKey());
+        formTO.setTaskId(taskId);
+        formTO.setKey(formKey);
 
-        BeanUtils.copyProperties(task, formTO);
+        for (HistoricFormPropertyEntity prop : props) {
+            WorkflowFormPropertyTO propertyTO = new WorkflowFormPropertyTO();
+            propertyTO.setId(prop.getPropertyId());
+            propertyTO.setName(prop.getPropertyId());
+            propertyTO.setValue(prop.getPropertyValue());
+            formTO.addProperty(propertyTO);
+        }
 
-        for (FormProperty fProp : formData.getFormProperties()) {
+        return formTO;
+    }
+
+    @SuppressWarnings("unchecked")
+    private WorkflowFormTO getFormTO(
+            final String processInstanceId,
+            final String taskId,
+            final String formKey,
+            final List<FormProperty> properties) {
+
+        WorkflowFormTO formTO = new WorkflowFormTO();
+
+        SyncopeUser user = userDAO.findByWorkflowId(processInstanceId);
+        if (user == null) {
+            throw new NotFoundException("User with workflow id " + processInstanceId);
+        }
+        formTO.setUserId(user.getId());
+
+        formTO.setTaskId(taskId);
+        formTO.setKey(formKey);
+
+        for (FormProperty fProp : properties) {
             WorkflowFormPropertyTO propertyTO = new WorkflowFormPropertyTO();
             BeanUtils.copyProperties(fProp, propertyTO, PROPERTY_IGNORE_PROPS);
             propertyTO.setType(fromActivitiFormType(fProp.getType()));
@@ -526,16 +597,36 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     public List<WorkflowFormTO> getForms() {
-        List<WorkflowFormTO> forms = new ArrayList<WorkflowFormTO>();
+        return getForms(taskService.createTaskQuery().taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE));
+    }
 
-        for (Task task : taskService.createTaskQuery().taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE).list()) {
+    @Override
+    public List<WorkflowFormTO> getForms(final String workflowId, final String name) {
+        final List<WorkflowFormTO> forms = getForms(
+                taskService.createTaskQuery().processInstanceId(workflowId).taskName(name).
+                taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE));
+
+        forms.addAll(getForms(historyService.createHistoricTaskInstanceQuery().taskName(name)
+                .taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
+
+        return forms;
+    }
+
+    private <T extends Query<?, ?>, U extends Object> List<WorkflowFormTO> getForms(final Query<T, U> query) {
+        final List<WorkflowFormTO> forms = new ArrayList<WorkflowFormTO>();
+
+        for (U obj : query.list()) {
             try {
-                TaskFormData formData = formService.getTaskFormData(task.getId());
-                if (formData != null && !formData.getFormProperties().isEmpty()) {
-                    forms.add(getFormTO(task, formData));
+                if (obj instanceof HistoricTaskInstance) {
+                    forms.add(getFormTO((HistoricTaskInstance) obj));
+                } else if (obj instanceof Task) {
+                    forms.add(getFormTO((Task) obj));
+                } else {
+                    throw new ActivitiException(
+                            "Failure retrieving form", new IllegalArgumentException("Invalid task type"));
                 }
             } catch (ActivitiException e) {
-                LOG.debug("No form found for task {}", task.getId(), e);
+                LOG.debug("No form found for task {}", obj, e);
             }
         }
 
@@ -563,7 +654,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         WorkflowFormTO result = null;
         if (formData != null && !formData.getFormProperties().isEmpty()) {
-            result = getFormTO(task, formData);
+            result = getFormTO(task);
         }
 
         return result;

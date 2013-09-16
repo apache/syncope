@@ -42,7 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = {Throwable.class})
 public class NoOpRoleWorkflowAdapter extends AbstractRoleWorkflowAdapter {
 
-    private static final List<String> TASKS = Arrays.asList(new String[]{"create", "update", "delete"});
+    private static final List<String> TASKS = Arrays.asList(new String[] {"create", "update", "delete"});
 
     @Override
     public WorkflowResult<Long> create(final RoleTO roleTO)
@@ -106,6 +106,11 @@ public class NoOpRoleWorkflowAdapter extends AbstractRoleWorkflowAdapter {
 
     @Override
     public List<WorkflowFormTO> getForms() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<WorkflowFormTO> getForms(final String workflowId, final String name) {
         return Collections.emptyList();
     }
 

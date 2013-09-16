@@ -30,23 +30,28 @@ import org.apache.syncope.common.to.WorkflowFormTO;
 
 @Path("userworkflow")
 public interface UserWorkflowService {
-	@POST
-	@Path("forms")
-	UserTO submitForm(WorkflowFormTO form);
 
-	@GET
-	@Path("forms")
-	List<WorkflowFormTO> getForms();
+    @POST
+    @Path("forms")
+    UserTO submitForm(WorkflowFormTO form);
 
-	@GET
-	@Path("forms/{userId}")
-	WorkflowFormTO getFormForUser(@PathParam("userId") Long userId);
-	
-	@POST
-	@Path("tasks/{taskId}/claim")
-	WorkflowFormTO claimForm(@PathParam("taskId") String taskId);
+    @GET
+    @Path("forms")
+    List<WorkflowFormTO> getForms();
 
-	@POST
-	@Path("tasks/{taskId}/execute")
-	UserTO executeWorkflow(@PathParam("taskId") String taskId, UserTO userTO);
+    @GET
+    @Path("forms/{userId}/{name}")
+    List<WorkflowFormTO> getFormsByName(@PathParam("userId") final Long userId, @PathParam("name") final String name);
+
+    @GET
+    @Path("forms/{userId}")
+    WorkflowFormTO getFormForUser(@PathParam("userId") Long userId);
+
+    @POST
+    @Path("tasks/{taskId}/claim")
+    WorkflowFormTO claimForm(@PathParam("taskId") String taskId);
+
+    @POST
+    @Path("tasks/{taskId}/execute")
+    UserTO executeWorkflow(@PathParam("taskId") String taskId, UserTO userTO);
 }

@@ -37,7 +37,6 @@ public class UserWorkflowServiceImpl implements UserWorkflowService {
     public WorkflowFormTO claimForm(final String taskId) {
         return controller.claimForm(taskId);
     }
-    
 
     @Override
     public UserTO executeWorkflow(final String taskId, final UserTO userTO) {
@@ -53,11 +52,14 @@ public class UserWorkflowServiceImpl implements UserWorkflowService {
     public List<WorkflowFormTO> getForms() {
         return controller.getForms();
     }
-    
 
     @Override
     public UserTO submitForm(final WorkflowFormTO form) {
         return controller.submitForm(form);
     }
-    
+
+    @Override
+    public List<WorkflowFormTO> getFormsByName(final Long userId, final String taskName) {
+        return controller.getForms(userId, taskName);
+    }
 }

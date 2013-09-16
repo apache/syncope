@@ -44,7 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     private static final List<String> TASKS =
-            Arrays.asList(new String[]{"create", "activate", "update", "suspend", "reactivate", "delete"});
+            Arrays.asList(new String[] {"create", "activate", "update", "suspend", "reactivate", "delete"});
 
     public static final String ENABLED = "enabled";
 
@@ -175,6 +175,11 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     public List<WorkflowFormTO> getForms() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<WorkflowFormTO> getForms(final String workflowId, final String name) {
         return Collections.emptyList();
     }
 

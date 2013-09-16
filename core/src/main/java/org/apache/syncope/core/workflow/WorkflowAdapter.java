@@ -68,6 +68,17 @@ public interface WorkflowAdapter {
     List<WorkflowFormTO> getForms();
 
     /**
+     * Gets all forms with the given name for the given workflowId(include historical forms).
+     *
+     * @param workflowId workflow id.
+     * @param name form name.
+     * @return forms (if present), otherwise an empty list.
+     * @throws NotFoundException definition not found exception
+     * @throws WorkflowException workflow exception
+     */
+    List<WorkflowFormTO> getForms(String workflowId, String name);
+
+    /**
      * Get form for given workflowId (if present).
      *
      * @param workflowId workflow id

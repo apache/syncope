@@ -2323,6 +2323,96 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(PropagationTaskExecStatus.UNSUBMITTED, userTO.getPropagationStatusTOs().get(1).getStatus());
     }
 
+    @Test
+    public void issueSYNCOPE15() {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+
+        UserTO userTO = getUniqueSampleTO("issueSYNCOPE15@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getVirtualAttributes().clear();
+        userTO.getDerivedAttributes().clear();
+        userTO.getMemberships().clear();
+
+        // User with role 9 are defined in workflow as subject to approval
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(9L);
+        userTO.getMemberships().add(membershipTO);
+
+        // 1. create user with role 9 (and verify that no propagation occurred)
+        userTO = createUser(userTO);
+        assertNotNull(userTO);
+        assertNotEquals(0L, userTO.getId());
+        assertNotNull(userTO.getCreationDate());
+        assertNotNull(userTO.getCreator());
+        assertNotNull(userTO.getLastChangeDate());
+        assertNotNull(userTO.getLastModifier());
+        assertEquals(userTO.getCreationDate(), userTO.getLastChangeDate());
+
+        // 2. request if there is any pending form for user just created
+        List<WorkflowFormTO> forms = userWorkflowService.getForms();
+        assertEquals(1, forms.size());
+
+        WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getId());
+        assertNotNull(form);
+
+        // 3. first claim ny bellini ....
+        UserWorkflowService userService3 = createServiceInstance(UserWorkflowService.class, "bellini", ADMIN_PWD);
+
+        form = userService3.claimForm(form.getTaskId());
+        assertNotNull(form);
+        assertNotNull(form.getTaskId());
+        assertNotNull(form.getOwner());
+
+        // 4. second claim task by admin
+        form = userWorkflowService.claimForm(form.getTaskId());
+        assertNotNull(form);
+
+        // 5. approve user
+        final Map<String, WorkflowFormPropertyTO> props = form.getPropertyMap();
+        props.get("approve").setValue(Boolean.TRUE.toString());
+        form.setProperties(props.values());
+
+        // 6. submit approve
+        userTO = userWorkflowService.submitForm(form);
+        assertNotNull(userTO);
+        assertEquals(0, userWorkflowService.getForms().size());
+        assertNull(userWorkflowService.getFormForUser(userTO.getId()));
+
+        // 7. search approval into the history as well
+        forms = userWorkflowService.getFormsByName(userTO.getId(), "Create approval");
+        assertFalse(forms.isEmpty());
+
+        int count = 0;
+        for (WorkflowFormTO hform : forms) {
+            if (form.getTaskId().equals(hform.getTaskId())) {
+                count++;
+
+                assertEquals("createApproval", hform.getKey());
+                assertNotNull(hform.getCreateTime());
+                assertNotNull(hform.getDueDate());
+                assertTrue(Boolean.parseBoolean(hform.getPropertyMap().get("approve").getValue()));
+                assertNull(hform.getPropertyMap().get("rejectReason").getValue());
+            }
+        }
+        assertEquals(1, count);
+
+        userService.delete(userTO.getId());
+
+        try {
+            userService.read(userTO.getId());
+            fail();
+        } catch (Exception ignore) {
+            // ignore
+        }
+
+        try {
+            userWorkflowService.getFormsByName(userTO.getId(), "Create approval");
+            fail();
+        } catch (Exception ignore) {
+            // ignore
+        }
+    }
+
     private boolean getBooleanAttribute(ConnObjectTO connObjectTO, String attrName) {
         return Boolean.parseBoolean(getStringAttribute(connObjectTO, attrName));
     }

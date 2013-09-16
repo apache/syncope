@@ -124,6 +124,19 @@ public class UserWorkflowController extends AbstractController {
         return forms;
     }
 
+    @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
+    @Transactional(rollbackFor = {Throwable.class})
+    public List<WorkflowFormTO> getForms(final Long userId, final String formName) {
+        SyncopeUser user = binder.getUserFromId(userId);
+        final List<WorkflowFormTO> result = uwfAdapter.getForms(user.getWorkflowId(), formName);
+
+        auditManager.audit(AuditElements.Category.user, AuditElements.UserSubCategory.getFormForUser,
+                AuditElements.Result.success,
+                "Successfully read workflow form for user: " + user.getUsername());
+
+        return result;
+    }
+
     @PreAuthorize("hasRole('WORKFLOW_FORM_SUBMIT')")
     @Transactional(rollbackFor = {Throwable.class})
     public UserTO submitForm(final WorkflowFormTO form) {
