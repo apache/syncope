@@ -24,8 +24,10 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.SyncopeConstants;
+import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.UserRequestTO;
+import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.core.rest.controller.UserRequestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,7 +76,7 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
 
     @Override
     public List<UserRequestTO> list() {
-        return controller.list();
+        return controller.list(false);
     }
 
     @Override
@@ -85,5 +87,20 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
     @Override
     public void delete(final Long requestId) {
         controller.deleteRequest(requestId);
+    }
+
+    @Override
+    public UserTO executeCreate(final Long requestId, final UserTO reviewed) {
+        return controller.execute(controller.read(requestId), reviewed, null);
+    }
+
+    @Override
+    public UserTO executeUpdate(final Long requestId, final UserMod changes) {
+        return controller.execute(controller.read(requestId), null, changes);
+    }
+
+    @Override
+    public UserTO executeDelete(final Long requestId) {
+        return controller.execute(controller.read(requestId), null, null);
     }
 }

@@ -28,6 +28,8 @@ public interface UserRequestDAO extends DAO {
     UserRequest find(Long id);
 
     List<UserRequest> findAll();
+    
+    List<UserRequest> findAll(final boolean executed);
 
     UserRequest save(UserRequest userRequest) throws InvalidEntityException;
 

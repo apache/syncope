@@ -27,8 +27,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.mod.UserMod;
 
 import org.apache.syncope.common.to.UserRequestTO;
+import org.apache.syncope.common.to.UserTO;
 
 @Path("requests/user")
 public interface UserRequestService {
@@ -80,4 +82,16 @@ public interface UserRequestService {
     @DELETE
     @Path("{requestId}")
     void delete(@PathParam("requestId") Long requestId);
+
+    @POST
+    @Path("create/execute/{requestId}")
+    UserTO executeCreate(@PathParam("requestId") Long requestId, UserTO reviewed);
+
+    @POST
+    @Path("update/execute/{requestId}")
+    UserTO executeUpdate(@PathParam("requestId") Long requestId, UserMod changes);
+
+    @POST
+    @Path("delete/execute{requestId}")
+    UserTO executeDelete(@PathParam("requestId") Long requestId);
 }

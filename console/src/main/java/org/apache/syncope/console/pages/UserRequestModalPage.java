@@ -64,7 +64,6 @@ public class UserRequestModalPage extends UserModalPage {
 
             case UPDATE:
                 this.initialUserTO = userRestClient.read(userRequestTO.getUserMod().getId());
-
                 userTO = AttributableOperations.apply(initialUserTO, userRequestTO.getUserMod());
                 break;
 
@@ -88,10 +87,7 @@ public class UserRequestModalPage extends UserModalPage {
                     break;
 
                 case ADMIN:
-                    userRestClient.create(updatedUserTO);
-                    if (userRequestTO != null) {
-                        requestRestClient.delete(userRequestTO.getId());
-                    }
+                    requestRestClient.executeCreate(userRequestTO.getId(), userTO);
                     break;
 
                 default:
@@ -111,10 +107,7 @@ public class UserRequestModalPage extends UserModalPage {
                         break;
 
                     case ADMIN:
-                        userRestClient.update(userMod);
-                        if (userRequestTO != null) {
-                            requestRestClient.delete(userRequestTO.getId());
-                        }
+                        requestRestClient.executeUpdate(userRequestTO.getId(), userMod);
                         break;
 
                     default:

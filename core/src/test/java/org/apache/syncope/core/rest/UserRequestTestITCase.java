@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
@@ -82,7 +83,7 @@ public class UserRequestTestITCase extends AbstractTest {
 
         // 4. as anonymous, request user create works
         UserRequestService userRequestService2 = createServiceInstance(UserRequestService.class, null, null);
-        response = createUserRequest(userRequestService2, new UserRequestTO(userTO));
+        createUserRequest(userRequestService2, new UserRequestTO(userTO));
 
         // 5. try to find user
         AttributeCond attrCond = new AttributeCond(AttributeCond.Type.EQ);
@@ -196,6 +197,93 @@ public class UserRequestTestITCase extends AbstractTest {
             fail();
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        }
+    }
+
+    @Test
+    public void execute() {
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("ex.create@syncope.apache.org");
+        final String initialPassword = userTO.getPassword();
+
+        UserRequestService selfservice = createServiceInstance(UserRequestService.class, null, null);
+        Response response = createUserRequest(selfservice, new UserRequestTO(userTO));
+
+        UserRequestTO userRequest = getObject(response, UserRequestTO.class, userRequestService);
+        assertNotNull(userRequest);
+
+        try {
+            userService.read(userTO.getUsername());
+            fail();
+        } catch (Exception ignore) {
+            // ignore
+        }
+
+        assertFalse(userRequestService.read(userRequest.getId()).isExecuted());
+        assertNotNull(userRequestService.executeCreate(userRequest.getId(), userTO));
+        assertTrue(userRequestService.read(userRequest.getId()).isExecuted());
+
+        for (UserRequestTO userRequestTO : userRequestService.list()) {
+            assertFalse(userRequestTO.isExecuted());
+        }
+
+        userTO = userService.read(userTO.getUsername());
+        assertNotNull(userTO);
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+
+        selfservice = createServiceInstance(UserRequestService.class, userTO.getUsername(), initialPassword);
+
+        userMod.setPassword("new" + initialPassword);
+        response = createUserRequest(selfservice, new UserRequestTO(userMod));
+
+        userRequest = getObject(response, UserRequestTO.class, userRequestService);
+        assertNotNull(userRequest);
+
+        final String newpwd = "new" + initialPassword + "!";
+
+        UserMod furtherChanges = new UserMod();
+        furtherChanges.setId(userMod.getId());
+        furtherChanges.setPassword(newpwd);
+
+        assertFalse(userRequestService.read(userRequest.getId()).isExecuted());
+        assertNotNull(userRequestService.executeUpdate(userRequest.getId(), furtherChanges));
+        assertTrue(userRequestService.read(userRequest.getId()).isExecuted());
+
+        for (UserRequestTO userRequestTO : userRequestService.list()) {
+            assertFalse(userRequestTO.isExecuted());
+        }
+
+        assertNotNull(userService.read(userTO.getUsername()));
+
+        try {
+            createServiceInstance(UserService.class, userTO.getUsername(), "new" + initialPassword).readSelf();
+            fail("Credentials are not updated yet, thus request should raise AccessControlException");
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
+
+        assertNotNull(createServiceInstance(UserService.class, userTO.getUsername(), newpwd).readSelf());
+
+        selfservice = createServiceInstance(UserRequestService.class, userTO.getUsername(), newpwd);
+        response = createUserRequest(selfservice, new UserRequestTO(userTO.getId()));
+
+        userRequest = getObject(response, UserRequestTO.class, userRequestService);
+        assertNotNull(userRequest);
+
+        assertFalse(userRequestService.read(userRequest.getId()).isExecuted());
+        userRequestService.executeDelete(userRequest.getId());
+        assertTrue(userRequestService.read(userRequest.getId()).isExecuted());
+
+        for (UserRequestTO userRequestTO : userRequestService.list()) {
+            assertFalse(userRequestTO.isExecuted());
+        }
+
+        try {
+            userService.read(userTO.getUsername());
+            fail();
+        } catch (Exception ignore) {
+            // ignore
         }
     }
 

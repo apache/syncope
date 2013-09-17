@@ -70,7 +70,8 @@ public class UserRequestDataBinder {
 
     public UserRequestTO getUserRequestTO(final UserRequest request) {
         UserRequestTO result = new UserRequestTO();
-        BeanUtils.copyProperties(request, result);
+        BeanUtils.copyProperties(request, result, new String[] {"executed"});
+        result.setExecuted(request.isExecuted());
 
         return result;
     }

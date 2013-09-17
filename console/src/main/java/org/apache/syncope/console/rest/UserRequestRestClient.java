@@ -60,4 +60,16 @@ public class UserRequestRestClient extends BaseRestClient {
         userRequestTO.setUserId(userId);
         getService(UserRequestService.class).create(userRequestTO);
     }
+
+    public UserTO executeCreate(final Long requestId, final UserTO reviewed) {
+        return getService(UserRequestService.class).executeCreate(requestId, reviewed);
+    }
+
+    public UserTO executeUpdate(final Long requestId, final UserMod changes) {
+        return getService(UserRequestService.class).executeUpdate(requestId, changes);
+    }
+
+    public UserTO executeDelete(final Long requestId) {
+        return getService(UserRequestService.class).executeDelete(requestId);
+    }
 }

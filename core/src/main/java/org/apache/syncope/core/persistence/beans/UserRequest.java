@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
+import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -25,6 +26,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.apache.syncope.common.mod.UserMod;
@@ -48,6 +51,15 @@ public class UserRequest extends AbstractBaseBean {
     @NotNull
     @Enumerated(EnumType.STRING)
     private UserRequestType type;
+
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer executed;
+
+    public UserRequest() {
+        this.executed = 0;
+    }
 
     public Long getId() {
         return id;
@@ -88,5 +100,13 @@ public class UserRequest extends AbstractBaseBean {
     public void setUserId(final Long userId) {
         type = UserRequestType.DELETE;
         payload = String.valueOf(userId);
+    }
+
+    public boolean isExecuted() {
+        return isBooleanAsInteger(executed);
+    }
+
+    public void setExecuted(boolean executed) {
+        this.executed = getBooleanAsInteger(executed);
     }
 }

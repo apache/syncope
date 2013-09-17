@@ -41,6 +41,8 @@ public class UserRequestTO extends AbstractBaseBean {
 
     private UserRequestType type;
 
+    private boolean executed;
+
     public UserRequestTO() {
     }
 
@@ -118,5 +120,13 @@ public class UserRequestTO extends AbstractBaseBean {
 
     public void setUserId(final Long userId) {
         this.userId = userId;
+    }
+
+    public void setExecuted(boolean executed) {
+        this.executed = executed;
+    }
+
+    public boolean isExecuted() {
+        return executed;
     }
 }
