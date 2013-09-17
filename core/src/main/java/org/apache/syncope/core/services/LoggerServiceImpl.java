@@ -42,7 +42,7 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
     @Override
     public void delete(final LoggerType type, final String name) {
         switch (type) {
-            case NORMAL:
+            case LOG:
                 controller.deleteLog(name);
                 break;
 
@@ -65,7 +65,7 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
     @Override
     public List<LoggerTO> list(final LoggerType type) {
         switch (type) {
-            case NORMAL:
+            case LOG:
                 return controller.listLogs();
 
             case AUDIT:
@@ -91,7 +91,7 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
     @Override
     public void update(final LoggerType type, final String name, final LoggerTO logger) {
         switch (type) {
-            case NORMAL:
+            case LOG:
                 controller.setLogLevel(name, logger.getLevel().getLevel());
                 break;
 

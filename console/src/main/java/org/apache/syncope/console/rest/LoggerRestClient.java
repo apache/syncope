@@ -30,7 +30,7 @@ import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditLoggerName;
 import org.apache.syncope.common.types.LoggerType;
-import org.apache.syncope.common.types.SyncopeLoggerLevel;
+import org.apache.syncope.common.types.LoggerLevel;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.springframework.stereotype.Component;
 
@@ -40,11 +40,11 @@ public class LoggerRestClient extends BaseRestClient {
     private static final long serialVersionUID = 4579786978763032240L;
 
     public List<LoggerTO> listLogs() {
-        return getService(LoggerService.class).list(LoggerType.NORMAL);
+        return getService(LoggerService.class).list(LoggerType.LOG);
     }
 
     public List<AuditLoggerName> listAudits() {
-        List<LoggerTO> logger =  getService(LoggerService.class).list(LoggerType.AUDIT);
+        List<LoggerTO> logger = getService(LoggerService.class).list(LoggerType.AUDIT);
 
         return CollectionWrapper.wrapLogger(logger);
     }
@@ -62,23 +62,23 @@ public class LoggerRestClient extends BaseRestClient {
         return result;
     }
 
-    public void setLogLevel(final String name, final SyncopeLoggerLevel level) {
+    public void setLogLevel(final String name, final LoggerLevel level) {
         LoggerTO loggerTO = new LoggerTO();
         loggerTO.setName(name);
         loggerTO.setLevel(level);
-        getService(LoggerService.class).update(LoggerType.NORMAL, name, loggerTO);
+        getService(LoggerService.class).update(LoggerType.LOG, name, loggerTO);
     }
 
     public void enableAudit(final AuditLoggerName auditLoggerName) {
         String name = auditLoggerName.toLoggerName();
         LoggerTO loggerTO = new LoggerTO();
         loggerTO.setName(name);
-        loggerTO.setLevel(SyncopeLoggerLevel.DEBUG);
+        loggerTO.setLevel(LoggerLevel.DEBUG);
         getService(LoggerService.class).update(LoggerType.AUDIT, name, loggerTO);
     }
 
     public void deleteLog(final String name) {
-        getService(LoggerService.class).delete(LoggerType.NORMAL, name);
+        getService(LoggerService.class).delete(LoggerType.LOG, name);
     }
 
     public void disableAudit(final AuditLoggerName auditLoggerName) {

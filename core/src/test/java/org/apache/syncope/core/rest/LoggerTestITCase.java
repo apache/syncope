@@ -29,7 +29,7 @@ import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditLoggerName;
 import org.apache.syncope.common.types.LoggerType;
-import org.apache.syncope.common.types.SyncopeLoggerLevel;
+import org.apache.syncope.common.types.LoggerLevel;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class LoggerTestITCase extends AbstractTest {
 
     @Test
     public void listLogs() {
-        List<LoggerTO> loggers = loggerService.list(LoggerType.NORMAL);
+        List<LoggerTO> loggers = loggerService.list(LoggerType.LOG);
         assertNotNull(loggers);
         assertFalse(loggers.isEmpty());
         for (LoggerTO logger : loggers) {
@@ -61,25 +61,25 @@ public class LoggerTestITCase extends AbstractTest {
 
     @Test
     public void setLevel() {
-        List<LoggerTO> loggers = loggerService.list(LoggerType.NORMAL);
+        List<LoggerTO> loggers = loggerService.list(LoggerType.LOG);
         assertNotNull(loggers);
         int startSize = loggers.size();
 
         LoggerTO logger = new LoggerTO();
         logger.setName("TEST");
-        logger.setLevel(SyncopeLoggerLevel.INFO);
-        loggerService.update(LoggerType.NORMAL, logger.getName(), logger);
-        logger = loggerService.read(LoggerType.NORMAL, logger.getName());
+        logger.setLevel(LoggerLevel.INFO);
+        loggerService.update(LoggerType.LOG, logger.getName(), logger);
+        logger = loggerService.read(LoggerType.LOG, logger.getName());
         assertNotNull(logger);
-        assertEquals(SyncopeLoggerLevel.INFO, logger.getLevel());
+        assertEquals(LoggerLevel.INFO, logger.getLevel());
 
-        loggers = loggerService.list(LoggerType.NORMAL);
+        loggers = loggerService.list(LoggerType.LOG);
         assertNotNull(loggers);
         assertEquals(startSize + 1, loggers.size());
 
         // TEST Delete
-        loggerService.delete(LoggerType.NORMAL, "TEST");
-        loggers = loggerService.list(LoggerType.NORMAL);
+        loggerService.delete(LoggerType.LOG, "TEST");
+        loggers = loggerService.list(LoggerType.LOG);
         assertNotNull(loggers);
         assertEquals(startSize, loggers.size());
     }
@@ -96,7 +96,7 @@ public class LoggerTestITCase extends AbstractTest {
         LoggerTO loggerTO = new LoggerTO();
         String name = auditLoggerName.toLoggerName();
         loggerTO.setName(name);
-        loggerTO.setLevel(SyncopeLoggerLevel.DEBUG);
+        loggerTO.setLevel(LoggerLevel.DEBUG);
         loggerService.update(LoggerType.AUDIT, name, loggerTO);
 
         audits = CollectionWrapper.wrapLogger(loggerService.list(LoggerType.AUDIT));

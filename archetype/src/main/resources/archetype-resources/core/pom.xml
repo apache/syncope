@@ -37,7 +37,7 @@ under the License.
 
     <dependency>
       <groupId>org.apache.syncope</groupId>
-      <artifactId>syncope-client</artifactId>
+      <artifactId>syncope-common</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.syncope</groupId>
@@ -48,28 +48,6 @@ under the License.
       <groupId>org.apache.syncope</groupId>
       <artifactId>syncope-core</artifactId>
       <classifier>classes</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet.jsp</groupId>
-      <artifactId>jsp-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-config</artifactId>
     </dependency>
 
     <!-- TEST -->

@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.syncope.common.AbstractBaseBean;
-import org.apache.syncope.common.types.SyncopeLoggerLevel;
+import org.apache.syncope.common.types.LoggerLevel;
 
 @XmlRootElement(name = "logger")
 @XmlType
@@ -32,13 +32,13 @@ public class LoggerTO extends AbstractBaseBean {
 
     private String name;
 
-    private SyncopeLoggerLevel level;
+    private LoggerLevel level;
 
-    public SyncopeLoggerLevel getLevel() {
+    public LoggerLevel getLevel() {
         return level;
     }
 
-    public void setLevel(final SyncopeLoggerLevel level) {
+    public void setLevel(final LoggerLevel level) {
         this.level = level;
     }
 

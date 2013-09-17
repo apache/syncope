@@ -21,10 +21,15 @@ package org.apache.syncope.core.audit;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditLoggerName;
+import org.apache.syncope.common.types.LoggerLevel;
+import org.apache.syncope.core.persistence.beans.SyncopeLogger;
+import org.apache.syncope.core.persistence.dao.LoggerDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 
 public class AuditManager {
 
@@ -33,10 +38,15 @@ public class AuditManager {
      */
     private static final Logger LOG = LoggerFactory.getLogger(AuditManager.class);
 
+    @Autowired
+    private LoggerDAO loggerDAO;
+
+    @Transactional
     public void audit(final Category category, final Enum<?> subcategory, final Result result, final String message) {
         audit(category, subcategory, result, message, null);
     }
 
+    @Transactional
     public void audit(final Category category, final Enum<?> subcategory, final Result result, final String message,
             final Throwable throwable) {
 
@@ -48,19 +58,22 @@ public class AuditManager {
         }
 
         if (auditLoggerName != null) {
-            StringBuilder auditMessage = new StringBuilder();
+            SyncopeLogger syncopeLogger = loggerDAO.find(auditLoggerName.toLoggerName());
+            if (syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG) {
+                StringBuilder auditMessage = new StringBuilder();
 
-            final SecurityContext ctx = SecurityContextHolder.getContext();
-            if (ctx != null && ctx.getAuthentication() != null) {
-                auditMessage.append('[').append(ctx.getAuthentication().getName()).append(']').append(' ');
-            }
-            auditMessage.append(message);
+                final SecurityContext ctx = SecurityContextHolder.getContext();
+                if (ctx != null && ctx.getAuthentication() != null) {
+                    auditMessage.append('[').append(ctx.getAuthentication().getName()).append(']').append(' ');
+                }
+                auditMessage.append(message);
 
-            Logger logger = LoggerFactory.getLogger(auditLoggerName.toLoggerName());
-            if (throwable == null) {
-                logger.debug(auditMessage.toString());
-            } else {
-                logger.debug(auditMessage.toString(), throwable);
+                Logger logger = LoggerFactory.getLogger(auditLoggerName.toLoggerName());
+                if (throwable == null) {
+                    logger.debug(auditMessage.toString());
+                } else {
+                    logger.debug(auditMessage.toString(), throwable);
+                }
             }
         }
     }

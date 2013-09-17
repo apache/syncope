@@ -9,16 +9,6 @@ with which this file is now or was at one time distributed.
 
 ==
 
-This product includes software developed by the Code Generation Library project.
-
-==
-
-This product includes software developed by QOS.ch.
-Copyright (C) 1999-2011, QOS.ch. All rights reserved.
-This software is included in binary form only.
-
-==
-
 This product contains unmodified binary redistributions for H2 database engine
 (http://www.h2database.com/), which is dual licensed and available under a 
 modified version of the MPL 1.1 (Mozilla Public License) or under the 
@@ -152,6 +142,12 @@ All rights reserved.
 
 This product includes software developed by the atinject Project.
 Copyright (c) 2009, http://code.google.com/p/atinject/
+All rights reserved.
+
+==
+
+This product includes software developed by the LMAX Disruptor Project.
+Copyright (c) 2011 LMAX Ltd., http://lmax-exchange.github.io/disruptor/
 All rights reserved.
 
 ==

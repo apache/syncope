@@ -18,20 +18,22 @@
  */
 package org.apache.syncope.console.pages;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.types.PolicyType;
-import org.apache.syncope.common.types.SyncopeLoggerLevel;
+import org.apache.syncope.common.types.LoggerLevel;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.HttpResourceStream;
@@ -78,7 +80,6 @@ import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.LoggerFactory;
 
 /**
  * Configurations WebPage.
@@ -621,18 +622,18 @@ public class Configuration extends BasePage {
         protected void populateItem(final ListItem<LoggerTO> item) {
             item.add(new Label("name"));
 
-            DropDownChoice<SyncopeLoggerLevel> level = new DropDownChoice<SyncopeLoggerLevel>("level");
-            level.setModel(new IModel<SyncopeLoggerLevel>() {
+            DropDownChoice<LoggerLevel> level = new DropDownChoice<LoggerLevel>("level");
+            level.setModel(new IModel<LoggerLevel>() {
 
                 private static final long serialVersionUID = -2350428186089596562L;
 
                 @Override
-                public SyncopeLoggerLevel getObject() {
+                public LoggerLevel getObject() {
                     return item.getModelObject().getLevel();
                 }
 
                 @Override
-                public void setObject(final SyncopeLoggerLevel object) {
+                public void setObject(final LoggerLevel object) {
                     item.getModelObject().setLevel(object);
                 }
 
@@ -640,7 +641,7 @@ public class Configuration extends BasePage {
                 public void detach() {
                 }
             });
-            level.setChoices(Arrays.asList(SyncopeLoggerLevel.values()));
+            level.setChoices(Arrays.asList(LoggerLevel.values()));
             level.setOutputMarkupId(true);
             level.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -678,13 +679,16 @@ public class Configuration extends BasePage {
         private static final long serialVersionUID = -1550459341476431714L;
 
         public List<LoggerTO> getLoggers() {
-            LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-            List<LoggerTO> result = new ArrayList<LoggerTO>(lc.getLoggerList().size());
-            for (Logger logger : lc.getLoggerList()) {
+            LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+
+            List<LoggerTO> result = new ArrayList<LoggerTO>();
+            for (LoggerConfig logger : ctx.getConfiguration().getLoggers().values()) {
+                final String loggerName = LogManager.ROOT_LOGGER_NAME.equals(logger.getName())
+                        ? SyncopeConstants.ROOT_LOGGER : logger.getName();
                 if (logger.getLevel() != null) {
                     LoggerTO loggerTO = new LoggerTO();
-                    loggerTO.setName(logger.getName());
-                    loggerTO.setLevel(SyncopeLoggerLevel.fromLevel(logger.getLevel()));
+                    loggerTO.setName(loggerName);
+                    loggerTO.setLevel(LoggerLevel.fromLevel(logger.getLevel()));
                     result.add(loggerTO);
                 }
             }
@@ -692,14 +696,13 @@ public class Configuration extends BasePage {
             return result;
         }
 
-        public boolean setLogLevel(final String name, final SyncopeLoggerLevel level) {
-            LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-            Logger logger = lc.getLogger(name);
-            if (logger != null) {
-                logger.setLevel(level.getLevel());
-            }
-
-            return logger != null;
+        public void setLogLevel(final String name, final LoggerLevel level) {
+            LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+            LoggerConfig logConf = SyncopeConstants.ROOT_LOGGER.equals(name)
+                    ? ctx.getConfiguration().getLoggerConfig(LogManager.ROOT_LOGGER_NAME)
+                    : ctx.getConfiguration().getLoggerConfig(name);
+            logConf.setLevel(level.getLevel());
+            ctx.updateLoggers();
         }
     }
 }

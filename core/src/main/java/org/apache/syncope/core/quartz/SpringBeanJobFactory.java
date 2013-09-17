@@ -61,8 +61,7 @@ public class SpringBeanJobFactory extends org.springframework.scheduling.quartz.
 
         final ApplicationContext ctx = ((ConfigurableApplicationContext) schedulerContext.get("applicationContext"));
 
-        // Try to re-create job bean from underlying task (useful for managing
-        // failover scenarios)
+        // Try to re-create job bean from underlying task (useful for managing failover scenarios)
         if (!ctx.containsBean(bundle.getJobDetail().getKey().getName())) {
             Long taskId = JobInstanceLoader.getTaskIdFromJobName(bundle.getJobDetail().getKey().getName());
             if (taskId != null) {

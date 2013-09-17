@@ -20,8 +20,8 @@ package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.common.types.SyncopeLoggerLevel;
-import org.apache.syncope.common.types.SyncopeLoggerType;
+import org.apache.syncope.common.types.LoggerLevel;
+import org.apache.syncope.common.types.LoggerType;
 import org.apache.syncope.core.persistence.beans.SyncopeLogger;
 import org.apache.syncope.core.persistence.dao.LoggerDAO;
 import org.springframework.stereotype.Repository;
@@ -35,7 +35,7 @@ public class LoggerDAOImpl extends AbstractDAOImpl implements LoggerDAO {
     }
 
     @Override
-    public List<SyncopeLogger> findAll(final SyncopeLoggerType type) {
+    public List<SyncopeLogger> findAll(final LoggerType type) {
         TypedQuery<SyncopeLogger> query = entityManager.createQuery(
                 "SELECT e FROM " + SyncopeLogger.class.getSimpleName() + " e WHERE e.type=:type", SyncopeLogger.class);
         query.setParameter("type", type);
@@ -45,8 +45,8 @@ public class LoggerDAOImpl extends AbstractDAOImpl implements LoggerDAO {
     @Override
     public SyncopeLogger save(final SyncopeLogger logger) {
         // Audit loggers must be either OFF or DEBUG, no more options
-        if (SyncopeLoggerType.AUDIT == logger.getType() && SyncopeLoggerLevel.OFF != logger.getLevel()) {
-            logger.setLevel(SyncopeLoggerLevel.DEBUG);
+        if (LoggerType.AUDIT == logger.getType() && LoggerLevel.OFF != logger.getLevel()) {
+            logger.setLevel(LoggerLevel.DEBUG);
         }
         return entityManager.merge(logger);
     }

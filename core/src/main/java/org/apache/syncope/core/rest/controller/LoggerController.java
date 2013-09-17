@@ -20,30 +20,30 @@ package org.apache.syncope.core.rest.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.LoggerSubCategory;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditLoggerName;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.apache.syncope.common.types.SyncopeLoggerLevel;
-import org.apache.syncope.common.types.SyncopeLoggerType;
+import org.apache.syncope.common.types.LoggerLevel;
+import org.apache.syncope.common.types.LoggerType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.SyncopeLogger;
 import org.apache.syncope.core.persistence.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
 import org.apache.syncope.common.util.BeanUtils;
 import org.springframework.stereotype.Component;
 
@@ -56,7 +56,7 @@ public class LoggerController extends AbstractController {
     @Autowired
     private LoggerDAO loggerDAO;
 
-    private List<LoggerTO> list(final SyncopeLoggerType type) {
+    private List<LoggerTO> list(final LoggerType type) {
         List<LoggerTO> result = new ArrayList<LoggerTO>();
         for (SyncopeLogger syncopeLogger : loggerDAO.findAll(type)) {
             LoggerTO loggerTO = new LoggerTO();
@@ -73,7 +73,7 @@ public class LoggerController extends AbstractController {
     @PreAuthorize("hasRole('LOG_LIST')")
     @Transactional(readOnly = true)
     public List<LoggerTO> listLogs() {
-        return list(SyncopeLoggerType.LOG);
+        return list(LoggerType.LOG);
     }
 
     @PreAuthorize("hasRole('AUDIT_LIST')")
@@ -81,7 +81,7 @@ public class LoggerController extends AbstractController {
     public List<AuditLoggerName> listAudits() {
         List<AuditLoggerName> result = new ArrayList<AuditLoggerName>();
 
-        for (LoggerTO logger : list(SyncopeLoggerType.AUDIT)) {
+        for (LoggerTO logger : list(LoggerType.AUDIT)) {
             try {
                 result.add(AuditLoggerName.fromLoggerName(logger.getName()));
             } catch (Exception e) {
@@ -92,7 +92,7 @@ public class LoggerController extends AbstractController {
         return result;
     }
 
-    private void throwInvalidLogger(final SyncopeLoggerType type) {
+    private void throwInvalidLogger(final LoggerType type) {
         SyncopeClientCompositeErrorException sccee = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
         SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidLogger);
@@ -101,28 +101,31 @@ public class LoggerController extends AbstractController {
         throw sccee;
     }
 
-    private LoggerTO setLevel(final String name, final Level level, final SyncopeLoggerType expectedType) {
+    private LoggerTO setLevel(final String name, final Level level, final LoggerType expectedType) {
         SyncopeLogger syncopeLogger = loggerDAO.find(name);
         if (syncopeLogger == null) {
             LOG.debug("Logger {} not found: creating new...", name);
 
             syncopeLogger = new SyncopeLogger();
             syncopeLogger.setName(name);
-            syncopeLogger.setType(name.startsWith(SyncopeLoggerType.AUDIT.getPrefix())
-                    ? SyncopeLoggerType.AUDIT
-                    : SyncopeLoggerType.LOG);
+            syncopeLogger.setType(name.startsWith(LoggerType.AUDIT.getPrefix())
+                    ? LoggerType.AUDIT
+                    : LoggerType.LOG);
         }
 
         if (expectedType != syncopeLogger.getType()) {
             throwInvalidLogger(expectedType);
         }
 
-        syncopeLogger.setLevel(SyncopeLoggerLevel.fromLevel(level));
+        syncopeLogger.setLevel(LoggerLevel.fromLevel(level));
         syncopeLogger = loggerDAO.save(syncopeLogger);
 
-        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger logger = lc.getLogger(name);
-        logger.setLevel(level);
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        LoggerConfig logConf = SyncopeConstants.ROOT_LOGGER.equals(name)
+                ? ctx.getConfiguration().getLoggerConfig(LogManager.ROOT_LOGGER_NAME)
+                : ctx.getConfiguration().getLoggerConfig(name);
+        logConf.setLevel(level);
+        ctx.updateLoggers();
 
         LoggerTO result = new LoggerTO();
         BeanUtils.copyProperties(syncopeLogger, result);
@@ -135,13 +138,13 @@ public class LoggerController extends AbstractController {
 
     @PreAuthorize("hasRole('LOG_SET_LEVEL')")
     public LoggerTO setLogLevel(final String name, final Level level) {
-        return setLevel(name, level, SyncopeLoggerType.LOG);
+        return setLevel(name, level, LoggerType.LOG);
     }
 
     @PreAuthorize("hasRole('AUDIT_ENABLE')")
     public void enableAudit(final AuditLoggerName auditLoggerName) {
         try {
-            setLevel(auditLoggerName.toLoggerName(), Level.DEBUG, SyncopeLoggerType.AUDIT);
+            setLevel(auditLoggerName.toLoggerName(), Level.DEBUG, LoggerType.AUDIT);
         } catch (IllegalArgumentException e) {
             SyncopeClientCompositeErrorException sccee =
                     new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
@@ -154,7 +157,7 @@ public class LoggerController extends AbstractController {
         }
     }
 
-    private LoggerTO delete(final String name, final SyncopeLoggerType expectedType) throws NotFoundException {
+    private LoggerTO delete(final String name, final LoggerType expectedType) throws NotFoundException {
         SyncopeLogger syncopeLogger = loggerDAO.find(name);
         if (syncopeLogger == null) {
             throw new NotFoundException("Logger " + name);
@@ -169,9 +172,11 @@ public class LoggerController extends AbstractController {
         loggerDAO.delete(syncopeLogger);
 
         // set log level to OFF in order to disable configured logger until next reboot
-        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger logger = lc.getLogger(name);
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        Logger logger = SyncopeConstants.ROOT_LOGGER.equals(name)
+                ? ctx.getLogger(LogManager.ROOT_LOGGER_NAME) : ctx.getLogger(name);
         logger.setLevel(Level.OFF);
+        ctx.updateLoggers();
 
         auditManager.audit(Category.logger, LoggerSubCategory.setLevel, Result.success, String.format(
                 "Successfully deleted logger %s (%s)", name, expectedType));
@@ -181,13 +186,13 @@ public class LoggerController extends AbstractController {
 
     @PreAuthorize("hasRole('LOG_DELETE')")
     public LoggerTO deleteLog(final String name) throws NotFoundException {
-        return delete(name, SyncopeLoggerType.LOG);
+        return delete(name, LoggerType.LOG);
     }
 
     @PreAuthorize("hasRole('AUDIT_DISABLE')")
     public void disableAudit(final AuditLoggerName auditLoggerName) {
         try {
-            delete(auditLoggerName.toLoggerName(), SyncopeLoggerType.AUDIT);
+            delete(auditLoggerName.toLoggerName(), LoggerType.AUDIT);
         } catch (NotFoundException e) {
             LOG.debug("Ignoring disable of non existing logger {}", auditLoggerName.toLoggerName());
         } catch (IllegalArgumentException e) {

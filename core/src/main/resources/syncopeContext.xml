@@ -65,9 +65,6 @@ under the License.
             <value type="org.springframework.core.io.Resource">
               classpath:/quartz/${quartz.sql}
             </value>
-            <value type="org.springframework.core.io.Resource">
-              classpath:/logback/${logback.sql}
-            </value>
           </array>
         </property>
       </bean>
@@ -86,6 +83,8 @@ under the License.
   
   <task:annotation-driven executor="connectorExecutor"/>
   <task:executor id="connectorExecutor" pool-size="10"/>
+
+  <bean id="xStream" class="com.thoughtworks.xstream.XStream"/>
 
   <bean id="jexlEngine" class="org.apache.commons.jexl2.JexlEngine">
     <property name="cache" value="512"/>

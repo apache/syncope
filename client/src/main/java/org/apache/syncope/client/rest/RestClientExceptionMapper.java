@@ -29,7 +29,6 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import javax.xml.ws.WebServiceException;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
-import org.apache.http.HttpStatus;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
@@ -62,11 +61,11 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
             // ex = new UnauthorizedRoleException(-1L);
 
             // 2. Map SC_UNAUTHORIZED
-        } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
+        } else if (statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
             ex = new AccessControlException("Remote unauthorized exception");
 
             // 3. Map SC_BAD_REQUEST
-        } else if (statusCode == HttpStatus.SC_BAD_REQUEST) {
+        } else if (statusCode == Response.Status.BAD_REQUEST.getStatusCode()) {
             ex = new BadRequestException();
 
         } else {

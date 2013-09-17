@@ -75,7 +75,7 @@ public class AuditLoggerName extends AbstractBaseBean {
     }
 
     public String toLoggerName() {
-        return new StringBuilder().append(SyncopeLoggerType.AUDIT.getPrefix()).append('.').
+        return new StringBuilder().append(LoggerType.AUDIT.getPrefix()).append('.').
                 append(category.name()).append('.').
                 append(subcategory.name()).append('.').
                 append(result.name()).toString();
@@ -89,8 +89,8 @@ public class AuditLoggerName extends AbstractBaseBean {
             throw new IllegalArgumentException("Null value not permitted");
         }
 
-        if (!loggerName.startsWith(SyncopeLoggerType.AUDIT.getPrefix())) {
-            throw new ParseException("Audit logger name must start with " + SyncopeLoggerType.AUDIT.getPrefix(), 0);
+        if (!loggerName.startsWith(LoggerType.AUDIT.getPrefix())) {
+            throw new ParseException("Audit logger name must start with " + LoggerType.AUDIT.getPrefix(), 0);
         }
 
         String[] splitted = loggerName.split("\\.");

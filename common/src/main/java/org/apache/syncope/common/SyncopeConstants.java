@@ -45,4 +45,6 @@ public class SyncopeConstants {
 
     public static final String DEFAULT_ENCODING = "UTF-8";
 
+    public static final String ROOT_LOGGER = "ROOT";
+
 }

@@ -46,6 +46,12 @@ under the License.
     <dependencies>
       <dependency>
         <groupId>org.apache.syncope</groupId>
+        <artifactId>syncope-common</artifactId>
+        <version>${syncope.version}</version>
+      </dependency> 
+
+      <dependency>
+        <groupId>org.apache.syncope</groupId>
         <artifactId>syncope-client</artifactId>
         <version>${syncope.version}</version>
       </dependency> 

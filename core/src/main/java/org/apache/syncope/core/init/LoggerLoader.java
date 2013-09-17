@@ -21,18 +21,18 @@ package org.apache.syncope.core.init;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.syncope.common.types.SyncopeLoggerLevel;
-import org.apache.syncope.common.types.SyncopeLoggerType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.syncope.common.SyncopeConstants;
+import org.apache.syncope.common.types.LoggerLevel;
+import org.apache.syncope.common.types.LoggerType;
 import org.apache.syncope.core.persistence.beans.SyncopeLogger;
 import org.apache.syncope.core.persistence.dao.LoggerDAO;
-import org.slf4j.ILoggerFactory;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
 
 @Component
 public class LoggerLoader {
@@ -42,46 +42,48 @@ public class LoggerLoader {
 
     @Transactional
     public void load() {
-        Map<String, SyncopeLogger> loggerLogs = new HashMap<String, SyncopeLogger>();
-        for (SyncopeLogger syncopeLogger : loggerDAO.findAll(SyncopeLoggerType.LOG)) {
-            loggerLogs.put(syncopeLogger.getName(), syncopeLogger);
+        Map<String, SyncopeLogger> syncopeLoggers = new HashMap<String, SyncopeLogger>();
+        for (SyncopeLogger syncopeLogger : loggerDAO.findAll(LoggerType.LOG)) {
+            syncopeLoggers.put(syncopeLogger.getName(), syncopeLogger);
         }
 
-        for (SyncopeLogger syncopeLogger : loggerDAO.findAll(SyncopeLoggerType.AUDIT)) {
-            loggerLogs.put(syncopeLogger.getName(), syncopeLogger);
+        for (SyncopeLogger syncopeLogger : loggerDAO.findAll(LoggerType.AUDIT)) {
+            syncopeLoggers.put(syncopeLogger.getName(), syncopeLogger);
         }
 
-        ILoggerFactory loggerFactory = LoggerFactory.getILoggerFactory();
-
-        LoggerContext lc = (LoggerContext) loggerFactory;
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 
         /*
-         * Traverse all defined Logback loggers: if there is a matching SyncopeLogger, set Logback level accordingly,
+         * Traverse all defined log4j loggers: if there is a matching SyncopeLogger, set log4j level accordingly,
          * otherwise create a SyncopeLogger instance with given name and level.
          */
-        for (Logger logger : lc.getLoggerList()) {
-            if (logger.getLevel() != null) {
-                if (loggerLogs.containsKey(logger.getName())) {
-                    logger.setLevel(loggerLogs.get(logger.getName()).getLevel().getLevel());
-                    loggerLogs.remove(logger.getName());
-                } else if (!logger.getName().equals(SyncopeLoggerType.AUDIT.getPrefix())) {
+        for (LoggerConfig logConf : ctx.getConfiguration().getLoggers().values()) {
+            final String loggerName = LogManager.ROOT_LOGGER_NAME.equals(logConf.getName())
+                    ? SyncopeConstants.ROOT_LOGGER : logConf.getName();
+            if (logConf.getLevel() != null) {
+                if (syncopeLoggers.containsKey(loggerName)) {
+                    logConf.setLevel(syncopeLoggers.get(loggerName).getLevel().getLevel());
+                    syncopeLoggers.remove(loggerName);
+                } else if (!loggerName.equals(LoggerType.AUDIT.getPrefix())) {
                     SyncopeLogger syncopeLogger = new SyncopeLogger();
-                    syncopeLogger.setName(logger.getName());
-                    syncopeLogger.setLevel(SyncopeLoggerLevel.fromLevel(logger.getLevel()));
-                    syncopeLogger.setType(logger.getName().startsWith(SyncopeLoggerType.AUDIT.getPrefix())
-                            ? SyncopeLoggerType.AUDIT
-                            : SyncopeLoggerType.LOG);
+                    syncopeLogger.setName(loggerName);
+                    syncopeLogger.setLevel(LoggerLevel.fromLevel(logConf.getLevel()));
+                    syncopeLogger.setType(loggerName.startsWith(LoggerType.AUDIT.getPrefix())
+                            ? LoggerType.AUDIT
+                            : LoggerType.LOG);
                     loggerDAO.save(syncopeLogger);
                 }
             }
         }
 
         /*
-         * Foreach SyncopeLogger not found in Logback, create a new Logback logger with given name and level.
+         * Foreach SyncopeLogger not found in log4j create a new log4j logger with given name and level.
          */
-        for (SyncopeLogger syncopeLogger : loggerLogs.values()) {
-            Logger logger = lc.getLogger(syncopeLogger.getName());
-            logger.setLevel(syncopeLogger.getLevel().getLevel());
+        for (SyncopeLogger syncopeLogger : syncopeLoggers.values()) {
+            LoggerConfig logConf = ctx.getConfiguration().getLoggerConfig(syncopeLogger.getName());
+            logConf.setLevel(syncopeLogger.getLevel().getLevel());
         }
+
+        ctx.updateLoggers();
     }
 }

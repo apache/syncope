@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<configuration status="WARN">
+
+  <appenders>
+    
+    <RollingFile name="main" fileName="${log.directory}/core.log"
+                 filePattern="${log.directory}/core-%d{yyyy-MM-dd}.log.gz"
+                 immediateFlush="false" append="false">
+      <PatternLayout>
+        <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+      </PatternLayout>
+      <Policies>
+        <TimeBasedTriggeringPolicy/>
+        <SizeBasedTriggeringPolicy size="250 MB"/>
+      </Policies>
+    </RollingFile>
+
+    <RollingFile name="persistence" fileName="${log.directory}/core-persistence.log"
+                 filePattern="${log.directory}/core-persistence-%d{yyyy-MM-dd}.log.gz"
+                 immediateFlush="false" append="false">
+      <PatternLayout>
+        <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+      </PatternLayout>
+      <Policies>
+        <TimeBasedTriggeringPolicy/>
+        <SizeBasedTriggeringPolicy size="250 MB"/>
+      </Policies>
+    </RollingFile>
+
+    <RollingFile name="rest" fileName="${log.directory}/core-rest.log"
+                 filePattern="${log.directory}/core-rest-%d{yyyy-MM-dd}.log.gz"
+                 immediateFlush="false" append="false">
+      <PatternLayout>
+        <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+      </PatternLayout>
+      <Policies>
+        <TimeBasedTriggeringPolicy/>
+        <SizeBasedTriggeringPolicy size="250 MB"/>
+      </Policies>
+    </RollingFile>
+
+    <RollingFile name="connid" fileName="${log.directory}/core-connid.log"
+                 filePattern="${log.directory}/core-connid-%d{yyyy-MM-dd}.log.gz"
+                 immediateFlush="false" append="false">
+      <PatternLayout>
+        <pattern>%d{HH:mm:ss.SSS} %-5level %msg%n</pattern>
+      </PatternLayout>
+      <Policies>
+        <TimeBasedTriggeringPolicy/>
+        <SizeBasedTriggeringPolicy size="250 MB"/>
+      </Policies>
+    </RollingFile>
+
+    <!-- Audit -->    
+    <Jdbc name="audit" tableName="SYNCOPEAUDIT">
+      <ConnectionFactory class="org.apache.syncope.core.audit.AuditConnectionFactory" method="getConnection" />
+      <Column name="EVENT_DATE" isEventTimestamp="true"/>
+      <Column name="LOGGER_LEVEL" pattern="%level" isUnicode="false"/>
+      <Column name="LOGGER" pattern="%logger" isUnicode="false"/>
+      <Column name="MESSAGE" pattern="%message" isUnicode="false"/>
+      <Column name="THROWABLE" pattern="%ex{full}" isUnicode="false"/>
+    </Jdbc>
+
+  </appenders>
+  
+  <loggers>
+    
+    <asyncLogger name="org.apache.syncope.common" additivity="false" level="OFF">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+
+    <asyncLogger name="org.apache.syncope.core.persistence" additivity="false" level="INFO">
+      <appender-ref ref="persistence"/>
+    </asyncLogger>
+    
+    <asyncLogger name="org.apache.syncope.core.security" additivity="false" level="INFO">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+
+    <asyncLogger name="org.apache.syncope.core.quartz" additivity="false" level="INFO">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+    <asyncLogger name="org.apache.syncope.core.sync" additivity="false" level="INFO">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+    <asyncLogger name="org.apache.syncope.core.notification" additivity="false" level="INFO">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+    <asyncLogger name="org.apache.syncope.core.report" additivity="false" level="INFO">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+  
+    <asyncLogger name="org.apache.syncope.core.rest" additivity="false" level="INFO">
+      <appender-ref ref="rest"/>
+    </asyncLogger>
+    
+    <asyncLogger name="org.identityconnectors" additivity="false" level="DEBUG">
+      <appender-ref ref="connid"/>
+    </asyncLogger>
+    <asyncLogger name="org.connid" additivity="false" level="DEBUG">
+      <appender-ref ref="connid"/>
+    </asyncLogger>
+    <asyncLogger name="org.apache.syncope.core.connid" additivity="false" level="DEBUG">
+      <appender-ref ref="connid"/>
+    </asyncLogger>
+    <asyncLogger name="org.apache.syncope.core.util.ConnIdBundleManager" additivity="false" level="INFO">
+      <appender-ref ref="connid"/>
+    </asyncLogger>
+    
+    <asyncLogger name="org.springframework" additivity="false" level="INFO">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+    <asyncLogger name="org.springframework.orm" additivity="false" level="INFO">
+      <appender-ref ref="persistence"/>
+    </asyncLogger>
+    <asyncLogger name="org.springframework.web" additivity="false" level="INFO">
+      <appender-ref ref="rest"/>
+    </asyncLogger>
+
+    <asyncLogger name="org.apache.http" additivity="false" level="INFO">
+      <appender-ref ref="rest"/>
+    </asyncLogger>
+
+    <asyncLogger name="org.apache.cxf" additivity="false" level="ERROR">
+      <appender-ref ref="rest"/>
+    </asyncLogger>
+            
+    <logger name="syncope.audit" additivity="false" level="DEBUG">
+      <appender-ref ref="audit"/>
+    </logger>
+    
+    <root level="INFO">
+      <appender-ref ref="main"/>
+    </root>
+    
+  </loggers>
+</configuration>

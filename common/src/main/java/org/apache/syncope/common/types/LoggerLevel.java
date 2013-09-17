@@ -19,13 +19,13 @@
 package org.apache.syncope.common.types;
 
 import javax.xml.bind.annotation.XmlEnum;
-
-import ch.qos.logback.classic.Level;
+import org.apache.logging.log4j.Level;
 
 @XmlEnum
-public enum SyncopeLoggerLevel {
+public enum LoggerLevel {
 
     OFF(Level.OFF),
+    FATAL(Level.FATAL),
     ERROR(Level.ERROR),
     WARN(Level.WARN),
     INFO(Level.INFO),
@@ -35,7 +35,7 @@ public enum SyncopeLoggerLevel {
 
     private Level level;
 
-    SyncopeLoggerLevel(final Level level) {
+    LoggerLevel(final Level level) {
         this.level = level;
     }
 
@@ -43,26 +43,7 @@ public enum SyncopeLoggerLevel {
         return level;
     }
 
-    public static SyncopeLoggerLevel fromLevel(final Level level) {
-        SyncopeLoggerLevel result;
-        if (level.equals(Level.OFF)) {
-            result = OFF;
-        } else if (level.equals(Level.ERROR)) {
-            result = ERROR;
-        } else if (level.equals(Level.WARN)) {
-            result = WARN;
-        } else if (level.equals(Level.INFO)) {
-            result = INFO;
-        } else if (level.equals(Level.DEBUG)) {
-            result = DEBUG;
-        } else if (level.equals(Level.TRACE)) {
-            result = TRACE;
-        } else if (level.equals(Level.ALL)) {
-            result = ALL;
-        } else {
-            throw new IllegalArgumentException("Undefined Level " + level);
-        }
-
-        return result;
+    public static LoggerLevel fromLevel(final Level level) {
+        return LoggerLevel.valueOf(level.name());
     }
 }

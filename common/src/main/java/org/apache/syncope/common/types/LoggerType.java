@@ -26,16 +26,21 @@ public enum LoggerType {
     /**
      * This type describes a common logger used to handle system and application events.
      */
-    NORMAL,
-
+    LOG(""),
     /**
      * Audit logger only focus on security related events, usually logging how did what and when.
      * In case of a security incident audit loggers should allow an administrator to recall all
      * actions a certain user has done.
      */
-    AUDIT;
+    AUDIT("syncope.audit");
 
-    public static LoggerType fromString(final String value) {
-        return LoggerType.valueOf(value.toUpperCase());
+    private String prefix;
+
+    LoggerType(final String prefix) {
+        this.prefix = prefix;
+    }
+
+    public String getPrefix() {
+        return prefix;
     }
 }

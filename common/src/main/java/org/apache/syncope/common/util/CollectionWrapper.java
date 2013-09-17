@@ -32,7 +32,7 @@ import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.ValidatorTO;
 import org.apache.syncope.common.types.AuditLoggerName;
-import org.apache.syncope.common.types.SyncopeLoggerLevel;
+import org.apache.syncope.common.types.LoggerLevel;
 
 public final class CollectionWrapper {
 
@@ -105,7 +105,7 @@ public final class CollectionWrapper {
         for (AuditLoggerName l : auditNames) {
             LoggerTO loggerTO = new LoggerTO();
             loggerTO.setName(l.toLoggerName());
-            loggerTO.setLevel(SyncopeLoggerLevel.DEBUG);
+            loggerTO.setLevel(LoggerLevel.DEBUG);
             respons.add(loggerTO);
         }
         return respons;

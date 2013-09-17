@@ -36,22 +36,6 @@ under the License.
   <dependencies>
 
     <dependency>
-      <groupId>org.apache.wicket</groupId>
-      <artifactId>wicket</artifactId>
-      <type>pom</type>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.wicket</groupId>
-      <artifactId>wicket-extensions</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.wicket</groupId>
-      <artifactId>wicket-spring</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.syncope</groupId>
       <artifactId>syncope-client</artifactId>
     </dependency>
@@ -64,17 +48,6 @@ under the License.
       <groupId>org.apache.syncope</groupId>
       <artifactId>syncope-console</artifactId>
       <classifier>classes</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-webmvc</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.wicket</groupId>
-      <artifactId>wicket-auth-roles</artifactId>
-      <type>jar</type>
     </dependency>
 
     <!-- TEST -->
@@ -189,7 +162,7 @@ under the License.
             <type>standalone</type>
             <properties>
               <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
-              <cargo.jvmargs>-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m</cargo.jvmargs>
+              <cargo.jvmargs>-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
             </properties>
           </configuration>
           <deployables>

@@ -45,15 +45,20 @@ under the License.
   <dependencies>
 
     <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.syncope</groupId>
       <artifactId>syncope-client</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+    
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <scope>provided</scope>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
     </dependency>
 
     <dependency>
@@ -61,22 +66,25 @@ under the License.
       <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-core</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+    </dependency> 
+    <dependency>
+      <groupId>com.lmax</groupId>
+      <artifactId>disruptor</artifactId>
     </dependency>
     <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
-    </dependency>    
+    </dependency>
 
     <dependency>
       <groupId>org.apache.wicket</groupId>
@@ -241,7 +249,7 @@ under the License.
               <cargo.rmi.port>${cargo.rmi.port}</cargo.rmi.port>
 
               <!--<cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>-->
-              <cargo.jvmargs>-noverify ${javaagent} -Drebel.spring_plugin=false -Xms512m -Xmx1024m -XX:PermSize=512m -XX:MaxPermSize=1024m</cargo.jvmargs>
+              <cargo.jvmargs>-noverify ${javaagent} -Drebel.spring_plugin=true -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
             </properties>
             <configfiles>
               <configfile>
