@@ -16,14 +16,20 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
-<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.0">
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
   <deployment>
+    <exclude-subsystems>
+      <subsystem name="webservices"/>
+      <subsystem name="jaxrs"/>
+    </exclude-subsystems>
     <dependencies>
       <module name="org.apache.xalan"/>
     </dependencies>
     <exclusions>
+      <module name="javax.ws.rs.api"/>
+      <module name="org.apache.cxf"/>
+      <module name="org.apache.cxf.impl"/>
       <module name="org.hibernate"/>
       <module name="org.slf4j"/>
       <module name="org.slf4j.impl"/>

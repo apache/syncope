@@ -160,6 +160,7 @@ CREATE TABLE qrtz_fired_triggers
     TRIGGER_GROUP VARCHAR2(200) NOT NULL,
     INSTANCE_NAME VARCHAR2(200) NOT NULL,
     FIRED_TIME NUMBER(13) NOT NULL,
+    SCHED_TIME NUMBER(13) NOT NULL,
     PRIORITY NUMBER(13) NOT NULL,
     STATE VARCHAR2(16) NOT NULL,
     JOB_NAME VARCHAR2(200) NULL,
@@ -205,5 +206,3 @@ create index idx_qrtz_ft_j_g on qrtz_fired_triggers(SCHED_NAME,JOB_NAME,JOB_GROU
 create index idx_qrtz_ft_jg on qrtz_fired_triggers(SCHED_NAME,JOB_GROUP);
 create index idx_qrtz_ft_t_g on qrtz_fired_triggers(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP);
 create index idx_qrtz_ft_tg on qrtz_fired_triggers(SCHED_NAME,TRIGGER_GROUP);
-
-

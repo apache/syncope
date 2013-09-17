@@ -180,18 +180,6 @@ under the License.
       <groupId>org.quartz-scheduler</groupId>
       <artifactId>quartz</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.quartz-scheduler</groupId>
-      <artifactId>quartz-oracle</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.quartz-scheduler</groupId>
-      <artifactId>quartz-jboss</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.quartz-scheduler</groupId>
-      <artifactId>quartz-weblogic</artifactId>
-    </dependency>
       
     <dependency>
       <groupId>org.apache.cocoon.sax</groupId>
@@ -1100,6 +1088,31 @@ under the License.
                   <goal>run</goal>
                 </goals>
               </execution>
+              <!-- This complex setup is needed because 
+                     (a) JBoss 7.2 is needed (and RedHat does not provide a build release yet)
+                     (b) it seems there is no clean way to upgrade JBoss' JAX-RS APIs. -->
+              <execution>
+                <id>setupJBoss72</id>
+                <phase>pre-integration-test</phase>
+                <configuration>
+                  <target>
+                    <get src="https://olex-secure.openlogic.com/content/openlogic/jboss/7.2.0.Final/openlogic-jboss-7.2.0.Final-all-bin-1.zip"
+                         dest="${settings.localRepository}/org/codehaus/cargo/cargo-container-archives"
+                         usetimestamp="true"/>
+                    <unzip src="${settings.localRepository}/org/codehaus/cargo/cargo-container-archives/openlogic-jboss-7.2.0.Final-all-bin-1.zip" 
+                           dest="${project.build.directory}"/>
+                    <move file="${project.build.directory}/jboss-7.2.0.Final/jboss-as-7.2.0.Final" 
+                          tofile="${project.build.directory}/openlogic-jboss-7.2.0.Final"/>
+                    <delete dir="${project.build.directory}/jboss-7.2.0.Final"/>
+                    <copy file="${cargo.run.dir}/WEB-INF/lib/javax.ws.rs-api-${jax-rs.version}.jar"
+                          tofile="${project.build.directory}/openlogic-jboss-7.2.0.Final/modules/system/layers/base/javax/ws/rs/api/main/jboss-jaxrs-api_1.1_spec-1.0.1.Final.jar"
+                          overwrite="true"/>
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
             </executions>
           </plugin>
                 
@@ -1109,12 +1122,8 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>jboss71x</containerId>
-                <zipUrlInstaller>
-                  <url>http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/jboss-as-7.1.1.Final.zip</url>
-                  <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
-                  <extractDir>${project.build.directory}/cargo/extract</extractDir>
-                </zipUrlInstaller>
+                <containerId>jboss72x</containerId>
+                <home>${project.build.directory}/openlogic-jboss-7.2.0.Final</home>
                 <log>${cargo.log}</log>
                 <output>${cargo.output}</output>
               </container>
