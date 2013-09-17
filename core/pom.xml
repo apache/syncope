@@ -1018,9 +1018,9 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>glassfish3x</containerId>
+                <containerId>glassfish4x</containerId>
                 <zipUrlInstaller>
-                  <url>http://download.java.net/glassfish/3.1.2.2/release/glassfish-3.1.2.2.zip</url>
+                  <url>http://download.java.net/glassfish/4.0/release/glassfish-4.0.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
