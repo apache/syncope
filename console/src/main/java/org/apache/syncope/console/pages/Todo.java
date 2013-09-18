@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.UserRequestType;
@@ -228,7 +229,10 @@ public class Todo extends BasePage {
         List<IColumn> columns = new ArrayList<IColumn>();
         columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
         columns.add(new PropertyColumn(new ResourceModel("type"), "type", "type"));
-        columns.add(new UserRequestColumn("user"));
+        columns.add(new PropertyColumn(new ResourceModel("username"), "username", "username"));
+        columns.add(new DatePropertyColumn(new ResourceModel("creationDate"), "creationDate", "creationDate"));
+        columns.add(new DatePropertyColumn(new ResourceModel("claimDate"), "claimDate", "claimDate"));
+        columns.add(new PropertyColumn(new ResourceModel("owner"), "owner", "owner"));
         columns.add(new AbstractColumn<UserRequestTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
@@ -252,6 +256,23 @@ public class Todo extends BasePage {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
+                        try {
+                            userRequestRestClient.claim(model.getObject().getId());
+                            info(getString(Constants.OPERATION_SUCCEEDED));
+                        } catch (SyncopeClientCompositeErrorException scee) {
+                            error(getString(Constants.ERROR) + ":" + scee.getMessage());
+                        }
+                        target.add(feedbackPanel);
+                        target.add(userRequestContainer);
+                    }
+                }, ActionLink.ActionType.CLAIM, "Approval");
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
                         editUserRequestWin.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = -7834632442532690940L;
@@ -266,7 +287,9 @@ public class Todo extends BasePage {
                         editUserRequestWin.show(target);
                     }
                 }, ActionLink.ActionType.EDIT, "UserRequest",
-                        model.getObject().getType() != UserRequestType.DELETE);
+                        model.getObject().getType() != UserRequestType.DELETE
+                        && StringUtils.isNotBlank(model.getObject().getOwner())
+                        && model.getObject().getOwner().equalsIgnoreCase(SyncopeSession.get().getUsername()));
 
                 panel.add(new ActionLink() {
 
@@ -275,8 +298,7 @@ public class Todo extends BasePage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            userRestClient.delete(model.getObject().getUserId());
-                            userRequestRestClient.delete(model.getObject().getId());
+                            userRequestRestClient.executeDelete(model.getObject().getId());
                         } catch (SyncopeClientCompositeErrorException e) {
                             LOG.error("While deleting an user", e);
                             error(e.getMessage());
@@ -289,7 +311,9 @@ public class Todo extends BasePage {
                         target.add(userRequestContainer);
                     }
                 }, ActionLink.ActionType.DELETE, "Users",
-                        model.getObject().getType() == UserRequestType.DELETE);
+                        model.getObject().getType() == UserRequestType.DELETE
+                        && StringUtils.isNotBlank(model.getObject().getOwner())
+                        && model.getObject().getOwner().equalsIgnoreCase(SyncopeSession.get().getUsername()));
 
                 panel.add(new ActionLink() {
 
@@ -310,7 +334,9 @@ public class Todo extends BasePage {
 
                         target.add(userRequestContainer);
                     }
-                }, ActionLink.ActionType.DELETE, "UserRequest");
+                }, ActionLink.ActionType.DELETE, "UserRequest",
+                        StringUtils.isNotBlank(model.getObject().getOwner())
+                        && model.getObject().getOwner().equalsIgnoreCase(SyncopeSession.get().getUsername()));
 
                 cellItem.add(panel);
             }
@@ -376,7 +402,7 @@ public class Todo extends BasePage {
 
             Collections.sort(list, comparator);
 
-            return list.subList((int)first, (int)first + (int)count).iterator();
+            return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
@@ -418,7 +444,7 @@ public class Todo extends BasePage {
 
             Collections.sort(list, comparator);
 
-            return list.subList((int)first, (int)first + (int)count).iterator();
+            return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
@@ -450,7 +476,9 @@ public class Todo extends BasePage {
         }
 
         @Override
-        public void populateItem(final Item<ICellPopulator<UserRequestTO>> cellItem, final String componentId,
+        public void populateItem(
+                final Item<ICellPopulator<UserRequestTO>> cellItem,
+                final String componentId,
                 final IModel<UserRequestTO> rowModel) {
 
             String label = "";

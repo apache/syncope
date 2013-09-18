@@ -88,6 +88,8 @@ under the License.
   <Entitlement name="USER_REQUEST_LIST"/>
   <Entitlement name="USER_REQUEST_READ"/>
   <Entitlement name="USER_REQUEST_DELETE"/>
+  <Entitlement name="USER_REQUEST_EXECUTE"/>
+  <Entitlement name="USER_REQUEST_CLAIM"/>
   <Entitlement name="REPORT_LIST"/>
   <Entitlement name="REPORT_READ"/>
   <Entitlement name="REPORT_CREATE"/>

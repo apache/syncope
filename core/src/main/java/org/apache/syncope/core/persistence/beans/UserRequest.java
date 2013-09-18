@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
+import java.util.Date;
 import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -26,6 +28,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -44,6 +48,9 @@ public class UserRequest extends AbstractBaseBean {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column
+    private String username;
+
     @NotNull
     @Lob
     private String payload;
@@ -56,6 +63,32 @@ public class UserRequest extends AbstractBaseBean {
     @Min(0)
     @Max(1)
     private Integer executed;
+
+    /**
+     * Creation date.
+     */
+    @Column(nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date creationDate;
+
+    /**
+     * Claim date.
+     */
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date claimDate;
+
+    /**
+     * Execution date.
+     */
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date executionDate;
+
+    /**
+     * Username of the last user who claimed the request.
+     */
+    private String owner;
 
     public UserRequest() {
         this.executed = 0;
@@ -75,7 +108,7 @@ public class UserRequest extends AbstractBaseBean {
                 : XMLSerializer.<UserTO>deserialize(payload);
     }
 
-    public void setUserTO(final UserTO userTO) {
+    public void createUser(final UserTO userTO) {
         type = UserRequestType.CREATE;
         payload = XMLSerializer.serialize(userTO);
     }
@@ -86,7 +119,7 @@ public class UserRequest extends AbstractBaseBean {
                 : XMLSerializer.<UserMod>deserialize(payload);
     }
 
-    public void setUserMod(final UserMod userMod) {
+    public void updateUser(final UserMod userMod) {
         type = UserRequestType.UPDATE;
         payload = XMLSerializer.serialize(userMod);
     }
@@ -97,9 +130,17 @@ public class UserRequest extends AbstractBaseBean {
                 : Long.valueOf(payload);
     }
 
-    public void setUserId(final Long userId) {
+    public void deleteUser(final Long userId) {
         type = UserRequestType.DELETE;
         payload = String.valueOf(userId);
+    }
+
+    public void setUsername(final String username) {
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     public boolean isExecuted() {
@@ -108,5 +149,37 @@ public class UserRequest extends AbstractBaseBean {
 
     public void setExecuted(boolean executed) {
         this.executed = getBooleanAsInteger(executed);
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Date getClaimDate() {
+        return claimDate;
+    }
+
+    public void setClaimDate(Date claimDate) {
+        this.claimDate = claimDate;
+    }
+
+    public Date getExecutionDate() {
+        return executionDate;
+    }
+
+    public void setExecutionDate(Date executionDate) {
+        this.executionDate = executionDate;
     }
 }

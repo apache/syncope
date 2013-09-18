@@ -56,6 +56,17 @@ public class UserRequestDAOImpl extends AbstractDAOImpl implements UserRequestDA
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<UserRequest> findAll(final String username) {
+        TypedQuery<UserRequest> query = entityManager.createQuery(
+                "SELECT e " + "FROM " + UserRequest.class.getSimpleName() + " e WHERE e.username = :username",
+                UserRequest.class);
+        query.setParameter("username", username);
+
+        return query.getResultList();
+    }
+
+    @Override
     public UserRequest save(final UserRequest userRequest) throws InvalidEntityException {
         return entityManager.merge(userRequest);
     }

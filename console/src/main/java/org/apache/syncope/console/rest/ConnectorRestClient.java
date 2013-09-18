@@ -152,7 +152,7 @@ public class ConnectorRestClient extends BaseRestClient {
      */
     public boolean check(final ConnInstanceTO connectorTO) {
         ConnInstanceTO toBeChecked = new ConnInstanceTO();
-        BeanUtils.copyProperties(connectorTO, toBeChecked, new String[] {"configuration"});
+        BeanUtils.copyProperties(connectorTO, toBeChecked, new String[] {"configuration", "configurationMap"});
         toBeChecked.getConfiguration().addAll(filterProperties(connectorTO.getConfiguration()));
 
         boolean check = false;

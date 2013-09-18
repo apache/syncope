@@ -18,20 +18,20 @@
  */
 package org.apache.syncope.core.rest.controller;
 
-import static org.apache.syncope.common.types.UserRequestType.CREATE;
-import static org.apache.syncope.common.types.UserRequestType.DELETE;
-import static org.apache.syncope.common.types.UserRequestType.UPDATE;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-
 import javax.persistence.RollbackException;
-
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.UserRequestSubCategory;
+import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.persistence.beans.UserRequest;
@@ -39,9 +39,11 @@ import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.UserRequestDAO;
 import org.apache.syncope.core.rest.data.UserRequestDataBinder;
+import org.apache.syncope.core.util.EntitlementUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,11 +96,13 @@ public class UserRequestController {
         }
 
         UserRequest request = new UserRequest();
-        request.setUserTO(userTO);
+        request.setUsername(userTO.getUsername());
+        request.createUser(userTO);
+        request.setCreationDate(new Date());
         request = userRequestDAO.save(request);
 
         auditManager.audit(Category.userRequest, UserRequestSubCategory.create, Result.success,
-                "Successfully created user request for " + request.getUserTO().getUsername());
+                "Successfully created user request for " + request.getUsername());
 
         return binder.getUserRequestTO(request);
     }
@@ -114,11 +118,35 @@ public class UserRequestController {
         }
 
         UserRequest request = new UserRequest();
-        request.setUserMod(userMod);
+        request.setUsername(binder.getUserFromId(userMod.getId()).getUsername());
+        request.updateUser(userMod);
+        request.setCreationDate(new Date());
         request = userRequestDAO.save(request);
 
         auditManager.audit(Category.userRequest, UserRequestSubCategory.update, Result.success,
-                "Successfully updated user request for " + request.getUserMod().getId());
+                "Successfully updated user request for " + request.getUsername());
+
+        return binder.getUserRequestTO(request);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public UserRequestTO delete(final Long userId) {
+        LOG.debug("Request user delete called with {}", userId);
+
+        try {
+            binder.testDelete(userId);
+        } catch (RollbackException e) {
+            LOG.debug("Testing delete - ignore exception");
+        }
+
+        UserRequest request = new UserRequest();
+        request.setUsername(binder.getUserFromId(userId).getUsername());
+        request.deleteUser(userId);
+        request.setCreationDate(new Date());
+        request = userRequestDAO.save(request);
+
+        auditManager.audit(Category.userRequest, UserRequestSubCategory.delete, Result.success,
+                "Successfully deleted user request for user" + request.getUsername());
 
         return binder.getUserRequestTO(request);
     }
@@ -154,6 +182,19 @@ public class UserRequestController {
         return result;
     }
 
+    public List<UserRequestTO> listByUsername(final String username) {
+        List<UserRequestTO> result = new ArrayList<UserRequestTO>();
+
+        for (UserRequest request : userRequestDAO.findAll(username)) {
+            result.add(binder.getUserRequestTO(request));
+        }
+
+        auditManager.audit(Category.userRequest, UserRequestSubCategory.list, Result.success,
+                String.format("Successfully listed all %s's requests: %d", username, result.size()));
+
+        return result;
+    }
+
     @PreAuthorize("hasRole('USER_REQUEST_READ')")
     @Transactional(readOnly = true)
     public UserRequestTO read(final Long requestId) {
@@ -164,29 +205,9 @@ public class UserRequestController {
 
         final UserRequestTO userRequestTO = binder.getUserRequestTO(request);
         auditManager.audit(Category.userRequest, UserRequestSubCategory.read, Result.success,
-                "Successfully read user request for " + getUserId(userRequestTO));
+                "Successfully read user request for " + request.getUsername());
 
         return userRequestTO;
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    public UserRequestTO delete(final Long userId) {
-        LOG.debug("Request user delete called with {}", userId);
-
-        try {
-            binder.testDelete(userId);
-        } catch (RollbackException e) {
-            LOG.debug("Testing delete - ignore exception");
-        }
-
-        UserRequest request = new UserRequest();
-        request.setUserId(userId);
-        request = userRequestDAO.save(request);
-
-        auditManager.audit(Category.userRequest, UserRequestSubCategory.delete, Result.success,
-                "Successfully deleted user request for user" + userId);
-
-        return binder.getUserRequestTO(request);
     }
 
     @PreAuthorize("hasRole('USER_REQUEST_DELETE')")
@@ -197,16 +218,34 @@ public class UserRequestController {
         }
 
         UserRequestTO requestToDelete = binder.getUserRequestTO(request);
+        userRequestDAO.delete(requestId);
 
         auditManager.audit(Category.userRequest, UserRequestSubCategory.delete, Result.success,
-                "Successfully deleted user request for user" + request.getUserId());
-
-        userRequestDAO.delete(requestId);
+                "Successfully deleted user request for user" + request.getUsername());
 
         return requestToDelete;
     }
 
-    @PreAuthorize("hasRole('USER_REQUEST_READ') and ("
+    @PreAuthorize("hasRole('USER_REQUEST_CLAIM')")
+    public UserRequestTO claim(final Long requestId) {
+        UserRequest request = userRequestDAO.find(requestId);
+        if (request == null) {
+            throw new NotFoundException("User request " + requestId);
+        }
+
+        request.setOwner(EntitlementUtil.getAuthenticatedUsername());
+        request.setClaimDate(new Date());
+
+        final UserRequestTO userRequestTO = binder.getUserRequestTO(userRequestDAO.save(request));
+
+        auditManager.audit(Category.userRequest, UserRequestSubCategory.claim, Result.success,
+                String.format("Successfully claimed user request %s by %s",
+                userRequestTO.getId(), userRequestTO.getOwner()));
+
+        return userRequestTO;
+    }
+
+    @PreAuthorize("hasRole('USER_REQUEST_EXECUTE') and ("
             + "(hasRole('USER_CREATE') and #request.type == #request.type.CREATE) or "
             + "(hasRole('USER_UPDATE') and #request.type == #request.type.UPDATE) or "
             + "(hasRole('USER_DELETE') and #request.type == #request.type.DELETE))")
@@ -214,6 +253,14 @@ public class UserRequestController {
         UserRequest userRequest = userRequestDAO.find(request.getId());
         if (request == null || request.isExecuted()) {
             throw new NotFoundException("Executable user request " + request.getId());
+        }
+
+        if (StringUtils.isBlank(request.getOwner())
+                || !request.getOwner().equalsIgnoreCase(EntitlementUtil.getAuthenticatedUsername())) {
+            final SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(HttpStatus.UNAUTHORIZED);
+            scce.addException(new SyncopeClientException(SyncopeClientExceptionType.Unauthorized));
+            throw scce;
         }
 
         final UserTO res;
@@ -233,18 +280,12 @@ public class UserRequestController {
         }
 
         userRequest.setExecuted(true);
+        userRequest.setExecutionDate(new Date());
         userRequestDAO.save(userRequest);
 
         auditManager.audit(Category.userRequest, UserRequestSubCategory.execute, Result.success,
-                String.format("Successfully executed %s request for user %s",
-                request.getType(), getUserId(request)));
+                String.format("Successfully executed %s request for user %d", request.getType(), res.getId()));
 
         return res;
-    }
-
-    private String getUserId(final UserRequestTO request) {
-        return request.getType() == CREATE ? request.getUserTO().getUsername()
-                : request.getType() == UPDATE ? String.valueOf(request.getUserMod().getId())
-                : String.valueOf(request.getUserId());
     }
 }

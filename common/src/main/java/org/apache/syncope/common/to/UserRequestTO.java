@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.to;
 
+import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -39,9 +40,31 @@ public class UserRequestTO extends AbstractBaseBean {
 
     private Long userId;
 
+    private String username;
+
     private UserRequestType type;
 
     private boolean executed;
+
+    /**
+     * Username of the last user who claimed the request.
+     */
+    private String owner;
+
+    /**
+     * Creation date.
+     */
+    private Date creationDate;
+
+    /**
+     * Claim date.
+     */
+    private Date claimDate;
+
+    /**
+     * Execution date.
+     */
+    private Date executionDate;
 
     public UserRequestTO() {
     }
@@ -118,8 +141,16 @@ public class UserRequestTO extends AbstractBaseBean {
                 : userId;
     }
 
-    public void setUserId(final Long userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public void setExecuted(boolean executed) {
@@ -128,5 +159,37 @@ public class UserRequestTO extends AbstractBaseBean {
 
     public boolean isExecuted() {
         return executed;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Date getClaimDate() {
+        return claimDate;
+    }
+
+    public void setClaimDate(Date claimDate) {
+        this.claimDate = claimDate;
+    }
+
+    public Date getExecutionDate() {
+        return executionDate;
+    }
+
+    public void setExecutionDate(Date executionDate) {
+        this.executionDate = executionDate;
     }
 }

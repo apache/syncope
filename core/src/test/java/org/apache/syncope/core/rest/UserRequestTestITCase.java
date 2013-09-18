@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -39,6 +40,7 @@ import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.UserRequestType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -202,7 +204,8 @@ public class UserRequestTestITCase extends AbstractTest {
 
     @Test
     public void execute() {
-        UserTO userTO = UserTestITCase.getUniqueSampleTO("ex.create@syncope.apache.org");
+        final String USERNAME = "ex.create@syncope.apache.org";
+        UserTO userTO = UserTestITCase.getUniqueSampleTO(USERNAME);
         final String initialPassword = userTO.getPassword();
 
         UserRequestService selfservice = createServiceInstance(UserRequestService.class, null, null);
@@ -210,6 +213,11 @@ public class UserRequestTestITCase extends AbstractTest {
 
         UserRequestTO userRequest = getObject(response, UserRequestTO.class, userRequestService);
         assertNotNull(userRequest);
+        assertEquals(UserRequestType.CREATE, userRequest.getType());
+        assertTrue(userRequest.getUsername().endsWith(USERNAME));
+        assertNotNull(userRequest.getCreationDate());
+        assertNull(userRequest.getClaimDate());
+        assertNull(userRequest.getExecutionDate());
 
         try {
             userService.read(userTO.getUsername());
@@ -219,8 +227,21 @@ public class UserRequestTestITCase extends AbstractTest {
         }
 
         assertFalse(userRequestService.read(userRequest.getId()).isExecuted());
+        userRequest = userRequestService.claim(userRequest.getId());
+        assertEquals("admin", userRequest.getOwner());
+        assertTrue(userRequest.getUsername().endsWith(USERNAME));
+        assertNotNull(userRequest.getCreationDate());
+        assertNotNull(userRequest.getClaimDate());
+        assertNull(userRequest.getExecutionDate());
+
         assertNotNull(userRequestService.executeCreate(userRequest.getId(), userTO));
-        assertTrue(userRequestService.read(userRequest.getId()).isExecuted());
+
+        userRequest = userRequestService.read(userRequest.getId());
+        assertTrue(userRequest.isExecuted());
+        assertTrue(userRequest.getUsername().endsWith(USERNAME));
+        assertNotNull(userRequest.getCreationDate());
+        assertNotNull(userRequest.getClaimDate());
+        assertNotNull(userRequest.getExecutionDate());
 
         for (UserRequestTO userRequestTO : userRequestService.list()) {
             assertFalse(userRequestTO.isExecuted());
@@ -239,6 +260,8 @@ public class UserRequestTestITCase extends AbstractTest {
 
         userRequest = getObject(response, UserRequestTO.class, userRequestService);
         assertNotNull(userRequest);
+        assertEquals(UserRequestType.UPDATE, userRequest.getType());
+        assertTrue(userRequest.getUsername().endsWith(USERNAME));
 
         final String newpwd = "new" + initialPassword + "!";
 
@@ -247,6 +270,8 @@ public class UserRequestTestITCase extends AbstractTest {
         furtherChanges.setPassword(newpwd);
 
         assertFalse(userRequestService.read(userRequest.getId()).isExecuted());
+        userRequest = userRequestService.claim(userRequest.getId());
+        assertEquals("admin", userRequest.getOwner());
         assertNotNull(userRequestService.executeUpdate(userRequest.getId(), furtherChanges));
         assertTrue(userRequestService.read(userRequest.getId()).isExecuted());
 
@@ -270,8 +295,12 @@ public class UserRequestTestITCase extends AbstractTest {
 
         userRequest = getObject(response, UserRequestTO.class, userRequestService);
         assertNotNull(userRequest);
+        assertEquals(UserRequestType.DELETE, userRequest.getType());
+        assertTrue(userRequest.getUsername().endsWith(USERNAME));
 
         assertFalse(userRequestService.read(userRequest.getId()).isExecuted());
+        userRequest = userRequestService.claim(userRequest.getId());
+        assertEquals("admin", userRequest.getOwner());
         userRequestService.executeDelete(userRequest.getId());
         assertTrue(userRequestService.read(userRequest.getId()).isExecuted());
 
@@ -285,6 +314,21 @@ public class UserRequestTestITCase extends AbstractTest {
         } catch (Exception ignore) {
             // ignore
         }
+
+        assertEquals(3, userRequestService.listByUsername(userTO.getUsername()).size());
+    }
+
+    @Test(expected = SyncopeClientCompositeErrorException.class)
+    public void executeNoClaim() {
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("reqnoclaim@syncope.apache.org");
+
+        final UserRequestService selfservice = createServiceInstance(UserRequestService.class, null, null);
+
+        final UserRequestTO userRequest = getObject(
+                createUserRequest(selfservice, new UserRequestTO(userTO)), UserRequestTO.class, userRequestService);
+        assertNotNull(userRequest);
+
+        userRequestService.executeCreate(userRequest.getId(), userTO);
     }
 
     private Response createUserRequest(final UserRequestService service, final UserRequestTO userRequestTO) {

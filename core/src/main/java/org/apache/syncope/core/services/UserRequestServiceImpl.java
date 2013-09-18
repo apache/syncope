@@ -90,6 +90,11 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
     }
 
     @Override
+    public UserRequestTO claim(final Long requestId) {
+        return controller.claim(requestId);
+    }
+
+    @Override
     public UserTO executeCreate(final Long requestId, final UserTO reviewed) {
         return controller.execute(controller.read(requestId), reviewed, null);
     }
@@ -102,5 +107,10 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
     @Override
     public UserTO executeDelete(final Long requestId) {
         return controller.execute(controller.read(requestId), null, null);
+    }
+
+    @Override
+    public List<UserRequestTO> listByUsername(final String username) {
+        return controller.listByUsername(username);
     }
 }

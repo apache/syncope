@@ -64,6 +64,7 @@ public enum SyncopeClientExceptionType {
     RequiredValuesMissing("Syncope.RequiredValuesMissing", "Syncope.RequiredValuesMissing.attributeName"),
     Scheduling("Syncope.Scheduling", "Syncope.Scheduling.message"),
     UnauthorizedRole("Syncope.UnauthorizedRole", "Syncope.UnauthorizedRole.id"),
+    Unauthorized("Syncope.Unauthorized", "Syncope.Unauthorized"),
     Unknown("Syncope.Unknown", ""),
     Workflow("Syncope.Workflow", "Syncope.Workflow.message");
 

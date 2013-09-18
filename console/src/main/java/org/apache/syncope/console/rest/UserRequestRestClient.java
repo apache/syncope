@@ -40,6 +40,10 @@ public class UserRequestRestClient extends BaseRestClient {
         getService(UserRequestService.class).delete(requestId);
     }
 
+    public void claim(final Long requestId) {
+        getService(UserRequestService.class).claim(requestId);
+    }
+
     public void requestCreate(final UserTO userTO) {
         UserRequestTO userRequestTO = new UserRequestTO();
         userRequestTO.setType(UserRequestType.CREATE);

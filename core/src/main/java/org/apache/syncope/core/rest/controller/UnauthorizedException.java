@@ -16,24 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.dao;
+package org.apache.syncope.core.rest.controller;
 
-import java.util.List;
+public class UnauthorizedException extends RuntimeException {
 
-import org.apache.syncope.core.persistence.beans.UserRequest;
-import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
+    private static final long serialVersionUID = -2723923005455058023L;
 
-public interface UserRequestDAO extends DAO {
-
-    UserRequest find(Long id);
-
-    List<UserRequest> findAll();
-
-    List<UserRequest> findAll(boolean executed);
-
-    List<UserRequest> findAll(String username);
-
-    UserRequest save(UserRequest userRequest) throws InvalidEntityException;
-
-    void delete(Long id);
+    public UnauthorizedException(final String message) {
+        super(message);
+    }
 }

@@ -242,7 +242,8 @@ public final class AuditElements {
         update,
         delete,
         isCreateAllowed,
-        execute
+        execute,
+        claim
 
     }
 

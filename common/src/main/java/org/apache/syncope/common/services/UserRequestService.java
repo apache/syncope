@@ -66,7 +66,15 @@ public interface UserRequestService {
      * @return Returns list of all UserRequests.
      */
     @GET
+    @Path("executed")
     List<UserRequestTO> list();
+
+    /**
+     * @return Returns list of all UserRequests of the given user.
+     */
+    @GET
+    @Path("filter/{username}")
+    List<UserRequestTO> listByUsername(@PathParam("username") String username);
 
     /**
      * @param requestId ID of UserRequest to be read
@@ -83,6 +91,10 @@ public interface UserRequestService {
     @Path("{requestId}")
     void delete(@PathParam("requestId") Long requestId);
 
+    @GET
+    @Path("claim/{requestId}")
+    UserRequestTO claim(@PathParam("requestId") Long requestId);
+
     @POST
     @Path("create/execute/{requestId}")
     UserTO executeCreate(@PathParam("requestId") Long requestId, UserTO reviewed);
@@ -91,7 +103,7 @@ public interface UserRequestService {
     @Path("update/execute/{requestId}")
     UserTO executeUpdate(@PathParam("requestId") Long requestId, UserMod changes);
 
-    @POST
-    @Path("delete/execute{requestId}")
+    @DELETE
+    @Path("delete/execute/{requestId}")
     UserTO executeDelete(@PathParam("requestId") Long requestId);
 }
