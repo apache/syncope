@@ -15,20 +15,12 @@
 -- specific language governing permissions and limitations
 -- under the License.
 
-# This SQL script creates the required tables by ch.qos.logback.classic.db.DBAppender.
-#
-# It is intended for MySQL databases. It has been tested on MySQL 5.1.37 
-# on Linux
+-- This SQL script creates the required tables by ch.qos.logback.classic.db.DBAppender.
+--
+-- It is intended for MySQL databases. It has been tested on MySQL 5.1.37 
+-- on Linux
 
-BEGIN;
-DROP TABLE IF EXISTS logging_event_property;
-DROP TABLE IF EXISTS logging_event_exception;
-DROP TABLE IF EXISTS logging_event;
-COMMIT;
-
-
-BEGIN;
-CREATE TABLE logging_event 
+CREATE TABLE IF NOT EXISTS logging_event 
   (
     timestmp         BIGINT NOT NULL,
     formatted_message  TEXT NOT NULL,
@@ -45,27 +37,22 @@ CREATE TABLE logging_event
     caller_method     VARCHAR(254) NOT NULL,
     caller_line       CHAR(4) NOT NULL,
     event_id          BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY
-  );
-COMMIT;
+  );;
 
-BEGIN;
-CREATE TABLE logging_event_property
+CREATE TABLE IF NOT EXISTS logging_event_property
   (
     event_id	      BIGINT NOT NULL,
     mapped_key        VARCHAR(254) NOT NULL,
     mapped_value      TEXT,
     PRIMARY KEY(event_id, mapped_key),
     FOREIGN KEY (event_id) REFERENCES logging_event(event_id)
-  );
-COMMIT;
+  );;
 
-BEGIN;
-CREATE TABLE logging_event_exception
+CREATE TABLE IF NOT EXISTS logging_event_exception
   (
     event_id         BIGINT NOT NULL,
     i                SMALLINT NOT NULL,
     trace_line       VARCHAR(254) NOT NULL,
     PRIMARY KEY(event_id, i),
     FOREIGN KEY (event_id) REFERENCES logging_event(event_id)
-  );
-COMMIT;
+  );;

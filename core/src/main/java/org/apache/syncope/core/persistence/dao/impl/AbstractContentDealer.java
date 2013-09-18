@@ -35,7 +35,7 @@ public abstract class AbstractContentDealer {
 
     protected static final String ROOT_ELEMENT = "dataset";
 
-    private static final String PERSISTENCE_PROPERTIES = "/persistence.properties";
+    public static final String PERSISTENCE_PROPERTIES = "/persistence.properties";
 
     private static final String VIEWS_XML = "/views.xml";
 

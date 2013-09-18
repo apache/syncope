@@ -18,18 +18,8 @@ specific language governing permissions and limitations
 under the License.
 -->
 <included>
-  <property resource="persistence.properties"/>
-  
   <appender name="audit" class="ch.qos.logback.classic.db.DBAppender">
-    <connectionSource class="org.apache.syncope.core.audit.JNDIFallbackConnectionSource">
-      <param name="jndiLocation" value="java:comp/env/jdbc/syncopeDataSource"/>
-      <dataSource class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <param name="driverClassName" value="${jpa.driverClassName}"/>
-        <param name="url" value="${jpa.url}"/>
-        <param name="username" value="${jpa.username}"/>
-        <param name="password" value="${jpa.password}"/>
-      </dataSource>
-    </connectionSource>
+    <connectionSource class="org.apache.syncope.core.audit.JNDIFallbackConnectionSource"/>
   </appender>
   
   <logger name="syncope.audit" additivity="false">

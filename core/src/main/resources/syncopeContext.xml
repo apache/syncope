@@ -65,9 +65,6 @@ under the License.
             <value type="org.springframework.core.io.Resource">
               classpath:/quartz/${quartz.sql}
             </value>
-            <value type="org.springframework.core.io.Resource">
-              classpath:/logback/${logback.sql}
-            </value>
           </array>
         </property>
       </bean>

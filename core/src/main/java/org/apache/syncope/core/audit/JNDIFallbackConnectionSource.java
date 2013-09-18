@@ -18,138 +18,108 @@
  */
 package org.apache.syncope.core.audit;
 
-import ch.qos.logback.core.db.ConnectionSource;
-import ch.qos.logback.core.db.ConnectionSourceBase;
 import ch.qos.logback.core.db.DataSourceConnectionSource;
-import ch.qos.logback.core.db.JNDIConnectionSource;
-import ch.qos.logback.core.db.dialect.SQLDialectCode;
-import ch.qos.logback.core.spi.ContextAwareBase;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
 import javax.sql.DataSource;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.io.IOUtils;
+import org.apache.syncope.core.persistence.dao.impl.AbstractContentDealer;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSParser;
 
 /**
- * Implementation of {@link ConnectionSource} that attempts at first to obtain a {@link javax.sql.DataSource} from a
- * JNDI provider and, if not found, from a provided {@link javax.sql.DataSource DataSource}.
+ * Specialization of {@link DataSourceConnectionSource} that first attempts to obtain a {@link javax.sql.DataSource}
+ * from the JNDI name configured in Spring or, when not found, builds a new {@link javax.sql.DataSource DataSource} via
+ * Commons DBCP; if any datasource if found, the SQL init script is used to populate the database.
  */
-public class JNDIFallbackConnectionSource extends ContextAwareBase implements ConnectionSource {
+public class JNDIFallbackConnectionSource extends DataSourceConnectionSource {
 
-    private String jndiLocation;
+    private static final String PERSISTENCE_CONTEXT = "/persistenceContext.xml";
 
-    private DataSource dataSource;
+    private static DataSource datasource;
 
-    private ConnectionSourceBase delegate;
-
-    public String getJndiLocation() {
-        return jndiLocation;
-    }
-
-    public void setJndiLocation(final String jndiLocation) {
-        this.jndiLocation = jndiLocation;
-    }
-
-    public DataSource getDataSource() {
-        return dataSource;
-    }
-
-    public void setDataSource(final DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    private void chooseDelegate() {
-        if (delegate != null) {
-            return;
-        }
-
-        JNDIConnectionSource jndiCS = new JNDIConnectionSource();
-        jndiCS.setJndiLocation(jndiLocation);
+    static {
+        // 1. Attempts to lookup for configured JNDI datasource (if present and available)
+        InputStream springConf = JNDIFallbackConnectionSource.class.getResourceAsStream(PERSISTENCE_CONTEXT);
         try {
+            DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
+            DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
+            LSParser parser = impl.createLSParser(DOMImplementationLS.MODE_SYNCHRONOUS, null);
+            LSInput lsinput = impl.createLSInput();
+            lsinput.setByteStream(springConf);
+
+            XPathFactory xPathfactory = XPathFactory.newInstance();
+            XPath xpath = xPathfactory.newXPath();
+            XPathExpression expr = xpath.compile("//*[local-name()='property' and @name='jndiName']/@value");
+            String jndiName = (String) expr.evaluate(parser.parse(lsinput), XPathConstants.STRING);
+
             Context ctx = new InitialContext();
-            Object obj = ctx.lookup(jndiCS.getJndiLocation());
+            Object obj = ctx.lookup(jndiName);
 
-            PortableRemoteObject.narrow(obj, DataSource.class);
-
-            delegate = jndiCS;
-            addInfo("DataSource obtained from " + jndiLocation);
-        } catch (NamingException e) {
-            addError("During lookup of " + jndiLocation);
-        } catch (ClassCastException e) {
-            addError("Object at " + jndiLocation + " does not seem to be a DataSource instance", e);
+            datasource = (DataSource) PortableRemoteObject.narrow(obj, DataSource.class);
+        } catch (Exception e) {
+            // ignore
+        } finally {
+            IOUtils.closeQuietly(springConf);
         }
 
-        if (delegate == null) {
-            addInfo("Could not obtain DataSource via JNDI");
+        // 2. Creates Commons DBCP datasource
+        String initSQLScript = null;
+        try {
+            Properties persistence = PropertiesLoaderUtils.loadProperties(
+                    new ClassPathResource(AbstractContentDealer.PERSISTENCE_PROPERTIES));
 
-            DataSourceConnectionSource dataSourceCS = new DataSourceConnectionSource();
-            dataSourceCS.setDataSource(dataSource);
-            Connection conn = null;
-            try {
-                conn = dataSourceCS.getConnection();
+            initSQLScript = persistence.getProperty("logback.sql");
 
-                delegate = dataSourceCS;
-                addInfo("Provided DataSource successfully reported");
-            } catch (SQLException e) {
-                addError("While trying to get connection from DataSource " + dataSource, e);
-            } finally {
-                if (conn != null) {
-                    try {
-                        conn.close();
-                    } catch (SQLException sqle) {
-                        addError("Could not close connection", sqle);
-                    }
-                }
+            if (datasource == null) {
+                BasicDataSource bds = new BasicDataSource();
+                bds.setDriverClassName(persistence.getProperty("jpa.driverClassName"));
+                bds.setUrl(persistence.getProperty("jpa.url"));
+                bds.setUsername(persistence.getProperty("jpa.username"));
+                bds.setPassword(persistence.getProperty("jpa.password"));
+
+                bds.setLogAbandoned(true);
+                bds.setRemoveAbandoned(true);
+
+                datasource = bds;
             }
+        } catch (Exception e) {
+            throw new IllegalStateException("Audit datasource configuration failed", e);
         }
 
-        if (delegate != null) {
-            delegate.setContext(context);
+        // 3. Initializes the chosen datasource
+        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        populator.setScripts(new Resource[] {new ClassPathResource("/logback/" + initSQLScript)});
+        // forces statement separation via ;; in order to support stored procedures
+        populator.setSeparator(";;");
+        Connection conn = DataSourceUtils.getConnection(datasource);
+        try {
+            populator.populate(conn);
+        } catch (SQLException e) {
+            throw new IllegalStateException("Could not init the Audit datasource", e);
+        } finally {
+            DataSourceUtils.releaseConnection(conn, datasource);
         }
     }
 
-    @Override
-    public boolean isStarted() {
-        chooseDelegate();
-        return delegate.isStarted();
-    }
-
-    @Override
-    public void start() {
-        chooseDelegate();
-        delegate.start();
-    }
-
-    @Override
-    public void stop() {
-        chooseDelegate();
-        delegate.stop();
-    }
-
-    @Override
-    public Connection getConnection() throws SQLException {
-
-        chooseDelegate();
-        return delegate.getConnection();
-    }
-
-    @Override
-    public SQLDialectCode getSQLDialectCode() {
-        chooseDelegate();
-        return delegate.getSQLDialectCode();
-    }
-
-    @Override
-    public boolean supportsGetGeneratedKeys() {
-        chooseDelegate();
-        return delegate.supportsGetGeneratedKeys();
-    }
-
-    @Override
-    public boolean supportsBatchUpdates() {
-        chooseDelegate();
-        return delegate.supportsBatchUpdates();
+    public JNDIFallbackConnectionSource() {
+        super.setDataSource(datasource);
     }
 }
