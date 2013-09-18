@@ -330,7 +330,7 @@ under the License.
 
     <h2.version>1.3.173</h2.version>
 
-    <log4j.version>2.0-beta9-SNAPSHOT</log4j.version>
+    <log4j.version>2.0-beta9</log4j.version>
     <slf4j.version>1.7.5</slf4j.version>
     <disruptor.version>3.2.0</disruptor.version>
 
