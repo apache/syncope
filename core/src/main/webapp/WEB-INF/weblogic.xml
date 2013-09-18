@@ -26,9 +26,12 @@ under the License.
   
   <container-descriptor>    
     <prefer-application-packages>
+      <package-name>javax.ws.rs.*</package-name>
+      <package-name>org.apache.cxf.*</package-name>
       <package-name>org.apache.commons.*</package-name>
       <package-name>org.apache.openjpa.*</package-name>
       <package-name>org.slf4j.*</package-name>
+      <package-name>org.apache.logging.log4j.*</package-name>
       <package-name>com.fasterxml.jackson.*</package-name>
     </prefer-application-packages>
   </container-descriptor>
