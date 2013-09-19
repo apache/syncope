@@ -58,7 +58,7 @@ public class EntityValidationInterceptor {
 
         Set<ConstraintViolation<Object>> violations = validator.validate(pjp.getArgs()[0]);
         if (!violations.isEmpty()) {
-            LOG.error("Bean validation errors found: {}", violations);
+            LOG.warn("Bean validation errors found: {}", violations);
             throw new InvalidEntityException(pjp.getArgs()[0].getClass().getSimpleName(), violations);
         }
 
