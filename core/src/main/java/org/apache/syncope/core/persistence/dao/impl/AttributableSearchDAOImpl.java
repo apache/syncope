@@ -416,13 +416,13 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
                     if (not) {
                         query.append(" NOT ");
                     }
-                    query.append(" LIKE '").append(cond.getExpression()).append("'");
+                    query.append(" LIKE ?").append(setParameter(parameters, cond.getExpression()));
                 } else {
                     if (!(cond instanceof AttributableCond)) {
                         query.append("' AND");
                     }
                     query.append(" 1=2");
-                    LOG.error("LIKE is only compatible with string schemas");
+                    LOG.error("LIKE is only compatible with string or enum schemas");
                 }
                 break;
 
