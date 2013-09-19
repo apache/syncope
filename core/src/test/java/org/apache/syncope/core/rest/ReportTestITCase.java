@@ -29,18 +29,19 @@ import java.io.InputStream;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpStatus;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.report.UserReportletConf;
+import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.services.ReportletConfClasses;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.types.ReportExecStatus;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class ReportTestITCase extends AbstractTest {
@@ -48,7 +49,7 @@ public class ReportTestITCase extends AbstractTest {
     public ReportTO createReport(final ReportTO report) {
         Response response = reportService.create(report);
         assertCreated(response);
-        return getObject(response, ReportTO.class, reportService);
+        return adminClient.getObject(response.getLocation(), ReportService.class, ReportTO.class);
     }
 
     @Test
@@ -140,15 +141,15 @@ public class ReportTestITCase extends AbstractTest {
         try {
             reportService.read(report.getId());
             fail();
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientCompositeException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
         }
     }
 
     private void checkExport(final Long execId, final ReportExecExportFormat fmt) throws IOException {
         final Response response = reportService.exportExecutionResult(execId, fmt);
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
         assertNotNull(response.getHeaderString(SyncopeConstants.CONTENT_DISPOSITION_HEADER));
         assertTrue(response.getHeaderString(SyncopeConstants.CONTENT_DISPOSITION_HEADER).
                 endsWith("." + fmt.name().toLowerCase()));

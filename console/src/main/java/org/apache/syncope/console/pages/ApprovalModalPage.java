@@ -29,7 +29,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.MapChoiceRenderer;
 import org.apache.syncope.console.markup.html.list.AltListView;
@@ -231,7 +231,7 @@ public class ApprovalModalPage extends BaseModalPage {
 
                     ((Todo) pageRef.getPage()).setModalResult(true);
                     window.close(target);
-                } catch (SyncopeClientCompositeErrorException e) {
+                } catch (SyncopeClientCompositeException e) {
                     error(getString(Constants.ERROR) + ":" + e.getMessage());
                     LOG.error("While submitting form {}", formTO, e);
                     target.add(feedbackPanel);

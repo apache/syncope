@@ -36,6 +36,9 @@ import java.util.Properties;
 import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpStatus;
+import org.apache.syncope.common.services.ConnectorService;
+import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnIdObjectClassTO;
@@ -48,15 +51,13 @@ import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
 import org.apache.syncope.common.types.IntMappingType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.core.util.ConnIdBundleManager;
 import org.identityconnectors.common.security.GuardedString;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class ConnInstanceTestITCase extends AbstractTest {
@@ -84,13 +85,13 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertNotNull(connidDbTableVersion);
     }
 
-    @Test(expected = SyncopeClientCompositeErrorException.class)
+    @Test(expected = SyncopeClientCompositeException.class)
     public void createWithException() {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
 
         Response response = connectorService.create(connectorTO);
-        if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
-            throw (RuntimeException) clientExceptionMapper.fromResponse(response);
+        if (response.getStatus() != HttpStatus.SC_CREATED) {
+            throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
         }
     }
 
@@ -144,12 +145,12 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.getCapabilities().add(ConnectorCapability.TWO_PHASES_UPDATE);
 
         Response response = connectorService.create(connectorTO);
-        if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
-            throw (RuntimeException) clientExceptionMapper.fromResponse(response);
+        if (response.getStatus() != HttpStatus.SC_CREATED) {
+            throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
         }
 
-        ConnInstanceTO actual = getObject(response, ConnInstanceTO.class, connectorService);
-
+        ConnInstanceTO actual =
+                adminClient.getObject(response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
         assertNotNull(actual);
 
         assertEquals(actual.getBundleName(), connectorTO.getBundleName());
@@ -169,7 +170,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         try {
             connectorService.update(connectorTO.getId(), connectorTO);
             actual = connectorService.read(connectorTO.getId());
-        } catch (HttpStatusCodeException e) {
+        } catch (SyncopeClientCompositeException e) {
             LOG.error("update failed", e);
             t = e;
         }
@@ -181,7 +182,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // check also for the deletion of the created object
         try {
             connectorService.delete(actual.getId());
-        } catch (HttpStatusCodeException e) {
+        } catch (SyncopeClientCompositeException e) {
             LOG.error("delete failed", e);
             t = e;
         }
@@ -191,8 +192,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // check the non existence
         try {
             connectorService.read(actual.getId());
-        } catch (HttpStatusCodeException e) {
-            assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
+        } catch (SyncopeClientCompositeException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
         }
     }
 
@@ -282,12 +283,11 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // Create a new connector instance.
         // ----------------------------------
         Response response = connectorService.create(connInstanceTO);
-        if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
-            throw (RuntimeException) clientExceptionMapper.fromResponse(response);
+        if (response.getStatus() != HttpStatus.SC_CREATED) {
+            throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
         }
 
-        connInstanceTO = getObject(response, ConnInstanceTO.class, connectorService);
-
+        connInstanceTO = adminClient.getObject(response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
         assertNotNull(connInstanceTO);
         assertTrue(connInstanceTO.getCapabilities().isEmpty());
 
@@ -301,7 +301,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // Check for connector instance update after resource creation.
         // ----------------------------------
         response = resourceService.create(resourceTO);
-        resourceTO = getObject(response, ResourceTO.class, resourceService);
+        resourceTO = adminClient.getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
 
         assertNotNull(resourceTO);
 
@@ -341,8 +341,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
     public void deleteWithException() {
         try {
             connectorService.delete(0L);
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientCompositeException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
         }
     }
 
@@ -478,7 +478,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         password.setSchema(passwordSchema);
         password.getValues().add("sa");
         conf.add(password);
-        
+
         ConnConfPropSchema tableSchema = new ConnConfPropSchema();
         tableSchema.setName("table");
         tableSchema.setType(String.class.getName());
@@ -616,11 +616,11 @@ public class ConnInstanceTestITCase extends AbstractTest {
             assertFalse(connectorService.check(connectorTO));
 
             Response response = connectorService.create(connectorTO);
-            if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
-                throw (RuntimeException) clientExceptionMapper.fromResponse(response);
+            if (response.getStatus() != HttpStatus.SC_CREATED) {
+                throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
             }
 
-            connectorTO = getObject(response, ConnInstanceTO.class, connectorService);
+            connectorTO = adminClient.getObject(response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
             assertNotNull(connectorTO);
             // ----------------------------------------
 
@@ -677,14 +677,13 @@ public class ConnInstanceTestITCase extends AbstractTest {
         conn.setId(0);
         conn.setDisplayName("forBulk1");
 
-        bulkAction.addTarget(String.valueOf(
-                getObject(connectorService.create(conn), ConnInstanceTO.class, connectorService).getId()));
+        bulkAction.addTarget(String.valueOf(adminClient.getObject(
+                connectorService.create(conn).getLocation(), ConnectorService.class, ConnInstanceTO.class).getId()));
 
         conn.setDisplayName("forBulk2");
 
-        bulkAction.addTarget(String.valueOf(
-                getObject(connectorService.create(conn), ConnInstanceTO.class, connectorService).getId()));
-
+        bulkAction.addTarget(String.valueOf(adminClient.getObject(
+                connectorService.create(conn).getLocation(), ConnectorService.class, ConnInstanceTO.class).getId()));
 
         Iterator<String> iter = bulkAction.getTargets().iterator();
 
@@ -698,13 +697,13 @@ public class ConnInstanceTestITCase extends AbstractTest {
         try {
             connectorService.read(Long.valueOf(iter.next()));
             fail();
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
         }
 
         try {
             connectorService.read(Long.valueOf(iter.next()));
             fail();
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
         }
     }
 }

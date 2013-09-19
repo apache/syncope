@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.RollbackException;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserRequestTO;
@@ -30,7 +31,7 @@ import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.UserRequestSubCategory;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
@@ -43,7 +44,6 @@ import org.apache.syncope.core.util.EntitlementUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -251,14 +251,15 @@ public class UserRequestController {
             + "(hasRole('USER_DELETE') and #request.type == #request.type.DELETE))")
     public UserTO execute(final UserRequestTO request, final UserTO reviewed, final UserMod changes) {
         UserRequest userRequest = userRequestDAO.find(request.getId());
-        if (request == null || request.isExecuted()) {
+        if (request.isExecuted()) {
             throw new NotFoundException("Executable user request " + request.getId());
         }
 
         if (StringUtils.isBlank(request.getOwner())
                 || !request.getOwner().equalsIgnoreCase(EntitlementUtil.getAuthenticatedUsername())) {
-            final SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(HttpStatus.UNAUTHORIZED);
+
+            final SyncopeClientCompositeException scce =
+                    new SyncopeClientCompositeException(Response.Status.UNAUTHORIZED.getStatusCode());
             scce.addException(new SyncopeClientException(SyncopeClientExceptionType.Unauthorized));
             throw scce;
         }

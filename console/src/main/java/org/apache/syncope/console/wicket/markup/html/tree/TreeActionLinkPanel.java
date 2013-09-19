@@ -19,7 +19,7 @@
 package org.apache.syncope.console.wicket.markup.html.tree;
 
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.ResultStatusModalPage;
@@ -144,7 +144,7 @@ public class TreeActionLinkPanel extends Panel {
                         });
 
                         window.show(target);
-                    } catch (SyncopeClientCompositeErrorException scce) {
+                    } catch (SyncopeClientCompositeException scce) {
                         error(getString(Constants.OPERATION_ERROR) + ": " + scce.getMessage());
                         target.add(((Roles) pageRef.getPage()).getFeedbackPanel());
                     }

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.rest.RestClientFactoryBean;
+import org.apache.syncope.client.SyncopeClientFactoryBean;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -52,7 +52,7 @@ public class SyncopeSession extends WebSession {
 
     private Roles roles = new Roles();
 
-    private final RestClientFactoryBean restClientFactory;
+    private final SyncopeClientFactoryBean clientFactory;
 
     private final Map<Class<?>, Object> restServices = new HashMap<Class<?>, Object>();
 
@@ -66,7 +66,7 @@ public class SyncopeSession extends WebSession {
         final ApplicationContext applicationContext =
                 WebApplicationContextUtils.getWebApplicationContext(WebApplication.get().getServletContext());
 
-        restClientFactory = applicationContext.getBean(RestClientFactoryBean.class);
+        clientFactory = applicationContext.getBean(SyncopeClientFactoryBean.class);
     }
 
     public <T> T getService(final Class<T> service) {
@@ -74,14 +74,14 @@ public class SyncopeSession extends WebSession {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getService(final Class<T> service, final String username, final String password) {
+    public <T> T getService(final Class<T> serviceClass, final String username, final String password) {
         T res;
-        if (restServices.containsKey(service)) {
-            res = (T) restServices.get(service);
+        if (restServices.containsKey(serviceClass)) {
+            res = (T) restServices.get(serviceClass);
         } else {
-            res = restClientFactory.createServiceInstance(service, username, password);
+            res = clientFactory.create(username, password).getService(serviceClass);
             if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
-                restServices.put(service, restClientFactory.createServiceInstance(service, username, password));
+                restServices.put(serviceClass, res);
             }
         }
 

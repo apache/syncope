@@ -29,12 +29,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
+import org.apache.http.HttpStatus;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.AttributableCond;
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.MembershipCond;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
+import org.apache.syncope.common.services.NotificationService;
+import org.apache.syncope.common.services.TaskService;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.JobClassTO;
@@ -55,6 +58,7 @@ import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.types.TraceLevel;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.core.sync.TestSyncActions;
 import org.apache.syncope.core.sync.TestSyncRule;
 import org.apache.syncope.core.sync.impl.SyncJob;
@@ -63,9 +67,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class TaskTestITCase extends AbstractTest {
@@ -106,7 +108,7 @@ public class TaskTestITCase extends AbstractTest {
         task.setRoleTemplate(roleTemplate);
 
         Response response = taskService.create(task);
-        SyncTaskTO actual = getObject(response, SyncTaskTO.class, taskService);
+        SyncTaskTO actual = adminClient.getObject(response.getLocation(), TaskService.class, SyncTaskTO.class);
         assertNotNull(actual);
 
         task = taskService.read(actual.getId());
@@ -199,8 +201,8 @@ public class TaskTestITCase extends AbstractTest {
     public void deal() {
         try {
             taskService.delete(0L);
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientCompositeException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
         }
         TaskExecTO exec = taskService.execute(1L, false);
         assertEquals(PropagationTaskExecStatus.SUBMITTED.name(), exec.getStatus());
@@ -216,8 +218,8 @@ public class TaskTestITCase extends AbstractTest {
         taskService.delete(1L);
         try {
             taskService.readExecution(exec.getId());
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientCompositeException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
         }
     }
 
@@ -547,7 +549,7 @@ public class TaskTestITCase extends AbstractTest {
         notification.setTemplate("optin");
 
         Response response = notificationService.create(notification);
-        notification = getObject(response, NotificationTO.class, notificationService);
+        notification = adminClient.getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
         assertNotNull(notification);
 
         // 2. create user
@@ -643,7 +645,7 @@ public class TaskTestITCase extends AbstractTest {
         task.setJobClassName(SyncJob.class.getName());
 
         Response response = taskService.create(task);
-        SchedTaskTO actual = getObject(response, SchedTaskTO.class, taskService);
+        SchedTaskTO actual = adminClient.getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
         assertNotNull(actual);
         assertEquals("issueSYNCOPE144", actual.getName());
         assertEquals("issueSYNCOPE144 Description", actual.getDescription());
@@ -657,7 +659,7 @@ public class TaskTestITCase extends AbstractTest {
         task.setDescription("issueSYNCOPE144 Description_2");
 
         response = taskService.create(task);
-        actual = getObject(response, SchedTaskTO.class, taskService);
+        actual = adminClient.getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
         assertNotNull(actual);
         assertEquals("issueSYNCOPE144_2", actual.getName());
         assertEquals("issueSYNCOPE144 Description_2", actual.getDescription());
@@ -796,7 +798,7 @@ public class TaskTestITCase extends AbstractTest {
         task.setPerformUpdate(true);
 
         Response response = taskService.create(task);
-        SyncTaskTO actual = getObject(response, SyncTaskTO.class, taskService);
+        SyncTaskTO actual = adminClient.getObject(response.getLocation(), TaskService.class, SyncTaskTO.class);
         assertNotNull(actual);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("s258_1@apache.org");

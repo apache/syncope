@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+import org.apache.http.HttpStatus;
 
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.MembershipTO;
@@ -37,13 +38,11 @@ import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.util.AttributableOperations;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class SchemaTestITCase extends AbstractTest {
@@ -69,7 +68,7 @@ public class SchemaTestITCase extends AbstractTest {
         try {
             createSchema(AttributableType.USER, SchemaType.NORMAL, schemaTO);
             fail("This should not be reacheable");
-        } catch (SyncopeClientCompositeErrorException scce) {
+        } catch (SyncopeClientCompositeException scce) {
             SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidUSchema);
 
             assertNotNull(sce.getElements());
@@ -87,7 +86,7 @@ public class SchemaTestITCase extends AbstractTest {
         try {
             createSchema(AttributableType.ROLE, SchemaType.NORMAL, schemaTO);
             fail("This should not be reacheable");
-        } catch (SyncopeClientCompositeErrorException scce) {
+        } catch (SyncopeClientCompositeException scce) {
             SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidRSchema);
 
             assertNotNull(sce.getElements());
@@ -106,7 +105,7 @@ public class SchemaTestITCase extends AbstractTest {
         try {
             createSchema(AttributableType.USER, SchemaType.NORMAL, schemaTO);
             fail("This should not be reacheable");
-        } catch (SyncopeClientCompositeErrorException scce) {
+        } catch (SyncopeClientCompositeException scce) {
             SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidUSchema);
 
             assertNotNull(sce.getElements());
@@ -126,8 +125,8 @@ public class SchemaTestITCase extends AbstractTest {
         SchemaTO firstname = null;
         try {
             firstname = schemaService.read(AttributableType.USER, SchemaType.NORMAL, schemaTO.getName());
-        } catch (HttpClientErrorException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientCompositeException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
         }
         assertNull(firstname);
     }
@@ -166,7 +165,7 @@ public class SchemaTestITCase extends AbstractTest {
         try {
             schemaService.update(AttributableType.ROLE, SchemaType.NORMAL, schemaTO.getName(), updatedTO);
             fail("This should not be reacheable");
-        } catch (SyncopeClientCompositeErrorException scce) {
+        } catch (SyncopeClientCompositeException scce) {
             SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidRSchema);
             assertNotNull(sce);
         }
@@ -191,7 +190,7 @@ public class SchemaTestITCase extends AbstractTest {
         try {
             schemaService.update(AttributableType.USER, SchemaType.NORMAL, schemaTO.getName(), schemaTO);
             fail("This should not be reacheable");
-        } catch (SyncopeClientCompositeErrorException scce) {
+        } catch (SyncopeClientCompositeException scce) {
             SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidUSchema);
             assertNotNull(sce);
         }
@@ -238,7 +237,7 @@ public class SchemaTestITCase extends AbstractTest {
         try {
             schemaService.update(AttributableType.USER, SchemaType.NORMAL, schemaTO.getName(), schemaTO);
             fail("This should not be reacheable");
-        } catch (SyncopeClientCompositeErrorException scce) {
+        } catch (SyncopeClientCompositeException scce) {
             SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidUSchema);
             assertNotNull(sce);
         }
@@ -252,8 +251,8 @@ public class SchemaTestITCase extends AbstractTest {
         try {
             createSchema(AttributableType.ROLE, SchemaType.NORMAL, actual);
             fail();
-        } catch (SyncopeClientCompositeErrorException scce) {
-            assertEquals(HttpStatus.CONFLICT, scce.getStatusCode());
+        } catch (SyncopeClientCompositeException scce) {
+            assertEquals(HttpStatus.SC_CONFLICT, scce.getStatusCode());
             assertTrue(scce.hasException(SyncopeClientExceptionType.EntityExists));
         }
 
@@ -261,8 +260,8 @@ public class SchemaTestITCase extends AbstractTest {
         try {
             createSchema(AttributableType.ROLE, SchemaType.NORMAL, actual);
             fail();
-        } catch (SyncopeClientCompositeErrorException scce) {
-            assertEquals(HttpStatus.BAD_REQUEST, scce.getStatusCode());
+        } catch (SyncopeClientCompositeException scce) {
+            assertEquals(HttpStatus.SC_BAD_REQUEST, scce.getStatusCode());
             assertTrue(scce.hasException(SyncopeClientExceptionType.RequiredValuesMissing));
         }
     }

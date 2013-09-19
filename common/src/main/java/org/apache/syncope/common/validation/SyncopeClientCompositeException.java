@@ -22,20 +22,26 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
 
-public class SyncopeClientCompositeErrorException extends HttpClientErrorException {
+public class SyncopeClientCompositeException extends RuntimeException {
 
     private static final long serialVersionUID = 7882118041134372129L;
 
     public static final String EXCEPTION_TYPE_HEADER = "ExceptionType";
 
-    private Set<SyncopeClientException> exceptions;
+    private final int statusCode;
 
-    public SyncopeClientCompositeErrorException(final HttpStatus statusCode) {
-        super(statusCode);
+    private final Set<SyncopeClientException> exceptions;
+
+    public SyncopeClientCompositeException(final int statusCode) {
+        super();
+
+        this.statusCode = statusCode;
         exceptions = new HashSet<SyncopeClientException>();
+    }
+
+    public int getStatusCode() {
+        return statusCode;
     }
 
     public boolean hasExceptions() {

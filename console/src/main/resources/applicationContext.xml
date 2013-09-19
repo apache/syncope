@@ -66,52 +66,8 @@ under the License.
 
   <bean id="roleTreeBuilder" class="org.apache.syncope.console.commons.RoleTreeBuilder"/>
 
-  <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.JAXBElementProvider">
-    <property name="depthProperties">
-      <bean id="depthProperties" class="org.apache.cxf.staxutils.DocumentDepthProperties">
-        <property name="innerElementCountThreshold" value="500"/>
-      </bean>
-    </property>
-    <property name="marshallerProperties">
-      <map>
-        <entry key="jaxb.formatted.output">
-          <value type="java.lang.Boolean">true</value>
-        </entry>
-      </map>
-    </property>
-    <property name="collectionWrapperMap">
-      <map>
-        <entry>
-          <key>
-            <value>org.apache.syncope.common.to.PolicyTO</value>
-          </key>
-          <value>policies</value>
-        </entry>
-      </map>
-    </property>
-  </bean>
-
-  <bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider"/>
-
-  <bean id="exceptionMapper" class="org.apache.syncope.client.rest.RestClientExceptionMapper"/>
-
-  <bean id="restClientFactory" class="org.apache.syncope.client.rest.RestClientFactoryBean" scope="prototype">
+  <bean id="syncopeClientFactory" class="org.apache.syncope.client.SyncopeClientFactoryBean">
     <property name="address" value="${scheme}://${host}:${port}/${rootPath}"/>
-    <property name="threadSafe" value="true"/>
-    <property name="inheritHeaders" value="true"/>
-    <property name="contentType" value="application/json"/>
-    <property name="features">
-      <list>
-        <cxf:logging/>
-      </list>
-    </property>
-    <property name="providers">
-      <list>
-        <ref bean="jaxbProvider"/>
-        <ref bean="jsonProvider"/>
-        <ref bean="exceptionMapper"/>
-      </list>
-    </property>
   </bean>
 
 </beans>

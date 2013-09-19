@@ -39,10 +39,13 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.Response;
+import org.apache.http.HttpStatus;
 
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
+import org.apache.syncope.common.services.PolicyService;
+import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.services.UserWorkflowService;
 import org.apache.syncope.common.to.AttributeTO;
@@ -55,7 +58,6 @@ import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
-import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.PropagationStatusTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
@@ -73,7 +75,7 @@ import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.AttributableOperations;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
@@ -84,11 +86,8 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class UserTestITCase extends AbstractTest {
@@ -128,13 +127,14 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void selfRead() {
-        UserService userService2 = createServiceInstance(UserService.class, "rossini", ADMIN_PWD);
+        UserService userService2 =
+                clientFactory.create("rossini", ADMIN_PWD).getService(UserService.class);
 
         try {
             userService2.read(1L);
             fail();
-        } catch (HttpClientErrorException e) {
-            assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
+        } catch (SyncopeClientCompositeException e) {
+            assertEquals(HttpStatus.SC_FORBIDDEN, e.getStatusCode());
         } catch (AccessControlException e) {
             // Will be thrown by cxf service
             assertNotNull(e);
@@ -192,7 +192,8 @@ public class UserTestITCase extends AbstractTest {
         } finally {
             for (PasswordPolicyTO policyTO : policies) {
                 Response response = policyService.create(policyTO);
-                AbstractPolicyTO cPolicyTO = getObject(response, PasswordPolicyTO.class, policyService);
+                PasswordPolicyTO cPolicyTO =
+                        adminClient.getObject(response.getLocation(), PolicyService.class, PasswordPolicyTO.class);
                 assertNotNull(cPolicyTO);
             }
         }
@@ -223,7 +224,7 @@ public class UserTestITCase extends AbstractTest {
         SyncopeClientException sce = null;
         try {
             userTO = userService.update(userMod.getId(), userMod);
-        } catch (SyncopeClientCompositeErrorException scce) {
+        } catch (SyncopeClientCompositeException scce) {
             sce = scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
         }
         assertNotNull(sce);
@@ -248,7 +249,7 @@ public class UserTestITCase extends AbstractTest {
         sce = null;
         try {
             userTO = userService.update(userMod.getId(), userMod);
-        } catch (SyncopeClientCompositeErrorException scce) {
+        } catch (SyncopeClientCompositeException scce) {
             sce = scce.getException(SyncopeClientExceptionType.InvalidSyncopeUser);
         }
         assertNotNull(sce);
@@ -272,7 +273,7 @@ public class UserTestITCase extends AbstractTest {
         SyncopeClientException sce = null;
         try {
             userTO = createUser(userTO);
-        } catch (SyncopeClientCompositeErrorException scce) {
+        } catch (SyncopeClientCompositeException scce) {
             sce = scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
         }
         assertNotNull(sce);
@@ -290,7 +291,7 @@ public class UserTestITCase extends AbstractTest {
         resourceTO.setEnforceMandatoryCondition(true);
 
         Response response = resourceService.create(resourceTO);
-        resourceTO = getObject(response, ResourceTO.class, resourceService);
+        resourceTO = adminClient.getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
         assertNotNull(resourceTO);
 
         UserTO userTO = getUniqueSampleTO("syncope222@apache.org");
@@ -300,7 +301,7 @@ public class UserTestITCase extends AbstractTest {
         SyncopeClientException sce = null;
         try {
             userTO = createUser(userTO);
-        } catch (SyncopeClientCompositeErrorException scce) {
+        } catch (SyncopeClientCompositeException scce) {
             sce = scce.getException(SyncopeClientExceptionType.RequiredValuesMissing);
         }
         assertNotNull(sce);
@@ -322,14 +323,14 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
     }
 
-    @Test(expected = SyncopeClientCompositeErrorException.class)
+    @Test(expected = SyncopeClientCompositeException.class)
     public void createWithInvalidPassword() {
         UserTO userTO = getSampleTO("invalidpasswd@syncope.apache.org");
         userTO.setPassword("pass");
         createUser(userTO);
     }
 
-    @Test(expected = SyncopeClientCompositeErrorException.class)
+    @Test(expected = SyncopeClientCompositeException.class)
     public void createWithInvalidUsername() {
         UserTO userTO = getSampleTO("invalidusername@syncope.apache.org");
         userTO.setUsername("us");
@@ -342,7 +343,7 @@ public class UserTestITCase extends AbstractTest {
         createUser(userTO);
     }
 
-    @Test(expected = SyncopeClientCompositeErrorException.class)
+    @Test(expected = SyncopeClientCompositeException.class)
     public void createWithInvalidPasswordByRes() {
         UserTO userTO = getSampleTO("invalidPwdByRes@passwd.com");
 
@@ -354,7 +355,7 @@ public class UserTestITCase extends AbstractTest {
         createUser(userTO);
     }
 
-    @Test(expected = SyncopeClientCompositeErrorException.class)
+    @Test(expected = SyncopeClientCompositeException.class)
     public void createWithInvalidPasswordByRole() {
         UserTO userTO = getSampleTO("invalidPwdByRole@passwd.com");
 
@@ -369,7 +370,7 @@ public class UserTestITCase extends AbstractTest {
         createUser(userTO);
     }
 
-    @Test(expected = SyncopeClientCompositeErrorException.class)
+    @Test(expected = SyncopeClientCompositeException.class)
     public void createWithException() {
         UserTO newUserTO = new UserTO();
         newUserTO.getAttributes().add(attributeTO("userId", "userId@nowhere.org"));
@@ -454,7 +455,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
 
         // 3. verify password
-        UserService userService1 = createServiceInstance(UserService.class, newUserTO.getUsername(), "password123");
+        UserService userService1 =
+                clientFactory.create(newUserTO.getUsername(), "password123").getService(UserService.class);
         try {
             UserTO user = userService1.readSelf();
             assertNotNull(user);
@@ -462,7 +464,8 @@ public class UserTestITCase extends AbstractTest {
             fail("Credentials should be valid and not cause AccessControlException");
         }
 
-        UserService userService2 = createServiceInstance(UserService.class, newUserTO.getUsername(), "passwordXX");
+        UserService userService2 =
+                clientFactory.create(newUserTO.getUsername(), "passwordXX").getService(UserService.class);
         try {
             userService2.readSelf();
             fail("Credentials are invalid, thus request should raise AccessControlException");
@@ -479,7 +482,7 @@ public class UserTestITCase extends AbstractTest {
         SyncopeClientException sce = null;
         try {
             createUser(userTO);
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             sce = e.getException(SyncopeClientExceptionType.DataIntegrityViolation);
         }
         assertNotNull(sce);
@@ -505,11 +508,11 @@ public class UserTestITCase extends AbstractTest {
         membershipTO.setRoleId(8L);
         userTO.getMemberships().add(membershipTO);
 
-        SyncopeClientCompositeErrorException ex = null;
+        SyncopeClientCompositeException ex = null;
         try {
             // 1. create user without type (mandatory by UserSchema)
             createUser(userTO);
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             ex = e;
         }
         assertNotNull(ex);
@@ -524,7 +527,7 @@ public class UserTestITCase extends AbstractTest {
         ex = null;
         try {
             createUser(userTO);
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             ex = e;
         }
         assertNotNull(ex);
@@ -559,17 +562,19 @@ public class UserTestITCase extends AbstractTest {
         assertNull(form.getOwner());
 
         // 3. claim task from rossini, not in role 7 (designated for approval in workflow definition): fail
-        UserWorkflowService userService2 = createServiceInstance(UserWorkflowService.class, "rossini", ADMIN_PWD);
+        UserWorkflowService userService2 =
+                clientFactory.create("rossini", ADMIN_PWD).getService(UserWorkflowService.class);
 
         try {
             userService2.claimForm(form.getTaskId());
             fail();
-        } catch (SyncopeClientCompositeErrorException scce) {
+        } catch (SyncopeClientCompositeException scce) {
             assertNotNull(scce.getException(SyncopeClientExceptionType.Workflow));
         }
 
         // 4. claim task from bellini, in role 7
-        UserWorkflowService userService3 = createServiceInstance(UserWorkflowService.class, "bellini", ADMIN_PWD);
+        UserWorkflowService userService3 =
+                clientFactory.create("bellini", ADMIN_PWD).getService(UserWorkflowService.class);
 
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);
@@ -678,8 +683,8 @@ public class UserTestITCase extends AbstractTest {
     public void delete() {
         try {
             userService.delete(0L);
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientCompositeException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
         }
 
         UserTO userTO = getSampleTO("qqgf.z@nn.com");
@@ -703,8 +708,8 @@ public class UserTestITCase extends AbstractTest {
 
         try {
             userService.delete(userTO.getId());
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientCompositeException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
         }
     }
 
@@ -731,8 +736,8 @@ public class UserTestITCase extends AbstractTest {
 
         try {
             userService.read(userTO.getId());
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientCompositeException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
         }
     }
 
@@ -812,7 +817,7 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(userTO.getDerivedAttributeMap().containsKey("cn"));
     }
 
-    @Test(expected = SyncopeClientCompositeErrorException.class)
+    @Test(expected = SyncopeClientCompositeException.class)
     public void updateInvalidPassword() {
         UserTO userTO = getSampleTO("updateinvalid@password.com");
 
@@ -826,7 +831,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.update(userMod.getId(), userMod);
     }
 
-    @Test(expected = SyncopeClientCompositeErrorException.class)
+    @Test(expected = SyncopeClientCompositeException.class)
     public void updateSamePassword() {
         UserTO userTO = getSampleTO("updatesame@password.com");
 
@@ -1356,7 +1361,7 @@ public class UserTestITCase extends AbstractTest {
         try {
             createUser(userTO);
             fail();
-        } catch (SyncopeClientCompositeErrorException sccee) {
+        } catch (SyncopeClientCompositeException sccee) {
             assertNotNull(sccee.getException(SyncopeClientExceptionType.InvalidValues));
         }
     }
@@ -1524,7 +1529,7 @@ public class UserTestITCase extends AbstractTest {
         try {
             readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
             fail("Read should not succeeed");
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
         }
     }
@@ -1616,7 +1621,7 @@ public class UserTestITCase extends AbstractTest {
         try {
             readConnectorObject(RESOURCE_NAME_LDAP, userTO.getId());
             fail("This entry should not be present on this resource");
-        } catch (SyncopeClientCompositeErrorException sccee) {
+        } catch (SyncopeClientCompositeException sccee) {
             SyncopeClientException sce = sccee.getException(SyncopeClientExceptionType.NotFound);
             assertNotNull(sce);
         }
@@ -1641,7 +1646,7 @@ public class UserTestITCase extends AbstractTest {
         try {
             createUser(userTO);
             fail("Create user should not succeed");
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             assertTrue(e.getException(SyncopeClientExceptionType.NotFound).getElements().iterator().next()
                     .contains("MD5"));
         }
@@ -2181,7 +2186,7 @@ public class UserTestITCase extends AbstractTest {
         try {
             resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.USER, userTO.getId());
             fail();
-        } catch (SyncopeClientCompositeErrorException scce) {
+        } catch (SyncopeClientCompositeException scce) {
             assertNotNull(scce.getException(SyncopeClientExceptionType.NotFound));
         }
     }
@@ -2356,7 +2361,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(form);
 
         // 3. first claim ny bellini ....
-        UserWorkflowService userService3 = createServiceInstance(UserWorkflowService.class, "bellini", ADMIN_PWD);
+        UserWorkflowService userService3 =
+                clientFactory.create("bellini", ADMIN_PWD).getService(UserWorkflowService.class);
 
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);

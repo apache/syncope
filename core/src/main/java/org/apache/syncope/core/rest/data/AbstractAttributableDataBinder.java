@@ -38,7 +38,7 @@ import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
@@ -370,7 +370,7 @@ public abstract class AbstractAttributableDataBinder {
 
     protected PropagationByResource fill(final AbstractAttributable attributable,
             final AbstractAttributableMod attributableMod, final AttributableUtil attrUtil,
-            final SyncopeClientCompositeErrorException scce) {
+            final SyncopeClientCompositeException scce) {
 
         PropagationByResource propByRes = new PropagationByResource();
 
@@ -615,7 +615,7 @@ public abstract class AbstractAttributableDataBinder {
     }
 
     protected void fill(final AbstractAttributable attributable, final AbstractAttributableTO attributableTO,
-            final AttributableUtil attributableUtil, final SyncopeClientCompositeErrorException scce) {
+            final AttributableUtil attributableUtil, final SyncopeClientCompositeException scce) {
 
         // 1. attributes
         SyncopeClientException invalidValues = new SyncopeClientException(SyncopeClientExceptionType.InvalidValues);

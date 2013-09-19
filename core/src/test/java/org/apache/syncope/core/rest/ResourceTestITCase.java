@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.core.Response;
+import org.apache.http.HttpStatus;
+import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.to.BulkAction;
 
 import org.apache.syncope.common.to.MappingItemTO;
@@ -43,13 +45,11 @@ import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class ResourceTestITCase extends AbstractTest {
@@ -67,7 +67,7 @@ public class ResourceTestITCase extends AbstractTest {
         ResourceTO resourceTO = buildResourceTO(resourceName);
 
         Response response = resourceService.create(resourceTO);
-        ResourceTO actual = getObject(response, ResourceTO.class, resourceService);
+        ResourceTO actual = adminClient.getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
         assertNotNull(actual);
 
         // check for existence
@@ -122,7 +122,7 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.getConnConfProperties().addAll(connectorConfigurationProperties);
 
         Response response = resourceService.create(resourceTO);
-        ResourceTO actual = getObject(response, ResourceTO.class, resourceService);
+        ResourceTO actual = adminClient.getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
         assertNotNull(actual);
 
         // check the existence
@@ -159,7 +159,7 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setRmapping(rmapping);
 
         Response response = resourceService.create(resourceTO);
-        ResourceTO actual = getObject(response, ResourceTO.class, resourceService);
+        ResourceTO actual = adminClient.getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
 
         assertNotNull(actual);
         assertNotNull(actual.getUmapping());
@@ -195,7 +195,7 @@ public class ResourceTestITCase extends AbstractTest {
         try {
             createResource(resourceTO);
             fail("Create should not have worked");
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             SyncopeClientException requiredValueMissing = e
                     .getException(SyncopeClientExceptionType.RequiredValuesMissing);
             assertNotNull(requiredValueMissing);
@@ -205,7 +205,7 @@ public class ResourceTestITCase extends AbstractTest {
         }
     }
 
-    @Test(expected = SyncopeClientCompositeErrorException.class)
+    @Test(expected = SyncopeClientCompositeException.class)
     public void createWithoutExtAttr() {
         String resourceName = "ws-target-resource-create-wrong";
         ResourceTO resourceTO = new ResourceTO();
@@ -251,7 +251,7 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setUmapping(mapping);
 
         Response response = resourceService.create(resourceTO);
-        ResourceTO actual = getObject(response, ResourceTO.class, resourceService);
+        ResourceTO actual = adminClient.getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
         assertNotNull(actual);
 
         // check the existence
@@ -269,8 +269,8 @@ public class ResourceTestITCase extends AbstractTest {
             resourceTO.setName("resourcenotfound");
 
             resourceService.update(resourceTO.getName(), resourceTO);
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientCompositeException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
         }
     }
 
@@ -325,8 +325,8 @@ public class ResourceTestITCase extends AbstractTest {
     public void deleteWithException() {
         try {
             resourceService.delete("resourcenotfound");
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientCompositeException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
         }
     }
 
@@ -351,15 +351,15 @@ public class ResourceTestITCase extends AbstractTest {
 
         ResourceTO resource = buildResourceTO(resourceName);
         Response response = resourceService.create(resource);
-        ResourceTO actual = getObject(response, ResourceTO.class, resourceService);
+        ResourceTO actual = adminClient.getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
         assertNotNull(actual);
 
         resourceService.delete(resourceName);
 
         try {
             resourceService.read(resourceName);
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientCompositeException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
         }
     }
 
@@ -396,8 +396,8 @@ public class ResourceTestITCase extends AbstractTest {
         try {
             createResource(actual);
             fail();
-        } catch (SyncopeClientCompositeErrorException scce) {
-            assertEquals(HttpStatus.CONFLICT, scce.getStatusCode());
+        } catch (SyncopeClientCompositeException scce) {
+            assertEquals(HttpStatus.SC_CONFLICT, scce.getStatusCode());
             assertTrue(scce.hasException(SyncopeClientExceptionType.EntityExists));
         }
 
@@ -405,8 +405,8 @@ public class ResourceTestITCase extends AbstractTest {
         try {
             createResource(actual);
             fail();
-        } catch (SyncopeClientCompositeErrorException scce) {
-            assertEquals(HttpStatus.BAD_REQUEST, scce.getStatusCode());
+        } catch (SyncopeClientCompositeException scce) {
+            assertEquals(HttpStatus.SC_BAD_REQUEST, scce.getStatusCode());
             assertTrue(scce.hasException(SyncopeClientExceptionType.RequiredValuesMissing));
         }
     }
@@ -430,13 +430,13 @@ public class ResourceTestITCase extends AbstractTest {
         try {
             resourceService.read("forBulk1");
             fail();
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
         }
 
         try {
             resourceService.read("forBulk2");
             fail();
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
         }
     }
 

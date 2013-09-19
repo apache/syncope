@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
@@ -34,7 +35,7 @@ import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
@@ -53,7 +54,6 @@ import org.identityconnectors.framework.api.ConnectorKey;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,8 +89,8 @@ public class ConnectorController extends AbstractController {
             auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.failure,
                     "Could not create connector instance: " + connInstanceTO.getDisplayName(), e);
 
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeException scce =
+                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
 
             SyncopeClientException invalidConnInstance = new SyncopeClientException(
                     SyncopeClientExceptionType.InvalidConnInstance);
@@ -116,8 +116,8 @@ public class ConnectorController extends AbstractController {
             auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.failure,
                     "Could not update connector instance: " + connInstanceTO.getDisplayName(), e);
 
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeException scce =
+                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
 
             SyncopeClientException invalidConnInstance = new SyncopeClientException(
                     SyncopeClientExceptionType.InvalidConnInstance);
@@ -138,8 +138,8 @@ public class ConnectorController extends AbstractController {
         }
 
         if (!connInstance.getResources().isEmpty()) {
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeException scce =
+                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
 
             SyncopeClientException associatedResources =
                     new SyncopeClientException(SyncopeClientExceptionType.AssociatedResources);

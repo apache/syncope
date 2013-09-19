@@ -105,12 +105,11 @@ public class MappingTO extends AbstractBaseBean {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @XmlElementWrapper(name = "items")
     @XmlElement(name = "item")
     @JsonProperty("items")
-    public <T extends MappingItemTO> List<T> getItems() {
-        return (List<T>) items;
+    public List<MappingItemTO> getItems() {
+        return items;
     }
 
     public boolean addItem(final MappingItemTO item) {

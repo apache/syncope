@@ -26,7 +26,7 @@ import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -43,7 +43,7 @@ public class ResourceRestClient extends BaseRestClient {
         try {
             Set<PropagationActionClassTO> response = getService(ResourceService.class).getPropagationActionsClasses();
             actions = CollectionWrapper.unwrapPropagationActionClasses(response);
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             LOG.error("While getting all propagation actions classes", e);
         }
         return actions;
@@ -54,7 +54,7 @@ public class ResourceRestClient extends BaseRestClient {
 
         try {
             resources = getService(ResourceService.class).list();
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             LOG.error("While reading all resources", e);
         }
 
@@ -70,7 +70,7 @@ public class ResourceRestClient extends BaseRestClient {
 
         try {
             resourceTO = getService(ResourceService.class).read(name);
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             LOG.error("While reading a resource", e);
         }
         return resourceTO;

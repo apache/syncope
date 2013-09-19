@@ -34,7 +34,7 @@ import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.util.BeanUtils;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.console.SyncopeSession;
 import org.springframework.stereotype.Component;
 
@@ -73,7 +73,7 @@ public class ConnectorRestClient extends BaseRestClient {
 
         try {
             connectorTO = getService(ConnectorService.class).read(connectorInstanceId);
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             LOG.error("While reading a connector", e);
         }
 
@@ -97,7 +97,7 @@ public class ConnectorRestClient extends BaseRestClient {
 
         try {
             bundles = getService(ConnectorService.class).getBundles(SyncopeSession.get().getLocale().toString());
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             LOG.error("While getting connector bundles", e);
         }
 
@@ -115,7 +115,7 @@ public class ConnectorRestClient extends BaseRestClient {
 
         try {
             properties = getService(ConnectorService.class).getConfigurationProperties(connectorId);
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             LOG.error("While getting connector configuration properties", e);
         }
 

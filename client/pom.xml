@@ -59,9 +59,9 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-web</artifactId>
-    </dependency>
+      <groupId>com.fasterxml.jackson.jaxrs</groupId>
+      <artifactId>jackson-jaxrs-json-provider</artifactId>
+    </dependency>  
     
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -84,8 +84,7 @@ under the License.
               org.apache.syncope.client*;version=${project.version};-split-package:=merge-first
             </Export-Package>
             <Import-Package>
-              com.fasterxml.jackson.annotation;version="[2.2.2,2.3)",
-              org.springframework*;version="[3,4)",
+              com.fasterxml.jackson*;version="[2.2.2,2.3)",
               org.slf4j;resolution:=optional,
               *
             </Import-Package>

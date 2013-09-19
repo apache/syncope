@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Resource;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -34,7 +35,7 @@ import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.util.BeanUtils;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
@@ -56,7 +57,6 @@ import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -162,7 +162,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     }
 
     private void setPassword(final SyncopeUser user, final String password,
-            final SyncopeClientCompositeErrorException scce) {
+            final SyncopeClientCompositeException scce) {
 
         int passwordHistorySize = 0;
         PasswordPolicy policy = policyDAO.getGlobalPasswordPolicy();
@@ -183,7 +183,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     }
 
     public void create(final SyncopeUser user, final UserTO userTO) {
-        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeException scce =
+                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
 
         // memberships
         SyncopeRole role;
@@ -238,7 +239,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     public PropagationByResource update(final SyncopeUser user, final UserMod userMod) {
         PropagationByResource propByRes = new PropagationByResource();
 
-        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeException scce =
+                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
 
         Set<String> currentResources = user.getResourceNames();
 

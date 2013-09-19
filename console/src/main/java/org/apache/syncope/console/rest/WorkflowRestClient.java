@@ -21,7 +21,7 @@ package org.apache.syncope.console.rest;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,11 +29,11 @@ public class WorkflowRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 5049285686167071017L;
 
-    public WorkflowDefinitionTO getDefinition() throws SyncopeClientCompositeErrorException {
+    public WorkflowDefinitionTO getDefinition() throws SyncopeClientCompositeException {
         return getService(WorkflowService.class).getDefinition(AttributableType.USER);
     }
 
-    public void updateDefinition(final WorkflowDefinitionTO workflowDef) throws SyncopeClientCompositeErrorException {
+    public void updateDefinition(final WorkflowDefinitionTO workflowDef) throws SyncopeClientCompositeException {
         getService(WorkflowService.class).updateDefinition(AttributableType.USER, workflowDef);
     }
 }

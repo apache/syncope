@@ -19,12 +19,13 @@
 package org.apache.syncope.core.rest.data;
 
 import java.util.List;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.DerSchemaTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.VirSchemaTO;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.util.BeanUtils;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
@@ -34,7 +35,6 @@ import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.JexlUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -49,8 +49,8 @@ public class SchemaDataBinder {
     // --------------- NORMAL -----------------
     private <T extends AbstractSchema> void fill(final T schema, final SchemaTO schemaTO) {
         if (!jexlUtil.isExpressionValid(schemaTO.getMandatoryCondition())) {
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeException scce =
+                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
 
             SyncopeClientException invalidMandatoryCondition = new SyncopeClientException(
                     SyncopeClientExceptionType.InvalidValues);
@@ -70,7 +70,8 @@ public class SchemaDataBinder {
     public <T extends AbstractSchema> void update(final SchemaTO schemaTO, final T schema,
             final AttributableUtil attributableUtil) {
 
-        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeException scce =
+                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
 
         List<AbstractAttr> attrs = schemaDAO.getAttributes(schema, attributableUtil.attrClass());
         if (!attrs.isEmpty()) {
@@ -106,7 +107,8 @@ public class SchemaDataBinder {
 
     // --------------- DERIVED -----------------
     private <T extends AbstractDerSchema> T populate(final T derSchema, final DerSchemaTO derSchemaTO) {
-        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeException scce =
+                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
 
         if (derSchemaTO.getExpression() == null) {
             SyncopeClientException requiredValuesMissing = new SyncopeClientException(

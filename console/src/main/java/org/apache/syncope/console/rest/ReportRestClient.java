@@ -25,7 +25,7 @@ import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.services.ReportletConfClasses;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -37,7 +37,7 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
         try {
             ReportletConfClasses reportletConfClasses = getService(ReportService.class).getReportletConfClasses();
             return reportletConfClasses.getConfClasses();
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             LOG.error("While getting available reportlet classes", e);
             return new ArrayList<String>();
         }

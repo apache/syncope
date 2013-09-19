@@ -22,12 +22,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
@@ -48,7 +49,6 @@ import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -114,7 +114,8 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         role.setInheritPasswordPolicy(roleTO.isInheritPasswordPolicy());
         role.setInheritAccountPolicy(roleTO.isInheritAccountPolicy());
 
-        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeException scce =
+                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
 
         // name and parent
         SyncopeClientException invalidRoles = new SyncopeClientException(SyncopeClientExceptionType.InvalidRoles);
@@ -192,7 +193,8 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
     public PropagationByResource update(final SyncopeRole role, final RoleMod roleMod) {
         PropagationByResource propByRes = new PropagationByResource();
 
-        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeException scce =
+                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
 
         Set<String> currentResources = role.getResourceNames();
 

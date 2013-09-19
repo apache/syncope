@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
@@ -33,7 +34,7 @@ import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.util.BeanUtils;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AbstractMapping;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
@@ -53,7 +54,6 @@ import org.apache.syncope.core.util.JexlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -184,7 +184,8 @@ public class ResourceDataBinder {
             return null;
         }
 
-        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeException scce = 
+                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
 
         SyncopeClientException requiredValuesMissing = new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);

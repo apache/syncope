@@ -33,7 +33,7 @@ import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
@@ -59,8 +59,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
     public Response toResponse(final Exception ex) {
         LOG.error("Exception thrown by REST method: " + ex.getMessage(), ex);
 
-        if (ex instanceof SyncopeClientCompositeErrorException) {
-            return getCompositeExceptionResponse((SyncopeClientCompositeErrorException) ex);
+        if (ex instanceof SyncopeClientCompositeException) {
+            return getCompositeExceptionResponse((SyncopeClientCompositeException) ex);
         }
 
         if (ex instanceof AccessDeniedException) {
@@ -114,11 +114,11 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                 "Call of fromResponse() method is not expected in RestServiceExceptionMapper");
     }
 
-    private Response getCompositeExceptionResponse(final SyncopeClientCompositeErrorException ex) {
-        ResponseBuilder responseBuilder = Response.status(ex.getStatusCode().value());
+    private Response getCompositeExceptionResponse(final SyncopeClientCompositeException ex) {
+        ResponseBuilder responseBuilder = Response.status(ex.getStatusCode());
         for (SyncopeClientException sce : ex.getExceptions()) {
             responseBuilder.header(
-                    SyncopeClientCompositeErrorException.EXCEPTION_TYPE_HEADER, sce.getType().getHeaderValue());
+                    SyncopeClientCompositeException.EXCEPTION_TYPE_HEADER, sce.getType().getHeaderValue());
 
             for (String attributeName : sce.getElements()) {
                 responseBuilder.header(sce.getType().getElementHeaderName(), attributeName);
@@ -161,7 +161,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
             SyncopeClientExceptionType exType =
                     SyncopeClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
 
-            builder.header(SyncopeClientCompositeErrorException.EXCEPTION_TYPE_HEADER, exType.getHeaderValue());
+            builder.header(SyncopeClientCompositeException.EXCEPTION_TYPE_HEADER, exType.getHeaderValue());
 
             for (Map.Entry<Class<?>, Set<EntityViolationType>> violation : iee.getViolations().entrySet()) {
                 for (EntityViolationType violationType : violation.getValue()) {
@@ -207,7 +207,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
             final String msg) {
 
         return responseBuilder.header(
-                SyncopeClientCompositeErrorException.EXCEPTION_TYPE_HEADER, hType.getHeaderValue()).
+                SyncopeClientCompositeException.EXCEPTION_TYPE_HEADER, hType.getHeaderValue()).
                 header(hType.getElementHeaderName(), msg).
                 build();
     }

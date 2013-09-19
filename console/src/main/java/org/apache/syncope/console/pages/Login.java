@@ -30,7 +30,7 @@ import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.EntitlementTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
@@ -182,7 +182,7 @@ public class Login extends WebPage {
         Boolean result = null;
         try {
             result = SyncopeSession.get().getService(UserRequestService.class).isCreateAllowed();
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             LOG.error("While seeking if self registration is allowed", e);
         }
 

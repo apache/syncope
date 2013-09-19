@@ -21,12 +21,13 @@ package org.apache.syncope.core.rest.data;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.util.BeanUtils;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
@@ -34,7 +35,6 @@ import org.apache.syncope.core.util.ConnIdBundleManager;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -80,7 +80,8 @@ public class ConnInstanceDataBinder {
     }
 
     public ConnInstance getConnInstance(final ConnInstanceTO connInstanceTO) {
-        SyncopeClientCompositeErrorException scee = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeException scee =
+                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
 
         SyncopeClientException requiredValuesMissing = new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
@@ -127,7 +128,8 @@ public class ConnInstanceDataBinder {
     }
 
     public ConnInstance updateConnInstance(final long connInstanceId, final ConnInstanceTO connInstanceTO) {
-        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeException scce =
+                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
 
         SyncopeClientException requiredValuesMissing = new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);

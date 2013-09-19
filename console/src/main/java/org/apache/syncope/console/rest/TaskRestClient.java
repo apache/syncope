@@ -32,7 +32,7 @@ import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -53,7 +53,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
         try {
             jobClasses = new ArrayList<JobClassTO>(getService(TaskService.class).getJobClasses());
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             LOG.error("While getting all job classes", e);
         }
         return CollectionWrapper.unwrapJobClasses(jobClasses);
@@ -64,7 +64,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
         try {
             actions = new ArrayList<SyncActionClassTO>(getService(TaskService.class).getSyncActionsClasses());
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             LOG.error("While getting all sync actions classes", e);
         }
         return CollectionWrapper.unwrapSyncActionClasses(actions);

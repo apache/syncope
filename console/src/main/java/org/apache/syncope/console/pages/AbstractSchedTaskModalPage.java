@@ -20,7 +20,7 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.DateFormatROModel;
 import org.apache.syncope.console.markup.html.CrontabContainer;
@@ -103,7 +103,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
                     ((BasePage) pageRef.getPage()).setModalResult(true);
 
                     window.close(target);
-                } catch (SyncopeClientCompositeErrorException e) {
+                } catch (SyncopeClientCompositeException e) {
                     LOG.error("While creating or updating task", e);
                     error(getString(Constants.ERROR) + ":" + e.getMessage());
                     target.add(feedbackPanel);

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.rest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 
@@ -37,9 +38,17 @@ public class RestClientFactoryBean extends JAXRSClientFactoryBean {
         return contentType;
     }
 
+    public <T> T createServiceInstance(final Class<T> serviceClass) {
+        return createServiceInstance(serviceClass, null, null);
+    }
+
     public <T> T createServiceInstance(final Class<T> serviceClass, final String username, final String password) {
-        setUsername(username);
-        setPassword(password);
+        if (StringUtils.isNotBlank(username)) {
+            setUsername(username);
+        }
+        if (StringUtils.isNotBlank(password)) {
+            setPassword(password);
+        }
         setServiceClass(serviceClass);
         final T serviceInstance = create(serviceClass);
         WebClient.client(serviceInstance).type(getContentType()).accept(getContentType());

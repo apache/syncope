@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.util.UUID;
@@ -28,10 +27,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.HttpStatus;
-import org.apache.syncope.client.rest.RestClientExceptionMapper;
-import org.apache.syncope.client.rest.RestClientFactoryBean;
+import org.apache.syncope.client.SyncopeClient;
+import org.apache.syncope.client.SyncopeClientFactoryBean;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.services.ConnectorService;
@@ -56,7 +54,7 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +63,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:restClientContext.xml", "classpath:testJDBCContext.xml"})
+@ContextConfiguration(locations = {"classpath:testJDBCContext.xml"})
 public abstract class AbstractTest {
 
     /**
@@ -77,89 +75,72 @@ public abstract class AbstractTest {
 
     protected static final String ADMIN_PWD = "password";
 
+    private static final String ADDRESS = "http://localhost:9080/syncope/rest";
+
     private static final String ENV_KEY_CONTENT_TYPE = "jaxrsContentType";
 
-    @Autowired
-    protected RestClientFactoryBean restClientFactory;
+    protected static SyncopeClientFactoryBean clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS);
+
+    protected static SyncopeClient adminClient;
 
     @Autowired
     protected DataSource testDataSource;
 
-    protected UserService userService;
+    protected static UserService userService;
 
-    protected UserWorkflowService userWorkflowService;
+    protected static UserWorkflowService userWorkflowService;
 
-    protected RoleService roleService;
+    protected static RoleService roleService;
 
-    protected ResourceService resourceService;
+    protected static ResourceService resourceService;
 
-    protected EntitlementService entitlementService;
+    protected static EntitlementService entitlementService;
 
-    protected ConfigurationService configurationService;
+    protected static ConfigurationService configurationService;
 
-    protected ConnectorService connectorService;
+    protected static ConnectorService connectorService;
 
-    protected LoggerService loggerService;
+    protected static LoggerService loggerService;
 
-    protected ReportService reportService;
+    protected static ReportService reportService;
 
-    protected TaskService taskService;
+    protected static TaskService taskService;
 
-    protected WorkflowService workflowService;
+    protected static WorkflowService workflowService;
 
-    protected NotificationService notificationService;
+    protected static NotificationService notificationService;
 
-    protected SchemaService schemaService;
+    protected static SchemaService schemaService;
 
-    protected UserRequestService userRequestService;
+    protected static UserRequestService userRequestService;
 
-    protected PolicyService policyService;
+    protected static PolicyService policyService;
 
-    @Autowired
-    protected RestClientExceptionMapper clientExceptionMapper;
-
-    @Before
-    public void setup() throws Exception {
+    @BeforeClass
+    public static void setup() {
         final String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
         if (StringUtils.isNotBlank(envContentType)) {
-            restClientFactory.setContentType(envContentType);
+            clientFactory.getRestClientFactoryBean().setContentType(envContentType);
         }
-        LOG.info("Performing IT with content type {}", restClientFactory.getContentType());
+        LOG.info("Performing IT with content type {}", clientFactory.getContentType().getMediaType());
 
-        userService = createServiceInstance(UserService.class);
-        userWorkflowService = createServiceInstance(UserWorkflowService.class);
-        roleService = createServiceInstance(RoleService.class);
-        resourceService = createServiceInstance(ResourceService.class);
-        entitlementService = createServiceInstance(EntitlementService.class);
-        configurationService = createServiceInstance(ConfigurationService.class);
-        connectorService = createServiceInstance(ConnectorService.class);
-        loggerService = createServiceInstance(LoggerService.class);
-        reportService = createServiceInstance(ReportService.class);
-        taskService = createServiceInstance(TaskService.class);
-        policyService = createServiceInstance(PolicyService.class);
-        workflowService = createServiceInstance(WorkflowService.class);
-        notificationService = createServiceInstance(NotificationService.class);
-        schemaService = createServiceInstance(SchemaService.class);
-        userRequestService = createServiceInstance(UserRequestService.class);
-    }
+        adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
 
-    protected <T> T createServiceInstance(final Class<T> serviceClass) {
-        return restClientFactory.createServiceInstance(serviceClass, ADMIN_UNAME, ADMIN_PWD);
-    }
-
-    protected <T> T createServiceInstance(final Class<T> serviceClass, final String username, final String password) {
-        return restClientFactory.createServiceInstance(serviceClass, username, password);
-    }
-
-    protected <T> T getObject(final Response response, final Class<T> type, final Object serviceProxy) {
-        assertNotNull(response);
-        assertNotNull(response.getLocation());
-
-        String location = response.getLocation().toString();
-        WebClient webClient = WebClient.fromClient(WebClient.client(serviceProxy));
-        webClient.to(location, false);
-
-        return webClient.get(type);
+        userService = adminClient.getService(UserService.class);
+        userWorkflowService = adminClient.getService(UserWorkflowService.class);
+        roleService = adminClient.getService(RoleService.class);
+        resourceService = adminClient.getService(ResourceService.class);
+        entitlementService = adminClient.getService(EntitlementService.class);
+        configurationService = adminClient.getService(ConfigurationService.class);
+        connectorService = adminClient.getService(ConnectorService.class);
+        loggerService = adminClient.getService(LoggerService.class);
+        reportService = adminClient.getService(ReportService.class);
+        taskService = adminClient.getService(TaskService.class);
+        policyService = adminClient.getService(PolicyService.class);
+        workflowService = adminClient.getService(WorkflowService.class);
+        notificationService = adminClient.getService(NotificationService.class);
+        schemaService = adminClient.getService(SchemaService.class);
+        userRequestService = adminClient.getService(UserRequestService.class);
     }
 
     protected static String getUUIDString() {
@@ -197,7 +178,7 @@ public abstract class AbstractTest {
     protected UserTO createUser(final UserTO userTO) {
         Response response = userService.create(userTO);
         if (response.getStatus() != HttpStatus.SC_CREATED) {
-            Exception ex = clientExceptionMapper.fromResponse(response);
+            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
@@ -211,46 +192,46 @@ public abstract class AbstractTest {
 
         Response response = schemaService.create(kind, type, schemaTO);
         if (response.getStatus() != HttpStatus.SC_CREATED) {
-            Exception ex = clientExceptionMapper.fromResponse(response);
+            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
         }
 
-        return (T) getObject(response, schemaTO.getClass(), schemaService);
+        return (T) adminClient.getObject(response.getLocation(), SchemaService.class, schemaTO.getClass());
     }
 
     protected RoleTO createRole(final RoleService roleService, final RoleTO newRoleTO) {
         Response response = roleService.create(newRoleTO);
         if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
-            Exception ex = clientExceptionMapper.fromResponse(response);
+            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
         }
-        return getObject(response, RoleTO.class, roleService);
+        return adminClient.getObject(response.getLocation(), RoleService.class, RoleTO.class);
     }
 
     @SuppressWarnings("unchecked")
     protected <T extends AbstractPolicyTO> T createPolicy(final T policy) {
         Response response = policyService.create(policy);
         if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
-            Exception ex = clientExceptionMapper.fromResponse(response);
+            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
         }
-        return (T) getObject(response, policy.getClass(), policyService);
+        return (T) adminClient.getObject(response.getLocation(), PolicyService.class, policy.getClass());
     }
 
     protected ResourceTO createResource(final ResourceTO resourceTO) {
         Response response = resourceService.create(resourceTO);
         if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
-            Exception ex = clientExceptionMapper.fromResponse(response);
+            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
         }
-        return getObject(response, ResourceTO.class, resourceService);
+        return adminClient.getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
     }
 }

@@ -25,16 +25,16 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+import org.apache.http.HttpStatus;
 
 import org.apache.syncope.common.to.VirSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.springframework.http.HttpStatus;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class VirtualSchemaTestITCase extends AbstractTest {
@@ -79,7 +79,7 @@ public class VirtualSchemaTestITCase extends AbstractTest {
         Throwable t = null;
         try {
             schemaService.read(AttributableType.ROLE, SchemaType.VIRTUAL, "rvirtualdata");
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             t = e;
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
         }
@@ -94,8 +94,8 @@ public class VirtualSchemaTestITCase extends AbstractTest {
         try {
             createSchema(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, actual);
             fail();
-        } catch (SyncopeClientCompositeErrorException scce) {
-            assertEquals(HttpStatus.CONFLICT, scce.getStatusCode());
+        } catch (SyncopeClientCompositeException scce) {
+            assertEquals(HttpStatus.SC_CONFLICT, scce.getStatusCode());
             assertTrue(scce.hasException(SyncopeClientExceptionType.EntityExists));
         }
 
@@ -103,8 +103,8 @@ public class VirtualSchemaTestITCase extends AbstractTest {
         try {
             createSchema(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, actual);
             fail();
-        } catch (SyncopeClientCompositeErrorException scce) {
-            assertEquals(HttpStatus.BAD_REQUEST, scce.getStatusCode());
+        } catch (SyncopeClientCompositeException scce) {
+            assertEquals(HttpStatus.SC_BAD_REQUEST, scce.getStatusCode());
             assertTrue(scce.hasException(SyncopeClientExceptionType.RequiredValuesMissing));
         }
     }

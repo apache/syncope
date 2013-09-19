@@ -29,7 +29,7 @@ import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -251,7 +251,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                     }
 
                     window.close(target);
-                } catch (SyncopeClientCompositeErrorException e) {
+                } catch (SyncopeClientCompositeException e) {
                     error(getString(Constants.ERROR) + ":" + e.getMessage());
                     target.add(feedbackPanel);
                 }

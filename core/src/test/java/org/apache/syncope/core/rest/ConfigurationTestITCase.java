@@ -32,13 +32,14 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpStatus;
 import org.apache.syncope.common.SyncopeConstants;
+import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.ConfigurationTO;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class ConfigurationTestITCase extends AbstractTest {
@@ -51,8 +52,9 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         Response response = configurationService.create(configurationTO);
         assertNotNull(response);
-        assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
-        ConfigurationTO newConfigurationTO = getObject(response, ConfigurationTO.class, configurationService);
+        assertEquals(HttpStatus.SC_CREATED, response.getStatus());
+        ConfigurationTO newConfigurationTO =
+                adminClient.getObject(response.getLocation(), ConfigurationService.class, ConfigurationTO.class);
         assertEquals(configurationTO, newConfigurationTO);
     }
 
@@ -60,8 +62,8 @@ public class ConfigurationTestITCase extends AbstractTest {
     public void delete() throws UnsupportedEncodingException {
         try {
             configurationService.delete("nonExistent");
-        } catch (HttpStatusCodeException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientCompositeException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
         }
 
         ConfigurationTO tokenLengthTO = configurationService.read("token.length");
@@ -69,14 +71,15 @@ public class ConfigurationTestITCase extends AbstractTest {
         configurationService.delete("token.length");
         try {
             configurationService.read("token.length");
-        } catch (HttpStatusCodeException e) {
-            assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
+        } catch (SyncopeClientCompositeException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
         }
 
         Response response = configurationService.create(tokenLengthTO);
         assertNotNull(response);
-        assertEquals(org.apache.http.HttpStatus.SC_CREATED, response.getStatus());
-        ConfigurationTO newConfigurationTO = getObject(response, ConfigurationTO.class, configurationService);
+        assertEquals(HttpStatus.SC_CREATED, response.getStatus());
+        ConfigurationTO newConfigurationTO =
+                adminClient.getObject(response.getLocation(), ConfigurationService.class, ConfigurationTO.class);
         assertEquals(tokenLengthTO, newConfigurationTO);
     }
 
@@ -115,7 +118,7 @@ public class ConfigurationTestITCase extends AbstractTest {
     public void dbExport() throws IOException {
         Response response = configurationService.export();
         assertNotNull(response);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
         String contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
         assertTrue(contentType.contains("xml"));
         String contentDisposition = response.getHeaderString(SyncopeConstants.CONTENT_DISPOSITION_HEADER);

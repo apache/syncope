@@ -31,11 +31,12 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.MembershipCond;
 import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.services.NotificationService;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.types.TraceLevel;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -70,7 +71,8 @@ public class NotificationTestITCase extends AbstractTest {
         notificationTO.setRecipients(recipients);
 
         Response response = notificationService.create(notificationTO);
-        NotificationTO actual = getObject(response, NotificationTO.class, notificationService);
+        NotificationTO actual =
+                adminClient.getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
 
         assertNotNull(actual);
         assertNotNull(actual.getId());
@@ -89,7 +91,7 @@ public class NotificationTestITCase extends AbstractTest {
         try {
             notificationService.update(notificationTO.getId(), notificationTO);
             fail();
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             exception = e.getException(SyncopeClientExceptionType.InvalidNotification);
         }
         assertNotNull(exception);
@@ -111,14 +113,14 @@ public class NotificationTestITCase extends AbstractTest {
         NotificationTO notification = buildNotificationTO();
         notification.setSelfAsRecipient(true);
         Response response = notificationService.create(notification);
-        notification = getObject(response, NotificationTO.class, notificationService);
+        notification = adminClient.getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
 
         notificationService.delete(notification.getId());
 
         try {
             notificationService.read(notification.getId());
             fail();
-        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (SyncopeClientCompositeException e) {
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
         }
     }
@@ -132,8 +134,8 @@ public class NotificationTestITCase extends AbstractTest {
         SyncopeClientException exception = null;
         try {
             Response response = notificationService.create(notificationTO);
-            actual = getObject(response, NotificationTO.class, notificationService);
-        } catch (SyncopeClientCompositeErrorException e) {
+            actual = adminClient.getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
+        } catch (SyncopeClientCompositeException e) {
             exception = e.getException(SyncopeClientExceptionType.InvalidNotification);
         }
         assertNull(exception);

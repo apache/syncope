@@ -29,7 +29,7 @@ import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.DisplayAttributesModalPage;
 import org.apache.syncope.console.pages.EditUserModalPage;
@@ -205,7 +205,7 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
                             });
 
                             editmodal.show(target);
-                        } catch (SyncopeClientCompositeErrorException scce) {
+                        } catch (SyncopeClientCompositeException scce) {
                             error(getString(Constants.OPERATION_ERROR) + ": " + scce.getMessage());
                             target.add(feedbackPanel);
                         }

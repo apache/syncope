@@ -53,7 +53,7 @@ under the License.
       <map>
         <entry>
           <key>
-            <value>org.apache.syncope.common.to.PolicyTO</value>
+            <value>org.apache.syncope.common.to.AbstractPolicyTO</value>
           </key>
           <value>policies</value>
         </entry>

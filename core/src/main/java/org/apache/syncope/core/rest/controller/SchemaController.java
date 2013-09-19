@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest.controller;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityExistsException;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.to.DerSchemaTO;
@@ -30,7 +31,7 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
@@ -43,7 +44,6 @@ import org.apache.syncope.core.persistence.dao.VirSchemaDAO;
 import org.apache.syncope.core.rest.data.SchemaDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
@@ -94,8 +94,8 @@ public class SchemaController extends AbstractController {
             final T schemaTO) {
 
         if (StringUtils.isBlank(schemaTO.getName())) {
-            SyncopeClientCompositeErrorException sccee =
-                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeException sccee =
+                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
             SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
             sce.addElement("Schema name");
             sccee.addException(sce);

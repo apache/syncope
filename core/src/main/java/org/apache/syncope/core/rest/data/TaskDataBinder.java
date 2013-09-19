@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest.data;
 
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
@@ -31,7 +32,7 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.BeanUtils;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.init.JobInstanceLoader;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -53,7 +54,6 @@ import org.quartz.TriggerKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 
@@ -124,8 +124,8 @@ public class TaskDataBinder {
             checkJexl(template, sce);
         }
         if (!sce.isEmpty()) {
-            SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeException scce =
+                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
             scce.addException(sce);
             throw scce;
         }

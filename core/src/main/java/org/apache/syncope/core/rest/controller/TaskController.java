@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.SchedTaskTO;
@@ -35,7 +36,7 @@ import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.types.TaskType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
@@ -57,7 +58,6 @@ import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -106,8 +106,8 @@ public class TaskController extends AbstractController {
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getId(), e);
 
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeException scce =
+                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
             SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
             sce.addElement(e.getMessage());
             scce.addException(sce);
@@ -136,7 +136,8 @@ public class TaskController extends AbstractController {
 
         TaskUtil taskUtil = TaskUtil.getInstance(task);
 
-        SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+        SyncopeClientCompositeException scce =
+                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
 
         binder.updateSchedTask(task, taskTO, taskUtil);
         task = taskDAO.save(task);
@@ -284,8 +285,8 @@ public class TaskController extends AbstractController {
                     auditManager.audit(Category.task, TaskSubCategory.execute, Result.failure,
                             "Could not start execution for task: " + task.getId() + "/" + taskUtil, e);
 
-                    SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(
-                            HttpStatus.BAD_REQUEST);
+                    SyncopeClientCompositeException scce =
+                            new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
                     SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
                     sce.addElement(e.getMessage());
                     scce.addException(sce);
@@ -344,8 +345,8 @@ public class TaskController extends AbstractController {
         }
 
         if (!sce.isEmpty()) {
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeException scce =
+                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
             scce.addException(sce);
 
             auditManager.audit(Category.task, TaskSubCategory.report, Result.failure,

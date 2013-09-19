@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
+import javax.ws.rs.core.Response;
 import org.apache.cocoon.optional.pipeline.components.sax.fop.FopSerializer;
 import org.apache.cocoon.pipeline.NonCachingPipeline;
 import org.apache.cocoon.pipeline.Pipeline;
@@ -45,7 +46,7 @@ import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.types.ReportExecStatus;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.init.JobInstanceLoader;
@@ -60,7 +61,6 @@ import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -100,8 +100,8 @@ public class ReportController extends AbstractController {
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getId(), e);
 
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeException scce =
+                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
             SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
             sce.addElement(e.getMessage());
             scce.addException(sce);
@@ -131,8 +131,8 @@ public class ReportController extends AbstractController {
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getId(), e);
 
-            SyncopeClientCompositeErrorException sccee =
-                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeException sccee =
+                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
             SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
             sce.addElement(e.getMessage());
             sccee.addException(sce);
@@ -294,8 +294,8 @@ public class ReportController extends AbstractController {
             throw new NotFoundException("Report execution " + executionId);
         }
         if (!ReportExecStatus.SUCCESS.name().equals(reportExec.getStatus()) || reportExec.getExecResult() == null) {
-            SyncopeClientCompositeErrorException sccee =
-                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeException sccee =
+                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
             SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidReportExec);
             sce.addElement(reportExec.getExecResult() == null
                     ? "No report data produced"
@@ -331,8 +331,8 @@ public class ReportController extends AbstractController {
             auditManager.audit(Category.report, ReportSubCategory.execute, Result.failure,
                     "Could not start execution for report: " + report.getId(), e);
 
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            SyncopeClientCompositeException scce =
+                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
             SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
             sce.addElement(e.getMessage());
             scce.addException(sce);
