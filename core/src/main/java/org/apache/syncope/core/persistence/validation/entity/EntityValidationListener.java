@@ -45,7 +45,7 @@ public class EntityValidationListener {
         final Validator validator = ApplicationContextProvider.getApplicationContext().getBean(Validator.class);
         Set<ConstraintViolation<Object>> violations = validator.validate(object);
         if (!violations.isEmpty()) {
-            LOG.error("Bean validation errors found: {}", violations);
+            LOG.warn("Bean validation errors found: {}", violations);
             throw new InvalidEntityException(object.getClass().getSimpleName(), violations);
         }
     }
