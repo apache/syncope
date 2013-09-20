@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest.data;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.DerivedSchemaTO;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
@@ -38,15 +39,13 @@ public class DerivedSchemaDataBinder {
     private AbstractDerSchema populate(final AbstractDerSchema derSchema, final DerivedSchemaTO derSchemaTO) {
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
-        if (derSchemaTO.getExpression() == null) {
-            SyncopeClientException requiredValuesMissing = new SyncopeClientException(
-                    SyncopeClientExceptionType.RequiredValuesMissing);
+        if (StringUtils.isBlank(derSchemaTO.getExpression())) {
+            SyncopeClientException requiredValuesMissing =
+                    new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
             requiredValuesMissing.addElement("expression");
 
             scce.addException(requiredValuesMissing);
-        }
-
-        if (!jexlUtil.isExpressionValid(derSchemaTO.getExpression())) {
+        } else if (!jexlUtil.isExpressionValid(derSchemaTO.getExpression())) {
             SyncopeClientException invalidMandatoryCondition = new SyncopeClientException(
                     SyncopeClientExceptionType.InvalidValues);
             invalidMandatoryCondition.addElement(derSchemaTO.getExpression());

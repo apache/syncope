@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.apache.syncope.core.rest.AbstractTest.getUUIDString;
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,6 +41,7 @@ import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
+import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
@@ -481,13 +482,28 @@ public class ResourceTestITCase extends AbstractTest {
         mapping.addItem(item);
 
         resourceTO.setRmapping(mapping);
-        
+
         resourceTO = createResource(resourceTO);
         assertNotNull(resourceTO);
         assertEquals(2, resourceTO.getRmapping().getItems().size());
     }
 
-    private ResourceTO buildResourceTO(String resourceName) {
+    @Test
+    public void issueSYNCOPE418() {
+        try {
+            resourceService.create(
+                    buildResourceTO("http://schemas.examples.org/security/authorization/organizationUnit"));
+            fail();
+        } catch (SyncopeClientCompositeErrorException scce) {
+            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidExternalResource);
+
+            assertNotNull(sce.getElements());
+            assertEquals(1, sce.getElements().size());
+            assertTrue(sce.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
+        }
+    }
+
+    private ResourceTO buildResourceTO(final String resourceName) {
         ResourceTO resourceTO = new ResourceTO();
 
         resourceTO.setName(resourceName);

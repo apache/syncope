@@ -18,24 +18,25 @@
  */
 package org.apache.syncope.core.persistence.validation.entity;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import javax.validation.ConstraintValidatorContext;
+import org.apache.syncope.common.types.EntityViolationType;
+import org.apache.syncope.core.persistence.beans.SyncopeConf;
 
-import javax.validation.Constraint;
-import javax.validation.Payload;
+public class SyncopeConfValidator extends AbstractValidator<SyncopeConfCheck, SyncopeConf> {
 
-@Target( { ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = USchemaValidator.class)
-@Documented
-public @interface USchemaCheck {
+    @Override
+    public boolean isValid(final SyncopeConf syncopeConf, final ConstraintValidatorContext context) {
+        boolean isValid = true;
 
-    String message() default "{org.apache.syncope.core.validation.schema}";
+        if (!NAME_PATTERN.matcher(syncopeConf.getKey()).matches()) {
+            isValid = false;
 
-    Class<?>[] groups() default {};
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidName, "Invalid SyncopeConf key")).
+                    addNode("name").addConstraintViolation();
+        }
 
-    Class<? extends Payload>[] payload() default {};
+        return isValid;
+    }
 }

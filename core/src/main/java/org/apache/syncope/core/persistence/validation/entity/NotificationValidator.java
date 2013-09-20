@@ -18,22 +18,15 @@
  */
 package org.apache.syncope.core.persistence.validation.entity;
 
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.Notification;
 
-public class NotificationValidator extends AbstractValidator implements
-        ConstraintValidator<NotificationCheck, Notification> {
-
-    @Override
-    public void initialize(final NotificationCheck constraintAnnotation) {
-    }
+public class NotificationValidator extends AbstractValidator<NotificationCheck, Notification> {
 
     @Override
     public boolean isValid(final Notification value, final ConstraintValidatorContext context) {
-
         context.disableDefaultConstraintViolation();
 
         boolean isValid = true;

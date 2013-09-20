@@ -174,7 +174,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
             responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER, exType.getHeaderValue());
 
-            for (@SuppressWarnings("rawtypes") Map.Entry<Class, Set<EntityViolationType>> violation
+            for (Map.Entry<Class<?>, Set<EntityViolationType>> violation
                     : ((InvalidEntityException) ex).getViolations().entrySet()) {
 
                 for (EntityViolationType violationType : violation.getValue()) {

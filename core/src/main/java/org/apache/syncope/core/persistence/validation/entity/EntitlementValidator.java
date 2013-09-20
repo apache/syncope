@@ -20,24 +20,17 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 
-public class EntitlementValidator extends AbstractValidator implements
-        ConstraintValidator<EntitlementCheck, Entitlement> {
+public class EntitlementValidator extends AbstractValidator<EntitlementCheck, Entitlement> {
 
     private static final Pattern ROLE_ENTITLEMENT_NAME_PATTERN = Pattern.compile("^ROLE_([\\d])+");
 
     @Override
-    public void initialize(final EntitlementCheck constraintAnnotation) {
-    }
-
-    @Override
     public boolean isValid(final Entitlement object, final ConstraintValidatorContext context) {
-
-        boolean isValid = false;
+        boolean isValid;
 
         if (object == null) {
             isValid = true;
@@ -54,7 +47,7 @@ public class EntitlementValidator extends AbstractValidator implements
 
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(getTemplate(
-                        EntityViolationType.InvalidEntitlementName, object + " cannot have name starting by ROLE_")).
+                        EntityViolationType.InvalidName, object + " cannot have name starting by ROLE_")).
                         addNode("name").addConstraintViolation();
             }
         }

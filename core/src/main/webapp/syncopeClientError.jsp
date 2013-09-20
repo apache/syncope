@@ -39,7 +39,7 @@ under the License.
 <%@page import="org.springframework.dao.DataIntegrityViolationException"%>
 <%@page import="org.springframework.orm.jpa.JpaSystemException"%>
 
-<%!    static final Logger LOG = LoggerFactory.getLogger(AbstractController.class);%>
+<%! static final Logger LOG = LoggerFactory.getLogger(AbstractController.class);%>
 
 <%
     Throwable ex = pageContext.getErrorData().getThrowable();
@@ -54,7 +54,7 @@ under the License.
 
         response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER, exType.getHeaderValue());
 
-        for (Map.Entry<Class, Set<EntityViolationType>> violation : ((InvalidEntityException) ex).getViolations().
+        for (Map.Entry<Class<?>, Set<EntityViolationType>> violation : ((InvalidEntityException) ex).getViolations().
                 entrySet()) {
 
             for (EntityViolationType violationType : violation.getValue()) {

@@ -32,7 +32,7 @@ public class InvalidEntityException extends ValidationException {
 
     private String entityClassSimpleName;
 
-    private final Map<Class, Set<EntityViolationType>> violations;
+    private final Map<Class<?>, Set<EntityViolationType>> violations;
 
     public InvalidEntityException(final String entityClassSimpleName,
             final Set<ConstraintViolation<Object>> violations) {
@@ -41,7 +41,7 @@ public class InvalidEntityException extends ValidationException {
 
         this.entityClassSimpleName = entityClassSimpleName;
 
-        this.violations = new HashMap<Class, Set<EntityViolationType>>();
+        this.violations = new HashMap<Class<?>, Set<EntityViolationType>>();
         for (ConstraintViolation<Object> violation : violations) {
             int firstComma = violation.getMessageTemplate().indexOf(';');
 
@@ -70,7 +70,7 @@ public class InvalidEntityException extends ValidationException {
 
     public final boolean hasViolation(final EntityViolationType type) {
         boolean found = false;
-        for (Class entity : violations.keySet()) {
+        for (Class<?> entity : violations.keySet()) {
             if (violations.get(entity).contains(type)) {
                 found = true;
             }
@@ -83,7 +83,7 @@ public class InvalidEntityException extends ValidationException {
         return entityClassSimpleName;
     }
 
-    public final Map<Class, Set<EntityViolationType>> getViolations() {
+    public final Map<Class<?>, Set<EntityViolationType>> getViolations() {
         return violations;
     }
 
@@ -91,7 +91,7 @@ public class InvalidEntityException extends ValidationException {
     public String getMessage() {
         StringBuilder sb = new StringBuilder();
 
-        for (Class entity : violations.keySet()) {
+        for (Class<?> entity : violations.keySet()) {
             sb.append(entity.getSimpleName()).append(" ").append(violations.get(entity).toString()).append(", ");
         }
         sb.delete(sb.lastIndexOf(", "), sb.length());

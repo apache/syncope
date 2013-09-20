@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.validation.entity;
 
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.types.AccountPolicySpec;
 import org.apache.syncope.common.types.EntityViolationType;
@@ -31,14 +30,10 @@ import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class PolicyValidator extends AbstractValidator implements ConstraintValidator<PolicyCheck, Policy> {
+public class PolicyValidator extends AbstractValidator<PolicyCheck, Policy> {
 
     @Autowired
     private PolicyDAO policyDAO;
-
-    @Override
-    public void initialize(final PolicyCheck constraintAnnotation) {
-    }
 
     @Override
     public boolean isValid(final Policy object, final ConstraintValidatorContext context) {

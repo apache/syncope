@@ -25,12 +25,12 @@ public enum EntityViolationType {
 
     Standard(""),
     InvalidAccountPolicy("org.apache.syncope.core.validation.accountpolicy"),
-    InvalidEntitlementName("org.apache.syncope.core.validation.entitlement.name"),
     InvalidConnInstanceLocation("org.apache.syncope.core.validation.conninstance.location"),
     InvalidMapping("org.apache.syncope.core.validation.mapping"),
     InvalidMSchema("org.apache.syncope.core.validation.attrvalue.mSchema"),
     InvalidMDerSchema("org.apache.syncope.core.validation.attrvalue.mDerSchema"),
     InvalidMVirSchema("org.apache.syncope.core.validation.attrvalue.mVirSchema"),
+    InvalidName("org.apache.syncope.core.validation.name"),
     InvalidNotification("org.apache.syncope.core.validation.notification"),
     InvalidPassword("org.apache.syncope.core.validation.syncopeuser.password"),
     InvalidPasswordPolicy("org.apache.syncope.core.validation.passwordpolicy"),
@@ -42,7 +42,8 @@ public enum EntityViolationType {
     InvalidReport("org.apache.syncope.core.validation.report"),
     InvalidResource("org.apache.syncope.core.validation.externalresource"),
     InvalidRoleOwner("org.apache.syncope.core.validation.syncoperole.owner"),
-    InvalidSchemaTypeSpecification("org.apache.syncope.core.validation.attrvalue.schemaTypeSpecification"),
+    InvalidSchemaEnum("org.apache.syncope.core.validation.schema.enum"),
+    InvalidSchemaMultivalueUnique("org.apache.syncope.core.validation.schema.multivalueUnique"),
     InvalidSchedTask("org.apache.syncope.core.validation.schedtask"),
     InvalidSyncTask("org.apache.syncope.core.validation.synctask"),
     InvalidSyncPolicy("org.apache.syncope.core.validation.syncpolicy"),
@@ -51,7 +52,6 @@ public enum EntityViolationType {
     InvalidUVirSchema("org.apache.syncope.core.validation.attrvalue.uVirSchema"),
     InvalidUsername("org.apache.syncope.core.validation.syncopeuser.username"),
     InvalidValueList("org.apache.syncope.core.validation.attr.valueList"),
-    MultivalueAndUniqueConstraint("org.apache.syncope.core.validation.schema.multivalueAndUniqueConstraint"),
     MoreThanOneNonNull("org.apache.syncope.core.validation.attrvalue.moreThanOneNonNull");
 
     private String message;

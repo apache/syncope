@@ -34,9 +34,11 @@ import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.persistence.validation.attrvalue.AbstractValidator;
 import org.apache.syncope.core.persistence.validation.attrvalue.BasicValidator;
 import org.apache.syncope.core.persistence.validation.entity.SchemaCheck;
+import org.apache.syncope.core.persistence.validation.entity.SchemaNameCheck;
 
 @MappedSuperclass
 @SchemaCheck
+@SchemaNameCheck
 public abstract class AbstractSchema extends AbstractBaseBean {
 
     public static String enumValuesSeparator = ";";
@@ -151,7 +153,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         if (getValidatorClass() != null && getValidatorClass().length() > 0) {
             try {
                 Constructor validatorConstructor = Class.forName(getValidatorClass()).getConstructor(
-                        new Class[]{getClass().getSuperclass()});
+                        new Class[] {getClass().getSuperclass()});
                 validator = (AbstractValidator) validatorConstructor.newInstance(this);
             } catch (Exception e) {
                 LOG.error("Could not instantiate validator of type " + getValidatorClass()

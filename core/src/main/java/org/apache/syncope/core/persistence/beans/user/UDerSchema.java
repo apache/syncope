@@ -20,10 +20,8 @@ package org.apache.syncope.core.persistence.beans.user;
 
 import javax.persistence.Entity;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
-import org.apache.syncope.core.persistence.validation.entity.USchemaCheck;
 
 @Entity
-@USchemaCheck
 public class UDerSchema extends AbstractDerSchema {
 
     private static final long serialVersionUID = 6244467775394201229L;

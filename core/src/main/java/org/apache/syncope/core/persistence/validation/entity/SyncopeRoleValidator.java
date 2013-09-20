@@ -18,17 +18,11 @@
  */
 package org.apache.syncope.core.persistence.validation.entity;
 
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 
-public class SyncopeRoleValidator extends AbstractValidator implements
-        ConstraintValidator<SyncopeRoleCheck, SyncopeRole> {
-
-    @Override
-    public void initialize(final SyncopeRoleCheck constraintAnnotation) {
-    }
+public class SyncopeRoleValidator extends AbstractValidator<SyncopeRoleCheck, SyncopeRole> {
 
     @Override
     public boolean isValid(final SyncopeRole object, final ConstraintValidatorContext context) {

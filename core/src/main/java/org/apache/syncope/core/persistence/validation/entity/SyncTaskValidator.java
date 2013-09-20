@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.validation.entity;
 
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.apache.commons.lang.StringUtils;
@@ -26,7 +25,7 @@ import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.sync.SyncActions;
 
-public class SyncTaskValidator extends AbstractValidator implements ConstraintValidator<SyncTaskCheck, SyncTask> {
+public class SyncTaskValidator extends AbstractValidator<SyncTaskCheck, SyncTask> {
 
     private final SchedTaskValidator schedV;
 
@@ -37,49 +36,38 @@ public class SyncTaskValidator extends AbstractValidator implements ConstraintVa
     }
 
     @Override
-    public void initialize(final SyncTaskCheck constraintAnnotation) {
-    }
-
-    @Override
     public boolean isValid(final SyncTask object, final ConstraintValidatorContext context) {
+        boolean isValid = schedV.isValid(object, context);
 
-        boolean isValid;
+        if (isValid) {
+            isValid = object.getResource() != null;
+            if (!isValid) {
+                LOG.error("Resource is null");
 
-        if (object == null) {
-            isValid = true;
-        } else {
-            isValid = schedV.isValid(object, context);
+                context.disableDefaultConstraintViolation();
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidSyncTask, "Resource cannot be null")).
+                        addNode("resource").addConstraintViolation();
+            }
 
-            if (isValid) {
-                isValid = object.getResource() != null;
-                if (!isValid) {
-                    LOG.error("Resource is null");
+            if (StringUtils.isNotBlank(object.getActionsClassName())) {
+                Class<?> actionsClass = null;
+                boolean isAssignable = false;
+                try {
+                    actionsClass = Class.forName(object.getActionsClassName());
+                    isAssignable = SyncActions.class.isAssignableFrom(actionsClass);
+                } catch (Exception e) {
+                    LOG.error("Invalid SyncActions specified", e);
+                    isValid = false;
+                }
+
+                if (actionsClass == null || !isAssignable) {
+                    isValid = false;
 
                     context.disableDefaultConstraintViolation();
                     context.buildConstraintViolationWithTemplate(
-                            getTemplate(EntityViolationType.InvalidSyncTask, "Resource cannot be null")).
-                            addNode("resource").addConstraintViolation();
-                }
-
-                if (StringUtils.isNotBlank(object.getActionsClassName())) {
-                    Class<?> actionsClass = null;
-                    boolean isAssignable = false;
-                    try {
-                        actionsClass = Class.forName(object.getActionsClassName());
-                        isAssignable = SyncActions.class.isAssignableFrom(actionsClass);
-                    } catch (Exception e) {
-                        LOG.error("Invalid SyncActions specified", e);
-                        isValid = false;
-                    }
-
-                    if (actionsClass == null || !isAssignable) {
-                        isValid = false;
-
-                        context.disableDefaultConstraintViolation();
-                        context.buildConstraintViolationWithTemplate(
-                                getTemplate(EntityViolationType.InvalidSyncTask, "Invalid class name")).
-                                addNode("actionsClassName").addConstraintViolation();
-                    }
+                            getTemplate(EntityViolationType.InvalidSyncTask, "Invalid class name")).
+                            addNode("actionsClassName").addConstraintViolation();
                 }
             }
         }

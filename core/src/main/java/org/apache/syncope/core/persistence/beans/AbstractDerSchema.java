@@ -22,8 +22,10 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import org.apache.syncope.common.types.AttributeSchemaType;
+import org.apache.syncope.core.persistence.validation.entity.SchemaNameCheck;
 
 @MappedSuperclass
+@SchemaNameCheck
 public abstract class AbstractDerSchema extends AbstractBaseBean {
 
     private static final long serialVersionUID = -6173643493348674060L;

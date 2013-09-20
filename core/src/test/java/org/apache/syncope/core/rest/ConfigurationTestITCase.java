@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +35,10 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.ConfigurationTO;
+import org.apache.syncope.common.types.EntityViolationType;
+import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -126,5 +131,22 @@ public class ConfigurationTestITCase extends AbstractTest {
         String configExport = IOUtils.toString((InputStream) entity, SyncopeConstants.DEFAULT_ENCODING);
         assertFalse(configExport.isEmpty());
         assertTrue(configExport.length() > 1000);
+    }
+
+    @Test
+    public void issueSYNCOPE418() {
+        ConfigurationTO configurationTO = new ConfigurationTO();
+        configurationTO.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
+
+        try {
+            configurationService.create(configurationTO);
+            fail();
+        } catch (SyncopeClientCompositeErrorException scce) {
+            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidSyncopeConf);
+
+            assertNotNull(sce.getElements());
+            assertEquals(1, sce.getElements().size());
+            assertTrue(sce.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
+        }
     }
 }

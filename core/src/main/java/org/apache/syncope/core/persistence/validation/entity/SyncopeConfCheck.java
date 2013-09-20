@@ -16,16 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.beans.user;
+package org.apache.syncope.core.persistence.validation.entity;
 
-import javax.persistence.Cacheable;
-import javax.persistence.Entity;
-import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
-@Entity
-@Cacheable
-public class UVirSchema extends AbstractVirSchema {
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = SyncopeConfValidator.class)
+@Documented
+public @interface SyncopeConfCheck {
 
-    private static final long serialVersionUID = 1089308700791426201L;
+    String message() default "{org.apache.syncope.core.validation.syncopeConf}";
 
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
 }

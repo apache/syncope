@@ -28,9 +28,11 @@ import java.util.List;
 
 import org.apache.syncope.common.to.DerivedSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -73,8 +75,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        DerivedSchemaTO schema = schemaService.read(AttributableType.ROLE, SchemaType.DERIVED,
-                "rderiveddata");
+        DerivedSchemaTO schema = schemaService.read(AttributableType.ROLE, SchemaType.DERIVED, "rderiveddata");
         assertNotNull(schema);
 
         schemaService.delete(AttributableType.ROLE, SchemaType.DERIVED,
@@ -137,6 +138,24 @@ public class DerivedSchemaTestITCase extends AbstractTest {
         } catch (SyncopeClientCompositeErrorException scce) {
             assertEquals(HttpStatus.BAD_REQUEST, scce.getStatusCode());
             assertTrue(scce.hasException(SyncopeClientExceptionType.RequiredValuesMissing));
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE418() {
+        DerivedSchemaTO schema = new DerivedSchemaTO();
+        schema.setName("http://schemas.examples.org/security/authorization/organizationUnit");
+        schema.setExpression("derived_sx + '_' + derived_dx");
+
+        try {
+            createSchema(AttributableType.ROLE, SchemaType.DERIVED, schema);
+            fail();
+        } catch (SyncopeClientCompositeErrorException scce) {
+            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidRDerSchema);
+
+            assertNotNull(sce.getElements());
+            assertEquals(1, sce.getElements().size());
+            assertTrue(sce.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
         }
     }
 }

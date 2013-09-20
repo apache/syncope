@@ -22,11 +22,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
+import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.role.RAttr;
 import org.apache.syncope.core.persistence.beans.role.RSchema;
@@ -141,5 +144,18 @@ public class SchemaTest extends AbstractDAOTest {
 
         USchema actual = schemaDAO.find("fullname", USchema.class);
         assertNull("delete did not work", actual);
+    }
+
+    @Test
+    public void issueSYNCOPE418() {
+        USchema schema = new USchema();
+        schema.setName("http://schemas.examples.org/security/authorization/organizationUnit");
+
+        try {
+            schemaDAO.save(schema);
+            fail();
+        } catch (InvalidEntityException e) {
+            assertTrue(e.hasViolation(EntityViolationType.InvalidName));
+        }
     }
 }

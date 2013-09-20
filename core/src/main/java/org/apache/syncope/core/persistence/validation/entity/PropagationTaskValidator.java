@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import java.util.List;
 
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.apache.syncope.common.types.EntityViolationType;
@@ -28,16 +27,10 @@ import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 
-public class PropagationTaskValidator extends AbstractValidator implements
-        ConstraintValidator<PropagationTaskCheck, PropagationTask> {
-
-    @Override
-    public void initialize(final PropagationTaskCheck constraintAnnotation) {
-    }
+public class PropagationTaskValidator extends AbstractValidator<PropagationTaskCheck, PropagationTask> {
 
     @Override
     public boolean isValid(final PropagationTask task, final ConstraintValidatorContext context) {
-
         boolean isValid;
 
         if (task == null) {

@@ -18,24 +18,17 @@
  */
 package org.apache.syncope.core.persistence.validation.entity;
 
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.util.URIUtil;
 
-public class ConnInstanceValidator extends AbstractValidator implements
-        ConstraintValidator<ConnInstanceCheck, ConnInstance> {
-
-    private static final String[] ALLOWED_SCHEMES = {"file", "connid", "connids"};
-
-    @Override
-    public void initialize(final ConnInstanceCheck constraintAnnotation) {
-    }
+public class ConnInstanceValidator extends AbstractValidator<ConnInstanceCheck, ConnInstance> {
 
     @Override
     public boolean isValid(final ConnInstance connInstance, final ConstraintValidatorContext context) {
         boolean isValid = true;
+
         try {
             URIUtil.buildForConnId(connInstance.getLocation());
         } catch (Exception e) {

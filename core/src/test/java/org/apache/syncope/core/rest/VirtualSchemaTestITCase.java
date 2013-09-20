@@ -28,9 +28,11 @@ import java.util.List;
 
 import org.apache.syncope.common.to.VirtualSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -108,6 +110,23 @@ public class VirtualSchemaTestITCase extends AbstractTest {
         } catch (SyncopeClientCompositeErrorException scce) {
             assertEquals(HttpStatus.BAD_REQUEST, scce.getStatusCode());
             assertTrue(scce.hasException(SyncopeClientExceptionType.RequiredValuesMissing));
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE418() {
+        VirtualSchemaTO schema = new VirtualSchemaTO();
+        schema.setName("http://schemas.examples.org/security/authorization/organizationUnit");
+
+        try {
+            createSchema(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, schema);
+            fail();
+        } catch (SyncopeClientCompositeErrorException scce) {
+            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidMVirSchema);
+
+            assertNotNull(sce.getElements());
+            assertEquals(1, sce.getElements().size());
+            assertTrue(sce.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
         }
     }
 }

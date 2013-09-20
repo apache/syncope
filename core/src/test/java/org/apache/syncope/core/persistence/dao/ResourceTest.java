@@ -23,11 +23,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
@@ -247,5 +249,18 @@ public class ResourceTest extends AbstractDAOTest {
 
         ExternalResource actual = resourceDAO.find("ws-target-resource-2");
         assertNull(actual);
+    }
+
+    @Test
+    public void issueSYNCOPE418() {
+        ExternalResource resource = new ExternalResource();
+        resource.setName("http://schemas.examples.org/security/authorization/organizationUnit");
+
+        try {
+            resourceDAO.save(resource);
+            fail();
+        } catch (InvalidEntityException e) {
+            assertTrue(e.hasViolation(EntityViolationType.InvalidName));
+        }
     }
 }

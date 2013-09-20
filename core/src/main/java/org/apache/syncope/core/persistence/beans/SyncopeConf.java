@@ -21,8 +21,10 @@ package org.apache.syncope.core.persistence.beans;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import org.apache.syncope.core.persistence.validation.entity.SyncopeConfCheck;
 
 @Entity
+@SyncopeConfCheck
 public class SyncopeConf extends AbstractBaseBean {
 
     private static final long serialVersionUID = -899341077670090120L;
@@ -38,7 +40,7 @@ public class SyncopeConf extends AbstractBaseBean {
         return key;
     }
 
-    public void setKey(String key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 
@@ -46,7 +48,7 @@ public class SyncopeConf extends AbstractBaseBean {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(final String value) {
         this.value = value;
     }
 }

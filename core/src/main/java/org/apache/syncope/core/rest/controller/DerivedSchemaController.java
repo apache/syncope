@@ -63,7 +63,6 @@ public class DerivedSchemaController extends AbstractController {
     public DerivedSchemaTO create(final HttpServletResponse response,
             @RequestBody final DerivedSchemaTO derSchemaTO, @PathVariable("kind") final String kind) {
 
-
         if (StringUtils.isBlank(derSchemaTO.getName())) {
             SyncopeClientCompositeErrorException sccee =
                     new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);

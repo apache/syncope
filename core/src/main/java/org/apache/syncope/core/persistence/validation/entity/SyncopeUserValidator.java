@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.types.AccountPolicySpec;
 import org.apache.syncope.common.types.EntityViolationType;
@@ -37,8 +36,7 @@ import org.apache.syncope.core.policy.PasswordPolicyEnforcer;
 import org.apache.syncope.core.policy.PolicyEvaluator;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class SyncopeUserValidator extends AbstractValidator implements
-        ConstraintValidator<SyncopeUserCheck, SyncopeUser> {
+public class SyncopeUserValidator extends AbstractValidator<SyncopeUserCheck, SyncopeUser> {
 
     @Autowired
     private PolicyDAO policyDAO;
@@ -51,10 +49,6 @@ public class SyncopeUserValidator extends AbstractValidator implements
 
     @Autowired
     private AccountPolicyEnforcer apEnforcer;
-
-    @Override
-    public void initialize(final SyncopeUserCheck constraintAnnotation) {
-    }
 
     @Override
     public boolean isValid(final SyncopeUser object, final ConstraintValidatorContext context) {
