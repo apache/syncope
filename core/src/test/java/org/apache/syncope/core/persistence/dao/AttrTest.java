@@ -76,7 +76,6 @@ public class AttrTest extends AbstractDAOTest {
 
     @Test
     public void save() throws ClassNotFoundException {
-
         SyncopeUser user = userDAO.find(1L);
 
         USchema emailSchema = userSchemaDAO.find("email", USchema.class);
@@ -118,7 +117,6 @@ public class AttrTest extends AbstractDAOTest {
 
     @Test
     public void checkForEnumType() throws ClassNotFoundException {
-
         SyncopeUser user = userDAO.find(1L);
 
         USchema gender = userSchemaDAO.find("gender", USchema.class);

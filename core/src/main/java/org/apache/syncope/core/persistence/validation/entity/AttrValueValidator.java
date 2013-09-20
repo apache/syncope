@@ -18,23 +18,16 @@
  */
 package org.apache.syncope.core.persistence.validation.entity;
 
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.AbstractAttrUniqueValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 
-public class AttrValueValidator extends AbstractValidator implements
-        ConstraintValidator<AttrValueCheck, AbstractAttrValue> {
-
-    @Override
-    public void initialize(final AttrValueCheck constraintAnnotation) {
-    }
+public class AttrValueValidator extends AbstractValidator<AttrValueCheck, AbstractAttrValue> {
 
     @Override
     public boolean isValid(final AbstractAttrValue object, final ConstraintValidatorContext context) {
-
         boolean isValid;
 
         if (object == null) {

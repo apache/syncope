@@ -73,7 +73,7 @@ public class SchemaTestITCase extends AbstractTest {
 
             assertNotNull(sce.getElements());
             assertEquals(1, sce.getElements().size());
-            assertTrue(sce.getElements().iterator().next().contains(EntityViolationType.InvalidUSchema.name()));
+            assertTrue(sce.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
         }
     }
 
@@ -92,7 +92,7 @@ public class SchemaTestITCase extends AbstractTest {
             assertNotNull(sce.getElements());
             assertEquals(1, sce.getElements().size());
             assertTrue(sce.getElements().iterator().next()
-                    .contains(EntityViolationType.InvalidSchemaTypeSpecification.name()));
+                    .contains(EntityViolationType.InvalidSchemaEnum.name()));
         }
     }
 
@@ -111,7 +111,7 @@ public class SchemaTestITCase extends AbstractTest {
             assertNotNull(sce.getElements());
             assertEquals(1, sce.getElements().size());
             assertTrue(sce.getElements().iterator().next()
-                    .contains(EntityViolationType.InvalidSchemaTypeSpecification.name()));
+                    .contains(EntityViolationType.InvalidSchemaEnum.name()));
         }
     }
 
@@ -263,6 +263,23 @@ public class SchemaTestITCase extends AbstractTest {
         } catch (SyncopeClientCompositeException scce) {
             assertEquals(HttpStatus.SC_BAD_REQUEST, scce.getStatusCode());
             assertTrue(scce.hasException(SyncopeClientExceptionType.RequiredValuesMissing));
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE418() {
+        SchemaTO schema = buildSchemaTO("http://schemas.examples.org/security/authorization/organizationUnit",
+                AttributeSchemaType.Double);
+
+        try {
+            createSchema(AttributableType.ROLE, SchemaType.NORMAL, schema);
+            fail();
+        } catch (SyncopeClientCompositeException scce) {
+            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidRSchema);
+
+            assertNotNull(sce.getElements());
+            assertEquals(1, sce.getElements().size());
+            assertTrue(sce.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
         }
     }
 

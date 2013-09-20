@@ -42,6 +42,7 @@ import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
+import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
@@ -486,7 +487,22 @@ public class ResourceTestITCase extends AbstractTest {
         assertEquals(2, resourceTO.getRmapping().getItems().size());
     }
 
-    private ResourceTO buildResourceTO(String resourceName) {
+    @Test
+    public void issueSYNCOPE418() {
+        try {
+            resourceService.create(
+                    buildResourceTO("http://schemas.examples.org/security/authorization/organizationUnit"));
+            fail();
+        } catch (SyncopeClientCompositeException scce) {
+            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidExternalResource);
+
+            assertNotNull(sce.getElements());
+            assertEquals(1, sce.getElements().size());
+            assertTrue(sce.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
+        }
+    }
+
+    private ResourceTO buildResourceTO(final String resourceName) {
         ResourceTO resourceTO = new ResourceTO();
 
         resourceTO.setName(resourceName);

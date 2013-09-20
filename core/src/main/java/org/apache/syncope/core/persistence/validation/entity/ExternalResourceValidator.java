@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.validation.entity;
 
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.EntityViolationType;
@@ -27,12 +26,7 @@ import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.propagation.PropagationActions;
 
-public class ExternalResourceValidator extends AbstractValidator implements
-        ConstraintValidator<ExternalResourceCheck, ExternalResource> {
-
-    @Override
-    public void initialize(final ExternalResourceCheck constraintAnnotation) {
-    }
+public class ExternalResourceValidator extends AbstractValidator<ExternalResourceCheck, ExternalResource> {
 
     private boolean isValid(final AbstractMappingItem item, final ConstraintValidatorContext context) {
         if (StringUtils.isBlank(item.getExtAttrName())) {
@@ -103,6 +97,13 @@ public class ExternalResourceValidator extends AbstractValidator implements
     @Override
     public boolean isValid(final ExternalResource resource, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
+
+        if (!NAME_PATTERN.matcher(resource.getName()).matches()) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidName, "Invalid Resource name")).
+                    addNode("name").addConstraintViolation();
+            return false;
+        }
 
         if (StringUtils.isNotBlank(resource.getPropagationActionsClassName())) {
             Class<?> actionsClass = null;

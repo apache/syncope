@@ -18,58 +18,35 @@
  */
 package org.apache.syncope.core.persistence.validation.entity;
 
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import org.apache.commons.lang3.StringUtils;
 
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 
-public class SchemaValidator extends AbstractValidator implements ConstraintValidator<SchemaCheck, AbstractSchema> {
+public class SchemaValidator extends AbstractValidator<SchemaCheck, AbstractSchema> {
 
     @Override
-    public void initialize(final SchemaCheck constraintAnnotation) {
-    }
-
-    @Override
-    public boolean isValid(final AbstractSchema object, final ConstraintValidatorContext context) {
-
-        boolean isValid = false;
-        EntityViolationType violation = null;
-
-        try {
-            if (object == null) {
-                isValid = true;
-            } else {
-                isValid = object.getType() == null || !object.getType().equals(AttributeSchemaType.Enum)
-                        || object.getEnumerationValues() != null;
-
-                if (!isValid) {
-                    violation = EntityViolationType.InvalidSchemaTypeSpecification;
-
-                    throw new Exception(object + " miss enumeration values");
-                }
-
-                isValid = object.isMultivalue()
-                        ? !object.isUniqueConstraint()
-                        : true;
-
-                if (!isValid) {
-                    violation = EntityViolationType.MultivalueAndUniqueConstraint;
-
-                    throw new Exception(object + " cannot be multivalue and have unique constraint at the same time");
-                }
-            }
-
-            return isValid;
-        } catch (Exception e) {
-            LOG.error("Error saving schema", e);
-
+    public boolean isValid(final AbstractSchema schema, final ConstraintValidatorContext context) {
+        boolean isValid = schema.getType() != AttributeSchemaType.Enum
+                || StringUtils.isNotBlank(schema.getEnumerationValues());
+        if (!isValid) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(getTemplate(violation, e.getMessage())).
-                    addNode(object.getClass().getSimpleName()).addConstraintViolation();
-
-            return false;
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidSchemaEnum, "Enumeration values missing")).
+                    addNode("enumerationValues").addConstraintViolation();
+        } else {
+            isValid = !schema.isMultivalue() || !schema.isUniqueConstraint();
+            if (!isValid) {
+                context.disableDefaultConstraintViolation();
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidSchemaMultivalueUnique,
+                        "Cannot contemporary be multivalue and have unique constraint")).
+                        addNode("multiValue").addConstraintViolation();
+            }
         }
+
+        return isValid;
     }
 }

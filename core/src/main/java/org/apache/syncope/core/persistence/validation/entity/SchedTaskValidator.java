@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import java.text.ParseException;
 
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.apache.syncope.common.types.EntityViolationType;
@@ -28,16 +27,11 @@ import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.quartz.CronExpression;
 import org.quartz.Job;
 
-public class SchedTaskValidator extends AbstractValidator implements ConstraintValidator<SchedTaskCheck, SchedTask> {
-
-    @Override
-    public void initialize(final SchedTaskCheck constraintAnnotation) {
-    }
+public class SchedTaskValidator extends AbstractValidator<SchedTaskCheck, SchedTask> {
 
     @Override
     public boolean isValid(final SchedTask object, final ConstraintValidatorContext context) {
-
-        boolean isValid = true;
+        boolean isValid;
 
         Class<?> jobClass = null;
         try {

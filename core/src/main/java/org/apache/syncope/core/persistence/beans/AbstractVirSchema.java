@@ -25,13 +25,15 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
 import org.apache.syncope.common.types.AttributeSchemaType;
+import org.apache.syncope.core.persistence.validation.entity.SchemaNameCheck;
 
 @MappedSuperclass
+@SchemaNameCheck
 public abstract class AbstractVirSchema extends AbstractBaseBean {
 
     @Id
     private String name;
-    
+
     @Basic
     @Min(0)
     @Max(1)
@@ -74,5 +76,4 @@ public abstract class AbstractVirSchema extends AbstractBaseBean {
     public void setReadonly(final boolean readonly) {
         this.readonly = getBooleanAsInteger(readonly);
     }
-
 }

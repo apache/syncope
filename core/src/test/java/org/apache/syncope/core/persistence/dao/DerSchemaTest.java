@@ -21,11 +21,15 @@ package org.apache.syncope.core.persistence.dao;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.user.UDerSchema;
+import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,5 +74,18 @@ public class DerSchemaTest extends AbstractDAOTest {
 
         UDerSchema actual = derSchemaDAO.find("cn", UDerSchema.class);
         assertNull("delete did not work", actual);
+    }
+
+    @Test
+    public void issueSYNCOPE418() {
+        UDerSchema schema = new UDerSchema();
+        schema.setName("http://schemas.examples.org/security/authorization/organizationUnit");
+
+        try {
+            derSchemaDAO.save(schema);
+            fail();
+        } catch (InvalidEntityException e) {
+            assertTrue(e.hasViolation(EntityViolationType.InvalidName));
+        }
     }
 }

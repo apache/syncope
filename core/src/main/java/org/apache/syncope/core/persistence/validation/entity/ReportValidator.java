@@ -22,7 +22,6 @@ import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.apache.syncope.common.report.ReportletConf;
@@ -30,16 +29,11 @@ import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.Report;
 import org.quartz.CronExpression;
 
-public class ReportValidator extends AbstractValidator implements ConstraintValidator<ReportCheck, Report> {
-
-    @Override
-    public void initialize(final ReportCheck constraintAnnotation) {
-    }
+public class ReportValidator extends AbstractValidator<ReportCheck, Report> {
 
     @Override
     @SuppressWarnings("ResultOfObjectAllocationIgnored")
     public boolean isValid(final Report object, final ConstraintValidatorContext context) {
-
         boolean isValid = true;
 
         if (object.getCronExpression() != null) {

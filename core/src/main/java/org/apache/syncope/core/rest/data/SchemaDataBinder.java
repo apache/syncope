@@ -20,6 +20,7 @@ package org.apache.syncope.core.rest.data;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.DerSchemaTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.VirSchemaTO;
@@ -110,15 +111,13 @@ public class SchemaDataBinder {
         SyncopeClientCompositeException scce =
                 new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
 
-        if (derSchemaTO.getExpression() == null) {
-            SyncopeClientException requiredValuesMissing = new SyncopeClientException(
-                    SyncopeClientExceptionType.RequiredValuesMissing);
+        if (StringUtils.isBlank(derSchemaTO.getExpression())) {
+            SyncopeClientException requiredValuesMissing =
+                    new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
             requiredValuesMissing.addElement("expression");
 
             scce.addException(requiredValuesMissing);
-        }
-
-        if (!jexlUtil.isExpressionValid(derSchemaTO.getExpression())) {
+        } else if (!jexlUtil.isExpressionValid(derSchemaTO.getExpression())) {
             SyncopeClientException invalidMandatoryCondition = new SyncopeClientException(
                     SyncopeClientExceptionType.InvalidValues);
             invalidMandatoryCondition.addElement(derSchemaTO.getExpression());

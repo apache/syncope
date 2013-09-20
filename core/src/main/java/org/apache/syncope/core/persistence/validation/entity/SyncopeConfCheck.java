@@ -18,29 +18,23 @@
  */
 package org.apache.syncope.core.persistence.validation.entity;
 
-import java.lang.annotation.Annotation;
-import java.util.regex.Pattern;
-import javax.validation.ConstraintValidator;
-import org.apache.syncope.common.types.EntityViolationType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
-public abstract class AbstractValidator<A extends Annotation, T> implements ConstraintValidator<A, T> {
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = SyncopeConfValidator.class)
+@Documented
+public @interface SyncopeConfCheck {
 
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractValidator.class);
+    String message() default "{org.apache.syncope.core.validation.syncopeConf}";
 
-    protected static final Pattern NAME_PATTERN =
-            Pattern.compile("^[\\w \\-@.]+", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+    Class<?>[] groups() default {};
 
-    @Override
-    public void initialize(final A annotation) {
-        // no initialization
-    }
-
-    protected final String getTemplate(final EntityViolationType type, final String message) {
-        return type.name() + ";" + message;
-    }
+    Class<? extends Payload>[] payload() default {};
 }
