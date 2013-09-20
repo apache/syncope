@@ -115,7 +115,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         SyncopeUser updated = userDAO.save(user);
 
         return new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new AbstractMap.SimpleEntry<Long, Boolean>(updated.getId(), true), propByRes, "update");
+                new AbstractMap.SimpleEntry<Long, Boolean>(updated.getId(), !user.isSuspended()), propByRes, "update");
     }
 
     @Override
