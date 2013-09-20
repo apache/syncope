@@ -191,7 +191,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void readExecution() {
-        TaskExecTO taskTO = taskService.readExecution(1L);
+        TaskExecTO taskTO = taskService.readExecution(6L);
         assertNotNull(taskTO);
     }
 

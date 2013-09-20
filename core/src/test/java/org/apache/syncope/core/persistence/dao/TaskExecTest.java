@@ -47,7 +47,7 @@ public class TaskExecTest extends AbstractDAOTest {
     @Test
     public void findAll() {
         List<TaskExec> list = taskExecDAO.findAll(PropagationTask.class);
-        assertEquals(1, list.size());
+        assertEquals(2, list.size());
 
         list = taskExecDAO.findAll(SchedTask.class);
         assertEquals(0, list.size());
