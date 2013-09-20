@@ -33,7 +33,7 @@ public abstract class AbstractValidator<A extends Annotation, T> implements Cons
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractValidator.class);
 
     protected static final Pattern NAME_PATTERN =
-            Pattern.compile("^[\\w \\-@.]+", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
+            Pattern.compile("^[\\w \\-@.]+", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     @Override
     public void initialize(final A annotation) {

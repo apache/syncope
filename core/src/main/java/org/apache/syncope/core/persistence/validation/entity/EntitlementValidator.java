@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.validation.entity;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.types.EntityViolationType;
@@ -30,26 +29,14 @@ public class EntitlementValidator extends AbstractValidator<EntitlementCheck, En
 
     @Override
     public boolean isValid(final Entitlement object, final ConstraintValidatorContext context) {
-        boolean isValid;
+        boolean isValid = !ROLE_ENTITLEMENT_NAME_PATTERN.matcher(object.getName()).matches();
+        if (!isValid) {
+            LOG.error(object + " cannot have name starting by ROLE_");
 
-        if (object == null) {
-            isValid = true;
-        } else {
-            if (object.getName() == null) {
-                isValid = false;
-            } else {
-                Matcher matcher = ROLE_ENTITLEMENT_NAME_PATTERN.matcher(object.getName());
-                isValid = !matcher.matches();
-            }
-
-            if (!isValid) {
-                LOG.error(object + " cannot have name starting by ROLE_");
-
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(getTemplate(
-                        EntityViolationType.InvalidName, object + " cannot have name starting by ROLE_")).
-                        addNode("name").addConstraintViolation();
-            }
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(getTemplate(
+                    EntityViolationType.InvalidName, object + " cannot have name starting by ROLE_")).
+                    addNode("name").addConstraintViolation();
         }
 
         return isValid;
