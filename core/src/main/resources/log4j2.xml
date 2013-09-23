@@ -21,9 +21,9 @@ under the License.
 
   <appenders>
     
-    <RollingFile name="main" fileName="${log.directory}/core.log"
-                 filePattern="${log.directory}/core-%d{yyyy-MM-dd}.log.gz"
-                 immediateFlush="false" append="false">
+    <RollingRandomAccessFile name="main" fileName="${log.directory}/core.log"
+                             filePattern="${log.directory}/core-%d{yyyy-MM-dd}.log.gz"
+                             immediateFlush="false" append="false">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
       </PatternLayout>
@@ -31,11 +31,11 @@ under the License.
         <TimeBasedTriggeringPolicy/>
         <SizeBasedTriggeringPolicy size="250 MB"/>
       </Policies>
-    </RollingFile>
+    </RollingRandomAccessFile>
 
-    <RollingFile name="persistence" fileName="${log.directory}/core-persistence.log"
-                 filePattern="${log.directory}/core-persistence-%d{yyyy-MM-dd}.log.gz"
-                 immediateFlush="false" append="false">
+    <RollingRandomAccessFile name="persistence" fileName="${log.directory}/core-persistence.log"
+                             filePattern="${log.directory}/core-persistence-%d{yyyy-MM-dd}.log.gz"
+                             immediateFlush="false" append="false">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
       </PatternLayout>
@@ -43,11 +43,11 @@ under the License.
         <TimeBasedTriggeringPolicy/>
         <SizeBasedTriggeringPolicy size="250 MB"/>
       </Policies>
-    </RollingFile>
+    </RollingRandomAccessFile>
 
-    <RollingFile name="rest" fileName="${log.directory}/core-rest.log"
-                 filePattern="${log.directory}/core-rest-%d{yyyy-MM-dd}.log.gz"
-                 immediateFlush="false" append="false">
+    <RollingRandomAccessFile name="rest" fileName="${log.directory}/core-rest.log"
+                             filePattern="${log.directory}/core-rest-%d{yyyy-MM-dd}.log.gz"
+                             immediateFlush="false" append="false">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
       </PatternLayout>
@@ -55,11 +55,11 @@ under the License.
         <TimeBasedTriggeringPolicy/>
         <SizeBasedTriggeringPolicy size="250 MB"/>
       </Policies>
-    </RollingFile>
+    </RollingRandomAccessFile>
 
-    <RollingFile name="connid" fileName="${log.directory}/core-connid.log"
-                 filePattern="${log.directory}/core-connid-%d{yyyy-MM-dd}.log.gz"
-                 immediateFlush="false" append="false">
+    <RollingRandomAccessFile name="connid" fileName="${log.directory}/core-connid.log"
+                             filePattern="${log.directory}/core-connid-%d{yyyy-MM-dd}.log.gz"
+                             immediateFlush="false" append="false">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %msg%n</pattern>
       </PatternLayout>
@@ -67,7 +67,7 @@ under the License.
         <TimeBasedTriggeringPolicy/>
         <SizeBasedTriggeringPolicy size="250 MB"/>
       </Policies>
-    </RollingFile>
+    </RollingRandomAccessFile>
 
     <!-- Audit -->    
     <Jdbc name="audit" tableName="SYNCOPEAUDIT">

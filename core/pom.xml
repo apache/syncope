@@ -1089,8 +1089,8 @@ under the License.
                 </goals>
               </execution>
               <!-- This complex setup is needed because 
-                     (a) JBoss 7.2 is needed (and RedHat does not provide a build release yet)
-                     (b) it seems there is no clean way to upgrade JBoss' JAX-RS APIs. -->
+              (a) JBoss 7.2 is needed (and RedHat does not provide a build release yet)
+              (b) it seems there is no clean way to upgrade JBoss' JAX-RS APIs. -->
               <execution>
                 <id>setupJBoss72</id>
                 <phase>pre-integration-test</phase>

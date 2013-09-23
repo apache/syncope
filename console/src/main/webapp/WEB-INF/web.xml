@@ -41,7 +41,10 @@ under the License.
   <listener>
     <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
   </listener>
-
+  <listener>
+    <listener-class>org.apache.logging.log4j.core.web.Log4jServletContextListener</listener-class>
+  </listener>
+    
   <filter>
     <filter-name>SyncopeConsole</filter-name>
     <filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
@@ -50,6 +53,10 @@ under the License.
       <param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
     </init-param>
   </filter>
+  <filter>
+    <filter-name>log4jServletFilter</filter-name>
+    <filter-class>org.apache.logging.log4j.core.web.Log4jServletFilter</filter-class>
+  </filter>
     
   <filter-mapping>
     <filter-name>SyncopeConsole</filter-name>
@@ -57,8 +64,16 @@ under the License.
     <dispatcher>REQUEST</dispatcher>
     <dispatcher>INCLUDE</dispatcher>
   </filter-mapping>
-
-    <!-- SESSION TIMEOUT (MINUTES)-->
+  <filter-mapping>
+    <filter-name>log4jServletFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+    <dispatcher>ERROR</dispatcher>
+  </filter-mapping>
+    
+  <!-- SESSION TIMEOUT (MINUTES)-->
   <session-config>
     <session-timeout>30</session-timeout>
   </session-config>
