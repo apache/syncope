@@ -2,6 +2,25 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.1.4
+================================================================================
+** Bug
+    * [SYNCOPE-404] - LDAP Roles lose entitlement upon LDAP synchronization
+    * [SYNCOPE-412] - Audit tables are reset after restart
+    * [SYNCOPE-417] - Users are made active when updating in NoOpWorkflowAdapter
+    * [SYNCOPE-418] - Special chars break REST URLs
+
+** Improvement
+    * [SYNCOPE-402] - Inconsistent status of user edit form after exception returned by bad propagation on primary resource
+    * [SYNCOPE-403] - Enrich PropagationStatusTO to report possible propagation exception message
+    * [SYNCOPE-408] - Add index on task.executed
+    * [SYNCOPE-409] - Allow notifications with empty about field
+    * [SYNCOPE-410] - Make username pattern configurable via account policy
+    * [SYNCOPE-411] - Perform retries on failed notifications
+    * [SYNCOPE-413] - Clean activiti history for unused variables
+    * [SYNCOPE-415] - Reduce log level of bean validation errors
+    * [SYNCOPE-416] - AttributableSearchDAOImpl / Avoid query construction with string concatenation
+
 Release Notes - Syncope - Version 1.1.3
 ================================================================================
 ** Bug

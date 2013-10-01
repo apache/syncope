@@ -507,26 +507,63 @@ Best regards.
             <ul>
               <li>1_1_X
 <source>
-svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist
-cd syncope-dist
+svn co https://dist.apache.org/repos/dist/dev/syncope syncope-dist-dev
+cd syncope-dist-dev
+
 wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
 https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope/&lt;version&gt;/
 wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
 https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-standalone/&lt;version&gt;/
+
+rm &lt;version&gt;/syncope-*asc.asc
+
 svn add &lt;version&gt;
+svn commit -m "Promoting the voted release artifacts to dist-dev area"
+
+svn mv -m "Moving the voted release artifacts to dist/release (source)" \
+https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip \
+https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.asc \
+https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.md5 \
+https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.sha1 \
+https://dist.apache.org/repos/dist/release/syncope/&lt;version&gt;
+  
+svn mv -m "Moving the voted release artifacts to dist/release (standalone)" \
+https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-standalone-&lt;version&gt;-distribution.zip \
+https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-standalone-&lt;version&gt;-distribution.zip.asc \
+https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-standalone-&lt;version&gt;-distribution.zip.md5 \
+https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-standalone-&lt;version&gt;-distribution.zip.sha1 \
+https://dist.apache.org/repos/dist/release/syncope/&lt;version&gt;
+
+svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
+cd syncope-dist-release
 svn rm &lt;any older release artifact (if present)&gt;
-svn commit -m "Promoting the voted release artifacts and cleaning up older releases"
+svn commit -m "Cleaning up older releases"
 </source>
               </li>
               <li>1_0_X
 <source>
-svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist
-cd syncope-dist
+svn co https://dist.apache.org/repos/dist/dev/syncope syncope-dist-dev
+cd syncope-dist-dev
+
 wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
 https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-root/&lt;version&gt;/
+
+rm &lt;version&gt;/syncope-*asc.asc
+
 svn add &lt;version&gt;
+svn commit -m "Promoting the voted release artifacts to dist-dev area"
+
+svn mv -m "Moving the voted release artifacts to dist/release" \
+https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip \
+https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.asc \
+https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.md5 \
+https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.sha1 \
+https://dist.apache.org/repos/dist/release/syncope/&lt;version&gt;
+
+svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
+cd syncope-dist-release
 svn rm &lt;any older release artifact (if present)&gt;
-svn commit -m "Promoting the voted release artifacts and cleaning up older releases"
+svn commit -m "Cleaning up older releases"
 </source>
               </li>
             </ul>
