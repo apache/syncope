@@ -365,7 +365,11 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         doExecuteTask(user, "delete", null);
         userDAO.delete(user);
 
-        historyService.deleteHistoricProcessInstance(user.getWorkflowId());
+        if (!historyService.createHistoricProcessInstanceQuery().
+                processInstanceId(user.getWorkflowId()).list().isEmpty()) {
+
+            historyService.deleteHistoricProcessInstance(user.getWorkflowId());
+        }
     }
 
     @Override
