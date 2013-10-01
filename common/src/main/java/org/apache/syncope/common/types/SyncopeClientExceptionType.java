@@ -63,6 +63,7 @@ public enum SyncopeClientExceptionType {
     NotFound("Syncope.NotFound", "Syncope.NotFound.entity"),
     RejectedUserCreate("Syncope.RejectUserCreate", "Syncope.RejectUserCreate.userId"),
     RequiredValuesMissing("Syncope.RequiredValuesMissing", "Syncope.RequiredValuesMissing.attributeName"),
+    RoleOwnership("Syncope.RoleOwnership", "Syncope.RoleOwnership.role"),
     Scheduling("Syncope.Scheduling", "Syncope.Scheduling.message"),
     UnauthorizedRole("Syncope.UnauthorizedRole", "Syncope.UnauthorizedRole.id"),
     Unknown("Syncope.Unknown", ""),
