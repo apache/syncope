@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
@@ -39,12 +40,17 @@ import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.UserSubCategory;
 import org.apache.syncope.common.types.ResourceOperation;
+import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
+import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.propagation.PropagationException;
@@ -82,6 +88,9 @@ public class UserController {
 
     @Autowired
     protected UserDAO userDAO;
+
+    @Autowired
+    protected RoleDAO roleDAO;
 
     @Autowired
     protected AttributableSearchDAO searchDAO;
@@ -512,6 +521,26 @@ public class UserController {
     }
 
     protected UserTO doDelete(final Long userId) {
+        List<SyncopeRole> ownedRoles = roleDAO.findOwned(binder.getUserFromId(userId));
+        if (!ownedRoles.isEmpty()) {
+            List<String> owned = new ArrayList<String>(ownedRoles.size());
+            for (SyncopeRole role : ownedRoles) {
+                owned.add(role.getId() + " " + role.getName());
+            }
+
+            auditManager.audit(Category.user, UserSubCategory.delete, Result.failure,
+                    "Could not delete user: " + userId + " because of role(s) ownership " + owned);
+
+            SyncopeClientCompositeException sccee =
+                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
+
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.RoleOwnership);
+            sce.setElements(owned);
+            sccee.addException(sce);
+
+            throw sccee;
+        }
+
         // Note here that we can only notify about "delete", not any other
         // task defined in workflow process definition: this because this
         // information could only be available after uwfAdapter.delete(), which
