@@ -474,18 +474,7 @@ under the License.
         <artifactId>geronimo-jpa_2.0_spec</artifactId> 
         <version>1.1</version> 
       </dependency>
-      
-      <dependency>
-        <groupId>org.apache.openjpa</groupId>
-        <artifactId>openjpa</artifactId>
-        <version>${openjpa.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
+
       <dependency>
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa-jdbc</artifactId>
