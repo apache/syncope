@@ -17,30 +17,23 @@ specific language governing permissions and limitations
 under the License.
 -->
 <wicket:head>
+  <link rel="stylesheet" type="text/css" href="css/bulk.css" media="all"/>
   <style>
-    .submit{
+    #dataTableSpan{
       display:  block;
       clear:  both;
       float: none;
-      margin-left: 10px;
+      margin: 10px;
       padding-top: 10px;
+    }
+
+    #dataTableSpan table{
+      width: 100%;
     }
   </style>
 </wicket:head>
 <wicket:extend>
-  <form wicket:id="form">
-    <p class="ui-widget ui-corner-all ui-widget-header">
-    <wicket:message key="title"/>
-    </p>
-
-    <div style="display: block; margin: 10px">
-      <span wicket:id="statuspanel">[Status Panel]</span>
-    </div>
-
-    <div class="submit">
-      <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="enable"/>
-      <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="disable"/>
-      <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="cancel"/>
-    </div>
-  </form>
+  <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+  <span wicket:id="resourceDatatable" id="dataTableSpan">[resources]</span>
+  <wicket:child />
 </wicket:extend>

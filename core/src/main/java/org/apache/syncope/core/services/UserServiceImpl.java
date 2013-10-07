@@ -29,6 +29,7 @@ import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.PropagationRequestTO;
+import org.apache.syncope.common.to.PropagationTargetsTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.core.rest.controller.UserController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -170,5 +171,20 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
     @Override
     public BulkActionRes bulkAction(final BulkAction bulkAction) {
         return controller.bulkAction(bulkAction);
+    }
+
+    @Override
+    public UserTO unlink(final Long userId, final PropagationTargetsTO propagationTargetsTO) {
+        return controller.unlink(userId, propagationTargetsTO.getResources());
+    }
+
+    @Override
+    public UserTO unassign(final Long userId, final PropagationTargetsTO propagationTargetsTO) {
+        return controller.unassign(userId, propagationTargetsTO.getResources());
+    }
+
+    @Override
+    public UserTO deprovision(final Long userId, final PropagationTargetsTO propagationTargetsTO) {
+        return controller.deprovision(userId, propagationTargetsTO.getResources());
     }
 }

@@ -55,9 +55,9 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
             schema = new VirSchemaTO();
         }
 
-        final Form schemaForm = new Form(FORM);
+        final Form<AbstractBaseBean> schemaForm = new Form<AbstractBaseBean>(FORM);
 
-        schemaForm.setModel(new CompoundPropertyModel(schema));
+        schemaForm.setModel(new CompoundPropertyModel<AbstractBaseBean>(schema));
 
         final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", getString("name"), new PropertyModel<String>(
                 schema, "name"));

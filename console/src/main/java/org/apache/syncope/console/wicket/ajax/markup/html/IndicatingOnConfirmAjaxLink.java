@@ -22,18 +22,20 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
-import org.apache.wicket.model.IModel;
 
-public abstract class IndicatingDeleteOnConfirmAjaxLink<T> extends ClearIndicatingAjaxLink<T> {
+public abstract class IndicatingOnConfirmAjaxLink<T> extends ClearIndicatingAjaxLink<T> {
 
     private static final long serialVersionUID = 2228670850922265663L;
 
-    public IndicatingDeleteOnConfirmAjaxLink(final String id, final PageReference pageRef) {
-        super(id, pageRef);
+    private final String msg;
+
+    public IndicatingOnConfirmAjaxLink(final String id, final PageReference pageRef) {
+        this(id, pageRef, "confirmDelete");
     }
 
-    public IndicatingDeleteOnConfirmAjaxLink(final String id, final IModel<T> model, final PageReference pageRef) {
-        super(id, model, pageRef);
+    public IndicatingOnConfirmAjaxLink(final String id, final PageReference pageRef, final String msg) {
+        super(id, pageRef);
+        this.msg = msg;
     }
 
     @Override
@@ -46,7 +48,9 @@ public abstract class IndicatingDeleteOnConfirmAjaxLink<T> extends ClearIndicati
 
             @Override
             public CharSequence getPrecondition(final Component component) {
-                return "if (!confirm('" + getString("confirmDelete") + "')) {return false;} else {return true;}";
+                return "if (!confirm('"
+                        + getString(IndicatingOnConfirmAjaxLink.this.msg)
+                        + "')) {return false;} else {return true;}";
             }
         };
         attributes.getAjaxCallListeners().add(ajaxCallListener);

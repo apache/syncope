@@ -151,7 +151,7 @@ public class Tasks extends BasePage {
         public Iterator<T> iterator(final long first, final long count) {
             final List<T> tasks = new ArrayList<T>();
 
-            for (T task : (List<T>) restClient.listTasks(reference, ((int) first / paginatorRows) + 1, paginatorRows)) {
+            for (T task : restClient.listTasks(reference, ((int) first / paginatorRows) + 1, paginatorRows)) {
 
                 if (task instanceof SchedTaskTO && ((SchedTaskTO) task).getLastExec() == null
                         && task.getExecutions() != null && !task.getExecutions().isEmpty()) {
@@ -197,7 +197,7 @@ public class Tasks extends BasePage {
      */
     public static AjaxDataTablePanel<AbstractTaskTO, String> updateTaskTable(
             final List<IColumn<AbstractTaskTO, String>> columns,
-            final TasksProvider dataProvider,
+            final TasksProvider<? extends AbstractTaskTO> dataProvider,
             final WebMarkupContainer container,
             final int currentPage,
             final PageReference pageRef,
@@ -208,8 +208,8 @@ public class Tasks extends BasePage {
                 columns,
                 (ISortableDataProvider<AbstractTaskTO, String>) dataProvider,
                 dataProvider.paginatorRows,
-                Arrays.asList(new ActionLink.ActionType[]{
-                    ActionLink.ActionType.DELETE, ActionLink.ActionType.DRYRUN, ActionLink.ActionType.EXECUTE}),
+                Arrays.asList(new ActionLink.ActionType[] {
+            ActionLink.ActionType.DELETE, ActionLink.ActionType.DRYRUN, ActionLink.ActionType.EXECUTE}),
                 restClient,
                 "id",
                 TASKS,

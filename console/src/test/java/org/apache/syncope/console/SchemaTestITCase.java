@@ -48,7 +48,7 @@ public class SchemaTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//div[3]/div/div/div/div/div/span/table/tbody/tr/td[7]/div/span[11]/a");
+        selenium.click("//div[3]/div/div/div/div/div/span/table/tbody/tr/td[7]/div/span[14]/a");
 
         assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
     }

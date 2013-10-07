@@ -42,7 +42,13 @@ public abstract class ActionLink implements Serializable {
         SUSPEND("update"),
         REACTIVATE("update"),
         RELOAD("reload"),
-        CHANGE_VIEW("changeView");
+        CHANGE_VIEW("changeView"),
+        UNLINK("update"),
+        UNASSIGN("update"),
+        DEPROVISION("update"),
+        MANAGE_RESOURCES("update"),
+        MANAGE_USERS("update"),
+        MANAGE_ROLES("update");
 
         private final String actionId;
 

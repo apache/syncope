@@ -381,7 +381,8 @@ public class ResultStatusModalPage extends BaseModalPage {
     private Fragment getStatusIcon(final String id, final String resourceName, final ConnObjectTO objectTO) {
         final Image image;
         final String alt, title;
-        switch (statusUtils.getStatusBean(resourceName, objectTO).getStatus()) {
+        switch (statusUtils.getStatusBean(
+                attributable, resourceName, objectTO, this.attributable instanceof RoleTO).getStatus()) {
 
             case ACTIVE:
                 image = new Image("status", IMG_STATUSES + StatusUtils.Status.ACTIVE.toString()

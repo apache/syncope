@@ -42,7 +42,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//td[6]/div/span[9]/a");
+        selenium.click("//td[6]/div/span[12]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//form/div[3]/div/span/div/div/div/label[text()='Name']\");", "30000");
@@ -64,7 +64,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//tr[3]/td[6]/div/span[11]/a");
+        selenium.click("//tr[3]/td[6]/div/span[14]/a");
 
         assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
     }
@@ -75,7 +75,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//td[6]/div/span[9]/a");
+        selenium.click("//td[6]/div/span[12]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//form/div[3]/div/span/div/div/div/label[text()='Name']\");", "30000");
@@ -97,7 +97,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//*[@id=\"users-contain\"]//*[div=\"ws-target-resource-delete\"]/../td[6]/div/span[9]/a");
+        selenium.click("//*[@id=\"users-contain\"]//*[div=\"ws-target-resource-delete\"]/../td[6]/div/span[12]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//form/div[3]/div/span/div/div/div/label[text()='Name']\");", "30000");

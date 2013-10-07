@@ -127,4 +127,16 @@ public class UserRestClient extends AbstractAttributableRestClient {
     public BulkActionRes bulkAction(final BulkAction action) {
         return getService(UserService.class).bulkAction(action);
     }
+
+    public UserTO unlink(final long userId, final List<StatusBean> statuses) {
+        return getService(UserService.class).unlink(userId, StatusUtils.buildPropagationTargetsTO(statuses));
+    }
+
+    public UserTO unassign(final long userId, final List<StatusBean> statuses) {
+        return getService(UserService.class).unassign(userId, StatusUtils.buildPropagationTargetsTO(statuses));
+    }
+
+    public UserTO deprovision(final long userId, final List<StatusBean> statuses) {
+        return getService(UserService.class).deprovision(userId, StatusUtils.buildPropagationTargetsTO(statuses));
+    }
 }

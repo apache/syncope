@@ -130,9 +130,9 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.click("//input[@name=\"userListContainer:search\"]");
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//table/tbody/tr/td[5]/div/span[9]/a\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//table/tbody/tr/td[5]/div/span[12]/a\");", "30000");
 
-        selenium.click("//table/tbody/tr/td[5]/div/span[9]/a");
+        selenium.click("//table/tbody/tr/td[5]/div/span[12]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//form/div[3]/div/span/div/div/div[contains(text(),'Username')]\");", "30000");
@@ -156,9 +156,9 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.click("//input[@name=\"userListContainer:search\"]");
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//span[11]/a\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//span[14]/a\");", "30000");
 
-        selenium.click("//span[11]/a");
+        selenium.click("//span[14]/a");
 
         assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
     }

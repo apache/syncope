@@ -27,7 +27,7 @@ import org.apache.syncope.console.pages.RoleModalPage;
 import org.apache.syncope.console.pages.Roles;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
-import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
+import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingOnConfirmAjaxLink;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -122,7 +122,7 @@ public class TreeActionLinkPanel extends Panel {
             updateRoleLink.setOutputMarkupId(true);
             fragment.add(updateRoleLink);
 
-            final AjaxLink dropRoleLink = new IndicatingDeleteOnConfirmAjaxLink("dropRoleLink", pageRef) {
+            final AjaxLink dropRoleLink = new IndicatingOnConfirmAjaxLink("dropRoleLink", pageRef) {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 

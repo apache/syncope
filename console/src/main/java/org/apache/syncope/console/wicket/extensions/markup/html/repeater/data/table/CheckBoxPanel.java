@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table;
 
+import org.apache.syncope.console.commons.ActionTableCheckGroup;
 import org.apache.wicket.markup.html.form.Check;
 import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -32,6 +33,11 @@ public class CheckBoxPanel<T> extends Panel {
     public CheckBoxPanel(final String componentId, final IModel<T> model, final CheckGroup<T> checkGroup) {
         super(componentId, model);
         this.check = new Check<T>("check", model, checkGroup);
+        if (checkGroup instanceof ActionTableCheckGroup) {
+            boolean checkable = ((ActionTableCheckGroup<T>) checkGroup).isCheckable(model.getObject());
+            this.check.setEnabled(checkable);
+            this.check.setVisible(checkable);
+        }
         add(this.check);
     }
 }

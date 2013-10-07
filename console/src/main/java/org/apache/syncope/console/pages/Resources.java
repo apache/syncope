@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.ResourceTO;
+import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
@@ -98,6 +100,21 @@ public class Resources extends BasePage {
 
     private int connectorPaginatorRows;
 
+    /**
+     * Modal window to be used for user status management.
+     */
+    protected final ModalWindow statusmodal = new ModalWindow("statusModal");
+
+    /**
+     * Schemas to be shown modal window height.
+     */
+    private final static int STATUS_MODAL_WIN_HEIGHT = 500;
+
+    /**
+     * Schemas to be shown modal window width.
+     */
+    private final static int STATUS_MODAL_WIN_WIDTH = 700;
+
     public Resources(final PageParameters parameters) {
         super(parameters);
 
@@ -105,6 +122,12 @@ public class Resources extends BasePage {
         add(editResourceWin = new ModalWindow("editResourceWin"));
         add(createConnectorWin = new ModalWindow("createConnectorWin"));
         add(editConnectorWin = new ModalWindow("editConnectorWin"));
+
+        statusmodal.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        statusmodal.setInitialHeight(STATUS_MODAL_WIN_HEIGHT);
+        statusmodal.setInitialWidth(STATUS_MODAL_WIN_WIDTH);
+        statusmodal.setCookieName("status-modal");
+        add(statusmodal);
 
         AjaxLink<Void> reloadLink = new ClearIndicatingAjaxLink<Void>("reloadLink", getPageReference()) {
 
@@ -153,7 +176,8 @@ public class Resources extends BasePage {
     private void setupResources() {
         List<IColumn<ResourceTO, String>> columns = new ArrayList<IColumn<ResourceTO, String>>();
 
-        columns.add(new PropertyColumn(new StringResourceModel("name", this, null), "name", "name"));
+        columns.add(
+                new PropertyColumn<ResourceTO, String>(new StringResourceModel("name", this, null), "name", "name"));
 
         columns.add(new AbstractColumn<ResourceTO, String>(
                 new StringResourceModel("connector", this, null, "connector")) {
@@ -197,9 +221,9 @@ public class Resources extends BasePage {
             }
         });
 
-        columns.add(new PropertyColumn(new StringResourceModel(
+        columns.add(new PropertyColumn<ResourceTO, String>(new StringResourceModel(
                 "propagationPrimary", this, null), "propagationPrimary", "propagationPrimary"));
-        columns.add(new PropertyColumn(new StringResourceModel(
+        columns.add(new PropertyColumn<ResourceTO, String>(new StringResourceModel(
                 "propagationPriority", this, null), "propagationPriority", "propagationPriority"));
 
         columns.add(new AbstractColumn<ResourceTO, String>(new StringResourceModel("actions", this, null, "")) {
@@ -217,6 +241,51 @@ public class Resources extends BasePage {
                 final ResourceTO resourceTO = model.getObject();
 
                 final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+
+                        statusmodal.setPageCreator(new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID = -7834632442532690940L;
+
+                            @Override
+                            public Page createPage() {
+                                return new ProvisioningModalPage<UserTO>(
+                                        getPageReference(), statusmodal, model.getObject(), UserTO.class);
+                            }
+                        });
+
+                        statusmodal.show(target);
+                    }
+                }, ActionLink.ActionType.MANAGE_USERS, "Resources");
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+
+                        statusmodal.setPageCreator(new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID = -7834632442532690940L;
+
+                            @Override
+                            public Page createPage() {
+                                return new ProvisioningModalPage<RoleTO>(
+                                        getPageReference(), statusmodal, model.getObject(), RoleTO.class);
+                            }
+                        });
+
+                        statusmodal.show(target);
+                    }
+                }, ActionLink.ActionType.MANAGE_ROLES, "Resources");
+
 
                 panel.add(new ActionLink() {
 
@@ -349,15 +418,15 @@ public class Resources extends BasePage {
     private void setupConnectors() {
         List<IColumn<ConnInstanceTO, String>> columns = new ArrayList<IColumn<ConnInstanceTO, String>>();
 
-        columns.add(new PropertyColumn(
+        columns.add(new PropertyColumn<ConnInstanceTO, String>(
                 new StringResourceModel("id", this, null), "id", "id"));
-        columns.add(new PropertyColumn(
+        columns.add(new PropertyColumn<ConnInstanceTO, String>(
                 new StringResourceModel("name", this, null), "connectorName", "connectorName"));
-        columns.add(new PropertyColumn(
+        columns.add(new PropertyColumn<ConnInstanceTO, String>(
                 new StringResourceModel("displayName", this, null), "displayName", "displayName"));
-        columns.add(new PropertyColumn(
+        columns.add(new PropertyColumn<ConnInstanceTO, String>(
                 new StringResourceModel("bundleName", this, null), "bundleName", "bundleName"));
-        columns.add(new PropertyColumn(
+        columns.add(new PropertyColumn<ConnInstanceTO, String>(
                 new StringResourceModel("version", this, null), "version", "version"));
         columns.add(new AbstractColumn<ConnInstanceTO, String>(new StringResourceModel("actions", this, null, "")) {
 
@@ -486,8 +555,11 @@ public class Resources extends BasePage {
         MetaDataRoleAuthorizationStrategy.authorize(paginatorForm, RENDER, xmlRolesReader.getAllAllowedRoles(
                 "Connectors", "list"));
 
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
-                "connectorPaginatorRows"), prefMan.getPaginatorChoices());
+        final DropDownChoice<Integer> rowsChooser = new DropDownChoice<Integer>(
+                "rowsChooser",
+                new PropertyModel<Integer>(this,
+                "connectorPaginatorRows"),
+                prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 

@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.mod.RoleMod;
+import org.apache.syncope.common.to.PropagationTargetsTO;
 import org.apache.syncope.common.to.RoleTO;
 
 @Path("roles")
@@ -99,7 +100,7 @@ public interface RoleService {
     /**
      * @param searchCondition Filter condition for role list
      * @return Returns list of roles with matching filter conditions
-     * @throws InvalidSearchConditionException 
+     * @throws InvalidSearchConditionException
      */
     @POST
     @Path("search")
@@ -110,7 +111,7 @@ public interface RoleService {
      * @param page Page of roles in relation to size parameter
      * @param size Number of roles to be displayed per page
      * @return Returns paginated list of roles with matching filter conditions
-     * @throws InvalidSearchConditionException 
+     * @throws InvalidSearchConditionException
      */
     @POST
     @Path("search")
@@ -120,7 +121,7 @@ public interface RoleService {
     /**
      * @param searchCondition Filter condition for role list
      * @return Returns number of roles matching provided filter conditions
-     * @throws InvalidSearchConditionException 
+     * @throws InvalidSearchConditionException
      */
     @POST
     @Path("search/count")
@@ -146,4 +147,36 @@ public interface RoleService {
     @Path("{roleId}")
     RoleTO update(@PathParam("roleId") Long roleId, RoleMod roleMod);
 
+    /**
+     * Unlinks role and the given external resources specified by <tt>propagationTargetsTO</tt> parameter.
+     *
+     * @param roleId role id.
+     * @param propagationTargetsTO resource names.
+     * @return updated role.
+     */
+    @POST
+    @Path("{roleId}/unlink")
+    RoleTO unlink(@PathParam("roleId") Long roleId, PropagationTargetsTO propagationTargetsTO);
+
+    /**
+     * Unassigns resources to the given role (performs unlink + de-provision).
+     *
+     * @param roleId role id.
+     * @param propagationTargetsTO resources to be unassigned.
+     * @return updated role.
+     */
+    @POST
+    @Path("{roleId}/unassign")
+    RoleTO unassign(@PathParam("roleId") Long roleId, PropagationTargetsTO propagationTargetsTO);
+
+    /**
+     * De-provision role from the given resources without unlinking.
+     *
+     * @param roleId role id of the role to be de-provisioned.
+     * @param propagationTargetsTO resource names.
+     * @return updated role.
+     */
+    @POST
+    @Path("{roleId}/deprovision")
+    RoleTO deprovision(@PathParam("roleId") Long roleId, PropagationTargetsTO propagationTargetsTO);
 }

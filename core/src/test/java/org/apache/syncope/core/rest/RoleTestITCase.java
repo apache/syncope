@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.apache.syncope.core.rest.AbstractTest.attributeTO;
+import static org.apache.syncope.core.rest.AbstractTest.roleService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -32,6 +34,7 @@ import org.apache.http.HttpStatus;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.to.ConnObjectTO;
+import org.apache.syncope.common.to.PropagationTargetsTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -387,5 +390,79 @@ public class RoleTestITCase extends AbstractTest {
         roleTO = roleService.update(roleMod.getId(), roleMod);
         assertNotNull(roleTO);
         assertTrue(roleTO.getEntitlements().isEmpty());
+    }
+
+    @Test
+    public void unlink() {
+        RoleTO actual = createRole(roleService, buildRoleTO("unlink"));
+        assertNotNull(actual);
+
+        assertNotNull(readConnectorObject("resource-ldap", actual.getId()));
+
+        PropagationTargetsTO res = new PropagationTargetsTO();
+        res.getResources().add("resource-ldap");
+
+        actual = roleService.unlink(actual.getId(), res);
+        assertNotNull(actual);
+        assertTrue(actual.getResources().isEmpty());
+
+        actual = roleService.read(actual.getId());
+        assertNotNull(actual);
+
+        assertTrue(actual.getResources().isEmpty());
+
+        assertNotNull(readConnectorObject("resource-ldap", actual.getId()));
+    }
+
+    @Test
+    public void unassign() {
+        RoleTO actual = createRole(roleService, buildRoleTO("unassign"));
+        assertNotNull(actual);
+
+        assertNotNull(readConnectorObject("resource-ldap", actual.getId()));
+
+        PropagationTargetsTO res = new PropagationTargetsTO();
+        res.getResources().add("resource-ldap");
+
+        actual = roleService.unassign(actual.getId(), res);
+        assertNotNull(actual);
+        assertTrue(actual.getResources().isEmpty());
+
+        actual = roleService.read(actual.getId());
+        assertNotNull(actual);
+        assertTrue(actual.getResources().isEmpty());
+
+        try {
+            readConnectorObject("resource-ldap", actual.getId());
+            fail();
+        } catch (Exception e) {
+            // ignore
+        }
+    }
+
+    @Test
+    public void deprovision() {
+        RoleTO actual = createRole(roleService, buildRoleTO("deprovision"));
+        assertNotNull(actual);
+
+        assertNotNull(readConnectorObject("resource-ldap", actual.getId()));
+
+        PropagationTargetsTO res = new PropagationTargetsTO();
+        res.getResources().add("resource-ldap");
+
+        actual = roleService.deprovision(actual.getId(), res);
+        assertNotNull(actual);
+        assertFalse(actual.getResources().isEmpty());
+
+        actual = roleService.read(actual.getId());
+        assertNotNull(actual);
+        assertFalse(actual.getResources().isEmpty());
+
+        try {
+            readConnectorObject("resource-ldap", actual.getId());
+            fail();
+        } catch (Exception e) {
+            // ignore
+        }
     }
 }

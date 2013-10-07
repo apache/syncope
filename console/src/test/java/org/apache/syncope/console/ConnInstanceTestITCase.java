@@ -55,7 +55,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//div[3]/ul/li[2]/a");
-        selenium.click("//tr[4]/td[7]/div/span[9]/a");
+        selenium.click("//tr[4]/td[7]/div/span[12]/a");
 
         selenium.waitForCondition(
                 "selenium.isElementPresent(\"//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select\");", "30000");
@@ -76,7 +76,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//div[3]/ul/li[2]/a");
-        selenium.click("//tr[4]/td[7]/div/span[11]/a");
+        selenium.click("//tr[4]/td[7]/div/span[14]/a");
 
         assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
 
@@ -90,7 +90,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//div[3]/ul/li[2]/a");
-        selenium.click("//tr[2]/td[7]/div/span[9]/a");
+        selenium.click("//tr[2]/td[7]/div/span[12]/a");
 
         selenium.waitForCondition(
                 "selenium.isElementPresent(\"//select[@name='version:dropDownChoiceField']\");", "30000");

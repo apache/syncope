@@ -29,6 +29,7 @@ import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.RoleService;
+import org.apache.syncope.common.to.PropagationTargetsTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.core.rest.controller.RoleController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,5 +111,20 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService,
     @Override
     public RoleTO update(final Long roleId, final RoleMod roleMod) {
         return controller.update(roleMod);
+    }
+
+    @Override
+    public RoleTO unlink(final Long roleId, final PropagationTargetsTO propagationTargetsTO) {
+        return controller.unlink(roleId, propagationTargetsTO.getResources());
+    }
+
+    @Override
+    public RoleTO unassign(final Long roleId, final PropagationTargetsTO propagationTargetsTO) {
+        return controller.unassign(roleId, propagationTargetsTO.getResources());
+    }
+
+    @Override
+    public RoleTO deprovision(final Long roleId, final PropagationTargetsTO propagationTargetsTO) {
+        return controller.deprovision(roleId, propagationTargetsTO.getResources());
     }
 }

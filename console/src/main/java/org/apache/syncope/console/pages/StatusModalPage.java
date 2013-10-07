@@ -18,51 +18,138 @@
  */
 package org.apache.syncope.console.pages;
 
+import static org.apache.syncope.console.pages.AbstractBasePage.LOG;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.StatusBean;
-import org.apache.syncope.console.pages.panels.StatusPanel;
+import org.apache.syncope.console.commons.StatusUtils;
+import org.apache.syncope.console.commons.StatusUtils.ConnObjectWrapper;
+import org.apache.syncope.console.commons.StatusUtils.Status;
+import org.apache.syncope.console.commons.StatusUtils.StatusBeanProvider;
+import org.apache.syncope.console.pages.panels.ActionDataTablePanel;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.StringResourceModel;
 
-public class StatusModalPage extends BaseModalPage {
+public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractStatusModlaPage {
 
     private static final long serialVersionUID = 4114026480146090961L;
 
-    public StatusModalPage(final PageReference pageRef, final ModalWindow window,
-            final AbstractAttributableTO attributable) {
+    private final AbstractAttributableTO attributableTO;
+
+    private int rowsPerPage = 25;
+
+    final StatusUtils statusUtils;
+
+    final boolean statusOnly;
+
+    public StatusModalPage(
+            final PageReference pageRef,
+            final ModalWindow window,
+            final AbstractAttributableTO attributableTO) {
+        this(pageRef, window, attributableTO, false);
+    }
+
+    public StatusModalPage(
+            final PageReference pageRef,
+            final ModalWindow window,
+            final AbstractAttributableTO attributableTO,
+            final boolean statusOnly) {
 
         super();
 
-        final Form form = new Form(FORM);
-        add(form);
+        this.statusOnly = statusOnly;
+        this.attributableTO = attributableTO;
 
-        final List<StatusBean> statuses = new ArrayList<StatusBean>();
+        statusUtils = new StatusUtils(attributableTO instanceof UserTO ? userRestClient : roleRestClient);
 
-        final StatusPanel statusPanel = new StatusPanel("statuspanel", attributable, statuses, null);
-        MetaDataRoleAuthorizationStrategy.authorize(
-                statusPanel, RENDER, xmlRolesReader.getAllAllowedRoles("Resources", "getConnectorObject"));
-        form.add(statusPanel);
+        final List<IColumn<StatusBean, String>> columns = new ArrayList<IColumn<StatusBean, String>>();
+        columns.add(new PropertyColumn<StatusBean, String>(
+                new StringResourceModel("resourceName", this, null, "Resource name"), "resourceName", "resourceName"));
+        columns.add(new PropertyColumn<StatusBean, String>(
+                new StringResourceModel("accountLink", this, null, "Account link"), "accountLink", "accountLink"));
+        columns.add(new AbstractColumn<StatusBean, String>(
+                new StringResourceModel("status", this, null, "")) {
 
-        final AjaxButton disable;
-        if (attributable instanceof UserTO) {
-            disable = new IndicatingAjaxButton("disable", new ResourceModel("disable", "Disable")) {
+            private static final long serialVersionUID = -3503023501954863131L;
 
-                private static final long serialVersionUID = -958724007591692537L;
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
+
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<StatusBean>> cellItem,
+                    final String componentId,
+                    final IModel<StatusBean> model) {
+
+                cellItem.add(statusUtils.getStatusImagePanel(componentId, model.getObject().getStatus()));
+            }
+        });
+
+        final ActionDataTablePanel<StatusBean, String> table = new ActionDataTablePanel<StatusBean, String>(
+                "resourceDatatable",
+                columns,
+                (ISortableDataProvider<StatusBean, String>) new AttributableStatusProvider(),
+                rowsPerPage,
+                pageRef) {
+
+            private static final long serialVersionUID = 6510391461033818316L;
+
+            @Override
+            public boolean isElementEnabled(final StatusBean element) {
+                return !statusOnly || element.getStatus() != Status.OBJECT_NOT_FOUND;
+            }
+        };
+
+        final String pageId = attributableTO instanceof RoleTO ? "Roles" : "Users";
+
+        if (statusOnly) {
+            table.addAction(new ActionLink() {
+
+                private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
-                protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+                public void onClick(final AjaxRequestTarget target) {
                     try {
-                        userRestClient.suspend(attributable.getId(), statuses);
+                        userRestClient.reactivate(
+                                attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+
+                        ((BasePage) pageRef.getPage()).setModalResult(true);
+
+                        window.close(target);
+                    } catch (Exception e) {
+                        LOG.error("Error enabling resources", e);
+                        error(getString(Constants.ERROR) + ":" + e.getMessage());
+                        target.add(feedbackPanel);
+                    }
+                }
+            }, ActionLink.ActionType.REACTIVATE, pageId);
+
+            table.addAction(new ActionLink() {
+
+                private static final long serialVersionUID = -3722207913631435501L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target) {
+                    try {
+                        userRestClient.suspend(
+                                attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
 
                         if (pageRef.getPage() instanceof BasePage) {
                             ((BasePage) pageRef.getPage()).setModalResult(true);
@@ -75,69 +162,138 @@ public class StatusModalPage extends BaseModalPage {
                         target.add(feedbackPanel);
                     }
                 }
-
-                @Override
-                protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                    target.add(feedbackPanel);
-                }
-            };
+            }, ActionLink.ActionType.SUSPEND, pageId);
         } else {
-            disable = new AjaxButton("disable") {
+            table.addAction(new ActionLink() {
 
-                private static final long serialVersionUID = 5538299138211283825L;
-
-            };
-            disable.setVisible(false);
-        }
-        form.add(disable);
-
-        final AjaxButton enable;
-        if (attributable instanceof UserTO) {
-            enable = new IndicatingAjaxButton("enable", new ResourceModel("enable", "Enable")) {
-
-                private static final long serialVersionUID = -958724007591692537L;
+                private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
-                protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                public void onClick(final AjaxRequestTarget target) {
                     try {
-                        userRestClient.reactivate(attributable.getId(), statuses);
+                        if (attributableTO instanceof UserTO) {
+                            userRestClient.unlink(
+                                    attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                        } else {
+                            roleRestClient.unlink(
+                                    attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                        }
 
                         ((BasePage) pageRef.getPage()).setModalResult(true);
 
                         window.close(target);
                     } catch (Exception e) {
-                        LOG.error("Error enabling resources", e);
+                        LOG.error("Error unlinkink resources", e);
                         error(getString(Constants.ERROR) + ":" + e.getMessage());
                         target.add(feedbackPanel);
                     }
                 }
+            }, ActionLink.ActionType.UNLINK, pageId);
+
+            table.addAction(new ActionLink() {
+
+                private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
-                protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                public void onClick(final AjaxRequestTarget target) {
+                    try {
+                        if (attributableTO instanceof UserTO) {
+                            userRestClient.deprovision(
+                                    attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                        } else {
+                            roleRestClient.deprovision(
+                                    attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                        }
 
-                    target.add(feedbackPanel);
+                        ((BasePage) pageRef.getPage()).setModalResult(true);
+
+                        window.close(target);
+                    } catch (Exception e) {
+                        LOG.error("Error de-provisioning user", e);
+                        error(getString(Constants.ERROR) + ":" + e.getMessage());
+                        target.add(feedbackPanel);
+                    }
                 }
-            };
-        } else {
-            enable = new AjaxButton("enable") {
+            }, ActionLink.ActionType.DEPROVISION, pageId);
 
-                private static final long serialVersionUID = 5538299138211283825L;
+            table.addAction(new ActionLink() {
 
-            };
-            enable.setVisible(false);
+                private static final long serialVersionUID = -3722207913631435501L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target) {
+                    try {
+                        if (attributableTO instanceof UserTO) {
+                            userRestClient.unassign(
+                                    attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                        } else {
+                            roleRestClient.unassign(
+                                    attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                        }
+
+                        ((BasePage) pageRef.getPage()).setModalResult(true);
+
+                        window.close(target);
+                    } catch (Exception e) {
+                        LOG.error("Error unassigning resources", e);
+                        error(getString(Constants.ERROR) + ":" + e.getMessage());
+                        target.add(feedbackPanel);
+                    }
+                }
+            }, ActionLink.ActionType.UNASSIGN, pageId);
         }
-        form.add(enable);
 
-        final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
+        table.addCancelButton(window);
 
-            private static final long serialVersionUID = -958724007591692537L;
+        add(table);
+    }
 
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
-                window.close(target);
+    class AttributableStatusProvider extends StatusBeanProvider {
+
+        private static final long serialVersionUID = 4586969457669796621L;
+
+        public AttributableStatusProvider() {
+            super("resourceName");
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public List<StatusBean> getStatusBeans() {
+
+            final List<ConnObjectWrapper> connObjects =
+                    statusUtils.getConnectorObjects(Collections.<AbstractAttributableTO>singleton(attributableTO));
+
+            final List<StatusBean> statusBeans = new ArrayList<StatusBean>(connObjects.size() + 1);
+
+            if (statusOnly) {
+                final StatusBean syncope = new StatusBean(attributableTO, "Syncope");
+
+                syncope.setAccountLink(((UserTO) attributableTO).getUsername());
+
+                Status syncopeStatus = Status.UNDEFINED;
+                if (((UserTO) attributableTO).getStatus() != null) {
+                    try {
+                        syncopeStatus = Status.valueOf(((UserTO) attributableTO).getStatus().toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        LOG.warn("Unexpected status found: {}", ((UserTO) attributableTO).getStatus(), e);
+                    }
+                }
+                syncope.setStatus(syncopeStatus);
+
+                statusBeans.add(syncope);
             }
-        };
-        cancel.setDefaultFormProcessing(false);
-        form.add(cancel);
+
+            for (ConnObjectWrapper entry : connObjects) {
+                final StatusBean statusBean = statusUtils.getStatusBean(
+                        entry.getAttributable(),
+                        entry.getResourceName(),
+                        entry.getConnObjectTO(),
+                        attributableTO instanceof RoleTO);
+
+                statusBeans.add(statusBean);
+            }
+
+            return statusBeans;
+        }
     }
 }

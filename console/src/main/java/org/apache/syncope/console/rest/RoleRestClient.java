@@ -32,6 +32,8 @@ import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.console.commons.StatusBean;
+import org.apache.syncope.console.commons.StatusUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -94,5 +96,17 @@ public class RoleRestClient extends AbstractAttributableRestClient {
     @Override
     public BulkActionRes bulkAction(final BulkAction action) {
         return getService(RoleRestClient.class).bulkAction(action);
+    }
+
+    public RoleTO unlink(final long roleId, final List<StatusBean> statuses) {
+        return getService(RoleService.class).unlink(roleId, StatusUtils.buildPropagationTargetsTO(statuses));
+    }
+
+    public RoleTO unassign(final long roleId, final List<StatusBean> statuses) {
+        return getService(RoleService.class).unassign(roleId, StatusUtils.buildPropagationTargetsTO(statuses));
+    }
+
+    public RoleTO deprovision(final long roleId, final List<StatusBean> statuses) {
+        return getService(RoleService.class).deprovision(roleId, StatusUtils.buildPropagationTargetsTO(statuses));
     }
 }

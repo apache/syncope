@@ -21,10 +21,13 @@ package org.apache.syncope.console.rest;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.services.ResourceService;
+import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
+import org.apache.syncope.common.to.BulkAssociationAction;
 import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.ResourceTO;
+import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.springframework.stereotype.Component;
@@ -86,5 +89,14 @@ public class ResourceRestClient extends BaseRestClient {
 
     public BulkActionRes bulkAction(final BulkAction action) {
         return getService(ResourceService.class).bulkAction(action);
+    }
+
+    public BulkActionRes bulkAssociationAction(
+            String resourceName, BulkAssociationAction bulkAction, Class<? extends AbstractAttributableTO> typeRef) {
+        if (UserTO.class.isAssignableFrom(typeRef)) {
+            return getService(ResourceService.class).usersBulkAssociationAction(resourceName, bulkAction);
+        } else {
+            return getService(ResourceService.class).rolesBulkAssociationAction(resourceName, bulkAction);
+        }
     }
 }

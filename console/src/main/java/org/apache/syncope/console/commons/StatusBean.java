@@ -21,16 +21,30 @@ package org.apache.syncope.console.commons;
 import java.io.Serializable;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.to.UserTO;
 
 public class StatusBean implements Serializable {
 
     private static final long serialVersionUID = -5207260204921071129L;
 
-    private String resourceName = null;
+    private final Long attributableId;
+
+    private final String attributableName;
+
+    private final String resourceName;
 
     private String accountLink = null;
 
     private StatusUtils.Status status = StatusUtils.Status.OBJECT_NOT_FOUND;
+
+    public StatusBean(final AbstractAttributableTO attributable, String resourceName) {
+        this.attributableId = attributable.getId();
+        this.attributableName = attributable instanceof UserTO
+                ? ((UserTO) attributable).getUsername() : ((RoleTO) attributable).getName();
+        this.resourceName = resourceName;
+    }
 
     public String getAccountLink() {
         return accountLink;
@@ -44,16 +58,20 @@ public class StatusBean implements Serializable {
         return resourceName;
     }
 
-    public void setResourceName(final String resourceName) {
-        this.resourceName = resourceName;
-    }
-
     public StatusUtils.Status getStatus() {
         return status;
     }
 
     public void setStatus(final StatusUtils.Status status) {
         this.status = status;
+    }
+
+    public Long getAttributableId() {
+        return attributableId;
+    }
+
+    public String getAttributableName() {
+        return attributableName;
     }
 
     @Override

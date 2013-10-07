@@ -22,6 +22,7 @@ import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.rest.ReportRestClient;
 import org.apache.syncope.console.rest.ResourceRestClient;
+import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
@@ -64,14 +65,17 @@ public class AbstractBasePage extends WebPage {
     protected UserRestClient userRestClient;
 
     @SpringBean
+    protected RoleRestClient roleRestClient;
+
+    @SpringBean
     protected TaskRestClient taskRestClient;
-    
+
     @SpringBean
     protected SchemaRestClient schemaRestClient;
-    
+
     @SpringBean
     protected ResourceRestClient resourceRestClient;
-    
+
     @SpringBean
     protected ReportRestClient reportRestClient;
 

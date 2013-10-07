@@ -169,7 +169,8 @@ public class ResourcesPanel extends Panel {
                                 previousResources.clear();
                                 previousResources.addAll(userTO.getResources());
 
-                                StatusUtils.update(statusPanel, target, userTO.getResources(), resourcesToRemove);
+                                StatusUtils.update(
+                                        userTO, statusPanel, target, userTO.getResources(), resourcesToRemove);
                             }
                         }
                     });

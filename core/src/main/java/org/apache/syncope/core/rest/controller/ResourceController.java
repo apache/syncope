@@ -18,6 +18,11 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import static org.apache.syncope.core.rest.controller.AbstractController.LOG;
+
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityExistsException;
@@ -25,6 +30,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
+import org.apache.syncope.common.to.BulkAssociationAction;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -87,6 +93,12 @@ public class ResourceController extends AbstractController {
 
     @Autowired
     private ImplementationClassNamesLoader classNamesLoader;
+
+    @Autowired
+    private UserController userController;
+
+    @Autowired
+    private RoleController roleController;
 
     /**
      * ConnectorObject util.
@@ -307,5 +319,51 @@ public class ResourceController extends AbstractController {
         }
 
         return res;
+    }
+
+    public BulkActionRes usersBulkAssociationAction(
+            final String resourceName, final BulkAssociationAction bulkAction) {
+        return bulkAssociationActionDelegate(userController, bulkAction, resourceName);
+    }
+
+    public BulkActionRes rolesBulkAssociationAction(
+            final String resourceName, final BulkAssociationAction bulkAction) {
+        return bulkAssociationActionDelegate(roleController, bulkAction, resourceName);
+    }
+
+    private BulkActionRes bulkAssociationActionDelegate(
+            final Object obj,
+            final BulkAssociationAction bulkAction,
+            final String resourceName) {
+
+        final String methodName = bulkAction.getOperation().name().toLowerCase();
+
+        try {
+            final Method method = obj.getClass().getMethod(methodName, Long.class, Collection.class);
+
+            final BulkActionRes res = new BulkActionRes();
+
+            for (Long id : bulkAction.getTargets()) {
+                try {
+                    // audit is delegated to the called userController method ...
+                    method.invoke(obj, id, Collections.<String>singleton(resourceName));
+                    res.add(id, BulkActionRes.Status.SUCCESS);
+                } catch (Exception e) {
+                    LOG.warn("Error performing {} of user {}", methodName, id, e);
+                    res.add(id, BulkActionRes.Status.FAILURE);
+                }
+            }
+
+            return res;
+        } catch (Exception e) {
+            LOG.error("Error retrieving {} method", methodName, e);
+
+            SyncopeClientCompositeException scce =
+                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Unknown);
+            sce.addElement("Operation execution failed");
+            scce.addException(sce);
+            throw scce;
+        }
     }
 }

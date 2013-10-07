@@ -22,6 +22,7 @@ import static org.apache.syncope.core.rest.AbstractTest.ADMIN_PWD;
 import static org.apache.syncope.core.rest.AbstractTest.attributeMod;
 import static org.apache.syncope.core.rest.AbstractTest.attributeTO;
 import static org.apache.syncope.core.rest.AbstractTest.getUUIDString;
+import static org.apache.syncope.core.rest.AbstractTest.userService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -60,6 +61,7 @@ import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.PropagationStatusTO;
+import org.apache.syncope.common.to.PropagationTargetsTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
@@ -2415,6 +2417,108 @@ public class UserTestITCase extends AbstractTest {
             userWorkflowService.getFormsByName(userTO.getId(), "Create approval");
             fail();
         } catch (Exception ignore) {
+            // ignore
+        }
+    }
+
+    @Test
+    public void unlink() {
+        UserTO userTO = getUniqueSampleTO("unlink@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getDerivedAttributes().clear();
+        userTO.getVirtualAttributes().clear();
+        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
+        userTO.getResources().add(RESOURCE_NAME_CSV);
+
+        UserTO actual = createUser(userTO);
+        assertNotNull(actual);
+
+        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+        assertNotNull(connObjectTO);
+
+        PropagationTargetsTO res = new PropagationTargetsTO();
+        res.getResources().add(RESOURCE_NAME_CSV);
+
+        actual = userService.unlink(actual.getId(), res);
+        assertNotNull(actual);
+        assertTrue(actual.getResources().isEmpty());
+
+        actual = userService.read(actual.getId());
+        assertNotNull(actual);
+
+        assertTrue(actual.getResources().isEmpty());
+
+        connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+        assertNotNull(connObjectTO);
+    }
+
+    @Test
+    public void unassign() {
+        UserTO userTO = getUniqueSampleTO("unassign@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getDerivedAttributes().clear();
+        userTO.getVirtualAttributes().clear();
+        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
+        userTO.getResources().add(RESOURCE_NAME_CSV);
+
+        UserTO actual = createUser(userTO);
+        assertNotNull(actual);
+
+        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+        assertNotNull(connObjectTO);
+
+        PropagationTargetsTO res = new PropagationTargetsTO();
+        res.getResources().add(RESOURCE_NAME_CSV);
+
+        actual = userService.unassign(actual.getId(), res);
+        assertNotNull(actual);
+        assertTrue(actual.getResources().isEmpty());
+
+        actual = userService.read(actual.getId());
+        assertNotNull(actual);
+        assertTrue(actual.getResources().isEmpty());
+
+        try {
+            readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+            fail();
+        } catch (Exception e) {
+            // ignore
+        }
+    }
+
+    @Test
+    public void deprovision() {
+        UserTO userTO = getUniqueSampleTO("deprovision@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getDerivedAttributes().clear();
+        userTO.getVirtualAttributes().clear();
+        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
+        userTO.getResources().add(RESOURCE_NAME_CSV);
+
+        UserTO actual = createUser(userTO);
+        assertNotNull(actual);
+
+        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+        assertNotNull(connObjectTO);
+
+        PropagationTargetsTO res = new PropagationTargetsTO();
+        res.getResources().add(RESOURCE_NAME_CSV);
+
+        actual = userService.deprovision(actual.getId(), res);
+        assertNotNull(actual);
+        assertFalse(actual.getResources().isEmpty());
+
+        actual = userService.read(actual.getId());
+        assertNotNull(actual);
+        assertFalse(actual.getResources().isEmpty());
+
+        try {
+            readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+            fail();
+        } catch (Exception e) {
             // ignore
         }
     }

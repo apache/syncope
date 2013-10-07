@@ -57,7 +57,7 @@ under the License.
     <action id="delete">
       <entitlement>USER_DELETE</entitlement>
     </action>
-
+    
     <action id="changeView">
       <entitlement>USER_VIEW</entitlement>
     </action>

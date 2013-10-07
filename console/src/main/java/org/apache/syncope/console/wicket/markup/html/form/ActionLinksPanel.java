@@ -20,7 +20,7 @@ package org.apache.syncope.console.wicket.markup.html.form;
 
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
-import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
+import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingOnConfirmAjaxLink;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -49,6 +49,9 @@ public class ActionLinksPanel extends Panel {
         this.pageRef = pageRef;
 
         super.add(new Fragment("panelClaim", "emptyFragment", this));
+        super.add(new Fragment("panelManageResources", "emptyFragment", this));
+        super.add(new Fragment("panelManageUsers", "emptyFragment", this));
+        super.add(new Fragment("panelManageRoles", "emptyFragment", this));
         super.add(new Fragment("panelCreate", "emptyFragment", this));
         super.add(new Fragment("panelEdit", "emptyFragment", this));
         super.add(new Fragment("panelUserTemplate", "emptyFragment", this));
@@ -64,6 +67,9 @@ public class ActionLinksPanel extends Panel {
         super.add(new Fragment("panelReactivate", "emptyFragment", this));
         super.add(new Fragment("panelReload", "emptyFragment", this));
         super.add(new Fragment("panelChangeView", "emptyFragment", this));
+        super.add(new Fragment("panelUnlink", "emptyFragment", this));
+        super.add(new Fragment("panelUnassign", "emptyFragment", this));
+        super.add(new Fragment("panelDeprovision", "emptyFragment", this));
     }
 
     public void add(
@@ -102,6 +108,48 @@ public class ActionLinksPanel extends Panel {
                 fragment.addOrReplace(new ClearIndicatingAjaxLink("claimLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                });
+                break;
+
+            case MANAGE_RESOURCES:
+                fragment = new Fragment("panelManageResources", "fragmentManageResources", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink("manageResourcesLink", pageRef) {
+
+                    private static final long serialVersionUID = -6957616042924610291L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                });
+                break;
+
+            case MANAGE_USERS:
+                fragment = new Fragment("panelManageUsers", "fragmentManageUsers", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink("manageUsersLink", pageRef) {
+
+                    private static final long serialVersionUID = -6957616042924610292L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                });
+                break;
+
+            case MANAGE_ROLES:
+                fragment = new Fragment("panelManageRoles", "fragmentManageRoles", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink("manageRolesLink", pageRef) {
+
+                    private static final long serialVersionUID = -6957616042924610293L;
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
@@ -225,7 +273,7 @@ public class ActionLinksPanel extends Panel {
             case DELETE:
                 fragment = new Fragment("panelDelete", "fragmentDelete", this);
 
-                fragment.addOrReplace(new IndicatingDeleteOnConfirmAjaxLink("deleteLink", pageRef) {
+                fragment.addOrReplace(new IndicatingOnConfirmAjaxLink("deleteLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -321,6 +369,51 @@ public class ActionLinksPanel extends Panel {
                     }
                 });
                 break;
+
+            case UNLINK:
+                fragment = new Fragment("panelUnlink", "fragmentUnlink", this);
+
+                fragment.addOrReplace(
+                        new IndicatingOnConfirmAjaxLink<Void>("unlinkLink", pageRef, "confirmUnlink") {
+
+                    private static final long serialVersionUID = -6957616042924610293L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                });
+                break;
+
+            case UNASSIGN:
+                fragment = new Fragment("panelUnassign", "fragmentUnassign", this);
+
+                fragment.addOrReplace(
+                        new IndicatingOnConfirmAjaxLink<Void>("unassignLink", pageRef, "confirmUnassign") {
+
+                    private static final long serialVersionUID = -6957616042924610294L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                });
+                break;
+
+            case DEPROVISION:
+                fragment = new Fragment("panelDeprovision", "fragmentDeprovision", this);
+
+                fragment.addOrReplace(
+                        new IndicatingOnConfirmAjaxLink<Void>("deprovisionLink", pageRef, "confirmDeprovision") {
+
+                    private static final long serialVersionUID = -6957616042924610295L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                });
+                break;
             default:
             // do nothink
         }
@@ -336,6 +429,18 @@ public class ActionLinksPanel extends Panel {
         switch (type) {
             case CLAIM:
                 super.addOrReplace(new Fragment("panelClaim", "emptyFragment", this));
+                break;
+
+            case MANAGE_RESOURCES:
+                super.addOrReplace(new Fragment("panelManageResources", "emptyFragment", this));
+                break;
+
+            case MANAGE_USERS:
+                super.addOrReplace(new Fragment("panelManageUsers", "emptyFragment", this));
+                break;
+
+            case MANAGE_ROLES:
+                super.addOrReplace(new Fragment("panelManageRoles", "emptyFragment", this));
                 break;
 
             case CREATE:
@@ -388,6 +493,18 @@ public class ActionLinksPanel extends Panel {
 
             case CHANGE_VIEW:
                 super.addOrReplace(new Fragment("panelChangeView", "emptyFragment", this));
+                break;
+
+            case UNLINK:
+                super.addOrReplace(new Fragment("panelUnlink", "emptyFragment", this));
+                break;
+
+            case UNASSIGN:
+                super.addOrReplace(new Fragment("panelUnassign", "emptyFragment", this));
+                break;
+
+            case DEPROVISION:
+                super.addOrReplace(new Fragment("panelDeprovision", "emptyFragment", this));
                 break;
             default:
             // do nothing

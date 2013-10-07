@@ -28,6 +28,7 @@ import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
+import org.apache.syncope.common.to.BulkAssociationAction;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.ResourceTO;
@@ -95,5 +96,15 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     @Override
     public BulkActionRes bulkAction(final BulkAction bulkAction) {
         return controller.bulkAction(bulkAction);
+    }
+
+    @Override
+    public BulkActionRes usersBulkAssociationAction(final String resourceName, final BulkAssociationAction bulkAction) {
+        return controller.usersBulkAssociationAction(resourceName, bulkAction);
+    }
+
+    @Override
+    public BulkActionRes rolesBulkAssociationAction(final String resourceName, final BulkAssociationAction bulkAction) {
+        return controller.rolesBulkAssociationAction(resourceName, bulkAction);
     }
 }

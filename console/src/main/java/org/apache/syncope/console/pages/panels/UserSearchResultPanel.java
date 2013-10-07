@@ -153,7 +153,29 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
                             @Override
                             public Page createPage() {
-                                return new StatusModalPage(page.getPageReference(), statusmodal, model.getObject());
+                                return new StatusModalPage<UserTO>(
+                                        page.getPageReference(), statusmodal, (UserTO) model.getObject());
+                            }
+                        });
+
+                        statusmodal.show(target);
+                    }
+                }, ActionLink.ActionType.MANAGE_RESOURCES, PAGEID);
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        statusmodal.setPageCreator(new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID = -7834632442532690940L;
+
+                            @Override
+                            public Page createPage() {
+                                return new StatusModalPage<UserTO>(
+                                        page.getPageReference(), statusmodal, (UserTO) model.getObject(), true);
                             }
                         });
 

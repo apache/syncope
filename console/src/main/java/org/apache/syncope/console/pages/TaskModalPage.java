@@ -67,7 +67,7 @@ public abstract class TaskModalPage extends BaseModalPage {
 
     protected WebMarkupContainer executions;
 
-    protected Form form;
+    protected Form<AbstractTaskTO> form;
 
     public TaskModalPage(final AbstractTaskTO taskTO) {
         final ModalWindow taskExecMessageWin = new ModalWindow("taskExecMessageWin");
@@ -75,8 +75,8 @@ public abstract class TaskModalPage extends BaseModalPage {
         taskExecMessageWin.setCookieName("task-exec-message-win-modal");
         add(taskExecMessageWin);
 
-        form = new Form(FORM);
-        form.setModel(new CompoundPropertyModel(taskTO));
+        form = new Form<AbstractTaskTO>(FORM);
+        form.setModel(new CompoundPropertyModel<AbstractTaskTO>(taskTO));
         add(form);
 
         profile = new WebMarkupContainer("profile");
@@ -96,17 +96,17 @@ public abstract class TaskModalPage extends BaseModalPage {
         id.setEnabled(false);
         profile.add(id);
 
-        final List<IColumn> columns = new ArrayList<IColumn>();
+        final List<IColumn<TaskExecTO, String>> columns = new ArrayList<IColumn<TaskExecTO, String>>();
 
         final int paginatorRows = 10;
 
-        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn<TaskExecTO, String>(new ResourceModel("id"), "id", "id"));
 
-        columns.add(new DatePropertyColumn(new ResourceModel("startDate"), "startDate", "startDate"));
+        columns.add(new DatePropertyColumn<TaskExecTO>(new ResourceModel("startDate"), "startDate", "startDate"));
 
-        columns.add(new DatePropertyColumn(new ResourceModel("endDate"), "endDate", "endDate"));
+        columns.add(new DatePropertyColumn<TaskExecTO>(new ResourceModel("endDate"), "endDate", "endDate"));
 
-        columns.add(new PropertyColumn(new ResourceModel("status"), "status", "status"));
+        columns.add(new PropertyColumn<TaskExecTO, String>(new ResourceModel("status"), "status", "status"));
 
         columns.add(new ActionColumn<TaskExecTO, String>(new ResourceModel("actions", "")) {
 
@@ -173,8 +173,8 @@ public abstract class TaskModalPage extends BaseModalPage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         if (target != null) {
-                            final AjaxFallbackDefaultDataTable currentTable =
-                                    new AjaxFallbackDefaultDataTable("executionsTable", columns,
+                            final AjaxFallbackDefaultDataTable<TaskExecTO, String> currentTable =
+                                    new AjaxFallbackDefaultDataTable<TaskExecTO, String>("executionsTable", columns,
                                     new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
                             currentTable.setOutputMarkupId(true);
                             target.add(currentTable);
@@ -187,7 +187,8 @@ public abstract class TaskModalPage extends BaseModalPage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable("executionsTable", columns,
+        final AjaxFallbackDefaultDataTable<TaskExecTO, String> table =
+                new AjaxFallbackDefaultDataTable<TaskExecTO, String>("executionsTable", columns,
                 new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
 
         executions.add(table);

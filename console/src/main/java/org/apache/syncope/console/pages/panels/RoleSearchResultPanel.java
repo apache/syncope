@@ -98,13 +98,14 @@ public class RoleSearchResultPanel extends AbstractSearchResultPanel {
 
                             @Override
                             public Page createPage() {
-                                return new StatusModalPage(page.getPageReference(), statusmodal, model.getObject());
+                                return new StatusModalPage<RoleTO>(
+                                        page.getPageReference(), statusmodal, (RoleTO) model.getObject());
                             }
                         });
 
                         statusmodal.show(target);
                     }
-                }, ActionLink.ActionType.SEARCH, PAGEID);
+                }, ActionLink.ActionType.MANAGE_RESOURCES, PAGEID);
 
                 panel.add(new ActionLink() {
 

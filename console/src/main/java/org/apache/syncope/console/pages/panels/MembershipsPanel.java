@@ -32,7 +32,7 @@ import org.apache.syncope.console.commons.StatusUtils;
 import org.apache.syncope.console.pages.MembershipModalPage;
 import org.apache.syncope.console.pages.UserModalPage;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
-import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
+import org.apache.syncope.console.wicket.ajax.markup.html.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.console.wicket.markup.html.tree.DefaultMutableTreeNodeExpansion;
 import org.apache.syncope.console.wicket.markup.html.tree.DefaultMutableTreeNodeExpansionModel;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeRoleProvider;
@@ -182,7 +182,7 @@ public class MembershipsPanel extends Panel {
                 };
                 item.add(editLink);
 
-                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink("deleteLink", pageRef) {
+                AjaxLink deleteLink = new IndicatingOnConfirmAjaxLink("deleteLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -206,7 +206,8 @@ public class MembershipsPanel extends Panel {
                             resourcesToRemove.removeAll(userTO.getResources());
                         }
 
-                        StatusUtils.update(statusPanel, target, Collections.<String>emptySet(), resourcesToRemove);
+                        StatusUtils.update(
+                                userTO, statusPanel, target, Collections.<String>emptySet(), resourcesToRemove);
                     }
                 };
                 item.add(deleteLink);
@@ -236,7 +237,8 @@ public class MembershipsPanel extends Panel {
                         long roleId = updatedUserTO.getMembershipMap().get(diffMembId).getRoleId();
                         RoleTO roleTO = RoleUtils.findRole(roleTreeBuilder, roleId);
                         resourcesToAdd.addAll(roleTO.getResources());
-                        StatusUtils.update(statusPanel, target, resourcesToAdd, Collections.<String>emptySet());
+                        StatusUtils.update(
+                                userTO, statusPanel, target, resourcesToAdd, Collections.<String>emptySet());
                     }
                 }
 

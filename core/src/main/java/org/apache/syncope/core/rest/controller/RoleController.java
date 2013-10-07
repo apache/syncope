@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.controller;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -348,5 +349,70 @@ public class RoleController {
         LOG.debug("Role successfully deleted: {}", roleId);
 
         return roleTO;
+    }
+
+    @PreAuthorize("hasRole('ROLE_UPDATE')")
+    @Transactional(rollbackFor = {Throwable.class})
+    public RoleTO unlink(final Long roleId, final Collection<String> resources) {
+        LOG.debug("About to unlink role({}) and resources {}", roleId, resources);
+
+        final RoleMod roleMod = new RoleMod();
+        roleMod.setId(roleId);
+
+        roleMod.getResourcesToBeRemoved().addAll(resources);
+
+        final WorkflowResult<Long> updated = rwfAdapter.update(roleMod);
+
+        final RoleTO updatedTO = binder.getRoleTO(updated.getResult());
+
+        auditManager.audit(Category.user, AuditElements.RoleSubCategory.update, Result.success,
+                "Successfully updated role: " + updatedTO.getName());
+
+        LOG.debug("About to return updated role\n{}", updatedTO);
+
+        return updatedTO;
+    }
+
+    @PreAuthorize("hasRole('ROLE_UPDATE')")
+    @Transactional(rollbackFor = {Throwable.class})
+    public RoleTO unassign(final Long roleId, final Collection<String> resources) {
+        LOG.debug("About to unassign role({}) and resources {}", roleId, resources);
+
+        final RoleMod roleMod = new RoleMod();
+        roleMod.setId(roleId);
+        roleMod.getResourcesToBeRemoved().addAll(resources);
+
+        return update(roleMod);
+    }
+
+    @PreAuthorize("hasRole('ROLE_UPDATE')")
+    @Transactional(rollbackFor = {Throwable.class})
+    public RoleTO deprovision(final Long roleId, final Collection<String> resources) {
+        LOG.debug("About to deprovision role({}) from resources {}", roleId, resources);
+
+        final SyncopeRole role = binder.getRoleFromId(roleId);
+
+        final Set<String> noPropResourceName = role.getResourceNames();
+        noPropResourceName.removeAll(resources);
+
+        final List<PropagationTask> tasks = propagationManager.getRoleDeleteTaskIds(roleId, noPropResourceName);
+        final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
+        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
+        try {
+            taskExecutor.execute(tasks, propHanlder);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
+        }
+
+        final RoleTO updatedTO = binder.getRoleTO(role);
+        updatedTO.getPropagationStatusTOs().addAll(propagations);
+
+        auditManager.audit(Category.user, AuditElements.RoleSubCategory.update, Result.success,
+                "Successfully deprovisioned role: " + updatedTO.getName());
+
+        LOG.debug("About to return updated role\n{}", updatedTO);
+
+        return updatedTO;
     }
 }

@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.controller;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -478,7 +479,7 @@ public class UserController {
     protected UserTO setStatus(final SyncopeUser user, final String token,
             final PropagationRequestTO propagationRequestTO, final boolean status, final String task) {
 
-        LOG.debug("About to set status of {}" + user);
+        LOG.debug("About to set 'enabled:{}' status to {}", user, status);
 
         WorkflowResult<Long> updated;
         if (propagationRequestTO == null || propagationRequestTO.isOnSyncope()) {
@@ -618,5 +619,70 @@ public class UserController {
         }
 
         return res;
+    }
+
+    @PreAuthorize("hasRole('USER_UPDATE')")
+    @Transactional(rollbackFor = {Throwable.class})
+    public UserTO unlink(final Long userId, final Collection<String> resources) {
+        LOG.debug("About to unlink user({}) and resources {}", userId, resources);
+
+        final UserMod userMod = new UserMod();
+        userMod.setId(userId);
+
+        userMod.getResourcesToBeRemoved().addAll(resources);
+
+        final WorkflowResult<Map.Entry<Long, Boolean>> updated = uwfAdapter.update(userMod);
+
+        final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey());
+
+        auditManager.audit(Category.user, UserSubCategory.update, Result.success,
+                "Successfully updated user: " + updatedTO.getUsername());
+
+        LOG.debug("About to return updated user\n{}", updatedTO);
+
+        return updatedTO;
+    }
+
+    @PreAuthorize("hasRole('USER_UPDATE')")
+    @Transactional(rollbackFor = {Throwable.class})
+    public UserTO unassign(final Long userId, final Collection<String> resources) {
+        LOG.debug("About to unassign user({}) and resources {}", userId, resources);
+
+        final UserMod userMod = new UserMod();
+        userMod.setId(userId);
+        userMod.getResourcesToBeRemoved().addAll(resources);
+
+        return update(userMod);
+    }
+
+    @PreAuthorize("hasRole('USER_UPDATE')")
+    @Transactional(rollbackFor = {Throwable.class})
+    public UserTO deprovision(final Long userId, final Collection<String> resources) {
+        LOG.debug("About to deprovision user({}) from resources {}", userId, resources);
+
+        final SyncopeUser user = binder.getUserFromId(userId);
+
+        final Set<String> noPropResourceName = user.getResourceNames();
+        noPropResourceName.removeAll(resources);
+
+        final List<PropagationTask> tasks = propagationManager.getUserDeleteTaskIds(userId, noPropResourceName);
+        final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
+        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
+        try {
+            taskExecutor.execute(tasks, propHanlder);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
+        }
+
+        final UserTO updatedUserTO = binder.getUserTO(user);
+        updatedUserTO.getPropagationStatusTOs().addAll(propagations);
+
+        auditManager.audit(Category.user, UserSubCategory.update, Result.success,
+                "Successfully deprovisioned user: " + updatedUserTO.getUsername());
+
+        LOG.debug("About to return updated user\n{}", updatedUserTO);
+
+        return updatedUserTO;
     }
 }

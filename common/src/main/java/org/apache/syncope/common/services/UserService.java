@@ -23,6 +23,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -32,25 +33,26 @@ import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.PropagationRequestTO;
+import org.apache.syncope.common.to.PropagationTargetsTO;
 import org.apache.syncope.common.to.UserTO;
 
 @Path("users")
 public interface UserService {
 
-    @POST
+    @PUT
     @Path("{userId}/status/activate")
     UserTO activate(@PathParam("userId") long userId, @QueryParam("token") String token);
 
-    @POST
+    @PUT
     @Path("{userId}/status/activate/propagation")
     UserTO activate(@PathParam("userId") long userId, @QueryParam("token") String token,
             PropagationRequestTO propagationRequestTO);
 
-    @POST
+    @PUT
     @Path("activateByUsername/{username}")
     UserTO activateByUsername(@PathParam("username") String username, @QueryParam("token") String token);
 
-    @POST
+    @PUT
     @Path("activateByUsername/{username}/propagation")
     UserTO activateByUsername(@PathParam("username") String username, @QueryParam("token") String token,
             PropagationRequestTO propagationRequestTO);
@@ -72,19 +74,19 @@ public interface UserService {
     @GET
     List<UserTO> list(@QueryParam("page") int page, @QueryParam("size") @DefaultValue("25") int size);
 
-    @POST
+    @PUT
     @Path("{userId}/status/reactivate")
     UserTO reactivate(@PathParam("userId") long userId);
 
-    @POST
+    @PUT
     @Path("{userId}/status/reactivate/propagation")
     UserTO reactivate(@PathParam("userId") long userId, PropagationRequestTO propagationRequestTO);
 
-    @POST
+    @PUT
     @Path("reactivateByUsername/{username}")
     UserTO reactivateByUsername(@PathParam("username") String username);
 
-    @POST
+    @PUT
     @Path("reactivateByUsername/{username}/propagation")
     UserTO reactivateByUsername(@PathParam("username") String username, PropagationRequestTO propagationRequestTO);
 
@@ -112,27 +114,60 @@ public interface UserService {
     @Path("search/count")
     int searchCount(NodeCond searchCondition) throws InvalidSearchConditionException;
 
-    @POST
+    @PUT
     @Path("{userId}/status/suspend")
     UserTO suspend(@PathParam("userId") long userId);
 
-    @POST
+    @PUT
     @Path("{userId}/status/suspend/propagation")
     UserTO suspend(@PathParam("userId") long userId, PropagationRequestTO propagationRequestTO);
 
-    @POST
+    @PUT
     @Path("suspendByUsername/{username}")
     UserTO suspendByUsername(@PathParam("username") String username);
 
-    @POST
+    @PUT
     @Path("suspendByUsername/{username}/propagation")
     UserTO suspendByUsername(@PathParam("username") String username, PropagationRequestTO propagationRequestTO);
 
-    @POST
+    @PUT
     @Path("{userId}")
     UserTO update(@PathParam("userId") Long userId, UserMod userMod);
 
     @POST
     @Path("bulk")
     BulkActionRes bulkAction(BulkAction bulkAction);
+
+    /**
+     * Unlinks user and the given external resources specified by <tt>propagationTargetsTO</tt> parameter.
+     *
+     * @param userId user id.
+     * @param propagationTargetsTO resource names.
+     * @return updated user.
+     */
+    @PUT
+    @Path("{userId}/unlink")
+    UserTO unlink(@PathParam("userId") Long userId, PropagationTargetsTO propagationTargetsTO);
+
+    /**
+     * Unassigns resources to the given user (performs unlink + de-provision).
+     *
+     * @param userId user id.
+     * @param propagationTargetsTO resources to be unassigned.
+     * @return updated user.
+     */
+    @PUT
+    @Path("{userId}/unassign")
+    UserTO unassign(@PathParam("userId") Long userId, PropagationTargetsTO propagationTargetsTO);
+
+    /**
+     * De-provision user from the given resources without unlinking.
+     *
+     * @param userId user id of the user to be de-provisioned.
+     * @param propagationTargetsTO resource names.
+     * @return updated user.
+     */
+    @PUT
+    @Path("{userId}/deprovision")
+    UserTO deprovision(@PathParam("userId") Long userId, PropagationTargetsTO propagationTargetsTO);
 }

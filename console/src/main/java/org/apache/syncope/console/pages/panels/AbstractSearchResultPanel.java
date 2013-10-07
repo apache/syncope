@@ -84,7 +84,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
     /**
      * Schemas to be shown modal window width.
      */
-    private final static int STATUS_MODAL_WIN_WIDTH = 500;
+    private final static int STATUS_MODAL_WIN_WIDTH = 700;
 
     /**
      * Application preferences.

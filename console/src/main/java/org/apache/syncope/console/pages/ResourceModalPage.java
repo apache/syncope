@@ -68,7 +68,7 @@ public class ResourceModalPage extends BaseModalPage {
         //--------------------------------
         form.add(new ResourceDetailsPanel("details", resourceTO,
                 resourceRestClient.getPropagationActionsClasses(), createFlag));
-        
+
         form.add(new SysInfoPanel("systeminformation", resourceTO));
         //--------------------------------
 

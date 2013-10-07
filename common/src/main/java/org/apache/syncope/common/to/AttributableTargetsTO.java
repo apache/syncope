@@ -18,32 +18,39 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.HashSet;
+import java.util.Set;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.AbstractBaseBean;
 
 /**
  * Propagation request on internal storage or on 0+ external resources.
  */
-@XmlRootElement(name = "propagationRequest")
+@XmlRootElement(name = "attributableTargets")
 @XmlType
-public class PropagationRequestTO extends PropagationTargetsTO {
+public class AttributableTargetsTO extends AbstractBaseBean {
 
-    private static final long serialVersionUID = 7601716025754543004L;
+    private static final long serialVersionUID = -2410740018092105778L;
 
     /**
-     * Whether update should be performed on internal storage.
+     * Attributables.
      */
-    private boolean onSyncope;
+    private final Set<Long> attributables;
 
-    public PropagationRequestTO() {
+    public AttributableTargetsTO() {
         super();
+
+        this.attributables = new HashSet<Long>();
     }
 
-    public boolean isOnSyncope() {
-        return onSyncope;
-    }
-
-    public void setOnSyncope(final boolean onSyncope) {
-        this.onSyncope = onSyncope;
+    @XmlElementWrapper(name = "resources")
+    @XmlElement(name = "resource")
+    @JsonProperty("resources")
+    public Set<Long> getAttributables() {
+        return attributables;
     }
 }
