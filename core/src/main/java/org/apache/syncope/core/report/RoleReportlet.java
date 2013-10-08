@@ -238,7 +238,7 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
 
             doExtractAttributes(handler, roleTO, conf.getAttrs(), conf.getDerAttrs(), conf.getVirAttrs());
 
-            if (conf.getFeatures().contains(Feature.entitelments)) {
+            if (conf.getFeatures().contains(Feature.entitlements)) {
                 handler.startElement("", "", "entitlements", null);
 
                 for (String ent : roleTO.getEntitlements()) {

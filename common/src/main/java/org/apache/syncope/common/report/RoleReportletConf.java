@@ -44,7 +44,7 @@ public class RoleReportletConf extends AbstractReportletConf {
         name,
         roleOwner,
         userOwner,
-        entitelments,
+        entitlements,
         users,
         resources
 
