@@ -19,12 +19,16 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.TypedQuery;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
+import org.apache.syncope.core.persistence.beans.user.UDerAttr;
 import org.apache.syncope.core.persistence.beans.user.UMappingItem;
+import org.apache.syncope.core.persistence.dao.AttrTemplateDAO;
 import org.apache.syncope.core.persistence.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
@@ -36,7 +40,10 @@ import org.springframework.stereotype.Repository;
 public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
 
     @Autowired
-    private DerAttrDAO derivedAttributeDAO;
+    private DerAttrDAO derAttrDAO;
+
+    @Autowired
+    private AttrTemplateDAO attrTemplateDAO;
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -53,44 +60,56 @@ public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
     }
 
     @Override
-    public <T extends AbstractDerSchema> T save(final T derivedSchema) {
-        return entityManager.merge(derivedSchema);
+    public <T extends AbstractDerAttr> List<T> findAttrs(
+            final AbstractDerSchema schema, final Class<T> reference) {
+
+        final StringBuilder queryString =
+                new StringBuilder("SELECT e FROM ").append(reference.getSimpleName()).append(" e WHERE e.");
+        if (reference.equals(UDerAttr.class)) {
+            queryString.append("derSchema");
+        } else {
+            queryString.append("template.schema");
+        }
+        queryString.append("=:schema");
+
+        TypedQuery<T> query = entityManager.createQuery(queryString.toString(), reference);
+        query.setParameter("schema", schema);
+
+        return query.getResultList();
     }
 
     @Override
+    public <T extends AbstractDerSchema> T save(final T derSchema) {
+        return entityManager.merge(derSchema);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public void delete(final String name, final AttributableUtil attributableUtil) {
-        final AbstractDerSchema derivedSchema = find(name, attributableUtil.derSchemaClass());
-        if (derivedSchema == null) {
+        final AbstractDerSchema schema = find(name, attributableUtil.derSchemaClass());
+        if (schema == null) {
             return;
         }
 
-        List<? extends AbstractDerAttr> attributes = getAttributes(derivedSchema, attributableUtil.derAttrClass());
-
-        final Set<Long> derivedAttributeIds = new HashSet<Long>(attributes.size());
-
-        Class<? extends AbstractDerAttr> attributeClass = null;
-        for (AbstractDerAttr attribute : attributes) {
-            derivedAttributeIds.add(attribute.getId());
-            attributeClass = attribute.getClass();
+        final Set<Long> attrIds = new HashSet<Long>();
+        for (AbstractDerAttr attr : findAttrs(schema, attributableUtil.derAttrClass())) {
+            attrIds.add(attr.getId());
+        }
+        for (Long attrId : attrIds) {
+            derAttrDAO.delete(attrId, attributableUtil.derAttrClass());
         }
 
-        for (Long derivedAttributeId : derivedAttributeIds) {
-            derivedAttributeDAO.delete(derivedAttributeId, attributeClass);
+        if (attributableUtil.getType() != AttributableType.USER) {
+            for (Iterator<Number> it = attrTemplateDAO.
+                    findBySchemaName(schema.getName(), attributableUtil.derAttrTemplateClass()).iterator();
+                    it.hasNext();) {
+
+                attrTemplateDAO.delete(it.next().longValue(), attributableUtil.derAttrTemplateClass());
+            }
         }
 
         resourceDAO.deleteMapping(name, attributableUtil.derIntMappingType(), UMappingItem.class);
 
-        entityManager.remove(derivedSchema);
-    }
-
-    @Override
-    public <T extends AbstractDerAttr> List<T> getAttributes(final AbstractDerSchema derivedSchema,
-            final Class<T> reference) {
-
-        TypedQuery<T> query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e"
-                + " WHERE e.derivedSchema=:schema", reference);
-        query.setParameter("schema", derivedSchema);
-
-        return query.getResultList();
+        entityManager.remove(schema);
     }
 }

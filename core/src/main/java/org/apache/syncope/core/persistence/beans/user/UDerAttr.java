@@ -34,7 +34,7 @@ public class UDerAttr extends AbstractDerAttr {
     private SyncopeUser owner;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private UDerSchema derivedSchema;
+    private UDerSchema derSchema;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -53,15 +53,11 @@ public class UDerAttr extends AbstractDerAttr {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractDerSchema> T getDerivedSchema() {
-        return (T) derivedSchema;
+    public <T extends AbstractDerSchema> T getSchema() {
+        return (T) derSchema;
     }
 
-    @Override
-    public <T extends AbstractDerSchema> void setDerivedSchema(final T derivedSchema) {
-        if (!(derivedSchema instanceof UDerSchema)) {
-            throw new ClassCastException("expected type UDerSchema, found: " + derivedSchema.getClass().getName());
-        }
-        this.derivedSchema = (UDerSchema) derivedSchema;
+    public void setSchema(final UDerSchema derSchema) {
+        this.derSchema = derSchema;
     }
 }

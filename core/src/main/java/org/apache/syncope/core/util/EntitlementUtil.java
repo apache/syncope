@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.apache.syncope.common.SyncopeConstants;
 
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.slf4j.Logger;
@@ -44,7 +45,8 @@ public final class EntitlementUtil {
     private static final Logger LOG = LoggerFactory.getLogger(EntitlementUtil.class);
 
     public static String getAuthenticatedUsername() {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication == null ? SyncopeConstants.ANONYMOUS_USER : authentication.getName();
     }
 
     public static Set<String> getOwnedEntitlementNames() {
@@ -108,7 +110,7 @@ public final class EntitlementUtil {
 
     /**
      * Extend the current authentication context to include the given role.
-     * 
+     *
      * @param roleId role id
      */
     public static void extendAuthContext(final Long roleId) {

@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.core.rest.data;
 
-import static org.apache.syncope.common.types.PolicyType.GLOBAL_ACCOUNT;
-import static org.apache.syncope.common.types.PolicyType.GLOBAL_PASSWORD;
-import static org.apache.syncope.common.types.PolicyType.GLOBAL_SYNC;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.AbstractPolicyTO;

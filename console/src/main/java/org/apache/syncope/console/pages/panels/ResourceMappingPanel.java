@@ -577,13 +577,13 @@ public class ResourceMappingPanel extends Panel {
                 case UserDerivedSchema:
                 case RoleDerivedSchema:
                 case MembershipDerivedSchema:
-                    toBeUpdated.setChoices(schemaRestClient.getDerivedSchemaNames(type.getAttributableType()));
+                    toBeUpdated.setChoices(schemaRestClient.getDerSchemaNames(type.getAttributableType()));
                     break;
 
                 case UserVirtualSchema:
                 case RoleVirtualSchema:
                 case MembershipVirtualSchema:
-                    toBeUpdated.setChoices(schemaRestClient.getVirtualSchemaNames(type.getAttributableType()));
+                    toBeUpdated.setChoices(schemaRestClient.getVirSchemaNames(type.getAttributableType()));
                     break;
 
                 case UserId:

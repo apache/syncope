@@ -67,14 +67,11 @@ public class RoleModalPage extends BaseModalPage {
 
     protected RoleTO originalRoleTO;
 
-    public RoleModalPage(final ModalWindow window, final RoleTO roleTO) {
-        this(null, window, roleTO, Mode.ADMIN);
-    }
-
     public RoleModalPage(final PageReference pageRef, final ModalWindow window, final RoleTO roleTO) {
         this(pageRef, window, roleTO, Mode.ADMIN);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public RoleModalPage(final PageReference pageRef, final ModalWindow window, final RoleTO roleTO, final Mode mode) {
         super();
 

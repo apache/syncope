@@ -59,7 +59,7 @@ public abstract class AbstractSearchPanel extends Panel {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSearchPanel.class);
 
-    protected static final String[] ATTRIBUTES_NOTINCLUDED = {"attributes", "derivedAttributes", "virtualAttributes",
+    protected static final String[] ATTRIBUTES_NOTINCLUDED = {"attrs", "derAttrs", "virAttrs",
         "serialVersionUID", "memberships", "entitlements", "resources", "password",
         "propagationTOs", "propagationStatusMap"};
 

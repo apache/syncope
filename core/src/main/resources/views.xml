@@ -94,27 +94,29 @@ under the License.
     CREATE VIEW role_search_unique_attr AS
 
     SELECT ra.owner_id AS subject_id,
-    ra.schema_name AS schema_name,
+    rat.schema_name AS schema_name,
     rav.booleanvalue AS booleanvalue,
     rav.datevalue AS datevalue,
     rav.doublevalue AS doublevalue,
     rav.longvalue AS longvalue,
     rav.stringvalue AS stringvalue
-    FROM RAttrUniqueValue rav, RAttr ra
+    FROM RAttrUniqueValue rav, RAttr ra, RAttrTemplate rat
     WHERE rav.attribute_id = ra.id
+    AND ra.template_id = rat.id
   </entry>
   <entry key="role_search_attr">
     CREATE VIEW role_search_attr AS
 
     SELECT ra.owner_id AS subject_id,
-    ra.schema_name AS schema_name,
+    rat.schema_name AS schema_name,
     rav.booleanvalue AS booleanvalue,
     rav.datevalue AS datevalue,
     rav.doublevalue AS doublevalue,
     rav.longvalue AS longvalue,
     rav.stringvalue AS stringvalue
-    FROM RAttrValue rav, RAttr ra
+    FROM RAttrValue rav, RAttr ra, RAttrTemplate rat
     WHERE rav.attribute_id = ra.id
+    AND ra.template_id = rat.id
   </entry>
   <entry key="role_search_null_attr">
     CREATE VIEW role_search_null_attr AS
@@ -127,7 +129,8 @@ under the License.
     NULL AS longvalue,
     NULL AS stringvalue
     FROM SyncopeRole r CROSS JOIN RSchema
-    LEFT OUTER JOIN RAttr ra ON (RSchema.name = ra.schema_name AND ra.owner_id = r.id)
+    LEFT OUTER JOIN RAttr ra ON (ra.owner_id = r.id)
+    LEFT OUTER JOIN RAttrTemplate rat ON (RSchema.name = rat.schema_name AND ra.template_id = rat.id)
     WHERE ra.id IS NULL
   </entry>
   <entry key="role_search_resource">

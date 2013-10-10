@@ -31,32 +31,39 @@ import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
+import org.apache.syncope.core.persistence.beans.AbstractAttrTemplate;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.MAttr;
+import org.apache.syncope.core.persistence.beans.membership.MAttrTemplate;
 import org.apache.syncope.core.persistence.beans.membership.MAttrUniqueValue;
 import org.apache.syncope.core.persistence.beans.membership.MAttrValue;
 import org.apache.syncope.core.persistence.beans.membership.MDerAttr;
+import org.apache.syncope.core.persistence.beans.membership.MDerAttrTemplate;
 import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
 import org.apache.syncope.core.persistence.beans.membership.MSchema;
 import org.apache.syncope.core.persistence.beans.membership.MVirAttr;
+import org.apache.syncope.core.persistence.beans.membership.MVirAttrTemplate;
 import org.apache.syncope.core.persistence.beans.membership.MVirSchema;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.RAttr;
+import org.apache.syncope.core.persistence.beans.role.RAttrTemplate;
 import org.apache.syncope.core.persistence.beans.role.RAttrUniqueValue;
 import org.apache.syncope.core.persistence.beans.role.RAttrValue;
 import org.apache.syncope.core.persistence.beans.role.RDerAttr;
+import org.apache.syncope.core.persistence.beans.role.RDerAttrTemplate;
 import org.apache.syncope.core.persistence.beans.role.RDerSchema;
 import org.apache.syncope.core.persistence.beans.role.RMappingItem;
 import org.apache.syncope.core.persistence.beans.role.RSchema;
 import org.apache.syncope.core.persistence.beans.role.RVirAttr;
+import org.apache.syncope.core.persistence.beans.role.RVirAttrTemplate;
 import org.apache.syncope.core.persistence.beans.role.RVirSchema;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -322,7 +329,7 @@ public final class AttributableUtil {
         return result;
     }
 
-    public <T extends AbstractSchema> Class<T> schemaClass() {
+    public <T extends AbstractNormalSchema> Class<T> schemaClass() {
         Class result = null;
 
         switch (type) {
@@ -340,7 +347,7 @@ public final class AttributableUtil {
         return result;
     }
 
-    public <T extends AbstractSchema> T newSchema() {
+    public <T extends AbstractNormalSchema> T newSchema() {
         T result = null;
 
         switch (type) {
@@ -414,6 +421,24 @@ public final class AttributableUtil {
         return result;
     }
 
+    @SuppressWarnings("rawtypes")
+    public <T extends AbstractAttrTemplate> Class<T> attrTemplateClass() {
+        Class result = null;
+
+        switch (type) {
+            case USER:
+                break;
+            case ROLE:
+                result = RAttrTemplate.class;
+                break;
+            case MEMBERSHIP:
+                result = MAttrTemplate.class;
+                break;
+        }
+
+        return result;
+    }
+
     public <T extends AbstractAttr> Class<T> attrClass() {
         Class result = null;
 
@@ -450,6 +475,24 @@ public final class AttributableUtil {
         return result;
     }
 
+    @SuppressWarnings("rawtypes")
+    public <T extends AbstractAttrTemplate> Class<T> derAttrTemplateClass() {
+        Class result = null;
+
+        switch (type) {
+            case USER:
+                break;
+            case ROLE:
+                result = RDerAttrTemplate.class;
+                break;
+            case MEMBERSHIP:
+                result = MDerAttrTemplate.class;
+                break;
+        }
+
+        return result;
+    }
+
     public <T extends AbstractDerAttr> Class<T> derAttrClass() {
         Class result = null;
 
@@ -462,6 +505,24 @@ public final class AttributableUtil {
                 break;
             case MEMBERSHIP:
                 result = MDerAttr.class;
+                break;
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings("rawtypes")
+    public <T extends AbstractAttrTemplate> Class<T> virAttrTemplateClass() {
+        Class result = null;
+
+        switch (type) {
+            case USER:
+                break;
+            case ROLE:
+                result = RVirAttrTemplate.class;
+                break;
+            case MEMBERSHIP:
+                result = MVirAttrTemplate.class;
                 break;
         }
 

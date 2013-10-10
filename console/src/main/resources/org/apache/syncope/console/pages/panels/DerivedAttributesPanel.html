@@ -16,43 +16,45 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:panel>
-  <table class="ui-widget ui-widget-content ui-corner-all"
-         style="font-size: 1em;margin-top:2px;"
-         width="100%" cellpadding="2px" cellspacing="1px">
-    <thead>
-      <tr class="ui-widget-header">
-        <th><wicket:message key="derivedAttributeToBeRemoved"/></th>
-    <th><wicket:message key="derivedAttributeName"/></th>
-    <th><wicket:message key="derivedAttributeValue"/></th>
-    </tr>
-    </thead>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:panel>
+    <table class="ui-widget ui-widget-content ui-corner-all"
+           style="font-size: 1em;margin-top:2px;"
+           width="100%" cellpadding="2px" cellspacing="1px">
+      <thead>
+        <tr class="ui-widget-header">
+          <th><wicket:message key="derAttrToRemove"/></th>
+          <th><wicket:message key="derAttrName"/></th>
+          <th><wicket:message key="derAttrValue"/></th>
+        </tr>
+      </thead>
 
-    <tfoot>
-      <tr>
-        <td>
-          <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                 wicket:id="addAttributeBtn" />
-        </td>
-      </tr>
-    </tfoot>
+      <tfoot>
+        <tr>
+          <td>
+            <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                   wicket:id="addAttributeBtn" />
+          </td>
+        </tr>
+      </tfoot>
 
-    <tbody wicket:id="derAttrContainer">
-      <tr wicket:id="attributes">
-        <td align="center" valign="middle">
-          <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
-        </td>
+      <tbody wicket:id="derAttrContainer">
+        <tr wicket:id="attrs">
+          <td align="center" valign="middle">
+            <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
+          </td>
 
-        <td>
-          <select class="text ui-widget-content ui-corner-all"
-                  style="width:100%" wicket:id="schema"/>
-        </td>
+          <td>
+            <select class="text ui-widget-content ui-corner-all"
+                    style="width:100%" wicket:id="schema"/>
+          </td>
 
-        <td align="center" valign="middle">
-          <input type="text"
-                 style="width:98%; padding-left: 0px; padding-right: 0px" wicket:id="value"/>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</wicket:panel>
+          <td align="center" valign="middle">
+            <input type="text"
+                   style="width:98%; padding-left: 0px; padding-right: 0px" wicket:id="value"/>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </wicket:panel>
+</html>

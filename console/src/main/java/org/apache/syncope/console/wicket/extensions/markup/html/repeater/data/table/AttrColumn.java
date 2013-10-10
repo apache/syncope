@@ -53,22 +53,20 @@ public class AttrColumn extends AbstractColumn<AbstractAttributableTO, String> {
 
         switch (schemaType) {
             case NORMAL:
-                if (rowModel.getObject().getAttributeMap().containsKey(name)) {
-                    values = rowModel.getObject().getAttributeMap().get(name).getValues();
+                if (rowModel.getObject().getAttrMap().containsKey(name)) {
+                    values = rowModel.getObject().getAttrMap().get(name).getValues();
                 }
                 break;
 
             case VIRTUAL:
-                if (rowModel.getObject().getVirtualAttributeMap().containsKey(name)) {
-
-                    values = rowModel.getObject().getVirtualAttributeMap().get(name).getValues();
+                if (rowModel.getObject().getVirAttrMap().containsKey(name)) {
+                    values = rowModel.getObject().getVirAttrMap().get(name).getValues();
                 }
                 break;
 
             case DERIVED:
-                if (rowModel.getObject().getDerivedAttributeMap().containsKey(name)) {
-
-                    values = rowModel.getObject().getDerivedAttributeMap().get(name).getValues();
+                if (rowModel.getObject().getDerAttrMap().containsKey(name)) {
+                    values = rowModel.getObject().getDerAttrMap().get(name).getValues();
                 }
                 break;
 

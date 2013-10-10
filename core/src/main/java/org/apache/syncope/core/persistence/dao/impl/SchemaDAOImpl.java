@@ -19,13 +19,17 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.TypedQuery;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
+import org.apache.syncope.core.persistence.beans.user.UAttr;
 import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.dao.AttrDAO;
+import org.apache.syncope.core.persistence.dao.AttrTemplateDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -36,53 +40,70 @@ import org.springframework.stereotype.Repository;
 public class SchemaDAOImpl extends AbstractDAOImpl implements SchemaDAO {
 
     @Autowired
-    private AttrDAO attributeDAO;
+    private AttrDAO attrDAO;
+
+    @Autowired
+    private AttrTemplateDAO attrTemplateDAO;
 
     @Autowired
     private ResourceDAO resourceDAO;
 
     @Override
-    public <T extends AbstractSchema> T find(final String name, final Class<T> reference) {
+    public <T extends AbstractNormalSchema> T find(final String name, final Class<T> reference) {
 
         return entityManager.find(reference, name);
     }
 
     @Override
-    public <T extends AbstractSchema> List<T> findAll(final Class<T> reference) {
+    public <T extends AbstractNormalSchema> List<T> findAll(final Class<T> reference) {
         TypedQuery<T> query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e", reference);
 
         return query.getResultList();
     }
 
     @Override
-    public <T extends AbstractAttr> List<T> getAttributes(final AbstractSchema schema, final Class<T> reference) {
-        TypedQuery<T> query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e"
-                + " WHERE e.schema=:schema", reference);
+    public <T extends AbstractAttr> List<T> findAttrs(final AbstractNormalSchema schema, final Class<T> reference) {
+        final StringBuilder queryString =
+                new StringBuilder("SELECT e FROM ").append(reference.getSimpleName()).append(" e WHERE e.");
+        if (!reference.equals(UAttr.class)) {
+            queryString.append("template.");
+        }
+        queryString.append("schema=:schema");
+
+        TypedQuery<T> query = entityManager.createQuery(queryString.toString(), reference);
         query.setParameter("schema", schema);
 
         return query.getResultList();
     }
 
     @Override
-    public <T extends AbstractSchema> T save(final T schema) {
+    public <T extends AbstractNormalSchema> T save(final T schema) {
         return entityManager.merge(schema);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void delete(final String name, final AttributableUtil attributableUtil) {
-        AbstractSchema schema = find(name, attributableUtil.schemaClass());
+        AbstractNormalSchema schema = find(name, attributableUtil.schemaClass());
         if (schema == null) {
             return;
         }
 
-        List<? extends AbstractAttr> attributes = getAttributes(schema, attributableUtil.attrClass());
-
-        Set<Long> attributeIds = new HashSet<Long>(attributes.size());
-        for (AbstractAttr attribute : attributes) {
-            attributeIds.add(attribute.getId());
+        final Set<Long> attrIds = new HashSet<Long>();
+        for (AbstractAttr attr : findAttrs(schema, attributableUtil.attrClass())) {
+            attrIds.add(attr.getId());
         }
-        for (Long attributeId : attributeIds) {
-            attributeDAO.delete(attributeId, attributableUtil.attrClass());
+        for (Long attrId : attrIds) {
+            attrDAO.delete(attrId, attributableUtil.attrClass());
+        }
+
+        if (attributableUtil.getType() != AttributableType.USER) {
+            for (Iterator<Number> it = attrTemplateDAO.
+                    findBySchemaName(schema.getName(), attributableUtil.attrTemplateClass()).iterator();
+                    it.hasNext();) {
+
+                attrTemplateDAO.delete(it.next().longValue(), attributableUtil.attrTemplateClass());
+            }
         }
 
         resourceDAO.deleteMapping(name, attributableUtil.intMappingType(), UMappingItem.class);

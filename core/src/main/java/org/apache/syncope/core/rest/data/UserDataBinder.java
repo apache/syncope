@@ -66,7 +66,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserDataBinder extends AbstractAttributableDataBinder {
 
     private static final String[] IGNORE_USER_PROPERTIES = {
-        "memberships", "attributes", "derivedAttributes", "virtualAttributes", "resources"};
+        "memberships", "attrs", "derAttrs", "virAttrs", "resources"};
 
     @Autowired
     private ConnObjectUtil connObjectUtil;
@@ -272,7 +272,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // store the role ids of membership required to be added
         Set<Long> membershipToBeAddedRoleIds = new HashSet<Long>();
-        for (MembershipMod membToBeAdded : userMod.getMembershipsToBeAdded()) {
+        for (MembershipMod membToBeAdded : userMod.getMembershipsToAdd()) {
             membershipToBeAddedRoleIds.add(membToBeAdded.getRole());
         }
 
@@ -280,7 +280,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         final Set<String> toBeProvisioned = new HashSet<String>();
 
         // memberships to be removed
-        for (Long membershipId : userMod.getMembershipsToBeRemoved()) {
+        for (Long membershipId : userMod.getMembershipsToRemove()) {
             LOG.debug("Membership to be removed: {}", membershipId);
 
             Membership membership = membershipDAO.find(membershipId);
@@ -299,8 +299,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 membership = user.getMembership(membership.getSyncopeRole().getId());
                 if (membershipToBeAddedRoleIds.contains(membership.getSyncopeRole().getId())) {
 
-                    Set<Long> attributeIds = new HashSet<Long>(membership.getAttributes().size());
-                    for (AbstractAttr attribute : membership.getAttributes()) {
+                    Set<Long> attributeIds = new HashSet<Long>(membership.getAttrs().size());
+                    for (AbstractAttr attribute : membership.getAttrs()) {
                         attributeIds.add(attribute.getId());
                     }
                     for (Long attributeId : attributeIds) {
@@ -309,7 +309,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     attributeIds.clear();
 
                     // remove derived attributes
-                    for (AbstractDerAttr derAttr : membership.getDerivedAttributes()) {
+                    for (AbstractDerAttr derAttr : membership.getDerAttrs()) {
 
                         attributeIds.add(derAttr.getId());
                     }
@@ -319,7 +319,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     attributeIds.clear();
 
                     // remove virtual attributes
-                    for (AbstractVirAttr virAttr : membership.getVirtualAttributes()) {
+                    for (AbstractVirAttr virAttr : membership.getVirAttrs()) {
                         attributeIds.add(virAttr.getId());
                     }
                     for (Long virAttrId : attributeIds) {
@@ -335,7 +335,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
 
         // memberships to be added
-        for (MembershipMod membershipMod : userMod.getMembershipsToBeAdded()) {
+        for (MembershipMod membershipMod : userMod.getMembershipsToAdd()) {
             LOG.debug("Membership to be added: role({})", membershipMod.getRole());
 
             SyncopeRole role = roleDAO.find(membershipMod.getRole());
@@ -381,8 +381,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         connObjectUtil.retrieveVirAttrValues(user, AttributableUtil.getInstance(AttributableType.USER));
 
-        fillTO(userTO, user.getAttributes(), user.getDerivedAttributes(), user.getVirtualAttributes(),
-                user.getResources());
+        fillTO(userTO, user.getAttrs(), user.getDerAttrs(), user.getVirAttrs(), user.getResources());
 
         MembershipTO membershipTO;
         for (Membership membership : user.getMemberships()) {
@@ -398,8 +397,9 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             membershipTO.setRoleId(membership.getSyncopeRole().getId());
             membershipTO.setRoleName(membership.getSyncopeRole().getName());
 
-            fillTO(membershipTO, membership.getAttributes(), membership.getDerivedAttributes(), membership.
-                    getVirtualAttributes(), membership.getResources());
+            fillTO(membershipTO,
+                    membership.getAttrs(), membership.getDerAttrs(), membership.getVirAttrs(),
+                    membership.getResources());
 
             userTO.getMemberships().add(membershipTO);
         }

@@ -30,7 +30,7 @@ import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -48,7 +48,7 @@ public class SchemaDataBinder {
     private JexlUtil jexlUtil;
 
     // --------------- NORMAL -----------------
-    private <T extends AbstractSchema> void fill(final T schema, final SchemaTO schemaTO) {
+    private <T extends AbstractNormalSchema> void fill(final T schema, final SchemaTO schemaTO) {
         if (!jexlUtil.isExpressionValid(schemaTO.getMandatoryCondition())) {
             SyncopeClientCompositeException scce =
                     new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
@@ -64,17 +64,17 @@ public class SchemaDataBinder {
         BeanUtils.copyProperties(schemaTO, schema);
     }
 
-    public <T extends AbstractSchema> void create(final SchemaTO schemaTO, final T schema) {
+    public <T extends AbstractNormalSchema> void create(final SchemaTO schemaTO, final T schema) {
         fill(schema, schemaTO);
     }
 
-    public <T extends AbstractSchema> void update(final SchemaTO schemaTO, final T schema,
+    public <T extends AbstractNormalSchema> void update(final SchemaTO schemaTO, final T schema,
             final AttributableUtil attributableUtil) {
 
         SyncopeClientCompositeException scce =
                 new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
 
-        List<AbstractAttr> attrs = schemaDAO.getAttributes(schema, attributableUtil.attrClass());
+        List<AbstractAttr> attrs = schemaDAO.findAttrs(schema, attributableUtil.attrClass());
         if (!attrs.isEmpty()) {
             if (schema.getType() != schemaTO.getType()) {
                 SyncopeClientException e = new SyncopeClientException(SyncopeClientExceptionType.valueOf("Invalid"
@@ -99,7 +99,7 @@ public class SchemaDataBinder {
         fill(schema, schemaTO);
     }
 
-    public <T extends AbstractSchema> SchemaTO getSchemaTO(final T schema, final AttributableUtil attributableUtil) {
+    public <T extends AbstractNormalSchema> SchemaTO getSchemaTO(final T schema, final AttributableUtil attributableUtil) {
         SchemaTO schemaTO = new SchemaTO();
         BeanUtils.copyProperties(schema, schemaTO);
 

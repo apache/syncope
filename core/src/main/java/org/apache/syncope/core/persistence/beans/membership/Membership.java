@@ -40,7 +40,7 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 
 @Entity
 @Table(uniqueConstraints =
-@UniqueConstraint(columnNames = {"syncopeUser_id", "syncopeRole_id"}))
+        @UniqueConstraint(columnNames = {"syncopeUser_id", "syncopeRole_id"}))
 public class Membership extends AbstractAttributable {
 
     private static final long serialVersionUID = 5030106264797289469L;
@@ -56,22 +56,22 @@ public class Membership extends AbstractAttributable {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
-    private List<MAttr> attributes;
+    private List<MAttr> attrs;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
-    private List<MDerAttr> derivedAttributes;
+    private List<MDerAttr> derAttrs;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
-    private List<MVirAttr> virtualAttributes;
+    private List<MVirAttr> virAttrs;
 
     public Membership() {
         super();
 
-        attributes = new ArrayList<MAttr>();
-        derivedAttributes = new ArrayList<MDerAttr>();
-        virtualAttributes = new ArrayList<MVirAttr>();
+        attrs = new ArrayList<MAttr>();
+        derAttrs = new ArrayList<MDerAttr>();
+        virAttrs = new ArrayList<MVirAttr>();
     }
 
     @Override
@@ -101,95 +101,132 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    public <T extends AbstractAttr> boolean addAttribute(final T attribute) {
-        if (!(attribute instanceof MAttr)) {
-            throw new ClassCastException("attribute is expected to be typed MAttr: " + attribute.getClass().getName());
+    public <T extends AbstractAttr> boolean addAttr(final T attr) {
+        if (!(attr instanceof MAttr)) {
+            throw new ClassCastException("attribute is expected to be typed MAttr: " + attr.getClass().getName());
         }
-        return attributes.add((MAttr) attribute);
+        return attrs.add((MAttr) attr);
     }
 
     @Override
-    public <T extends AbstractAttr> boolean removeAttribute(final T attribute) {
-        if (!(attribute instanceof MAttr)) {
-            throw new ClassCastException("attribute is expected to be typed MAttr: " + attribute.getClass().getName());
+    public <T extends AbstractAttr> boolean removeAttr(final T attr) {
+        if (!(attr instanceof MAttr)) {
+            throw new ClassCastException("attribute is expected to be typed MAttr: " + attr.getClass().getName());
         }
-        return attributes.remove((MAttr) attribute);
+        return attrs.remove((MAttr) attr);
     }
 
     @Override
-    public List<? extends AbstractAttr> getAttributes() {
-        return attributes;
+    public List<? extends AbstractAttr> getAttrs() {
+        return attrs;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void setAttributes(final List<? extends AbstractAttr> attributes) {
-        this.attributes.clear();
-        if (attributes != null && !attributes.isEmpty()) {
-            this.attributes.addAll((List<MAttr>) attributes);
+    public void setAttrs(final List<? extends AbstractAttr> attrs) {
+        this.attrs.clear();
+        if (attrs != null && !attrs.isEmpty()) {
+            for (AbstractAttr attr : attrs) {
+                addAttr(attr);
+            }
         }
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean addDerivedAttribute(final T derAttr) {
-        if (!(derAttr instanceof MDerAttr)) {
-            throw new ClassCastException("attribute is expected to be typed MDerAttr: " + derAttr.getClass().getName());
-        }
-        return derivedAttributes.add((MDerAttr) derAttr);
-    }
-
-    @Override
-    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(final T derAttr) {
+    public <T extends AbstractDerAttr> boolean addDerAttr(final T derAttr) {
         if (!(derAttr instanceof MDerAttr)) {
             throw new ClassCastException("attribute is expected to be typed MDerAttr: " + derAttr.getClass().getName());
         }
 
-        return derivedAttributes.remove((MDerAttr) derAttr);
+        if (getSyncopeRole() != null && derAttr.getSchema() != null) {
+            MDerAttrTemplate found = null;
+            for (MDerAttrTemplate template : getSyncopeRole().findInheritedTemplates(MDerAttrTemplate.class)) {
+                if (derAttr.getSchema().equals(template.getSchema())) {
+                    found = template;
+                }
+            }
+            if (found != null) {
+                ((MDerAttr) derAttr).setTemplate(found);
+                return derAttrs.add((MDerAttr) derAttr);
+            }
+        }
+
+        LOG.warn("Attribute not added because either role was not yet set, "
+                + "schema was not specified or no template for that schema is available");
+        return false;
     }
 
     @Override
-    public List<? extends AbstractDerAttr> getDerivedAttributes() {
-        return derivedAttributes;
+    public <T extends AbstractDerAttr> boolean removeDerAttr(final T derAttr) {
+        if (!(derAttr instanceof MDerAttr)) {
+            throw new ClassCastException("attribute is expected to be typed MDerAttr: " + derAttr.getClass().getName());
+        }
+
+        return derAttrs.remove((MDerAttr) derAttr);
+    }
+
+    @Override
+    public List<? extends AbstractDerAttr> getDerAttrs() {
+        return derAttrs;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void setDerivedAttributes(final List<? extends AbstractDerAttr> derivedAttributes) {
-        this.derivedAttributes.clear();
-        if (derivedAttributes != null && !derivedAttributes.isEmpty()) {
-            this.derivedAttributes.addAll((List<MDerAttr>) derivedAttributes);
+    public void setDerAttrs(final List<? extends AbstractDerAttr> derAttrs) {
+        this.derAttrs.clear();
+        if (derAttrs != null && !derAttrs.isEmpty()) {
+            for (AbstractDerAttr attr : derAttrs) {
+                addDerAttr(attr);
+            }
         }
     }
 
     @Override
-    public <T extends AbstractVirAttr> boolean addVirtualAttribute(final T virAttr) {
+    public <T extends AbstractVirAttr> boolean addVirAttr(final T virAttr) {
         if (!(virAttr instanceof MVirAttr)) {
             throw new ClassCastException("attribute is expected to be typed MVirAttr: " + virAttr.getClass().getName());
         }
 
-        return virtualAttributes.add((MVirAttr) virAttr);
+        if (getSyncopeRole() != null && virAttr.getSchema() != null) {
+            MVirAttrTemplate found = null;
+            for (MVirAttrTemplate template : getSyncopeRole().findInheritedTemplates(MVirAttrTemplate.class)) {
+                if (virAttr.getSchema().equals(template.getSchema())) {
+                    found = template;
+                }
+            }
+            if (found != null) {
+                ((MVirAttr) virAttr).setTemplate(found);
+                return virAttrs.add((MVirAttr) virAttr);
+            }
+        }
+
+        LOG.warn("Attribute not added because either "
+                + "schema was not specified or no template for that schema is available");
+        return false;
     }
 
     @Override
-    public <T extends AbstractVirAttr> boolean removeVirtualAttribute(final T virAttr) {
+    public <T extends AbstractVirAttr> boolean removeVirAttr(final T virAttr) {
         if (!(virAttr instanceof MVirAttr)) {
             throw new ClassCastException("attribute is expected to be typed MVirAttr: " + virAttr.getClass().getName());
         }
 
-        return virtualAttributes.remove((MVirAttr) virAttr);
+        return virAttrs.remove((MVirAttr) virAttr);
     }
 
     @Override
-    public List<? extends AbstractVirAttr> getVirtualAttributes() {
-        return virtualAttributes;
+    public List<? extends AbstractVirAttr> getVirAttrs() {
+        return virAttrs;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void setVirtualAttributes(final List<? extends AbstractVirAttr> virtualAttributes) {
-        this.virtualAttributes.clear();
-        if (virtualAttributes != null && !virtualAttributes.isEmpty()) {
-            this.virtualAttributes.addAll((List<MVirAttr>) virtualAttributes);
+    public void setVirAttrs(final List<? extends AbstractVirAttr> virAttrs) {
+        this.virAttrs.clear();
+        if (virAttrs != null && !virAttrs.isEmpty()) {
+            for (AbstractVirAttr attr : virAttrs) {
+                addVirAttr(attr);
+            }
         }
     }
 

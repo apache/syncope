@@ -90,20 +90,20 @@ public class MembershipModalPage extends BaseModalPage {
         //--------------------------------
         // Attributes panel
         //--------------------------------
-        form.add(new AttributesPanel("attributes", membershipTO, form, templateMode));
+        form.add(new AttributesPanel("attrs", membershipTO, form, templateMode));
         form.add(new SysInfoPanel("systeminformation", membershipTO));
         //--------------------------------
 
         //--------------------------------
         // Derived attributes container
         //--------------------------------
-        form.add(new DerivedAttributesPanel("derivedAttributes", membershipTO));
+        form.add(new DerivedAttributesPanel("derAttrs", membershipTO));
         //--------------------------------
 
         //--------------------------------
         // Virtual attributes container
         //--------------------------------
-        form.add(new VirtualAttributesPanel("virtualAttributes", membershipTO, templateMode));
+        form.add(new VirtualAttributesPanel("virAttrs", membershipTO, templateMode));
         //--------------------------------
 
         add(form);

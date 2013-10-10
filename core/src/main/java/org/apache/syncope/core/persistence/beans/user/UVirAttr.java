@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.beans.user;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
@@ -36,7 +34,7 @@ public class UVirAttr extends AbstractVirAttr {
     private SyncopeUser owner;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private UVirSchema virtualSchema;
+    private UVirSchema virSchema;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -54,23 +52,11 @@ public class UVirAttr extends AbstractVirAttr {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractVirSchema> T getVirtualSchema() {
-        return (T) virtualSchema;
+    public <T extends AbstractVirSchema> T getSchema() {
+        return (T) virSchema;
     }
 
-    @Override
-    public <T extends AbstractVirSchema> void setVirtualSchema(final T virtualSchema) {
-        if (!(virtualSchema instanceof UVirSchema)) {
-            throw new ClassCastException("expected type UVirSchema, found: " + virtualSchema.getClass().getName());
-        }
-        this.virtualSchema = (UVirSchema) virtualSchema;
-    }
-
-    @Override
-    public List<String> getValues() {
-        if (values == null) {
-            values = new ArrayList<String>();
-        }
-        return values;
+    public void setSchema(final UVirSchema virSchema) {
+        this.virSchema = virSchema;
     }
 }

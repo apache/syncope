@@ -16,34 +16,36 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:head>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:head>
     <style type="text/css">
-        .actionLink a{
-            text-decoration: none;
-            font-weight: normal;
-        }
+      .actionLink a{
+        text-decoration: none;
+        font-weight: normal;
+      }
     </style>
-</wicket:head>
-<wicket:panel>
-    
+  </wicket:head>
+  <wicket:panel>
+
     <span class="actionLink" style="float:right" wicket:id="menuPanel"/>
 
     <wicket:fragment wicket:id="roleFrag">
-        <a wicket:id="createRoleLink">
-            <wicket:message key="create_role"/>
-        </a>|
-        <a wicket:id="updateRoleLink">
-            <wicket:message key="update_role"/>
-        </a>|
-        <a wicket:id="dropRoleLink">
-            <wicket:message key="drop_role"/>
-        </a>
+      <a wicket:id="createRoleLink">
+        <wicket:message key="create_role"/>
+      </a>|
+      <a wicket:id="updateRoleLink">
+        <wicket:message key="update_role"/>
+      </a>|
+      <a wicket:id="dropRoleLink">
+        <wicket:message key="drop_role"/>
+      </a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fakerootFrag">
-        <a wicket:id="createRoleLink">
-            <wicket:message key="create_role"/>
-        </a>
+      <a wicket:id="createRoleLink">
+        <wicket:message key="create_role"/>
+      </a>
     </wicket:fragment>
 
-</wicket:panel>
+  </wicket:panel>
+</html>

@@ -63,9 +63,9 @@ public class SortableAttributableProviderComparator extends SortableDataProvider
         public AttrModel(final AbstractAttributableTO attributableTO) {
             super();
 
-            this.attrs = attributableTO.getAttributeMap();
-            this.derAttrs = attributableTO.getDerivedAttributeMap();
-            this.virAttrs = attributableTO.getVirtualAttributeMap();
+            this.attrs = attributableTO.getAttrMap();
+            this.derAttrs = attributableTO.getDerAttrMap();
+            this.virAttrs = attributableTO.getVirAttrMap();
         }
 
         /**

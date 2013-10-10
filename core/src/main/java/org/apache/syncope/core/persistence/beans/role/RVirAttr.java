@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.persistence.beans.role;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
@@ -35,8 +35,9 @@ public class RVirAttr extends AbstractVirAttr {
     @ManyToOne
     private SyncopeRole owner;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private RVirSchema virtualSchema;
+    @Column(nullable = false)
+    @OneToOne(cascade = CascadeType.MERGE)
+    private RVirAttrTemplate template;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -52,25 +53,17 @@ public class RVirAttr extends AbstractVirAttr {
         this.owner = (SyncopeRole) owner;
     }
 
+    public RVirAttrTemplate getTemplate() {
+        return template;
+    }
+
+    public void setTemplate(final RVirAttrTemplate template) {
+        this.template = template;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractVirSchema> T getVirtualSchema() {
-        return (T) virtualSchema;
-    }
-
-    @Override
-    public <T extends AbstractVirSchema> void setVirtualSchema(final T virtualSchema) {
-        if (!(virtualSchema instanceof RVirSchema)) {
-            throw new ClassCastException("expected type RVirSchema, found: " + virtualSchema.getClass().getName());
-        }
-        this.virtualSchema = (RVirSchema) virtualSchema;
-    }
-
-    @Override
-    public List<String> getValues() {
-        if (values == null) {
-            values = new ArrayList<String>();
-        }
-        return values;
+    public <T extends AbstractVirSchema> T getSchema() {
+        return template == null ? null : (T) template.getSchema();
     }
 }

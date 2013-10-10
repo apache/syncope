@@ -63,21 +63,21 @@ public class RoleTest extends AbstractDAOTest {
     public void inheritedAttributes() {
         SyncopeRole director = roleDAO.find(7L);
 
-        assertEquals(1, director.findInheritedAttributes().size());
+        assertEquals(1, director.findInheritedAttrs().size());
     }
 
     @Test
     public void inheritedDerivedAttributes() {
         SyncopeRole director = roleDAO.find(7L);
 
-        assertEquals(1, director.findInheritedDerivedAttributes().size());
+        assertEquals(1, director.findInheritedDerAttrs().size());
     }
 
     @Test
     public void inheritedVirtualAttributes() {
         SyncopeRole director = roleDAO.find(7L);
 
-        assertEquals(1, director.findInheritedVirtualAttributes().size());
+        assertEquals(1, director.findInheritedVirAttrs().size());
     }
 
     @Test

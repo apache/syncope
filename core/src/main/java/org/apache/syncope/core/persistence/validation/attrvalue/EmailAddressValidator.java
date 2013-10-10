@@ -22,7 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 
 public class EmailAddressValidator extends AbstractValidator {
 
@@ -33,7 +33,7 @@ public class EmailAddressValidator extends AbstractValidator {
             + "@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
             Pattern.CASE_INSENSITIVE);
 
-    public EmailAddressValidator(final AbstractSchema schema) {
+    public EmailAddressValidator(final AbstractNormalSchema schema) {
         super(schema);
     }
 

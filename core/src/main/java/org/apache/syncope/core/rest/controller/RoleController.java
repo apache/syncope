@@ -262,7 +262,7 @@ public class RoleController {
 
         EntitlementUtil.extendAuthContext(created.getResult());
 
-        List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created, roleTO.getVirtualAttributes());
+        List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created, roleTO.getVirAttrs());
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
         final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
@@ -293,7 +293,7 @@ public class RoleController {
         WorkflowResult<Long> updated = rwfAdapter.update(roleMod);
 
         List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
-                roleMod.getVirtualAttributesToBeRemoved(), roleMod.getVirtualAttributesToBeUpdated());
+                roleMod.getVirAttrsToRemove(), roleMod.getVirAttrsToUpdate());
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
         final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
@@ -359,7 +359,7 @@ public class RoleController {
         final RoleMod roleMod = new RoleMod();
         roleMod.setId(roleId);
 
-        roleMod.getResourcesToBeRemoved().addAll(resources);
+        roleMod.getResourcesToRemove().addAll(resources);
 
         final WorkflowResult<Long> updated = rwfAdapter.update(roleMod);
 
@@ -380,7 +380,7 @@ public class RoleController {
 
         final RoleMod roleMod = new RoleMod();
         roleMod.setId(roleId);
-        roleMod.getResourcesToBeRemoved().addAll(resources);
+        roleMod.getResourcesToRemove().addAll(resources);
 
         return update(roleMod);
     }

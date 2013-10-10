@@ -40,8 +40,8 @@ public class DerAttrDAOImpl extends AbstractDAOImpl implements DerAttrDAO {
     }
 
     @Override
-    public <T extends AbstractDerAttr> T save(final T derivedAttribute) {
-        return entityManager.merge(derivedAttribute);
+    public <T extends AbstractDerAttr> T save(final T derAttr) {
+        return entityManager.merge(derAttr);
     }
 
     @Override
@@ -55,11 +55,11 @@ public class DerAttrDAOImpl extends AbstractDAOImpl implements DerAttrDAO {
     }
 
     @Override
-    public <T extends AbstractDerAttr> void delete(final T derivedAttribute) {
-        if (derivedAttribute.getOwner() != null) {
-            derivedAttribute.getOwner().removeDerivedAttribute(derivedAttribute);
+    public <T extends AbstractDerAttr> void delete(final T derAttr) {
+        if (derAttr.getOwner() != null) {
+            derAttr.getOwner().removeDerAttr(derAttr);
         }
 
-        entityManager.remove(derivedAttribute);
+        entityManager.remove(derAttr);
     }
 }

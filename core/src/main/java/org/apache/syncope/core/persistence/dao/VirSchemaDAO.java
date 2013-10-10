@@ -30,9 +30,9 @@ public interface VirSchemaDAO extends DAO {
 
     <T extends AbstractVirSchema> List<T> findAll(Class<T> reference);
 
-    <T extends AbstractVirSchema> T save(T virtualSchema) throws InvalidEntityException;
+    <T extends AbstractVirAttr> List<T> findAttrs(AbstractVirSchema virSchema, Class<T> reference);
 
-    <T extends AbstractVirAttr> List<T> getAttributes(AbstractVirSchema virtualSchema, Class<T> reference);
+    <T extends AbstractVirSchema> T save(T virtualSchema) throws InvalidEntityException;
 
     void delete(String name, AttributableUtil attributableUtil);
 }

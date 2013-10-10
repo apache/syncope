@@ -82,12 +82,12 @@ public class TaskDataBinder {
     private JexlUtil jexlUtil;
 
     private void checkJexl(final AbstractAttributableTO attributableTO, final SyncopeClientException sce) {
-        for (AttributeTO attrTO : attributableTO.getAttributes()) {
+        for (AttributeTO attrTO : attributableTO.getAttrs()) {
             if (!attrTO.getValues().isEmpty() && !jexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
                 sce.addElement("Invalid JEXL: " + attrTO.getValues().get(0));
             }
         }
-        for (AttributeTO attrTO : attributableTO.getVirtualAttributes()) {
+        for (AttributeTO attrTO : attributableTO.getVirAttrs()) {
             if (!attrTO.getValues().isEmpty() && !jexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
                 sce.addElement("Invalid JEXL: " + attrTO.getValues().get(0));
             }

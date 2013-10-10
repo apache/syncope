@@ -22,7 +22,7 @@ public abstract class AbstractAttrUniqueValue extends AbstractAttrValue {
 
     private static final long serialVersionUID = -1114553598914979353L;
 
-    public abstract <T extends AbstractSchema> T getSchema();
+    public abstract <T extends AbstractNormalSchema> T getSchema();
 
-    public abstract <T extends AbstractSchema> void setSchema(T schema);
+    public abstract <T extends AbstractNormalSchema> void setSchema(T schema);
 }

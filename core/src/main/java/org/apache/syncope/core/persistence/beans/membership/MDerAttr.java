@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.core.persistence.beans.membership;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
@@ -33,8 +35,9 @@ public class MDerAttr extends AbstractDerAttr {
     @ManyToOne
     private Membership owner;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private MDerSchema derivedSchema;
+    @Column(nullable = false)
+    @OneToOne(cascade = CascadeType.MERGE)
+    private MDerAttrTemplate template;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -50,17 +53,17 @@ public class MDerAttr extends AbstractDerAttr {
         this.owner = (Membership) owner;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends AbstractDerSchema> T getDerivedSchema() {
-        return (T) derivedSchema;
+    public MDerAttrTemplate getTemplate() {
+        return template;
     }
 
+    public void setTemplate(final MDerAttrTemplate template) {
+        this.template = template;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractDerSchema> void setDerivedSchema(final T derivedSchema) {
-        if (!(derivedSchema instanceof MDerSchema)) {
-            throw new ClassCastException("expected type MDerSchema, found: " + derivedSchema.getClass().getName());
-        }
-        this.derivedSchema = (MDerSchema) derivedSchema;
+    public <T extends AbstractDerSchema> T getSchema() {
+        return template == null ? null : (T) template.getSchema();
     }
 }

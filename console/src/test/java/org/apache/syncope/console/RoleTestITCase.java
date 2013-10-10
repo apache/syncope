@@ -112,7 +112,7 @@ public class RoleTestITCase extends AbstractTest {
         selenium.click("//div/form/div[2]/ul/li[7]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/div[7]/span/div/div/div/label\");", "30000");
+                + "\"//form/div[2]/div/div[8]/span/div/div/div/label\");", "30000");
     }
 
     @Test

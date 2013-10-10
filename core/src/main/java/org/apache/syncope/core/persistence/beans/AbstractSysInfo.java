@@ -24,7 +24,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import org.apache.syncope.core.util.SysInfoListener;
+import org.apache.syncope.core.persistence.SysInfoListener;
 
 /**
  * Abstract wrapper for common system information.
@@ -37,9 +37,8 @@ public abstract class AbstractSysInfo extends AbstractBaseBean {
 
     /**
      * Username of the user that has created this profile.
-     * <p>
-     * Cannot be used a reference to an existing user for two main reasons: the creator can be the user <tt>admin</tt>;
-     * the creator could have been removed.
+     * <br/>
+     * Reference to existing user cannot be used: the creator can either be <tt>admin</tt> or was deleted.
      */
     @Column(nullable = false)
     private String creator;
@@ -53,21 +52,20 @@ public abstract class AbstractSysInfo extends AbstractBaseBean {
 
     /**
      * Username of the user that has performed the last modification to this profile.
-     * <p>
-     * This field cannot be null: at creation time it have to be initialized with the creator username.
-     * <p>
-     * The modifier can be the user itself whether the last performed change has been a self-modification.
-     * <p>
-     * Cannot be used a reference to an existing user for two main reasons: the modifier can be the user <tt>admin</tt>;
-     * the modifier could have been removed.
+     * <br/>
+     * This field cannot be null: at creation time it needs to be initialized with the creator username.
+     * <br/>
+     * The modifier can be the user itself if the last performed change was a self-modification.
+     * <br/>
+     * Reference to existing user cannot be used: the creator can either be <tt>admin</tt> or was deleted.
      */
     @Column(nullable = false)
     private String lastModifier;
 
     /**
      * Last change date.
-     * <p>
-     * This field cannot be null: at creation time it has to be initialized with <tt>creationDate</tt> field value.
+     * <br/>
+     * This field cannot be null: at creation time it needs to be initialized with <tt>creationDate</tt> field value.
      */
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)

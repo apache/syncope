@@ -43,9 +43,11 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
+import org.apache.syncope.core.persistence.beans.AbstractAttrTemplate;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
@@ -53,12 +55,15 @@ import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
+import org.apache.syncope.core.persistence.beans.membership.MAttrTemplate;
+import org.apache.syncope.core.persistence.beans.membership.MDerAttrTemplate;
+import org.apache.syncope.core.persistence.beans.membership.MVirAttrTemplate;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.validation.entity.SyncopeRoleCheck;
 
 @Entity
 @Table(uniqueConstraints =
-@UniqueConstraint(columnNames = {"name", "parent_id"}))
+        @UniqueConstraint(columnNames = {"name", "parent_id"}))
 @Cacheable
 @SyncopeRoleCheck
 public class SyncopeRole extends AbstractAttributable {
@@ -82,22 +87,46 @@ public class SyncopeRole extends AbstractAttributable {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-    @JoinColumn(name = "role_id"),
-    inverseJoinColumns =
-    @JoinColumn(name = "entitlement_name"))
+            @JoinColumn(name = "role_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "entitlement_name"))
     private Set<Entitlement> entitlements;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
-    private List<RAttr> attributes;
+    private List<RAttrTemplate> rAttrTemplates;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
-    private List<RDerAttr> derivedAttributes;
+    private List<RDerAttrTemplate> rDerAttrTemplates;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
-    private List<RVirAttr> virtualAttributes;
+    private List<RVirAttrTemplate> rVirAttrTemplates;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    @Valid
+    private List<MAttrTemplate> mAttrTemplates;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    @Valid
+    private List<MDerAttrTemplate> mDerAttrTemplates;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    @Valid
+    private List<MVirAttrTemplate> mVirAttrTemplates;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    @Valid
+    private List<RAttr> attrs;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    @Valid
+    private List<RDerAttr> derAttrs;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    @Valid
+    private List<RVirAttr> virAttrs;
 
     @Basic(optional = true)
     @Min(0)
@@ -107,17 +136,22 @@ public class SyncopeRole extends AbstractAttributable {
     @Basic(optional = true)
     @Min(0)
     @Max(1)
-    private Integer inheritAttributes;
+    private Integer inheritTemplates;
 
     @Basic(optional = true)
     @Min(0)
     @Max(1)
-    private Integer inheritDerivedAttributes;
+    private Integer inheritAttrs;
 
     @Basic(optional = true)
     @Min(0)
     @Max(1)
-    private Integer inheritVirtualAttributes;
+    private Integer inheritDerAttrs;
+
+    @Basic(optional = true)
+    @Min(0)
+    @Max(1)
+    private Integer inheritVirAttrs;
 
     @Basic(optional = true)
     @Min(0)
@@ -140,9 +174,9 @@ public class SyncopeRole extends AbstractAttributable {
      */
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-    @JoinColumn(name = "role_id"),
-    inverseJoinColumns =
-    @JoinColumn(name = "resource_name"))
+            @JoinColumn(name = "role_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "resource_name"))
     @Valid
     private Set<ExternalResource> resources;
 
@@ -150,15 +184,26 @@ public class SyncopeRole extends AbstractAttributable {
         super();
 
         entitlements = new HashSet<Entitlement>();
-        attributes = new ArrayList<RAttr>();
-        derivedAttributes = new ArrayList<RDerAttr>();
-        virtualAttributes = new ArrayList<RVirAttr>();
+
+        rAttrTemplates = new ArrayList<RAttrTemplate>();
+        rDerAttrTemplates = new ArrayList<RDerAttrTemplate>();
+        rVirAttrTemplates = new ArrayList<RVirAttrTemplate>();
+        mAttrTemplates = new ArrayList<MAttrTemplate>();
+        mDerAttrTemplates = new ArrayList<MDerAttrTemplate>();
+        mVirAttrTemplates = new ArrayList<MVirAttrTemplate>();
+
+        attrs = new ArrayList<RAttr>();
+        derAttrs = new ArrayList<RDerAttr>();
+        virAttrs = new ArrayList<RVirAttr>();
+
         inheritOwner = getBooleanAsInteger(false);
-        inheritAttributes = getBooleanAsInteger(false);
-        inheritDerivedAttributes = getBooleanAsInteger(false);
-        inheritVirtualAttributes = getBooleanAsInteger(false);
+        inheritTemplates = getBooleanAsInteger(false);
+        inheritAttrs = getBooleanAsInteger(false);
+        inheritDerAttrs = getBooleanAsInteger(false);
+        inheritVirAttrs = getBooleanAsInteger(false);
         inheritPasswordPolicy = getBooleanAsInteger(false);
         inheritAccountPolicy = getBooleanAsInteger(false);
+
         resources = new HashSet<ExternalResource>();
     }
 
@@ -231,102 +276,170 @@ public class SyncopeRole extends AbstractAttributable {
         }
     }
 
-    @Override
-    public <T extends AbstractAttr> boolean addAttribute(final T attribute) {
-        if (!(attribute instanceof RAttr)) {
-            throw new ClassCastException("attribute is expected to be typed RAttr: " + attribute.getClass().getName());
+    public boolean isInheritTemplates() {
+        return isBooleanAsInteger(inheritTemplates);
+    }
+
+    public void setInheritTemplates(final boolean inheritAttrTemplates) {
+        this.inheritTemplates = getBooleanAsInteger(inheritAttrTemplates);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T extends AbstractAttrTemplate> List<T> getAttrTemplates(final Class<T> reference) {
+        List<T> result = null;
+
+        if (reference.equals(RAttrTemplate.class)) {
+            result = (List<T>) rAttrTemplates;
+        } else if (reference.equals(RDerAttrTemplate.class)) {
+            result = (List<T>) rDerAttrTemplates;
+        } else if (reference.equals(RVirAttrTemplate.class)) {
+            result = (List<T>) rVirAttrTemplates;
+        } else if (reference.equals(MAttrTemplate.class)) {
+            result = (List<T>) mAttrTemplates;
+        } else if (reference.equals(MDerAttrTemplate.class)) {
+            result = (List<T>) mDerAttrTemplates;
+        } else if (reference.equals(MVirAttrTemplate.class)) {
+            result = (List<T>) mVirAttrTemplates;
         }
-        return attributes.add((RAttr) attribute);
+
+        return result;
+    }
+
+    public <T extends AbstractAttrTemplate<K>, K extends AbstractSchema> T getAttrTemplate(
+            final Class<T> reference, final String schemaName) {
+
+        T result = null;
+
+        for (T template : findInheritedTemplates(reference)) {
+            if (schemaName.equals(template.getSchema().getName())) {
+                result = template;
+            }
+        }
+
+        return result;
+    }
+
+    public <T extends AbstractAttrTemplate<K>, K extends AbstractSchema> List<K> getAttrTemplateSchemas(
+            final Class<T> reference) {
+
+        List<K> result = new ArrayList<K>();
+
+        for (T template : findInheritedTemplates(reference)) {
+            result.add(template.getSchema());
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractAttrTemplate<K>, K extends AbstractSchema> List<T> findInheritedTemplates(
+            final Class<T> reference) {
+
+        List<T> result = new ArrayList<T>(getAttrTemplates(reference));
+
+        if (isInheritTemplates() && getParent() != null) {
+            result.addAll(getParent().findInheritedTemplates(reference));
+        }
+
+        return result;
     }
 
     @Override
-    public <T extends AbstractAttr> boolean removeAttribute(final T attribute) {
-        if (!(attribute instanceof RAttr)) {
-            throw new ClassCastException("attribute is expected to be typed RAttr: " + attribute.getClass().getName());
+    public <T extends AbstractAttr> boolean addAttr(final T attr) {
+        if (!(attr instanceof RAttr)) {
+            throw new ClassCastException("attribute is expected to be typed RAttr: " + attr.getClass().getName());
         }
-        return attributes.remove((RAttr) attribute);
+        return attrs.add((RAttr) attr);
     }
 
     @Override
-    public List<? extends AbstractAttr> getAttributes() {
-        return attributes;
+    public <T extends AbstractAttr> boolean removeAttr(final T attr) {
+        if (!(attr instanceof RAttr)) {
+            throw new ClassCastException("attribute is expected to be typed RAttr: " + attr.getClass().getName());
+        }
+        return attrs.remove((RAttr) attr);
+    }
+
+    @Override
+    public List<? extends AbstractAttr> getAttrs() {
+        return attrs;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void setAttributes(final List<? extends AbstractAttr> attributes) {
-        this.attributes.clear();
-        if (attributes != null && !attributes.isEmpty()) {
-            this.attributes.addAll((List<RAttr>) attributes);
+    public void setAttrs(final List<? extends AbstractAttr> attrs) {
+        this.attrs.clear();
+        if (attrs != null && !attrs.isEmpty()) {
+            this.attrs.addAll((List<RAttr>) attrs);
         }
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean addDerivedAttribute(final T derAttr) {
+    public <T extends AbstractDerAttr> boolean addDerAttr(final T derAttr) {
         if (!(derAttr instanceof RDerAttr)) {
             throw new ClassCastException("attribute is expected to be typed RDerAttr: " + derAttr.getClass().getName());
         }
-        return derivedAttributes.add((RDerAttr) derAttr);
+        return derAttrs.add((RDerAttr) derAttr);
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(final T derAttr) {
+    public <T extends AbstractDerAttr> boolean removeDerAttr(final T derAttr) {
         if (!(derAttr instanceof RDerAttr)) {
             throw new ClassCastException("attribute is expected to be typed RDerAttr: " + derAttr.getClass().getName());
         }
-        return derivedAttributes.remove((RDerAttr) derAttr);
+        return derAttrs.remove((RDerAttr) derAttr);
     }
 
     @Override
-    public List<? extends AbstractDerAttr> getDerivedAttributes() {
-        return derivedAttributes;
+    public List<? extends AbstractDerAttr> getDerAttrs() {
+        return derAttrs;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void setDerivedAttributes(final List<? extends AbstractDerAttr> derivedAttributes) {
-        this.derivedAttributes.clear();
-        if (derivedAttributes != null && !derivedAttributes.isEmpty()) {
-            this.derivedAttributes.addAll((List<RDerAttr>) derivedAttributes);
+    public void setDerAttrs(final List<? extends AbstractDerAttr> derAttrs) {
+        this.derAttrs.clear();
+        if (derAttrs != null && !derAttrs.isEmpty()) {
+            this.derAttrs.addAll((List<RDerAttr>) derAttrs);
         }
     }
 
     @Override
-    public <T extends AbstractVirAttr> boolean addVirtualAttribute(final T virAttr) {
+    public <T extends AbstractVirAttr> boolean addVirAttr(final T virAttr) {
         if (!(virAttr instanceof RVirAttr)) {
             throw new ClassCastException("attribute is expected to be typed RVirAttr: " + virAttr.getClass().getName());
         }
-        return virtualAttributes.add((RVirAttr) virAttr);
+        return virAttrs.add((RVirAttr) virAttr);
     }
 
     @Override
-    public <T extends AbstractVirAttr> boolean removeVirtualAttribute(final T virAttr) {
+    public <T extends AbstractVirAttr> boolean removeVirAttr(final T virAttr) {
         if (!(virAttr instanceof RVirAttr)) {
             throw new ClassCastException("attribute is expected to be typed RVirAttr: " + virAttr.getClass().getName());
         }
-        return virtualAttributes.remove((RVirAttr) virAttr);
+        return virAttrs.remove((RVirAttr) virAttr);
     }
 
     @Override
-    public List<? extends AbstractVirAttr> getVirtualAttributes() {
-        return virtualAttributes;
+    public List<? extends AbstractVirAttr> getVirAttrs() {
+        return virAttrs;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void setVirtualAttributes(final List<? extends AbstractVirAttr> virtualAttributes) {
-        this.virtualAttributes.clear();
-        if (virtualAttributes != null && !virtualAttributes.isEmpty()) {
-            this.virtualAttributes.addAll((List<RVirAttr>) virtualAttributes);
+    public void setVirAttrs(final List<? extends AbstractVirAttr> virAttrs) {
+        this.virAttrs.clear();
+        if (virAttrs != null && !virAttrs.isEmpty()) {
+            this.virAttrs.addAll((List<RVirAttr>) virAttrs);
         }
     }
 
-    public boolean isInheritAttributes() {
-        return isBooleanAsInteger(inheritAttributes);
+    public boolean isInheritAttrs() {
+        return isBooleanAsInteger(inheritAttrs);
     }
 
-    public void setInheritAttributes(final boolean inheritAttributes) {
-        this.inheritAttributes = getBooleanAsInteger(inheritAttributes);
+    public void setInheritAttrs(final boolean inheritAttrs) {
+        this.inheritAttrs = getBooleanAsInteger(inheritAttrs);
     }
 
     /**
@@ -335,21 +448,21 @@ public class SyncopeRole extends AbstractAttributable {
      * @return a list of inherited and only inherited attributes.
      */
     @SuppressWarnings("unchecked")
-    public List<RAttr> findInheritedAttributes() {
+    public List<RAttr> findInheritedAttrs() {
         final Map<RSchema, RAttr> result = new HashMap<RSchema, RAttr>();
 
-        if (isInheritAttributes() && getParent() != null) {
-            final Map<AbstractSchema, AbstractAttr> attrMap = getAttrMap();
+        if (isInheritAttrs() && getParent() != null) {
+            final Map<AbstractNormalSchema, AbstractAttr> attrMap = getAttrMap();
 
             // Add attributes not specialized
-            for (RAttr attr : (Collection<RAttr>) getParent().getAttributes()) {
+            for (RAttr attr : (Collection<RAttr>) getParent().getAttrs()) {
                 if (!attrMap.containsKey(attr.getSchema())) {
                     result.put((RSchema) attr.getSchema(), attr);
                 }
             }
 
             // Add attributes not specialized and not already added
-            for (RAttr attr : getParent().findInheritedAttributes()) {
+            for (RAttr attr : getParent().findInheritedAttrs()) {
                 if (!attrMap.containsKey(attr.getSchema()) && !result.containsKey((RSchema) attr.getSchema())) {
                     result.put((RSchema) attr.getSchema(), attr);
                 }
@@ -359,12 +472,12 @@ public class SyncopeRole extends AbstractAttributable {
         return new ArrayList<RAttr>(result.values());
     }
 
-    public boolean isInheritDerivedAttributes() {
-        return isBooleanAsInteger(inheritDerivedAttributes);
+    public boolean isInheritDerAttrs() {
+        return isBooleanAsInteger(inheritDerAttrs);
     }
 
-    public void setInheritDerivedAttributes(final boolean inheritDerivedAttributes) {
-        this.inheritDerivedAttributes = getBooleanAsInteger(inheritDerivedAttributes);
+    public void setInheritDerAttrs(final boolean inheritDerAttrs) {
+        this.inheritDerAttrs = getBooleanAsInteger(inheritDerAttrs);
 
     }
 
@@ -374,24 +487,25 @@ public class SyncopeRole extends AbstractAttributable {
      * @return a list of inherited and only inherited attributes.
      */
     @SuppressWarnings("unchecked")
-    public List<RDerAttr> findInheritedDerivedAttributes() {
+    public List<RDerAttr> findInheritedDerAttrs() {
         final Map<RDerSchema, RDerAttr> result = new HashMap<RDerSchema, RDerAttr>();
 
-        if (isInheritDerivedAttributes() && getParent() != null) {
+        if (isInheritDerAttrs() && getParent() != null) {
             final Map<AbstractDerSchema, AbstractDerAttr> attrMap = getDerAttrMap();
 
             // Add attributes not specialized
-            for (RDerAttr attr : (Collection<RDerAttr>) getParent().getDerivedAttributes()) {
-                if (!attrMap.containsKey(attr.getDerivedSchema())) {
-                    result.put((RDerSchema) attr.getDerivedSchema(), attr);
+            for (RDerAttr attr : (Collection<RDerAttr>) getParent().getDerAttrs()) {
+                if (!attrMap.containsKey(attr.getSchema())) {
+                    result.put((RDerSchema) attr.getSchema(), attr);
                 }
             }
 
             // Add attributes not specialized and not already added
-            for (RDerAttr attr : getParent().findInheritedDerivedAttributes()) {
-                if (!attrMap.containsKey(attr.getDerivedSchema())
-                        && !result.containsKey((RDerSchema) attr.getDerivedSchema())) {
-                    result.put((RDerSchema) attr.getDerivedSchema(), attr);
+            for (RDerAttr attr : getParent().findInheritedDerAttrs()) {
+                if (!attrMap.containsKey(attr.getSchema())
+                        && !result.containsKey((RDerSchema) attr.getSchema())) {
+
+                    result.put((RDerSchema) attr.getSchema(), attr);
                 }
             }
         }
@@ -399,12 +513,12 @@ public class SyncopeRole extends AbstractAttributable {
         return new ArrayList<RDerAttr>(result.values());
     }
 
-    public boolean isInheritVirtualAttributes() {
-        return isBooleanAsInteger(inheritVirtualAttributes);
+    public boolean isInheritVirAttrs() {
+        return isBooleanAsInteger(inheritVirAttrs);
     }
 
-    public void setInheritVirtualAttributes(final boolean inheritVirtualAttributes) {
-        this.inheritVirtualAttributes = getBooleanAsInteger(inheritVirtualAttributes);
+    public void setInheritVirAttrs(final boolean inheritVirAttrs) {
+        this.inheritVirAttrs = getBooleanAsInteger(inheritVirAttrs);
 
     }
 
@@ -414,24 +528,25 @@ public class SyncopeRole extends AbstractAttributable {
      * @return a list of inherited and only inherited attributes.
      */
     @SuppressWarnings("unchecked")
-    public List<RVirAttr> findInheritedVirtualAttributes() {
+    public List<RVirAttr> findInheritedVirAttrs() {
         final Map<RVirSchema, RVirAttr> result = new HashMap<RVirSchema, RVirAttr>();
 
-        if (isInheritVirtualAttributes() && getParent() != null) {
+        if (isInheritVirAttrs() && getParent() != null) {
             final Map<AbstractVirSchema, AbstractVirAttr> attrMap = getVirAttrMap();
 
             // Add attributes not specialized
-            for (RVirAttr attr : (Collection<RVirAttr>) getParent().getVirtualAttributes()) {
-                if (!attrMap.containsKey(attr.getVirtualSchema())) {
-                    result.put((RVirSchema) attr.getVirtualSchema(), attr);
+            for (RVirAttr attr : (Collection<RVirAttr>) getParent().getVirAttrs()) {
+                if (!attrMap.containsKey(attr.getSchema())) {
+                    result.put((RVirSchema) attr.getSchema(), attr);
                 }
             }
 
             // Add attributes not specialized and not already added
-            for (RVirAttr attr : getParent().findInheritedVirtualAttributes()) {
-                if (!attrMap.containsKey(attr.getVirtualSchema())
-                        && !result.containsKey((RVirSchema) attr.getVirtualSchema())) {
-                    result.put((RVirSchema) attr.getVirtualSchema(), attr);
+            for (RVirAttr attr : getParent().findInheritedVirAttrs()) {
+                if (!attrMap.containsKey(attr.getSchema())
+                        && !result.containsKey((RVirSchema) attr.getSchema())) {
+
+                    result.put((RVirSchema) attr.getSchema(), attr);
                 }
             }
         }

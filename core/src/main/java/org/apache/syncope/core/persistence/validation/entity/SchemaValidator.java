@@ -23,12 +23,12 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.AttributeSchemaType;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 
-public class SchemaValidator extends AbstractValidator<SchemaCheck, AbstractSchema> {
+public class SchemaValidator extends AbstractValidator<SchemaCheck, AbstractNormalSchema> {
 
     @Override
-    public boolean isValid(final AbstractSchema schema, final ConstraintValidatorContext context) {
+    public boolean isValid(final AbstractNormalSchema schema, final ConstraintValidatorContext context) {
         boolean isValid = schema.getType() != AttributeSchemaType.Enum
                 || StringUtils.isNotBlank(schema.getEnumerationValues());
         if (!isValid) {

@@ -271,11 +271,11 @@ public class Schema extends BasePage {
 
                         switch (schemaType) {
                             case DERIVED:
-                                restClient.deleteDerivedSchema(attributableType, schemaTO.getName());
+                                restClient.deleteDerSchema(attributableType, schemaTO.getName());
                                 break;
 
                             case VIRTUAL:
-                                restClient.deleteVirtualSchema(attributableType, schemaTO.getName());
+                                restClient.deleteVirSchema(attributableType, schemaTO.getName());
                                 break;
 
                             default:

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
-import static org.apache.syncope.core.persistence.dao.impl.AbstractContentDealer.LOG;
 import java.io.InputStream;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;

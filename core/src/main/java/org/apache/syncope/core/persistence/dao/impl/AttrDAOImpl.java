@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
-import java.util.List;
-import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.dao.AttrDAO;
 import org.springframework.stereotype.Repository;
@@ -29,24 +27,11 @@ public class AttrDAOImpl extends AbstractDAOImpl implements AttrDAO {
 
     @Override
     public <T extends AbstractAttr> T find(final Long id, final Class<T> reference) {
-
         return entityManager.find(reference, id);
     }
 
     @Override
-    public <T extends AbstractAttr> List<T> findAll(final Class<T> reference) {
-        TypedQuery<T> query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e", reference);
-        return query.getResultList();
-    }
-
-    @Override
-    public <T extends AbstractAttr> T save(final T attribute) {
-        return entityManager.merge(attribute);
-    }
-
-    @Override
     public <T extends AbstractAttr> void delete(final Long id, final Class<T> reference) {
-
         T attribute = find(id, reference);
         if (attribute == null) {
             return;
@@ -58,7 +43,7 @@ public class AttrDAOImpl extends AbstractDAOImpl implements AttrDAO {
     @Override
     public <T extends AbstractAttr> void delete(final T attribute) {
         if (attribute.getOwner() != null) {
-            attribute.getOwner().removeAttribute(attribute);
+            attribute.getOwner().removeAttr(attribute);
         }
 
         entityManager.remove(attribute);

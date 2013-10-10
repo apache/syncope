@@ -82,9 +82,9 @@ public final class AttributableOperations {
 
                     if (!mod.isEmpty()) {
                         if (virtuals) {
-                            result.getVirtualAttributesToBeRemoved().add(mod.getSchema());
+                            result.getVirAttrsToRemove().add(mod.getSchema());
                         } else {
-                            result.getAttributesToBeRemoved().add(mod.getSchema());
+                            result.getAttrsToRemove().add(mod.getSchema());
                         }
                     }
                 }
@@ -93,9 +93,9 @@ public final class AttributableOperations {
 
                 if (!mod.isEmpty()) {
                     if (virtuals) {
-                        result.getVirtualAttributesToBeUpdated().add(mod);
+                        result.getVirAttrsToUpdate().add(mod);
                     } else {
-                        result.getAttributesToBeUpdated().add(mod);
+                        result.getAttrsToUpdate().add(mod);
                     }
                 }
             }
@@ -115,15 +115,15 @@ public final class AttributableOperations {
         result.setId(updated.getId());
 
         // 2. attributes
-        Map<String, AttributeTO> updatedAttrs = new HashMap<String, AttributeTO>(updated.getAttributeMap());
-        Map<String, AttributeTO> originalAttrs = new HashMap<String, AttributeTO>(original.getAttributeMap());
+        Map<String, AttributeTO> updatedAttrs = new HashMap<String, AttributeTO>(updated.getAttrMap());
+        Map<String, AttributeTO> originalAttrs = new HashMap<String, AttributeTO>(original.getAttrMap());
 
         Set<String> originalAttrNames = new HashSet<String>(originalAttrs.keySet());
         originalAttrNames.removeAll(updatedAttrs.keySet());
 
         if (!incremental) {
-            result.getAttributesToBeRemoved().clear();
-            result.getAttributesToBeRemoved().addAll(originalAttrNames);
+            result.getAttrsToRemove().clear();
+            result.getAttrsToRemove().addAll(originalAttrNames);
         }
 
         Set<String> emptyUpdatedAttrs = new HashSet<String>();
@@ -135,38 +135,38 @@ public final class AttributableOperations {
         }
         for (String emptyUpdatedAttr : emptyUpdatedAttrs) {
             updatedAttrs.remove(emptyUpdatedAttr);
-            result.getAttributesToBeRemoved().add(emptyUpdatedAttr);
+            result.getAttrsToRemove().add(emptyUpdatedAttr);
         }
 
         populate(updatedAttrs, originalAttrs, result);
 
         // 3. derived attributes
-        updatedAttrs = updated.getDerivedAttributeMap();
-        originalAttrs = original.getDerivedAttributeMap();
+        updatedAttrs = updated.getDerAttrMap();
+        originalAttrs = original.getDerAttrMap();
 
         originalAttrNames = new HashSet<String>(originalAttrs.keySet());
         originalAttrNames.removeAll(updatedAttrs.keySet());
 
         if (!incremental) {
-            result.getDerivedAttributesToBeRemoved().clear();
-            result.getDerivedAttributesToBeRemoved().addAll(originalAttrNames);
+            result.getDerAttrsToRemove().clear();
+            result.getDerAttrsToRemove().addAll(originalAttrNames);
         }
 
         Set<String> updatedAttrNames = new HashSet<String>(updatedAttrs.keySet());
         updatedAttrNames.removeAll(originalAttrs.keySet());
-        result.getDerivedAttributesToBeAdded().clear();
-        result.getDerivedAttributesToBeAdded().addAll(updatedAttrNames);
+        result.getDerAttrsToAdd().clear();
+        result.getDerAttrsToAdd().addAll(updatedAttrNames);
 
         // 4. virtual attributes
-        updatedAttrs = updated.getVirtualAttributeMap();
-        originalAttrs = original.getVirtualAttributeMap();
+        updatedAttrs = updated.getVirAttrMap();
+        originalAttrs = original.getVirAttrMap();
 
         originalAttrNames = new HashSet<String>(originalAttrs.keySet());
         originalAttrNames.removeAll(updatedAttrs.keySet());
 
         if (!incremental) {
-            result.getVirtualAttributesToBeRemoved().clear();
-            result.getVirtualAttributesToBeRemoved().addAll(originalAttrNames);
+            result.getVirAttrsToRemove().clear();
+            result.getVirAttrsToRemove().addAll(originalAttrNames);
         }
 
         populate(updatedAttrs, originalAttrs, result, true);
@@ -176,14 +176,14 @@ public final class AttributableOperations {
         Set<String> originalRes = new HashSet<String>(original.getResources());
 
         updatedRes.removeAll(originalRes);
-        result.getResourcesToBeAdded().clear();
-        result.getResourcesToBeAdded().addAll(updatedRes);
+        result.getResourcesToAdd().clear();
+        result.getResourcesToAdd().addAll(updatedRes);
 
         originalRes.removeAll(updated.getResources());
 
         if (!incremental) {
-            result.getResourcesToBeRemoved().clear();
-            result.getResourcesToBeRemoved().addAll(originalRes);
+            result.getResourcesToRemove().clear();
+            result.getResourcesToRemove().addAll(originalRes);
         }
     }
 
@@ -232,35 +232,35 @@ public final class AttributableOperations {
             if (originalMembs.containsKey(entry.getKey())) {
                 diff(entry.getValue(), originalMembs.get(entry.getKey()), membMod, false);
             } else {
-                for (AttributeTO attr : entry.getValue().getAttributes()) {
+                for (AttributeTO attr : entry.getValue().getAttrs()) {
 
                     AttributeMod attrMod = new AttributeMod();
                     attrMod.setSchema(attr.getSchema());
                     attrMod.getValuesToBeAdded().addAll(attr.getValues());
 
                     if (!attrMod.isEmpty()) {
-                        membMod.getAttributesToBeUpdated().add(attrMod);
-                        membMod.getAttributesToBeRemoved().add(attrMod.getSchema());
+                        membMod.getAttrsToUpdate().add(attrMod);
+                        membMod.getAttrsToRemove().add(attrMod.getSchema());
                     }
                 }
-                for (AttributeTO attr : entry.getValue().getDerivedAttributes()) {
-                    membMod.getDerivedAttributesToBeAdded().add(attr.getSchema());
+                for (AttributeTO attr : entry.getValue().getDerAttrs()) {
+                    membMod.getDerAttrsToAdd().add(attr.getSchema());
                 }
-                for (AttributeTO attr : entry.getValue().getVirtualAttributes()) {
+                for (AttributeTO attr : entry.getValue().getVirAttrs()) {
                     AttributeMod attrMod = new AttributeMod();
                     attrMod.setSchema(attr.getSchema());
                     attrMod.getValuesToBeAdded().addAll(attr.getValues());
 
                     if (!attrMod.isEmpty()) {
-                        membMod.getVirtualAttributesToBeUpdated().add(attrMod);
-                        membMod.getAttributesToBeRemoved().add(attrMod.getSchema());
+                        membMod.getVirAttrsToUpdate().add(attrMod);
+                        membMod.getAttrsToRemove().add(attrMod.getSchema());
                     }
                 }
-                membMod.getResourcesToBeAdded().addAll(entry.getValue().getResources());
+                membMod.getResourcesToAdd().addAll(entry.getValue().getResources());
             }
 
             if (!membMod.isEmpty()) {
-                result.getMembershipsToBeAdded().add(membMod);
+                result.getMembershipsToAdd().add(membMod);
             }
         }
 
@@ -268,7 +268,7 @@ public final class AttributableOperations {
             Set<Long> originalRoles = new HashSet<Long>(originalMembs.keySet());
             originalRoles.removeAll(updatedMembs.keySet());
             for (Long roleId : originalRoles) {
-                result.getMembershipsToBeRemoved().add(originalMembs.get(roleId).getId());
+                result.getMembershipsToRemove().add(originalMembs.get(roleId).getId());
             }
         }
 
@@ -301,11 +301,12 @@ public final class AttributableOperations {
 
         // 1. inheritance
         result.setInheritOwner(updated.isInheritOwner());
+        result.setInheritTemplates(updated.isInheritTemplates());
         result.setInheritAccountPolicy(updated.isInheritAccountPolicy());
         result.setInheritPasswordPolicy(updated.isInheritPasswordPolicy());
-        result.setInheritAttributes(updated.isInheritAttributes());
-        result.setInheritDerivedAttributes(updated.isInheritDerivedAttributes());
-        result.setInheritVirtualAttributes(updated.isInheritVirtualAttributes());
+        result.setInheritAttributes(updated.isInheritAttrs());
+        result.setInheritDerAttrs(updated.isInheritDerAttrs());
+        result.setInheritVirAttrs(updated.isInheritVirAttrs());
 
         // 2. policies
         result.setAccountPolicy(new ReferenceMod(updated.getAccountPolicy()));
@@ -327,7 +328,63 @@ public final class AttributableOperations {
             result.getEntitlements().addAll(updated.getEntitlements());
         }
 
-        // 5. owner
+        // 5. templates
+        Set<String> updatedTemplates = new HashSet<String>(updated.getRAttrTemplates());
+        Set<String> originalTemplates = new HashSet<String>(original.getRAttrTemplates());
+        if (updatedTemplates.equals(originalTemplates)) {
+            result.setModRAttrTemplates(false);
+            result.getRAttrTemplates().clear();
+        } else {
+            result.setModRAttrTemplates(true);
+            result.getRAttrTemplates().addAll(updated.getRAttrTemplates());
+        }
+        updatedTemplates = new HashSet<String>(updated.getRDerAttrTemplates());
+        originalTemplates = new HashSet<String>(original.getRDerAttrTemplates());
+        if (updatedTemplates.equals(originalTemplates)) {
+            result.setModRDerAttrTemplates(false);
+            result.getRDerAttrTemplates().clear();
+        } else {
+            result.setModRDerAttrTemplates(true);
+            result.getRDerAttrTemplates().addAll(updated.getRDerAttrTemplates());
+        }
+        updatedTemplates = new HashSet<String>(updated.getRVirAttrTemplates());
+        originalTemplates = new HashSet<String>(original.getRVirAttrTemplates());
+        if (updatedTemplates.equals(originalTemplates)) {
+            result.setModRVirAttrTemplates(false);
+            result.getRVirAttrTemplates().clear();
+        } else {
+            result.setModRVirAttrTemplates(true);
+            result.getRVirAttrTemplates().addAll(updated.getRVirAttrTemplates());
+        }
+        updatedTemplates = new HashSet<String>(updated.getMAttrTemplates());
+        originalTemplates = new HashSet<String>(original.getMAttrTemplates());
+        if (updatedTemplates.equals(originalTemplates)) {
+            result.setModMAttrTemplates(false);
+            result.getMAttrTemplates().clear();
+        } else {
+            result.setModMAttrTemplates(true);
+            result.getMAttrTemplates().addAll(updated.getMAttrTemplates());
+        }
+        updatedTemplates = new HashSet<String>(updated.getMDerAttrTemplates());
+        originalTemplates = new HashSet<String>(original.getMDerAttrTemplates());
+        if (updatedTemplates.equals(originalTemplates)) {
+            result.setModMDerAttrTemplates(false);
+            result.getMDerAttrTemplates().clear();
+        } else {
+            result.setModMDerAttrTemplates(true);
+            result.getMDerAttrTemplates().addAll(updated.getMDerAttrTemplates());
+        }
+        updatedTemplates = new HashSet<String>(updated.getMVirAttrTemplates());
+        originalTemplates = new HashSet<String>(original.getMVirAttrTemplates());
+        if (updatedTemplates.equals(originalTemplates)) {
+            result.setModMVirAttrTemplates(false);
+            result.getMVirAttrTemplates().clear();
+        } else {
+            result.setModMVirAttrTemplates(true);
+            result.getMVirAttrTemplates().addAll(updated.getMVirAttrTemplates());
+        }
+
+        // 6. owner
         result.setUserOwner(new ReferenceMod(updated.getUserOwner()));
         result.setRoleOwner(new ReferenceMod(updated.getRoleOwner()));
 
@@ -362,29 +419,29 @@ public final class AttributableOperations {
             final K mod, final T result) {
 
         // 1. attributes
-        result.getAttributes().addAll(getUpdateValues(to.getAttributeMap(),
-                mod.getAttributesToBeRemoved(), mod.getAttributesToBeUpdated()));
+        result.getAttrs().addAll(getUpdateValues(to.getAttrMap(),
+                mod.getAttrsToRemove(), mod.getAttrsToUpdate()));
 
         // 2. derived attributes
-        Map<String, AttributeTO> attrs = to.getDerivedAttributeMap();
-        for (String attrName : mod.getDerivedAttributesToBeRemoved()) {
+        Map<String, AttributeTO> attrs = to.getDerAttrMap();
+        for (String attrName : mod.getDerAttrsToRemove()) {
             attrs.remove(attrName);
         }
-        for (String attrName : mod.getDerivedAttributesToBeAdded()) {
+        for (String attrName : mod.getDerAttrsToAdd()) {
             AttributeTO attrTO = new AttributeTO();
             attrTO.setSchema(attrName);
 
             attrs.put(attrName, attrTO);
         }
-        result.getDerivedAttributes().addAll(attrs.values());
+        result.getDerAttrs().addAll(attrs.values());
 
         // 3. virtual attributes
-        result.getVirtualAttributes().addAll(getUpdateValues(to.getVirtualAttributeMap(),
-                mod.getVirtualAttributesToBeRemoved(), mod.getVirtualAttributesToBeUpdated()));
+        result.getVirAttrs().addAll(getUpdateValues(to.getVirAttrMap(),
+                mod.getVirAttrsToRemove(), mod.getVirAttrsToUpdate()));
 
         // 4. resources
-        result.getResources().removeAll(mod.getResourcesToBeRemoved());
-        result.getResources().addAll(mod.getResourcesToBeAdded());
+        result.getResources().removeAll(mod.getResourcesToRemove());
+        result.getResources().addAll(mod.getResourcesToAdd());
     }
 
     public static UserTO apply(final UserTO userTO, final UserMod userMod) {
@@ -405,10 +462,10 @@ public final class AttributableOperations {
         }
         // 3. memberships
         Map<Long, MembershipTO> membs = result.getMembershipMap();
-        for (Long membId : userMod.getMembershipsToBeRemoved()) {
+        for (Long membId : userMod.getMembershipsToRemove()) {
             result.getMemberships().remove(membs.get(membId));
         }
-        for (MembershipMod membMod : userMod.getMembershipsToBeAdded()) {
+        for (MembershipMod membMod : userMod.getMembershipsToAdd()) {
             MembershipTO membTO = new MembershipTO();
             membTO.setRoleId(membMod.getRole());
 

@@ -48,7 +48,7 @@ import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.beans.SyncTask;
@@ -276,7 +276,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             case RoleSchema:
                 final AbstractAttrValue value = attrUtil.newAttrValue();
 
-                AbstractSchema schema = schemaDAO.find(accountIdItem.getIntAttrName(), attrUtil.schemaClass());
+                AbstractNormalSchema schema = schemaDAO.find(accountIdItem.getIntAttrName(), attrUtil.schemaClass());
                 if (schema == null) {
                     value.setStringValue(uid);
                 } else {
@@ -534,7 +534,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                             uwfAdapter.create((UserTO) subjectTO, true, enabled);
 
                     List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(created,
-                            ((UserTO) subjectTO).getPassword(), subjectTO.getVirtualAttributes(),
+                            ((UserTO) subjectTO).getPassword(), subjectTO.getVirAttrs(),
                             Collections.singleton(syncTask.getResource().getName()));
 
                     taskExecutor.execute(tasks);
@@ -548,7 +548,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 }
                 if (AttributableType.ROLE == attrUtil.getType()) {
                     WorkflowResult<Long> created = rwfAdapter.create((RoleTO) subjectTO);
-                    AttributeTO roleOwner = subjectTO.getAttributeMap().get(StringUtils.EMPTY);
+                    AttributeTO roleOwner = subjectTO.getAttrMap().get(StringUtils.EMPTY);
                     if (roleOwner != null) {
                         roleOwnerMap.put(created.getResult(), roleOwner.getValues().iterator().next());
                     }
@@ -556,7 +556,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     EntitlementUtil.extendAuthContext(created.getResult());
 
                     List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created,
-                            subjectTO.getVirtualAttributes(), Collections.singleton(syncTask.getResource().getName()));
+                            subjectTO.getVirAttrs(), Collections.singleton(syncTask.getResource().getName()));
 
                     taskExecutor.execute(tasks);
 
@@ -632,8 +632,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated,
                 userMod.getPassword(),
-                userMod.getVirtualAttributesToBeRemoved(),
-                userMod.getVirtualAttributesToBeUpdated(),
+                userMod.getVirAttrsToRemove(),
+                userMod.getVirAttrsToUpdate(),
                 Collections.singleton(syncTask.getResource().getName()));
 
         taskExecutor.execute(tasks);
@@ -662,7 +662,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         WorkflowResult<Long> updated = rwfAdapter.update(roleMod);
         String roleOwner = null;
-        for (AttributeMod attrMod : roleMod.getAttributesToBeUpdated()) {
+        for (AttributeMod attrMod : roleMod.getAttrsToUpdate()) {
             if (attrMod.getSchema().isEmpty()) {
                 roleOwner = attrMod.getValuesToBeAdded().iterator().next();
             }
@@ -672,8 +672,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         }
 
         List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
-                roleMod.getVirtualAttributesToBeRemoved(),
-                roleMod.getVirtualAttributesToBeUpdated(),
+                roleMod.getVirAttrsToRemove(),
+                roleMod.getVirAttrsToUpdate(),
                 Collections.singleton(syncTask.getResource().getName()));
 
         taskExecutor.execute(tasks);

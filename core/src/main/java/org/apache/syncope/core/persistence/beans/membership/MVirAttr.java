@@ -20,9 +20,11 @@ package org.apache.syncope.core.persistence.beans.membership;
 
 import java.util.Collections;
 import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
@@ -35,8 +37,9 @@ public class MVirAttr extends AbstractVirAttr {
     @ManyToOne
     private Membership owner;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private MVirSchema virtualSchema;
+    @Column(nullable = false)
+    @OneToOne(cascade = CascadeType.MERGE)
+    private MVirAttrTemplate template;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -53,22 +56,37 @@ public class MVirAttr extends AbstractVirAttr {
         this.owner = (Membership) owner;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends AbstractVirSchema> T getVirtualSchema() {
-        return (T) virtualSchema;
+    public MVirAttrTemplate getTemplate() {
+        return template;
     }
 
+    public void setTemplate(final MVirAttrTemplate template) {
+        this.template = template;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractVirSchema> void setVirtualSchema(final T virtualSchema) {
-        if (!(virtualSchema instanceof MVirSchema)) {
-            throw new ClassCastException("expected type MVirSchema, found: " + virtualSchema.getClass().getName());
-        }
-        this.virtualSchema = (MVirSchema) virtualSchema;
+    public <T extends AbstractVirSchema> T getSchema() {
+        return template == null ? null : (T) template.getSchema();
     }
 
     @Override
     public List<String> getValues() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public boolean addValue(final String value) {
+        return false;
+    }
+
+    @Override
+    public boolean removeValue(final String value) {
+        return false;
+    }
+
+    @Override
+    public void setValues(final List<String> values) {
+        // do nothing
     }
 }

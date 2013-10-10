@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.apache.syncope.core.rest.AbstractTest.ADMIN_PWD;
-import static org.apache.syncope.core.rest.AbstractTest.attributeMod;
-import static org.apache.syncope.core.rest.AbstractTest.attributeTO;
-import static org.apache.syncope.core.rest.AbstractTest.getUUIDString;
-import static org.apache.syncope.core.rest.AbstractTest.userService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -114,16 +109,16 @@ public class UserTestITCase extends AbstractTest {
         userTO.setPassword("password123");
         userTO.setUsername(uid);
 
-        userTO.getAttributes().add(attributeTO("fullname", uid));
-        userTO.getAttributes().add(attributeTO("firstname", uid));
-        userTO.getAttributes().add(attributeTO("surname", "surname"));
-        userTO.getAttributes().add(attributeTO("type", "a type"));
-        userTO.getAttributes().add(attributeTO("userId", uid));
-        userTO.getAttributes().add(attributeTO("email", uid));
+        userTO.getAttrs().add(attributeTO("fullname", uid));
+        userTO.getAttrs().add(attributeTO("firstname", uid));
+        userTO.getAttrs().add(attributeTO("surname", "surname"));
+        userTO.getAttrs().add(attributeTO("type", "a type"));
+        userTO.getAttrs().add(attributeTO("userId", uid));
+        userTO.getAttrs().add(attributeTO("email", uid));
         DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        userTO.getAttributes().add(attributeTO("loginDate", sdf.format(new Date())));
-        userTO.getDerivedAttributes().add(attributeTO("cn", null));
-        userTO.getVirtualAttributes().add(attributeTO("virtualdata", "virtualvalue"));
+        userTO.getAttrs().add(attributeTO("loginDate", sdf.format(new Date())));
+        userTO.getDerAttrs().add(attributeTO("cn", null));
+        userTO.getVirAttrs().add(attributeTO("virtualdata", "virtualvalue"));
         return userTO;
     }
 
@@ -209,9 +204,9 @@ public class UserTestITCase extends AbstractTest {
         userTO.setUsername(userId);
         userTO.setPassword("password");
 
-        userTO.getAttributes().add(attributeTO("userId", userId));
-        userTO.getAttributes().add(attributeTO("fullname", userId));
-        userTO.getAttributes().add(attributeTO("surname", userId));
+        userTO.getAttrs().add(attributeTO("userId", userId));
+        userTO.getAttrs().add(attributeTO("fullname", userId));
+        userTO.getAttrs().add(attributeTO("surname", userId));
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -221,7 +216,7 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("newPassword");
-        userMod.getResourcesToBeAdded().add("ws-target-resource-2");
+        userMod.getResourcesToAdd().add("ws-target-resource-2");
 
         SyncopeClientException sce = null;
         try {
@@ -236,7 +231,7 @@ public class UserTestITCase extends AbstractTest {
         userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("newPassword");
-        userMod.getResourcesToBeAdded().add("ws-target-resource-1");
+        userMod.getResourcesToAdd().add("ws-target-resource-1");
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO.getPropagationStatusTOs().get(0).getFailureReason());
@@ -246,7 +241,7 @@ public class UserTestITCase extends AbstractTest {
         userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("newPassword");
-        userMod.getResourcesToBeAdded().add("resource-db");
+        userMod.getResourcesToAdd().add("resource-db");
 
         sce = null;
         try {
@@ -264,13 +259,13 @@ public class UserTestITCase extends AbstractTest {
         userTO.setPassword("newPassword");
 
         AttributeTO type = null;
-        for (AttributeTO attr : userTO.getAttributes()) {
+        for (AttributeTO attr : userTO.getAttrs()) {
             if ("type".equals(attr.getSchema())) {
                 type = attr;
             }
         }
         assertNotNull(type);
-        userTO.getAttributes().remove(type);
+        userTO.getAttrs().remove(type);
 
         SyncopeClientException sce = null;
         try {
@@ -280,7 +275,7 @@ public class UserTestITCase extends AbstractTest {
         }
         assertNotNull(sce);
 
-        userTO.getAttributes().add(type);
+        userTO.getAttrs().add(type);
         userTO = createUser(userTO);
         assertNotNull(userTO);
     }
@@ -308,7 +303,7 @@ public class UserTestITCase extends AbstractTest {
         }
         assertNotNull(sce);
 
-        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
+        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -375,7 +370,7 @@ public class UserTestITCase extends AbstractTest {
     @Test(expected = SyncopeClientCompositeException.class)
     public void createWithException() {
         UserTO newUserTO = new UserTO();
-        newUserTO.getAttributes().add(attributeTO("userId", "userId@nowhere.org"));
+        newUserTO.getAttrs().add(attributeTO("userId", "userId@nowhere.org"));
         createUser(newUserTO);
     }
 
@@ -402,14 +397,14 @@ public class UserTestITCase extends AbstractTest {
         userTO.getMemberships().add(membershipTO);
 
         // add an attribute with no values: must be ignored
-        membershipTO.getAttributes().add(attributeTO("subscriptionDate", null));
+        membershipTO.getAttrs().add(attributeTO("subscriptionDate", null));
 
         // add an attribute with a non-existing schema: must be ignored
         AttributeTO attrWithInvalidSchemaTO = attributeTO("invalid schema", "a value");
-        userTO.getAttributes().add(attrWithInvalidSchemaTO);
+        userTO.getAttrs().add(attrWithInvalidSchemaTO);
 
         // add an attribute with null value: must be ignored
-        userTO.getAttributes().add(attributeTO("activationDate", null));
+        userTO.getAttrs().add(attributeTO("activationDate", null));
 
         // 1. create user
         UserTO newUserTO = createUser(userTO);
@@ -423,7 +418,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(newUserTO.getLastModifier());
         assertEquals(newUserTO.getCreationDate(), newUserTO.getLastChangeDate());
 
-        assertFalse(newUserTO.getAttributes().contains(attrWithInvalidSchemaTO));
+        assertFalse(newUserTO.getAttrs().contains(attrWithInvalidSchemaTO));
 
         // check for changePwdDate
         assertNotNull(newUserTO.getCreationDate());
@@ -432,10 +427,10 @@ public class UserTestITCase extends AbstractTest {
         newUserTO = userService.read(newUserTO.getId());
         assertNotNull(newUserTO);
 
-        assertNotNull(newUserTO.getVirtualAttributeMap());
-        assertNotNull(newUserTO.getVirtualAttributeMap().get("virtualdata").getValues());
-        assertFalse(newUserTO.getVirtualAttributeMap().get("virtualdata").getValues().isEmpty());
-        assertEquals("virtualvalue", newUserTO.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+        assertNotNull(newUserTO.getVirAttrMap());
+        assertNotNull(newUserTO.getVirAttrMap().get("virtualdata").getValues());
+        assertFalse(newUserTO.getVirAttrMap().get("virtualdata").getValues().isEmpty());
+        assertEquals("virtualvalue", newUserTO.getVirAttrMap().get("virtualdata").getValues().get(0));
 
         // get the new task list
         tasks = taskService.list(TaskType.PROPAGATION);
@@ -477,7 +472,7 @@ public class UserTestITCase extends AbstractTest {
 
         // 4. try (and fail) to create another user with same (unique) values
         userTO = getSampleTO(userTO.getUsername());
-        AttributeTO userIdAttr = getManadatoryAttrByName(userTO.getAttributes(), "userId");
+        AttributeTO userIdAttr = getManadatoryAttrByName(userTO.getAttrs(), "userId");
         userIdAttr.getValues().clear();
         userIdAttr.getValues().add("a.b@c.com");
 
@@ -503,8 +498,8 @@ public class UserTestITCase extends AbstractTest {
     public void createWithRequiredValueMissing() {
         UserTO userTO = getSampleTO("a.b@c.it");
 
-        AttributeTO type = getManadatoryAttrByName(userTO.getAttributes(), "type");
-        userTO.getAttributes().remove(type);
+        AttributeTO type = getManadatoryAttrByName(userTO.getAttrs(), "type");
+        userTO.getAttrs().remove(type);
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
@@ -520,10 +515,10 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(ex);
         assertNotNull(ex.getException(SyncopeClientExceptionType.RequiredValuesMissing));
 
-        userTO.getAttributes().add(attributeTO("type", "F"));
+        userTO.getAttrs().add(attributeTO("type", "F"));
 
-        AttributeTO surname = getManadatoryAttrByName(userTO.getAttributes(), "surname");
-        userTO.getAttributes().remove(surname);
+        AttributeTO surname = getManadatoryAttrByName(userTO.getAttrs(), "surname");
+        userTO.getAttrs().remove(surname);
 
         // 2. create user without surname (mandatory when type == 'F')
         ex = null;
@@ -702,7 +697,7 @@ public class UserTestITCase extends AbstractTest {
 
         assertNotNull(userTO);
         assertEquals(id, userTO.getId());
-        assertTrue(userTO.getAttributes().isEmpty());
+        assertTrue(userTO.getAttrs().isEmpty());
 
         // check for propagation result
         assertFalse(userTO.getPropagationStatusTOs().isEmpty());
@@ -730,7 +725,7 @@ public class UserTestITCase extends AbstractTest {
 
         assertNotNull(userTO);
         assertEquals(id, userTO.getId());
-        assertTrue(userTO.getAttributes().isEmpty());
+        assertTrue(userTO.getAttrs().isEmpty());
 
         // check for propagation result
         assertFalse(userTO.getPropagationStatusTOs().isEmpty());
@@ -789,8 +784,8 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = userService.read(1L);
 
         assertNotNull(userTO);
-        assertNotNull(userTO.getAttributes());
-        assertFalse(userTO.getAttributes().isEmpty());
+        assertNotNull(userTO.getAttrs());
+        assertFalse(userTO.getAttrs().isEmpty());
     }
 
     @Test
@@ -810,13 +805,13 @@ public class UserTestITCase extends AbstractTest {
 
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.getDerivedAttributesToBeRemoved().add("cn");
+        userMod.getDerAttrsToRemove().add("cn");
 
         userTO = userService.update(userMod.getId(), userMod);
 
         assertNotNull(userTO);
-        assertNotNull(userTO.getDerivedAttributeMap());
-        assertFalse(userTO.getDerivedAttributeMap().containsKey("cn"));
+        assertNotNull(userTO.getDerAttrMap());
+        assertFalse(userTO.getDerAttrMap().containsKey("cn"));
     }
 
     @Test(expected = SyncopeClientCompositeException.class)
@@ -853,33 +848,33 @@ public class UserTestITCase extends AbstractTest {
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
-        membershipTO.getAttributes().add(attributeTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
+        membershipTO.getAttrs().add(attributeTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
 
-        assertFalse(userTO.getDerivedAttributes().isEmpty());
+        assertFalse(userTO.getDerAttrs().isEmpty());
         assertEquals(1, userTO.getMemberships().size());
 
         MembershipMod membershipMod = new MembershipMod();
         membershipMod.setRole(8L);
-        membershipMod.getAttributesToBeUpdated().add(attributeMod("subscriptionDate", "2010-08-18T16:33:12.203+0200"));
+        membershipMod.getAttrsToUpdate().add(attributeMod("subscriptionDate", "2010-08-18T16:33:12.203+0200"));
 
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("new2Password");
 
-        userMod.getAttributesToBeRemoved().add("userId");
+        userMod.getAttrsToRemove().add("userId");
         String newUserId = getUUIDString() + "t.w@spre.net";
-        userMod.getAttributesToBeUpdated().add(attributeMod("userId", newUserId));
+        userMod.getAttrsToUpdate().add(attributeMod("userId", newUserId));
 
-        userMod.getAttributesToBeRemoved().add("fullname");
+        userMod.getAttrsToRemove().add("fullname");
         String newFullName = getUUIDString() + "g.h@t.com";
-        userMod.getAttributesToBeUpdated().add(attributeMod("fullname", newFullName));
+        userMod.getAttrsToUpdate().add(attributeMod("fullname", newFullName));
 
-        userMod.getDerivedAttributesToBeAdded().add("cn");
-        userMod.getMembershipsToBeAdded().add(membershipMod);
-        userMod.getMembershipsToBeRemoved().add(userTO.getMemberships().iterator().next().getId());
+        userMod.getDerAttrsToAdd().add("cn");
+        userMod.getMembershipsToAdd().add(membershipMod);
+        userMod.getMembershipsToRemove().add(userTO.getMemberships().iterator().next().getId());
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
@@ -896,13 +891,13 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
 
         assertEquals(1, userTO.getMemberships().size());
-        assertEquals(1, userTO.getMemberships().iterator().next().getAttributes().size());
-        assertFalse(userTO.getDerivedAttributes().isEmpty());
+        assertEquals(1, userTO.getMemberships().iterator().next().getAttrs().size());
+        assertFalse(userTO.getDerAttrs().isEmpty());
 
-        AttributeTO userIdAttr = getManadatoryAttrByName(userTO.getAttributes(), "userId");
+        AttributeTO userIdAttr = getManadatoryAttrByName(userTO.getAttrs(), "userId");
         assertEquals(Collections.singletonList(newUserId), userIdAttr.getValues());
 
-        AttributeTO fullNameAttr = getManadatoryAttrByName(userTO.getAttributes(), "fullname");
+        AttributeTO fullNameAttr = getManadatoryAttrByName(userTO.getAttrs(), "fullname");
         assertEquals(Collections.singletonList(newFullName), fullNameAttr.getValues());
     }
 
@@ -916,7 +911,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("pwdonly@t.com");
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
-        membershipTO.getAttributes().add(attributeTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
+        membershipTO.getAttrs().add(attributeTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -986,7 +981,7 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
 
-        userMod.getAttributesToBeUpdated().add(attributeMod("surname", "surname"));
+        userMod.getAttrsToUpdate().add(attributeMod("surname", "surname"));
 
         userTO = userService.update(userMod.getId(), userMod);
 
@@ -1193,13 +1188,13 @@ public class UserTestITCase extends AbstractTest {
     public void updateMultivalueAttribute() {
         UserTO userTO = getSampleTO("multivalue@syncope.apache.org");
         userTO.getResources().clear();
-        userTO.getDerivedAttributes().clear();
-        userTO.getVirtualAttributes().clear();
+        userTO.getDerAttrs().clear();
+        userTO.getVirAttrs().clear();
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        AttributeTO loginDate = userTO.getAttributeMap().get("loginDate");
+        AttributeTO loginDate = userTO.getAttrMap().get("loginDate");
         assertNotNull(loginDate);
         assertEquals(1, loginDate.getValues().size());
 
@@ -1209,12 +1204,12 @@ public class UserTestITCase extends AbstractTest {
         loginDateMod.getValuesToBeAdded().add("2000-01-01");
 
         userMod.setId(userTO.getId());
-        userMod.getAttributesToBeUpdated().add(loginDateMod);
+        userMod.getAttrsToUpdate().add(loginDateMod);
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
 
-        loginDate = userTO.getAttributeMap().get("loginDate");
+        loginDate = userTO.getAttrMap().get("loginDate");
         assertNotNull(loginDate);
         assertEquals(2, loginDate.getValues().size());
     }
@@ -1238,7 +1233,7 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
 
         userMod.setId(userTO.getId());
-        userMod.getResourcesToBeRemoved().add(RESOURCE_NAME_TESTDB);
+        userMod.getResourcesToRemove().add(RESOURCE_NAME_TESTDB);
 
         userTO = userService.update(userMod.getId(), userMod);
 
@@ -1272,18 +1267,18 @@ public class UserTestITCase extends AbstractTest {
         // 1. create a new user without virtual attributes
         UserTO original = getUniqueSampleTO("issue270@syncope.apache.org");
         // be sure to remove all virtual attributes
-        original.getVirtualAttributes().clear();
+        original.getVirAttrs().clear();
 
         original = createUser(original);
 
         assertNotNull(original);
 
-        assertTrue(original.getVirtualAttributes().isEmpty());
+        assertTrue(original.getVirAttrs().isEmpty());
 
         UserTO toBeUpdated = userService.read(original.getId());
 
         AttributeTO virtual = attributeTO("virtualdata", "virtualvalue");
-        toBeUpdated.getVirtualAttributes().add(virtual);
+        toBeUpdated.getVirAttrs().add(virtual);
 
         // 2. try to update by adding a resource, but no password: must fail
         UserMod userMod = AttributableOperations.diff(toBeUpdated, original);
@@ -1294,10 +1289,10 @@ public class UserTestITCase extends AbstractTest {
 
         assertNotNull(toBeUpdated);
 
-        assertFalse(toBeUpdated.getVirtualAttributes().isEmpty());
-        assertNotNull(toBeUpdated.getVirtualAttributes().get(0));
+        assertFalse(toBeUpdated.getVirAttrs().isEmpty());
+        assertNotNull(toBeUpdated.getVirAttrs().get(0));
 
-        assertEquals(virtual.getSchema(), toBeUpdated.getVirtualAttributes().get(0).getSchema());
+        assertEquals(virtual.getSchema(), toBeUpdated.getVirAttrs().get(0).getSchema());
     }
 
     @Test
@@ -1305,7 +1300,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("issue280@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerivedAttributes().clear();
+        userTO.getDerAttrs().clear();
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -1313,7 +1308,7 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("123password");
-        userMod.getResourcesToBeAdded().add(RESOURCE_NAME_TESTDB);
+        userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
@@ -1336,7 +1331,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("issue281@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerivedAttributes().clear();
+        userTO.getDerAttrs().clear();
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
         userTO = createUser(userTO);
@@ -1358,7 +1353,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void issue288() {
         UserTO userTO = getSampleTO("issue288@syncope.apache.org");
-        userTO.getAttributes().add(attributeTO("aLong", "STRING"));
+        userTO.getAttrs().add(attributeTO("aLong", "STRING"));
 
         try {
             createUser(userTO);
@@ -1373,10 +1368,10 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("checkRoleAttrPropagation@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerivedAttributes().clear();
-        userTO.getVirtualAttributes().clear();
+        userTO.getDerAttrs().clear();
+        userTO.getVirAttrs().clear();
 
-        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
+        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(1L);
@@ -1387,11 +1382,11 @@ public class UserTestITCase extends AbstractTest {
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
-        assertNotNull(actual.getDerivedAttributeMap().get("csvuserid"));
+        assertNotNull(actual.getDerAttrMap().get("csvuserid"));
 
         ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
         assertNotNull(connObjectTO);
-        assertEquals("sx-dx", connObjectTO.getAttributeMap().get("ROLE").getValues().get(0));
+        assertEquals("sx-dx", connObjectTO.getAttrMap().get("ROLE").getValues().get(0));
     }
 
     @Test
@@ -1399,26 +1394,26 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("checkMembAttrPropagation@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerivedAttributes().clear();
-        userTO.getVirtualAttributes().clear();
-        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
+        userTO.getDerAttrs().clear();
+        userTO.getVirAttrs().clear();
+        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(1L);
-        membershipTO.getAttributes().add(attributeTO("mderived_sx", "sx"));
-        membershipTO.getAttributes().add(attributeTO("mderived_dx", "dx"));
-        membershipTO.getDerivedAttributes().add(attributeTO("mderToBePropagated", null));
+        membershipTO.getAttrs().add(attributeTO("mderived_sx", "sx"));
+        membershipTO.getAttrs().add(attributeTO("mderived_dx", "dx"));
+        membershipTO.getDerAttrs().add(attributeTO("mderToBePropagated", null));
         userTO.getMemberships().add(membershipTO);
 
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
-        assertNotNull(actual.getDerivedAttributeMap().get("csvuserid"));
+        assertNotNull(actual.getDerAttrMap().get("csvuserid"));
 
         ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
         assertNotNull(connObjectTO);
-        assertEquals("sx-dx", connObjectTO.getAttributeMap().get("MEMBERSHIP").getValues().get(0));
+        assertEquals("sx-dx", connObjectTO.getAttrMap().get("MEMBERSHIP").getValues().get(0));
     }
 
     @Test
@@ -1436,12 +1431,12 @@ public class UserTestITCase extends AbstractTest {
         // 2. check for virtual attribute value
         actual = userService.read(actual.getId());
         assertNotNull(actual);
-        assertEquals("virtualvalue", actual.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+        assertEquals("virtualvalue", actual.getVirAttrMap().get("virtualdata").getValues().get(0));
 
         UserMod userMod = new UserMod();
         userMod.setId(actual.getId());
-        userMod.getVirtualAttributesToBeRemoved().add("virtualdata");
-        userMod.getVirtualAttributesToBeUpdated().add(attributeMod("virtualdata", "virtualupdated"));
+        userMod.getVirAttrsToRemove().add("virtualdata");
+        userMod.getVirAttrsToUpdate().add(attributeMod("virtualdata", "virtualupdated"));
 
         // 3. update virtual attribute
         actual = userService.update(userMod.getId(), userMod);
@@ -1450,7 +1445,7 @@ public class UserTestITCase extends AbstractTest {
         // 4. check for virtual attribute value
         actual = userService.read(actual.getId());
         assertNotNull(actual);
-        assertEquals("virtualupdated", actual.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+        assertEquals("virtualupdated", actual.getVirAttrMap().get("virtualdata").getValues().get(0));
     }
 
     @Test
@@ -1458,9 +1453,9 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("syncope108@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerivedAttributes().clear();
-        userTO.getVirtualAttributes().clear();
-        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
+        userTO.getDerAttrs().clear();
+        userTO.getVirAttrs().clear();
+        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
 
         MembershipTO memb12 = new MembershipTO();
         memb12.setRoleId(12L);
@@ -1488,7 +1483,7 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
         userMod.setId(actual.getId());
 
-        userMod.getMembershipsToBeRemoved().add(actual.getMemberships().get(0).getId());
+        userMod.getMembershipsToRemove().add(actual.getMemberships().get(0).getId());
 
         actual = userService.update(userMod.getId(), userMod);
         assertNotNull(actual);
@@ -1504,7 +1499,7 @@ public class UserTestITCase extends AbstractTest {
         userMod = new UserMod();
         userMod.setId(actual.getId());
 
-        userMod.getResourcesToBeRemoved().add(actual.getResources().iterator().next());
+        userMod.getResourcesToRemove().add(actual.getResources().iterator().next());
 
         actual = userService.update(userMod.getId(), userMod);
         assertNotNull(actual);
@@ -1521,7 +1516,7 @@ public class UserTestITCase extends AbstractTest {
         userMod = new UserMod();
         userMod.setId(actual.getId());
 
-        userMod.getMembershipsToBeRemoved().add(actual.getMemberships().get(0).getId());
+        userMod.getMembershipsToRemove().add(actual.getMemberships().get(0).getId());
 
         actual = userService.update(userMod.getId(), userMod);
         assertNotNull(actual);
@@ -1541,13 +1536,13 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("syncope111@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerivedAttributes().clear();
-        userTO.getVirtualAttributes().clear();
-        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
+        userTO.getDerAttrs().clear();
+        userTO.getVirAttrs().clear();
+        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
 
         MembershipTO memb12 = new MembershipTO();
         memb12.setRoleId(12L);
-        memb12.getAttributes().add(attributeTO("postalAddress", "postalAddress"));
+        memb12.getAttrs().add(attributeTO("postalAddress", "postalAddress"));
         userTO.getMemberships().add(memb12);
 
         MembershipTO memb13 = new MembershipTO();
@@ -1563,12 +1558,12 @@ public class UserTestITCase extends AbstractTest {
         ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_LDAP, actual.getId());
         assertNotNull(connObjectTO);
 
-        AttributeTO postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
+        AttributeTO postalAddress = connObjectTO.getAttrMap().get("postalAddress");
         assertNotNull(postalAddress);
         assertEquals(1, postalAddress.getValues().size());
         assertEquals("postalAddress", postalAddress.getValues().get(0));
 
-        AttributeTO title = connObjectTO.getAttributeMap().get("title");
+        AttributeTO title = connObjectTO.getAttrMap().get("title");
         assertNotNull(title);
         assertEquals(2, title.getValues().size());
         assertTrue(title.getValues().contains("r12") && title.getValues().contains("r13"));
@@ -1583,7 +1578,7 @@ public class UserTestITCase extends AbstractTest {
                 ? actual.getMemberships().get(0)
                 : actual.getMemberships().get(1);
 
-        userMod.getMembershipsToBeRemoved().add(membershipTO.getId());
+        userMod.getMembershipsToRemove().add(membershipTO.getId());
 
         actual = userService.update(userMod.getId(), userMod);
         assertNotNull(actual);
@@ -1592,11 +1587,11 @@ public class UserTestITCase extends AbstractTest {
         connObjectTO = readConnectorObject(RESOURCE_NAME_LDAP, actual.getId());
         assertNotNull(connObjectTO);
 
-        postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
+        postalAddress = connObjectTO.getAttrMap().get("postalAddress");
         assertTrue(postalAddress == null || postalAddress.getValues().isEmpty()
                 || StringUtils.hasText(postalAddress.getValues().get(0)));
 
-        title = connObjectTO.getAttributeMap().get("title");
+        title = connObjectTO.getAttrMap().get("title");
         assertNotNull(title);
         assertEquals(1, title.getValues().size());
         assertTrue(title.getValues().contains("r13"));
@@ -1607,7 +1602,7 @@ public class UserTestITCase extends AbstractTest {
     public void issueSYNCOPE185() {
         // 1. create user with LDAP resource, succesfully propagated
         UserTO userTO = getSampleTO("syncope185@syncope.apache.org");
-        userTO.getVirtualAttributes().clear();
+        userTO.getVirAttrs().clear();
         userTO.getResources().add(RESOURCE_NAME_LDAP);
 
         userTO = createUser(userTO);
@@ -1675,7 +1670,7 @@ public class UserTestITCase extends AbstractTest {
 
         ConnObjectTO connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
         assertNotNull(connObjectTO);
-        assertEquals("virtualvalue", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
+        assertEquals("virtualvalue", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
         // ----------------------------------
 
         // ----------------------------------
@@ -1689,7 +1684,7 @@ public class UserTestITCase extends AbstractTest {
         attrMod.getValuesToBeRemoved().add("virtualvalue");
         attrMod.getValuesToBeAdded().add("virtualvalue2");
 
-        userMod.getVirtualAttributesToBeUpdated().add(attrMod);
+        userMod.getVirAttrsToUpdate().add(attrMod);
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
@@ -1699,7 +1694,7 @@ public class UserTestITCase extends AbstractTest {
 
         connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
         assertNotNull(connObjectTO);
-        assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
+        assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
         // ----------------------------------
 
         // ----------------------------------
@@ -1710,16 +1705,16 @@ public class UserTestITCase extends AbstractTest {
 
         connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
         assertNotNull(connObjectTO);
-        assertFalse(connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
-        assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
+        assertFalse(connObjectTO.getAttrMap().get("NAME").getValues().isEmpty());
+        assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
 
         userTO = userService.reactivate(userTO.getId());
         assertEquals("active", userTO.getStatus());
 
         connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
         assertNotNull(connObjectTO);
-        assertFalse(connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
-        assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
+        assertFalse(connObjectTO.getAttrMap().get("NAME").getValues().isEmpty());
+        assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
         // ----------------------------------
 
         // ----------------------------------
@@ -1733,7 +1728,7 @@ public class UserTestITCase extends AbstractTest {
         attrMod.getValuesToBeRemoved().add("Surname");
         attrMod.getValuesToBeAdded().add("Surname2");
 
-        userMod.getAttributesToBeUpdated().add(attrMod);
+        userMod.getAttrsToUpdate().add(attrMod);
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
@@ -1743,11 +1738,11 @@ public class UserTestITCase extends AbstractTest {
 
         connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
         assertNotNull(connObjectTO);
-        assertEquals("Surname2", connObjectTO.getAttributeMap().get("SURNAME").getValues().get(0));
+        assertEquals("Surname2", connObjectTO.getAttrMap().get("SURNAME").getValues().get(0));
 
         // attribute "name" mapped on virtual attribute "virtualdata" shouldn't be changed
-        assertFalse(connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
-        assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
+        assertFalse(connObjectTO.getAttrMap().get("NAME").getValues().isEmpty());
+        assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
         // ----------------------------------
 
         // ----------------------------------
@@ -1755,11 +1750,11 @@ public class UserTestITCase extends AbstractTest {
         // ----------------------------------
         userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.getVirtualAttributesToBeRemoved().add("virtualdata");
+        userMod.getVirAttrsToRemove().add("virtualdata");
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
-        assertTrue(userTO.getVirtualAttributes().isEmpty());
+        assertTrue(userTO.getVirAttrs().isEmpty());
         assertFalse(userTO.getPropagationStatusTOs().isEmpty());
         assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
@@ -1768,8 +1763,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(connObjectTO);
 
         // attribute "name" mapped on virtual attribute "virtualdata" should be reset
-        assertTrue(connObjectTO.getAttributeMap().get("NAME").getValues() == null
-                || connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
+        assertTrue(connObjectTO.getAttrMap().get("NAME").getValues() == null
+                || connObjectTO.getAttrMap().get("NAME").getValues().isEmpty());
         // ----------------------------------
     }
 
@@ -1790,14 +1785,14 @@ public class UserTestITCase extends AbstractTest {
 
         ConnObjectTO connObjectTO = readConnectorObject("resource-db-virattr", userTO.getId());
         assertNotNull(connObjectTO);
-        assertEquals("virtualvalue", connObjectTO.getAttributeMap().get("USERNAME").getValues().get(0));
+        assertEquals("virtualvalue", connObjectTO.getAttrMap().get("USERNAME").getValues().get(0));
         // ----------------------------------
 
         userTO = userService.read(userTO.getId());
 
         assertNotNull(userTO);
-        assertEquals(1, userTO.getVirtualAttributes().size());
-        assertEquals("virtualvalue", userTO.getVirtualAttributes().get(0).getValues().get(0));
+        assertEquals(1, userTO.getVirAttrs().size());
+        assertEquals("virtualvalue", userTO.getVirAttrs().get(0).getValues().get(0));
     }
 
     @Test
@@ -1812,7 +1807,7 @@ public class UserTestITCase extends AbstractTest {
         userMod.setId(userTO.getId());
 
         // this resource has not a mapping for Password
-        userMod.getResourcesToBeAdded().add("ws-target-resource-update");
+        userMod.getResourcesToAdd().add("ws-target-resource-update");
 
         userTO = userService.update(userTO.getId(), userMod);
         assertNotNull(userTO);
@@ -1846,7 +1841,7 @@ public class UserTestITCase extends AbstractTest {
 
         ConnObjectTO userOnDb =
                 resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, AttributableType.USER, userTO.getId());
-        final AttributeTO pwdOnTestDbAttr = userOnDb.getAttributeMap().get(OperationalAttributes.PASSWORD_NAME);
+        final AttributeTO pwdOnTestDbAttr = userOnDb.getAttrMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDbAttr);
         assertNotNull(pwdOnTestDbAttr.getValues());
         assertFalse(pwdOnTestDbAttr.getValues().isEmpty());
@@ -1854,7 +1849,7 @@ public class UserTestITCase extends AbstractTest {
 
         ConnObjectTO userOnDb2 =
                 resourceService.getConnectorObject("resource-testdb2", AttributableType.USER, userTO.getId());
-        final AttributeTO pwdOnTestDb2Attr = userOnDb2.getAttributeMap().get(OperationalAttributes.PASSWORD_NAME);
+        final AttributeTO pwdOnTestDb2Attr = userOnDb2.getAttrMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDb2Attr);
         assertNotNull(pwdOnTestDb2Attr.getValues());
         assertFalse(pwdOnTestDb2Attr.getValues().isEmpty());
@@ -1880,7 +1875,7 @@ public class UserTestITCase extends AbstractTest {
 
         // 3c. verify that password *has* changed on testdb
         userOnDb = resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, AttributableType.USER, userTO.getId());
-        final AttributeTO pwdOnTestDbAttrAfter = userOnDb.getAttributeMap().get(OperationalAttributes.PASSWORD_NAME);
+        final AttributeTO pwdOnTestDbAttrAfter = userOnDb.getAttrMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDbAttrAfter);
         assertNotNull(pwdOnTestDbAttrAfter.getValues());
         assertFalse(pwdOnTestDbAttrAfter.getValues().isEmpty());
@@ -1888,7 +1883,7 @@ public class UserTestITCase extends AbstractTest {
 
         // 3d. verify that password hasn't changed on testdb2
         userOnDb2 = resourceService.getConnectorObject("resource-testdb2", AttributableType.USER, userTO.getId());
-        final AttributeTO pwdOnTestDb2AttrAfter = userOnDb2.getAttributeMap().get(OperationalAttributes.PASSWORD_NAME);
+        final AttributeTO pwdOnTestDb2AttrAfter = userOnDb2.getAttrMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDb2AttrAfter);
         assertNotNull(pwdOnTestDb2AttrAfter.getValues());
         assertFalse(pwdOnTestDb2AttrAfter.getValues().isEmpty());
@@ -1915,7 +1910,7 @@ public class UserTestITCase extends AbstractTest {
         // 4. update user, assign a propagation primary resource but don't provide any password
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.getResourcesToBeAdded().add("ws-target-resource-1");
+        userMod.getResourcesToAdd().add("ws-target-resource-1");
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
@@ -1946,7 +1941,7 @@ public class UserTestITCase extends AbstractTest {
         // 2. update user, assign a propagation primary resource but don't provide any password
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.getResourcesToBeAdded().add(RESOURCE_NAME_LDAP);
+        userMod.getResourcesToAdd().add(RESOURCE_NAME_LDAP);
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
@@ -1964,12 +1959,12 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void virAttrCache() {
         UserTO userTO = getUniqueSampleTO("virattrcache@apache.org");
-        userTO.getVirtualAttributes().clear();
+        userTO.getVirAttrs().clear();
 
         AttributeTO virAttrTO = new AttributeTO();
         virAttrTO.setSchema("virtualdata");
         virAttrTO.getValues().add("virattrcache");
-        userTO.getVirtualAttributes().add(virAttrTO);
+        userTO.getVirAttrs().add(virAttrTO);
 
         userTO.getMemberships().clear();
         userTO.getResources().clear();
@@ -1981,7 +1976,7 @@ public class UserTestITCase extends AbstractTest {
 
         // 2. check for virtual attribute value
         actual = userService.read(actual.getId());
-        assertEquals("virattrcache", actual.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+        assertEquals("virattrcache", actual.getVirAttrMap().get("virtualdata").getValues().get(0));
 
         Exception exception = null;
         try {
@@ -2004,7 +1999,7 @@ public class UserTestITCase extends AbstractTest {
 
         // 2. check for cached attribute value
         actual = userService.read(actual.getId());
-        assertEquals("virattrcache", actual.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+        assertEquals("virattrcache", actual.getVirAttrMap().get("virtualdata").getValues().get(0));
 
         UserMod userMod = new UserMod();
         userMod.setId(actual.getId());
@@ -2013,8 +2008,8 @@ public class UserTestITCase extends AbstractTest {
         virtualdata.setSchema("virtualdata");
         virtualdata.getValuesToBeAdded().add("virtualupdated");
 
-        userMod.getVirtualAttributesToBeRemoved().add("virtualdata");
-        userMod.getVirtualAttributesToBeUpdated().add(virtualdata);
+        userMod.getVirAttrsToRemove().add("virtualdata");
+        userMod.getVirAttrsToUpdate().add(virtualdata);
 
         // 3. update virtual attribute
         actual = userService.update(actual.getId(), userMod);
@@ -2023,7 +2018,7 @@ public class UserTestITCase extends AbstractTest {
         // 4. check for virtual attribute value
         actual = userService.read(actual.getId());
         assertNotNull(actual);
-        assertEquals("virtualupdated", actual.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+        assertEquals("virtualupdated", actual.getVirAttrMap().get("virtualdata").getValues().get(0));
     }
 
     @Test
@@ -2032,7 +2027,7 @@ public class UserTestITCase extends AbstractTest {
 
         AttributeTO csvuserid = new AttributeTO();
         csvuserid.setSchema("csvuserid");
-        userTO.getDerivedAttributes().add(csvuserid);
+        userTO.getDerAttrs().add(csvuserid);
 
         userTO.getResources().clear();
         userTO.getResources().add(RESOURCE_NAME_CSV);
@@ -2041,7 +2036,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
 
         final ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
-        assertNull(connObjectTO.getAttributeMap().get("email"));
+        assertNull(connObjectTO.getAttrMap().get("email"));
     }
 
     @Test
@@ -2054,11 +2049,11 @@ public class UserTestITCase extends AbstractTest {
             attributeMod.setSchema("type");
             attributeMod.getValuesToBeAdded().add("a type");
 
-            userMod.getAttributesToBeRemoved().add("type");
-            userMod.getAttributesToBeUpdated().add(attributeMod);
+            userMod.getAttrsToRemove().add("type");
+            userMod.getAttrsToUpdate().add(attributeMod);
 
             UserTO userTO = userService.update(i, userMod);
-            assertEquals("a type", userTO.getAttributeMap().get("type").getValues().get(0));
+            assertEquals("a type", userTO.getAttrMap().get("type").getValues().get(0));
         }
     }
 
@@ -2130,13 +2125,13 @@ public class UserTestITCase extends AbstractTest {
         ConnObjectTO connObj =
                 resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, roleTO.getId());
         assertNotNull(connObj);
-        assertTrue(connObj.getAttributeMap().get("uniqueMember").getValues().
+        assertTrue(connObj.getAttrMap().get("uniqueMember").getValues().
                 contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
 
         // 4. remove membership
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.getMembershipsToBeRemoved().add(userTO.getMemberships().iterator().next().getId());
+        userMod.getMembershipsToRemove().add(userTO.getMemberships().iterator().next().getId());
 
         userTO = userService.update(userMod.getId(), userMod);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
@@ -2144,7 +2139,7 @@ public class UserTestITCase extends AbstractTest {
         // 5. read role on resource, check that user DN was removed from uniqueMember
         connObj = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, roleTO.getId());
         assertNotNull(connObj);
-        assertFalse(connObj.getAttributeMap().get("uniqueMember").getValues().
+        assertFalse(connObj.getAttrMap().get("uniqueMember").getValues().
                 contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
 
         // 6. restore original resource-ldap role mapping
@@ -2210,7 +2205,7 @@ public class UserTestITCase extends AbstractTest {
         // 2. assign resource without specifying a new pwd and check propagation failure
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.getResourcesToBeAdded().add(RESOURCE_NAME_TESTDB);
+        userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
         userTO = userService.update(userMod.getId(), userMod);
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
         assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
@@ -2262,12 +2257,12 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("syncope397@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerivedAttributes().clear();
-        userTO.getVirtualAttributes().clear();
+        userTO.getDerAttrs().clear();
+        userTO.getVirAttrs().clear();
 
-        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
-        userTO.getDerivedAttributes().add(attributeTO("cn", null));
-        userTO.getVirtualAttributes().add(attributeTO("virtualdata", "test@testone.org"));
+        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
+        userTO.getDerAttrs().add(attributeTO("cn", null));
+        userTO.getVirAttrs().add(attributeTO("virtualdata", "test@testone.org"));
         // assign resource-csv to user
         userTO.getResources().add(RESOURCE_NAME_CSV);
         // save user
@@ -2281,10 +2276,10 @@ public class UserTestITCase extends AbstractTest {
         userMod.setId(toBeUpdated.getId());
         userMod.setPassword("password2");
         // assign new resource to user
-        userMod.getResourcesToBeAdded().add("ws-target-resource-2");
+        userMod.getResourcesToAdd().add("ws-target-resource-2");
         //modify virtual attribute
-        userMod.getVirtualAttributesToBeRemoved().add("virtualdata");
-        userMod.getVirtualAttributesToBeUpdated().add(attributeMod("virtualdata", "test@testoneone.com"));
+        userMod.getVirAttrsToRemove().add("virtualdata");
+        userMod.getVirAttrsToUpdate().add(attributeMod("virtualdata", "test@testoneone.com"));
         // check Syncope change password
 
         PropagationRequestTO pwdPropRequest = new PropagationRequestTO();
@@ -2295,7 +2290,7 @@ public class UserTestITCase extends AbstractTest {
         userMod.setPwdPropRequest(pwdPropRequest);
         toBeUpdated = userService.update(userMod.getId(), userMod);
         assertNotNull(toBeUpdated);
-        assertEquals("test@testoneone.com", toBeUpdated.getVirtualAttributes().get(0).getValues().get(0));
+        assertEquals("test@testoneone.com", toBeUpdated.getVirAttrs().get(0).getValues().get(0));
         // check if propagates correctly with assertEquals on size of tasks list
 
         assertEquals(2, toBeUpdated.getPropagationStatusTOs().size());
@@ -2309,9 +2304,9 @@ public class UserTestITCase extends AbstractTest {
         userTO.setUsername(userId);
         userTO.setPassword("password");
 
-        userTO.getAttributes().add(attributeTO("userId", userId));
-        userTO.getAttributes().add(attributeTO("fullname", userId));
-        userTO.getAttributes().add(attributeTO("surname", userId));
+        userTO.getAttrs().add(attributeTO("userId", userId));
+        userTO.getAttrs().add(attributeTO("fullname", userId));
+        userTO.getAttrs().add(attributeTO("surname", userId));
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -2322,8 +2317,8 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("newPassword");
-        userMod.getResourcesToBeAdded().add("ws-target-resource-1");
-        userMod.getResourcesToBeAdded().add("resource-testdb");
+        userMod.getResourcesToAdd().add("ws-target-resource-1");
+        userMod.getResourcesToAdd().add("resource-testdb");
         userTO = userService.update(userMod.getId(), userMod);
         assertEquals("ws-target-resource-1", userTO.getPropagationStatusTOs().get(1).getResource());
         assertNotNull(userTO.getPropagationStatusTOs().get(1).getFailureReason());
@@ -2336,8 +2331,8 @@ public class UserTestITCase extends AbstractTest {
 
         UserTO userTO = getUniqueSampleTO("issueSYNCOPE15@syncope.apache.org");
         userTO.getResources().clear();
-        userTO.getVirtualAttributes().clear();
-        userTO.getDerivedAttributes().clear();
+        userTO.getVirAttrs().clear();
+        userTO.getDerAttrs().clear();
         userTO.getMemberships().clear();
 
         // User with role 9 are defined in workflow as subject to approval
@@ -2426,9 +2421,9 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("unlink@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerivedAttributes().clear();
-        userTO.getVirtualAttributes().clear();
-        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
+        userTO.getDerAttrs().clear();
+        userTO.getVirAttrs().clear();
+        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
         UserTO actual = createUser(userTO);
@@ -2458,9 +2453,9 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("unassign@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerivedAttributes().clear();
-        userTO.getVirtualAttributes().clear();
-        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
+        userTO.getDerAttrs().clear();
+        userTO.getVirAttrs().clear();
+        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
         UserTO actual = createUser(userTO);
@@ -2493,9 +2488,9 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("deprovision@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerivedAttributes().clear();
-        userTO.getVirtualAttributes().clear();
-        userTO.getDerivedAttributes().add(attributeTO("csvuserid", null));
+        userTO.getDerAttrs().clear();
+        userTO.getVirAttrs().clear();
+        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
         UserTO actual = createUser(userTO);
@@ -2528,7 +2523,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     private String getStringAttribute(ConnObjectTO connObjectTO, String attrName) {
-        return connObjectTO.getAttributeMap().get(attrName).getValues().get(0);
+        return connObjectTO.getAttrMap().get(attrName).getValues().get(0);
     }
 
     private long getMaxTaskId(List<PropagationTaskTO> tasks) {

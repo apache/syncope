@@ -31,6 +31,8 @@ import org.apache.syncope.console.commons.StatusBean;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.RoleModalPage;
 import org.apache.syncope.console.rest.AuthRestClient;
+import org.apache.syncope.console.rest.RoleRestClient;
+import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.wicket.PageReference;
@@ -47,12 +49,15 @@ public class RolePanel extends Panel {
     private static final long serialVersionUID = 4216376097320768369L;
 
     @SpringBean
-    private AuthRestClient entitlementRestClient;
+    private AuthRestClient authRestClient;
+
+    @SpringBean
+    private SchemaRestClient schemaRestClient;
 
     @SpringBean
     private XMLRolesReader xmlRolesReader;
 
-    private final AjaxPalettePanel<String> entitlementsPalette;
+    private final AjaxPalettePanel<String> entitlements;
 
     public static class Builder implements Serializable {
 
@@ -117,70 +122,75 @@ public class RolePanel extends Panel {
         this.add(new SysInfoPanel("systeminformation", builder.roleTO));
 
         //--------------------------------
-        // Attributes panel
-        this.add(new AttributesPanel(
-                "attributes", builder.roleTO, builder.form, builder.mode == RoleModalPage.Mode.TEMPLATE));
+        // Attribute templates panel
+        //--------------------------------
+        AttrTemplatesPanel attrTemplates = new AttrTemplatesPanel("templates", builder.roleTO);
+        this.add(attrTemplates);
 
-        final AjaxCheckBoxPanel inhAttributes = new AjaxCheckBoxPanel("inheritAttributes", "inheritAttributes",
-                new PropertyModel<Boolean>(builder.roleTO, "inheritAttributes"));
+        //--------------------------------
+        // Attributes panel
+        //--------------------------------
+        this.add(new AttributesPanel(
+                "attrs", builder.roleTO, builder.form, builder.mode == RoleModalPage.Mode.TEMPLATE, attrTemplates));
+
+        final AjaxCheckBoxPanel inhAttributes = new AjaxCheckBoxPanel("inheritAttrs", "inheritAttrs",
+                new PropertyModel<Boolean>(builder.roleTO, "inheritAttrs"));
         inhAttributes.setOutputMarkupId(true);
         this.add(inhAttributes);
         //--------------------------------
 
         //--------------------------------
-        // Derived attributes container
+        // Derived attributes panel
         //--------------------------------
-        this.add(new DerivedAttributesPanel("derivedAttributes", builder.roleTO));
+        this.add(new DerivedAttributesPanel("derAttrs", builder.roleTO, attrTemplates));
 
-        final AjaxCheckBoxPanel inhDerivedAttributes = new AjaxCheckBoxPanel("inheritDerivedAttributes",
-                "inheritDerivedAttributes", new PropertyModel<Boolean>(builder.roleTO, "inheritDerivedAttributes"));
-        inhDerivedAttributes.setOutputMarkupId(true);
+        final AjaxCheckBoxPanel inhDerivedAttributes = new AjaxCheckBoxPanel("inheritDerAttrs",
+                "inheritDerAttrs", new PropertyModel<Boolean>(builder.roleTO, "inheritDerAttrs"));
         inhDerivedAttributes.setOutputMarkupId(true);
         this.add(inhDerivedAttributes);
         //--------------------------------
 
         //--------------------------------
-        // Virtual attributes container
+        // Virtual attributes panel
         //--------------------------------
         this.add(new VirtualAttributesPanel(
-                "virtualAttributes", builder.roleTO, builder.mode == RoleModalPage.Mode.TEMPLATE));
+                "virAttrs", builder.roleTO, builder.mode == RoleModalPage.Mode.TEMPLATE, attrTemplates));
 
-        final AjaxCheckBoxPanel inhVirtualAttributes = new AjaxCheckBoxPanel("inheritVirtualAttributes",
-                "inheritVirtualAttributes", new PropertyModel<Boolean>(builder.roleTO, "inheritVirtualAttributes"));
-        inhVirtualAttributes.setOutputMarkupId(true);
+        final AjaxCheckBoxPanel inhVirtualAttributes = new AjaxCheckBoxPanel("inheritVirAttrs",
+                "inheritVirAttrs", new PropertyModel<Boolean>(builder.roleTO, "inheritVirAttrs"));
         inhVirtualAttributes.setOutputMarkupId(true);
         this.add(inhVirtualAttributes);
         //--------------------------------
 
         //--------------------------------
-        // Security container
+        // Resources panel
+        //--------------------------------
+        this.add(new ResourcesPanel.Builder("resources").attributableTO(builder.roleTO).build().
+                setOutputMarkupId(true));
         //--------------------------------
 
-        this.add(new RoleSecurityPanel("security", builder.roleTO).setOutputMarkupId(true));
         //--------------------------------
-
+        // Entitlements
         //--------------------------------
-        // Resources container
-        //--------------------------------
-
-        this.add(new ResourcesPanel.Builder("resources").attributableTO(builder.roleTO).build()
-                .setOutputMarkupId(true));
-        //--------------------------------
-
         ListModel<String> selectedEntitlements = new ListModel<String>(builder.roleTO.getEntitlements());
 
-        List<String> allEntitlements = entitlementRestClient.getAllEntitlements();
+        List<String> allEntitlements = authRestClient.getAllEntitlements();
         if (allEntitlements != null && !allEntitlements.isEmpty()) {
             Collections.sort(allEntitlements);
         }
         ListModel<String> availableEntitlements = new ListModel<String>(allEntitlements);
 
-        entitlementsPalette =
-                new AjaxPalettePanel<String>("entitlementsPalette", selectedEntitlements, availableEntitlements);
-        this.add(entitlementsPalette);
+        entitlements = new AjaxPalettePanel<String>("entitlements", selectedEntitlements, availableEntitlements);
+        this.add(entitlements);
+
+        //--------------------------------
+        // Security panel
+        //--------------------------------
+        this.add(new RoleSecurityPanel("security", builder.roleTO).setOutputMarkupId(true));
+        //--------------------------------
     }
 
     public Collection<String> getSelectedEntitlements() {
-        return this.entitlementsPalette.getModelCollection();
+        return this.entitlements.getModelCollection();
     }
 }

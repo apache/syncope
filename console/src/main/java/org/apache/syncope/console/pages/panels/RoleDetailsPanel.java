@@ -21,16 +21,21 @@ package org.apache.syncope.console.pages.panels;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.pages.RoleSelectModalPage;
 import org.apache.syncope.console.pages.UserOwnerSelectModalPage;
+import org.apache.syncope.console.pages.panels.AttrTemplatesPanel.RoleAttrTemplatesChange;
+import org.apache.syncope.console.pages.panels.AttrTemplatesPanel.Type;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -109,7 +114,7 @@ public class RoleDetailsPanel extends Panel {
                 }
             };
             parentFragment.add(parentSelect);
-            final IndicatingAjaxLink parentReset = new IndicatingAjaxLink("parentReset") {
+            final IndicatingAjaxLink<Void> parentReset = new IndicatingAjaxLink<Void>("parentReset") {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
@@ -146,7 +151,7 @@ public class RoleDetailsPanel extends Panel {
         userOwner.setReadOnly(true);
         userOwner.setOutputMarkupId(true);
         ownerContainer.add(userOwner);
-        final IndicatingAjaxLink userOwnerSelect = new IndicatingAjaxLink("userOwnerSelect") {
+        final IndicatingAjaxLink<Void> userOwnerSelect = new IndicatingAjaxLink<Void>("userOwnerSelect") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -165,7 +170,7 @@ public class RoleDetailsPanel extends Panel {
             }
         };
         ownerContainer.add(userOwnerSelect);
-        final IndicatingAjaxLink userOwnerReset = new IndicatingAjaxLink("userOwnerReset") {
+        final IndicatingAjaxLink<Void> userOwnerReset = new IndicatingAjaxLink<Void>("userOwnerReset") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -182,7 +187,7 @@ public class RoleDetailsPanel extends Panel {
         roleOwner.setReadOnly(true);
         roleOwner.setOutputMarkupId(true);
         ownerContainer.add(roleOwner);
-        final IndicatingAjaxLink roleOwnerSelect = new IndicatingAjaxLink("roleOwnerSelect") {
+        final IndicatingAjaxLink<Void> roleOwnerSelect = new IndicatingAjaxLink<Void>("roleOwnerSelect") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -202,7 +207,7 @@ public class RoleDetailsPanel extends Panel {
             }
         };
         ownerContainer.add(roleOwnerSelect);
-        final IndicatingAjaxLink roleOwnerReset = new IndicatingAjaxLink("roleOwnerReset") {
+        final IndicatingAjaxLink<Void> roleOwnerReset = new IndicatingAjaxLink<Void>("roleOwnerReset") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -217,6 +222,21 @@ public class RoleDetailsPanel extends Panel {
         final AjaxCheckBoxPanel inhOwner = new AjaxCheckBoxPanel("inheritOwner", "inheritOwner",
                 new PropertyModel<Boolean>(roleTO, "inheritOwner"));
         this.add(inhOwner);
+
+        final AjaxCheckBoxPanel inhTemplates = new AjaxCheckBoxPanel("inheritTemplates", "inheritTemplates",
+                new PropertyModel<Boolean>(roleTO, "inheritTemplates"));
+        inhTemplates.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                send(getPage(), Broadcast.BREADTH, new RoleAttrTemplatesChange(Type.rAttrTemplates, target));
+                send(getPage(), Broadcast.BREADTH, new RoleAttrTemplatesChange(Type.rDerAttrTemplates, target));
+                send(getPage(), Broadcast.BREADTH, new RoleAttrTemplatesChange(Type.rVirAttrTemplates, target));
+            }
+        });
+        this.add(inhTemplates);
     }
 
     /**

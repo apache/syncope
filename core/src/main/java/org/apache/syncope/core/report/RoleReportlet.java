@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.core.report;
 
-import static org.apache.syncope.core.report.ReportXMLConst.ATTR_NAME;
-import static org.apache.syncope.core.report.ReportXMLConst.XSD_LONG;
-import static org.apache.syncope.core.report.ReportXMLConst.XSD_STRING;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +93,7 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
             for (String resourceName : attributableTO.getResources()) {
                 atts.clear();
 
-                atts.addAttribute("", "", ATTR_NAME, XSD_STRING, resourceName);
+                atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, resourceName);
                 handler.startElement("", "", "resource", atts);
                 handler.endElement("", "", "resource");
             }
@@ -112,13 +108,13 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
 
         AttributesImpl atts = new AttributesImpl();
         if (!attrs.isEmpty()) {
-            Map<String, AttributeTO> attrMap = attributableTO.getAttributeMap();
+            Map<String, AttributeTO> attrMap = attributableTO.getAttrMap();
 
             handler.startElement("", "", "attributes", null);
             for (String attrName : attrs) {
                 atts.clear();
 
-                atts.addAttribute("", "", ATTR_NAME, XSD_STRING, attrName);
+                atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, attrName);
                 handler.startElement("", "", "attribute", atts);
 
                 if (attrMap.containsKey(attrName)) {
@@ -138,13 +134,13 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
         }
 
         if (!derAttrs.isEmpty()) {
-            Map<String, AttributeTO> derAttrMap = attributableTO.getDerivedAttributeMap();
+            Map<String, AttributeTO> derAttrMap = attributableTO.getDerAttrMap();
 
             handler.startElement("", "", "derivedAttributes", null);
             for (String attrName : derAttrs) {
                 atts.clear();
 
-                atts.addAttribute("", "", ATTR_NAME, XSD_STRING, attrName);
+                atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, attrName);
                 handler.startElement("", "", "derivedAttribute", atts);
 
                 if (derAttrMap.containsKey(attrName)) {
@@ -164,13 +160,13 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
         }
 
         if (!virAttrs.isEmpty()) {
-            Map<String, AttributeTO> virAttrMap = attributableTO.getVirtualAttributeMap();
+            Map<String, AttributeTO> virAttrMap = attributableTO.getVirAttrMap();
 
             handler.startElement("", "", "virtualAttributes", null);
             for (String attrName : virAttrs) {
                 atts.clear();
 
-                atts.addAttribute("", "", ATTR_NAME, XSD_STRING, attrName);
+                atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, attrName);
                 handler.startElement("", "", "virtualAttribute", atts);
 
                 if (virAttrMap.containsKey(attrName)) {
@@ -202,22 +198,22 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
                 String value = null;
                 switch (feature) {
                     case id:
-                        type = XSD_LONG;
+                        type = ReportXMLConst.XSD_LONG;
                         value = String.valueOf(role.getId());
                         break;
 
                     case name:
-                        type = XSD_STRING;
+                        type = ReportXMLConst.XSD_STRING;
                         value = String.valueOf(role.getName());
                         break;
 
                     case roleOwner:
-                        type = XSD_LONG;
+                        type = ReportXMLConst.XSD_LONG;
                         value = String.valueOf(role.getRoleOwner());
                         break;
 
                     case userOwner:
-                        type = XSD_LONG;
+                        type = ReportXMLConst.XSD_LONG;
                         value = String.valueOf(role.getUserOwner());
                         break;
 
@@ -244,7 +240,7 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
                 for (String ent : roleTO.getEntitlements()) {
                     atts.clear();
 
-                    atts.addAttribute("", "", "id", XSD_STRING, String.valueOf(ent));
+                    atts.addAttribute("", "", "id", ReportXMLConst.XSD_STRING, String.valueOf(ent));
 
                     handler.startElement("", "", "entitlement", atts);
                     handler.endElement("", "", "entitlement");
@@ -263,9 +259,10 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
                 for (Membership memb : roleDAO.findMemberships(role)) {
                     atts.clear();
 
-                    atts.addAttribute("", "", "userId", XSD_LONG, String.valueOf(memb.getSyncopeUser().getId()));
-                    atts.addAttribute("", "", "userUsername", XSD_STRING, String.valueOf(memb.getSyncopeUser().
-                            getUsername()));
+                    atts.addAttribute("", "", "userId", ReportXMLConst.XSD_LONG,
+                            String.valueOf(memb.getSyncopeUser().getId()));
+                    atts.addAttribute("", "", "userUsername", ReportXMLConst.XSD_STRING,
+                            String.valueOf(memb.getSyncopeUser().getUsername()));
 
                     handler.startElement("", "", "user", atts);
                     handler.endElement("", "", "user");

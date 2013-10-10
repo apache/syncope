@@ -19,12 +19,16 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.TypedQuery;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
 import org.apache.syncope.core.persistence.beans.user.UMappingItem;
+import org.apache.syncope.core.persistence.beans.user.UVirAttr;
+import org.apache.syncope.core.persistence.dao.AttrTemplateDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.VirAttrDAO;
 import org.apache.syncope.core.persistence.dao.VirSchemaDAO;
@@ -36,7 +40,10 @@ import org.springframework.stereotype.Repository;
 public class VirSchemaDAOImpl extends AbstractDAOImpl implements VirSchemaDAO {
 
     @Autowired
-    private VirAttrDAO virtualAttributeDAO;
+    private VirAttrDAO virAttrDAO;
+
+    @Autowired
+    private AttrTemplateDAO attrTemplateDAO;
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -53,46 +60,56 @@ public class VirSchemaDAOImpl extends AbstractDAOImpl implements VirSchemaDAO {
     }
 
     @Override
-    public <T extends AbstractVirSchema> T save(final T virtualSchema) {
-        return entityManager.merge(virtualSchema);
+    public <T extends AbstractVirAttr> List<T> findAttrs(
+            final AbstractVirSchema schema, final Class<T> reference) {
+
+        final StringBuilder queryString =
+                new StringBuilder("SELECT e FROM ").append(reference.getSimpleName()).append(" e WHERE e.");
+        if (reference.equals(UVirAttr.class)) {
+            queryString.append("virSchema");
+        } else {
+            queryString.append("template.schema");
+        }
+        queryString.append("=:schema");
+
+        TypedQuery<T> query = entityManager.createQuery(queryString.toString(), reference);
+        query.setParameter("schema", schema);
+
+        return query.getResultList();
     }
 
     @Override
-    public void delete(final String name, final AttributableUtil attributableUtil) {
-        final AbstractVirSchema virtualSchema = find(name, attributableUtil.virSchemaClass());
+    public <T extends AbstractVirSchema> T save(final T virSchema) {
+        return entityManager.merge(virSchema);
+    }
 
-        if (virtualSchema == null) {
+    @Override
+    @SuppressWarnings("unchecked")
+    public void delete(final String name, final AttributableUtil attributableUtil) {
+        final AbstractVirSchema schema = find(name, attributableUtil.virSchemaClass());
+        if (schema == null) {
             return;
         }
 
-        List<? extends AbstractVirAttr> attributes = getAttributes(virtualSchema, attributableUtil.virAttrClass());
-
-        final Set<Long> virAttrIds = new HashSet<Long>(attributes.size());
-
-        Class<? extends AbstractVirAttr> attributeClass = null;
-
-        for (AbstractVirAttr attribute : attributes) {
-            virAttrIds.add(attribute.getId());
-            attributeClass = attribute.getClass();
+        final Set<Long> attrIds = new HashSet<Long>();
+        for (AbstractVirAttr attr : findAttrs(schema, attributableUtil.virAttrClass())) {
+            attrIds.add(attr.getId());
+        }
+        for (Long attrId : attrIds) {
+            virAttrDAO.delete(attrId, attributableUtil.virAttrClass());
         }
 
-        for (Long virtualAttributeId : virAttrIds) {
-            virtualAttributeDAO.delete(virtualAttributeId, attributeClass);
+        if (attributableUtil.getType() != AttributableType.USER) {
+            for (Iterator<Number> it = attrTemplateDAO.
+                    findBySchemaName(schema.getName(), attributableUtil.virAttrTemplateClass()).iterator();
+                    it.hasNext();) {
+
+                attrTemplateDAO.delete(it.next().longValue(), attributableUtil.virAttrTemplateClass());
+            }
         }
 
         resourceDAO.deleteMapping(name, attributableUtil.virIntMappingType(), UMappingItem.class);
 
-        entityManager.remove(virtualSchema);
-    }
-
-    @Override
-    public <T extends AbstractVirAttr> List<T> getAttributes(final AbstractVirSchema virtualSchema,
-            final Class<T> reference) {
-
-        TypedQuery<T> query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e"
-                + " WHERE e.virtualSchema=:schema", reference);
-        query.setParameter("schema", virtualSchema);
-
-        return query.getResultList();
+        entityManager.remove(schema);
     }
 }

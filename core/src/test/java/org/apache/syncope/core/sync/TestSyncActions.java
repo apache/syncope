@@ -35,15 +35,15 @@ public class TestSyncActions extends DefaultSyncActions {
             final SyncDelta delta, final T subject) throws JobExecutionException {
 
         AttributeTO attrTO = null;
-        for (int i = 0; i < subject.getAttributes().size(); i++) {
-            if ("fullname".equals(subject.getAttributes().get(i).getSchema())) {
-                attrTO = subject.getAttributes().get(i);
+        for (int i = 0; i < subject.getAttrs().size(); i++) {
+            if ("fullname".equals(subject.getAttrs().get(i).getSchema())) {
+                attrTO = subject.getAttrs().get(i);
             }
         }
         if (attrTO == null) {
             attrTO = new AttributeTO();
             attrTO.setSchema("fullname");
-            subject.getAttributes().add(attrTO);
+            subject.getAttrs().add(attrTO);
         }
         attrTO.getValues().clear();
         attrTO.getValues().add(String.valueOf(counter++));
@@ -56,10 +56,10 @@ public class TestSyncActions extends DefaultSyncActions {
             final SyncResultsHandler handler, final SyncDelta delta, final T subject, final K subjectMod)
             throws JobExecutionException {
 
-        subjectMod.getAttributesToBeRemoved().add("fullname");
+        subjectMod.getAttrsToRemove().add("fullname");
 
         AttributeMod fullnameMod = null;
-        for (AttributeMod attrMod : subjectMod.getAttributesToBeUpdated()) {
+        for (AttributeMod attrMod : subjectMod.getAttrsToUpdate()) {
             if ("fullname".equals(attrMod.getSchema())) {
                 fullnameMod = attrMod;
             }
@@ -67,7 +67,7 @@ public class TestSyncActions extends DefaultSyncActions {
         if (fullnameMod == null) {
             fullnameMod = new AttributeMod();
             fullnameMod.setSchema("fullname");
-            subjectMod.getAttributesToBeUpdated().add(fullnameMod);
+            subjectMod.getAttrsToUpdate().add(fullnameMod);
         }
 
         fullnameMod.getValuesToBeAdded().clear();

@@ -264,6 +264,7 @@ public class SyncTasks extends AbstractTasks {
 
         Form paginatorForm = new Form("PaginatorForm");
 
+        @SuppressWarnings({"unchecked", "rawtypes"})
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
 
@@ -292,7 +293,7 @@ public class SyncTasks extends AbstractTasks {
         add(paginatorForm);
 
         // create new user
-        AjaxLink createLink = new ClearIndicatingAjaxLink("createLink", pageRef) {
+        AjaxLink<Void> createLink = new ClearIndicatingAjaxLink<Void>("createLink", pageRef) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 

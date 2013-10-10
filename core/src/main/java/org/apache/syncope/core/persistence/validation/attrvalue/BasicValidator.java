@@ -19,22 +19,23 @@
 package org.apache.syncope.core.persistence.validation.attrvalue;
 
 import java.util.Arrays;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 
 public class BasicValidator extends AbstractValidator {
 
     private static final long serialVersionUID = -2606728447694223607L;
 
-    public BasicValidator(final AbstractSchema schema) {
+    public BasicValidator(final AbstractNormalSchema schema) {
         super(schema);
     }
 
     @Override
     protected void doValidate(final AbstractAttrValue attributeValue) throws InvalidAttrValueException {
         if (AttributeSchemaType.Enum.equals(schema.getType())) {
-            final String[] enumeration = schema.getEnumerationValues().split(AbstractSchema.enumValuesSeparator);
+            final String[] enumeration = schema.getEnumerationValues().split(SyncopeConstants.ENUM_VALUES_SEPARATOR);
 
             final String value = attributeValue.getStringValue();
 

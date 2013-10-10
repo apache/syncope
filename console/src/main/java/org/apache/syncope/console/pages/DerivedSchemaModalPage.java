@@ -89,9 +89,9 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
 
                 try {
                     if (createFlag) {
-                        schemaRestClient.createDerivedSchema(kind, schemaTO);
+                        schemaRestClient.createDerSchema(kind, schemaTO);
                     } else {
-                        schemaRestClient.updateDerivedSchema(kind, schemaTO);
+                        schemaRestClient.updateDerSchema(kind, schemaTO);
                     }
 
                     if (pageRef.getPage() instanceof BasePage) {

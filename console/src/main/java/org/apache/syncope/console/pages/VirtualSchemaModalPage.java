@@ -77,9 +77,9 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
                 VirSchemaTO schemaTO = (VirSchemaTO) form.getDefaultModelObject();
                 try {
                     if (createFlag) {
-                        schemaRestClient.createVirtualSchema(kind, schemaTO);
+                        schemaRestClient.createVirSchema(kind, schemaTO);
                     } else {
-                        schemaRestClient.updateVirtualSchema(kind, schemaTO);
+                        schemaRestClient.updateVirSchema(kind, schemaTO);
                     }
                     if (pageRef.getPage() instanceof BasePage) {
                         ((BasePage) pageRef.getPage()).setModalResult(true);

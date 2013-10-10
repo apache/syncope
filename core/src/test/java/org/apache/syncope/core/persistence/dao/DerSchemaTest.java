@@ -28,6 +28,8 @@ import java.util.List;
 
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.EntityViolationType;
+import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
+import org.apache.syncope.core.persistence.beans.role.RDerSchema;
 import org.apache.syncope.core.persistence.beans.user.UDerSchema;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -68,11 +70,22 @@ public class DerSchemaTest extends AbstractDAOTest {
 
     @Test
     public void delete() {
-        UDerSchema attributeSchema = derSchemaDAO.find("cn", UDerSchema.class);
+        UDerSchema cn = derSchemaDAO.find("cn", UDerSchema.class);
+        assertNotNull(cn);
 
-        derSchemaDAO.delete(attributeSchema.getName(), AttributableUtil.getInstance(AttributableType.USER));
+        derSchemaDAO.delete(cn.getName(), AttributableUtil.getInstance(AttributableType.USER));
 
-        UDerSchema actual = derSchemaDAO.find("cn", UDerSchema.class);
+        AbstractDerSchema actual = derSchemaDAO.find("cn", UDerSchema.class);
+        assertNull("delete did not work", actual);
+
+        // ------------- //
+
+        RDerSchema rderiveddata = derSchemaDAO.find("rderiveddata", RDerSchema.class);
+        assertNotNull(rderiveddata);
+
+        derSchemaDAO.delete(rderiveddata.getName(), AttributableUtil.getInstance(AttributableType.ROLE));
+
+        actual = derSchemaDAO.find("rderiveddata", RDerSchema.class);
         assertNull("delete did not work", actual);
     }
 

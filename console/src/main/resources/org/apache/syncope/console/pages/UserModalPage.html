@@ -16,66 +16,68 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:extend>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:extend>
 
-  <span wicket:id="userModalFrag"/>
+    <span wicket:id="userModalFrag"/>
 
-  <wicket:fragment wicket:id="userModalEditFrag">
+    <wicket:fragment wicket:id="userModalEditFrag">
 
-    <div style="margin:10px">
-      <p class="ui-widget ui-corner-all ui-widget-header">
-        <span wicket:id="new"/>&nbsp;<wicket:message key="title"/>&nbsp;<span wicket:id="id"/>
-      </p>
+      <div style="margin:10px">
+        <p class="ui-widget ui-corner-all ui-widget-header">
+          <span wicket:id="new"/>&nbsp;<wicket:message key="title"/>&nbsp;<span wicket:id="id"/>
+        </p>
 
-      <form wicket:id="UserForm">
-        <div id="tabs">
-          <ul>
-            <li  class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
-            <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
-            <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
-            <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
-            <li><a href="#tabs-5"><span><wicket:message key="tab5"/></span></a></li>
-            <li><a href="#tabs-6"><span><wicket:message key="tab6"/></span></a></li>
-          </ul>
-          <div id="tabs-1">
-            <span wicket:id="details">[user details]</span>
-            <div wicket:id="pwdChangeInfo" style="margin-top: 15px;">[pwdChangeInfo]</div>
-            <span wicket:id="statuspanel">[Status Panel]</span>
-            <span wicket:id="accountinformation">[Account Information]</span>
-          </div>
-          <div id="tabs-2">
-            <div id="formtable">
-              <span wicket:id="attributes">[user attributes]</span>
+        <form wicket:id="UserForm">
+          <div id="tabs">
+            <ul>
+              <li  class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
+              <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
+              <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
+              <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
+              <li><a href="#tabs-5"><span><wicket:message key="tab5"/></span></a></li>
+              <li><a href="#tabs-6"><span><wicket:message key="tab6"/></span></a></li>
+            </ul>
+            <div id="tabs-1">
+              <span wicket:id="details">[user details]</span>
+              <div wicket:id="pwdChangeInfo" style="margin-top: 15px;">[pwdChangeInfo]</div>
+              <span wicket:id="statuspanel">[Status Panel]</span>
+              <span wicket:id="accountinformation">[Account Information]</span>
+            </div>
+            <div id="tabs-2">
+              <div id="formtable">
+                <span wicket:id="attrs">[user attributes]</span>
+              </div>
+            </div>
+
+            <div id="tabs-3">
+              <span wicket:id="derAttrs">[user derived attributes]</span>
+            </div>
+
+            <div id="tabs-4">
+              <span wicket:id="virAttrs">[user virtual attributes]</span>
+            </div>
+
+            <div id="tabs-5">
+              <span wicket:id="resources">[resources]</span>
+            </div>
+
+            <div id="tabs-6">
+              <span wicket:id="memberships">[memberships]</span>
             </div>
           </div>
 
-          <div id="tabs-3">
-            <span wicket:id="derivedAttributes">[user derived attributes]</span>
+          <div style="margin: 20px 10px 0">
+            <input type="submit"
+                   class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                   wicket:id="apply"/>
+            <input type="button"
+                   class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                   wicket:id="cancel"/>
           </div>
+        </form>
+      </div>
+    </wicket:fragment>
 
-          <div id="tabs-4">
-            <span wicket:id="virtualAttributes">[user virtual attributes]</span>
-          </div>
-
-          <div id="tabs-5">
-            <span wicket:id="resources">[resources]</span>
-          </div>
-
-          <div id="tabs-6">
-            <span wicket:id="memberships">[memberships]</span>
-          </div>
-        </div>
-
-        <div style="margin: 20px 10px 0">
-          <input type="submit"
-                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                 wicket:id="apply"/>
-          <input type="button"
-                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                 wicket:id="cancel"/>
-        </div>
-      </form>
-    </div>
-  </wicket:fragment>
-
-</wicket:extend>
+  </wicket:extend>
+</html>

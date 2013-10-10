@@ -42,19 +42,45 @@ public class RoleMod extends AbstractAttributableMod {
 
     private Boolean inheritOwner;
 
-    private Boolean inheritAttributes;
+    private Boolean inheritTemplates;
 
-    private Boolean inheritDerivedAttributes;
+    private Boolean inheritAttrs;
 
-    private Boolean inheritVirtualAttributes;
+    private Boolean inheritDerAttrs;
+
+    private Boolean inheritVirAttrs;
 
     private Boolean inheritAccountPolicy;
 
     private Boolean inheritPasswordPolicy;
 
     private boolean modEntitlements;
-    
+
     private List<String> entitlements = new ArrayList<String>();
+
+    private boolean modRAttrTemplates;
+
+    private List<String> rAttrTemplates = new ArrayList<String>();
+
+    private boolean modRDerAttrTemplates;
+
+    private List<String> rDerAttrTemplates = new ArrayList<String>();
+
+    private boolean modRVirAttrTemplates;
+
+    private List<String> rVirAttrTemplates = new ArrayList<String>();
+
+    private boolean modMAttrTemplates;
+
+    private List<String> mAttrTemplates = new ArrayList<String>();
+
+    private boolean modMDerAttrTemplates;
+
+    private List<String> mDerAttrTemplates = new ArrayList<String>();
+
+    private boolean modMVirAttrTemplates;
+
+    private List<String> mVirAttrTemplates = new ArrayList<String>();
 
     private ReferenceMod passwordPolicy;
 
@@ -92,28 +118,36 @@ public class RoleMod extends AbstractAttributableMod {
         this.inheritOwner = inheritOwner;
     }
 
-    public Boolean getInheritAttributes() {
-        return inheritAttributes;
+    public Boolean getInheritTemplates() {
+        return inheritTemplates;
     }
 
-    public void setInheritAttributes(final Boolean inheritAttributes) {
-        this.inheritAttributes = inheritAttributes;
+    public void setInheritTemplates(final Boolean inheritTemplates) {
+        this.inheritTemplates = inheritTemplates;
     }
 
-    public Boolean getInheritDerivedAttributes() {
-        return inheritDerivedAttributes;
+    public Boolean getInheritAttrs() {
+        return inheritAttrs;
     }
 
-    public void setInheritDerivedAttributes(final Boolean inheritDerivedAttributes) {
-        this.inheritDerivedAttributes = inheritDerivedAttributes;
+    public void setInheritAttributes(final Boolean inheritAttrs) {
+        this.inheritAttrs = inheritAttrs;
     }
 
-    public Boolean getInheritVirtualAttributes() {
-        return inheritVirtualAttributes;
+    public Boolean getInheritDerAttrs() {
+        return inheritDerAttrs;
     }
 
-    public void setInheritVirtualAttributes(final Boolean inheritVirtualAttributes) {
-        this.inheritVirtualAttributes = inheritVirtualAttributes;
+    public void setInheritDerAttrs(final Boolean inheritDerAttrs) {
+        this.inheritDerAttrs = inheritDerAttrs;
+    }
+
+    public Boolean getInheritVirAttrs() {
+        return inheritVirAttrs;
+    }
+
+    public void setInheritVirAttrs(final Boolean inheritVirAttrs) {
+        this.inheritVirAttrs = inheritVirAttrs;
     }
 
     public boolean isModEntitlements() {
@@ -122,13 +156,103 @@ public class RoleMod extends AbstractAttributableMod {
 
     public void setModEntitlements(final boolean modEntitlements) {
         this.modEntitlements = modEntitlements;
-    }    
+    }
 
     @XmlElementWrapper(name = "entitlements")
     @XmlElement(name = "entitlement")
     @JsonProperty("entitlements")
     public List<String> getEntitlements() {
         return entitlements;
+    }
+
+    public boolean isModRAttrTemplates() {
+        return modRAttrTemplates;
+    }
+
+    public void setModRAttrTemplates(final boolean modRAttrTemplates) {
+        this.modRAttrTemplates = modRAttrTemplates;
+    }
+
+    @XmlElementWrapper(name = "rAttrTemplates")
+    @XmlElement(name = "rAttrTemplate")
+    @JsonProperty("rAttrTemplates")
+    public List<String> getRAttrTemplates() {
+        return rAttrTemplates;
+    }
+
+    public boolean isModRDerAttrTemplates() {
+        return modRDerAttrTemplates;
+    }
+
+    public void setModRDerAttrTemplates(final boolean modRDerAttrTemplates) {
+        this.modRDerAttrTemplates = modRDerAttrTemplates;
+    }
+
+    @XmlElementWrapper(name = "rDerAttrTemplates")
+    @XmlElement(name = "rDerAttrTemplate")
+    @JsonProperty("rDerAttrTemplates")
+    public List<String> getRDerAttrTemplates() {
+        return rDerAttrTemplates;
+    }
+
+    public boolean isModRVirAttrTemplates() {
+        return modRVirAttrTemplates;
+    }
+
+    public void setModRVirAttrTemplates(final boolean modRVirAttrTemplates) {
+        this.modRVirAttrTemplates = modRVirAttrTemplates;
+    }
+
+    @XmlElementWrapper(name = "rVirAttrTemplates")
+    @XmlElement(name = "rVirAttrTemplate")
+    @JsonProperty("rVirAttrTemplates")
+    public List<String> getRVirAttrTemplates() {
+        return rVirAttrTemplates;
+    }
+
+    public boolean isModMAttrTemplates() {
+        return modMAttrTemplates;
+    }
+
+    public void setModMAttrTemplates(final boolean modMAttrTemplates) {
+        this.modMAttrTemplates = modMAttrTemplates;
+    }
+
+    @XmlElementWrapper(name = "mAttrTemplates")
+    @XmlElement(name = "mAttrTemplate")
+    @JsonProperty("mAttrTemplates")
+    public List<String> getMAttrTemplates() {
+        return mAttrTemplates;
+    }
+
+    public boolean isModMDerAttrTemplates() {
+        return modMDerAttrTemplates;
+    }
+
+    public void setModMDerAttrTemplates(final boolean modMDerAttrTemplates) {
+        this.modMDerAttrTemplates = modMDerAttrTemplates;
+    }
+
+    @XmlElementWrapper(name = "mDerAttrTemplates")
+    @XmlElement(name = "mDerAttrTemplate")
+    @JsonProperty("mDerAttrTemplates")
+    public List<String> getMDerAttrTemplates() {
+        return mDerAttrTemplates;
+    }
+
+    public boolean isModMVirAttrTemplates() {
+        return modMVirAttrTemplates;
+    }
+
+    public void setModMVirAttrTemplates(final boolean modMVirAttrTemplates) {
+        this.modMVirAttrTemplates = modMVirAttrTemplates;
+    }
+
+    @XmlElementWrapper(name = "mVirAttrTemplates")
+    @XmlElement(name = "mVirAttrTemplate")
+    @JsonProperty("mVirAttrTemplates")
+    public List<String> getMVirAttrTemplates() {
+        return mVirAttrTemplates;
     }
 
     public ReferenceMod getPasswordPolicy() {
@@ -167,8 +291,11 @@ public class RoleMod extends AbstractAttributableMod {
     @Override
     public boolean isEmpty() {
         return super.isEmpty() && name == null && userOwner == null && roleOwner == null
-                && inheritOwner == null && inheritAccountPolicy == null && inheritPasswordPolicy == null
-                && inheritAttributes == null && inheritDerivedAttributes == null && inheritVirtualAttributes == null
-                && accountPolicy == null && passwordPolicy == null && (entitlements == null || entitlements.isEmpty());
+                && inheritTemplates == null && inheritOwner == null
+                && inheritAccountPolicy == null && inheritPasswordPolicy == null
+                && inheritAttrs == null && inheritDerAttrs == null && inheritVirAttrs == null
+                && accountPolicy == null && passwordPolicy == null && entitlements.isEmpty()
+                && rAttrTemplates.isEmpty() && rDerAttrTemplates.isEmpty() && rVirAttrTemplates.isEmpty()
+                && mAttrTemplates.isEmpty() && mDerAttrTemplates.isEmpty() && mVirAttrTemplates.isEmpty();
     }
 }

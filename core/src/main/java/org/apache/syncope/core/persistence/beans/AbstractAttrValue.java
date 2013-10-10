@@ -102,7 +102,7 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
         this.stringValue = stringValue;
     }
 
-    public <T extends AbstractAttrValue> void parseValue(final AbstractSchema schema, final String value)
+    public <T extends AbstractAttrValue> void parseValue(final AbstractNormalSchema schema, final String value)
             throws ParsingValidationException {
 
         Exception exception = null;

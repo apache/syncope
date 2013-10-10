@@ -26,7 +26,7 @@ import org.apache.syncope.core.persistence.validation.entity.SchemaNameCheck;
 
 @MappedSuperclass
 @SchemaNameCheck
-public abstract class AbstractDerSchema extends AbstractBaseBean {
+public abstract class AbstractDerSchema extends AbstractSchema {
 
     private static final long serialVersionUID = -6173643493348674060L;
 
@@ -36,10 +36,12 @@ public abstract class AbstractDerSchema extends AbstractBaseBean {
     @Column(nullable = false)
     private String expression;
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(final String name) {
         this.name = name;
     }

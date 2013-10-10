@@ -38,9 +38,9 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     private long id;
 
-    private List<AttributeTO> derivedAttributes;
+    private List<AttributeTO> derAttrs;
 
-    private List<AttributeTO> virtualAttributes;
+    private List<AttributeTO> virAttrs;
 
     private Set<String> resources;
 
@@ -49,8 +49,8 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
     protected AbstractAttributableTO() {
         super();
 
-        derivedAttributes = new ArrayList<AttributeTO>();
-        virtualAttributes = new ArrayList<AttributeTO>();
+        derAttrs = new ArrayList<AttributeTO>();
+        virAttrs = new ArrayList<AttributeTO>();
         resources = new HashSet<String>();
         propagationStatusTOs = new ArrayList<PropagationStatusTO>();
     }
@@ -64,14 +64,14 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
     }
 
     @JsonIgnore
-    public Map<String, AttributeTO> getDerivedAttributeMap() {
+    public Map<String, AttributeTO> getDerAttrMap() {
         Map<String, AttributeTO> result;
 
-        if (derivedAttributes == null) {
+        if (derAttrs == null) {
             result = Collections.emptyMap();
         } else {
-            result = new HashMap<String, AttributeTO>(derivedAttributes.size());
-            for (AttributeTO attributeTO : derivedAttributes) {
+            result = new HashMap<String, AttributeTO>(derAttrs.size());
+            for (AttributeTO attributeTO : derAttrs) {
                 result.put(attributeTO.getSchema(), attributeTO);
             }
             result = Collections.unmodifiableMap(result);
@@ -81,14 +81,14 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
     }
 
     @JsonIgnore
-    public Map<String, AttributeTO> getVirtualAttributeMap() {
+    public Map<String, AttributeTO> getVirAttrMap() {
         Map<String, AttributeTO> result;
 
-        if (derivedAttributes == null) {
+        if (derAttrs == null) {
             result = Collections.emptyMap();
         } else {
-            result = new HashMap<String, AttributeTO>(virtualAttributes.size());
-            for (AttributeTO attributeTO : virtualAttributes) {
+            result = new HashMap<String, AttributeTO>(virAttrs.size());
+            for (AttributeTO attributeTO : virAttrs) {
                 result.put(attributeTO.getSchema(), attributeTO);
             }
             result = Collections.unmodifiableMap(result);
@@ -100,15 +100,15 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
     @XmlElementWrapper(name = "derivedAttributes")
     @XmlElement(name = "attribute")
     @JsonProperty("derivedAttributes")
-    public List<AttributeTO> getDerivedAttributes() {
-        return derivedAttributes;
+    public List<AttributeTO> getDerAttrs() {
+        return derAttrs;
     }
 
     @XmlElementWrapper(name = "virtualAttributes")
     @XmlElement(name = "attribute")
     @JsonProperty("virtualAttributes")
-    public List<AttributeTO> getVirtualAttributes() {
-        return virtualAttributes;
+    public List<AttributeTO> getVirAttrs() {
+        return virAttrs;
     }
 
     @XmlElementWrapper(name = "resources")

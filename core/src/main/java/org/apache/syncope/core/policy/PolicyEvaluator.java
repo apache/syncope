@@ -55,7 +55,7 @@ public class PolicyEvaluator {
                 BeanUtils.copyProperties(ppSpec, evaluatedPPSpec, new String[]{"schemasNotPermitted"});
 
                 for (String schema : ppSpec.getSchemasNotPermitted()) {
-                    AbstractAttr attribute = attributable.getAttribute(schema);
+                    AbstractAttr attribute = attributable.getAttr(schema);
                     if (attribute != null) {
                         List<String> values = attribute.getValuesAsStrings();
                         if (values != null && !values.isEmpty()) {
@@ -86,7 +86,7 @@ public class PolicyEvaluator {
                 BeanUtils.copyProperties(spec, accountPolicy, new String[]{"schemasNotPermitted"});
 
                 for (String schema : spec.getSchemasNotPermitted()) {
-                    AbstractAttr attribute = attributable.getAttribute(schema);
+                    AbstractAttr attribute = attributable.getAttr(schema);
                     if (attribute != null) {
                         List<String> values = attribute.getValuesAsStrings();
                         if (values != null && !values.isEmpty()) {

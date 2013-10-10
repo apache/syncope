@@ -84,15 +84,15 @@ public class SyncopeUser extends AbstractAttributable {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
-    private List<UAttr> attributes;
+    private List<UAttr> attrs;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
-    private List<UDerAttr> derivedAttributes;
+    private List<UDerAttr> derAttrs;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
-    private List<UVirAttr> virtualAttributes;
+    private List<UVirAttr> virAttrs;
 
     private String workflowId;
 
@@ -159,9 +159,9 @@ public class SyncopeUser extends AbstractAttributable {
         super();
 
         memberships = new ArrayList<Membership>();
-        attributes = new ArrayList<UAttr>();
-        derivedAttributes = new ArrayList<UDerAttr>();
-        virtualAttributes = new ArrayList<UVirAttr>();
+        attrs = new ArrayList<UAttr>();
+        derAttrs = new ArrayList<UDerAttr>();
+        virAttrs = new ArrayList<UVirAttr>();
         passwordHistory = new ArrayList<String>();
         failedLogins = 0;
         suspended = getBooleanAsInteger(Boolean.FALSE);
@@ -284,95 +284,95 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    public <T extends AbstractAttr> boolean addAttribute(final T attribute) {
-        if (!(attribute instanceof UAttr)) {
-            throw new ClassCastException("attribute is expected to be typed UAttr: " + attribute.getClass().getName());
+    public <T extends AbstractAttr> boolean addAttr(final T attr) {
+        if (!(attr instanceof UAttr)) {
+            throw new ClassCastException("attribute is expected to be typed UAttr: " + attr.getClass().getName());
         }
 
-        return attributes.add((UAttr) attribute);
+        return attrs.add((UAttr) attr);
     }
 
     @Override
-    public <T extends AbstractAttr> boolean removeAttribute(final T attribute) {
-        if (!(attribute instanceof UAttr)) {
-            throw new ClassCastException("attribute is expected to be typed UAttr: " + attribute.getClass().getName());
+    public <T extends AbstractAttr> boolean removeAttr(final T attr) {
+        if (!(attr instanceof UAttr)) {
+            throw new ClassCastException("attribute is expected to be typed UAttr: " + attr.getClass().getName());
         }
 
-        return attributes.remove((UAttr) attribute);
+        return attrs.remove((UAttr) attr);
     }
 
     @Override
-    public List<? extends AbstractAttr> getAttributes() {
-        return attributes;
+    public List<? extends AbstractAttr> getAttrs() {
+        return attrs;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void setAttributes(final List<? extends AbstractAttr> attributes) {
-        this.attributes.clear();
-        if (attributes != null && !attributes.isEmpty()) {
-            this.attributes.addAll((List<UAttr>) attributes);
+    public void setAttrs(final List<? extends AbstractAttr> attrs) {
+        this.attrs.clear();
+        if (attrs != null && !attrs.isEmpty()) {
+            this.attrs.addAll((List<UAttr>) attrs);
         }
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean addDerivedAttribute(final T derAttr) {
+    public <T extends AbstractDerAttr> boolean addDerAttr(final T derAttr) {
         if (!(derAttr instanceof UDerAttr)) {
             throw new ClassCastException("attribute is expected to be typed UDerAttr: " + derAttr.getClass().getName());
         }
 
-        return derivedAttributes.add((UDerAttr) derAttr);
+        return derAttrs.add((UDerAttr) derAttr);
     }
 
     @Override
-    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(final T derAttr) {
+    public <T extends AbstractDerAttr> boolean removeDerAttr(final T derAttr) {
         if (!(derAttr instanceof UDerAttr)) {
             throw new ClassCastException("attribute is expected to be typed UDerAttr: " + derAttr.getClass().getName());
         }
-        return derivedAttributes.remove((UDerAttr) derAttr);
+        return derAttrs.remove((UDerAttr) derAttr);
     }
 
     @Override
-    public List<? extends AbstractDerAttr> getDerivedAttributes() {
-        return derivedAttributes;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void setDerivedAttributes(final List<? extends AbstractDerAttr> derivedAttributes) {
-        this.derivedAttributes.clear();
-        if (derivedAttributes != null && !derivedAttributes.isEmpty()) {
-            this.derivedAttributes.addAll((List<UDerAttr>) derivedAttributes);
-        }
-    }
-
-    @Override
-    public <T extends AbstractVirAttr> boolean addVirtualAttribute(final T virAttr) {
-        if (!(virAttr instanceof UVirAttr)) {
-            throw new ClassCastException("attribute is expected to be typed UVirAttr: " + virAttr.getClass().getName());
-        }
-        return virtualAttributes.add((UVirAttr) virAttr);
-    }
-
-    @Override
-    public <T extends AbstractVirAttr> boolean removeVirtualAttribute(final T virAttr) {
-        if (!(virAttr instanceof UVirAttr)) {
-            throw new ClassCastException("attribute is expected to be typed UVirAttr: " + virAttr.getClass().getName());
-        }
-        return virtualAttributes.remove((UVirAttr) virAttr);
-    }
-
-    @Override
-    public List<? extends AbstractVirAttr> getVirtualAttributes() {
-        return virtualAttributes;
+    public List<? extends AbstractDerAttr> getDerAttrs() {
+        return derAttrs;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void setVirtualAttributes(final List<? extends AbstractVirAttr> virtualAttributes) {
-        this.virtualAttributes.clear();
-        if (virtualAttributes != null && !virtualAttributes.isEmpty()) {
-            this.virtualAttributes.addAll((List<UVirAttr>) virtualAttributes);
+    public void setDerAttrs(final List<? extends AbstractDerAttr> derAttr) {
+        this.derAttrs.clear();
+        if (derAttr != null && !derAttr.isEmpty()) {
+            this.derAttrs.addAll((List<UDerAttr>) derAttr);
+        }
+    }
+
+    @Override
+    public <T extends AbstractVirAttr> boolean addVirAttr(final T virAttr) {
+        if (!(virAttr instanceof UVirAttr)) {
+            throw new ClassCastException("attribute is expected to be typed UVirAttr: " + virAttr.getClass().getName());
+        }
+        return virAttrs.add((UVirAttr) virAttr);
+    }
+
+    @Override
+    public <T extends AbstractVirAttr> boolean removeVirAttr(final T virAttr) {
+        if (!(virAttr instanceof UVirAttr)) {
+            throw new ClassCastException("attribute is expected to be typed UVirAttr: " + virAttr.getClass().getName());
+        }
+        return virAttrs.remove((UVirAttr) virAttr);
+    }
+
+    @Override
+    public List<? extends AbstractVirAttr> getVirAttrs() {
+        return virAttrs;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void setVirAttrs(final List<? extends AbstractVirAttr> virAttrs) {
+        this.virAttrs.clear();
+        if (virAttrs != null && !virAttrs.isEmpty()) {
+            this.virAttrs.addAll((List<UVirAttr>) virAttrs);
         }
     }
 

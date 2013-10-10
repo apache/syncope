@@ -28,10 +28,12 @@ import java.util.List;
 
 import org.apache.syncope.core.persistence.beans.membership.MAttrValue;
 import org.apache.syncope.core.persistence.beans.membership.MDerAttr;
+import org.apache.syncope.core.persistence.beans.membership.MDerAttrTemplate;
 import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.RAttrValue;
 import org.apache.syncope.core.persistence.beans.role.RDerAttr;
+import org.apache.syncope.core.persistence.beans.role.RDerAttrTemplate;
 import org.apache.syncope.core.persistence.beans.role.RDerSchema;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -73,8 +75,7 @@ public class DerAttrTest extends AbstractDAOTest {
     }
 
     @Test
-    public void saveUDerAttribute()
-            throws ClassNotFoundException {
+    public void saveUDerAttribute() {
         UDerSchema cnSchema = derSchemaDAO.find("cn", UDerSchema.class);
         assertNotNull(cnSchema);
 
@@ -83,7 +84,7 @@ public class DerAttrTest extends AbstractDAOTest {
 
         UDerAttr derivedAttribute = new UDerAttr();
         derivedAttribute.setOwner(owner);
-        derivedAttribute.setDerivedSchema(cnSchema);
+        derivedAttribute.setSchema(cnSchema);
 
         derivedAttribute = derAttrDAO.save(derivedAttribute);
 
@@ -91,67 +92,61 @@ public class DerAttrTest extends AbstractDAOTest {
         assertNotNull("expected save to work", actual);
         assertEquals(derivedAttribute, actual);
 
-        UAttrValue firstnameAttribute = (UAttrValue) owner.getAttribute("firstname").getValues().iterator().next();
-        UAttrValue surnameAttribute = (UAttrValue) owner.getAttribute("surname").getValues().iterator().next();
+        UAttrValue firstnameAttribute = (UAttrValue) owner.getAttr("firstname").getValues().iterator().next();
+        UAttrValue surnameAttribute = (UAttrValue) owner.getAttr("surname").getValues().iterator().next();
 
         assertEquals(surnameAttribute.getValue() + ", " + firstnameAttribute.getValue(), derivedAttribute
-                .getValue(owner.getAttributes()));
+                .getValue(owner.getAttrs()));
     }
 
     @Test
-    public void saveMDerAttribute()
-            throws ClassNotFoundException {
-        MDerSchema deriveddata = derSchemaDAO.find("mderiveddata", MDerSchema.class);
-        assertNotNull(deriveddata);
-
+    public void saveMDerAttribute() {
         Membership owner = membershipDAO.find(1L);
         assertNotNull("did not get expected user", owner);
 
-        MDerAttr derivedAttribute = new MDerAttr();
-        derivedAttribute.setOwner(owner);
-        derivedAttribute.setDerivedSchema(deriveddata);
+        MDerAttr derAttr = new MDerAttr();
+        derAttr.setOwner(owner);
+        derAttr.setTemplate(owner.getSyncopeRole().getAttrTemplate(MDerAttrTemplate.class, "mderiveddata"));
 
-        derivedAttribute = derAttrDAO.save(derivedAttribute);
+        derAttr = derAttrDAO.save(derAttr);
+        assertNotNull(derAttr.getTemplate());
 
-        MDerAttr actual = derAttrDAO.find(derivedAttribute.getId(), MDerAttr.class);
+        MDerAttr actual = derAttrDAO.find(derAttr.getId(), MDerAttr.class);
         assertNotNull("expected save to work", actual);
-        assertEquals(derivedAttribute, actual);
+        assertEquals(derAttr, actual);
 
-        MAttrValue sx = (MAttrValue) owner.getAttribute("mderived_sx").getValues().iterator().next();
-        MAttrValue dx = (MAttrValue) owner.getAttribute("mderived_dx").getValues().iterator().next();
+        MAttrValue sx = (MAttrValue) owner.getAttr("mderived_sx").getValues().iterator().next();
+        MAttrValue dx = (MAttrValue) owner.getAttr("mderived_dx").getValues().iterator().next();
 
-        assertEquals(sx.getValue() + "-" + dx.getValue(), derivedAttribute.getValue(owner.getAttributes()));
+        assertEquals(sx.getValue() + "-" + dx.getValue(), derAttr.getValue(owner.getAttrs()));
     }
 
     @Test
-    public void saveRDerAttribute()
-            throws ClassNotFoundException {
-        RDerSchema deriveddata = derSchemaDAO.find("rderiveddata", RDerSchema.class);
-        assertNotNull(deriveddata);
-
+    public void saveRDerAttribute() {
         SyncopeRole owner = roleDAO.find(1L);
         assertNotNull("did not get expected user", owner);
 
-        RDerAttr derivedAttribute = new RDerAttr();
-        derivedAttribute.setOwner(owner);
-        derivedAttribute.setDerivedSchema(deriveddata);
+        RDerAttr derAttr = new RDerAttr();
+        derAttr.setOwner(owner);
+        derAttr.setTemplate(owner.getAttrTemplate(RDerAttrTemplate.class, "rderiveddata"));
 
-        derivedAttribute = derAttrDAO.save(derivedAttribute);
+        derAttr = derAttrDAO.save(derAttr);
+        assertNotNull(derAttr.getTemplate());
 
-        RDerAttr actual = derAttrDAO.find(derivedAttribute.getId(), RDerAttr.class);
+        RDerAttr actual = derAttrDAO.find(derAttr.getId(), RDerAttr.class);
         assertNotNull("expected save to work", actual);
-        assertEquals(derivedAttribute, actual);
+        assertEquals(derAttr, actual);
 
-        RAttrValue sx = (RAttrValue) owner.getAttribute("rderived_sx").getValues().iterator().next();
-        RAttrValue dx = (RAttrValue) owner.getAttribute("rderived_dx").getValues().iterator().next();
+        RAttrValue sx = (RAttrValue) owner.getAttr("rderived_sx").getValues().iterator().next();
+        RAttrValue dx = (RAttrValue) owner.getAttr("rderived_dx").getValues().iterator().next();
 
-        assertEquals(sx.getValue() + "-" + dx.getValue(), derivedAttribute.getValue(owner.getAttributes()));
+        assertEquals(sx.getValue() + "-" + dx.getValue(), derAttr.getValue(owner.getAttrs()));
     }
 
     @Test
     public void delete() {
         UDerAttr attribute = derAttrDAO.find(100L, UDerAttr.class);
-        String attributeSchemaName = attribute.getDerivedSchema().getName();
+        String attributeSchemaName = attribute.getSchema().getName();
 
         derAttrDAO.delete(attribute.getId(), UDerAttr.class);
 
@@ -180,7 +175,7 @@ public class DerAttrTest extends AbstractDAOTest {
 
         UDerAttr derAttr = new UDerAttr();
         derAttr.setOwner(owner);
-        derAttr.setDerivedSchema(sderived);
+        derAttr.setSchema(sderived);
 
         derAttr = derAttrDAO.save(derAttr);
         derAttrDAO.flush();
@@ -188,7 +183,7 @@ public class DerAttrTest extends AbstractDAOTest {
         derAttr = derAttrDAO.find(derAttr.getId(), UDerAttr.class);
         assertNotNull("expected save to work", derAttr);
 
-        String value = derAttr.getValue(owner.getAttributes());
+        String value = derAttr.getValue(owner.getAttrs());
         assertNotNull(value);
         assertFalse(value.isEmpty());
         assertTrue(value.startsWith("active - vivaldi - 2010-10-20"));
@@ -209,19 +204,24 @@ public class DerAttrTest extends AbstractDAOTest {
         assertEquals(sderived, actual);
 
         SyncopeRole owner = roleDAO.find(7L);
-        assertNotNull("did not get expected user", owner);
+        assertNotNull("did not get expected role", owner);
+
+        RDerAttrTemplate template = new RDerAttrTemplate();
+        template.setSchema(sderived);
+        owner.getAttrTemplates(RDerAttrTemplate.class).add(template);
 
         RDerAttr derAttr = new RDerAttr();
         derAttr.setOwner(owner);
-        derAttr.setDerivedSchema(sderived);
+        derAttr.setTemplate(owner.getAttrTemplate(RDerAttrTemplate.class, sderived.getName()));
 
         derAttr = derAttrDAO.save(derAttr);
+        assertNotNull(derAttr.getTemplate());
         derAttrDAO.flush();
 
         derAttr = derAttrDAO.find(derAttr.getId(), RDerAttr.class);
         assertNotNull("expected save to work", derAttr);
 
-        String value = derAttr.getValue(owner.getAttributes());
+        String value = derAttr.getValue(owner.getAttrs());
         assertNotNull(value);
         assertFalse(value.isEmpty());
         assertTrue(value.startsWith("managingDirector"));
@@ -241,19 +241,24 @@ public class DerAttrTest extends AbstractDAOTest {
         assertEquals(sderived, actual);
 
         Membership owner = membershipDAO.find(4L);
-        assertNotNull("did not get expected user", owner);
+        assertNotNull("did not get expected membership", owner);
+
+        MDerAttrTemplate template = new MDerAttrTemplate();
+        template.setSchema(sderived);
+        owner.getSyncopeRole().getAttrTemplates(MDerAttrTemplate.class).add(template);
 
         MDerAttr derAttr = new MDerAttr();
         derAttr.setOwner(owner);
-        derAttr.setDerivedSchema(sderived);
+        derAttr.setTemplate(owner.getSyncopeRole().getAttrTemplate(MDerAttrTemplate.class, sderived.getName()));
 
         derAttr = derAttrDAO.save(derAttr);
+        assertNotNull(derAttr.getTemplate());
         derAttrDAO.flush();
 
         derAttr = derAttrDAO.find(derAttr.getId(), MDerAttr.class);
         assertNotNull("expected save to work", derAttr);
 
-        String value = derAttr.getValue(owner.getAttributes());
+        String value = derAttr.getValue(owner.getAttrs());
         assertNotNull(value);
         assertFalse(value.isEmpty());
         assertTrue(value.equalsIgnoreCase("4"));

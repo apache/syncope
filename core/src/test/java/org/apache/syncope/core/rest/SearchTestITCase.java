@@ -208,7 +208,7 @@ public class SearchTestITCase extends AbstractTest {
     @Test
     public void searchByBooleanAttributableCond() throws InvalidSearchConditionException {
         final AttributableCond cond = new AttributableCond(AttributableCond.Type.EQ);
-        cond.setSchema("inheritAttributes");
+        cond.setSchema("inheritAttrs");
         cond.setExpression("true");
 
         final NodeCond searchCondition = NodeCond.getLeafCond(cond);

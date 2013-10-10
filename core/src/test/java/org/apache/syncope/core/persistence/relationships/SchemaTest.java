@@ -112,8 +112,8 @@ public class SchemaTest extends AbstractDAOTest {
 
         assertNull(attrDAO.find(100L, UAttr.class));
         assertNull(attrDAO.find(300L, UAttr.class));
-        assertNull(userDAO.find(1L).getAttribute("fullname"));
-        assertNull(userDAO.find(3L).getAttribute("fullname"));
+        assertNull(userDAO.find(1L).getAttr("fullname"));
+        assertNull(userDAO.find(3L).getAttr("fullname"));
     }
 
     @Test

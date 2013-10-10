@@ -79,8 +79,8 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
         super(id, filtered, searchCond, callerRef, restClient);
 
         this.schemaNames = schemaRestClient.getSchemaNames(AttributableType.USER);
-        this.dSchemaNames = schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
-        this.vSchemaNames = schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
+        this.dSchemaNames = schemaRestClient.getDerSchemaNames(AttributableType.USER);
+        this.vSchemaNames = schemaRestClient.getVirSchemaNames(AttributableType.USER);
 
         initResultTable();
     }

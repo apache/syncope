@@ -16,81 +16,92 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:panel>
-  <div id="formtable">
-    <span wicket:id="parent">[parent]</span>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:panel>
+    <div id="formtable">
+      <span wicket:id="parent">[parent]</span>
 
-    <div class="tablerow">
-      <div class="tablecolumn_label short_dynamicsize">
-        <wicket:message key="name"/>
-      </div>
-      <div class="tablecolumn_field medium_dynamicsize">
-        <span wicket:id="name" />
-        <a wicket:id="questionMarkJexlHelp" href="#" alt="Click to help" title="Click to help"><img src="img/help.png"/></a>
-        <div class="help">
-          <div wicket:id="jexlHelp" class="tooltip">
-            <wicket:message key="jexl_info"/>
-            <ul>
-              <li><wicket:message key="jexl_ex1"/></li>
-              <li><wicket:message key="jexl_ex2"/></li>
-            </ul>
-            <a href="#" wicket:id="jexlLink" target="_blank"><wicket:message key="jexl_syntax_url"/></a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="tablerow alt">
-      <div class="tablecolumn_label short_dynamicsize">
-        <wicket:message key="inheritOwner"/>
-      </div>
-      <div class="tablecolumn_field medium_dynamicsize">
-        <span wicket:id="inheritOwner" />
-      </div>
-    </div>
-
-    <div wicket:id="ownerContainer">
       <div class="tablerow">
         <div class="tablecolumn_label short_dynamicsize">
-          <wicket:message key="userOwner"/>
+          <wicket:message key="name"/>
         </div>
         <div class="tablecolumn_field medium_dynamicsize">
-          <span wicket:id="userOwner"/>
-          <a href="#" wicket:id="userOwnerSelect"><img src="img/actions/search.png" alt="select user owner" title="Search"/></a>
-          <a href="#" wicket:id="userOwnerReset"><img src="img/actions/delete.png" alt="reset user owner" title="Delete"/></a>
+          <span wicket:id="name"/>
+          <a wicket:id="questionMarkJexlHelp" href="#" alt="Click to help" title="Click to help"><img src="img/help.png"/></a>
+          <div class="help">
+            <div wicket:id="jexlHelp" class="tooltip">
+              <wicket:message key="jexl_info"/>
+              <ul>
+                <li><wicket:message key="jexl_ex1"/></li>
+                <li><wicket:message key="jexl_ex2"/></li>
+              </ul>
+              <a href="#" wicket:id="jexlLink" target="_blank"><wicket:message key="jexl_syntax_url"/></a>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="tablerow alt">
         <div class="tablecolumn_label short_dynamicsize">
-          <wicket:message key="roleOwner"/>
+          <wicket:message key="inheritOwner"/>
         </div>
         <div class="tablecolumn_field medium_dynamicsize">
-          <span wicket:id="roleOwner"/>
-          <a href="#" wicket:id="roleOwnerSelect"><img src="img/actions/search.png" alt="select role owner" title="Search"/></a>
-          <a href="#" wicket:id="roleOwnerReset"><img src="img/actions/delete.png" alt="reset role owner" title="Delete"/></a>
+          <span wicket:id="inheritOwner"/>
+        </div>
+      </div>
+
+      <div class="tablerow">
+        <div class="tablecolumn_label short_dynamicsize">
+          <wicket:message key="inheritTemplates"/>
+        </div>
+        <div class="tablecolumn_field medium_dynamicsize">
+          <span wicket:id="inheritTemplates"/>
+        </div>
+      </div>
+
+      <div wicket:id="ownerContainer">
+        <div class="tablerow alt">
+          <div class="tablecolumn_label short_dynamicsize">
+            <wicket:message key="userOwner"/>
+          </div>
+          <div class="tablecolumn_field medium_dynamicsize">
+            <span wicket:id="userOwner"/>
+            <a href="#" wicket:id="userOwnerSelect"><img src="img/actions/search.png" alt="select user owner" title="Search"/></a>
+            <a href="#" wicket:id="userOwnerReset"><img src="img/actions/delete.png" alt="reset user owner" title="Delete"/></a>
+          </div>
+        </div>
+
+        <div class="tablerow">
+          <div class="tablecolumn_label short_dynamicsize">
+            <wicket:message key="roleOwner"/>
+          </div>
+          <div class="tablecolumn_field medium_dynamicsize">
+            <span wicket:id="roleOwner"/>
+            <a href="#" wicket:id="roleOwnerSelect"><img src="img/actions/search.png" alt="select role owner" title="Search"/></a>
+            <a href="#" wicket:id="roleOwnerReset"><img src="img/actions/delete.png" alt="reset role owner" title="Delete"/></a>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <span wicket:id="parentSelectWin"/>
-  <span wicket:id="userOwnerSelectWin"/>
-  <span wicket:id="roleOwnerSelectWin"/>
+    <span wicket:id="parentSelectWin"/>
+    <span wicket:id="userOwnerSelectWin"/>
+    <span wicket:id="roleOwnerSelectWin"/>
 
-  <wicket:fragment wicket:id="parentFragment">
-    <div class="tablerow alt">
-      <div class="tablecolumn_label short_dynamicsize">
-        <wicket:message key="parent"/>
+    <wicket:fragment wicket:id="parentFragment">
+      <div class="tablerow">
+        <div class="tablecolumn_label short_dynamicsize">
+          <wicket:message key="parent"/>
+        </div>
+        <div class="tablecolumn_field medium_dynamicsize">
+          <span wicket:id="parent"/>
+          <a href="#" wicket:id="parentSelect"><img src="img/actions/search.png" alt="select role parent" title="Search"/></a>
+          <a href="#" wicket:id="parentReset"><img src="img/actions/delete.png" alt="reset role parent" title="Delete"/></a>
+        </div>
       </div>
-      <div class="tablecolumn_field medium_dynamicsize">
-        <span wicket:id="parent"/>
-        <a href="#" wicket:id="parentSelect"><img src="img/actions/search.png" alt="select role parent" title="Search"/></a>
-        <a href="#" wicket:id="parentReset"><img src="img/actions/delete.png" alt="reset role parent" title="Delete"/></a>
-      </div>
-    </div>
-  </wicket:fragment>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="emptyFragment">
-  </wicket:fragment>
-</wicket:panel>
+    <wicket:fragment wicket:id="emptyFragment">
+    </wicket:fragment>
+  </wicket:panel>
+</html>

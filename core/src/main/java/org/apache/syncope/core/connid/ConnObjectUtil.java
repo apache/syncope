@@ -295,7 +295,7 @@ public class ConnObjectUtil {
                             attributeTO.getValues().add(attribute.getValue().get(0).toString());
                         }
 
-                        ((RoleTO) attributableTO).getAttributes().add(attributeTO);
+                        ((RoleTO) attributableTO).getAttrs().add(attributeTO);
                     }
                     break;
 
@@ -312,14 +312,14 @@ public class ConnObjectUtil {
                         }
                     }
 
-                    attributableTO.getAttributes().add(attributeTO);
+                    attributableTO.getAttrs().add(attributeTO);
                     break;
 
                 case UserDerivedSchema:
                 case RoleDerivedSchema:
                     attributeTO = new AttributeTO();
                     attributeTO.setSchema(item.getIntAttrName());
-                    attributableTO.getDerivedAttributes().add(attributeTO);
+                    attributableTO.getDerAttrs().add(attributeTO);
                     break;
 
                 case UserVirtualSchema:
@@ -336,7 +336,7 @@ public class ConnObjectUtil {
                         }
                     }
 
-                    attributableTO.getVirtualAttributes().add(attributeTO);
+                    attributableTO.getVirAttrs().add(attributeTO);
                     break;
 
                 default:
@@ -391,13 +391,21 @@ public class ConnObjectUtil {
 
                 ((RoleTO) attributableTO).getEntitlements().addAll(((RoleTO) template).getEntitlements());
 
+                ((RoleTO) attributableTO).getRAttrTemplates().addAll(((RoleTO) template).getRAttrTemplates());
+                ((RoleTO) attributableTO).getRDerAttrTemplates().addAll(((RoleTO) template).getRDerAttrTemplates());
+                ((RoleTO) attributableTO).getRVirAttrTemplates().addAll(((RoleTO) template).getRVirAttrTemplates());
+                ((RoleTO) attributableTO).getMAttrTemplates().addAll(((RoleTO) template).getMAttrTemplates());
+                ((RoleTO) attributableTO).getMDerAttrTemplates().addAll(((RoleTO) template).getMDerAttrTemplates());
+                ((RoleTO) attributableTO).getMVirAttrTemplates().addAll(((RoleTO) template).getMVirAttrTemplates());
+
                 ((RoleTO) attributableTO).setAccountPolicy(((RoleTO) template).getAccountPolicy());
                 ((RoleTO) attributableTO).setPasswordPolicy(((RoleTO) template).getPasswordPolicy());
 
                 ((RoleTO) attributableTO).setInheritOwner(((RoleTO) template).isInheritOwner());
-                ((RoleTO) attributableTO).setInheritAttributes(((RoleTO) template).isInheritAttributes());
-                ((RoleTO) attributableTO).setInheritDerivedAttributes(((RoleTO) template).isInheritDerivedAttributes());
-                ((RoleTO) attributableTO).setInheritVirtualAttributes(((RoleTO) template).isInheritVirtualAttributes());
+                ((RoleTO) attributableTO).setInheritTemplates(((RoleTO) template).isInheritTemplates());
+                ((RoleTO) attributableTO).setInheritAttrs(((RoleTO) template).isInheritAttrs());
+                ((RoleTO) attributableTO).setInheritDerAttrs(((RoleTO) template).isInheritDerAttrs());
+                ((RoleTO) attributableTO).setInheritVirAttrs(((RoleTO) template).isInheritVirAttrs());
                 ((RoleTO) attributableTO).setInheritPasswordPolicy(((RoleTO) template).isInheritPasswordPolicy());
                 ((RoleTO) attributableTO).setInheritAccountPolicy(((RoleTO) template).isInheritAccountPolicy());
             }
@@ -471,7 +479,7 @@ public class ConnObjectUtil {
                 }
             }
 
-            connObjectTO.getAttributes().add(attrTO);
+            connObjectTO.getAttrs().add(attrTO);
         }
 
         return connObjectTO;
@@ -496,7 +504,7 @@ public class ConnObjectUtil {
         // -----------------------
         // Retrieve virtual attribute values if and only if they have not been retrieved yet
         // -----------------------
-        for (AbstractVirAttr virAttr : owner.getVirtualAttributes()) {
+        for (AbstractVirAttr virAttr : owner.getVirAttrs()) {
             // reset value set
             if (virAttr.getValues().isEmpty()) {
                 retrieveVirAttrValue(owner, virAttr, attrUtil, type, externalResources, connFactory);
@@ -513,7 +521,7 @@ public class ConnObjectUtil {
             final Map<String, ConnectorObject> externalResources,
             final ConnectorFactory connFactory) {
 
-        final String schemaName = virAttr.getVirtualSchema().getName();
+        final String schemaName = virAttr.getSchema().getName();
         final List<String> values = virAttrCache.get(attrUtil.getType(), owner.getId(), schemaName);
 
         LOG.debug("Retrieve values for virtual attribute {} ({})", schemaName, type);
@@ -591,7 +599,7 @@ public class ConnObjectUtil {
         for (ExternalResource res : attr.getOwner().getResources()) {
             if (!MappingUtil.getMatchingMappingItems(
                     attrUtil.getMappingItems(res, MappingPurpose.BOTH),
-                    attr.getVirtualSchema().getName(), type).isEmpty()) {
+                    attr.getSchema().getName(), type).isEmpty()) {
 
                 resources.add(res);
             }
@@ -601,30 +609,30 @@ public class ConnObjectUtil {
     }
 
     private void fillFromTemplate(final AbstractAttributableTO attributableTO, final AbstractAttributableTO template) {
-        Map<String, AttributeTO> currentAttrMap = attributableTO.getAttributeMap();
-        for (AttributeTO templateAttr : template.getAttributes()) {
+        Map<String, AttributeTO> currentAttrMap = attributableTO.getAttrMap();
+        for (AttributeTO templateAttr : template.getAttrs()) {
             if (templateAttr.getValues() != null && !templateAttr.getValues().isEmpty()
                     && (!currentAttrMap.containsKey(templateAttr.getSchema())
                     || currentAttrMap.get(templateAttr.getSchema()).getValues().isEmpty())) {
 
-                attributableTO.getAttributes().add(evaluateAttrTemplate(attributableTO, templateAttr));
+                attributableTO.getAttrs().add(evaluateAttrTemplate(attributableTO, templateAttr));
             }
         }
 
-        currentAttrMap = attributableTO.getDerivedAttributeMap();
-        for (AttributeTO templateDerAttr : template.getDerivedAttributes()) {
+        currentAttrMap = attributableTO.getDerAttrMap();
+        for (AttributeTO templateDerAttr : template.getDerAttrs()) {
             if (!currentAttrMap.containsKey(templateDerAttr.getSchema())) {
-                attributableTO.getDerivedAttributes().add(templateDerAttr);
+                attributableTO.getDerAttrs().add(templateDerAttr);
             }
         }
 
-        currentAttrMap = attributableTO.getVirtualAttributeMap();
-        for (AttributeTO templateVirAttr : template.getDerivedAttributes()) {
+        currentAttrMap = attributableTO.getVirAttrMap();
+        for (AttributeTO templateVirAttr : template.getDerAttrs()) {
             if (templateVirAttr.getValues() != null && !templateVirAttr.getValues().isEmpty()
                     && (!currentAttrMap.containsKey(templateVirAttr.getSchema())
                     || currentAttrMap.get(templateVirAttr.getSchema()).getValues().isEmpty())) {
 
-                attributableTO.getVirtualAttributes().add(evaluateAttrTemplate(attributableTO, templateVirAttr));
+                attributableTO.getVirAttrs().add(evaluateAttrTemplate(attributableTO, templateVirAttr));
             }
         }
     }

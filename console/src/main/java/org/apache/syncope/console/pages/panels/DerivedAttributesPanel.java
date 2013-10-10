@@ -18,13 +18,17 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.pages.panels.AttrTemplatesPanel.RoleAttrTemplatesChange;
+import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.apache.wicket.Component;
@@ -34,6 +38,7 @@ import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.attributes.IAjaxCallListener;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -48,44 +53,57 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DerivedAttributesPanel extends Panel {
-
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(DerivedAttributesPanel.class);
 
     private static final long serialVersionUID = -5387344116983102292L;
 
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
+    @SpringBean
+    private RoleRestClient roleRestClient;
+
+    private final AttrTemplatesPanel attrTemplates;
+
     public <T extends AbstractAttributableTO> DerivedAttributesPanel(final String id, final T entityTO) {
+        this(id, entityTO, null);
+    }
+
+    public <T extends AbstractAttributableTO> DerivedAttributesPanel(final String id, final T entityTO,
+            final AttrTemplatesPanel attrTemplates) {
+
         super(id);
+        this.attrTemplates = attrTemplates;
         setOutputMarkupId(true);
 
-        final IModel<List<String>> derivedSchemaNames = new LoadableDetachableModel<List<String>>() {
+        final IModel<List<String>> derSchemas = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
-                List<String> derivedSchemaNames;
-                if (entityTO instanceof RoleTO) {
-                    derivedSchemaNames = getDerivedSchemaNames(AttributableType.ROLE);
-                } else if (entityTO instanceof UserTO) {
-                    derivedSchemaNames = getDerivedSchemaNames(AttributableType.USER);
-                } else {
-                    derivedSchemaNames = getDerivedSchemaNames(AttributableType.MEMBERSHIP);
-                }
-                return derivedSchemaNames;
-            }
+                List<String> derSchemaNames;
 
-            private List<String> getDerivedSchemaNames(final AttributableType type) {
-                return schemaRestClient.getDerivedSchemaNames(type);
+                if (entityTO instanceof RoleTO) {
+                    final RoleTO roleTO = (RoleTO) entityTO;
+
+                    if (attrTemplates == null) {
+                        derSchemaNames = roleTO.getRDerAttrTemplates();
+                    } else {
+                        derSchemaNames = new ArrayList<String>(
+                                attrTemplates.getSelected(AttrTemplatesPanel.Type.rDerAttrTemplates));
+                        if (roleTO.isInheritTemplates() && roleTO.getParent() != 0) {
+                            derSchemaNames.addAll(roleRestClient.read(roleTO.getParent()).getRDerAttrTemplates());
+                        }
+                    }
+                } else if (entityTO instanceof UserTO) {
+                    derSchemaNames = schemaRestClient.getDerSchemaNames(AttributableType.USER);
+                } else {
+                    derSchemaNames = roleRestClient.read(((MembershipTO) entityTO).getRoleId()).getMDerAttrTemplates();
+                }
+
+                return derSchemaNames;
             }
         };
 
@@ -100,7 +118,7 @@ public class DerivedAttributesPanel extends Panel {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                entityTO.getDerivedAttributes().add(new AttributeTO());
+                entityTO.getDerAttrs().add(new AttributeTO());
                 target.add(attributesContainer);
             }
 
@@ -112,8 +130,8 @@ public class DerivedAttributesPanel extends Panel {
 
         add(addAttributeBtn.setDefaultFormProcessing(Boolean.FALSE));
 
-        final ListView<AttributeTO> attributes = new ListView<AttributeTO>("attributes",
-                new PropertyModel<List<? extends AttributeTO>>(entityTO, "derivedAttributes")) {
+        ListView<AttributeTO> attributes = new ListView<AttributeTO>("attrs",
+                new PropertyModel<List<? extends AttributeTO>>(entityTO, "derAttrs")) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
@@ -127,7 +145,7 @@ public class DerivedAttributesPanel extends Panel {
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-                        entityTO.getDerivedAttributes().remove(attributeTO);
+                        entityTO.getDerAttrs().remove(attributeTO);
                         target.add(attributesContainer);
                     }
 
@@ -149,15 +167,14 @@ public class DerivedAttributesPanel extends Panel {
                 });
 
                 final DropDownChoice<String> schemaChoice = new DropDownChoice<String>("schema",
-                        new PropertyModel<String>(attributeTO, "schema"), derivedSchemaNames);
+                        new PropertyModel<String>(attributeTO, "schema"), derSchemas);
 
                 schemaChoice.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
                     @Override
-                    protected void onUpdate(final AjaxRequestTarget art) {
-
+                    protected void onUpdate(final AjaxRequestTarget target) {
                         attributeTO.setSchema(schemaChoice.getModelObject());
                     }
                 });
@@ -180,5 +197,15 @@ public class DerivedAttributesPanel extends Panel {
         };
 
         attributesContainer.add(attributes);
+    }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if ((event.getPayload() instanceof RoleAttrTemplatesChange)) {
+            final RoleAttrTemplatesChange update = (RoleAttrTemplatesChange) event.getPayload();
+            if (attrTemplates != null && update.getType() == AttrTemplatesPanel.Type.rDerAttrTemplates) {
+                update.getTarget().add(this);
+            }
+        }
     }
 }

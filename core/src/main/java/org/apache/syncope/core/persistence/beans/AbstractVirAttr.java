@@ -37,33 +37,34 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
     protected Long id;
 
     @Transient
-    protected List<String> values;
+    protected List<String> values = new ArrayList<String>();
 
     public Long getId() {
         return id;
     }
 
+    public List<String> getValues() {
+        return values;
+    }
+
+    public boolean addValue(final String value) {
+        return !values.contains(value) && values.add(value);
+    }
+
+    public boolean removeValue(final String value) {
+        return values.remove(value);
+    }
+
     public void setValues(final List<String> values) {
-        this.values = values;
-    }
-
-    public void addValue(final String value) {
-        if (values == null) {
-            values = new ArrayList<String>();
-        }
-
-        if (!values.contains(value)) {
-            values.add(value);
+        this.values.clear();
+        if (values != null && !values.isEmpty()) {
+            this.values.addAll(values);
         }
     }
-
-    public abstract List<String> getValues();
 
     public abstract <T extends AbstractAttributable> T getOwner();
 
     public abstract <T extends AbstractAttributable> void setOwner(T owner);
 
-    public abstract <T extends AbstractVirSchema> T getVirtualSchema();
-
-    public abstract <T extends AbstractVirSchema> void setVirtualSchema(T derivedSchema);
+    public abstract <T extends AbstractVirSchema> T getSchema();
 }

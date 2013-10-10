@@ -28,15 +28,15 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPanel<T> {
+public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPanel<T> implements Cloneable {
 
     private static final long serialVersionUID = -198988924922541273L;
 
     protected FormComponent<T> field = null;
 
-    final protected String id;
+    protected final String id;
 
-    final protected String name;
+    protected final String name;
 
     protected String title = null;
 
@@ -58,7 +58,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
         return field;
     }
 
-    public FieldPanel setTitle(final String title) {
+    public FieldPanel<T> setTitle(final String title) {
         this.title = title;
         field.add(AttributeModifier.replace("title", title != null
                 ? title
@@ -67,7 +67,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
         return this;
     }
 
-    public FieldPanel setStyleSheet(final String classes) {
+    public FieldPanel<T> setStyleSheet(final String classes) {
         field.add(AttributeModifier.replace("class", classes != null
                 ? classes
                 : ""));
@@ -75,25 +75,25 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
         return this;
     }
 
-    public FieldPanel setRequired(boolean required) {
+    public FieldPanel<T> setRequired(boolean required) {
         field.setRequired(required);
 
         return this;
     }
 
-    public FieldPanel setReadOnly(boolean readOnly) {
+    public FieldPanel<T> setReadOnly(boolean readOnly) {
         field.setEnabled(!readOnly);
 
         return this;
     }
 
-    public FieldPanel setNewModel(final IModel<T> model) {
+    public FieldPanel<T> setNewModel(final IModel<T> model) {
         field.setModel(model);
         return this;
     }
 
     @Override
-    public FieldPanel setModelObject(T object) {
+    public FieldPanel<T> setModelObject(T object) {
         field.setModelObject(object);
         return this;
     }
@@ -116,36 +116,37 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
      * @param item item to attach.
      * @return updated FieldPanel object.
      */
-    public FieldPanel setNewModel(final ListItem<T> item) {
-        setNewModel(new Model() {
+    public FieldPanel<T> setNewModel(final ListItem<T> item) {
+        setNewModel(new Model<T>() {
 
             private static final long serialVersionUID = 6799404673615637845L;
 
             @Override
-            public Serializable getObject() {
+            public T getObject() {
                 return item.getModelObject();
             }
 
             @Override
-            public void setObject(final Serializable object) {
+            public void setObject(final T object) {
                 if (object != null && !object.toString().isEmpty()) {
-                    item.setModelObject((T) object);
+                    item.setModelObject(object);
                 }
             }
         });
         return this;
     }
 
-    public FieldPanel setNewModel(final List<Serializable> list) {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public FieldPanel<T> setNewModel(final List<Serializable> list) {
         setNewModel(new Model() {
 
             private static final long serialVersionUID = 1088212074765051906L;
 
             @Override
             public Serializable getObject() {
-                return list != null && !list.isEmpty()
-                        ? list.get(0)
-                        : null;
+                return list == null || list.isEmpty()
+                        ? null
+                        : list.get(0);
             }
 
             @Override
@@ -162,11 +163,12 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
     }
 
     @Override
-    public FieldPanel clone() {
-        final FieldPanel panel;
+    @SuppressWarnings("unchecked")
+    public FieldPanel<T> clone() {
+        final FieldPanel<T> panel;
         try {
-            panel = this.getClass().getConstructor(new Class[]{String.class, String.class, IModel.class})
-                    .newInstance(id, name, new Model(null));
+            panel = this.getClass().getConstructor(new Class<?>[] {String.class, String.class, IModel.class})
+                    .newInstance(id, name, new Model<T>(null));
         } catch (Exception e) {
             LOG.error("Error cloning field panel", e);
             return null;
@@ -183,7 +185,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
         return panel;
     }
 
-    public FieldPanel addRequiredLabel() {
+    public FieldPanel<T> addRequiredLabel() {
         if (!isRequired()) {
             setRequired(true);
         }
@@ -199,7 +201,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
         return this;
     }
 
-    public FieldPanel removeRequiredLabel() {
+    public FieldPanel<T> removeRequiredLabel() {
         if (isRequired()) {
             setRequired(false);
         }

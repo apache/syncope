@@ -76,8 +76,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
         DerSchemaTO schema = schemaService.read(AttributableType.ROLE, SchemaType.DERIVED, "rderiveddata");
         assertNotNull(schema);
 
-        schemaService.delete(AttributableType.ROLE, SchemaType.DERIVED,
-                schema.getName());
+        schemaService.delete(AttributableType.ROLE, SchemaType.DERIVED, schema.getName());
 
         Throwable t = null;
         try {

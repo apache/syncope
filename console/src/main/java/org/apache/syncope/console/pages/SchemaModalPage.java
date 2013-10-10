@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
@@ -302,7 +303,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         for (String str : enumerationValues) {
             if (StringUtils.isNotBlank(str)) {
                 if (builder.length() > 0) {
-                    builder.append(Constants.ENUM_VALUES_SEPARATOR);
+                    builder.append(SyncopeConstants.ENUM_VALUES_SEPARATOR);
                 }
 
                 builder.append(str.trim());
@@ -316,7 +317,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         final List<String> values = new ArrayList<String>();
 
         if (StringUtils.isNotBlank(enumerationValues)) {
-            for (String value : enumerationValues.split(Constants.ENUM_VALUES_SEPARATOR)) {
+            for (String value : enumerationValues.split(SyncopeConstants.ENUM_VALUES_SEPARATOR)) {
                 values.add(value.trim());
             }
         } else {

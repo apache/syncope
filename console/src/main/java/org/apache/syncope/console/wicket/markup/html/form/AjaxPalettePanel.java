@@ -31,7 +31,7 @@ public class AjaxPalettePanel<T> extends AbstractFieldPanel {
 
     private static final long serialVersionUID = 7738499668258805567L;
 
-    final Palette<T> palette;
+    protected final Palette<T> palette;
 
     public AjaxPalettePanel(final String id, final IModel<List<T>> model, final ListModel<T> choices) {
         this(id, model, choices, false);
@@ -60,7 +60,7 @@ public class AjaxPalettePanel<T> extends AbstractFieldPanel {
     }
 
     @Override
-    public AbstractFieldPanel setModelObject(final Serializable object) {
+    public AjaxPalettePanel<T> setModelObject(final Serializable object) {
         palette.setDefaultModelObject(object);
         return this;
     }

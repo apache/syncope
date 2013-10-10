@@ -35,7 +35,7 @@ import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
 import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
@@ -128,7 +128,7 @@ public class SchemaController extends AbstractController {
 
             case NORMAL:
             default:
-                AbstractSchema normalSchema = attrUtil.newSchema();
+                AbstractNormalSchema normalSchema = attrUtil.newSchema();
                 binder.create((SchemaTO) schemaTO, normalSchema);
                 normalSchema = schemaDAO.save(normalSchema);
 
@@ -193,9 +193,9 @@ public class SchemaController extends AbstractController {
 
             case NORMAL:
             default:
-                List<AbstractSchema> schemas = schemaDAO.findAll(attrUtil.schemaClass());
+                List<AbstractNormalSchema> schemas = schemaDAO.findAll(attrUtil.schemaClass());
                 result = (List<T>) new ArrayList<SchemaTO>(schemas.size());
-                for (AbstractSchema schema : schemas) {
+                for (AbstractNormalSchema schema : schemas) {
                     result.add((T) binder.getSchemaTO(schema, attrUtil));
                 }
         }
@@ -236,7 +236,7 @@ public class SchemaController extends AbstractController {
 
             case NORMAL:
             default:
-                AbstractSchema schema = schemaDAO.find(schemaName, attrUtil.schemaClass());
+                AbstractNormalSchema schema = schemaDAO.find(schemaName, attrUtil.schemaClass());
                 if (schema == null) {
                     throw new NotFoundException("Schema '" + schemaName + "'");
                 }
@@ -284,7 +284,7 @@ public class SchemaController extends AbstractController {
 
             case NORMAL:
             default:
-                AbstractSchema schema = schemaDAO.find(schemaName, attrUtil.schemaClass());
+                AbstractNormalSchema schema = schemaDAO.find(schemaName, attrUtil.schemaClass());
                 if (schema == null) {
                     throw new NotFoundException("Schema '" + schemaName + "'");
                 }

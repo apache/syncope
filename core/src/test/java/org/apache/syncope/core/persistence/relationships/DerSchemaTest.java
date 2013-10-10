@@ -54,6 +54,6 @@ public class DerSchemaTest extends AbstractDAOTest {
 
         assertNull(derSchemaDAO.find(schema.getName(), UDerSchema.class));
         assertNull(derAttrDAO.find(100L, UDerAttr.class));
-        assertNull(userDAO.find(3L).getDerivedAttribute(schema.getName()));
+        assertNull(userDAO.find(3L).getDerAttr(schema.getName()));
     }
 }

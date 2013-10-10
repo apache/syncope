@@ -22,7 +22,7 @@ import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.AbstractAttrUniqueValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 
 public class AttrValueValidator extends AbstractValidator<AttrValueCheck, AbstractAttrValue> {
 
@@ -60,8 +60,8 @@ public class AttrValueValidator extends AbstractValidator<AttrValueCheck, Abstra
                         addNode(object.getClass().getSimpleName().replaceAll("\\n", " ")).addConstraintViolation();
 
             } else if (object instanceof AbstractAttrUniqueValue) {
-                AbstractSchema uniqueValueSchema = ((AbstractAttrUniqueValue) object).getSchema();
-                AbstractSchema attrSchema = object.getAttribute().getSchema();
+                AbstractNormalSchema uniqueValueSchema = ((AbstractAttrUniqueValue) object).getSchema();
+                AbstractNormalSchema attrSchema = object.getAttribute().getSchema();
 
                 isValid = uniqueValueSchema.equals(attrSchema);
 

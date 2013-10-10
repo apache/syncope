@@ -27,6 +27,7 @@ import javax.persistence.TypedQuery;
 
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -100,10 +101,15 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
     }
 
     @Override
-    public List<SyncopeUser> findByDerAttrValue(final String schemaName, final String value)
-            throws InvalidSearchConditionException {
-
-        return findByDerAttrValue(schemaName, value, AttributableUtil.getInstance(AttributableType.USER));
+    protected TypedQuery<AbstractAttrValue> findByAttrValueQuery(final String entityName) {
+        return entityManager.createQuery("SELECT e FROM " + entityName + " e"
+                + " WHERE e.attribute.schema.name = :schemaName AND (e.stringValue IS NOT NULL"
+                + " AND e.stringValue = :stringValue)"
+                + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
+                + " OR (e.dateValue IS NOT NULL AND e.dateValue = :dateValue)"
+                + " OR (e.longValue IS NOT NULL AND e.longValue = :longValue)"
+                + " OR (e.doubleValue IS NOT NULL AND e.doubleValue = :doubleValue)",
+                AbstractAttrValue.class);
     }
 
     @Override
@@ -115,6 +121,13 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
     public SyncopeUser findByAttrUniqueValue(final String schemaName, final UAttrValue attrUniqueValue) {
         return (SyncopeUser) findByAttrUniqueValue(schemaName, attrUniqueValue,
                 AttributableUtil.getInstance(AttributableType.USER));
+    }
+
+    @Override
+    public List<SyncopeUser> findByDerAttrValue(final String schemaName, final String value)
+            throws InvalidSearchConditionException {
+
+        return findByDerAttrValue(schemaName, value, AttributableUtil.getInstance(AttributableType.USER));
     }
 
     @Override
@@ -212,8 +225,8 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
     @Override
     public SyncopeUser save(final SyncopeUser user) {
         final SyncopeUser merged = entityManager.merge(user);
-        for (AbstractVirAttr virtual : merged.getVirtualAttributes()) {
-            virtual.setValues(user.getVirtualAttribute(virtual.getVirtualSchema().getName()).getValues());
+        for (AbstractVirAttr virtual : merged.getVirAttrs()) {
+            virtual.setValues(user.getVirAttr(virtual.getSchema().getName()).getValues());
         }
 
         return merged;

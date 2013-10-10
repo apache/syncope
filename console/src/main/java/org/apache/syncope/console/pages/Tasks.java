@@ -203,6 +203,7 @@ public class Tasks extends BasePage {
             final PageReference pageRef,
             final BaseRestClient restClient) {
 
+        @SuppressWarnings("unchecked")
         final AjaxDataTablePanel<AbstractTaskTO, String> table = new AjaxDataTablePanel<AbstractTaskTO, String>(
                 "datatable",
                 columns,

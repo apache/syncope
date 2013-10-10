@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.core.persistence.beans.role;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
@@ -33,8 +35,9 @@ public class RDerAttr extends AbstractDerAttr {
     @ManyToOne
     private SyncopeRole owner;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    private RDerSchema derivedSchema;
+    @Column(nullable = false)
+    @OneToOne(cascade = CascadeType.MERGE)
+    private RDerAttrTemplate template;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -51,17 +54,17 @@ public class RDerAttr extends AbstractDerAttr {
         this.owner = (SyncopeRole) owner;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends AbstractDerSchema> T getDerivedSchema() {
-        return (T) derivedSchema;
+    public RDerAttrTemplate getTemplate() {
+        return template;
     }
 
+    public void setTemplate(final RDerAttrTemplate template) {
+        this.template = template;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractDerSchema> void setDerivedSchema(final T derivedSchema) {
-        if (!(derivedSchema instanceof RDerSchema)) {
-            throw new ClassCastException("expected type RDerSchema, found: " + derivedSchema.getClass().getName());
-        }
-        this.derivedSchema = (RDerSchema) derivedSchema;
+    public <T extends AbstractDerSchema> T getSchema() {
+        return template == null ? null : (T) template.getSchema();
     }
 }

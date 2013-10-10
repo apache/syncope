@@ -25,7 +25,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrUniqueValue;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 
 @Entity
 public class UAttrUniqueValue extends AbstractAttrUniqueValue {
@@ -63,12 +63,12 @@ public class UAttrUniqueValue extends AbstractAttrUniqueValue {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractSchema> T getSchema() {
+    public <T extends AbstractNormalSchema> T getSchema() {
         return (T) schema;
     }
 
     @Override
-    public <T extends AbstractSchema> void setSchema(final T schema) {
+    public <T extends AbstractNormalSchema> void setSchema(final T schema) {
         if (!(schema instanceof USchema)) {
             throw new ClassCastException("expected type USchema, found: " + schema.getClass().getName());
         }

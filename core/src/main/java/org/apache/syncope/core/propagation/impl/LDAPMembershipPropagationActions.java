@@ -84,8 +84,8 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
 
                         final JexlContext jexlContext = new MapContext();
                         jexlUtil.addFieldsToContext(role, jexlContext);
-                        jexlUtil.addAttrsToContext(role.getAttributes(), jexlContext);
-                        jexlUtil.addDerAttrsToContext(role.getDerivedAttributes(), role.getAttributes(), jexlContext);
+                        jexlUtil.addAttrsToContext(role.getAttrs(), jexlContext);
+                        jexlUtil.addDerAttrsToContext(role.getDerAttrs(), role.getAttrs(), jexlContext);
                         final String roleAccountLink =
                                 jexlUtil.evaluate(task.getResource().getRmapping().getAccountLink(), jexlContext);
                         LOG.debug("AccountLink for {} is '{}'", role, roleAccountLink);

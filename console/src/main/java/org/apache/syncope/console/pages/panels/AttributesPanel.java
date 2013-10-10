@@ -19,24 +19,28 @@
 package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
-import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.markup.html.list.AltListView;
+import org.apache.syncope.console.pages.panels.AttrTemplatesPanel.RoleAttrTemplatesChange;
+import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -46,6 +50,7 @@ import org.apache.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -53,8 +58,6 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -66,43 +69,37 @@ public class AttributesPanel extends Panel {
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
+    @SpringBean
+    private RoleRestClient roleRestClient;
+
+    private final AbstractAttributableTO entityTO;
+
     private final boolean templateMode;
+
+    private final AttrTemplatesPanel attrTemplates;
+
+    private final Map<String, SchemaTO> schemas = new TreeMap<String, SchemaTO>();
 
     public <T extends AbstractAttributableTO> AttributesPanel(final String id, final T entityTO, final Form form,
             final boolean templateMode) {
 
+        this(id, entityTO, form, templateMode, null);
+    }
+
+    public <T extends AbstractAttributableTO> AttributesPanel(final String id, final T entityTO, final Form form,
+            final boolean templateMode, final AttrTemplatesPanel attrTemplates) {
+
         super(id);
+        this.entityTO = entityTO;
         this.templateMode = templateMode;
+        this.attrTemplates = attrTemplates;
+        this.setOutputMarkupId(true);
 
-        final IModel<Map<String, SchemaTO>> schemas = new LoadableDetachableModel<Map<String, SchemaTO>>() {
-
-            private static final long serialVersionUID = -2012833443695917883L;
-
-            @Override
-            protected Map<String, SchemaTO> load() {
-                final List<SchemaTO> schemaTOs;
-                if (entityTO instanceof RoleTO) {
-                    schemaTOs = schemaRestClient.getSchemas(AttributableType.ROLE);
-                } else if (entityTO instanceof UserTO) {
-                    schemaTOs = schemaRestClient.getSchemas(AttributableType.USER);
-                } else {
-                    schemaTOs = schemaRestClient.getSchemas(AttributableType.MEMBERSHIP);
-                }
-
-                final Map<String, SchemaTO> schemas = new TreeMap<String, SchemaTO>();
-
-                for (SchemaTO schemaTO : schemaTOs) {
-                    schemas.put(schemaTO.getName(), schemaTO);
-                }
-
-                return schemas;
-            }
-        };
-
-        initEntityData(entityTO, schemas.getObject().values());
+        setSchemas();
+        setAttrs();
 
         final ListView<AttributeTO> attributeView = new AltListView<AttributeTO>("schemas",
-                new PropertyModel<List<? extends AttributeTO>>(entityTO, "attributes")) {
+                new PropertyModel<List<? extends AttributeTO>>(entityTO, "attrs")) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
@@ -122,10 +119,9 @@ public class AttributesPanel extends Panel {
 
                 item.add(new Label("name", attributeTO.getSchema()));
 
-                final FieldPanel panel =
-                        getFieldPanel(schemas.getObject().get(attributeTO.getSchema()), form, attributeTO);
+                final FieldPanel panel = getFieldPanel(schemas.get(attributeTO.getSchema()), form, attributeTO);
 
-                if (templateMode || !schemas.getObject().get(attributeTO.getSchema()).isMultivalue()) {
+                if (templateMode || !schemas.get(attributeTO.getSchema()).isMultivalue()) {
                     item.add(panel);
                 } else {
                     item.add(new MultiValueSelectorPanel<String>(
@@ -137,12 +133,54 @@ public class AttributesPanel extends Panel {
         add(attributeView);
     }
 
-    private void initEntityData(final AbstractAttributableTO entityTO, final Collection<SchemaTO> schemas) {
+    private void filter(final List<SchemaTO> schemaTOs, final Set<String> allowed) {
+        for (ListIterator<SchemaTO> itor = schemaTOs.listIterator(); itor.hasNext();) {
+            SchemaTO schema = itor.next();
+            if (!allowed.contains(schema.getName())) {
+                itor.remove();
+            }
+        }
+    }
+
+    private void setSchemas() {
+        List<SchemaTO> schemaTOs;
+        
+        if (entityTO instanceof RoleTO) {
+            final RoleTO roleTO = (RoleTO) entityTO;
+
+            schemaTOs = schemaRestClient.getSchemas(AttributableType.ROLE);
+            Set<String> allowed;
+            if (attrTemplates == null) {
+                allowed = new HashSet<String>(roleTO.getRAttrTemplates());
+            } else {
+                allowed = new HashSet<String>(attrTemplates.getSelected(AttrTemplatesPanel.Type.rAttrTemplates));
+                if (roleTO.isInheritTemplates() && roleTO.getParent() != 0) {
+                    allowed.addAll(roleRestClient.read(roleTO.getParent()).getRAttrTemplates());
+                }
+            }
+            filter(schemaTOs, allowed);
+        } else if (entityTO instanceof UserTO) {
+            schemaTOs = schemaRestClient.getSchemas(AttributableType.USER);
+        } else {
+            schemaTOs = schemaRestClient.getSchemas(AttributableType.MEMBERSHIP);
+            Set<String> allowed = new HashSet<String>(
+                    roleRestClient.read(((MembershipTO) entityTO).getRoleId()).getMAttrTemplates());
+            filter(schemaTOs, allowed);
+        }
+
+        schemas.clear();
+
+        for (SchemaTO schemaTO : schemaTOs) {
+            schemas.put(schemaTO.getName(), schemaTO);
+        }
+    }
+
+    private void setAttrs() {
         final List<AttributeTO> entityData = new ArrayList<AttributeTO>();
 
-        final Map<String, AttributeTO> attrMap = entityTO.getAttributeMap();
+        final Map<String, AttributeTO> attrMap = entityTO.getAttrMap();
 
-        for (SchemaTO schema : schemas) {
+        for (SchemaTO schema : schemas.values()) {
             AttributeTO attributeTO = new AttributeTO();
             attributeTO.setSchema(schema.getName());
 
@@ -157,8 +195,8 @@ public class AttributesPanel extends Panel {
             entityData.add(attributeTO);
         }
 
-        entityTO.getAttributes().clear();
-        entityTO.getAttributes().addAll(entityData);
+        entityTO.getAttrs().clear();
+        entityTO.getAttrs().addAll(entityData);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -245,11 +283,11 @@ public class AttributesPanel extends Panel {
 
         final String[] values = StringUtils.isBlank(schemaTO.getEnumerationValues())
                 ? new String[0]
-                : schemaTO.getEnumerationValues().split(Constants.ENUM_VALUES_SEPARATOR);
+                : schemaTO.getEnumerationValues().split(SyncopeConstants.ENUM_VALUES_SEPARATOR);
 
         final String[] keys = StringUtils.isBlank(schemaTO.getEnumerationKeys())
                 ? new String[0]
-                : schemaTO.getEnumerationKeys().split(Constants.ENUM_VALUES_SEPARATOR);
+                : schemaTO.getEnumerationKeys().split(SyncopeConstants.ENUM_VALUES_SEPARATOR);
 
         for (int i = 0; i < values.length; i++) {
             res.put(values[i].trim(), keys.length > i ? keys[i].trim() : null);
@@ -263,12 +301,24 @@ public class AttributesPanel extends Panel {
 
         final String[] values = StringUtils.isBlank(schemaTO.getEnumerationValues())
                 ? new String[0]
-                : schemaTO.getEnumerationValues().split(Constants.ENUM_VALUES_SEPARATOR);
+                : schemaTO.getEnumerationValues().split(SyncopeConstants.ENUM_VALUES_SEPARATOR);
 
         for (String value : values) {
             res.add(value.trim());
         }
 
         return res;
+    }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if ((event.getPayload() instanceof RoleAttrTemplatesChange)) {
+            final RoleAttrTemplatesChange update = (RoleAttrTemplatesChange) event.getPayload();
+            if (attrTemplates != null && update.getType() == AttrTemplatesPanel.Type.rAttrTemplates) {
+                setSchemas();
+                setAttrs();
+                update.getTarget().add(this);
+            }
+        }
     }
 }

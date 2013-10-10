@@ -53,7 +53,7 @@ public class ConnObjectModalPage extends BaseModalPage {
 
             @Override
             protected List<AttributeTO> load() {
-                List<AttributeTO> attrs = connObjectTO.getAttributes();
+                List<AttributeTO> attrs = connObjectTO.getAttrs();
                 Collections.sort(attrs, new Comparator<AttributeTO>() {
 
                     @Override

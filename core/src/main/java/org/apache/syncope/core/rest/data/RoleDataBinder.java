@@ -31,14 +31,28 @@ import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.connid.ConnObjectUtil;
+import org.apache.syncope.core.persistence.beans.AbstractAttrTemplate;
+import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
+import org.apache.syncope.core.persistence.beans.membership.MAttrTemplate;
+import org.apache.syncope.core.persistence.beans.membership.MDerAttrTemplate;
+import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
+import org.apache.syncope.core.persistence.beans.membership.MSchema;
+import org.apache.syncope.core.persistence.beans.membership.MVirAttrTemplate;
+import org.apache.syncope.core.persistence.beans.membership.MVirSchema;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.RAttr;
+import org.apache.syncope.core.persistence.beans.role.RAttrTemplate;
 import org.apache.syncope.core.persistence.beans.role.RDerAttr;
+import org.apache.syncope.core.persistence.beans.role.RDerAttrTemplate;
+import org.apache.syncope.core.persistence.beans.role.RDerSchema;
+import org.apache.syncope.core.persistence.beans.role.RSchema;
 import org.apache.syncope.core.persistence.beans.role.RVirAttr;
+import org.apache.syncope.core.persistence.beans.role.RVirAttrTemplate;
+import org.apache.syncope.core.persistence.beans.role.RVirSchema;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
@@ -104,12 +118,43 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         return result;
     }
 
+    private <T extends AbstractAttrTemplate<K>, K extends AbstractSchema> void setAttrTemplates(
+            final SyncopeRole role, final List<String> schemaNames,
+            final Class<T> templateClass, final Class<K> schemaClass) {
+
+        List<T> toRemove = new ArrayList<T>();
+        for (T template : role.getAttrTemplates(templateClass)) {
+            if (!schemaNames.contains(template.getSchema().getName())) {
+                toRemove.add(template);
+            }
+        }
+        role.getAttrTemplates(templateClass).removeAll(toRemove);
+
+        for (String schemaName : schemaNames) {
+            if (role.getAttrTemplate(templateClass, schemaName) == null) {
+                K schema = getSchema(schemaName, schemaClass);
+                if (schema != null) {
+                    try {
+                        T template = templateClass.newInstance();
+                        template.setSchema(schema);
+                        template.setOwner(role);
+                        role.getAttrTemplates(templateClass).add(template);
+                    } catch (Exception e) {
+                        LOG.error("Could not create template for {}", templateClass, e);
+                    }
+                }
+            }
+        }
+    }
+
     public SyncopeRole create(final SyncopeRole role, final RoleTO roleTO) {
         role.setInheritOwner(roleTO.isInheritOwner());
 
-        role.setInheritAttributes(roleTO.isInheritAttributes());
-        role.setInheritDerivedAttributes(roleTO.isInheritDerivedAttributes());
-        role.setInheritVirtualAttributes(roleTO.isInheritVirtualAttributes());
+        role.setInheritAttrs(roleTO.isInheritAttrs());
+        role.setInheritDerAttrs(roleTO.isInheritDerAttrs());
+        role.setInheritVirAttrs(roleTO.isInheritVirAttrs());
+
+        role.setInheritTemplates(roleTO.isInheritTemplates());
 
         role.setInheritPasswordPolicy(roleTO.isInheritPasswordPolicy());
         role.setInheritAccountPolicy(roleTO.isInheritAccountPolicy());
@@ -147,13 +192,20 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             invalidRoles.addElement(roleTO.getName());
         }
 
+        // attribute templates
+        setAttrTemplates(role, roleTO.getRAttrTemplates(), RAttrTemplate.class, RSchema.class);
+        setAttrTemplates(role, roleTO.getRDerAttrTemplates(), RDerAttrTemplate.class, RDerSchema.class);
+        setAttrTemplates(role, roleTO.getRVirAttrTemplates(), RVirAttrTemplate.class, RVirSchema.class);
+        setAttrTemplates(role, roleTO.getMAttrTemplates(), MAttrTemplate.class, MSchema.class);
+        setAttrTemplates(role, roleTO.getMDerAttrTemplates(), MDerAttrTemplate.class, MDerSchema.class);
+        setAttrTemplates(role, roleTO.getMVirAttrTemplates(), MVirAttrTemplate.class, MVirSchema.class);
+
         // attributes, derived attributes, virtual attributes and resources
         fill(role, roleTO, AttributableUtil.getInstance(AttributableType.ROLE), scce);
 
         // entitlements
-        Entitlement entitlement;
         for (String entitlementName : roleTO.getEntitlements()) {
-            entitlement = entitlementDAO.find(entitlementName);
+            Entitlement entitlement = entitlementDAO.find(entitlementName);
             if (entitlement == null) {
                 LOG.warn("Ignoring invalid entitlement {}", entitlementName);
             } else {
@@ -224,14 +276,18 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             role.setInheritOwner(roleMod.getInheritOwner());
         }
 
-        if (roleMod.getInheritAttributes() != null) {
-            role.setInheritAttributes(roleMod.getInheritAttributes());
+        if (roleMod.getInheritTemplates() != null) {
+            role.setInheritTemplates(roleMod.getInheritTemplates());
         }
-        if (roleMod.getInheritDerivedAttributes() != null) {
-            role.setInheritDerivedAttributes(roleMod.getInheritDerivedAttributes());
+
+        if (roleMod.getInheritAttrs() != null) {
+            role.setInheritAttrs(roleMod.getInheritAttrs());
         }
-        if (roleMod.getInheritVirtualAttributes() != null) {
-            role.setInheritVirtualAttributes(roleMod.getInheritVirtualAttributes());
+        if (roleMod.getInheritDerAttrs() != null) {
+            role.setInheritDerAttrs(roleMod.getInheritDerAttrs());
+        }
+        if (roleMod.getInheritVirAttrs() != null) {
+            role.setInheritVirAttrs(roleMod.getInheritVirAttrs());
         }
 
         if (roleMod.getInheritPasswordPolicy() != null) {
@@ -252,6 +308,26 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
                     role.addEntitlement(entitlement);
                 }
             }
+        }
+
+        // attribute templates
+        if (roleMod.isModRAttrTemplates()) {
+            setAttrTemplates(role, roleMod.getRAttrTemplates(), RAttrTemplate.class, RSchema.class);
+        }
+        if (roleMod.isModRDerAttrTemplates()) {
+            setAttrTemplates(role, roleMod.getRDerAttrTemplates(), RDerAttrTemplate.class, RDerSchema.class);
+        }
+        if (roleMod.isModRVirAttrTemplates()) {
+            setAttrTemplates(role, roleMod.getRVirAttrTemplates(), RVirAttrTemplate.class, RVirSchema.class);
+        }
+        if (roleMod.isModMAttrTemplates()) {
+            setAttrTemplates(role, roleMod.getMAttrTemplates(), MAttrTemplate.class, MSchema.class);
+        }
+        if (roleMod.isModMDerAttrTemplates()) {
+            setAttrTemplates(role, roleMod.getMDerAttrTemplates(), MDerAttrTemplate.class, MDerSchema.class);
+        }
+        if (roleMod.isModMVirAttrTemplates()) {
+            setAttrTemplates(role, roleMod.getMVirAttrTemplates(), MVirAttrTemplate.class, MVirSchema.class);
         }
 
         // policies
@@ -302,9 +378,11 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
 
         roleTO.setInheritOwner(role.isInheritOwner());
 
-        roleTO.setInheritAttributes(role.isInheritAttributes());
-        roleTO.setInheritDerivedAttributes(role.isInheritDerivedAttributes());
-        roleTO.setInheritVirtualAttributes(role.isInheritVirtualAttributes());
+        roleTO.setInheritTemplates(role.isInheritTemplates());
+
+        roleTO.setInheritAttrs(role.isInheritAttrs());
+        roleTO.setInheritDerAttrs(role.isInheritDerAttrs());
+        roleTO.setInheritVirAttrs(role.isInheritVirAttrs());
 
         roleTO.setInheritPasswordPolicy(role.isInheritPasswordPolicy());
         roleTO.setInheritAccountPolicy(role.isInheritAccountPolicy());
@@ -323,20 +401,39 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         // -------------------------
         // Retrieve all [derived/virtual] attributes (inherited and not)
         // -------------------------
-        final List<RAttr> allAttributes = role.findInheritedAttributes();
-        allAttributes.addAll((List<RAttr>) role.getAttributes());
+        final List<RAttr> allAttributes = role.findInheritedAttrs();
+        allAttributes.addAll((List<RAttr>) role.getAttrs());
 
-        final List<RDerAttr> allDerAttributes = role.findInheritedDerivedAttributes();
-        allDerAttributes.addAll((List<RDerAttr>) role.getDerivedAttributes());
+        final List<RDerAttr> allDerAttributes = role.findInheritedDerAttrs();
+        allDerAttributes.addAll((List<RDerAttr>) role.getDerAttrs());
 
-        final List<RVirAttr> allVirAttributes = role.findInheritedVirtualAttributes();
-        allVirAttributes.addAll((List<RVirAttr>) role.getVirtualAttributes());
+        final List<RVirAttr> allVirAttributes = role.findInheritedVirAttrs();
+        allVirAttributes.addAll((List<RVirAttr>) role.getVirAttrs());
         // -------------------------
 
         fillTO(roleTO, allAttributes, allDerAttributes, allVirAttributes, role.getResources());
 
         for (Entitlement entitlement : role.getEntitlements()) {
             roleTO.getEntitlements().add(entitlement.getName());
+        }
+
+        for (RAttrTemplate template : role.findInheritedTemplates(RAttrTemplate.class)) {
+            roleTO.getRAttrTemplates().add(template.getSchema().getName());
+        }
+        for (RDerAttrTemplate template : role.findInheritedTemplates(RDerAttrTemplate.class)) {
+            roleTO.getRDerAttrTemplates().add(template.getSchema().getName());
+        }
+        for (RVirAttrTemplate template : role.findInheritedTemplates(RVirAttrTemplate.class)) {
+            roleTO.getRVirAttrTemplates().add(template.getSchema().getName());
+        }
+        for (MAttrTemplate template : role.findInheritedTemplates(MAttrTemplate.class)) {
+            roleTO.getMAttrTemplates().add(template.getSchema().getName());
+        }
+        for (MDerAttrTemplate template : role.findInheritedTemplates(MDerAttrTemplate.class)) {
+            roleTO.getMDerAttrTemplates().add(template.getSchema().getName());
+        }
+        for (MVirAttrTemplate template : role.findInheritedTemplates(MVirAttrTemplate.class)) {
+            roleTO.getMVirAttrTemplates().add(template.getSchema().getName());
         }
 
         roleTO.setPasswordPolicy(role.getPasswordPolicy() == null

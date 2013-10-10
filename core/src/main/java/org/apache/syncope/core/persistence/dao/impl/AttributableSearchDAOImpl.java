@@ -41,7 +41,7 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
@@ -390,7 +390,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     }
 
     private void fillAttributeQuery(final StringBuilder query, final AbstractAttrValue attrValue,
-            final AbstractSchema schema, final AttributeCond cond, final boolean not, final List<Object> parameters) {
+            final AbstractNormalSchema schema, final AttributeCond cond, final boolean not, final List<Object> parameters) {
 
         String column = (cond instanceof AttributableCond)
                 ? cond.getSchema()
@@ -515,7 +515,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     private String getQuery(final AttributeCond cond, final boolean not, final List<Object> parameters,
             final AttributableUtil attrUtil) {
 
-        AbstractSchema schema = schemaDAO.find(cond.getSchema(), attrUtil.schemaClass());
+        AbstractNormalSchema schema = schemaDAO.find(cond.getSchema(), attrUtil.schemaClass());
         if (schema == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
             return EMPTY_ATTR_QUERY;
@@ -566,7 +566,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
             return EMPTY_ATTR_QUERY;
         }
 
-        AbstractSchema schema = attrUtil.newSchema();
+        AbstractNormalSchema schema = attrUtil.newSchema();
         schema.setName(attributableField.getName());
         for (AttributeSchemaType type : AttributeSchemaType.values()) {
             if (attributableField.getType().isAssignableFrom(type.getType())) {

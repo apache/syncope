@@ -40,26 +40,26 @@ public class VirAttrDAOImpl extends AbstractDAOImpl implements VirAttrDAO {
     }
 
     @Override
-    public <T extends AbstractVirAttr> T save(final T virtualAttribute) {
-        return entityManager.merge(virtualAttribute);
+    public <T extends AbstractVirAttr> T save(final T virAttr) {
+        return entityManager.merge(virAttr);
     }
 
     @Override
     public <T extends AbstractVirAttr> void delete(final Long id, final Class<T> reference) {
-        T virtualAttribute = find(id, reference);
-        if (virtualAttribute == null) {
+        T virAttr = find(id, reference);
+        if (virAttr == null) {
             return;
         }
 
-        delete(virtualAttribute);
+        delete(virAttr);
     }
 
     @Override
-    public <T extends AbstractVirAttr> void delete(final T virtualAttribute) {
-        if (virtualAttribute.getOwner() != null) {
-            virtualAttribute.getOwner().removeVirtualAttribute(virtualAttribute);
+    public <T extends AbstractVirAttr> void delete(final T virAttr) {
+        if (virAttr.getOwner() != null) {
+            virAttr.getOwner().removeVirAttr(virAttr);
         }
 
-        entityManager.remove(virtualAttribute);
+        entityManager.remove(virAttr);
     }
 }

@@ -25,10 +25,10 @@ import static org.junit.Assert.assertNull;
 import java.util.List;
 
 import org.apache.syncope.core.persistence.beans.membership.MVirAttr;
-import org.apache.syncope.core.persistence.beans.membership.MVirSchema;
+import org.apache.syncope.core.persistence.beans.membership.MVirAttrTemplate;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.RVirAttr;
-import org.apache.syncope.core.persistence.beans.role.RVirSchema;
+import org.apache.syncope.core.persistence.beans.role.RVirAttrTemplate;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UVirAttr;
@@ -68,68 +68,62 @@ public class VirAttrTest extends AbstractDAOTest {
     }
 
     @Test
-    public void saveUVirAttribute() throws ClassNotFoundException {
-        UVirSchema virtualSchema = virSchemaDAO.find("virtualdata", UVirSchema.class);
-        assertNotNull(virtualSchema);
+    public void saveUVirAttribute() {
+        UVirSchema virSchema = virSchemaDAO.find("virtualdata", UVirSchema.class);
+        assertNotNull(virSchema);
 
         SyncopeUser owner = userDAO.find(3L);
         assertNotNull("did not get expected user", owner);
 
-        UVirAttr virtualAttribute = new UVirAttr();
-        virtualAttribute.setOwner(owner);
-        virtualAttribute.setVirtualSchema(virtualSchema);
+        UVirAttr virAttr = new UVirAttr();
+        virAttr.setOwner(owner);
+        virAttr.setSchema(virSchema);
 
-        virtualAttribute = virAttrDAO.save(virtualAttribute);
+        virAttr = virAttrDAO.save(virAttr);
 
-        UVirAttr actual = virAttrDAO.find(virtualAttribute.getId(), UVirAttr.class);
+        UVirAttr actual = virAttrDAO.find(virAttr.getId(), UVirAttr.class);
         assertNotNull("expected save to work", actual);
-        assertEquals(virtualAttribute, actual);
+        assertEquals(virAttr, actual);
     }
 
     @Test
-    public void saveMVirAttribute() throws ClassNotFoundException {
-
-        MVirSchema virtualSchema = new MVirSchema();
-        virtualSchema.setName("mvirtualdata");
-
+    public void saveMVirAttribute() {
         Membership owner = membershipDAO.find(3L);
         assertNotNull("did not get expected membership", owner);
 
-        MVirAttr virtualAttribute = new MVirAttr();
-        virtualAttribute.setOwner(owner);
-        virtualAttribute.setVirtualSchema(virtualSchema);
+        MVirAttr virAttr = new MVirAttr();
+        virAttr.setOwner(owner);
+        virAttr.setTemplate(owner.getSyncopeRole().getAttrTemplate(MVirAttrTemplate.class, "mvirtualdata"));
 
-        virtualAttribute = virAttrDAO.save(virtualAttribute);
+        virAttr = virAttrDAO.save(virAttr);
+        assertNotNull(virAttr.getTemplate());
 
-        MVirAttr actual = virAttrDAO.find(virtualAttribute.getId(), MVirAttr.class);
+        MVirAttr actual = virAttrDAO.find(virAttr.getId(), MVirAttr.class);
         assertNotNull("expected save to work", actual);
-        assertEquals(virtualAttribute, actual);
+        assertEquals(virAttr, actual);
     }
 
     @Test
-    public void saveRVirAttribute() throws ClassNotFoundException {
-
-        RVirSchema virtualSchema = new RVirSchema();
-        virtualSchema.setName("rvirtualdata");
-
+    public void saveRVirAttribute() {
         SyncopeRole owner = roleDAO.find(3L);
         assertNotNull("did not get expected membership", owner);
 
-        RVirAttr virtualAttribute = new RVirAttr();
-        virtualAttribute.setOwner(owner);
-        virtualAttribute.setVirtualSchema(virtualSchema);
+        RVirAttr virAttr = new RVirAttr();
+        virAttr.setOwner(owner);
+        virAttr.setTemplate(owner.getAttrTemplate(RVirAttrTemplate.class, "rvirtualdata"));
 
-        virtualAttribute = virAttrDAO.save(virtualAttribute);
+        virAttr = virAttrDAO.save(virAttr);
+        assertNotNull(virAttr.getTemplate());
 
-        RVirAttr actual = virAttrDAO.find(virtualAttribute.getId(), RVirAttr.class);
+        RVirAttr actual = virAttrDAO.find(virAttr.getId(), RVirAttr.class);
         assertNotNull("expected save to work", actual);
-        assertEquals(virtualAttribute, actual);
+        assertEquals(virAttr, actual);
     }
 
     @Test
     public void delete() {
         UVirAttr attribute = virAttrDAO.find(1000L, UVirAttr.class);
-        String attributeSchemaName = attribute.getVirtualSchema().getName();
+        String attributeSchemaName = attribute.getSchema().getName();
 
         virAttrDAO.delete(attribute.getId(), UVirAttr.class);
 

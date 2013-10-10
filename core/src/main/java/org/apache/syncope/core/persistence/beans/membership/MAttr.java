@@ -21,10 +21,10 @@ package org.apache.syncope.core.persistence.beans.membership;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -32,7 +32,7 @@ import javax.validation.Valid;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 
 @Entity
 public class MAttr extends AbstractAttr {
@@ -45,9 +45,9 @@ public class MAttr extends AbstractAttr {
     @ManyToOne(fetch = FetchType.EAGER)
     private Membership owner;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "schema_name")
-    private MSchema schema;
+    @Column(nullable = false)
+    @OneToOne(cascade = CascadeType.MERGE)
+    private MAttrTemplate template;
 
     @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true, mappedBy = "attribute")
     @Valid
@@ -81,18 +81,18 @@ public class MAttr extends AbstractAttr {
         this.owner = (Membership) owner;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends AbstractSchema> T getSchema() {
-        return (T) schema;
+    public MAttrTemplate getTemplate() {
+        return template;
     }
 
+    public void setTemplate(final MAttrTemplate template) {
+        this.template = template;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractSchema> void setSchema(final T schema) {
-        if (!(schema instanceof MSchema)) {
-            throw new ClassCastException("schema is expected to be typed MSchema: " + schema.getClass().getName());
-        }
-        this.schema = (MSchema) schema;
+    public <T extends AbstractNormalSchema> T getSchema() {
+        return template == null ? null : (T) template.getSchema();
     }
 
     @Override
@@ -125,7 +125,6 @@ public class MAttr extends AbstractAttr {
     @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractAttrValue> void setValues(final List<T> attributeValues) {
-
         this.values.clear();
         if (attributeValues != null && !attributeValues.isEmpty()) {
             for (T mav : attributeValues) {

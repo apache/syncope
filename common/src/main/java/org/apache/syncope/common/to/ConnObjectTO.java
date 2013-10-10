@@ -36,24 +36,24 @@ public class ConnObjectTO extends AbstractSysInfoTO {
 
     private static final long serialVersionUID = 5139554911265442497L;
 
-    private List<AttributeTO> attributes = new ArrayList<AttributeTO>();
+    private List<AttributeTO> attrs = new ArrayList<AttributeTO>();
 
     @XmlElementWrapper(name = "attributes")
     @XmlElement(name = "attribute")
     @JsonProperty("attributes")
-    public List<AttributeTO> getAttributes() {
-        return attributes;
+    public List<AttributeTO> getAttrs() {
+        return attrs;
     }
 
     @JsonIgnore
-    public Map<String, AttributeTO> getAttributeMap() {
+    public Map<String, AttributeTO> getAttrMap() {
         Map<String, AttributeTO> result;
 
-        if (attributes == null) {
+        if (attrs == null) {
             result = Collections.<String, AttributeTO>emptyMap();
         } else {
-            result = new HashMap<String, AttributeTO>(attributes.size());
-            for (AttributeTO attributeTO : attributes) {
+            result = new HashMap<String, AttributeTO>(attrs.size());
+            for (AttributeTO attributeTO : attrs) {
                 result.put(attributeTO.getSchema(), attributeTO);
             }
             result = Collections.<String, AttributeTO>unmodifiableMap(result);

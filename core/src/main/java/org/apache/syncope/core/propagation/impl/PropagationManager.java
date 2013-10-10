@@ -494,7 +494,7 @@ public class PropagationManager {
             final Map<String, AttributeMod> vAttrsToBeUpdated, final Boolean enable, final ExternalResource resource) {
 
         LOG.debug("Preparing resource attributes for {} on resource {} with attributes {}",
-                subject, resource, subject.getAttributes());
+                subject, resource, subject.getAttrs());
 
         Set<Attribute> attributes = new HashSet<Attribute>();
         String accountId = null;
@@ -576,8 +576,8 @@ public class PropagationManager {
             connObjectUtil.retrieveVirAttrValues(subject, attrUtil);
 
             // update vAttrsToBeUpdated as well
-            for (AbstractVirAttr virAttr : subject.getVirtualAttributes()) {
-                final String schema = virAttr.getVirtualSchema().getName();
+            for (AbstractVirAttr virAttr : subject.getVirAttrs()) {
+                final String schema = virAttr.getSchema().getName();
 
                 final AttributeMod attributeMod = new AttributeMod();
                 attributeMod.setSchema(schema);

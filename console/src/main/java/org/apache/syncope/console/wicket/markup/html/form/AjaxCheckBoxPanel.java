@@ -20,13 +20,13 @@ package org.apache.syncope.console.wicket.markup.html.form;
 
 import java.io.Serializable;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.springframework.util.StringUtils;
 
 public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
@@ -73,7 +73,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
             public Serializable getObject() {
                 Boolean value = null;
 
-                if (list != null && !list.isEmpty() && StringUtils.hasText(list.get(0).toString())) {
+                if (list != null && !list.isEmpty() && StringUtils.isNotBlank(list.get(0).toString())) {
                     value = "true".equalsIgnoreCase(list.get(0).toString());
                 }
 
@@ -82,7 +82,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
             @Override
             public void setObject(final Serializable object) {
-                if (object != null && object instanceof Boolean) {
+                if (object instanceof Boolean) {
                     list.clear();
                     list.add(((Boolean) object).toString());
                 }

@@ -208,12 +208,12 @@ public class ResultStatusModalPage extends BaseModalPage {
                         }
                     });
                     final FailureMessageModalPage executionFailureMessagePage;
-                    if (propTO.getFailureReason() != null) {
-                        executionFailureMessagePage = new FailureMessageModalPage(failureWindow.getContentId(), propTO.
-                                getFailureReason());
+                    if (propTO.getFailureReason() == null) {
+                        executionFailureMessagePage =
+                                new FailureMessageModalPage(failureWindow.getContentId(), StringUtils.EMPTY);
                     } else {
-                        executionFailureMessagePage = new FailureMessageModalPage(failureWindow.getContentId(),
-                                StringUtils.EMPTY);
+                        executionFailureMessagePage =
+                                new FailureMessageModalPage(failureWindow.getContentId(), propTO.getFailureReason());
                     }
 
                     failureWindow.setPageCreator(new ModalWindow.PageCreator() {
@@ -236,7 +236,7 @@ public class ResultStatusModalPage extends BaseModalPage {
             fragment.add(propRes);
         }
 
-        final AjaxLink close = new IndicatingAjaxLink("close") {
+        final AjaxLink<Void> close = new IndicatingAjaxLink<Void>("close") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -273,14 +273,14 @@ public class ResultStatusModalPage extends BaseModalPage {
         if (before == null) {
             beforeAttrMap = Collections.<String, AttributeTO>emptyMap();
         } else {
-            beforeAttrMap = before.getAttributeMap();
+            beforeAttrMap = before.getAttrMap();
         }
 
         final Map<String, AttributeTO> afterAttrMap;
         if (after == null) {
             afterAttrMap = Collections.<String, AttributeTO>emptyMap();
         } else {
-            afterAttrMap = after.getAttributeMap();
+            afterAttrMap = after.getAttrMap();
         }
 
         final Set<String> attributes = new HashSet<String>();
@@ -303,7 +303,7 @@ public class ResultStatusModalPage extends BaseModalPage {
             }
         }
 
-        return new ListView("attributes", profile) {
+        return new ListView("attrs", profile) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 

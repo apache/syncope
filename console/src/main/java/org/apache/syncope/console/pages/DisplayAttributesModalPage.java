@@ -61,7 +61,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
     private static final int MAX_SELECTIONS = 9;
 
     private static final String[] ATTRIBUTES_TO_HIDE = {
-        "attributes", "derivedAttributes", "virtualAttributes", "memberships", "resources",
+        "attrs", "derAttrs", "virAttrs", "memberships", "resources",
         "serialVersionUID", "password", "propagationTOs"};
 
     public static final String[] DEFAULT_SELECTION = {"id", "username", "status"};
@@ -246,7 +246,8 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                if (selectedDetails.size() + selectedSchemas.size() + selectedVirSchemas.size() + selectedDerSchemas.size()
+                if (selectedDetails.size() + selectedSchemas.size() + selectedVirSchemas.size() + selectedDerSchemas.
+                        size()
                         > MAX_SELECTIONS) {
 
                     error(getString("tooManySelections"));

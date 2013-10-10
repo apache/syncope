@@ -21,21 +21,41 @@ package org.apache.syncope.core.persistence.dao.impl;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.core.persistence.beans.AbstractAttr;
+import org.apache.syncope.core.persistence.beans.AbstractAttrTemplate;
+import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
+import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.membership.MAttr;
+import org.apache.syncope.core.persistence.beans.membership.MAttrTemplate;
+import org.apache.syncope.core.persistence.beans.membership.MDerAttr;
+import org.apache.syncope.core.persistence.beans.membership.MDerAttrTemplate;
+import org.apache.syncope.core.persistence.beans.membership.MVirAttr;
+import org.apache.syncope.core.persistence.beans.membership.MVirAttrTemplate;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
+import org.apache.syncope.core.persistence.beans.role.RAttr;
+import org.apache.syncope.core.persistence.beans.role.RAttrTemplate;
 import org.apache.syncope.core.persistence.beans.role.RAttrValue;
+import org.apache.syncope.core.persistence.beans.role.RDerAttr;
+import org.apache.syncope.core.persistence.beans.role.RDerAttrTemplate;
+import org.apache.syncope.core.persistence.beans.role.RVirAttr;
+import org.apache.syncope.core.persistence.beans.role.RVirAttrTemplate;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.AttrDAO;
+import org.apache.syncope.core.persistence.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.persistence.dao.VirAttrDAO;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +66,15 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private AttrDAO attrDAO;
+
+    @Autowired
+    private DerAttrDAO derAttrDAO;
+
+    @Autowired
+    private VirAttrDAO virAttrDAO;
 
     @Autowired
     private EntitlementDAO entitlementDAO;
@@ -185,10 +214,15 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
     }
 
     @Override
-    public List<SyncopeRole> findByDerAttrValue(final String schemaName, final String value)
-            throws InvalidSearchConditionException {
-
-        return findByDerAttrValue(schemaName, value, AttributableUtil.getInstance(AttributableType.ROLE));
+    protected TypedQuery<AbstractAttrValue> findByAttrValueQuery(final String entityName) {
+        return entityManager.createQuery("SELECT e FROM " + entityName + " e"
+                + " WHERE e.attribute.template.schema.name = :schemaName AND (e.stringValue IS NOT NULL"
+                + " AND e.stringValue = :stringValue)"
+                + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
+                + " OR (e.dateValue IS NOT NULL AND e.dateValue = :dateValue)"
+                + " OR (e.longValue IS NOT NULL AND e.longValue = :longValue)"
+                + " OR (e.doubleValue IS NOT NULL AND e.doubleValue = :doubleValue)",
+                AbstractAttrValue.class);
     }
 
     @Override
@@ -200,6 +234,13 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
     public SyncopeRole findByAttrUniqueValue(final String schemaName, final RAttrValue attrUniqueValue) {
         return (SyncopeRole) findByAttrUniqueValue(schemaName, attrUniqueValue,
                 AttributableUtil.getInstance(AttributableType.ROLE));
+    }
+
+    @Override
+    public List<SyncopeRole> findByDerAttrValue(final String schemaName, final String value)
+            throws InvalidSearchConditionException {
+
+        return findByDerAttrValue(schemaName, value, AttributableUtil.getInstance(AttributableType.ROLE));
     }
 
     @Override
@@ -223,6 +264,25 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
         return query.getResultList();
     }
 
+    @SuppressWarnings("unchecked")
+    private List<Long> unmatched(final Long roleId,
+            final Class<?> attrClass, final Class<? extends AbstractAttrTemplate> attrTemplateClass) {
+
+        final Query query = entityManager.createNativeQuery(new StringBuilder().
+                append("SELECT ma.id ").
+                append("FROM ").append(Membership.class.getSimpleName()).append(" m, ").
+                append(attrClass.getSimpleName()).append(" ma ").
+                append("WHERE m.syncopeRole_id = ?1 ").
+                append("AND ma.owner_id = m.id ").
+                append("AND ma.template_id NOT IN (").
+                append("SELECT id ").
+                append("FROM ").append(attrTemplateClass.getSimpleName()).append(' ').
+                append("WHERE owner_id = ?1)").toString());
+        query.setParameter(1, roleId);
+
+        return query.getResultList();
+    }
+
     @Override
     public SyncopeRole save(final SyncopeRole role) {
         // reset account policy in case of inheritance
@@ -235,9 +295,81 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
             role.setPasswordPolicy(null);
         }
 
-        final SyncopeRole merged = entityManager.merge(role);
-        for (AbstractVirAttr virtual : merged.getVirtualAttributes()) {
-            virtual.setValues(role.getVirtualAttribute(virtual.getVirtualSchema().getName()).getValues());
+        // remove attributes without a valid template
+        List<RAttr> rToBeDeleted = new ArrayList<RAttr>();
+        for (AbstractAttr attr : role.getAttrs()) {
+            boolean found = false;
+            for (RAttrTemplate template : role.findInheritedTemplates(RAttrTemplate.class)) {
+                if (template.getSchema().equals(attr.getSchema())) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                rToBeDeleted.add((RAttr) attr);
+            }
+        }
+        for (RAttr attr : rToBeDeleted) {
+            LOG.debug("Removing {} from {} because no template is available for it", attr, role);
+            role.removeAttr(attr);
+        }
+
+        // remove derived attributes without a valid template
+        List<RDerAttr> rDerToBeDeleted = new ArrayList<RDerAttr>();
+        for (AbstractDerAttr attr : role.getDerAttrs()) {
+            boolean found = false;
+            for (RDerAttrTemplate template : role.findInheritedTemplates(RDerAttrTemplate.class)) {
+                if (template.getSchema().equals(attr.getSchema())) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                rDerToBeDeleted.add((RDerAttr) attr);
+            }
+        }
+        for (RDerAttr attr : rDerToBeDeleted) {
+            LOG.debug("Removing {} from {} because no template is available for it", attr, role);
+            role.removeDerAttr(attr);
+        }
+
+        // remove virtual attributes without a valid template
+        List<RVirAttr> rVirToBeDeleted = new ArrayList<RVirAttr>();
+        for (AbstractVirAttr attr : role.getVirAttrs()) {
+            boolean found = false;
+            for (RVirAttrTemplate template : role.findInheritedTemplates(RVirAttrTemplate.class)) {
+                if (template.getSchema().equals(attr.getSchema())) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                LOG.debug("Removing {} from {} because no template is available for it", attr, role);
+                rVirToBeDeleted.add((RVirAttr) attr);
+            }
+        }
+        for (RVirAttr attr : rVirToBeDeleted) {
+            role.removeVirAttr(attr);
+        }
+        
+        SyncopeRole merged = entityManager.merge(role);
+        
+        // Now the same process for any exising membership of the role being saved
+        if (role.getId() != null) {
+            for (Long id : unmatched(role.getId(), MAttr.class, MAttrTemplate.class)) {
+                LOG.debug("Removing MAttr[{}] because no template is available for it in {}", id, role);
+                attrDAO.delete(id, MAttr.class);
+            }
+            for (Long id : unmatched(role.getId(), MDerAttr.class, MDerAttrTemplate.class)) {
+                LOG.debug("Removing MDerAttr[{}] because no template is available for it in {}", id, role);
+                derAttrDAO.delete(id, MDerAttr.class);
+            }
+            for (Long id : unmatched(role.getId(), MVirAttr.class, MVirAttrTemplate.class)) {
+                LOG.debug("Removing MVirAttr[{}] because no template is available for it in {}", id, role);
+                virAttrDAO.delete(id, MVirAttr.class);
+            }
+        }
+
+        merged = entityManager.merge(merged);
+        for (AbstractVirAttr attr : merged.getVirAttrs()) {
+            attr.setValues(role.getVirAttr(attr.getSchema().getName()).getValues());
         }
 
         entitlementDAO.saveEntitlementRole(merged);

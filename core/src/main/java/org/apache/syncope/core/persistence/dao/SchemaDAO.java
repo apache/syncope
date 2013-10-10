@@ -20,19 +20,19 @@ package org.apache.syncope.core.persistence.dao;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.util.AttributableUtil;
 
 public interface SchemaDAO extends DAO {
 
-    <T extends AbstractSchema> T find(String name, Class<T> reference);
+    <T extends AbstractNormalSchema> T find(String name, Class<T> reference);
 
-    <T extends AbstractSchema> List<T> findAll(Class<T> reference);
+    <T extends AbstractNormalSchema> List<T> findAll(Class<T> reference);
 
-    <T extends AbstractAttr> List<T> getAttributes(AbstractSchema schema, Class<T> reference);
+    <T extends AbstractAttr> List<T> findAttrs(AbstractNormalSchema schema, Class<T> reference);
 
-    <T extends AbstractSchema> T save(T schema) throws InvalidEntityException;
+    <T extends AbstractNormalSchema> T save(T schema) throws InvalidEntityException;
 
     void delete(String name, AttributableUtil attributableUtil);
 }

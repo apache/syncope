@@ -29,7 +29,7 @@ import org.apache.syncope.core.persistence.validation.entity.SchemaNameCheck;
 
 @MappedSuperclass
 @SchemaNameCheck
-public abstract class AbstractVirSchema extends AbstractBaseBean {
+public abstract class AbstractVirSchema extends AbstractSchema {
 
     @Id
     private String name;
@@ -45,10 +45,12 @@ public abstract class AbstractVirSchema extends AbstractBaseBean {
         readonly = getBooleanAsInteger(false);
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(final String name) {
         this.name = name;
     }

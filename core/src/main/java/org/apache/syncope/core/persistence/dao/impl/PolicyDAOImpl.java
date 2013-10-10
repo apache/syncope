@@ -18,12 +18,6 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
-import static org.apache.syncope.common.types.PolicyType.ACCOUNT;
-import static org.apache.syncope.common.types.PolicyType.GLOBAL_ACCOUNT;
-import static org.apache.syncope.common.types.PolicyType.GLOBAL_PASSWORD;
-import static org.apache.syncope.common.types.PolicyType.GLOBAL_SYNC;
-import static org.apache.syncope.common.types.PolicyType.PASSWORD;
-import static org.apache.syncope.common.types.PolicyType.SYNC;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.types.EntityViolationType;

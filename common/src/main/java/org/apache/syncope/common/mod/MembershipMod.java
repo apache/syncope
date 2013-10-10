@@ -44,19 +44,19 @@ public class MembershipMod extends AbstractAttributableMod {
         this.role = role;
     }
 
-    @XmlElementWrapper(name = "resourcesToBeAdded")
+    @XmlElementWrapper(name = "resourcesToAdd")
     @XmlElement(name = "resource")
-    @JsonProperty("resourcesToBeAdded")
+    @JsonProperty("resourcesToAdd")
     @Override
-    public Set<String> getResourcesToBeAdded() {
+    public Set<String> getResourcesToAdd() {
         return Collections.emptySet();
     }
 
-    @XmlElementWrapper(name = "resourcesToBeRemoved")
+    @XmlElementWrapper(name = "resourcesToRemove")
     @XmlElement(name = "resource")
-    @JsonProperty("resourcesToBeRemoved")
+    @JsonProperty("resourcesToRemove")
     @Override
-    public Set<String> getResourcesToBeRemoved() {
+    public Set<String> getResourcesToRemove() {
         return Collections.emptySet();
     }
 

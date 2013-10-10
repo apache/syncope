@@ -317,7 +317,7 @@ under the License.
     <jackson.version>2.2.3</jackson.version>
     <xstream.version>1.4.4</xstream.version>
     <velocity.version>1.7</velocity.version>
-    <quartz.version>2.2.0</quartz.version>
+    <quartz.version>2.2.1</quartz.version>
 
     <openjpa.version>2.2.2</openjpa.version>
     <bval.version>0.5</bval.version>

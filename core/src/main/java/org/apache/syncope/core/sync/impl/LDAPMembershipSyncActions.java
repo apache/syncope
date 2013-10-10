@@ -152,7 +152,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
 
             MembershipMod membershipMod = new MembershipMod();
             membershipMod.setRole(roleTO.getId());
-            userMod.getMembershipsToBeAdded().add(membershipMod);
+            userMod.getMembershipsToAdd().add(membershipMod);
         }
 
         return userMod;
@@ -201,8 +201,8 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
             WorkflowResult<Map.Entry<Long, Boolean>> updated = uwfAdapter.update(userMod);
 
             List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated,
-                    userMod.getPassword(), userMod.getVirtualAttributesToBeRemoved(),
-                    userMod.getVirtualAttributesToBeUpdated(),
+                    userMod.getPassword(), userMod.getVirAttrsToRemove(),
+                    userMod.getVirAttrsToUpdate(),
                     Collections.singleton(resourceName));
 
             taskExecutor.execute(tasks);
@@ -242,7 +242,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
         for (Map.Entry<Long, Long> member : membersBeforeRoleUpdate.entrySet()) {
             UserMod userMod = new UserMod();
             userMod.setId(member.getKey());
-            userMod.getMembershipsToBeRemoved().add(member.getValue());
+            userMod.getMembershipsToRemove().add(member.getValue());
             userUpdate(userMod, resource.getName());
         }
     }

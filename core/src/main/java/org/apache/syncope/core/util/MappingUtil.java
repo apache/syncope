@@ -38,7 +38,7 @@ import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
@@ -162,7 +162,7 @@ public final class MappingUtil {
         final List<AbstractAttrValue> values = MappingUtil.getIntValues(resource, mapItem, attributables,
                 vAttrsToBeRemoved, vAttrsToBeUpdated);
 
-        AbstractSchema schema = null;
+        AbstractNormalSchema schema = null;
         AttributeSchemaType schemaType;
         switch (mapItem.getIntMappingType()) {
             case UserSchema:
@@ -271,8 +271,8 @@ public final class MappingUtil {
 
             final JexlContext jexlContext = new MapContext();
             jexlUtil.addFieldsToContext(subject, jexlContext);
-            jexlUtil.addAttrsToContext(subject.getAttributes(), jexlContext);
-            jexlUtil.addDerAttrsToContext(subject.getDerivedAttributes(), subject.getAttributes(), jexlContext);
+            jexlUtil.addAttrsToContext(subject.getAttrs(), jexlContext);
+            jexlUtil.addDerAttrsToContext(subject.getDerAttrs(), subject.getAttrs(), jexlContext);
             evalAccountLink = jexlUtil.evaluate(attrUtil.getAccountLink(resource), jexlContext);
         }
 
@@ -331,7 +331,7 @@ public final class MappingUtil {
             case RoleSchema:
             case MembershipSchema:
                 for (AbstractAttributable attributable : attributables) {
-                    final AbstractAttr attr = attributable.getAttribute(mappingItem.getIntAttrName());
+                    final AbstractAttr attr = attributable.getAttr(mappingItem.getIntAttrName());
                     if (attr != null) {
                         if (attr.getUniqueValue() != null) {
                             values.add(attr.getUniqueValue());
@@ -353,7 +353,7 @@ public final class MappingUtil {
             case RoleVirtualSchema:
             case MembershipVirtualSchema:
                 for (AbstractAttributable attributable : attributables) {
-                    AbstractVirAttr virAttr = attributable.getVirtualAttribute(mappingItem.getIntAttrName());
+                    AbstractVirAttr virAttr = attributable.getVirAttr(mappingItem.getIntAttrName());
                     if (virAttr != null) {
                         if (virAttr.getValues() != null) {
                             for (String value : virAttr.getValues()) {
@@ -387,11 +387,11 @@ public final class MappingUtil {
             case RoleDerivedSchema:
             case MembershipDerivedSchema:
                 for (AbstractAttributable attributable : attributables) {
-                    AbstractDerAttr derAttr = attributable.getDerivedAttribute(mappingItem.getIntAttrName());
+                    AbstractDerAttr derAttr = attributable.getDerAttr(mappingItem.getIntAttrName());
                     if (derAttr != null) {
                         attrValue = (attributable instanceof SyncopeRole)
                                 ? new RAttrValue() : new UAttrValue();
-                        attrValue.setStringValue(derAttr.getValue(attributable.getAttributes()));
+                        attrValue.setStringValue(derAttr.getValue(attributable.getAttrs()));
                         values.add(attrValue);
                     }
 

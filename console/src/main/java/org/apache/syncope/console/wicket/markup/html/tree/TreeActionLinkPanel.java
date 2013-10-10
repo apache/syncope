@@ -51,7 +51,7 @@ public class TreeActionLinkPanel extends Panel {
     @SpringBean
     private XMLRolesReader xmlRolesReader;
 
-    private Fragment fragment;
+    private final Fragment fragment;
 
     public TreeActionLinkPanel(final String id, final long idRole, final ModalWindow window,
             final PageReference pageRef) {
@@ -61,10 +61,9 @@ public class TreeActionLinkPanel extends Panel {
         fragment = new Fragment("menuPanel", idRole == 0
                 ? "fakerootFrag"
                 : "roleFrag", this);
-
         fragment.setOutputMarkupId(true);
 
-        final AjaxLink createRoleLink = new ClearIndicatingAjaxLink("createRoleLink", pageRef) {
+        final AjaxLink<Void> createRoleLink = new ClearIndicatingAjaxLink<Void>("createRoleLink", pageRef) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -78,8 +77,7 @@ public class TreeActionLinkPanel extends Panel {
                     public Page createPage() {
                         RoleTO roleTO = new RoleTO();
                         roleTO.setParent(idRole);
-                        RoleModalPage form = new RoleModalPage(pageRef, window, roleTO);
-                        return form;
+                        return new RoleModalPage(pageRef, window, roleTO);
                     }
                 });
 
@@ -87,14 +85,14 @@ public class TreeActionLinkPanel extends Panel {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createRoleLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Roles",
-                "create"));
+        MetaDataRoleAuthorizationStrategy.authorize(createRoleLink, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Roles", "create"));
 
         createRoleLink.setOutputMarkupId(true);
         fragment.add(createRoleLink);
 
         if (idRole != 0) {
-            final AjaxLink updateRoleLink = new ClearIndicatingAjaxLink("updateRoleLink", pageRef) {
+            final AjaxLink<Void> updateRoleLink = new ClearIndicatingAjaxLink<Void>("updateRoleLink", pageRef) {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
@@ -106,9 +104,7 @@ public class TreeActionLinkPanel extends Panel {
 
                         @Override
                         public Page createPage() {
-                            RoleTO roleTO = restClient.read(idRole);
-                            RoleModalPage form = new RoleModalPage(pageRef, window, roleTO);
-                            return form;
+                            return new RoleModalPage(pageRef, window, restClient.read(idRole));
                         }
                     });
 
@@ -116,20 +112,20 @@ public class TreeActionLinkPanel extends Panel {
                 }
             };
 
-            MetaDataRoleAuthorizationStrategy.authorize(updateRoleLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
-                    "Roles", "read"));
+            MetaDataRoleAuthorizationStrategy.authorize(updateRoleLink, ENABLE,
+                    xmlRolesReader.getAllAllowedRoles("Roles", "read"));
 
             updateRoleLink.setOutputMarkupId(true);
             fragment.add(updateRoleLink);
 
-            final AjaxLink dropRoleLink = new IndicatingOnConfirmAjaxLink("dropRoleLink", pageRef) {
+            final AjaxLink<Void> dropRoleLink = new IndicatingOnConfirmAjaxLink<Void>("dropRoleLink", pageRef) {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
                 @Override
                 protected void onClickInternal(final AjaxRequestTarget target) {
                     try {
-                        final RoleTO roleTO = (RoleTO) restClient.delete(idRole);
+                        final RoleTO roleTO = restClient.delete(idRole);
 
                         ((Roles) pageRef.getPage()).setModalResult(true);
 
@@ -151,8 +147,8 @@ public class TreeActionLinkPanel extends Panel {
                 }
             };
 
-            MetaDataRoleAuthorizationStrategy.authorize(dropRoleLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
-                    "Roles", "delete"));
+            MetaDataRoleAuthorizationStrategy.authorize(dropRoleLink, ENABLE,
+                    xmlRolesReader.getAllAllowedRoles("Roles", "delete"));
 
             dropRoleLink.setOutputMarkupId(true);
             fragment.add(dropRoleLink);

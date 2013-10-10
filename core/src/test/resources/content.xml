@@ -75,7 +75,7 @@ under the License.
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeRole id="6"
                name="director" parent_id="4" userOwner_id="5"
-               inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"
+               inheritAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
                inheritPasswordPolicy="0" inheritAccountPolicy="0"
                passwordPolicy_id="4"
                accountPolicy_id="6"
@@ -83,13 +83,13 @@ under the License.
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeRole id="7"
                name="managingDirector" parent_id="6"
-               inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"
+               inheritAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
                inheritPasswordPolicy="1" inheritAccountPolicy="1" inheritOwner="1"
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeRole id="8"
                name="otherchild" parent_id="1"
-               inheritVirtualAttributes="1"
+               inheritVirAttrs="1"
                passwordPolicy_id="4"
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
@@ -98,7 +98,7 @@ under the License.
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeRole id="10"
                name="managingConsultant" parent_id="6"
-               inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"
+               inheritAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
                inheritPasswordPolicy="1" inheritAccountPolicy="1" inheritOwner="0"
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
@@ -113,7 +113,7 @@ under the License.
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeRole id="14"
                name="artDirector" parent_id="4"
-               inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"
+               inheritAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
                inheritPasswordPolicy="0" inheritAccountPolicy="0"
                passwordPolicy_id="8"
                accountPolicy_id="6"
@@ -173,35 +173,46 @@ under the License.
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
   <UDerSchema name="csvuserid" expression="firstname + ',' + surname"/>
+  <UDerSchema name="cn" expression="surname + ', ' + firstname"/>
+  <UDerSchema name="noschema" expression="surname + ', ' + notfound"/>
+
+  <UVirSchema name="virtualdata"/>
 
   <RSchema name="icon" type="String"
-           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-                
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>                
   <RSchema name="show" type="Boolean"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-
   <RSchema name="rderived_sx" type="String"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-
   <RSchema name="rderived_dx" type="String"
-           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-           
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>           
   <RSchema name="title" type="String"
            mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+
+  <RDerSchema name="rderiveddata" expression="rderived_sx + '-' + rderived_dx"/>
+  <RDerSchema name="displayProperty" expression="icon + ': ' + show"/>
+  <RDerSchema name="rderToBePropagated" expression="rderived_sx + '-' + rderived_dx"/>
+
+  <RVirSchema name="rvirtualdata"/>
+
+  <!-- rderiveddata is used to verify der schema deletion -->
+  <RDerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"/>
 
   <MSchema name="subscriptionDate" type="Date"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
            conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
-
   <MSchema name="mderived_sx" type="String"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-
   <MSchema name="mderived_dx" type="String"
-           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-           
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>          
   <MSchema name="postalAddress" type="String"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
+  <MDerSchema name="mderiveddata" expression="mderived_sx + '-' + mderived_dx"/>
+  <MDerSchema name="mderToBePropagated" expression="mderived_sx + '-' + mderived_dx"/>
+
+  <MVirSchema name="mvirtualdata"/>
+  
   <UAttr id="99" owner_id="1" schema_name="type"/>
   <UAttrValue id="9" attribute_id="99" stringValue="G"/>
   <UAttr id="100" owner_id="1" schema_name="fullname"/>
@@ -265,72 +276,91 @@ under the License.
   <UAttr id="126" owner_id="3" schema_name="type"/>
   <UAttrValue id="37" attribute_id="126" stringValue="F"/>
     
-  <RAttr id="600" owner_id="1" schema_name="icon"/>
-  <RAttr id="700" owner_id="2" schema_name="icon"/>
-  <RAttr id="800" owner_id="1" schema_name="show"/>
-  <RAttr id="900" owner_id="6" schema_name="icon"/>
-  <RAttr id="950" owner_id="4" schema_name="icon"/>
+  <UVirAttr id="1000" virSchema_name="virtualdata" owner_id="3"/>
 
+  <UDerAttr id="100" derSchema_name="cn" owner_id="3"/>
+  <UDerAttr id="101" derSchema_name="cn" owner_id="1"/>
+
+  <RAttrTemplate id="600" owner_id="1" schema_name="icon"/>
+  <RAttr id="600" owner_id="1" template_id="600"/>
   <RAttrValue attribute_id="600" id="40" stringValue="niceIcon"/>
+
+  <RAttrTemplate id="700" owner_id="2" schema_name="icon"/>
+  <RAttr id="700" owner_id="2" template_id="700"/>
   <RAttrValue attribute_id="700" id="41" stringValue="badIcon"/>
+
+  <RAttrTemplate id="800" owner_id="1" schema_name="show"/>
+  <RAttr id="800" owner_id="1" template_id="800"/>
   <RAttrValue attribute_id="800" id="42" booleanValue="1"/>
+
+  <RAttrTemplate id="900" owner_id="6" schema_name="icon"/>
+  <RAttr id="900" owner_id="6" template_id="900"/>
   <RAttrValue attribute_id="900" id="43" stringValue="icon6"/>
+
+  <RAttrTemplate id="950" owner_id="4" schema_name="icon"/>
+  <RAttr id="950" owner_id="4" template_id="950"/>
   <RAttrValue attribute_id="950" id="44" stringValue="icon4"/>
 
-  <RAttr id="992" owner_id="1" schema_name="rderived_sx"/>
+  <RAttrTemplate id="992" owner_id="1" schema_name="rderived_sx"/>
+  <RAttr id="992" owner_id="1" template_id="992"/>
   <RAttrValue attribute_id="992" id="92" stringValue="sx"/>
 
-  <RAttr id="993" owner_id="1" schema_name="rderived_dx"/>
+  <RAttrTemplate id="993" owner_id="1" schema_name="rderived_dx"/>
+  <RAttr id="993" owner_id="1" template_id="993"/>
   <RAttrValue attribute_id="993" id="93" stringValue="dx"/>
 
-  <RDerSchema name="rderiveddata" expression="rderived_sx + '-' + rderived_dx"/>
-  <RDerAttr id="1000" derivedSchema_name="rderiveddata" owner_id="1"/>
-    
-  <RDerSchema name="displayProperty" expression="icon + ': ' + show"/>
-
-  <RDerAttr id="1001" derivedSchema_name="displayProperty" owner_id="1"/>
-  <RDerAttr id="1002" derivedSchema_name="displayProperty" owner_id="4"/>
-
-  <RDerSchema name="rderToBePropagated" expression="rderived_sx + '-' + rderived_dx"/>
-  <RDerAttr id="1003" derivedSchema_name="rderToBePropagated" owner_id="1"/>
-    
-  <!-- rderiveddata is used to verify der schema deletion -->
-  <RDerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"/>
-
-  <RAttr id="994" owner_id="12" schema_name="title"/>
+  <RAttrTemplate id="994" owner_id="12" schema_name="title"/>
+  <RAttr id="994" owner_id="12" template_id="994"/>
   <RAttrValue attribute_id="994" id="94" stringValue="r12"/>
   
-  <RAttr id="995" owner_id="13" schema_name="title"/>
+  <RAttrTemplate id="995" owner_id="13" schema_name="title"/>
+  <RAttr id="995" owner_id="13" template_id="995"/>
   <RAttrValue attribute_id="995" id="95" stringValue="r13"/>
 
-  <MAttr id="100" owner_id="4" schema_name="subscriptionDate"/>
+  <RDerAttrTemplate id="1000" owner_id="1" schema_name="rderiveddata"/>
+  <RDerAttr id="1000" owner_id="1" template_id="1000"/>
+    
+  <RDerAttrTemplate id="1001" owner_id="1" schema_name="displayProperty"/>
+  <RDerAttr id="1001" owner_id="1" template_id="1001"/>
+  
+  <RDerAttrTemplate id="1002" owner_id="4" schema_name="displayProperty"/>
+  <RDerAttr id="1002" owner_id="4" template_id="1002"/>
 
+  <RDerAttrTemplate id="1003" owner_id="1" schema_name="rderToBePropagated"/>    
+  <RDerAttr id="1003" owner_id="1" template_id="1003"/>    
+
+  <RVirAttrTemplate id="100" owner_id="4" schema_name="rvirtualdata"/>
+  <RVirAttr id="100" owner_id="4" template_id="100"/>
+
+  <RVirAttrTemplate id="101" owner_id="3" schema_name="rvirtualdata"/>
+
+  <MAttrTemplate id="98" owner_id="1" schema_name="mderived_sx"/>
+  
+  <MAttrTemplate id="99" owner_id="1" schema_name="mderived_dx"/>
+
+  <MAttrTemplate id="100" owner_id="7" schema_name="subscriptionDate"/>
+  <MAttr id="100" owner_id="4" template_id="100"/>
   <MAttrValue attribute_id="100" id="90" dateValue="2009-05-26"/>
   <MAttrValue attribute_id="100" id="91" dateValue="2010-05-26 15:40:04"/>
 
-  <MAttr id="102" owner_id="1" schema_name="mderived_sx"/>
+  <MAttrTemplate id="101" owner_id="8" schema_name="subscriptionDate"/>
+
+  <MAttrTemplate id="102" owner_id="1" schema_name="mderived_sx"/>
+  <MAttr id="102" owner_id="1" template_id="102"/>
   <MAttrValue attribute_id="102" id="92" stringValue="sx"/>
 
-  <MAttr id="103" owner_id="1" schema_name="mderived_dx"/>
+  <MAttrTemplate id="103" owner_id="1" schema_name="mderived_dx"/>
+  <MAttr id="103" owner_id="1" template_id="103"/>
   <MAttrValue attribute_id="103" id="93" stringValue="dx"/>
 
-  <MDerSchema name="mderiveddata" expression="mderived_sx + '-' + mderived_dx"/>
-  <MDerAttr id="100" derivedSchema_name="mderiveddata" owner_id="1"/>
+  <MAttrTemplate id="104" owner_id="12" schema_name="postalAddress"/>
+
+  <MDerAttrTemplate id="100" owner_id="1" schema_name="mderiveddata"/>
+  <MDerAttr id="100" owner_id="1" template_id="100"/>
+  
+  <MDerAttrTemplate id="101" owner_id="1" schema_name="mderToBePropagated"/>  
     
-  <MDerSchema name="mderToBePropagated" expression="mderived_sx + '-' + mderived_dx"/>
-
-  <UVirSchema name="virtualdata"/>
-  <UVirAttr id="1000" virtualSchema_name="virtualdata" owner_id="3"/>
-
-  <UDerSchema name="cn" expression="surname + ', ' + firstname"/>
-  <UDerAttr id="100" derivedSchema_name="cn" owner_id="3"/>
-  <UDerAttr id="101" derivedSchema_name="cn" owner_id="1"/>
-
-  <UDerSchema name="noschema" expression="surname + ', ' + notfound"/>
-
-  <MVirSchema name="mvirtualdata"/>
-  <RVirSchema name="rvirtualdata"/>
-  <RVirAttr id="100" virtualSchema_name="rvirtualdata" owner_id="4"/>
+  <MVirAttrTemplate id="100" owner_id="2" schema_name="mvirtualdata"/>
 
   <ConnInstance id="100" displayName="ConnInstance100"
                 location="${connid.location}"
@@ -785,8 +815,8 @@ under the License.
         xmlAttributes="%3Cset%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3E__PASSWORD__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Corg.identityconnectors.common.security.GuardedString%3E%0A++++++++++%3Creadonly%3Efalse%3C%2Freadonly%3E%0A++++++++++%3Cdisposed%3Efalse%3C%2Fdisposed%3E%0A++++++++++%3CencryptedBytes%3Em9nh2US0Sa6m%2BcXccCq0Xw%3D%3D%3C%2FencryptedBytes%3E%0A++++++++%3C%2Forg.identityconnectors.common.security.GuardedString%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Name%3E%0A++++%3Cname%3E__NAME__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3EuserId%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Name%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Efullname%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Efullname%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Etype%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Etype%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A%3C%2Fset%3E"/>
   <TaskExec id="6" task_id="6" status="SUCCESS"/>I
   <Task DTYPE="SyncTask" id="7" name="TestDB Task" resource_name="resource-testdb"
-              performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
-              jobClassName="org.apache.syncope.core.sync.impl.SyncJob"/>
+        performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
+        jobClassName="org.apache.syncope.core.sync.impl.SyncJob"/>
   <Task DTYPE="NotificationTask" id="8" sender="admin@prova.org" subject="Notification for SYNCOPE-81" 
         textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL"/>
   <Task DTYPE="SyncTask" id="9" name="TestDB2 Task" resource_name="resource-testdb2"

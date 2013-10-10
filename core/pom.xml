@@ -80,8 +80,8 @@ under the License.
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-jexl</artifactId>
-    </dependency>
-
+    </dependency>    
+      
     <dependency>
       <groupId>org.activiti</groupId>
       <artifactId>activiti-engine</artifactId>
@@ -682,6 +682,73 @@ under the License.
               <execution>
                 <id>stop-container</id>
                 <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>sqlgen</id>
+      
+      <dependencies>
+        <dependency>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean process-classes</defaultGoal>        
+        
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <configuration>
+              <includeProjectDependencies>false</includeProjectDependencies>
+              <includePluginDependencies>true</includePluginDependencies>
+          
+              <executable>java</executable>
+              <arguments>
+                <argument>-DpersistenceXmlFile=${project.basedir}/src/main/resources/META-INF/spring-persistence.xml</argument>
+                <argument>-Dbase=${project.build.outputDirectory}/org/apache/syncope/core/persistence/beans</argument>
+                <argument>-DconnectionDriverName=org.apache.commons.dbcp.BasicDataSource</argument>
+                <argument>-DconnectionProperties=driverClassName;org.h2.Driver,url;jdbc:h2:mem:syncopedb,username;sa,password;</argument>
+                <argument>-DsqlFile=${project.build.directory}/database.sql</argument>
+          
+                <argument>-classpath</argument>
+                <classpath>
+                  <dependency>org.apache.syncope:syncope-common</dependency>
+                  <dependency>org.apache.openjpa:openjpa</dependency>
+                  <dependency>commons-io:commons-io</dependency>
+                  <dependency>commons-lang:commons-lang</dependency>
+                  <dependency>org.apache.geronimo.specs:geronimo-jpa_2.0_spec</dependency>
+                  <dependency>org.apache.geronimo.specs:geronimo-jms_1.1_spec</dependency>
+                  <dependency>org.apache.geronimo.specs:geronimo-jta_1.1_spec</dependency>
+                  <dependency>javax.validation:validation-api</dependency>
+                  <dependency>net.sourceforge.serp:serp</dependency>
+                  <dependency>commons-pool:commons-pool</dependency>
+                  <dependency>commons-dbcp:commons-dbcp</dependency>
+                  <dependency>commons-collections:commons-collections</dependency>
+                  <dependency>org.apache.commons:commons-jexl</dependency>
+                  <dependency>org.connid:connid-framework</dependency>
+                  <dependency>com.h2database:h2</dependency>
+                  <dependency>org.slf4j:slf4j-api</dependency>
+                  <dependency>org.apache.logging.log4j:log4j-api</dependency>
+                </classpath>
+
+                <argument>org.apache.syncope.core.persistence.SQLSchemaGenerator</argument>
+              </arguments>
+            </configuration>
+            <executions>
+              <execution>
+                <id>sql</id>
+                <phase>process-classes</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
               </execution>
             </executions>
           </plugin>

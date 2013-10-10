@@ -153,7 +153,7 @@ public class StatusUtils implements Serializable {
     }
 
     private Boolean isEnabled(final ConnObjectTO objectTO) {
-        final Map<String, AttributeTO> attributeTOs = objectTO.getAttributeMap();
+        final Map<String, AttributeTO> attributeTOs = objectTO.getAttrMap();
 
         final AttributeTO status = attributeTOs.get(ConnIdSpecialAttributeName.ENABLE);
 
@@ -165,7 +165,7 @@ public class StatusUtils implements Serializable {
     private String getAccountLink(final ConnObjectTO objectTO) {
         final Map<String, AttributeTO> attributeTOs = objectTO == null
                 ? Collections.<String, AttributeTO>emptyMap()
-                : objectTO.getAttributeMap();
+                : objectTO.getAttrMap();
 
         final AttributeTO name = attributeTOs.get(ConnIdSpecialAttributeName.NAME);
 
@@ -360,7 +360,9 @@ public class StatusUtils implements Serializable {
         return imagePanel;
     }
 
-    public static class ConnObjectWrapper {
+    public static class ConnObjectWrapper implements Serializable {
+
+        private static final long serialVersionUID = 9083721948999924299L;
 
         private final AbstractAttributableTO attributable;
 

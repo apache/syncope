@@ -18,12 +18,6 @@
  */
 package org.apache.syncope.core.report;
 
-import static org.apache.syncope.core.report.ReportXMLConst.ATTR_NAME;
-import static org.apache.syncope.core.report.ReportXMLConst.XSD_DATETIME;
-import static org.apache.syncope.core.report.ReportXMLConst.XSD_INT;
-import static org.apache.syncope.core.report.ReportXMLConst.XSD_LONG;
-import static org.apache.syncope.core.report.ReportXMLConst.XSD_STRING;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +101,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
             for (String resourceName : attributableTO.getResources()) {
                 atts.clear();
 
-                atts.addAttribute("", "", ATTR_NAME, XSD_STRING, resourceName);
+                atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, resourceName);
                 handler.startElement("", "", "resource", atts);
                 handler.endElement("", "", "resource");
             }
@@ -122,13 +116,13 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
 
         AttributesImpl atts = new AttributesImpl();
         if (!attrs.isEmpty()) {
-            Map<String, AttributeTO> attrMap = attributableTO.getAttributeMap();
+            Map<String, AttributeTO> attrMap = attributableTO.getAttrMap();
 
             handler.startElement("", "", "attributes", null);
             for (String attrName : attrs) {
                 atts.clear();
 
-                atts.addAttribute("", "", ATTR_NAME, XSD_STRING, attrName);
+                atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, attrName);
                 handler.startElement("", "", "attribute", atts);
 
                 if (attrMap.containsKey(attrName)) {
@@ -148,13 +142,13 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
         }
 
         if (!derAttrs.isEmpty()) {
-            Map<String, AttributeTO> derAttrMap = attributableTO.getDerivedAttributeMap();
+            Map<String, AttributeTO> derAttrMap = attributableTO.getDerAttrMap();
 
             handler.startElement("", "", "derivedAttributes", null);
             for (String attrName : derAttrs) {
                 atts.clear();
 
-                atts.addAttribute("", "", ATTR_NAME, XSD_STRING, attrName);
+                atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, attrName);
                 handler.startElement("", "", "derivedAttribute", atts);
 
                 if (derAttrMap.containsKey(attrName)) {
@@ -174,13 +168,13 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
         }
 
         if (!virAttrs.isEmpty()) {
-            Map<String, AttributeTO> virAttrMap = attributableTO.getVirtualAttributeMap();
+            Map<String, AttributeTO> virAttrMap = attributableTO.getVirAttrMap();
 
             handler.startElement("", "", "virtualAttributes", null);
             for (String attrName : virAttrs) {
                 atts.clear();
 
-                atts.addAttribute("", "", ATTR_NAME, XSD_STRING, attrName);
+                atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, attrName);
                 handler.startElement("", "", "virtualAttribute", atts);
 
                 if (virAttrMap.containsKey(attrName)) {
@@ -212,53 +206,53 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                 String value = null;
                 switch (feature) {
                     case id:
-                        type = XSD_LONG;
+                        type = ReportXMLConst.XSD_LONG;
                         value = String.valueOf(user.getId());
                         break;
 
                     case username:
-                        type = XSD_STRING;
+                        type = ReportXMLConst.XSD_STRING;
                         value = user.getUsername();
                         break;
 
                     case workflowId:
-                        type = XSD_LONG;
+                        type = ReportXMLConst.XSD_LONG;
                         value = String.valueOf(user.getWorkflowId());
                         break;
 
                     case status:
-                        type = XSD_STRING;
+                        type = ReportXMLConst.XSD_STRING;
                         value = user.getStatus();
                         break;
 
                     case creationDate:
-                        type = XSD_DATETIME;
+                        type = ReportXMLConst.XSD_DATETIME;
                         value = user.getCreationDate() == null
                                 ? ""
                                 : DataFormat.format(user.getCreationDate());
                         break;
 
                     case lastLoginDate:
-                        type = XSD_DATETIME;
+                        type = ReportXMLConst.XSD_DATETIME;
                         value = user.getLastLoginDate() == null
                                 ? ""
                                 : DataFormat.format(user.getLastLoginDate());
                         break;
 
                     case changePwdDate:
-                        type = XSD_DATETIME;
+                        type = ReportXMLConst.XSD_DATETIME;
                         value = user.getChangePwdDate() == null
                                 ? ""
                                 : DataFormat.format(user.getChangePwdDate());
                         break;
 
                     case passwordHistorySize:
-                        type = XSD_INT;
+                        type = ReportXMLConst.XSD_INT;
                         value = String.valueOf(user.getPasswordHistory().size());
                         break;
 
                     case failedLoginCount:
-                        type = XSD_INT;
+                        type = ReportXMLConst.XSD_INT;
                         value = String.valueOf(user.getFailedLogins());
                         break;
 
@@ -284,13 +278,13 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                 for (MembershipTO memb : userTO.getMemberships()) {
                     atts.clear();
 
-                    atts.addAttribute("", "", "id", XSD_LONG, String.valueOf(memb.getId()));
-                    atts.addAttribute("", "", "roleId", XSD_LONG, String.valueOf(memb.getRoleId()));
-                    atts.addAttribute("", "", "roleName", XSD_STRING, String.valueOf(memb.getRoleName()));
+                    atts.addAttribute("", "", "id", ReportXMLConst.XSD_LONG, String.valueOf(memb.getId()));
+                    atts.addAttribute("", "", "roleId", ReportXMLConst.XSD_LONG, String.valueOf(memb.getRoleId()));
+                    atts.addAttribute("", "", "roleName", ReportXMLConst.XSD_STRING, String.valueOf(memb.getRoleName()));
                     handler.startElement("", "", "membership", atts);
 
-                    doExtractAttributes(handler, memb, memb.getAttributeMap().keySet(), memb.getDerivedAttributeMap()
-                            .keySet(), memb.getVirtualAttributeMap().keySet());
+                    doExtractAttributes(handler, memb, memb.getAttrMap().keySet(), memb.getDerAttrMap()
+                            .keySet(), memb.getVirAttrMap().keySet());
 
                     if (conf.getFeatures().contains(Feature.resources)) {
                         Membership actualMemb = user.getMembership(memb.getRoleId());

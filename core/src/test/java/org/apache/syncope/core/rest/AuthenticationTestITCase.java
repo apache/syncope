@@ -99,7 +99,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         AttributeTO testAttributeTO = new AttributeTO();
         testAttributeTO.setSchema("testAttribute");
         testAttributeTO.getValues().add("a value");
-        membershipTO.getAttributes().add(testAttributeTO);
+        membershipTO.getAttrs().add(testAttributeTO);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -140,7 +140,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         AttributeTO testAttributeTO = new AttributeTO();
         testAttributeTO.setSchema("testAttribute");
         testAttributeTO.getValues().add("a value");
-        membershipTO.getAttributes().add(testAttributeTO);
+        membershipTO.getAttrs().add(testAttributeTO);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -174,7 +174,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         AttributeTO testAttributeTO = new AttributeTO();
         testAttributeTO.setSchema("testAttribute");
         testAttributeTO.getValues().add("a value");
-        membershipTO.getAttributes().add(testAttributeTO);
+        membershipTO.getAttrs().add(testAttributeTO);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -220,7 +220,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         AttributeTO testAttributeTO = new AttributeTO();
         testAttributeTO.setSchema("testAttribute");
         testAttributeTO.getValues().add("a value");
-        membershipTO.getAttributes().add(testAttributeTO);
+        membershipTO.getAttrs().add(testAttributeTO);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -253,7 +253,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         AttributeTO testAttributeTO = new AttributeTO();
         testAttributeTO.setSchema("testAttribute");
         testAttributeTO.getValues().add("a value");
-        membershipTO.getAttributes().add(testAttributeTO);
+        membershipTO.getAttrs().add(testAttributeTO);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);

@@ -32,7 +32,7 @@ import javax.validation.Valid;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 
 /**
  * User attribute.
@@ -104,16 +104,12 @@ public class UAttr extends AbstractAttr {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractSchema> T getSchema() {
+    public <T extends AbstractNormalSchema> T getSchema() {
         return (T) schema;
     }
 
-    @Override
-    public <T extends AbstractSchema> void setSchema(final T schema) {
-        if (!(schema instanceof USchema)) {
-            throw new ClassCastException("schema is expected to be typed USchema: " + schema.getClass().getName());
-        }
-        this.schema = (USchema) schema;
+    public void setSchema(final USchema schema) {
+        this.schema = schema;
     }
 
     @Override

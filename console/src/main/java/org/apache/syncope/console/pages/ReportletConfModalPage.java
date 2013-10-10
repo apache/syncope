@@ -292,11 +292,11 @@ public class ReportletConfModalPage extends BaseModalPage {
                                 break;
 
                             case UserDerivedSchema:
-                                choices = schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
+                                choices = schemaRestClient.getDerSchemaNames(AttributableType.USER);
                                 break;
 
                             case UserVirtualSchema:
-                                choices = schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
+                                choices = schemaRestClient.getVirSchemaNames(AttributableType.USER);
                                 break;
 
                             case RoleSchema:
@@ -304,11 +304,11 @@ public class ReportletConfModalPage extends BaseModalPage {
                                 break;
 
                             case RoleDerivedSchema:
-                                choices = schemaRestClient.getDerivedSchemaNames(AttributableType.ROLE);
+                                choices = schemaRestClient.getDerSchemaNames(AttributableType.ROLE);
                                 break;
 
                             case RoleVirtualSchema:
-                                choices = schemaRestClient.getVirtualSchemaNames(AttributableType.ROLE);
+                                choices = schemaRestClient.getVirSchemaNames(AttributableType.ROLE);
                                 break;
 
                             case MembershipSchema:
@@ -316,11 +316,11 @@ public class ReportletConfModalPage extends BaseModalPage {
                                 break;
 
                             case MembershipDerivedSchema:
-                                choices = schemaRestClient.getDerivedSchemaNames(AttributableType.MEMBERSHIP);
+                                choices = schemaRestClient.getDerSchemaNames(AttributableType.MEMBERSHIP);
                                 break;
 
                             case MembershipVirtualSchema:
-                                choices = schemaRestClient.getVirtualSchemaNames(AttributableType.MEMBERSHIP);
+                                choices = schemaRestClient.getVirSchemaNames(AttributableType.MEMBERSHIP);
                                 break;
 
                             default:

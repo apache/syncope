@@ -274,11 +274,11 @@ class NotificationModalPage extends BaseModalPage {
                     break;
 
                 case UserDerivedSchema:
-                    result = schemaRestClient.getDerivedSchemaNames(AttributableType.USER);
+                    result = schemaRestClient.getDerSchemaNames(AttributableType.USER);
                     break;
 
                 case UserVirtualSchema:
-                    result = schemaRestClient.getVirtualSchemaNames(AttributableType.USER);
+                    result = schemaRestClient.getVirSchemaNames(AttributableType.USER);
                     break;
 
                 case Username:

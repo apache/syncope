@@ -15,47 +15,49 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<wicket:panel>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:panel>
 
-  <div style="display: inline-table;">
-    <input type="hidden" wicket:id="recorder"/>
+    <div style="display: inline-table;">
+      <input type="hidden" wicket:id="recorder"/>
 
-    <div style="display: table-row">
-      <div id="choices" style="display: table-cell; text-align: center; font-weight: bold;">
-        <span wicket:id="availableHeader">[available header]</span>
+      <div style="display: table-row">
+        <div id="choices" style="display: table-cell; text-align: center; font-weight: bold;">
+          <span wicket:id="availableHeader">[available header]</span>
+        </div>
+
+        <div id="buttons" style="display: table-cell;">
+        </div>
+
+        <div id="selections" style="display: table-cell; text-align: center; font-weight: bold;">
+          <span wicket:id="selectedHeader">[selected header]</span>
+        </div>
       </div>
 
-      <div id="buttons" style="display: table-cell;">
-      </div>
+      <div style="display: table-row">
+        <div id="choices" style="display: table-cell;">
+          <select class="choicesSelect" style="min-width: 100px;" wicket:id="choices">[choices]</select>	
+        </div>
 
-      <div id="selections" style="display: table-cell; text-align: center; font-weight: bold;">
-        <span wicket:id="selectedHeader">[selected header]</span>
+        <div id="buttons" style="display: table-cell; width: 30px; vertical-align: middle; padding-left: 5px;">
+          <div style="padding-bottom: 5px;">
+            <a wicket:id="addButton"><img src="img/right-icon.png" alt="add icon"/></a>
+          </div>
+          <div>
+            <a wicket:id="removeButton"><img src="img/left-icon.png" alt="remove icon"/></a>
+          </div>
+          <div>
+            <a wicket:id="moveUpButton"><img src="img/up-icon.png" alt="move up icon"/></a>
+          </div>
+          <div style="padding-top: 5px;">
+            <a wicket:id="moveDownButton"><img src="img/down-icon.png" alt="move down icon"/></a>
+          </div>
+        </div>
+
+        <div id="selections" style="display: table-cell;">
+          <select class="selectionSelect" style="min-width: 100px;" wicket:id="selection">[selection]</select>	
+        </div>
       </div>
     </div>
-
-    <div style="display: table-row">
-      <div id="choices" style="display: table-cell;">
-        <select class="choicesSelect" style="min-width: 100px;" wicket:id="choices">[choices]</select>	
-      </div>
-
-      <div id="buttons" style="display: table-cell; width: 30px; vertical-align: middle; padding-left: 5px;">
-        <div style="padding-bottom: 5px;">
-          <a wicket:id="addButton"><img src="img/right-icon.png" alt="add icon"/></a>
-        </div>
-        <div>
-          <a wicket:id="removeButton"><img src="img/left-icon.png" alt="remove icon"/></a>
-        </div>
-        <div>
-          <a wicket:id="moveUpButton"><img src="img/up-icon.png" alt="move up icon"/></a>
-        </div>
-        <div style="padding-top: 5px;">
-          <a wicket:id="moveDownButton"><img src="img/down-icon.png" alt="move down icon"/></a>
-        </div>
-      </div>
-
-      <div id="selections" style="display: table-cell;">
-        <select class="selectionSelect" style="min-width: 100px;" wicket:id="selection">[selection]</select>	
-      </div>
-    </div>
-  </div>
-</wicket:panel>
+  </wicket:panel>
+</html>

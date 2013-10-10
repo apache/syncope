@@ -19,64 +19,68 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
 
-    <div id="tabs-1">
+    <div id="details">
       <span wicket:id="details">[role details]</span>
       <span wicket:id="statuspanel">[Status Panel]</span>
       <span wicket:id="systeminformation">[System Information]</span>
     </div>
 
-    <div id="tabs-2">
+    <div id="templates">
+      <span wicket:id="templates">[templates]</span>
+    </div>
+
+    <div id="attrs">
       <div id="formtable">
         <div class="tablerow">
           <div class="tablecolumn_label short_dynamicsize">
-            <wicket:message key="inheritAttributes"/>
+            <wicket:message key="inheritAttrs"/>
           </div>
           <div class="tablecolumn_field medium_dynamicsize">
-            <span wicket:id="inheritAttributes" />
+            <span wicket:id="inheritAttrs" />
           </div>
         </div>
 
-        <span wicket:id="attributes">[role attributes]</span>
+        <span wicket:id="attrs">[role attributes]</span>
       </div>
     </div>
 
-    <div id="tabs-3">
+    <div id="derAttrs">
       <div id="formtable">
         <div class="tablerow alt">
           <div class="tablecolumn_label short_dynamicsize">
-            <wicket:message key="inheritDerivedAttributes"/>
+            <wicket:message key="inheritDerAttrs"/>
           </div>
           <div class="tablecolumn_field medium_dynamicsize">
-            <span wicket:id="inheritDerivedAttributes" />
+            <span wicket:id="inheritDerAttrs" />
           </div>
         </div>
 
-        <span wicket:id="derivedAttributes">[role derived attributes]</span>
+        <span wicket:id="derAttrs">[role derived attributes]</span>
       </div>
     </div>
 
-    <div id="tabs-4">
+    <div id="virAttrs">
       <div id="formtable">
         <div class="tablerow alt">
           <div class="tablecolumn_label short_dynamicsize">
-            <wicket:message key="inheritVirtualAttributes"/>
+            <wicket:message key="inheritVirAttrs"/>
           </div>
           <div class="tablecolumn_field medium_dynamicsize">
-            <span wicket:id="inheritVirtualAttributes" />
+            <span wicket:id="inheritVirAttrs" />
           </div>
         </div>
 
-        <span wicket:id="virtualAttributes">[role virtual attributes]</span>
+        <span wicket:id="virAttrs">[role virtual attributes]</span>
       </div>
     </div>
 
-    <div id="tabs-5">
+    <div id="resources">
       <span wicket:id="resources">[resources]</span>
     </div>
-    <div id="tabs-6">
-      <span wicket:id="entitlementsPalette">[entitlements]</span>
+    <div id="entitlements">
+      <span wicket:id="entitlements">[entitlements]</span>
     </div>
-    <div id="tabs-7">
+    <div id="security">
       <span wicket:id="security">[security]</span>
     </div>
 

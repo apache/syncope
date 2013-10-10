@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.validation.attrvalue;
 import java.io.Serializable;
 
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,9 +34,9 @@ public abstract class AbstractValidator implements Validator, Serializable {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractValidator.class);
 
-    protected final AbstractSchema schema;
+    protected final AbstractNormalSchema schema;
 
-    public AbstractValidator(final AbstractSchema schema) {
+    public AbstractValidator(final AbstractNormalSchema schema) {
         this.schema = schema;
     }
 

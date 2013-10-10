@@ -30,9 +30,9 @@ public abstract class AbstractAttributable extends AbstractSysInfo {
     private static final long serialVersionUID = -4801685541488201119L;
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractAttr> T getAttribute(final String schemaName) {
+    public <T extends AbstractAttr> T getAttr(final String schemaName) {
         T result = null;
-        for (Iterator<? extends AbstractAttr> itor = getAttributes().iterator(); result == null && itor.hasNext();) {
+        for (Iterator<? extends AbstractAttr> itor = getAttrs().iterator(); result == null && itor.hasNext();) {
             final T attribute = (T) itor.next();
             if (attribute.getSchema() != null && schemaName.equals(attribute.getSchema().getName())) {
                 result = attribute;
@@ -42,16 +42,16 @@ public abstract class AbstractAttributable extends AbstractSysInfo {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractDerAttr> T getDerivedAttribute(final String derivedSchemaName) {
+    public <T extends AbstractDerAttr> T getDerAttr(final String derSchemaName) {
         T result = null;
-        for (Iterator<? extends AbstractDerAttr> itor = getDerivedAttributes().iterator();
+        for (Iterator<? extends AbstractDerAttr> itor = getDerAttrs().iterator();
                 result == null && itor.hasNext();) {
 
-            T derivedAttribute = (T) itor.next();
-            if (derivedAttribute.getDerivedSchema() != null
-                    && derivedSchemaName.equals(derivedAttribute.getDerivedSchema().getName())) {
+            T derAttr = (T) itor.next();
+            if (derAttr.getSchema() != null
+                    && derSchemaName.equals(derAttr.getSchema().getName())) {
 
-                result = derivedAttribute;
+                result = derAttr;
             }
         }
 
@@ -59,26 +59,26 @@ public abstract class AbstractAttributable extends AbstractSysInfo {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractVirAttr> T getVirtualAttribute(final String virtualSchemaName) {
+    public <T extends AbstractVirAttr> T getVirAttr(final String virSchemaName) {
         T result = null;
-        for (Iterator<? extends AbstractVirAttr> itor = getVirtualAttributes().iterator();
+        for (Iterator<? extends AbstractVirAttr> itor = getVirAttrs().iterator();
                 result == null && itor.hasNext();) {
 
-            T virtualAttribute = (T) itor.next();
-            if (virtualAttribute.getVirtualSchema() != null
-                    && virtualSchemaName.equals(virtualAttribute.getVirtualSchema().getName())) {
+            T virAttr = (T) itor.next();
+            if (virAttr.getSchema() != null
+                    && virSchemaName.equals(virAttr.getSchema().getName())) {
 
-                result = virtualAttribute;
+                result = virAttr;
             }
         }
 
         return result;
     }
 
-    protected Map<AbstractSchema, AbstractAttr> getAttrMap() {
-        final Map<AbstractSchema, AbstractAttr> map = new HashMap<AbstractSchema, AbstractAttr>();
+    protected Map<AbstractNormalSchema, AbstractAttr> getAttrMap() {
+        final Map<AbstractNormalSchema, AbstractAttr> map = new HashMap<AbstractNormalSchema, AbstractAttr>();
 
-        for (AbstractAttr attr : getAttributes()) {
+        for (AbstractAttr attr : getAttrs()) {
             map.put(attr.getSchema(), attr);
         }
 
@@ -88,8 +88,8 @@ public abstract class AbstractAttributable extends AbstractSysInfo {
     protected Map<AbstractDerSchema, AbstractDerAttr> getDerAttrMap() {
         final Map<AbstractDerSchema, AbstractDerAttr> map = new HashMap<AbstractDerSchema, AbstractDerAttr>();
 
-        for (AbstractDerAttr attr : getDerivedAttributes()) {
-            map.put(attr.getDerivedSchema(), attr);
+        for (AbstractDerAttr attr : getDerAttrs()) {
+            map.put(attr.getSchema(), attr);
         }
 
         return map;
@@ -98,8 +98,8 @@ public abstract class AbstractAttributable extends AbstractSysInfo {
     protected Map<AbstractVirSchema, AbstractVirAttr> getVirAttrMap() {
         final Map<AbstractVirSchema, AbstractVirAttr> map = new HashMap<AbstractVirSchema, AbstractVirAttr>();
 
-        for (AbstractVirAttr attr : getVirtualAttributes()) {
-            map.put(attr.getVirtualSchema(), attr);
+        for (AbstractVirAttr attr : getVirAttrs()) {
+            map.put(attr.getSchema(), attr);
         }
 
         return map;
@@ -107,29 +107,29 @@ public abstract class AbstractAttributable extends AbstractSysInfo {
 
     public abstract Long getId();
 
-    public abstract <T extends AbstractAttr> boolean addAttribute(T attribute);
+    public abstract <T extends AbstractAttr> boolean addAttr(T attribute);
 
-    public abstract <T extends AbstractAttr> boolean removeAttribute(T attribute);
+    public abstract <T extends AbstractAttr> boolean removeAttr(T attribute);
 
-    public abstract List<? extends AbstractAttr> getAttributes();
+    public abstract List<? extends AbstractAttr> getAttrs();
 
-    public abstract void setAttributes(List<? extends AbstractAttr> attributes);
+    public abstract void setAttrs(List<? extends AbstractAttr> attributes);
 
-    public abstract <T extends AbstractDerAttr> boolean addDerivedAttribute(T derivedAttribute);
+    public abstract <T extends AbstractDerAttr> boolean addDerAttr(T derivedAttribute);
 
-    public abstract <T extends AbstractDerAttr> boolean removeDerivedAttribute(T derivedAttribute);
+    public abstract <T extends AbstractDerAttr> boolean removeDerAttr(T derivedAttribute);
 
-    public abstract List<? extends AbstractDerAttr> getDerivedAttributes();
+    public abstract List<? extends AbstractDerAttr> getDerAttrs();
 
-    public abstract void setDerivedAttributes(List<? extends AbstractDerAttr> derivedAttributes);
+    public abstract void setDerAttrs(List<? extends AbstractDerAttr> derivedAttributes);
 
-    public abstract <T extends AbstractVirAttr> boolean addVirtualAttribute(T virtualAttributes);
+    public abstract <T extends AbstractVirAttr> boolean addVirAttr(T virtualAttributes);
 
-    public abstract <T extends AbstractVirAttr> boolean removeVirtualAttribute(T virtualAttribute);
+    public abstract <T extends AbstractVirAttr> boolean removeVirAttr(T virtualAttribute);
 
-    public abstract List<? extends AbstractVirAttr> getVirtualAttributes();
+    public abstract List<? extends AbstractVirAttr> getVirAttrs();
 
-    public abstract void setVirtualAttributes(List<? extends AbstractVirAttr> virtualAttributes);
+    public abstract void setVirAttrs(List<? extends AbstractVirAttr> virtualAttributes);
 
     protected abstract Set<ExternalResource> internalGetResources();
 

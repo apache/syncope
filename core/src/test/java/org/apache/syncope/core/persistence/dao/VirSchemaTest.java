@@ -27,6 +27,8 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.EntityViolationType;
+import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
+import org.apache.syncope.core.persistence.beans.role.RVirSchema;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -67,11 +69,21 @@ public class VirSchemaTest extends AbstractDAOTest {
 
     @Test
     public void delete() {
-        UVirSchema attributeSchema = virSchemaDAO.find("virtualdata", UVirSchema.class);
+        UVirSchema virtualdata = virSchemaDAO.find("virtualdata", UVirSchema.class);
 
-        virSchemaDAO.delete(attributeSchema.getName(), AttributableUtil.getInstance(AttributableType.USER));
+        virSchemaDAO.delete(virtualdata.getName(), AttributableUtil.getInstance(AttributableType.USER));
 
-        UVirSchema actual = virSchemaDAO.find("virtualdata", UVirSchema.class);
+        AbstractVirSchema actual = virSchemaDAO.find("virtualdata", UVirSchema.class);
+        assertNull("delete did not work", actual);
+
+        // ------------- //
+
+        RVirSchema rvirtualdata = virSchemaDAO.find("rvirtualdata", RVirSchema.class);
+        assertNotNull(rvirtualdata);
+
+        virSchemaDAO.delete(rvirtualdata.getName(), AttributableUtil.getInstance(AttributableType.ROLE));
+
+        actual = virSchemaDAO.find("rvirtualdata", RVirSchema.class);
         assertNull("delete did not work", actual);
     }
 

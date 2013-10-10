@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.apache.syncope.core.rest.AbstractTest.attributeTO;
-import static org.apache.syncope.core.rest.AbstractTest.roleService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -36,8 +34,10 @@ import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.PropagationTargetsTO;
 import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
@@ -67,7 +67,8 @@ public class RoleTestITCase extends AbstractTest {
         // inherited so setter execution should be ignored
         roleTO.setPasswordPolicy(2L);
 
-        roleTO.getAttributes().add(attributeTO("icon", "anIcon"));
+        roleTO.getRAttrTemplates().add("icon");
+        roleTO.getAttrs().add(attributeTO("icon", "anIcon"));
 
         roleTO.getResources().add("resource-ldap");
         return roleTO;
@@ -80,7 +81,7 @@ public class RoleTestITCase extends AbstractTest {
     @Test
     public void createWithException() {
         RoleTO newRoleTO = new RoleTO();
-        newRoleTO.getAttributes().add(attributeTO("attr1", "value1"));
+        newRoleTO.getAttrs().add(attributeTO("attr1", "value1"));
 
         try {
             createRole(roleService, newRoleTO);
@@ -93,16 +94,17 @@ public class RoleTestITCase extends AbstractTest {
     @Test
     public void create() {
         RoleTO roleTO = buildRoleTO("lastRole");
-        roleTO.getVirtualAttributes().add(attributeTO("rvirtualdata", "rvirtualvalue"));
+        roleTO.getRVirAttrTemplates().add("rvirtualdata");
+        roleTO.getVirAttrs().add(attributeTO("rvirtualdata", "rvirtualvalue"));
         roleTO.setRoleOwner(8L);
 
         roleTO = createRole(roleService, roleTO);
         assertNotNull(roleTO);
 
-        assertNotNull(roleTO.getVirtualAttributeMap());
-        assertNotNull(roleTO.getVirtualAttributeMap().get("rvirtualdata").getValues());
-        assertFalse(roleTO.getVirtualAttributeMap().get("rvirtualdata").getValues().isEmpty());
-        assertEquals("rvirtualvalue", roleTO.getVirtualAttributeMap().get("rvirtualdata").getValues().get(0));
+        assertNotNull(roleTO.getVirAttrMap());
+        assertNotNull(roleTO.getVirAttrMap().get("rvirtualdata").getValues());
+        assertFalse(roleTO.getVirAttrMap().get("rvirtualdata").getValues().isEmpty());
+        assertEquals("rvirtualvalue", roleTO.getVirAttrMap().get("rvirtualdata").getValues().get(0));
 
         assertNotNull(roleTO.getAccountPolicy());
         assertEquals(6L, (long) roleTO.getAccountPolicy());
@@ -114,7 +116,7 @@ public class RoleTestITCase extends AbstractTest {
 
         ConnObjectTO connObjectTO = readConnectorObject("resource-ldap", roleTO.getId());
         assertNotNull(connObjectTO);
-        assertNotNull(connObjectTO.getAttributeMap().get("owner"));
+        assertNotNull(connObjectTO.getAttrMap().get("owner"));
     }
 
     @Test
@@ -183,8 +185,8 @@ public class RoleTestITCase extends AbstractTest {
         RoleTO roleTO = roleService.read(1L);
 
         assertNotNull(roleTO);
-        assertNotNull(roleTO.getAttributes());
-        assertFalse(roleTO.getAttributes().isEmpty());
+        assertNotNull(roleTO.getAttrs());
+        assertFalse(roleTO.getAttrs().isEmpty());
     }
 
     @Test
@@ -209,16 +211,17 @@ public class RoleTestITCase extends AbstractTest {
 
         RoleTO roleTO = roleService2.selfRead(1L);
         assertNotNull(roleTO);
-        assertNotNull(roleTO.getAttributes());
-        assertFalse(roleTO.getAttributes().isEmpty());
+        assertNotNull(roleTO.getAttrs());
+        assertFalse(roleTO.getAttrs().isEmpty());
     }
 
     @Test
     public void update() {
         RoleTO roleTO = buildRoleTO("latestRole" + getUUIDString());
+        roleTO.getRAttrTemplates().add("show");
         roleTO = createRole(roleService, roleTO);
 
-        assertEquals(1, roleTO.getAttributes().size());
+        assertEquals(1, roleTO.getAttrs().size());
 
         assertNotNull(roleTO.getAccountPolicy());
         assertEquals(6L, (long) roleTO.getAccountPolicy());
@@ -230,7 +233,7 @@ public class RoleTestITCase extends AbstractTest {
         roleMod.setId(roleTO.getId());
         String modName = "finalRole" + getUUIDString();
         roleMod.setName(modName);
-        roleMod.getAttributesToBeUpdated().add(attributeMod("show", "FALSE"));
+        roleMod.getAttrsToUpdate().add(attributeMod("show", "FALSE"));
 
         // change password policy inheritance
         roleMod.setInheritPasswordPolicy(Boolean.FALSE);
@@ -238,7 +241,7 @@ public class RoleTestITCase extends AbstractTest {
         roleTO = roleService.update(roleMod.getId(), roleMod);
 
         assertEquals(modName, roleTO.getName());
-        assertEquals(2, roleTO.getAttributes().size());
+        assertEquals(2, roleTO.getAttrs().size());
 
         // changes ignored because not requested (null ReferenceMod)
         assertNotNull(roleTO.getAccountPolicy());
@@ -251,41 +254,43 @@ public class RoleTestITCase extends AbstractTest {
     @Test
     public void updateRemovingVirAttribute() {
         RoleTO roleTO = buildBasicRoleTO("withvirtual" + getUUIDString());
-        roleTO.getVirtualAttributes().add(attributeTO("rvirtualdata", null));
+        roleTO.getRVirAttrTemplates().add("rvirtualdata");
+        roleTO.getVirAttrs().add(attributeTO("rvirtualdata", null));
 
         roleTO = createRole(roleService, roleTO);
 
         assertNotNull(roleTO);
-        assertEquals(1, roleTO.getVirtualAttributes().size());
+        assertEquals(1, roleTO.getVirAttrs().size());
 
         final RoleMod roleMod = new RoleMod();
         roleMod.setId(roleTO.getId());
-        roleMod.getVirtualAttributesToBeRemoved().add("rvirtualdata");
+        roleMod.getVirAttrsToRemove().add("rvirtualdata");
 
         roleTO = roleService.update(roleMod.getId(), roleMod);
 
         assertNotNull(roleTO);
-        assertTrue(roleTO.getVirtualAttributes().isEmpty());
+        assertTrue(roleTO.getVirAttrs().isEmpty());
     }
 
     @Test
     public void updateRemovingDerAttribute() {
         RoleTO roleTO = buildBasicRoleTO("withderived" + getUUIDString());
-        roleTO.getDerivedAttributes().add(attributeTO("rderivedschema", null));
+        roleTO.getRDerAttrTemplates().add("rderivedschema");
+        roleTO.getDerAttrs().add(attributeTO("rderivedschema", null));
 
         roleTO = createRole(roleService, roleTO);
 
         assertNotNull(roleTO);
-        assertEquals(1, roleTO.getDerivedAttributes().size());
+        assertEquals(1, roleTO.getDerAttrs().size());
 
         final RoleMod roleMod = new RoleMod();
         roleMod.setId(roleTO.getId());
-        roleMod.getDerivedAttributesToBeRemoved().add("rderivedschema");
+        roleMod.getDerAttrsToRemove().add("rderivedschema");
 
         roleTO = roleService.update(roleMod.getId(), roleMod);
 
         assertNotNull(roleTO);
-        assertTrue(roleTO.getDerivedAttributes().isEmpty());
+        assertTrue(roleTO.getDerAttrs().isEmpty());
     }
 
     @Test
@@ -376,7 +381,7 @@ public class RoleTestITCase extends AbstractTest {
 
         RoleMod roleMod = new RoleMod();
         roleMod.setId(roleTO.getId());
-        roleMod.setInheritDerivedAttributes(Boolean.TRUE);
+        roleMod.setInheritDerAttrs(Boolean.TRUE);
 
         roleTO = roleService.update(roleMod.getId(), roleMod);
         assertNotNull(roleTO);
@@ -464,5 +469,42 @@ public class RoleTestITCase extends AbstractTest {
         } catch (Exception e) {
             // ignore
         }
+    }
+
+    @Test
+    public void createWithMandatorySchemaNotTemplate() {
+        // 1. create a role mandatory schema
+        SchemaTO badge = new SchemaTO();
+        badge.setName("badge");
+        badge.setMandatoryCondition("true");
+        schemaService.create(AttributableType.ROLE, SchemaType.NORMAL, badge);
+
+        // 2. create a role *without* an attribute for that schema: it works
+        RoleTO roleTO = buildRoleTO("lastRole");
+        assertFalse(roleTO.getAttrMap().containsKey(badge.getName()));
+        roleTO = createRole(roleService, roleTO);
+        assertNotNull(roleTO);
+        assertFalse(roleTO.getAttrMap().containsKey(badge.getName()));
+
+        // 3. add a template for badge to the role just created - 
+        // failure since no values are provided and it is mandatory
+        RoleMod roleMod = new RoleMod();
+        roleMod.setId(roleTO.getId());
+        roleMod.setModRAttrTemplates(true);
+        roleMod.getRAttrTemplates().add("badge");
+
+        try {
+            roleService.update(roleMod.getId(), roleMod);
+            fail();
+        } catch (SyncopeClientCompositeException e) {
+            assertNotNull(e.getException(SyncopeClientExceptionType.RequiredValuesMissing));
+        }
+
+        // 4. also add an actual attribute for badge - it will work        
+        roleMod.getAttrsToUpdate().add(attributeMod(badge.getName(), "xxxxxxxxxx"));
+
+        roleTO = roleService.update(roleMod.getId(), roleMod);
+        assertNotNull(roleTO);
+        assertTrue(roleTO.getAttrMap().containsKey(badge.getName()));
     }
 }

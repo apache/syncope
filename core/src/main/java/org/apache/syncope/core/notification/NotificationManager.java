@@ -227,23 +227,23 @@ public class NotificationManager {
                 break;
 
             case UserSchema:
-                UAttr attr = user.getAttribute(recipientAttrName);
+                UAttr attr = user.getAttr(recipientAttrName);
                 if (attr != null && !attr.getValuesAsStrings().isEmpty()) {
                     email = attr.getValuesAsStrings().get(0);
                 }
                 break;
 
             case UserVirtualSchema:
-                UVirAttr virAttr = user.getVirtualAttribute(recipientAttrName);
+                UVirAttr virAttr = user.getVirAttr(recipientAttrName);
                 if (virAttr != null && !virAttr.getValues().isEmpty()) {
                     email = virAttr.getValues().get(0);
                 }
                 break;
 
             case UserDerivedSchema:
-                UDerAttr derAttr = user.getDerivedAttribute(recipientAttrName);
+                UDerAttr derAttr = user.getDerAttr(recipientAttrName);
                 if (derAttr != null) {
-                    email = derAttr.getValue(user.getAttributes());
+                    email = derAttr.getValue(user.getAttrs());
                 }
                 break;
 

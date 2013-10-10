@@ -19,13 +19,13 @@
 package org.apache.syncope.core.persistence.validation.attrvalue;
 
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 
 public class AlwaysTrueValidator extends AbstractValidator {
 
     private static final long serialVersionUID = 872107345555773183L;
 
-    public AlwaysTrueValidator(final AbstractSchema schema) {
+    public AlwaysTrueValidator(final AbstractNormalSchema schema) {
         super(schema);
     }
 

@@ -26,11 +26,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+import org.apache.syncope.common.SyncopeConstants;
 
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.EntityViolationType;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.role.RAttr;
 import org.apache.syncope.core.persistence.beans.role.RSchema;
 import org.apache.syncope.core.persistence.beans.user.USchema;
@@ -57,19 +58,18 @@ public class SchemaTest extends AbstractDAOTest {
 
     @Test
     public void findByName() {
-        USchema attributeSchema = schemaDAO.find("fullname", USchema.class);
-        assertNotNull("did not find expected attribute schema", attributeSchema);
+        USchema schema = schemaDAO.find("fullname", USchema.class);
+        assertNotNull("did not find expected attribute schema", schema);
     }
 
     @Test
-    public void getAttributes() {
+    public void findAttrs() {
         List<RSchema> schemas = schemaDAO.findAll(RSchema.class);
         assertNotNull(schemas);
         assertFalse(schemas.isEmpty());
 
-        List<RAttr> attrs;
         for (RSchema schema : schemas) {
-            attrs = schemaDAO.getAttributes(schema, RAttr.class);
+            List<RAttr> attrs = schemaDAO.findAttrs(schema, RAttr.class);
             assertNotNull(attrs);
             assertFalse(attrs.isEmpty());
         }
@@ -77,31 +77,31 @@ public class SchemaTest extends AbstractDAOTest {
 
     @Test
     public void save() {
-        USchema attributeSchema = new USchema();
-        attributeSchema.setName("secondaryEmail");
-        attributeSchema.setType(AttributeSchemaType.String);
-        attributeSchema.setValidatorClass("org.apache.syncope.core.validation.EmailAddressValidator");
-        attributeSchema.setMandatoryCondition("false");
-        attributeSchema.setMultivalue(true);
+        USchema schema = new USchema();
+        schema.setName("secondaryEmail");
+        schema.setType(AttributeSchemaType.String);
+        schema.setValidatorClass("org.apache.syncope.core.validation.EmailAddressValidator");
+        schema.setMandatoryCondition("false");
+        schema.setMultivalue(true);
 
-        schemaDAO.save(attributeSchema);
+        schemaDAO.save(schema);
 
         USchema actual = schemaDAO.find("secondaryEmail", USchema.class);
         assertNotNull("expected save to work", actual);
-        assertEquals(attributeSchema, actual);
+        assertEquals(schema, actual);
     }
 
     @Test(expected = InvalidEntityException.class)
     public void saveNonValid() {
-        USchema attributeSchema = new USchema();
-        attributeSchema.setName("secondaryEmail");
-        attributeSchema.setType(AttributeSchemaType.String);
-        attributeSchema.setValidatorClass("org.apache.syncope.core.validation.EmailAddressValidator");
-        attributeSchema.setMandatoryCondition("false");
-        attributeSchema.setMultivalue(true);
-        attributeSchema.setUniqueConstraint(true);
+        USchema schema = new USchema();
+        schema.setName("secondaryEmail");
+        schema.setType(AttributeSchemaType.String);
+        schema.setValidatorClass("org.apache.syncope.core.validation.EmailAddressValidator");
+        schema.setMandatoryCondition("false");
+        schema.setMultivalue(true);
+        schema.setUniqueConstraint(true);
 
-        schemaDAO.save(attributeSchema);
+        schemaDAO.save(schema);
     }
 
     @Test
@@ -118,8 +118,8 @@ public class SchemaTest extends AbstractDAOTest {
         }
         assertNotNull(ex);
 
-        schema.setEnumerationValues("red" + AbstractSchema.enumValuesSeparator + "yellow");
-        schema.setEnumerationKeys("1" + AbstractSchema.enumValuesSeparator + "2");
+        schema.setEnumerationValues("red" + SyncopeConstants.ENUM_VALUES_SEPARATOR + "yellow");
+        schema.setEnumerationKeys("1" + SyncopeConstants.ENUM_VALUES_SEPARATOR + "2");
 
         schemaDAO.save(schema);
 
@@ -138,9 +138,9 @@ public class SchemaTest extends AbstractDAOTest {
 
     @Test
     public void delete() {
-        USchema schema = schemaDAO.find("fullname", USchema.class);
+        USchema fullnam = schemaDAO.find("fullname", USchema.class);
 
-        schemaDAO.delete(schema.getName(), AttributableUtil.getInstance(AttributableType.USER));
+        schemaDAO.delete(fullnam.getName(), AttributableUtil.getInstance(AttributableType.USER));
 
         USchema actual = schemaDAO.find("fullname", USchema.class);
         assertNull("delete did not work", actual);

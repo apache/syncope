@@ -38,17 +38,17 @@ public class UserMod extends AbstractAttributableMod {
 
     private String username;
 
-    private final Set<MembershipMod> membershipsToBeAdded;
+    private final Set<MembershipMod> membershipsToAdd;
 
-    private final Set<Long> membershipsToBeRemoved;
+    private final Set<Long> membershipsToRemove;
 
     private PropagationRequestTO pwdPropRequest;
 
     public UserMod() {
         super();
 
-        membershipsToBeAdded = new HashSet<MembershipMod>();
-        membershipsToBeRemoved = new HashSet<Long>();
+        membershipsToAdd = new HashSet<MembershipMod>();
+        membershipsToRemove = new HashSet<Long>();
     }
 
     public String getUsername() {
@@ -67,18 +67,18 @@ public class UserMod extends AbstractAttributableMod {
         this.password = password;
     }
 
-    @XmlElementWrapper(name = "membershipsToBeAdded")
+    @XmlElementWrapper(name = "membershipsToAdd")
     @XmlElement(name = "membership")
-    @JsonProperty("membershipsToBeAdded")
-    public Set<MembershipMod> getMembershipsToBeAdded() {
-        return membershipsToBeAdded;
+    @JsonProperty("membershipsToAdd")
+    public Set<MembershipMod> getMembershipsToAdd() {
+        return membershipsToAdd;
     }
 
-    @XmlElementWrapper(name = "membershipsToBeRemoved")
+    @XmlElementWrapper(name = "membershipsToRemove")
     @XmlElement(name = "membership")
-    @JsonProperty("membershipsToBeRemoved")
-    public Set<Long> getMembershipsToBeRemoved() {
-        return membershipsToBeRemoved;
+    @JsonProperty("membershipsToRemove")
+    public Set<Long> getMembershipsToRemove() {
+        return membershipsToRemove;
     }
 
     public PropagationRequestTO getPwdPropRequest() {
@@ -95,8 +95,8 @@ public class UserMod extends AbstractAttributableMod {
         return super.isEmpty()
                 && password == null
                 && username == null
-                && membershipsToBeAdded.isEmpty()
-                && membershipsToBeRemoved.isEmpty()
+                && membershipsToAdd.isEmpty()
+                && membershipsToRemove.isEmpty()
                 && pwdPropRequest == null;
     }
 }

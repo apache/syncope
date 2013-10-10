@@ -57,14 +57,12 @@ public abstract class AbstractDerAttr extends AbstractBaseBean {
         jexlUtil.addFieldsToContext(getOwner(), jexlContext);
 
         // Evaluate expression using the context prepared before
-        return jexlUtil.evaluate(getDerivedSchema().getExpression(), jexlContext);
+        return jexlUtil.evaluate(getSchema().getExpression(), jexlContext);
     }
 
     public abstract <T extends AbstractAttributable> T getOwner();
 
     public abstract <T extends AbstractAttributable> void setOwner(T owner);
 
-    public abstract <T extends AbstractDerSchema> T getDerivedSchema();
-
-    public abstract <T extends AbstractDerSchema> void setDerivedSchema(T derivedSchema);
+    public abstract <T extends AbstractDerSchema> T getSchema();
 }

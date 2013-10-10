@@ -19,16 +19,22 @@
 package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.VirSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.pages.panels.AttrTemplatesPanel.RoleAttrTemplatesChange;
+import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -39,6 +45,7 @@ import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -61,43 +68,78 @@ public class VirtualAttributesPanel extends Panel {
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
+    @SpringBean
+    private RoleRestClient roleRestClient;
+
+    private final AttrTemplatesPanel attrTemplates;
+
+    private final Map<String, VirSchemaTO> schemas = new TreeMap<String, VirSchemaTO>();
+
     public <T extends AbstractAttributableTO> VirtualAttributesPanel(final String id, final T entityTO,
             final boolean templateMode) {
 
+        this(id, entityTO, templateMode, null);
+    }
+
+    public <T extends AbstractAttributableTO> VirtualAttributesPanel(final String id, final T entityTO,
+            final boolean templateMode, final AttrTemplatesPanel attrTemplates) {
+
         super(id);
+        this.attrTemplates = attrTemplates;
+        this.setOutputMarkupId(true);
 
-        setOutputMarkupId(true);
+        final IModel<List<String>> virSchemas = new LoadableDetachableModel<List<String>>() {
 
-        final IModel<Map<String, VirSchemaTO>> schemas =
-                new LoadableDetachableModel<Map<String, VirSchemaTO>>() {
+            private static final long serialVersionUID = 5275935387613157437L;
 
-            private static final long serialVersionUID = -5489981430516587774L;
+            private void filter(final List<VirSchemaTO> schemaTOs, final Set<String> allowed) {
+                for (ListIterator<VirSchemaTO> itor = schemaTOs.listIterator(); itor.hasNext();) {
+                    VirSchemaTO schema = itor.next();
+                    if (!allowed.contains(schema.getName())) {
+                        itor.remove();
+                    }
+                }
+            }
 
             @Override
-            protected Map<String, VirSchemaTO> load() {
-                final List<VirSchemaTO> schemaTOs;
+            protected List<String> load() {
+                List<VirSchemaTO> schemaTOs;
+
                 if (entityTO instanceof RoleTO) {
-                    schemaTOs = schemaRestClient.getVirtualSchemas(AttributableType.ROLE);
+                    final RoleTO roleTO = (RoleTO) entityTO;
+
+                    schemaTOs = schemaRestClient.getVirSchemas(AttributableType.ROLE);
+                    Set<String> allowed;
+                    if (attrTemplates == null) {
+                        allowed = new HashSet<String>(roleTO.getRVirAttrTemplates());
+                    } else {
+                        allowed = new HashSet<String>(attrTemplates.getSelected(
+                                AttrTemplatesPanel.Type.rVirAttrTemplates));
+                        if (roleTO.isInheritTemplates() && roleTO.getParent() != 0) {
+                            allowed.addAll(roleRestClient.read(roleTO.getParent()).getRVirAttrTemplates());
+                        }
+                    }
+                    filter(schemaTOs, allowed);
                 } else if (entityTO instanceof UserTO) {
-                    schemaTOs = schemaRestClient.getVirtualSchemas(AttributableType.USER);
+                    schemaTOs = schemaRestClient.getVirSchemas(AttributableType.USER);
                 } else {
-                    schemaTOs = schemaRestClient.getVirtualSchemas(AttributableType.MEMBERSHIP);
+                    schemaTOs = schemaRestClient.getVirSchemas(AttributableType.MEMBERSHIP);
+                    Set<String> allowed = new HashSet<String>(
+                            roleRestClient.read(((MembershipTO) entityTO).getRoleId()).getMVirAttrTemplates());
+                    filter(schemaTOs, allowed);
                 }
 
-                final Map<String, VirSchemaTO> schemas = new HashMap<String, VirSchemaTO>();
+                schemas.clear();
 
                 for (VirSchemaTO schemaTO : schemaTOs) {
                     schemas.put(schemaTO.getName(), schemaTO);
                 }
 
-                return schemas;
+                return new ArrayList<String>(schemas.keySet());
             }
         };
 
-        final List<String> virtualSchemaNames = new ArrayList<String>(schemas.getObject().keySet());
-
         final WebMarkupContainer attributesContainer = new WebMarkupContainer("virAttrContainer");
-
         attributesContainer.setOutputMarkupId(true);
         add(attributesContainer);
 
@@ -107,7 +149,7 @@ public class VirtualAttributesPanel extends Panel {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                entityTO.getVirtualAttributes().add(new AttributeTO());
+                entityTO.getVirAttrs().add(new AttributeTO());
                 target.add(attributesContainer);
             }
 
@@ -119,12 +161,13 @@ public class VirtualAttributesPanel extends Panel {
 
         add(addAttributeBtn.setDefaultFormProcessing(Boolean.FALSE));
 
-        ListView<AttributeTO> attributes = new ListView<AttributeTO>("attributes",
-                new PropertyModel<List<? extends AttributeTO>>(entityTO, "virtualAttributes")) {
+        ListView<AttributeTO> attributes = new ListView<AttributeTO>("attrs",
+                new PropertyModel<List<? extends AttributeTO>>(entityTO, "virAttrs")) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
+            @SuppressWarnings("unchecked")
             protected void populateItem(final ListItem<AttributeTO> item) {
                 final AttributeTO attributeTO = item.getModelObject();
 
@@ -134,7 +177,7 @@ public class VirtualAttributesPanel extends Panel {
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-                        entityTO.getVirtualAttributes().add(attributeTO);
+                        entityTO.getVirAttrs().remove(attributeTO);
                         target.add(attributesContainer);
                     }
 
@@ -160,7 +203,7 @@ public class VirtualAttributesPanel extends Panel {
                 }
 
                 if (attributeTO.getSchema() != null) {
-                    VirSchemaTO attributeSchema = schemas.getObject().get(attributeTO.getSchema());
+                    VirSchemaTO attributeSchema = schemas.get(attributeTO.getSchema());
                     if (attributeSchema != null) {
                         attributeTO.setReadonly(attributeSchema.isReadonly());
                     }
@@ -175,12 +218,12 @@ public class VirtualAttributesPanel extends Panel {
                 } else {
                     panel = new AjaxTextFieldPanel("panel", "values", new Model<String>(null));
                     panel.setReadOnly(attributeTO.isReadonly());
-                    multiPanel = new MultiValueSelectorPanel("values", new PropertyModel<List<String>>(attributeTO,
-                            "values"), panel);
+                    multiPanel = new MultiValueSelectorPanel("values",
+                            new PropertyModel<List<String>>(attributeTO, "values"), panel);
                 }
 
                 final DropDownChoice<String> schemaChoice = new DropDownChoice<String>("schema",
-                        new PropertyModel<String>(attributeTO, "schema"), virtualSchemaNames,
+                        new PropertyModel<String>(attributeTO, "schema"), virSchemas,
                         new ChoiceRenderer<String>() {
 
                     private static final long serialVersionUID = 3109256773218160485L;
@@ -201,13 +244,11 @@ public class VirtualAttributesPanel extends Panel {
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-
                         attributeTO.setSchema(schemaChoice.getModelObject());
 
-                        VirSchemaTO attributeSchema =
-                                schemas.getObject().get(attributeTO.getSchema());
-                        if (attributeSchema != null) {
-                            attributeTO.setReadonly(attributeSchema.isReadonly());
+                        VirSchemaTO virSchema = schemas.get(attributeTO.getSchema());
+                        if (virSchema != null) {
+                            attributeTO.setReadonly(virSchema.isReadonly());
                             panel.setReadOnly(attributeTO.isReadonly());
                         }
 
@@ -240,5 +281,15 @@ public class VirtualAttributesPanel extends Panel {
         };
 
         attributesContainer.add(attributes);
+    }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if ((event.getPayload() instanceof RoleAttrTemplatesChange)) {
+            final RoleAttrTemplatesChange update = (RoleAttrTemplatesChange) event.getPayload();
+            if (attrTemplates != null && update.getType() == AttrTemplatesPanel.Type.rVirAttrTemplates) {
+                update.getTarget().add(this);
+            }
+        }
     }
 }

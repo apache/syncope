@@ -40,21 +40,21 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     protected long id;
 
-    protected Set<AttributeMod> attributesToBeUpdated;
+    protected Set<AttributeMod> attrsToUpdate;
 
-    protected Set<String> attributesToBeRemoved;
+    protected Set<String> attrsToRemove;
 
-    protected Set<String> derivedAttributesToBeAdded;
+    protected Set<String> derAttrsToAdd;
 
-    protected Set<String> derivedAttributesToBeRemoved;
+    protected Set<String> derAttrsToRemove;
 
-    protected Set<AttributeMod> virtualAttributesToBeUpdated;
+    protected Set<AttributeMod> virAttrsToUpdate;
 
-    protected Set<String> virtualAttributesToBeRemoved;
+    protected Set<String> virAttrsToRemove;
 
-    protected Set<String> resourcesToBeAdded;
+    protected Set<String> resourcesToAdd;
 
-    protected Set<String> resourcesToBeRemoved;
+    protected Set<String> resourcesToRemove;
 
     /**
      * All attributes are initialized to empty sets.
@@ -62,14 +62,14 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     public AbstractAttributableMod() {
         super();
 
-        attributesToBeUpdated = new HashSet<AttributeMod>();
-        attributesToBeRemoved = new HashSet<String>();
-        derivedAttributesToBeAdded = new HashSet<String>();
-        derivedAttributesToBeRemoved = new HashSet<String>();
-        virtualAttributesToBeUpdated = new HashSet<AttributeMod>();
-        virtualAttributesToBeRemoved = new HashSet<String>();
-        resourcesToBeAdded = new HashSet<String>();
-        resourcesToBeRemoved = new HashSet<String>();
+        attrsToUpdate = new HashSet<AttributeMod>();
+        attrsToRemove = new HashSet<String>();
+        derAttrsToAdd = new HashSet<String>();
+        derAttrsToRemove = new HashSet<String>();
+        virAttrsToUpdate = new HashSet<AttributeMod>();
+        virAttrsToRemove = new HashSet<String>();
+        resourcesToAdd = new HashSet<String>();
+        resourcesToRemove = new HashSet<String>();
     }
 
     public long getId() {
@@ -80,69 +80,69 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         this.id = id;
     }
 
-    @XmlElementWrapper(name = "attributesToBeRemoved")
+    @XmlElementWrapper(name = "attributesToRemove")
     @XmlElement(name = "attribute")
-    @JsonProperty("attributesToBeRemoved")
-    public Set<String> getAttributesToBeRemoved() {
-        return attributesToBeRemoved;
+    @JsonProperty("attributesToRemove")
+    public Set<String> getAttrsToRemove() {
+        return attrsToRemove;
     }
 
-    @XmlElementWrapper(name = "attributesToBeUpdated")
+    @XmlElementWrapper(name = "attributesToUpdate")
     @XmlElement(name = "attributeMod")
-    @JsonProperty("attributesToBeUpdated")
-    public Set<AttributeMod> getAttributesToBeUpdated() {
-        return attributesToBeUpdated;
+    @JsonProperty("attributesToUpdate")
+    public Set<AttributeMod> getAttrsToUpdate() {
+        return attrsToUpdate;
     }
 
-    @XmlElementWrapper(name = "derivedAttributesToBeAdded")
-    @XmlElement(name = "attributeName")
-    @JsonProperty("derivedAttributesToBeAdded")
-    public Set<String> getDerivedAttributesToBeAdded() {
-        return derivedAttributesToBeAdded;
-    }
-
-    @XmlElementWrapper(name = "derivedAttributesToBeRemoved")
+    @XmlElementWrapper(name = "derAttrsToAdd")
     @XmlElement(name = "attribute")
-    @JsonProperty("derivedAttributesToBeRemoved")
-    public Set<String> getDerivedAttributesToBeRemoved() {
-        return derivedAttributesToBeRemoved;
+    @JsonProperty("derAttrsToAdd")
+    public Set<String> getDerAttrsToAdd() {
+        return derAttrsToAdd;
     }
 
-    @XmlElementWrapper(name = "virtualAttributesToBeRemoved")
+    @XmlElementWrapper(name = "derAttrsToRemove")
     @XmlElement(name = "attribute")
-    @JsonProperty("virtualAttributesToBeRemoved")
-    public Set<String> getVirtualAttributesToBeRemoved() {
-        return virtualAttributesToBeRemoved;
+    @JsonProperty("derAttrsToRemove")
+    public Set<String> getDerAttrsToRemove() {
+        return derAttrsToRemove;
     }
 
-    @XmlElementWrapper(name = "virtualAttributesToBeUpdated")
+    @XmlElementWrapper(name = "virAttrsToRemove")
     @XmlElement(name = "attribute")
-    @JsonProperty("virtualAttributesToBeUpdated")
-    public Set<AttributeMod> getVirtualAttributesToBeUpdated() {
-        return virtualAttributesToBeUpdated;
+    @JsonProperty("virAttrsToRemove")
+    public Set<String> getVirAttrsToRemove() {
+        return virAttrsToRemove;
     }
 
-    @XmlElementWrapper(name = "resourcesToBeAdded")
+    @XmlElementWrapper(name = "virAttrsToUpdate")
+    @XmlElement(name = "attribute")
+    @JsonProperty("virAttrsToUpdate")
+    public Set<AttributeMod> getVirAttrsToUpdate() {
+        return virAttrsToUpdate;
+    }
+
+    @XmlElementWrapper(name = "resourcesToAdd")
     @XmlElement(name = "resource")
-    @JsonProperty("resourcesToBeAdded")
-    public Set<String> getResourcesToBeAdded() {
-        return resourcesToBeAdded;
+    @JsonProperty("resourcesToAdd")
+    public Set<String> getResourcesToAdd() {
+        return resourcesToAdd;
     }
 
-    @XmlElementWrapper(name = "resourcesToBeRemoved")
+    @XmlElementWrapper(name = "resourcesToRemove")
     @XmlElement(name = "resource")
-    @JsonProperty("resourcesToBeRemoved")
-    public Set<String> getResourcesToBeRemoved() {
-        return resourcesToBeRemoved;
+    @JsonProperty("resourcesToRemove")
+    public Set<String> getResourcesToRemove() {
+        return resourcesToRemove;
     }
 
     /**
      * @return true is all backing Sets are empty.
      */
     public boolean isEmpty() {
-        return attributesToBeUpdated.isEmpty() && attributesToBeRemoved.isEmpty()
-                && derivedAttributesToBeAdded.isEmpty() && derivedAttributesToBeRemoved.isEmpty()
-                && virtualAttributesToBeUpdated.isEmpty() && virtualAttributesToBeRemoved.isEmpty()
-                && resourcesToBeAdded.isEmpty() && resourcesToBeRemoved.isEmpty();
+        return attrsToUpdate.isEmpty() && attrsToRemove.isEmpty()
+                && derAttrsToAdd.isEmpty() && derAttrsToRemove.isEmpty()
+                && virAttrsToUpdate.isEmpty() && virAttrsToRemove.isEmpty()
+                && resourcesToAdd.isEmpty() && resourcesToRemove.isEmpty();
     }
 }

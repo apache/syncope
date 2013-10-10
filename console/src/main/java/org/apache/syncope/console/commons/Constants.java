@@ -19,7 +19,7 @@
 package org.apache.syncope.console.commons;
 
 public final class Constants {
-    
+
     public static final String ON_CHANGE = "onchange";
 
     public static final String ON_BLUR = "onblur";
@@ -91,8 +91,6 @@ public final class Constants {
     public static final String PAGEPARAM_CURRENT_PAGE = "_current_page";
 
     public static final String PREF_POLICY_PAGINATOR_ROWS = "policy.paginator.rows";
-
-    public static final String ENUM_VALUES_SEPARATOR = ";";
 
     private Constants() {
         // private constructor for static utility class

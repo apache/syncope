@@ -18,12 +18,10 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
-import java.util.List;
+import static org.junit.Assert.fail;
 
 import javax.validation.ValidationException;
 
@@ -50,12 +48,6 @@ public class AttrTest extends AbstractDAOTest {
 
     @Autowired
     private SchemaDAO userSchemaDAO;
-
-    @Test
-    public void findAll() {
-        List<UAttr> list = attrDAO.findAll(UAttr.class);
-        assertEquals("did not get expected number of attributes ", 28, list.size());
-    }
 
     @Test
     public void findById() {
@@ -101,18 +93,6 @@ public class AttrTest extends AbstractDAOTest {
             thrown = e;
         }
         assertNotNull("validation exception expected here ", thrown);
-
-        InvalidEntityException iee = null;
-        try {
-            attribute = attrDAO.save(attribute);
-        } catch (InvalidEntityException e) {
-            iee = e;
-        }
-        assertNull(iee);
-
-        UAttr actual = attrDAO.find(attribute.getId(), UAttr.class);
-        assertNotNull("expected save to work", actual);
-        assertEquals(attribute, actual);
     }
 
     @Test
@@ -127,7 +107,7 @@ public class AttrTest extends AbstractDAOTest {
         UAttr attribute = new UAttr();
         attribute.setSchema(gender);
         attribute.setOwner(user);
-        user.addAttribute(attribute);
+        user.addAttr(attribute);
 
         Exception thrown = null;
 
@@ -142,21 +122,17 @@ public class AttrTest extends AbstractDAOTest {
 
         InvalidEntityException iee = null;
         try {
-            attribute = attrDAO.save(attribute);
+            user = userDAO.save(user);
         } catch (InvalidEntityException e) {
             iee = e;
         }
         assertNull(iee);
-
-        UAttr actual = attrDAO.find(attribute.getId(), UAttr.class);
-        assertNotNull("expected save to work", actual);
-        assertEquals(attribute, actual);
-        assertEquals(actual.getSchema(), gender);
-        assertEquals(actual.getValues().size(), 1);
     }
 
     @Test
     public void validateAndSave() {
+        SyncopeUser user = userDAO.find(1L);
+
         final USchema emailSchema = userSchemaDAO.find("email", USchema.class);
         assertNotNull(emailSchema);
 
@@ -173,9 +149,12 @@ public class AttrTest extends AbstractDAOTest {
 
         attribute.setUniqueValue(uauv);
 
+        user.addAttr(attribute);
+
         InvalidEntityException iee = null;
         try {
-            attrDAO.save(attribute);
+            userDAO.save(user);
+            fail();
         } catch (InvalidEntityException e) {
             iee = e;
         }

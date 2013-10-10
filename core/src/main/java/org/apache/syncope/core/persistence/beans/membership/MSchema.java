@@ -20,11 +20,11 @@ package org.apache.syncope.core.persistence.beans.membership;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 
 @Entity
 @Cacheable
-public class MSchema extends AbstractSchema {
+public class MSchema extends AbstractNormalSchema {
 
     private static final long serialVersionUID = -8053736450044590651L;
 

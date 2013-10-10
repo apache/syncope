@@ -24,12 +24,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.membership.MAttr;
+import org.apache.syncope.core.persistence.beans.membership.MAttrTemplate;
 import org.apache.syncope.core.persistence.beans.membership.MSchema;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
+import org.apache.syncope.core.persistence.beans.role.RAttrTemplate;
+import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttr;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
@@ -41,6 +44,7 @@ import org.apache.syncope.core.persistence.dao.AttrValueDAO;
 import org.apache.syncope.core.persistence.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.dao.MembershipDAO;
+import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -68,6 +72,9 @@ public class AttrTest extends AbstractDAOTest {
 
     @Autowired
     private MembershipDAO membershipDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -99,32 +106,37 @@ public class AttrTest extends AbstractDAOTest {
 
     @Test
     public void checkForEnumType() {
+        SyncopeUser user = userDAO.find(1L);
+        Membership membership = user.getMembership(1L);
+        assertNotNull(membership);
+
         MSchema schema = new MSchema();
         schema.setType(AttributeSchemaType.Enum);
         schema.setName("color");
-        schema.setEnumerationValues("red" + AbstractSchema.enumValuesSeparator + "yellow");
+        schema.setEnumerationValues("red" + SyncopeConstants.ENUM_VALUES_SEPARATOR + "yellow");
 
         MSchema actualSchema = schemaDAO.save(schema);
         assertNotNull(actualSchema);
 
-        Membership membership = membershipDAO.find(1L);
-        assertNotNull(membership);
+        MAttrTemplate template = new MAttrTemplate();
+        template.setSchema(actualSchema);
+        membership.getSyncopeRole().getAttrTemplates(MAttrTemplate.class).add(template);
 
-        MAttr attribute = new MAttr();
-        attribute.setSchema(actualSchema);
-        attribute.setOwner(membership);
-        attribute.addValue("yellow", AttributableUtil.getInstance(AttributableType.MEMBERSHIP));
-        membership.addAttribute(attribute);
+        MAttr attr = new MAttr();
+        attr.setTemplate(template);
+        attr.setOwner(membership);
+        attr.addValue("yellow", AttributableUtil.getInstance(AttributableType.MEMBERSHIP));
+        membership.addAttr(attr);
 
-        MAttr actualAttribute = attrDAO.save(attribute);
+        MAttr actualAttribute = userDAO.save(user).getMembership(1L).getAttr("color");
         assertNotNull(actualAttribute);
 
         membership = membershipDAO.find(1L);
         assertNotNull(membership);
-        assertNotNull(membership.getAttribute(schema.getName()));
-        assertNotNull(membership.getAttribute(schema.getName()).getValues());
+        assertNotNull(membership.getAttr(schema.getName()));
+        assertNotNull(membership.getAttr(schema.getName()).getValues());
 
-        assertEquals(membership.getAttribute(schema.getName()).getValues().size(), 1);
+        assertEquals(membership.getAttr(schema.getName()).getValues().size(), 1);
     }
 
     @Test
@@ -145,7 +157,7 @@ public class AttrTest extends AbstractDAOTest {
 
         UDerAttr derAttr = new UDerAttr();
         derAttr.setOwner(owner);
-        derAttr.setDerivedSchema(sderived);
+        derAttr.setSchema(sderived);
 
         derAttr = derAttrDAO.save(derAttr);
         derAttrDAO.flush();
@@ -153,10 +165,28 @@ public class AttrTest extends AbstractDAOTest {
         derAttr = derAttrDAO.find(derAttr.getId(), UDerAttr.class);
         assertNotNull("expected save to work", derAttr);
 
-        String value = derAttr.getValue(owner.getAttributes());
+        String value = derAttr.getValue(owner.getAttrs());
         assertNotNull(value);
         assertFalse(value.isEmpty());
         assertTrue(value.startsWith("vivaldi - 2010-10-20"));
         assertTrue(value.endsWith("[0]"));
+    }
+
+    @Test
+    public void unmatchedRoleAttr() {
+        SyncopeRole role = roleDAO.find(1L);
+        assertNotNull(role);
+
+        assertNotNull(role.getAttrTemplate(RAttrTemplate.class, "icon"));
+        assertNotNull(role.getAttr("icon"));
+
+        assertTrue(role.getAttrTemplates(RAttrTemplate.class).
+                remove(role.getAttrTemplate(RAttrTemplate.class, "icon")));
+
+        role = roleDAO.save(role);
+        roleDAO.flush();
+
+        assertNull(role.getAttrTemplate(RAttrTemplate.class, "icon"));
+        assertNull(role.getAttr("icon"));
     }
 }

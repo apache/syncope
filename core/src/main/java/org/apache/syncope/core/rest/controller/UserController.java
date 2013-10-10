@@ -255,7 +255,7 @@ public class UserController {
         WorkflowResult<Map.Entry<Long, Boolean>> created = uwfAdapter.create(userTO);
 
         List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(
-                created, userTO.getPassword(), userTO.getVirtualAttributes());
+                created, userTO.getPassword(), userTO.getVirAttrs());
 
         final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
         final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
@@ -296,7 +296,7 @@ public class UserController {
         if (userMod.getPwdPropRequest() == null) {
             // 2a. no specific password propagation request: generate propagation tasks for any resource associated
             tasks = propagationManager.getUserUpdateTaskIds(updated, changedPwd,
-                    userMod.getVirtualAttributesToBeRemoved(), userMod.getVirtualAttributesToBeUpdated());
+                    userMod.getVirAttrsToRemove(), userMod.getVirAttrsToUpdate());
         } else {
             // 2b. generate the propagation task list in two phases: first the ones containing password,
             // the the rest (with no password)
@@ -312,13 +312,13 @@ public class UserController {
 
             if (!pwdPropByRes.isEmpty()) {
                 Set<String> toBeExcluded = new HashSet<String>(user.getResourceNames());
-                toBeExcluded.addAll(userMod.getResourcesToBeAdded());
+                toBeExcluded.addAll(userMod.getResourcesToAdd());
                 toBeExcluded.removeAll(pwdResourceNames);
                 tasks.addAll(propagationManager.getUserUpdateTaskIds(
                         updated,
                         changedPwd,
-                        userMod.getVirtualAttributesToBeRemoved(),
-                        userMod.getVirtualAttributesToBeUpdated(),
+                        userMod.getVirAttrsToRemove(),
+                        userMod.getVirAttrsToUpdate(),
                         toBeExcluded));
             }
 
@@ -332,8 +332,8 @@ public class UserController {
                 tasks.addAll(propagationManager.getUserUpdateTaskIds(
                         updated,
                         null,
-                        userMod.getVirtualAttributesToBeRemoved(),
-                        userMod.getVirtualAttributesToBeUpdated(),
+                        userMod.getVirAttrsToRemove(),
+                        userMod.getVirAttrsToUpdate(),
                         pwdResourceNames));
             }
 
@@ -629,7 +629,7 @@ public class UserController {
         final UserMod userMod = new UserMod();
         userMod.setId(userId);
 
-        userMod.getResourcesToBeRemoved().addAll(resources);
+        userMod.getResourcesToRemove().addAll(resources);
 
         final WorkflowResult<Map.Entry<Long, Boolean>> updated = uwfAdapter.update(userMod);
 
@@ -650,7 +650,7 @@ public class UserController {
 
         final UserMod userMod = new UserMod();
         userMod.setId(userId);
-        userMod.getResourcesToBeRemoved().addAll(resources);
+        userMod.getResourcesToRemove().addAll(resources);
 
         return update(userMod);
     }

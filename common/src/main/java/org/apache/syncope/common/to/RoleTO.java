@@ -45,17 +45,31 @@ public class RoleTO extends AbstractAttributableTO {
 
     private boolean inheritOwner;
 
-    private boolean inheritAttributes;
+    private boolean inheritTemplates;
 
-    private boolean inheritDerivedAttributes;
+    private boolean inheritAttrs;
 
-    private boolean inheritVirtualAttributes;
+    private boolean inheritDerAttrs;
+
+    private boolean inheritVirAttrs;
 
     private boolean inheritPasswordPolicy;
 
     private boolean inheritAccountPolicy;
 
     private final List<String> entitlements = new ArrayList<String>();
+
+    private List<String> rAttrTemplates = new ArrayList<String>();
+
+    private List<String> rDerAttrTemplates = new ArrayList<String>();
+
+    private List<String> rVirAttrTemplates = new ArrayList<String>();
+
+    private List<String> mAttrTemplates = new ArrayList<String>();
+
+    private List<String> mDerAttrTemplates = new ArrayList<String>();
+
+    private List<String> mVirAttrTemplates = new ArrayList<String>();
 
     private Long passwordPolicy;
 
@@ -101,29 +115,36 @@ public class RoleTO extends AbstractAttributableTO {
         this.inheritOwner = inheritOwner;
     }
 
-    public boolean isInheritAttributes() {
-        return inheritAttributes;
+    public boolean isInheritTemplates() {
+        return inheritTemplates;
     }
 
-    public void setInheritAttributes(final boolean inheritAttributes) {
-        this.inheritAttributes = inheritAttributes;
+    public void setInheritTemplates(boolean inheritTemplates) {
+        this.inheritTemplates = inheritTemplates;
     }
 
-    public boolean isInheritDerivedAttributes() {
-        return inheritDerivedAttributes;
+    public boolean isInheritAttrs() {
+        return inheritAttrs;
     }
 
-    public void setInheritDerivedAttributes(final boolean inheritDerivedAttributes) {
-
-        this.inheritDerivedAttributes = inheritDerivedAttributes;
+    public void setInheritAttrs(final boolean inheritAttrs) {
+        this.inheritAttrs = inheritAttrs;
     }
 
-    public boolean isInheritVirtualAttributes() {
-        return inheritVirtualAttributes;
+    public boolean isInheritDerAttrs() {
+        return inheritDerAttrs;
     }
 
-    public void setInheritVirtualAttributes(final boolean inheritVirtualAttributes) {
-        this.inheritVirtualAttributes = inheritVirtualAttributes;
+    public void setInheritDerAttrs(final boolean inheritDerAttrs) {
+        this.inheritDerAttrs = inheritDerAttrs;
+    }
+
+    public boolean isInheritVirAttrs() {
+        return inheritVirAttrs;
+    }
+
+    public void setInheritVirAttrs(final boolean inheritVirAttrs) {
+        this.inheritVirAttrs = inheritVirAttrs;
     }
 
     @XmlElementWrapper(name = "entitlements")
@@ -131,6 +152,48 @@ public class RoleTO extends AbstractAttributableTO {
     @JsonProperty("entitlements")
     public List<String> getEntitlements() {
         return entitlements;
+    }
+
+    @XmlElementWrapper(name = "rAttrTemplates")
+    @XmlElement(name = "rAttrTemplate")
+    @JsonProperty("rAttrTemplates")
+    public List<String> getRAttrTemplates() {
+        return rAttrTemplates;
+    }
+
+    @XmlElementWrapper(name = "rDerAttrTemplates")
+    @XmlElement(name = "rDerAttrTemplate")
+    @JsonProperty("rDerAttrTemplates")
+    public List<String> getRDerAttrTemplates() {
+        return rDerAttrTemplates;
+    }
+
+    @XmlElementWrapper(name = "rVirAttrTemplates")
+    @XmlElement(name = "rVirAttrTemplate")
+    @JsonProperty("rVirAttrTemplates")
+    public List<String> getRVirAttrTemplates() {
+        return rVirAttrTemplates;
+    }
+
+    @XmlElementWrapper(name = "mAttrTemplates")
+    @XmlElement(name = "mAttrTemplate")
+    @JsonProperty("mAttrTemplates")
+    public List<String> getMAttrTemplates() {
+        return mAttrTemplates;
+    }
+
+    @XmlElementWrapper(name = "mDerAttrTemplates")
+    @XmlElement(name = "mDerAttrTemplate")
+    @JsonProperty("mDerAttrTemplates")
+    public List<String> getMDerAttrTemplates() {
+        return mDerAttrTemplates;
+    }
+
+    @XmlElementWrapper(name = "mVirAttrTemplates")
+    @XmlElement(name = "mVirAttrTemplate")
+    @JsonProperty("mVirAttrTemplates")
+    public List<String> getMVirAttrTemplates() {
+        return mVirAttrTemplates;
     }
 
     public Long getPasswordPolicy() {

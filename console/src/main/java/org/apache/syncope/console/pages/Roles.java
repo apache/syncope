@@ -46,7 +46,7 @@ public class Roles extends BasePage {
 
     private static final int WIN_HEIGHT = 500;
 
-    private static final int WIN_WIDTH = 750;
+    private static final int WIN_WIDTH = 800;
 
     @SpringBean
     private RoleRestClient restClient;

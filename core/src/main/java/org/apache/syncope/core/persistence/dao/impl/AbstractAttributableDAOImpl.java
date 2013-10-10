@@ -36,7 +36,7 @@ import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.AttributableDAO;
 import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
@@ -149,7 +149,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
             if (!used.contains(identifiers.get(i))) {
 
                 // verify schema existence and get schema type
-                AbstractSchema schema = schemaDAO.find(identifiers.get(i), attrUtil.schemaClass());
+                AbstractNormalSchema schema = schemaDAO.find(identifiers.get(i), attrUtil.schemaClass());
                 if (schema == null) {
                     LOG.error("Invalid schema name '{}'", identifiers.get(i));
                     throw new InvalidSearchConditionException("Invalid schema name " + identifiers.get(i));
@@ -204,11 +204,13 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
 
     protected abstract <T extends AbstractAttributable> T findInternal(final Long id);
 
+    protected abstract TypedQuery<AbstractAttrValue> findByAttrValueQuery(final String entityName);
+
     @Override
     public <T extends AbstractAttributable> List<T> findByAttrValue(final String schemaName,
             final AbstractAttrValue attrValue, final AttributableUtil attrUtil) {
 
-        AbstractSchema schema = schemaDAO.find(schemaName, attrUtil.schemaClass());
+        AbstractNormalSchema schema = schemaDAO.find(schemaName, attrUtil.schemaClass());
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaName);
             return Collections.<T>emptyList();
@@ -218,14 +220,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
                 ? attrUtil.attrUniqueValueClass().getName()
                 : attrUtil.attrValueClass().getName();
 
-        TypedQuery<AbstractAttrValue> query = entityManager.createQuery("SELECT e FROM " + entityName + " e"
-                + " WHERE e.attribute.schema.name = :schemaName AND (e.stringValue IS NOT NULL"
-                + " AND e.stringValue = :stringValue)"
-                + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
-                + " OR (e.dateValue IS NOT NULL AND e.dateValue = :dateValue)"
-                + " OR (e.longValue IS NOT NULL AND e.longValue = :longValue)"
-                + " OR (e.doubleValue IS NOT NULL AND e.doubleValue = :doubleValue)",
-                AbstractAttrValue.class);
+        TypedQuery<AbstractAttrValue> query = findByAttrValueQuery(entityName);
 
         query.setParameter("schemaName", schemaName);
         query.setParameter("stringValue", attrValue.getStringValue());
@@ -255,7 +250,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
     public <T extends AbstractAttributable> AbstractAttributable findByAttrUniqueValue(final String schemaName,
             final AbstractAttrValue attrUniqueValue, final AttributableUtil attrUtil) {
 
-        AbstractSchema schema = schemaDAO.find(schemaName, attrUtil.schemaClass());
+        AbstractNormalSchema schema = schemaDAO.find(schemaName, attrUtil.schemaClass());
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaName);
             return null;

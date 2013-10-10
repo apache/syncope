@@ -67,9 +67,7 @@ public abstract class AbstractAttr extends AbstractBaseBean {
 
     public abstract <T extends AbstractAttributable> void setOwner(T owner);
 
-    public abstract <T extends AbstractSchema> T getSchema();
-
-    public abstract <T extends AbstractSchema> void setSchema(T schema);
+    public abstract <T extends AbstractNormalSchema> T getSchema();
 
     public abstract <T extends AbstractAttrValue> boolean addValue(T attrValue);
 

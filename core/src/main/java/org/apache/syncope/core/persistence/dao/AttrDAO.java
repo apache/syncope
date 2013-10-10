@@ -18,18 +18,11 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import java.util.List;
-
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
-import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 public interface AttrDAO extends DAO {
 
     <T extends AbstractAttr> T find(Long id, Class<T> reference);
-
-    <T extends AbstractAttr> List<T> findAll(Class<T> reference);
-
-    <T extends AbstractAttr> T save(T attribute) throws InvalidEntityException;
 
     <T extends AbstractAttr> void delete(Long id, Class<T> reference);
 

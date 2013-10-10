@@ -21,10 +21,10 @@ package org.apache.syncope.core.persistence.beans.role;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -32,7 +32,7 @@ import javax.validation.Valid;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
-import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 
 @Entity
 public class RAttr extends AbstractAttr {
@@ -45,9 +45,9 @@ public class RAttr extends AbstractAttr {
     @ManyToOne(fetch = FetchType.EAGER)
     private SyncopeRole owner;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "schema_name")
-    private RSchema schema;
+    @Column(nullable = false)
+    @OneToOne(cascade = CascadeType.MERGE)
+    private RAttrTemplate template;
 
     @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true, mappedBy = "attribute")
     @Valid
@@ -81,18 +81,18 @@ public class RAttr extends AbstractAttr {
         this.owner = (SyncopeRole) owner;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends AbstractSchema> T getSchema() {
-        return (T) schema;
+    public RAttrTemplate getTemplate() {
+        return template;
     }
 
+    public void setTemplate(final RAttrTemplate template) {
+        this.template = template;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractSchema> void setSchema(final T schema) {
-        if (!(schema instanceof RSchema)) {
-            throw new ClassCastException("schema is expected to be typed RSchema: " + schema.getClass().getName());
-        }
-        this.schema = (RSchema) schema;
+    public <T extends AbstractNormalSchema> T getSchema() {
+        return template == null ? null : (T) template.getSchema();
     }
 
     @Override

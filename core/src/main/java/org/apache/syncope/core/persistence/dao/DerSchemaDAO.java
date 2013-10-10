@@ -31,9 +31,9 @@ public interface DerSchemaDAO extends DAO {
 
     <T extends AbstractDerSchema> List<T> findAll(Class<T> reference);
 
-    <T extends AbstractDerSchema> T save(T derivedSchema) throws InvalidEntityException;
+    <T extends AbstractDerAttr> List<T> findAttrs(AbstractDerSchema schema, Class<T> reference);
 
-    <T extends AbstractDerAttr> List<T> getAttributes(AbstractDerSchema schema, Class<T> reference);
+    <T extends AbstractDerSchema> T save(T derivedSchema) throws InvalidEntityException;
 
     void delete(String name, AttributableUtil attributableUtil);
 }
