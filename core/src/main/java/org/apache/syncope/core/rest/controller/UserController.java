@@ -191,7 +191,8 @@ public class UserController {
         return result;
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() "
+            + "and not(hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT))")
     @Transactional(readOnly = true)
     public UserTO read() {
         UserTO userTO = binder.getAuthenticatedUserTO();

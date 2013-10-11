@@ -25,10 +25,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.security.AccessControlException;
 import java.util.List;
 import org.apache.http.HttpStatus;
 
 import org.apache.syncope.common.mod.UserMod;
+import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
@@ -46,6 +48,13 @@ import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class SchemaTestITCase extends AbstractTest {
+
+    private SchemaTO buildSchemaTO(final String name, final AttributeSchemaType type) {
+        SchemaTO schemaTO = new SchemaTO();
+        schemaTO.setName(name + getUUIDString());
+        schemaTO.setType(type);
+        return schemaTO;
+    }
 
     @Test
     public void create() {
@@ -283,10 +292,17 @@ public class SchemaTestITCase extends AbstractTest {
         }
     }
 
-    private SchemaTO buildSchemaTO(final String name, final AttributeSchemaType type) {
-        SchemaTO schemaTO = new SchemaTO();
-        schemaTO.setName(name + getUUIDString());
-        schemaTO.setType(type);
-        return schemaTO;
+    @Test
+    public void anonymous() {
+        SchemaService unauthenticated = clientFactory.create(null, null).getService(SchemaService.class);
+        try {
+            unauthenticated.list(AttributableType.USER, SchemaType.VIRTUAL);
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
+
+        SchemaService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(SchemaService.class);
+        assertFalse(anonymous.list(AttributableType.USER, SchemaType.VIRTUAL).isEmpty());
     }
 }

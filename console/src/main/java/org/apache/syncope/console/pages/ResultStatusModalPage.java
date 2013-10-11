@@ -37,6 +37,7 @@ import org.apache.syncope.common.to.PropagationStatusTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
+import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.StatusUtils;
@@ -55,6 +56,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Show user or role status after performing a successful operation.
@@ -64,6 +66,9 @@ public class ResultStatusModalPage extends BaseModalPage {
     private static final long serialVersionUID = 2646115294319713723L;
 
     private static final String IMG_STATUSES = "statuses/";
+
+    @SpringBean(name = "anonymousUser")
+    private String anonymousUser;
 
     private final AbstractAttributableTO attributable;
 
@@ -227,7 +232,6 @@ public class ResultStatusModalPage extends BaseModalPage {
                     });
                     failureWindow.setCookieName("failureWindow");
                     failureWindow.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-                    //attrhead.add(image);
                     failureWindowLink.add(image);
                     attrhead.add(failureWindowLink);
                     attrhead.add(failureWindow);
@@ -242,6 +246,9 @@ public class ResultStatusModalPage extends BaseModalPage {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
+                if (mode == UserModalPage.Mode.SELF && anonymousUser.equals(SyncopeSession.get().getUsername())) {
+                    SyncopeSession.get().invalidate();
+                }
                 builder.window.close(target);
             }
         };

@@ -77,6 +77,12 @@ public class Login extends WebPage {
     @SpringBean(name = "baseURL")
     private String baseURL;
 
+    @SpringBean(name = "anonymousUser")
+    private String anonymousUser;
+
+    @SpringBean(name = "anonymousKey")
+    private String anonymousKey;
+
     private Form<Void> form;
 
     private TextField<String> userIdField;
@@ -109,12 +115,11 @@ public class Login extends WebPage {
             @Override
             public void onSubmit() {
                 try {
-                    String[] entitlements = authenticate(userIdField.getRawInput(), passwordField.getRawInput());
+                    if (anonymousUser.equals(userIdField.getRawInput())) {
+                        throw new AccessControlException("Illegal username");
+                    }
 
-                    SyncopeSession.get().setUsername(userIdField.getRawInput());
-                    SyncopeSession.get().setPassword(passwordField.getRawInput());
-                    SyncopeSession.get().setEntitlements(entitlements);
-                    SyncopeSession.get().setVersion(getSyncopeVersion());
+                    authenticate(userIdField.getRawInput(), passwordField.getRawInput());
 
                     setResponsePage(WelcomePage.class, parameters);
                 } catch (AccessControlException e) {
@@ -153,8 +158,21 @@ public class Login extends WebPage {
 
                         @Override
                         public Page createPage() {
+                            // anonymous authentication needed for self-registration
+                            authenticate(anonymousUser, anonymousKey);
+
                             return new UserRequestModalPage(Login.this.getPageReference(), editProfileModalWin,
                                     new UserTO(), UserModalPage.Mode.SELF);
+                        }
+                    });
+
+                    editProfileModalWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+                        private static final long serialVersionUID = 251794406325329768L;
+
+                        @Override
+                        public void onClose(final AjaxRequestTarget target) {
+                            SyncopeSession.get().invalidate();
                         }
                     });
 
@@ -172,10 +190,14 @@ public class Login extends WebPage {
         add(selfRegFrag);
     }
 
-    private String[] authenticate(final String username, final String password) {
+    private void authenticate(final String username, final String password) {
         Set<EntitlementTO> entitlements = SyncopeSession.get().
                 getService(EntitlementService.class, username, password).getMyEntitlements();
-        return CollectionWrapper.unwrap(entitlements).toArray(new String[0]);
+
+        SyncopeSession.get().setUsername(username);
+        SyncopeSession.get().setPassword(password);
+        SyncopeSession.get().setEntitlements(CollectionWrapper.unwrap(entitlements).toArray(new String[0]));
+        SyncopeSession.get().setVersion(getSyncopeVersion());
     }
 
     private boolean isSelfRegistrationAllowed() {

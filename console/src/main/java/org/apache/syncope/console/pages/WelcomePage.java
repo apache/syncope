@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.console.SyncopeApplication;
 import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -34,15 +35,21 @@ public class WelcomePage extends WebPage {
     @SpringBean
     private XMLRolesReader xmlRolesReader;
 
+    @SpringBean
+    protected UserRestClient userRestClient;
+
     public WelcomePage(final PageParameters parameters) {
         super(parameters);
         setupNavigationPanel();
-
-
+        setupEditProfileModal();
     }
 
     //To prevent warning: "leaking this in constructor java" 
     private void setupNavigationPanel() {
         ((SyncopeApplication) getApplication()).setupNavigationPanel(this, xmlRolesReader, false);
+    }
+
+    private void setupEditProfileModal() {
+        ((SyncopeApplication) getApplication()).setupEditProfileModal(this, userRestClient);
     }
 }

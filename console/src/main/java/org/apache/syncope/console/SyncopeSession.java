@@ -24,7 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.client.SyncopeClientFactoryBean;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
@@ -54,7 +55,7 @@ public class SyncopeSession extends WebSession {
 
     private final SyncopeClientFactoryBean clientFactory;
 
-    private final Map<Class<?>, Object> restServices = new HashMap<Class<?>, Object>();
+    private final Map<Integer, SyncopeClient> clients = new HashMap<Integer, SyncopeClient>();
 
     public static SyncopeSession get() {
         return (SyncopeSession) Session.get();
@@ -73,19 +74,17 @@ public class SyncopeSession extends WebSession {
         return getService(service, this.username, this.password);
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T getService(final Class<T> serviceClass, final String username, final String password) {
-        T res;
-        if (restServices.containsKey(serviceClass)) {
-            res = (T) restServices.get(serviceClass);
-        } else {
-            res = clientFactory.create(username, password).getService(serviceClass);
-            if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
-                restServices.put(serviceClass, res);
-            }
+        final int clientKey = new HashCodeBuilder().
+                append(username).
+                append(password).
+                toHashCode();
+
+        if (!clients.containsKey(clientKey)) {
+            clients.put(clientKey, clientFactory.create(username, password));
         }
 
-        return res;
+        return clients.get(clientKey).getService(serviceClass);
     }
 
     public String getUsername() {

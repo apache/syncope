@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Resource;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.types.AccountPolicySpec;
 import org.apache.syncope.common.types.EntityViolationType;
@@ -32,11 +33,18 @@ import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.policy.AccountPolicyEnforcer;
+import org.apache.syncope.core.policy.AccountPolicyException;
 import org.apache.syncope.core.policy.PasswordPolicyEnforcer;
 import org.apache.syncope.core.policy.PolicyEvaluator;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class SyncopeUserValidator extends AbstractValidator<SyncopeUserCheck, SyncopeUser> {
+
+    @Resource(name = "adminUser")
+    private String adminUser;
+
+    @Resource(name = "anonymousUser")
+    private String anonymousUser;
 
     @Autowired
     private PolicyDAO policyDAO;
@@ -51,7 +59,7 @@ public class SyncopeUserValidator extends AbstractValidator<SyncopeUserCheck, Sy
     private AccountPolicyEnforcer apEnforcer;
 
     @Override
-    public boolean isValid(final SyncopeUser object, final ConstraintValidatorContext context) {
+    public boolean isValid(final SyncopeUser user, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
         // ------------------------------
@@ -59,14 +67,14 @@ public class SyncopeUserValidator extends AbstractValidator<SyncopeUserCheck, Sy
         // ------------------------------
         LOG.debug("Password Policy enforcement");
 
-        if (object.getClearPassword() != null) {
+        if (user.getClearPassword() != null) {
             try {
                 int maxPPSpecHistory = 0;
-                for (Policy policy : getPasswordPolicies(object)) {
+                for (Policy policy : getPasswordPolicies(user)) {
                     // evaluate policy
-                    final PasswordPolicySpec ppSpec = evaluator.evaluate(policy, object);
+                    final PasswordPolicySpec ppSpec = evaluator.evaluate(policy, user);
                     // enforce policy
-                    ppEnforcer.enforce(ppSpec, policy.getType(), object.getClearPassword());
+                    ppEnforcer.enforce(ppSpec, policy.getType(), user.getClearPassword());
 
                     if (ppSpec.getHistoryLength() > maxPPSpecHistory) {
                         maxPPSpecHistory = ppSpec.getHistoryLength();
@@ -74,13 +82,13 @@ public class SyncopeUserValidator extends AbstractValidator<SyncopeUserCheck, Sy
                 }
 
                 // update user's password history with encrypted password
-                if (maxPPSpecHistory > 0 && object.getPassword() != null) {
-                    object.getPasswordHistory().add(object.getPassword());
+                if (maxPPSpecHistory > 0 && user.getPassword() != null) {
+                    user.getPasswordHistory().add(user.getPassword());
                 }
                 // keep only the last maxPPSpecHistory items in user's password history
-                if (maxPPSpecHistory < object.getPasswordHistory().size()) {
-                    for (int i = 0; i < object.getPasswordHistory().size() - maxPPSpecHistory; i++) {
-                        object.getPasswordHistory().remove(i);
+                if (maxPPSpecHistory < user.getPasswordHistory().size()) {
+                    for (int i = 0; i < user.getPasswordHistory().size() - maxPPSpecHistory; i++) {
+                        user.getPasswordHistory().remove(i);
                     }
                 }
             } catch (Exception e) {
@@ -93,7 +101,7 @@ public class SyncopeUserValidator extends AbstractValidator<SyncopeUserCheck, Sy
                 return false;
             } finally {
                 // password has been validated, let's remove its clear version
-                object.removeClearPassword();
+                user.removeClearPassword();
             }
         }
         // ------------------------------
@@ -104,13 +112,17 @@ public class SyncopeUserValidator extends AbstractValidator<SyncopeUserCheck, Sy
         LOG.debug("Account Policy enforcement");
 
         try {
-            // missing username
-            for (Policy policy : getAccountPolicies(object)) {
+            if (adminUser.equals(user.getUsername()) || anonymousUser.equals(user.getUsername())) {
+                throw new AccountPolicyException("Not allowed: " + user.getUsername());
+            }
+
+            // invalid username
+            for (Policy policy : getAccountPolicies(user)) {
                 // evaluate policy
-                final AccountPolicySpec accountPolicy = evaluator.evaluate(policy, object);
+                final AccountPolicySpec accountPolicy = evaluator.evaluate(policy, user);
 
                 // enforce policy
-                apEnforcer.enforce(accountPolicy, policy.getType(), object);
+                apEnforcer.enforce(accountPolicy, policy.getType(), user);
             }
         } catch (Exception e) {
             LOG.debug("Invalid username");

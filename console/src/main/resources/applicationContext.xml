@@ -55,6 +55,13 @@ under the License.
   <bean id="license" class="java.lang.String">
     <constructor-arg value="${licenseUrl}"/>
   </bean>
+  
+  <bean id="anonymousUser" class="java.lang.String">
+    <constructor-arg value="${anonymousUser}"/>
+  </bean>
+  <bean id="anonymousKey" class="java.lang.String">
+    <constructor-arg value="${anonymousKey}"/>
+  </bean>
 
   <bean id="syncopeApplication" class="org.apache.syncope.console.SyncopeApplication"/>
 

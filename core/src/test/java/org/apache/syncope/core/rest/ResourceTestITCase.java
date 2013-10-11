@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.security.AccessControlException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -54,6 +55,40 @@ import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class ResourceTestITCase extends AbstractTest {
+
+    private ResourceTO buildResourceTO(final String resourceName) {
+        ResourceTO resourceTO = new ResourceTO();
+
+        resourceTO.setName(resourceName);
+        resourceTO.setConnectorId(102L);
+
+        MappingTO mapping = new MappingTO();
+
+        MappingItemTO item = new MappingItemTO();
+        item.setExtAttrName("uid");
+        item.setIntAttrName("userId");
+        item.setIntMappingType(IntMappingType.UserSchema);
+        item.setPurpose(MappingPurpose.BOTH);
+        mapping.addItem(item);
+
+        item = new MappingItemTO();
+        item.setExtAttrName("username");
+        item.setIntAttrName("fullname");
+        item.setIntMappingType(IntMappingType.UserId);
+        item.setPurpose(MappingPurpose.BOTH);
+        mapping.setAccountIdItem(item);
+
+        item = new MappingItemTO();
+        item.setExtAttrName("fullname");
+        item.setIntAttrName("cn");
+        item.setIntMappingType(IntMappingType.UserSchema);
+        item.setAccountid(false);
+        item.setPurpose(MappingPurpose.BOTH);
+        mapping.addItem(item);
+
+        resourceTO.setUmapping(mapping);
+        return resourceTO;
+    }
 
     @Test
     public void getPropagationActionsClasses() {
@@ -502,37 +537,18 @@ public class ResourceTestITCase extends AbstractTest {
         }
     }
 
-    private ResourceTO buildResourceTO(final String resourceName) {
-        ResourceTO resourceTO = new ResourceTO();
+    @Test
+    public void anonymous() {
+        ResourceService unauthenticated = clientFactory.create(null, null).getService(ResourceService.class);
+        try {
+            unauthenticated.list();
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
 
-        resourceTO.setName(resourceName);
-        resourceTO.setConnectorId(102L);
-
-        MappingTO mapping = new MappingTO();
-
-        MappingItemTO item = new MappingItemTO();
-        item.setExtAttrName("uid");
-        item.setIntAttrName("userId");
-        item.setIntMappingType(IntMappingType.UserSchema);
-        item.setPurpose(MappingPurpose.BOTH);
-        mapping.addItem(item);
-
-        item = new MappingItemTO();
-        item.setExtAttrName("username");
-        item.setIntAttrName("fullname");
-        item.setIntMappingType(IntMappingType.UserId);
-        item.setPurpose(MappingPurpose.BOTH);
-        mapping.setAccountIdItem(item);
-
-        item = new MappingItemTO();
-        item.setExtAttrName("fullname");
-        item.setIntAttrName("cn");
-        item.setIntMappingType(IntMappingType.UserSchema);
-        item.setAccountid(false);
-        item.setPurpose(MappingPurpose.BOTH);
-        mapping.addItem(item);
-
-        resourceTO.setUmapping(mapping);
-        return resourceTO;
+        ResourceService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).
+                getService(ResourceService.class);
+        assertFalse(anonymous.list().isEmpty());
     }
 }

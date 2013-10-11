@@ -19,6 +19,7 @@
 package org.apache.syncope.console;
 
 import java.io.Serializable;
+import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.Configuration;
@@ -31,8 +32,11 @@ import org.apache.syncope.console.pages.Roles;
 import org.apache.syncope.console.pages.Schema;
 import org.apache.syncope.console.pages.Tasks;
 import org.apache.syncope.console.pages.Todo;
+import org.apache.syncope.console.pages.UserModalPage;
+import org.apache.syncope.console.pages.UserRequestModalPage;
 import org.apache.syncope.console.pages.Users;
 import org.apache.syncope.console.pages.WelcomePage;
+import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.RestartResponseAtInterceptPageException;
@@ -46,6 +50,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.RoleAuthorizati
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -61,11 +66,15 @@ public class SyncopeApplication
         extends WebApplication
         implements IUnauthorizedComponentInstantiationListener, IRoleCheckingStrategy, Serializable {
 
+    private static final long serialVersionUID = -2920378752291913495L;
+
     public static final String IMG_PREFIX = "/img/menu/";
 
     public static final String IMG_NOTSEL = "notsel/";
 
-    private static final long serialVersionUID = -2920378752291913495L;
+    private final static int EDIT_PROFILE_WIN_HEIGHT = 550;
+
+    private final static int EDIT_PROFILE_WIN_WIDTH = 800;
 
     @Override
     protected void init() {
@@ -113,45 +122,48 @@ public class SyncopeApplication
         page.add(infoLink);
 
         BookmarkablePageLink<Void> schemaLink = new BookmarkablePageLink<Void>("schema", Schema.class);
-        MetaDataRoleAuthorizationStrategy.authorizeAll(schemaLink, WebPage.ENABLE);
+        MetaDataRoleAuthorizationStrategy.authorize(
+                schemaLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Schema", "list"));
         page.add(schemaLink);
         schemaLink.add(new Image("schemaIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
                 : "") + "schema" + Constants.PNG_EXT)));
 
         BookmarkablePageLink<Void> usersLink = new BookmarkablePageLink<Void>("users", Users.class);
-        String allowedUsersRoles = xmlRolesReader.getAllAllowedRoles("Users", "list");
-        MetaDataRoleAuthorizationStrategy.authorize(usersLink, WebPage.ENABLE, allowedUsersRoles);
+        MetaDataRoleAuthorizationStrategy.authorize(
+                usersLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "list"));
         page.add(usersLink);
         usersLink.add(new Image("usersIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
                 : "") + "users" + Constants.PNG_EXT)));
 
         BookmarkablePageLink<Void> rolesLink = new BookmarkablePageLink<Void>("roles", Roles.class);
-        MetaDataRoleAuthorizationStrategy.authorizeAll(rolesLink, WebPage.ENABLE);
+        MetaDataRoleAuthorizationStrategy.authorize(
+                rolesLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Roles", "list"));
         page.add(rolesLink);
         rolesLink.add(new Image("rolesIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
                 : "") + "roles" + Constants.PNG_EXT)));
 
         BookmarkablePageLink<Void> resourcesLink = new BookmarkablePageLink<Void>("resources", Resources.class);
-        MetaDataRoleAuthorizationStrategy.authorizeAll(resourcesLink, WebPage.ENABLE);
+        MetaDataRoleAuthorizationStrategy.authorize(
+                resourcesLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Resources", "list"));
         page.add(resourcesLink);
         resourcesLink.add(new Image("resourcesIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
                 : "") + "resources" + Constants.PNG_EXT)));
 
         BookmarkablePageLink<Void> todoLink = new BookmarkablePageLink<Void>("todo", Todo.class);
-        MetaDataRoleAuthorizationStrategy.authorize(todoLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles(
-                "Approval", "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(
+                todoLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Approval", "list"));
         page.add(todoLink);
         todoLink.add(new Image("todoIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
                 : "") + "todo" + Constants.PNG_EXT)));
 
         BookmarkablePageLink<Void> reportLink = new BookmarkablePageLink<Void>("reports", Reports.class);
-        String allowedReportRoles = xmlRolesReader.getAllAllowedRoles("Reports", "list");
-        MetaDataRoleAuthorizationStrategy.authorize(reportLink, WebPage.ENABLE, allowedReportRoles);
+        MetaDataRoleAuthorizationStrategy.authorize(
+                reportLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Reports", "list"));
         page.add(reportLink);
         reportLink.add(new Image("reportsIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
@@ -159,22 +171,65 @@ public class SyncopeApplication
 
         BookmarkablePageLink<Void> configurationLink = new BookmarkablePageLink<Void>("configuration",
                 Configuration.class);
-        String allowedConfigurationRoles = xmlRolesReader.getAllAllowedRoles("Configuration", "list");
-        MetaDataRoleAuthorizationStrategy.authorize(configurationLink, WebPage.ENABLE, allowedConfigurationRoles);
+        MetaDataRoleAuthorizationStrategy.authorize(
+                configurationLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Configuration", "list"));
         page.add(configurationLink);
         configurationLink.add(new Image("configurationIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
                 : "") + "configuration" + Constants.PNG_EXT)));
 
         BookmarkablePageLink<Void> taskLink = new BookmarkablePageLink<Void>("tasks", Tasks.class);
-        String allowedTasksRoles = xmlRolesReader.getAllAllowedRoles("Tasks", "list");
-        MetaDataRoleAuthorizationStrategy.authorize(taskLink, WebPage.ENABLE, allowedTasksRoles);
+        MetaDataRoleAuthorizationStrategy.authorize(
+                taskLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Tasks", "list"));
         page.add(taskLink);
         taskLink.add(new Image("tasksIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
                 : "") + "tasks" + Constants.PNG_EXT)));
 
         page.add(new BookmarkablePageLink<Void>("logout", Logout.class));
+    }
+
+    public void setupEditProfileModal(final WebPage page, final UserRestClient userRestClient) {
+        // Modal window for editing user profile
+        final ModalWindow editProfileModalWin = new ModalWindow("editProfileModal");
+        editProfileModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editProfileModalWin.setInitialHeight(EDIT_PROFILE_WIN_HEIGHT);
+        editProfileModalWin.setInitialWidth(EDIT_PROFILE_WIN_WIDTH);
+        editProfileModalWin.setCookieName("edit-profile-modal");
+        page.add(editProfileModalWin);
+
+        final AjaxLink<Void> editProfileLink = new AjaxLink<Void>("editProfileLink") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                final UserTO userTO = SyncopeSession.get().isAuthenticated()
+                        ? userRestClient.readSelf()
+                        : new UserTO();
+
+                editProfileModalWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID = -7834632442532690940L;
+
+                    @Override
+                    public Page createPage() {
+                        return new UserRequestModalPage(page.getPageReference(), editProfileModalWin,
+                                userTO, UserModalPage.Mode.SELF);
+                    }
+                });
+
+                editProfileModalWin.show(target);
+            }
+        };
+
+        editProfileLink.add(new Label("username", SyncopeSession.get().getUsername()));
+
+        if ("admin".equals(SyncopeSession.get().getUsername())) {
+            editProfileLink.setEnabled(false);
+        }
+
+        page.add(editProfileLink);
     }
 
     @Override

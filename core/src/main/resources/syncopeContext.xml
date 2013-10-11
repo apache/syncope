@@ -43,6 +43,9 @@ under the License.
   <bean id="adminUser" class="java.lang.String">
     <constructor-arg value="${adminUser}"/>
   </bean>
+  <bean id="anonymousUser" class="java.lang.String">
+    <constructor-arg value="${anonymousUser}"/>
+  </bean>
 
   <bean class="org.apache.syncope.core.util.ApplicationContextProvider"/>
 

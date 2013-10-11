@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.console;
 
+import java.security.AccessControlException;
+import javax.ws.rs.BadRequestException;
+import javax.xml.ws.WebServiceException;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.console.pages.ErrorPage;
 import org.apache.wicket.Page;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
@@ -31,8 +35,6 @@ import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
 
 public class SyncopeRequestCycleListener extends AbstractRequestCycleListener {
 
@@ -46,7 +48,6 @@ public class SyncopeRequestCycleListener extends AbstractRequestCycleListener {
      */
     @Override
     public IRequestHandler onException(final RequestCycle cycle, final Exception e) {
-
         LOG.error("Exception found", e);
 
         final Page errorPage;
@@ -54,21 +55,20 @@ public class SyncopeRequestCycleListener extends AbstractRequestCycleListener {
         errorParameters.add("errorTitle", new StringResourceModel("alert", null).getString());
 
         if (e instanceof UnauthorizedInstantiationException) {
-            errorParameters.add("errorMessage", new StringResourceModel("unauthorizedInstantiationException", null)
-                    .getString());
+            errorParameters.add("errorMessage",
+                    new StringResourceModel("unauthorizedInstantiationException", null).getString());
 
             errorPage = new ErrorPage(errorParameters);
-        } else if (e instanceof HttpClientErrorException) {
-            errorParameters.add("errorMessage", new StringResourceModel("httpClientException", null).getString());
+        } else if (e.getCause() instanceof AccessControlException) {
+            errorParameters.add("errorMessage", new StringResourceModel("accessControlException", null).getString());
 
             errorPage = new ErrorPage(errorParameters);
         } else if (e instanceof PageExpiredException || !(SyncopeSession.get()).isAuthenticated()) {
-
             errorParameters.add("errorMessage", new StringResourceModel("pageExpiredException", null).getString());
 
             errorPage = new ErrorPage(errorParameters);
-        } else if (e.getCause() != null && e.getCause().getCause() != null
-                && e.getCause().getCause() instanceof RestClientException) {
+        } else if (e.getCause() instanceof BadRequestException || e.getCause() instanceof WebServiceException
+                || e.getCause() instanceof SyncopeClientCompositeException) {
 
             errorParameters.add("errorMessage", new StringResourceModel("restClientException", null).getString());
 

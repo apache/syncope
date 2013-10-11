@@ -74,6 +74,9 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     @Resource(name = "adminUser")
     private String adminUser;
 
+    @Resource(name = "anonymousUser")
+    private String anonymousUser;
+
     @Transactional(readOnly = true)
     public SyncopeUser getUserFromId(final Long userId) {
         if (userId == null) {
@@ -102,7 +105,11 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         final UserTO authUserTO;
 
         final String authUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (adminUser.equals(authUsername)) {
+        if (anonymousUser.equals(authUsername)) {
+            authUserTO = new UserTO();
+            authUserTO.setId(-2);
+            authUserTO.setUsername(anonymousUser);
+        } else if (adminUser.equals(authUsername)) {
             authUserTO = new UserTO();
             authUserTO.setId(-1);
             authUserTO.setUsername(adminUser);

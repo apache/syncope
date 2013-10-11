@@ -507,4 +507,18 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(roleTO);
         assertTrue(roleTO.getAttrMap().containsKey(badge.getName()));
     }
+
+    @Test
+    public void anonymous() {
+        RoleService unauthenticated = clientFactory.create(null, null).getService(RoleService.class);
+        try {
+            unauthenticated.list();
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
+
+        RoleService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(RoleService.class);
+        assertFalse(anonymous.list().isEmpty());
+    }
 }

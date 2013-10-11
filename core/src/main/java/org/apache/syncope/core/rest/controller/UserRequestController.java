@@ -80,6 +80,7 @@ public class UserRequestController {
         return Boolean.valueOf(createRequestAllowed.getValue());
     }
 
+    @PreAuthorize("isAuthenticated()")
     public UserRequestTO create(final UserTO userTO) {
         if (!isCreateAllowed()) {
             LOG.error("Create requests are not allowed");
@@ -107,7 +108,8 @@ public class UserRequestController {
         return binder.getUserRequestTO(request);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() "
+            + "and not(hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT))")
     public UserRequestTO update(final UserMod userMod) {
         LOG.debug("Request user update called with {}", userMod);
 
@@ -129,7 +131,8 @@ public class UserRequestController {
         return binder.getUserRequestTO(request);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() "
+            + "and not(hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT))")
     public UserRequestTO delete(final Long userId) {
         LOG.debug("Request user delete called with {}", userId);
 
@@ -182,6 +185,8 @@ public class UserRequestController {
         return result;
     }
 
+    @PreAuthorize("hasRole('USER_REQUEST_LIST')")
+    @Transactional(readOnly = true)
     public List<UserRequestTO> listByUsername(final String username) {
         List<UserRequestTO> result = new ArrayList<UserRequestTO>();
 

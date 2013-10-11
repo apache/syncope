@@ -369,7 +369,9 @@ under the License.
         
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     
-    <!-- static secret key, only used for build: generated overlays will override this during archetype:generate -->
+    <anonymousUser>anonymous</anonymousUser>
+    <!-- static keys, only used for build: generated overlays will override during archetype:generate -->
+    <anonymousKey>anonymousKey</anonymousKey>
     <secretKey>1abcdefghilmnopqrstuvz2!</secretKey>
   </properties>
 

@@ -192,6 +192,7 @@ public class ResourceController extends AbstractController {
         return actionsClasses;
     }
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<ResourceTO> list(final Long connInstanceId) {
         List<ExternalResource> resources;

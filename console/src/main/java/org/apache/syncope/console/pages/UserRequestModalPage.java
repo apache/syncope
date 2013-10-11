@@ -37,7 +37,7 @@ public class UserRequestModalPage extends UserModalPage {
     private static final long serialVersionUID = 603212869211672852L;
 
     @SpringBean
-    private UserRequestRestClient requestRestClient;
+    private UserRequestRestClient restClient;
 
     private UserTO initialUserTO;
 
@@ -83,11 +83,11 @@ public class UserRequestModalPage extends UserModalPage {
         if (updatedUserTO.getId() == 0) {
             switch (mode) {
                 case SELF:
-                    requestRestClient.requestCreate(updatedUserTO);
+                    restClient.requestCreate(updatedUserTO);
                     break;
 
                 case ADMIN:
-                    requestRestClient.executeCreate(userRequestTO.getId(), userTO);
+                    restClient.executeCreate(userRequestTO.getId(), userTO);
                     break;
 
                 default:
@@ -95,7 +95,7 @@ public class UserRequestModalPage extends UserModalPage {
             }
         } else {
             final UserTO originalUserTO = mode == Mode.SELF
-                    ? userRestClient.read(updatedUserTO.getUsername())
+                    ? userRestClient.readSelf()
                     : userRestClient.read(updatedUserTO.getId());
             final UserMod userMod = AttributableOperations.diff(updatedUserTO, originalUserTO);
 
@@ -103,11 +103,11 @@ public class UserRequestModalPage extends UserModalPage {
             if (!userMod.isEmpty()) {
                 switch (mode) {
                     case SELF:
-                        requestRestClient.requestUpdate(userMod);
+                        restClient.requestUpdate(userMod);
                         break;
 
                     case ADMIN:
-                        requestRestClient.executeUpdate(userRequestTO.getId(), userMod);
+                        restClient.executeUpdate(userRequestTO.getId(), userMod);
                         break;
 
                     default:

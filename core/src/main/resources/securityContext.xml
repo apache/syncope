@@ -52,6 +52,7 @@ under the License.
         class="org.apache.syncope.core.security.SyncopeAuthenticationProvider">
     <property name="adminPassword" value="${adminPassword}"/>
     <property name="adminPasswordAlgorithm" value="${adminPasswordAlgorithm}"/>
+    <property name="anonymousKey" value="anonymousKey"/>
     <property name="syncopeUserDetailsService" ref="syncopeUserDetailsService"/>
   </bean>
 

@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Resource;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
@@ -91,20 +92,21 @@ public class RoleController {
     @Autowired
     private PropagationTaskExecutor taskExecutor;
 
-    /**
-     * ConnectorObject util.
-     */
     @Autowired
     private ConnObjectUtil connObjectUtil;
 
-    @PreAuthorize("hasRole('ROLE_READ')")
+    @Resource(name = "anonymousUser")
+    private String anonymousUser;
+
+    @PreAuthorize("hasAnyRole('ROLE_READ', T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
     @Transactional(readOnly = true)
     public RoleTO read(final Long roleId) {
-        SyncopeRole role = binder.getRoleFromId(roleId);
-
-        Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-        if (!allowedRoleIds.contains(role.getId())) {
-            throw new UnauthorizedRoleException(role.getId());
+        SyncopeRole role;
+        // bypass role entitlements check
+        if (anonymousUser.equals(EntitlementUtil.getAuthenticatedUsername())) {
+            role = roleDAO.find(roleId);
+        } else {
+            role = binder.getRoleFromId(roleId);
         }
 
         auditManager.audit(Category.role, RoleSubCategory.read, Result.success,
@@ -113,7 +115,8 @@ public class RoleController {
         return binder.getRoleTO(role);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() "
+            + "and not(hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT))")
     @Transactional(readOnly = true)
     public RoleTO selfRead(final Long roleId) {
         // Explicit search instead of using binder.getRoleFromId() in order to bypass auth checks - will do here
@@ -234,6 +237,7 @@ public class RoleController {
         return searchDAO.count(adminRoleIds, searchCondition, AttributableUtil.getInstance(AttributableType.ROLE));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<RoleTO> list() {
         List<SyncopeRole> roles = roleDAO.findAll();

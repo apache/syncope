@@ -40,8 +40,19 @@ under the License.
   <body style="text-align:center">
     <div id="splash">
       <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
-      <div wicket:id="infoModal"/>
-      <a style="position: relative; top: 20px; left: -103px;" wicket:id="infoLink"><img src="img/info.png" alt="info" title="info"/></a>
+      <div style="display: table-row;">
+        <div id="username" style="padding-right: 5px;cursor: pointer;display: table-cell;">          
+          <a href="#" wicket:id="editProfileLink" style="font-family: monospace;padding-left: 130px;">
+            <span style="color: #B9CFB3;"><wicket:message key="welcome"/>,
+              <span wicket:id="username" style="color: #B9CFB3;text-decoration: underline;"/>
+            </span>
+          </a>
+        </div>
+        <div>
+          <div wicket:id="infoModal"/>
+          <a wicket:id="infoLink"><img src="img/info.png" alt="info" style="padding-right: 10px;"/></a>
+        </div>
+      </div>
       <ul>
         <li><a href="#" wicket:id="todo" class="todo"><img wicket:id="todoIcon" alt="TODO" width="80" height="80" /><br /><wicket:message key="todo"/></a></li>
         <li><a href="#" wicket:id="schema" class="schema"><img wicket:id="schemaIcon" alt="Schema" width="80" height="80" /><br /><wicket:message key="schema"/></a></li>
@@ -54,5 +65,6 @@ under the License.
         <li><a href="#" wicket:id="logout" class="logout"><img src="img/menu/logout.png" alt="Logout" width="80" height="80" /><br /><wicket:message key="logout"/></a></li>
       </ul>
     </div>
+    <div wicket:id="editProfileModal"></div>
   </body>
 </html>

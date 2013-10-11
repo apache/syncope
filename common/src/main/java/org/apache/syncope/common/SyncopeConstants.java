@@ -20,7 +20,9 @@ package org.apache.syncope.common;
 
 public class SyncopeConstants {
 
-    public static final String ANONYMOUS_USER = "anonymous";
+    public static final String UNAUTHENTICATED = "unauthenticated";
+
+    public static final String ANONYMOUS_ENTITLEMENT = "anonymous";
 
     public static final String ENUM_VALUES_SEPARATOR = ";";
 

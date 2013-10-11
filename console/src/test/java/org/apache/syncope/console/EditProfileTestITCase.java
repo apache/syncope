@@ -40,10 +40,11 @@ public class EditProfileTestITCase extends AbstractTest {
         selenium.click("css=a.w_close");
 
         // only to have some "Logout" availabe for @After
-        selenium.type("name=userId", "rossini");
-        selenium.type("name=password", "password");
+        selenium.open("/syncope-console/");
+        selenium.waitForPageToLoad("30000");
+        selenium.type("name=userId", ADMIN);
+        selenium.type("name=password", PASSWORD);
         selenium.click("name=:submit");
-
         selenium.waitForPageToLoad("30000");
     }
 
@@ -53,12 +54,9 @@ public class EditProfileTestITCase extends AbstractTest {
         selenium.type("name=userId", "rossini");
         selenium.type("name=password", "password");
         selenium.click("name=:submit");
-        selenium.waitForPageToLoad("30000");
 
-        selenium.click("css=img[alt=\"Schema\"]");
-        selenium.waitForPageToLoad("30000");
-
-        selenium.click("//div/ul/li[10]/div/div/a/span");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='username']/a\");", "30000");
+        selenium.click("//div[@id='username']/a");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//span[contains(text(),'Attributes')]\");", "30000");
         selenium.waitForCondition("selenium.isElementPresent(\"//input[@value='rossini']\");", "30000");

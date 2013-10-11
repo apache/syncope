@@ -68,16 +68,15 @@ public class UserDetailsPanel extends Panel {
         // ------------------------
         // Password
         // ------------------------
-        FieldPanel<String> password;
-        Label confirmPasswordLabel = new Label("confirmPasswordLabel", new ResourceModel("confirmPassword"));
-        FieldPanel<String> confirmPassword;
-
         final WebMarkupContainer pwdJexlHelp = JexlHelpUtil.getJexlHelpWebContainer("pwdJexlHelp");
         add(pwdJexlHelp);
 
         final AjaxLink<?> pwdQuestionMarkJexlHelp = JexlHelpUtil.getAjaxLink(pwdJexlHelp, "pwdQuestionMarkJexlHelp");
         add(pwdQuestionMarkJexlHelp);
 
+        FieldPanel<String> password;
+        Label confirmPasswordLabel = new Label("confirmPasswordLabel", new ResourceModel("confirmPassword"));
+        FieldPanel<String> confirmPassword;
         if (templateMode) {
             password = new AjaxTextFieldPanel("password", "password", new PropertyModel<String>(userTO, "password"));
 

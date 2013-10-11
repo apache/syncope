@@ -94,7 +94,7 @@ public class UserRestClient extends AbstractAttributableRestClient {
         return userTO;
     }
 
-    public UserTO readProfile() {
+    public UserTO readSelf() {
         return getService(UserService.class).readSelf();
     }
 

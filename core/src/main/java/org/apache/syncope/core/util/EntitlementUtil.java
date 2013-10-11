@@ -23,11 +23,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-import org.apache.syncope.common.SyncopeConstants;
 
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.core.persistence.beans.Entitlement;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -46,7 +48,7 @@ public final class EntitlementUtil {
 
     public static String getAuthenticatedUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication == null ? SyncopeConstants.ANONYMOUS_USER : authentication.getName();
+        return authentication == null ? SyncopeConstants.UNAUTHENTICATED : authentication.getName();
     }
 
     public static Set<String> getOwnedEntitlementNames() {
@@ -76,7 +78,7 @@ public final class EntitlementUtil {
 
         if (isRoleEntitlement(entitlementName)) {
             try {
-                result = Long.valueOf(entitlementName.substring(entitlementName.indexOf("_") + 1));
+                result = Long.valueOf(entitlementName.substring(entitlementName.indexOf('_') + 1));
             } catch (Exception e) {
                 LOG.error("unable to parse {} to Long", entitlementName, e);
             }

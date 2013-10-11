@@ -169,6 +169,7 @@ public class SchemaController extends AbstractController {
                 "Successfully deleted schema: " + schemaType + "/" + attrType + "/" + schemaName);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @SuppressWarnings("unchecked")
     public <T extends AbstractSchemaTO> List<T> list(final AttributableType attrType, final SchemaType schemaType) {
         final AttributableUtil attrUtil = AttributableUtil.getInstance(attrType);

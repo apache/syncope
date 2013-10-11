@@ -16,10 +16,13 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
 <auth>
   <page id="Schema">
+    <action id="list">
+      <entitlement>SCHEMA_LIST</entitlement>
+    </action>
+
     <action id="create">
       <entitlement>SCHEMA_CREATE</entitlement>
     </action>
@@ -64,6 +67,10 @@ under the License.
   </page>
 
   <page id="Roles">
+    <action id="list">
+      <entitlement>ROLE_LIST</entitlement>
+    </action>
+
     <action id="create">
       <entitlement>ROLE_CREATE</entitlement>
     </action>
@@ -82,6 +89,10 @@ under the License.
   </page>
 
   <page id="Resources">
+    <action id="list">
+      <entitlement>RESOURCE_LIST</entitlement>
+    </action>
+
     <action id="create">
       <entitlement>RESOURCE_CREATE</entitlement>
     </action>

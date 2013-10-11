@@ -18,13 +18,17 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.sql.DataSource;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.apache.http.HttpStatus;
@@ -54,6 +58,7 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.core.util.PasswordEncoder;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -79,12 +84,13 @@ public abstract class AbstractTest {
 
     private static final String ENV_KEY_CONTENT_TYPE = "jaxrsContentType";
 
-    protected static SyncopeClientFactoryBean clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS);
+    protected static final SyncopeClientFactoryBean clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS);
+
+    protected static String ANONYMOUS_UNAME;
+
+    protected static String ANONYMOUS_KEY;
 
     protected static SyncopeClient adminClient;
-
-    @Autowired
-    protected DataSource testDataSource;
 
     protected static UserService userService;
 
@@ -116,8 +122,31 @@ public abstract class AbstractTest {
 
     protected static PolicyService policyService;
 
+    @Autowired
+    protected DataSource testDataSource;
+
     @BeforeClass
-    public static void setup() {
+    public static void securitySetup() {
+        InputStream propStream = null;
+        try {
+            propStream = PasswordEncoder.class.getResourceAsStream("/security.properties");
+            Properties props = new Properties();
+            props.load(propStream);
+
+            ANONYMOUS_UNAME = props.getProperty("anonymousUser");
+            ANONYMOUS_KEY = props.getProperty("anonymousKey");
+        } catch (Exception e) {
+            LOG.error("Could not read secretKey", e);
+        } finally {
+            IOUtils.closeQuietly(propStream);
+        }
+
+        assertNotNull(ANONYMOUS_UNAME);
+        assertNotNull(ANONYMOUS_KEY);
+    }
+
+    @BeforeClass
+    public static void restSetup() {
         final String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
         if (StringUtils.isNotBlank(envContentType)) {
             clientFactory.getRestClientFactoryBean().setContentType(envContentType);

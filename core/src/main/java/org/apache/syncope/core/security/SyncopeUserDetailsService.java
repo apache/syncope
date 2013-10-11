@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Resource;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -53,10 +54,15 @@ public class SyncopeUserDetailsService implements UserDetailsService {
     @Resource(name = "adminUser")
     private String adminUser;
 
+    @Resource(name = "anonymousUser")
+    private String anonymousUser;
+
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException, DataAccessException {
         final Set<SimpleGrantedAuthority> authorities = new HashSet<SimpleGrantedAuthority>();
-        if (adminUser.equals(username)) {
+        if (anonymousUser.equals(username)) {
+            authorities.add(new SimpleGrantedAuthority(SyncopeConstants.ANONYMOUS_ENTITLEMENT));
+        } else if (adminUser.equals(username)) {
             for (Entitlement entitlement : entitlementDAO.findAll()) {
                 authorities.add(new SimpleGrantedAuthority(entitlement.getName()));
             }

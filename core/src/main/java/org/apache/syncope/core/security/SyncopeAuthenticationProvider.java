@@ -57,9 +57,14 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     @Resource(name = "adminUser")
     private String adminUser;
 
+    @Resource(name = "anonymousUser")
+    private String anonymousUser;
+
     private String adminPassword;
 
     private String adminPasswordAlgorithm;
+
+    private String anonymousKey;
 
     private SyncopeUserDetailsService userDetailsService;
 
@@ -77,6 +82,13 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         this.adminPasswordAlgorithm = adminPasswordAlgorithm;
     }
 
+    /**
+     * @param anonymousKey the anonymousKey to set
+     */
+    public void setAnonymousKey(final String anonymousKey) {
+        this.anonymousKey = anonymousKey;
+    }
+
     public void setSyncopeUserDetailsService(final SyncopeUserDetailsService syncopeUserDetailsService) {
         this.userDetailsService = syncopeUserDetailsService;
     }
@@ -90,7 +102,9 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         SyncopeUser user = null;
 
         String username = authentication.getName();
-        if (adminUser.equals(username)) {
+        if (anonymousUser.equals(username)) {
+            authenticated = authentication.getCredentials().toString().equals(anonymousKey);
+        } else if (adminUser.equals(username)) {
             authenticated = authenticate(
                     authentication.getCredentials().toString(),
                     CipherAlgorithm.valueOf(adminPasswordAlgorithm),

@@ -32,6 +32,7 @@ under the License.
   <SyncopeConf confKey="notification.maxRetries" confValue="0"/>
     
   <!-- Authentication and authorization -->
+  <Entitlement name="SCHEMA_LIST"/>
   <Entitlement name="SCHEMA_CREATE"/>
   <Entitlement name="SCHEMA_READ"/>
   <Entitlement name="SCHEMA_UPDATE"/>
@@ -42,10 +43,12 @@ under the License.
   <Entitlement name="USER_UPDATE"/>
   <Entitlement name="USER_DELETE"/>
   <Entitlement name="USER_VIEW"/>
+  <Entitlement name="ROLE_LIST"/>
   <Entitlement name="ROLE_CREATE"/>
   <Entitlement name="ROLE_READ"/>
   <Entitlement name="ROLE_UPDATE"/>
   <Entitlement name="ROLE_DELETE"/>
+  <Entitlement name="RESOURCE_LIST"/>
   <Entitlement name="RESOURCE_CREATE"/>
   <Entitlement name="RESOURCE_READ"/>
   <Entitlement name="RESOURCE_UPDATE"/>
@@ -62,14 +65,14 @@ under the License.
   <Entitlement name="CONFIGURATION_READ"/>
   <Entitlement name="CONFIGURATION_UPDATE"/>
   <Entitlement name="CONFIGURATION_DELETE"/>
-  <Entitlement name="TASK_CREATE"/>
   <Entitlement name="TASK_LIST"/>
-  <Entitlement name="TASK_EXECUTE"/>
+  <Entitlement name="TASK_CREATE"/>
   <Entitlement name="TASK_READ"/>
   <Entitlement name="TASK_UPDATE"/>
   <Entitlement name="TASK_DELETE"/>
-  <Entitlement name="POLICY_CREATE"/>
+  <Entitlement name="TASK_EXECUTE"/>
   <Entitlement name="POLICY_LIST"/>
+  <Entitlement name="POLICY_CREATE"/>
   <Entitlement name="POLICY_READ"/>
   <Entitlement name="POLICY_UPDATE"/>
   <Entitlement name="POLICY_DELETE"/>
