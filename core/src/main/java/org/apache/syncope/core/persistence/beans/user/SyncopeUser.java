@@ -280,7 +280,7 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public boolean canDecodePassword() {
-        return CipherAlgorithm.AES == this.cipherAlgorithm;
+        return this.cipherAlgorithm != null && this.cipherAlgorithm.isInvertible();
     }
 
     @Override

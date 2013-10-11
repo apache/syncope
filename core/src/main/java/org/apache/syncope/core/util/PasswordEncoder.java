@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.util;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
@@ -29,6 +28,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.jasypt.commons.CommonUtils;
@@ -56,13 +56,7 @@ public final class PasswordEncoder {
         } catch (Exception e) {
             LOG.error("Could not read secretKey", e);
         } finally {
-            if (propStream != null) {
-                try {
-                    propStream.close();
-                } catch (IOException e) {
-                    LOG.error("While closing property stream", e);
-                }
-            }
+            IOUtils.closeQuietly(propStream);
         }
 
         if (secretKey == null) {

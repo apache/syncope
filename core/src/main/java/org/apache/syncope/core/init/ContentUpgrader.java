@@ -260,6 +260,11 @@ public class ContentUpgrader extends AbstractContentDealer {
 
     @Transactional
     public void upgrade() {
+        // Currently working for 1.0.X -> 1.1.X upgrade, hence forcibly disabled.
+        if (true) {
+            return;
+        }
+
         if (ActivitiDetector.isActivitiEnabledForUsers()) {
             upgradeActiviti();
         }

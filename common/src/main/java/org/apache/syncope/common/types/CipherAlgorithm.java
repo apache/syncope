@@ -23,22 +23,29 @@ import javax.xml.bind.annotation.XmlEnum;
 @XmlEnum
 public enum CipherAlgorithm {
 
-    SHA1("SHA-1"),
-    SHA256("SHA-256"),
-    AES("AES"),
-    SMD5("S-MD5"),
-    SSHA1("S-SHA-1"),
-    SSHA256("S-SHA-256"),
-    BCRYPT("BCRYPT");
+    SHA1("SHA-1", false),
+    SHA256("SHA-256", false),
+    AES("AES", true),
+    SMD5("S-MD5", false),
+    SSHA1("S-SHA-1", false),
+    SSHA256("S-SHA-256", false),
+    BCRYPT("BCRYPT", false);
 
     final private String algorithm;
 
-    CipherAlgorithm(final String algorithm) {
+    final private boolean invertible;
+
+    CipherAlgorithm(final String algorithm, final boolean invertible) {
         this.algorithm = algorithm;
+        this.invertible = invertible;
     }
 
-    public final String getAlgorithm() {
+    public String getAlgorithm() {
         return algorithm;
+    }
+
+    public boolean isInvertible() {
+        return invertible;
     }
 
     public static CipherAlgorithm fromString(final String value) {
