@@ -28,7 +28,7 @@ import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.propagation.PropagationException;
-import org.apache.syncope.core.propagation.PropagationHandler;
+import org.apache.syncope.core.propagation.PropagationReporter;
 
 public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExecutor {
 
@@ -37,14 +37,14 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
      * {@inheritDoc}
      */
     @Override
-    public void execute(final Collection<PropagationTask> tasks, final PropagationHandler handler) {
+    public void execute(final Collection<PropagationTask> tasks, final PropagationReporter reporter) {
         final List<PropagationTask> prioritizedTasks = new ArrayList<PropagationTask>(tasks);
         Collections.sort(prioritizedTasks, new PriorityComparator());
 
         for (PropagationTask task : prioritizedTasks) {
             LOG.debug("Execution started for {}", task);
 
-            TaskExec execution = execute(task, handler);
+            TaskExec execution = execute(task, reporter);
 
             LOG.debug("Execution finished for {}, {}", task, execution);
 

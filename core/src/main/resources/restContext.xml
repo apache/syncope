@@ -55,7 +55,9 @@ under the License.
     <property name="collectionWrapperMap">
       <map>
         <entry>
-          <key><value>org.apache.syncope.common.to.PolicyTO</value></key>
+          <key>
+            <value>org.apache.syncope.common.to.PolicyTO</value>
+          </key>
           <value>policies</value>
         </entry>
       </map>
@@ -161,4 +163,7 @@ under the License.
 
     <property name="ignoreAcceptHeader" value="false"/>
   </bean>
+  
+  <!-- Attribute transformer for internal storage -->
+  <bean id="attrTransformer" class="org.apache.syncope.core.rest.data.DefaultAttributableTransformer"/>
 </beans>

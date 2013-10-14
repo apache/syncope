@@ -33,6 +33,7 @@ import static org.junit.Assert.fail;
 import java.security.AccessControlException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -52,7 +53,6 @@ import org.apache.syncope.common.to.BulkActionRes.Status;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.MappingItemTO;
-import org.apache.syncope.common.to.MappingTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PolicyTO;
@@ -486,7 +486,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(sce);
     }
 
-    private AttributeTO getManadatoryAttrByName(List<AttributeTO> attributes, String attrName) {
+    private AttributeTO getManadatoryAttrByName(Collection<AttributeTO> attributes, String attrName) {
         for (AttributeTO attr : attributes) {
             if (attrName.equals(attr.getSchema())) {
                 return attr;
@@ -593,7 +593,7 @@ public class UserTestITCase extends AbstractTest {
         Exception exception = null;
         try {
             jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
-                    new String[]{userTO.getUsername()}, Integer.class);
+                    new String[] {userTO.getUsername()}, Integer.class);
         } catch (EmptyResultDataAccessException e) {
             exception = e;
         }
@@ -1264,7 +1264,7 @@ public class UserTestITCase extends AbstractTest {
         // 1. create a new user without virtual attributes
         UserTO original = getUniqueSampleTO("issue270@syncope.apache.org");
         // be sure to remove all virtual attributes
-        original.setVirtualAttributes(Collections.<AttributeTO>emptyList());
+        original.getVirtualAttributes().clear();
 
         original = createUser(original);
 
@@ -2231,8 +2231,6 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void issueSYNCOPE397() {
         ResourceTO csv = resourceService.read(RESOURCE_NAME_CSV);
-        // change mapping of resource-csv
-        MappingTO mappingTO = csv.getUmapping();
 
         for (MappingItemTO item : csv.getUmapping().getItems()) {
             if ("email".equals(item.getIntAttrName())) {
@@ -2327,6 +2325,23 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("ws-target-resource-1", userTO.getPropagationStatusTOs().get(1).getResource());
         assertNotNull(userTO.getPropagationStatusTOs().get(1).getFailureReason());
         assertEquals(PropagationTaskExecStatus.UNSUBMITTED, userTO.getPropagationStatusTOs().get(1).getStatus());
+    }
+
+    @Test
+    public void issueSYNCOPE420() {
+        UserTO userTO = getUniqueSampleTO("syncope420@syncope.apache.org");
+        userTO.getAttributes().add(attributeTO("makeItDouble", "3"));
+
+        userTO = createUser(userTO);
+        assertEquals("6", userTO.getAttributeMap().get("makeItDouble").getValues().get(0));
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.getAttributesToBeRemoved().add("makeItDouble");
+        userMod.getAttributesToBeUpdated().add(attributeMod("makeItDouble", "7"));
+
+        userTO = userService.update(userMod.getId(), userMod);
+        assertEquals("14", userTO.getAttributeMap().get("makeItDouble").getValues().get(0));
     }
 
     private boolean getBooleanAttribute(ConnObjectTO connObjectTO, String attrName) {

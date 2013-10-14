@@ -32,6 +32,9 @@ under the License.
                            http://www.springframework.org/schema/aop
                            http://www.springframework.org/schema/aop/spring-aop.xsd">
 
+  <!-- Uncomment to enable single unit test execution via -Dtest=... -->
+  <!--<bean class="org.apache.syncope.core.util.ApplicationContextProvider"/>-->
+
   <bean class="org.apache.syncope.core.persistence.dao.impl.TestDbInitializer"/>
   <bean class="org.apache.syncope.core.persistence.dao.DummyConnectorRegistry"/> 
   <bean class="org.apache.syncope.core.persistence.dao.impl.ContentLoader"/>

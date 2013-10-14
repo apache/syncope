@@ -40,7 +40,7 @@ import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.propagation.DefaultPropagationActions;
 import org.apache.syncope.core.propagation.PropagationActions;
-import org.apache.syncope.core.propagation.PropagationHandler;
+import org.apache.syncope.core.propagation.PropagationReporter;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.propagation.TimeoutException;
@@ -266,7 +266,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     @Override
-    public TaskExec execute(final PropagationTask task, final PropagationHandler handler) {
+    public TaskExec execute(final PropagationTask task, final PropagationReporter reporter) {
         final PropagationActions actions = getPropagationActions(task.getResource());
 
         final Date startDate = new Date();
@@ -321,10 +321,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 exceptionWriter.write(e.getMessage() + "\n\n");
                 e.printStackTrace(new PrintWriter(exceptionWriter));
                 taskExecutionMessage = exceptionWriter.toString();
-                if (e.getCause() != null) {
-                    failureReason = e.getMessage() + "\n\n Cause: " + e.getCause().getMessage().split("\n")[0];
-                } else {
+                if (e.getCause() == null) {
                     failureReason = e.getMessage();
+                } else {
+                    failureReason = e.getMessage() + "\n\n Cause: " + e.getCause().getMessage().split("\n")[0];
                 }
             }
 
@@ -370,8 +370,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 taskDAO.flush();
             }
 
-            if (handler != null) {
-                handler.handle(
+            if (reporter != null) {
+                reporter.onSuccessOrSecondaryResourceFailures(
                         task.getResource().getName(),
                         PropagationTaskExecStatus.valueOf(execution.getStatus()),
                         failureReason,
@@ -391,7 +391,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     @Override
-    public abstract void execute(Collection<PropagationTask> tasks, PropagationHandler handler);
+    public abstract void execute(Collection<PropagationTask> tasks, final PropagationReporter reporter);
 
     /**
      * Check whether an execution has to be stored, for a given task.

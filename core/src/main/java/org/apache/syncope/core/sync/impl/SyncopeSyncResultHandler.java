@@ -68,6 +68,7 @@ import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
+import org.apache.syncope.core.rest.data.AttributableTransformer;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.sync.SyncActions;
@@ -183,6 +184,9 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
      */
     @Autowired
     protected NotificationManager notificationManager;
+
+    @Autowired
+    protected AttributableTransformer attrTransformer;
 
     /**
      * Syncing connector.
@@ -518,37 +522,41 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         delta = actions.beforeCreate(this, delta, subjectTO);
 
+        // Attributable transformation (if configured)
+        AbstractAttributableTO actual = attrTransformer.transform(subjectTO);
+        LOG.debug("Transformed: {}", actual);
+
         if (dryRun) {
             result.setId(0L);
-            if (subjectTO instanceof UserTO) {
-                result.setName(((UserTO) subjectTO).getUsername());
+            if (actual instanceof UserTO) {
+                result.setName(((UserTO) actual).getUsername());
             }
-            if (subjectTO instanceof RoleTO) {
-                result.setName(((RoleTO) subjectTO).getName());
+            if (actual instanceof RoleTO) {
+                result.setName(((RoleTO) actual).getName());
             }
         } else {
             try {
                 if (AttributableType.USER == attrUtil.getType()) {
                     Boolean enabled = readEnabled(delta.getObject());
                     WorkflowResult<Map.Entry<Long, Boolean>> created =
-                            uwfAdapter.create((UserTO) subjectTO, true, enabled);
+                            uwfAdapter.create((UserTO) actual, true, enabled);
 
                     List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(created,
-                            ((UserTO) subjectTO).getPassword(), subjectTO.getVirtualAttributes(),
+                            ((UserTO) actual).getPassword(), actual.getVirtualAttributes(),
                             Collections.singleton(syncTask.getResource().getName()));
 
                     taskExecutor.execute(tasks);
 
                     notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
 
-                    subjectTO = userDataBinder.getUserTO(created.getResult().getKey());
+                    actual = userDataBinder.getUserTO(created.getResult().getKey());
 
                     result.setId(created.getResult().getKey());
-                    result.setName(((UserTO) subjectTO).getUsername());
+                    result.setName(((UserTO) actual).getUsername());
                 }
                 if (AttributableType.ROLE == attrUtil.getType()) {
-                    WorkflowResult<Long> created = rwfAdapter.create((RoleTO) subjectTO);
-                    AttributeTO roleOwner = subjectTO.getAttributeMap().get(StringUtils.EMPTY);
+                    WorkflowResult<Long> created = rwfAdapter.create((RoleTO) actual);
+                    AttributeTO roleOwner = actual.getAttributeMap().get(StringUtils.EMPTY);
                     if (roleOwner != null) {
                         roleOwnerMap.put(created.getResult(), roleOwner.getValues().iterator().next());
                     }
@@ -556,14 +564,14 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     EntitlementUtil.extendAuthContext(created.getResult());
 
                     List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created,
-                            subjectTO.getVirtualAttributes(), Collections.singleton(syncTask.getResource().getName()));
+                            actual.getVirtualAttributes(), Collections.singleton(syncTask.getResource().getName()));
 
                     taskExecutor.execute(tasks);
 
-                    subjectTO = roleDataBinder.getRoleTO(created.getResult());
+                    actual = roleDataBinder.getRoleTO(created.getResult());
 
                     result.setId(created.getResult());
-                    result.setName(((RoleTO) subjectTO).getName());
+                    result.setName(((RoleTO) actual).getName());
                 }
 
             } catch (PropagationException e) {
@@ -577,7 +585,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             }
         }
 
-        actions.after(this, delta, subjectTO, result);
+        actions.after(this, delta, actual, result);
         return Collections.singletonList(result);
     }
 
@@ -594,9 +602,13 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             return userTO;
         }
 
+        // Attribute value transformation (if configured)
+        UserMod actual = attrTransformer.transform(userMod);
+        LOG.debug("Transformed: {}", actual);
+
         WorkflowResult<Map.Entry<Long, Boolean>> updated;
         try {
-            updated = uwfAdapter.update(userMod);
+            updated = uwfAdapter.update(actual);
         } catch (Exception e) {
             LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", id, e);
 
@@ -631,9 +643,9 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         }
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated,
-                userMod.getPassword(),
-                userMod.getVirtualAttributesToBeRemoved(),
-                userMod.getVirtualAttributesToBeUpdated(),
+                actual.getPassword(),
+                actual.getVirtualAttributesToBeRemoved(),
+                actual.getVirtualAttributesToBeUpdated(),
                 Collections.singleton(syncTask.getResource().getName()));
 
         taskExecutor.execute(tasks);
@@ -660,9 +672,13 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             return roleTO;
         }
 
-        WorkflowResult<Long> updated = rwfAdapter.update(roleMod);
+        // Attribute value transformation (if configured)
+        RoleMod actual = attrTransformer.transform(roleMod);
+        LOG.debug("Transformed: {}", actual);
+
+        WorkflowResult<Long> updated = rwfAdapter.update(actual);
         String roleOwner = null;
-        for (AttributeMod attrMod : roleMod.getAttributesToBeUpdated()) {
+        for (AttributeMod attrMod : actual.getAttributesToBeUpdated()) {
             if (attrMod.getSchema().isEmpty()) {
                 roleOwner = attrMod.getValuesToBeAdded().iterator().next();
             }
@@ -672,8 +688,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         }
 
         List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
-                roleMod.getVirtualAttributesToBeRemoved(),
-                roleMod.getVirtualAttributesToBeUpdated(),
+                actual.getVirtualAttributesToBeRemoved(),
+                actual.getVirtualAttributesToBeUpdated(),
                 Collections.singleton(syncTask.getResource().getName()));
 
         taskExecutor.execute(tasks);

@@ -594,7 +594,7 @@ public abstract class AbstractAttributableDataBinder {
      * @param vAttrs virtual attributes to be added.
      * @param attrUtil attributable util.
      */
-    public void fillVirtual(final AbstractAttributable attributable, final List<AttributeTO> vAttrs,
+    public void fillVirtual(final AbstractAttributable attributable, final Collection<AttributeTO> vAttrs,
             final AttributableUtil attrUtil) {
 
         for (AttributeTO attributeTO : vAttrs) {

@@ -20,6 +20,7 @@ package org.apache.syncope.core.propagation.impl;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -133,7 +134,7 @@ public class PropagationManager {
      * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given user
      */
     public List<PropagationTask> getUserCreateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password, final List<AttributeTO> vAttrs, final Set<String> noPropResourceNames)
+            final String password, final Collection<AttributeTO> vAttrs, final Set<String> noPropResourceNames)
             throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeUser user = userDataBinder.getUserFromId(wfResult.getResult().getKey());
@@ -171,7 +172,7 @@ public class PropagationManager {
      * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given role
      */
     public List<PropagationTask> getRoleCreateTaskIds(final WorkflowResult<Long> wfResult,
-            final List<AttributeTO> vAttrs, final Set<String> noPropResourceNames)
+            final Collection<AttributeTO> vAttrs, final Set<String> noPropResourceNames)
             throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeRole role = roleDataBinder.getRoleFromId(wfResult.getResult());
@@ -182,7 +183,7 @@ public class PropagationManager {
     }
 
     protected List<PropagationTask> getCreateTaskIds(final AbstractAttributable attributable,
-            final String password, final List<AttributeTO> vAttrs, final Boolean enable,
+            final String password, final Collection<AttributeTO> vAttrs, final Boolean enable,
             final PropagationByResource propByRes, final Set<String> noPropResourceNames) {
 
         if (propByRes == null || propByRes.isEmpty()) {

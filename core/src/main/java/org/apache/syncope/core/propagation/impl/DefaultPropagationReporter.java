@@ -18,33 +18,30 @@
  */
 package org.apache.syncope.core.propagation.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.to.PropagationStatusTO;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
-import org.apache.syncope.core.propagation.PropagationHandler;
+import org.apache.syncope.core.propagation.PropagationReporter;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public class DefaultPropagationHandler implements PropagationHandler {
+public class DefaultPropagationReporter implements PropagationReporter {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(DefaultPropagationHandler.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(DefaultPropagationReporter.class);
 
-    private final ConnObjectUtil connObjectUtil;
+    @Autowired
+    protected ConnObjectUtil connObjectUtil;
 
-    private final List<PropagationStatusTO> propagations;
-
-    public DefaultPropagationHandler(final ConnObjectUtil connObjectUtil,
-            final List<PropagationStatusTO> propagations) {
-
-        this.connObjectUtil = connObjectUtil;
-        this.propagations = propagations;
-    }
+    protected final List<PropagationStatusTO> statuses = new ArrayList<PropagationStatusTO>();
 
     @Override
-    public void handle(final String resource, final PropagationTaskExecStatus executionStatus,
+    public void onSuccessOrSecondaryResourceFailures(final String resource,
+            final PropagationTaskExecStatus executionStatus,
             final String failureReason, final ConnectorObject beforeObj, final ConnectorObject afterObj) {
 
         final PropagationStatusTO propagation = new PropagationStatusTO();
@@ -60,34 +57,38 @@ public class DefaultPropagationHandler implements PropagationHandler {
             propagation.setAfterObj(connObjectUtil.getConnObjectTO(afterObj));
         }
 
-        propagations.add(propagation);
+        statuses.add(propagation);
     }
 
-    public void completeWhenPrimaryResourceErrored(
-            final List<PropagationStatusTO> propagations, final List<PropagationTask> tasks) {
+    private boolean containsPropagationStatusTO(final String resourceName) {
+        for (PropagationStatusTO status : statuses) {
+            if (resourceName.equals(status.getResource())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-        final String failedResource = propagations.get(propagations.size() - 1).getResource();
+    @Override
+    public void onPrimaryResourceFailure(final List<PropagationTask> tasks) {
+        final String failedResource = statuses.get(statuses.size() - 1).getResource();
 
         LOG.debug("Propagation error: {} primary resource failed to propagate", failedResource);
 
         for (PropagationTask propagationTask : tasks) {
-            if (!containsPropagationStatusTO(propagationTask.getResource().getName(), propagations)) {
+            if (!containsPropagationStatusTO(propagationTask.getResource().getName())) {
                 final PropagationStatusTO propagationStatusTO = new PropagationStatusTO();
                 propagationStatusTO.setResource(propagationTask.getResource().getName());
                 propagationStatusTO.setStatus(PropagationTaskExecStatus.FAILURE);
                 propagationStatusTO.setFailureReason(
                         "Propagation error: " + failedResource + " primary resource failed to propagate.");
-                propagations.add(propagationStatusTO);
+                statuses.add(propagationStatusTO);
             }
         }
     }
 
-    private boolean containsPropagationStatusTO(final String resource, final List<PropagationStatusTO> propagations) {
-        for (PropagationStatusTO status : propagations) {
-            if (resource.equals(status.getResource())) {
-                return true;
-            }
-        }
-        return false;
+    @Override
+    public List<PropagationStatusTO> getStatuses() {
+        return statuses;
     }
 }
