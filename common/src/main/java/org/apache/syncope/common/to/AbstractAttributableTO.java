@@ -111,10 +111,8 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
     }
 
     public void setDerivedAttributes(final List<AttributeTO> derivedAttributes) {
-        this.derivedAttributes.clear();
-        if (derivedAttributes != null && !derivedAttributes.isEmpty()) {
-            this.derivedAttributes.addAll(derivedAttributes);
-        }
+
+        this.derivedAttributes = derivedAttributes;
     }
 
     public boolean addVirtualAttribute(final AttributeTO virtualAttribute) {
@@ -132,10 +130,7 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
     }
 
     public void setVirtualAttributes(final List<AttributeTO> virtualAttributes) {
-        this.virtualAttributes.clear();
-        if (virtualAttributes != null && !virtualAttributes.isEmpty()) {
-            this.virtualAttributes.addAll(virtualAttributes);
-        }
+        this.virtualAttributes = virtualAttributes;
     }
 
     public boolean addResource(final String resource) {

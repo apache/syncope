@@ -36,23 +36,14 @@ import org.apache.syncope.common.AbstractBaseBean;
 public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     private static final long serialVersionUID = 3241118574016303198L;
-
     protected long id;
-
     protected Set<AttributeMod> attributesToBeUpdated;
-
     protected Set<String> attributesToBeRemoved;
-
     protected Set<String> derivedAttributesToBeAdded;
-
     protected Set<String> derivedAttributesToBeRemoved;
-
     protected Set<AttributeMod> virtualAttributesToBeUpdated;
-
     protected Set<String> virtualAttributesToBeRemoved;
-
     protected Set<String> resourcesToBeAdded;
-
     protected Set<String> resourcesToBeRemoved;
 
     /**
@@ -80,9 +71,9 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     }
 
     /**
-     * Convenience method for removing entire attribute instead removing each value in an AttributeMod object.
+     * Convenience method for removing entire attribute instead removing each value in an AttributeMod object
      *
-     * @param attribute (schema) of attribute to be removed.
+     * @param name (schema) of attribute to be removed.
      * @return true on success.
      */
     public boolean addAttributeToBeRemoved(String attribute) {
@@ -90,9 +81,9 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     }
 
     /**
-     * Convenience method for removing entire attribute instead removing each value in an AttributeMod object.
+     * Convenience method for removing entire attribute instead removing each value in an AttributeMod object
      *
-     * @param attribute (schema) of attribute to be removed.
+     * @param name (schema) of attribute to be removed.
      * @return true on success.
      */
     public boolean removeAttributeToBeRemoved(String attribute) {
@@ -169,6 +160,7 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     }
 
     public void setDerivedAttributesToBeAdded(Set<String> derivedAttributesToBeAdded) {
+
         this.derivedAttributesToBeAdded = derivedAttributesToBeAdded;
     }
 
