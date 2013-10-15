@@ -34,7 +34,6 @@ import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.BulkActionRes.Status;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.PropagationRequestTO;
-import org.apache.syncope.common.to.PropagationStatusTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements.Category;
@@ -45,7 +44,6 @@ import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
@@ -55,10 +53,12 @@ import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.propagation.PropagationException;
+import org.apache.syncope.core.propagation.PropagationReporter;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.propagation.impl.DefaultPropagationHandler;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
+import org.apache.syncope.core.rest.data.AttributableTransformer;
 import org.apache.syncope.core.rest.data.UserDataBinder;
+import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
@@ -109,13 +109,10 @@ public class UserController {
     protected PropagationTaskExecutor taskExecutor;
 
     @Autowired
-    protected NotificationManager notificationManager;
+    protected AttributableTransformer attrTransformer;
 
-    /**
-     * ConnectorObject util.
-     */
     @Autowired
-    protected ConnObjectUtil connObjectUtil;
+    protected NotificationManager notificationManager;
 
     @PreAuthorize("hasRole('USER_LIST')")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
@@ -246,31 +243,37 @@ public class UserController {
         for (MembershipTO membership : userTO.getMemberships()) {
             requestRoleIds.add(membership.getRoleId());
         }
-
         Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
         requestRoleIds.removeAll(adminRoleIds);
         if (!requestRoleIds.isEmpty()) {
             throw new UnauthorizedRoleException(requestRoleIds);
         }
 
-        WorkflowResult<Map.Entry<Long, Boolean>> created = uwfAdapter.create(userTO);
+        // Attributable transformation (if configured)
+        UserTO actual = attrTransformer.transform(userTO);
+        LOG.debug("Transformed: {}", actual);
+
+        /*
+         * Actual operations: workflow, propagation, notification
+         */
+
+        WorkflowResult<Map.Entry<Long, Boolean>> created = uwfAdapter.create(actual);
 
         List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(
-                created, userTO.getPassword(), userTO.getVirAttrs());
-
-        final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
+                created, actual.getPassword(), actual.getVirAttrs());
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
-            taskExecutor.execute(tasks, propHanlder);
+            taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
             LOG.error("Error propagation primary resource", e);
-            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
+            propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
         notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
 
         final UserTO savedTO = binder.getUserTO(created.getResult().getKey());
-        savedTO.getPropagationStatusTOs().addAll(propagations);
+        savedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
 
         LOG.debug("About to return created user\n{}", savedTO);
 
@@ -286,25 +289,29 @@ public class UserController {
 
         final String changedPwd = userMod.getPassword();
 
+        // AttributableMod transformation (if configured)
+        UserMod actual = attrTransformer.transform(userMod);
+        LOG.debug("Transformed: {}", actual);
+
         // 1. update password internally only if required
-        if (userMod.getPwdPropRequest() != null && !userMod.getPwdPropRequest().isOnSyncope()) {
-            userMod.setPassword(null);
+        if (actual.getPwdPropRequest() != null && !actual.getPwdPropRequest().isOnSyncope()) {
+            actual.setPassword(null);
         }
-        WorkflowResult<Map.Entry<Long, Boolean>> updated = uwfAdapter.update(userMod);
+        WorkflowResult<Map.Entry<Long, Boolean>> updated = uwfAdapter.update(actual);
 
         // 2. propagate password update only to requested resources
         List<PropagationTask> tasks = new ArrayList<PropagationTask>();
-        if (userMod.getPwdPropRequest() == null) {
+        if (actual.getPwdPropRequest() == null) {
             // 2a. no specific password propagation request: generate propagation tasks for any resource associated
             tasks = propagationManager.getUserUpdateTaskIds(updated, changedPwd,
-                    userMod.getVirAttrsToRemove(), userMod.getVirAttrsToUpdate());
+                    actual.getVirAttrsToRemove(), actual.getVirAttrsToUpdate());
         } else {
             // 2b. generate the propagation task list in two phases: first the ones containing password,
             // the the rest (with no password)
             final PropagationByResource origPropByRes = new PropagationByResource();
             origPropByRes.merge(updated.getPropByRes());
 
-            Set<String> pwdResourceNames = userMod.getPwdPropRequest().getResources();
+            Set<String> pwdResourceNames = actual.getPwdPropRequest().getResources();
             SyncopeUser user = binder.getUserFromId(updated.getResult().getKey());
             pwdResourceNames.retainAll(user.getResourceNames());
             final PropagationByResource pwdPropByRes = new PropagationByResource();
@@ -313,13 +320,13 @@ public class UserController {
 
             if (!pwdPropByRes.isEmpty()) {
                 Set<String> toBeExcluded = new HashSet<String>(user.getResourceNames());
-                toBeExcluded.addAll(userMod.getResourcesToAdd());
+                toBeExcluded.addAll(actual.getResourcesToAdd());
                 toBeExcluded.removeAll(pwdResourceNames);
                 tasks.addAll(propagationManager.getUserUpdateTaskIds(
                         updated,
                         changedPwd,
-                        userMod.getVirAttrsToRemove(),
-                        userMod.getVirAttrsToUpdate(),
+                        actual.getVirAttrsToRemove(),
+                        actual.getVirAttrsToUpdate(),
                         toBeExcluded));
             }
 
@@ -333,21 +340,21 @@ public class UserController {
                 tasks.addAll(propagationManager.getUserUpdateTaskIds(
                         updated,
                         null,
-                        userMod.getVirAttrsToRemove(),
-                        userMod.getVirAttrsToUpdate(),
+                        actual.getVirAttrsToRemove(),
+                        actual.getVirAttrsToUpdate(),
                         pwdResourceNames));
             }
 
             updated.setPropByRes(origPropByRes);
         }
 
-        final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
-            taskExecutor.execute(tasks, propHanlder);
+            taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
             LOG.error("Error propagation primary resource", e);
-            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
+            propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
         // 3. create notification tasks
@@ -355,7 +362,7 @@ public class UserController {
 
         // 4. prepare result, including propagation status on external resources
         final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey());
-        updatedTO.getPropagationStatusTOs().addAll(propagations);
+        updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
 
         auditManager.audit(Category.user, UserSubCategory.update, Result.success,
                 "Successfully updated user: " + updatedTO.getUsername());
@@ -555,16 +562,16 @@ public class UserController {
         final UserTO userTO = new UserTO();
         userTO.setId(userId);
 
-        final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
-            taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+            taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
             LOG.error("Error propagation primary resource", e);
-            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
+            propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        userTO.getPropagationStatusTOs().addAll(propagations);
+        userTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
 
         uwfAdapter.delete(userId);
 
@@ -667,17 +674,17 @@ public class UserController {
         noPropResourceName.removeAll(resources);
 
         final List<PropagationTask> tasks = propagationManager.getUserDeleteTaskIds(userId, noPropResourceName);
-        final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
-            taskExecutor.execute(tasks, propHanlder);
+            taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
             LOG.error("Error propagation primary resource", e);
-            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
+            propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
         final UserTO updatedUserTO = binder.getUserTO(user);
-        updatedUserTO.getPropagationStatusTOs().addAll(propagations);
+        updatedUserTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
 
         auditManager.audit(Category.user, UserSubCategory.update, Result.success,
                 "Successfully deprovisioned user: " + updatedUserTO.getUsername());

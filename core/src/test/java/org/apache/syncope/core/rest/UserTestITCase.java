@@ -99,6 +99,24 @@ public class UserTestITCase extends AbstractTest {
         return resourceService.getConnectorObject(resourceName, AttributableType.USER, userId);
     }
 
+    private String getStringAttribute(final ConnObjectTO connObjectTO, final String attrName) {
+        return connObjectTO.getAttrMap().get(attrName).getValues().get(0);
+    }
+
+    private boolean getBooleanAttribute(final ConnObjectTO connObjectTO, final String attrName) {
+        return Boolean.parseBoolean(getStringAttribute(connObjectTO, attrName));
+    }
+
+    private long getMaxTaskId(final List<PropagationTaskTO> tasks) {
+        long newMaxId = Long.MIN_VALUE;
+        for (PropagationTaskTO task : tasks) {
+            if (task.getId() > newMaxId) {
+                newMaxId = task.getId();
+            }
+        }
+        return newMaxId;
+    }
+
     public static UserTO getUniqueSampleTO(final String email) {
         return getSampleTO(getUUIDString() + email);
     }
@@ -2518,21 +2536,20 @@ public class UserTestITCase extends AbstractTest {
         }
     }
 
-    private boolean getBooleanAttribute(ConnObjectTO connObjectTO, String attrName) {
-        return Boolean.parseBoolean(getStringAttribute(connObjectTO, attrName));
-    }
+    @Test
+    public void issueSYNCOPE420() {
+        UserTO userTO = getUniqueSampleTO("syncope420@syncope.apache.org");
+        userTO.getAttrs().add(attributeTO("makeItDouble", "3"));
 
-    private String getStringAttribute(ConnObjectTO connObjectTO, String attrName) {
-        return connObjectTO.getAttrMap().get(attrName).getValues().get(0);
-    }
+        userTO = createUser(userTO);
+        assertEquals("6", userTO.getAttrMap().get("makeItDouble").getValues().get(0));
 
-    private long getMaxTaskId(List<PropagationTaskTO> tasks) {
-        long newMaxId = Long.MIN_VALUE;
-        for (PropagationTaskTO task : tasks) {
-            if (task.getId() > newMaxId) {
-                newMaxId = task.getId();
-            }
-        }
-        return newMaxId;
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.getAttrsToRemove().add("makeItDouble");
+        userMod.getAttrsToUpdate().add(attributeMod("makeItDouble", "7"));
+
+        userTO = userService.update(userMod.getId(), userMod);
+        assertEquals("14", userTO.getAttrMap().get("makeItDouble").getValues().get(0));
     }
 }

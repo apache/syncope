@@ -16,26 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.propagation;
+package org.apache.syncope.core.rest.data;
 
-import org.apache.syncope.common.types.PropagationTaskExecStatus;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.apache.syncope.common.mod.AbstractAttributableMod;
+import org.apache.syncope.common.to.AbstractAttributableTO;
 
 /**
- * Handle propagation executions.
+ * Provides logic for transforming user or role, received as input by RESTful methods, before any internal
+ * processing logic takes place.
  */
-public interface PropagationHandler {
+public interface AttributableTransformer {
 
-    /**
-     *
-     * Handle propagation executions.
-     *
-     * @param resourceName resource name.
-     * @param execStatus propagation execution status.
-     * @param failureReason propagation execution failure message.
-     * @param beforeObj retrieved connector object before operation execution.
-     * @param afterObj retrieved connector object after operation execution.
-     */
-    void handle(String resourceName, PropagationTaskExecStatus execStatus,
-            String failureReason, ConnectorObject beforeObj, ConnectorObject afterObj);
+    <T extends AbstractAttributableTO> T transform(T input);
+
+    <T extends AbstractAttributableMod> T transform(T input);
 }

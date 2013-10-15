@@ -27,7 +27,6 @@ import javax.annotation.Resource;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
-import org.apache.syncope.common.to.PropagationStatusTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements;
@@ -35,7 +34,6 @@ import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.RoleSubCategory;
 import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -44,10 +42,12 @@ import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.propagation.PropagationException;
+import org.apache.syncope.core.propagation.PropagationReporter;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.propagation.impl.DefaultPropagationHandler;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
+import org.apache.syncope.core.rest.data.AttributableTransformer;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
+import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
@@ -69,31 +69,31 @@ public class RoleController {
     protected static final Logger LOG = LoggerFactory.getLogger(RoleController.class);
 
     @Autowired
-    private AuditManager auditManager;
+    protected AuditManager auditManager;
 
     @Autowired
-    private RoleDAO roleDAO;
+    protected RoleDAO roleDAO;
 
     @Autowired
-    private UserDAO userDAO;
+    protected UserDAO userDAO;
 
     @Autowired
-    private AttributableSearchDAO searchDAO;
+    protected AttributableSearchDAO searchDAO;
 
     @Autowired
-    private RoleDataBinder binder;
+    protected RoleDataBinder binder;
 
     @Autowired
-    private RoleWorkflowAdapter rwfAdapter;
+    protected RoleWorkflowAdapter rwfAdapter;
 
     @Autowired
-    private PropagationManager propagationManager;
+    protected PropagationManager propagationManager;
 
     @Autowired
-    private PropagationTaskExecutor taskExecutor;
+    protected PropagationTaskExecutor taskExecutor;
 
     @Autowired
-    private ConnObjectUtil connObjectUtil;
+    protected AttributableTransformer attrTransformer;
 
     @Resource(name = "anonymousUser")
     private String anonymousUser;
@@ -257,28 +257,36 @@ public class RoleController {
     public RoleTO create(final RoleTO roleTO) {
         LOG.debug("Role create called with parameters {}", roleTO);
 
+        // Check that this operation is allowed to be performed by caller
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
         if (roleTO.getParent() != 0 && !allowedRoleIds.contains(roleTO.getParent())) {
             throw new UnauthorizedRoleException(roleTO.getParent());
         }
 
-        WorkflowResult<Long> created = rwfAdapter.create(roleTO);
+        // Attributable transformation (if configured)
+        RoleTO actual = attrTransformer.transform(roleTO);
+        LOG.debug("Transformed: {}", actual);
+
+        /*
+         * Actual operations: workflow, propagation
+         */
+
+        WorkflowResult<Long> created = rwfAdapter.create(actual);
 
         EntitlementUtil.extendAuthContext(created.getResult());
 
-        List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created, roleTO.getVirAttrs());
-
-        final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
+        List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created, actual.getVirAttrs());
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
-            taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+            taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
             LOG.error("Error propagation primary resource", e);
-            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
+            propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
         final RoleTO savedTO = binder.getRoleTO(created.getResult());
-        savedTO.getPropagationStatusTOs().addAll(propagations);
+        savedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
 
         LOG.debug("About to return created role\n{}", savedTO);
 
@@ -292,23 +300,31 @@ public class RoleController {
     public RoleTO update(final RoleMod roleMod) {
         LOG.debug("Role update called with {}", roleMod);
 
+        // Check that this operation is allowed to be performed by caller
         SyncopeRole role = binder.getRoleFromId(roleMod.getId());
 
-        WorkflowResult<Long> updated = rwfAdapter.update(roleMod);
+        // Attribute value transformation (if configured)
+        RoleMod actual = attrTransformer.transform(roleMod);
+        LOG.debug("Transformed: {}", actual);
+
+        /*
+         * Actual operations: workflow, propagation
+         */
+
+        WorkflowResult<Long> updated = rwfAdapter.update(actual);
 
         List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
-                roleMod.getVirAttrsToRemove(), roleMod.getVirAttrsToUpdate());
-
-        final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
+                actual.getVirAttrsToRemove(), actual.getVirAttrsToUpdate());
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
-            taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+            taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
             LOG.error("Error propagation primary resource", e);
-            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
+            propagationReporter.onPrimaryResourceFailure(tasks);
         }
         final RoleTO updatedTO = binder.getRoleTO(updated.getResult());
-        updatedTO.getPropagationStatusTOs().addAll(propagations);
+        updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
 
         auditManager.audit(Category.role, RoleSubCategory.update, Result.success,
                 "Successfully updated role: " + role.getId());
@@ -335,15 +351,15 @@ public class RoleController {
         RoleTO roleTO = new RoleTO();
         roleTO.setId(roleId);
 
-        final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
-            taskExecutor.execute(tasks, new DefaultPropagationHandler(connObjectUtil, propagations));
+            taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
             LOG.error("Error propagation primary resource", e);
-            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
+            propagationReporter.onPrimaryResourceFailure(tasks);
         }
-        roleTO.getPropagationStatusTOs().addAll(propagations);
+        roleTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
 
         rwfAdapter.delete(roleId);
 
@@ -400,17 +416,17 @@ public class RoleController {
         noPropResourceName.removeAll(resources);
 
         final List<PropagationTask> tasks = propagationManager.getRoleDeleteTaskIds(roleId, noPropResourceName);
-        final List<PropagationStatusTO> propagations = new ArrayList<PropagationStatusTO>();
-        final DefaultPropagationHandler propHanlder = new DefaultPropagationHandler(connObjectUtil, propagations);
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
-            taskExecutor.execute(tasks, propHanlder);
+            taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
             LOG.error("Error propagation primary resource", e);
-            propHanlder.completeWhenPrimaryResourceErrored(propagations, tasks);
+            propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
         final RoleTO updatedTO = binder.getRoleTO(role);
-        updatedTO.getPropagationStatusTOs().addAll(propagations);
+        updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
 
         auditManager.audit(Category.user, AuditElements.RoleSubCategory.update, Result.success,
                 "Successfully deprovisioned role: " + updatedTO.getName());

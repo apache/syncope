@@ -171,6 +171,8 @@ under the License.
            enumerationValues="M;F"/>
   <USchema name="aLong" type="Long"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <USchema name="makeItDouble" type="Long"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
   <UDerSchema name="csvuserid" expression="firstname + ',' + surname"/>
   <UDerSchema name="cn" expression="surname + ', ' + firstname"/>

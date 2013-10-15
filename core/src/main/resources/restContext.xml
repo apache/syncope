@@ -100,5 +100,7 @@ under the License.
     </jaxrs:extensionMappings>
   </jaxrs:server>
   <!-- CXF Configuration - END -->
-
+  
+  <!-- Attribute transformer for internal storage -->
+  <bean id="attrTransformer" class="org.apache.syncope.core.rest.data.DefaultAttributableTransformer"/>
 </beans>

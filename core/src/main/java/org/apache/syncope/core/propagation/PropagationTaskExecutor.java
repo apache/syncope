@@ -42,10 +42,10 @@ public interface PropagationTaskExecutor {
      * Execute the given PropagationTask, invoke the given handler and returns the generated TaskExec.
      *
      * @param task to be executed
-     * @param handler to be invoked
+     * @param reporter to report propagation execution status
      * @return the generated TaskExec
      */
-    TaskExec execute(PropagationTask task, PropagationHandler handler);
+    TaskExec execute(PropagationTask task, PropagationReporter reporter);
 
     /**
      * Execute a collection of PropagationTask objects.
@@ -60,7 +60,7 @@ public interface PropagationTaskExecutor {
      * The process is interrupted as soon as the result of the communication with a primary resource is in error.
      *
      * @param tasks to be execute, in given order
-     * @param handler propagation handler
+     * @param reporter to report propagation execution status
      */
-    void execute(Collection<PropagationTask> tasks, PropagationHandler handler);
+    void execute(Collection<PropagationTask> tasks, PropagationReporter reporter);
 }
