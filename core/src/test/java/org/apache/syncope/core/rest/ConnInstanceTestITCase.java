@@ -677,12 +677,12 @@ public class ConnInstanceTestITCase extends AbstractTest {
         conn.setId(0);
         conn.setDisplayName("forBulk1");
 
-        bulkAction.addTarget(String.valueOf(adminClient.getObject(
+        bulkAction.getTargets().add(String.valueOf(adminClient.getObject(
                 connectorService.create(conn).getLocation(), ConnectorService.class, ConnInstanceTO.class).getId()));
 
         conn.setDisplayName("forBulk2");
 
-        bulkAction.addTarget(String.valueOf(adminClient.getObject(
+        bulkAction.getTargets().add(String.valueOf(adminClient.getObject(
                 connectorService.create(conn).getLocation(), ConnectorService.class, ConnInstanceTO.class).getId()));
 
         Iterator<String> iter = bulkAction.getTargets().iterator();

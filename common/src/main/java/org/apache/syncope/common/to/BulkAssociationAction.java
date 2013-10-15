@@ -18,21 +18,25 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.AbstractBaseBean;
 
-@XmlRootElement(name = "bulkAction")
+@XmlRootElement(name = "bulkAssociationAction")
 @XmlType
 public class BulkAssociationAction extends AbstractBaseBean {
 
     private static final long serialVersionUID = 1395353278878758961L;
 
     @XmlEnum
-    @XmlType(name = "bulkActionType")
+    @XmlType(name = "bulkAssociationActionType")
     public enum Type {
 
         UNLINK,
@@ -46,7 +50,7 @@ public class BulkAssociationAction extends AbstractBaseBean {
     /**
      * Serialized identifiers.
      */
-    private Collection<Long> targets;
+    private final List<Long> targets = new ArrayList<Long>();
 
     public Type getOperation() {
         return operation;
@@ -56,23 +60,10 @@ public class BulkAssociationAction extends AbstractBaseBean {
         this.operation = operation;
     }
 
-    public void setTargets(final Collection<Long> targets) {
-        this.targets = targets;
-    }
-
+    @XmlElementWrapper(name = "targets")
+    @XmlElement(name = "target")
+    @JsonProperty("targets")
     public Collection<Long> getTargets() {
         return targets;
-    }
-
-    public void addTarget(final Long target) {
-        if (this.targets == null) {
-            this.targets = new ArrayList<Long>();
-        }
-
-        this.targets.add(target);
-    }
-
-    public int size() {
-        return targets == null ? 0 : targets.size();
     }
 }

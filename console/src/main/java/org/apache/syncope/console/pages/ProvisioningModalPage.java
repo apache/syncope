@@ -223,13 +223,14 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             final BulkAssociationAction.Type type,
             final ActionDataTablePanel<StatusBean, String> table,
             final List<IColumn<StatusBean, String>> columns) {
+
         final BulkAssociationAction bulkAction = new BulkAssociationAction();
         bulkAction.setOperation(type);
 
         final List<StatusBean> beans = new ArrayList<StatusBean>(table.getModelObject());
         for (StatusBean bean : beans) {
             LOG.debug("Selected bean {}", bean);
-            bulkAction.addTarget(bean.getAttributableId());
+            bulkAction.getTargets().add(bean.getAttributableId());
         }
 
         if (!beans.isEmpty()) {

@@ -91,7 +91,7 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
             final BulkAction bulkAction = new BulkAction();
             for (Object item : items) {
                 try {
-                    bulkAction.addTarget(getTargetId(item, idFieldName).toString());
+                    bulkAction.getTargets().add(getTargetId(item, idFieldName).toString());
                 } catch (Exception e) {
                     LOG.error("Error retrieving item id {}", idFieldName, e);
                 }

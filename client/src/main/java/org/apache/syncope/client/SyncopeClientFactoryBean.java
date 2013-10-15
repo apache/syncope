@@ -42,21 +42,21 @@ public class SyncopeClientFactoryBean {
 
     public enum ContentType {
 
-        JSON(MediaType.APPLICATION_JSON),
-        XML(MediaType.APPLICATION_XML);
+        JSON(MediaType.APPLICATION_JSON_TYPE),
+        XML(MediaType.APPLICATION_XML_TYPE);
 
-        private final String mediaType;
+        private final MediaType mediaType;
 
-        private ContentType(final String mediaType) {
+        private ContentType(final MediaType mediaType) {
             this.mediaType = mediaType;
         }
 
-        public String getMediaType() {
+        public MediaType getMediaType() {
             return mediaType;
         }
 
         public static ContentType fromString(final String value) {
-            return StringUtils.isNotBlank(value) && value.equalsIgnoreCase(XML.name())
+            return StringUtils.isNotBlank(value) && value.equalsIgnoreCase(XML.getMediaType().toString())
                     ? XML
                     : JSON;
         }
@@ -112,8 +112,6 @@ public class SyncopeClientFactoryBean {
 
         defaultRestClientFactoryBean.setThreadSafe(true);
         defaultRestClientFactoryBean.setInheritHeaders(true);
-
-        defaultRestClientFactoryBean.setContentType(getContentType().getMediaType());
 
         List<Feature> features = new ArrayList<Feature>();
         features.add(new LoggingFeature());
@@ -197,6 +195,6 @@ public class SyncopeClientFactoryBean {
     }
 
     public SyncopeClient create(final String username, final String password) {
-        return new SyncopeClient(getRestClientFactoryBean(), username, password);
+        return new SyncopeClient(getContentType().getMediaType(), getRestClientFactoryBean(), username, password);
     }
 }

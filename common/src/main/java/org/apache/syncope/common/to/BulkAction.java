@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
@@ -48,7 +51,7 @@ public class BulkAction extends AbstractBaseBean {
     /**
      * Serialized identifiers.
      */
-    private Collection<String> targets;
+    private final List<String> targets = new ArrayList<String>();
 
     public Type getOperation() {
         return operation;
@@ -58,23 +61,10 @@ public class BulkAction extends AbstractBaseBean {
         this.operation = operation;
     }
 
-    public void setTargets(final Collection<String> targets) {
-        this.targets = targets;
-    }
-
-    public Collection<String> getTargets() {
+    @XmlElementWrapper(name = "targets")
+    @XmlElement(name = "target")
+    @JsonProperty("targets")
+    public List<String> getTargets() {
         return targets;
-    }
-
-    public void addTarget(final String target) {
-        if (this.targets == null) {
-            this.targets = new ArrayList<String>();
-        }
-
-        this.targets.add(target);
-    }
-
-    public int size() {
-        return targets == null ? 0 : targets.size();
     }
 }

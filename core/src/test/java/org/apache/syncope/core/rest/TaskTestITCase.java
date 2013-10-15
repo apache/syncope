@@ -903,7 +903,7 @@ public class TaskTestITCase extends AbstractTest {
         bulkAction.setOperation(BulkAction.Type.DELETE);
 
         for (AbstractTaskTO taskTO : after) {
-            bulkAction.addTarget(String.valueOf(taskTO.getId()));
+            bulkAction.getTargets().add(String.valueOf(taskTO.getId()));
         }
 
         taskService.bulkAction(bulkAction);

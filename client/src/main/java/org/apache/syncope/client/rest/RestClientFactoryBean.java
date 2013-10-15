@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.rest;
 
+import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -30,19 +31,13 @@ public class RestClientFactoryBean extends JAXRSClientFactoryBean {
         super();
     }
 
-    public void setContentType(final String contentType) {
-        this.contentType = contentType;
+    public <T> T createServiceInstance(final Class<T> serviceClass, final MediaType mediaType) {
+        return createServiceInstance(serviceClass, mediaType, null, null);
     }
 
-    public String getContentType() {
-        return contentType;
-    }
+    public <T> T createServiceInstance(
+            final Class<T> serviceClass, final MediaType mediaType, final String username, final String password) {
 
-    public <T> T createServiceInstance(final Class<T> serviceClass) {
-        return createServiceInstance(serviceClass, null, null);
-    }
-
-    public <T> T createServiceInstance(final Class<T> serviceClass, final String username, final String password) {
         if (StringUtils.isNotBlank(username)) {
             setUsername(username);
         }
@@ -51,7 +46,7 @@ public class RestClientFactoryBean extends JAXRSClientFactoryBean {
         }
         setServiceClass(serviceClass);
         final T serviceInstance = create(serviceClass);
-        WebClient.client(serviceInstance).type(getContentType()).accept(getContentType());
+        WebClient.client(serviceInstance).type(mediaType).accept(mediaType);
         return serviceInstance;
     }
 }

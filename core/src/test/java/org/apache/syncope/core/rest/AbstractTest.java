@@ -19,14 +19,12 @@
 package org.apache.syncope.core.rest;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.UUID;
 
 import javax.sql.DataSource;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -149,7 +147,7 @@ public abstract class AbstractTest {
     public static void restSetup() {
         final String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
         if (StringUtils.isNotBlank(envContentType)) {
-            clientFactory.getRestClientFactoryBean().setContentType(envContentType);
+            clientFactory.setContentType(envContentType);
         }
         LOG.info("Performing IT with content type {}", clientFactory.getContentType().getMediaType());
 
@@ -188,20 +186,6 @@ public abstract class AbstractTest {
         attr.setSchema(schema);
         attr.getValuesToBeAdded().add(valueToBeAdded);
         return attr;
-    }
-
-    protected void assertCreated(final Response response) {
-        if (response.getStatus() != HttpStatus.SC_CREATED) {
-            StringBuilder builder = new StringBuilder();
-            MultivaluedMap<String, Object> headers = response.getHeaders();
-            builder.append("Headers (");
-            for (String key : headers.keySet()) {
-                builder.append(key).append(':').append(headers.getFirst(key)).append(',');
-            }
-            builder.append(")");
-            fail("Error on create. Status is : " + response.getStatus() + " with headers "
-                    + builder.toString());
-        }
     }
 
     protected UserTO createUser(final UserTO userTO) {

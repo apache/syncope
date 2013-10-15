@@ -19,16 +19,19 @@
 package org.apache.syncope.common.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.AbstractBaseBean;
 
-@XmlRootElement(name = "BulkActionRes")
+@XmlRootElement(name = "bulkActionRes")
 @XmlType
 public class BulkActionRes extends AbstractBaseBean {
 
@@ -43,22 +46,17 @@ public class BulkActionRes extends AbstractBaseBean {
 
     }
 
-    private List<Result> results;
+    private final List<Result> results = new ArrayList<Result>();
 
-    public void setResults(final List<Result> results) {
-        this.results = results;
-    }
-
+    @XmlElementWrapper(name = "results")
+    @XmlElement(name = "result")
+    @JsonProperty("results")
     public List<Result> getResults() {
         return results;
     }
 
     @JsonIgnore
     public void add(final Object id, final Status status) {
-        if (results == null) {
-            results = new ArrayList<Result>();
-        }
-
         if (id != null) {
             results.add(new Result(id.toString(), status));
         }
@@ -67,24 +65,24 @@ public class BulkActionRes extends AbstractBaseBean {
     @JsonIgnore
     public Map<String, Status> getResultMap() {
         final Map<String, Status> res = new HashMap<String, Status>();
-        if (results != null) {
-            for (Result result : results) {
-                res.put(result.getKey(), result.getValue());
-            }
+
+        for (Result result : results) {
+            res.put(result.getKey(), result.getValue());
         }
+
         return res;
     }
 
     @JsonIgnore
     public List<String> getResultByStatus(final Status status) {
         final List<String> res = new ArrayList<String>();
-        if (results != null) {
-            for (Result result : results) {
-                if (result.getValue() == status) {
-                    res.add(result.getKey());
-                }
+
+        for (Result result : results) {
+            if (result.getValue() == status) {
+                res.add(result.getKey());
             }
         }
+
         return res;
     }
 
@@ -97,9 +95,10 @@ public class BulkActionRes extends AbstractBaseBean {
         private Status value;
 
         public Result() {
+            super();
         }
 
-        public Result(String key, Status value) {
+        public Result(final String key, final Status value) {
             this.key = key;
             this.value = value;
         }
@@ -112,11 +111,11 @@ public class BulkActionRes extends AbstractBaseBean {
             return value;
         }
 
-        public void setKey(String key) {
+        public void setKey(final String key) {
             this.key = key;
         }
 
-        public void setValue(Status value) {
+        public void setValue(final Status value) {
             this.value = value;
         }
     }

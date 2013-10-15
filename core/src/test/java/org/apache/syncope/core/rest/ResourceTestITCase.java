@@ -458,8 +458,8 @@ public class ResourceTestITCase extends AbstractTest {
         final BulkAction bulkAction = new BulkAction();
         bulkAction.setOperation(BulkAction.Type.DELETE);
 
-        bulkAction.addTarget(String.valueOf("forBulk1"));
-        bulkAction.addTarget(String.valueOf("forBulk2"));
+        bulkAction.getTargets().add(String.valueOf("forBulk1"));
+        bulkAction.getTargets().add(String.valueOf("forBulk2"));
 
         resourceService.bulkAction(bulkAction);
 

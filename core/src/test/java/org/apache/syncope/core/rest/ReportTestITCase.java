@@ -48,7 +48,7 @@ public class ReportTestITCase extends AbstractTest {
 
     public ReportTO createReport(final ReportTO report) {
         Response response = reportService.create(report);
-        assertCreated(response);
+        assertEquals(HttpStatus.SC_CREATED, response.getStatus());
         return adminClient.getObject(response.getLocation(), ReportService.class, ReportTO.class);
     }
 

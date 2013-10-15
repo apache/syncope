@@ -2081,13 +2081,13 @@ public class UserTestITCase extends AbstractTest {
 
         for (int i = 0; i < 10; i++) {
             UserTO userTO = getUniqueSampleTO("bulk_" + i + "@apache.org");
-            bulkAction.addTarget(String.valueOf(createUser(userTO).getId()));
+            bulkAction.getTargets().add(String.valueOf(createUser(userTO).getId()));
         }
 
         // check for a fail
-        bulkAction.addTarget(String.valueOf(Long.MAX_VALUE));
+        bulkAction.getTargets().add(String.valueOf(Long.MAX_VALUE));
 
-        assertEquals(11, bulkAction.size());
+        assertEquals(11, bulkAction.getTargets().size());
 
         bulkAction.setOperation(BulkAction.Type.SUSPEND);
         BulkActionRes res = userService.bulkAction(bulkAction);

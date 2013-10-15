@@ -21,6 +21,7 @@ package org.apache.syncope.client;
 import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.ws.rs.core.MediaType;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.rest.RestClientFactoryBean;
 
@@ -32,6 +33,8 @@ import org.apache.syncope.client.rest.RestClientFactoryBean;
  */
 public class SyncopeClient {
 
+    private final MediaType mediaType;
+
     private final RestClientFactoryBean restClientFactory;
 
     private final String username;
@@ -40,7 +43,10 @@ public class SyncopeClient {
 
     private final Map<Class<?>, Object> services = new ConcurrentHashMap<Class<?>, Object>();
 
-    public SyncopeClient(final RestClientFactoryBean restClientFactory, final String username, final String password) {
+    public SyncopeClient(final MediaType mediaType, final RestClientFactoryBean restClientFactory,
+            final String username, final String password) {
+
+        this.mediaType = mediaType;
         this.restClientFactory = restClientFactory;
         this.username = username;
         this.password = password;
@@ -49,14 +55,15 @@ public class SyncopeClient {
     @SuppressWarnings("unchecked")
     public <T> T getService(final Class<T> serviceClass) {
         if (!services.containsKey(serviceClass)) {
-            services.put(serviceClass, restClientFactory.createServiceInstance(serviceClass, username, password));
+            services.put(serviceClass,
+                    restClientFactory.createServiceInstance(serviceClass, mediaType, username, password));
         }
         return (T) services.get(serviceClass);
     }
 
     public <T> T getObject(final URI location, final Class<?> serviceClass, final Class<T> resultClass) {
         WebClient webClient = WebClient.fromClient(WebClient.client(getService(serviceClass)));
-        webClient.accept(restClientFactory.getContentType()).to(location.toASCIIString(), false);
+        webClient.accept(mediaType).to(location.toASCIIString(), false);
 
         return webClient.get(resultClass);
     }
