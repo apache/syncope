@@ -23,7 +23,7 @@ under the License.
     
     <RollingRandomAccessFile name="main" fileName="${log.directory}/core.log"
                              filePattern="${log.directory}/core-%d{yyyy-MM-dd}.log.gz"
-                             immediateFlush="false" append="false">
+                             immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
       </PatternLayout>
@@ -35,7 +35,7 @@ under the License.
 
     <RollingRandomAccessFile name="persistence" fileName="${log.directory}/core-persistence.log"
                              filePattern="${log.directory}/core-persistence-%d{yyyy-MM-dd}.log.gz"
-                             immediateFlush="false" append="false">
+                             immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
       </PatternLayout>
@@ -47,7 +47,7 @@ under the License.
 
     <RollingRandomAccessFile name="rest" fileName="${log.directory}/core-rest.log"
                              filePattern="${log.directory}/core-rest-%d{yyyy-MM-dd}.log.gz"
-                             immediateFlush="false" append="false">
+                             immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
       </PatternLayout>
@@ -59,7 +59,7 @@ under the License.
 
     <RollingRandomAccessFile name="connid" fileName="${log.directory}/core-connid.log"
                              filePattern="${log.directory}/core-connid-%d{yyyy-MM-dd}.log.gz"
-                             immediateFlush="false" append="false">
+                             immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %msg%n</pattern>
       </PatternLayout>

@@ -23,7 +23,7 @@ under the License.
 
     <RollingRandomAccessFile name="main" fileName="${log.directory}/console.log"
                              filePattern="${log.directory}/console-%d{yyyy-MM-dd}.log.gz"
-                             immediateFlush="false" append="false">
+                             immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
       </PatternLayout>
