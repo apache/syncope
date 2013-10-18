@@ -20,6 +20,7 @@ package org.apache.syncope.core.rest.data;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.RoleTO;
@@ -252,6 +253,7 @@ public class TaskDataBinder {
                     throw new ClassCastException("taskUtil is type Propagation but task is not PropagationTask: "
                             + task.getClass().getName());
                 }
+                ((PropagationTaskTO) taskTO).setResource(((PropagationTask) task).getResource().getName());
                 break;
 
             case SCHED:
