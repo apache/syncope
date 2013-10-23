@@ -21,8 +21,7 @@ package org.apache.syncope.core.rest;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-import org.apache.syncope.common.services.WorkflowTasks;
-
+import org.apache.syncope.common.types.WorkflowTasks;
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.workflow.ActivitiDetector;

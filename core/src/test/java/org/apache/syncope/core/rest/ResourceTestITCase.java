@@ -162,7 +162,6 @@ public class ResourceTestITCase extends AbstractTest {
         assertNotNull(actual);
 
         // check the existence
-
         actual = resourceService.read(resourceName);
         assertNotNull(actual);
     }
@@ -291,7 +290,6 @@ public class ResourceTestITCase extends AbstractTest {
         assertNotNull(actual);
 
         // check the existence
-
         actual = resourceService.read(resourceName);
         assertNotNull(actual);
         assertNotNull(actual.getPasswordPolicy());
@@ -412,10 +410,12 @@ public class ResourceTestITCase extends AbstractTest {
     @Test
     public void listByType() {
         List<ResourceTO> actuals = resourceService.list(105L);
-
         assertNotNull(actuals);
-        assertEquals(1, actuals.size());
-        assertNotNull(actuals.get(0));
+
+        for (ResourceTO resourceTO : actuals) {
+            assertNotNull(resourceTO);
+            assertEquals(105L, resourceTO.getConnectorId().longValue());
+        }
     }
 
     @Test

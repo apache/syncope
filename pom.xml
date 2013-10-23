@@ -309,9 +309,9 @@ under the License.
         
     <hc.client.version>4.2.6</hc.client.version>
 
-    <activiti.version>5.13</activiti.version>
+    <activiti.version>5.14</activiti.version>
 
-    <cxf.version>2.7.7</cxf.version>	
+    <cxf.version>2.7.8-SNAPSHOT</cxf.version>	
     <spring.version>3.2.4.RELEASE</spring.version>
     <spring-security.version>3.1.4.RELEASE</spring-security.version>
     <jackson.version>2.2.3</jackson.version>

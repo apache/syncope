@@ -18,35 +18,24 @@
  */
 package org.apache.syncope.common.types;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.text.ParseException;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 
-@XmlType
-@XmlRootElement
 public class AuditLoggerName extends AbstractBaseBean {
 
     private static final long serialVersionUID = -647989486671786839L;
 
     private final Category category;
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
     private final Enum<?> subcategory;
 
     private final Result result;
 
-    @JsonCreator
-    public AuditLoggerName(@JsonProperty("category") final Category category,
-            @JsonProperty("subcategory") final Enum<?> subcategory, @JsonProperty("result") final Result result)
+    public AuditLoggerName(final Category category, final Enum<?> subcategory, final Result result)
             throws IllegalArgumentException {
 
         if (category == null || subcategory == null || result == null) {

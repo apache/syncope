@@ -1,0 +1,96 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.core.rest;
+
+import java.io.IOException;
+import java.net.URL;
+import java.rmi.ServerException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.cocoon.pipeline.CachingPipeline;
+import org.apache.cocoon.pipeline.Pipeline;
+import org.apache.cocoon.sax.SAXPipelineComponent;
+import org.apache.cocoon.sax.component.XMLGenerator;
+import org.apache.cocoon.sax.component.XMLSerializer;
+import org.apache.cocoon.sax.component.XSLTTransformer;
+
+public class WADLServlet extends HttpServlet {
+
+    private static final long serialVersionUID = -6737005675471095560L;
+
+    private static final Pattern SCHEMA_PATTERN = Pattern.compile("/schema_(.*)_(.*)\\.html");
+
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String requestURI = request.getRequestURI().substring(
+                request.getRequestURI().indexOf(request.getServletPath()) + request.getServletPath().length());
+        Matcher schemaMatcher = SCHEMA_PATTERN.matcher(requestURI);
+
+        Pipeline<SAXPipelineComponent> pipeline = new CachingPipeline<SAXPipelineComponent>();
+        final String wadlURL = request.getRequestURL().
+                substring(0, request.getRequestURL().indexOf("/doc")) + "/?_wadl";
+        pipeline.addComponent(new XMLGenerator(new URL(wadlURL)));
+        if ("/".equals(requestURI)) {
+            XSLTTransformer xslt = new XSLTTransformer(getClass().getResource("/wadl2html/index.xsl"));
+
+            Map<String, Object> parameters = new HashMap<String, Object>();
+            parameters.put("contextPath", request.getContextPath());
+            xslt.setParameters(parameters);
+
+            pipeline.addComponent(xslt);
+        } else if (schemaMatcher.matches()) {
+            XSLTTransformer xslt = new XSLTTransformer(getClass().getResource("/wadl2html/schema.xsl"));
+
+            Map<String, Object> parameters = new HashMap<String, Object>();
+            parameters.put("contextPath", request.getContextPath());
+            parameters.put("schema-position", schemaMatcher.group(1));
+            parameters.put("schema-prefix", schemaMatcher.group(2));
+            xslt.setParameters(parameters);
+
+            pipeline.addComponent(xslt);
+        } else {
+            throw new ServerException("URL not supported: " + request.getRequestURI());
+        }
+
+        pipeline.addComponent(XMLSerializer.createHTML4Serializer());
+        pipeline.setup(response.getOutputStream());
+        try {
+            pipeline.execute();
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+    }
+
+}

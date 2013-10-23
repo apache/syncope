@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.services;
 
+import org.apache.syncope.common.types.WorkflowTasks;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;

@@ -20,6 +20,8 @@ package org.apache.syncope.common;
 
 public class SyncopeConstants {
 
+    public static final String NAMESPACE = "http://syncope.apache.org/1.2";
+
     public static final String UNAUTHENTICATED = "unauthenticated";
 
     public static final String ANONYMOUS_ENTITLEMENT = "anonymous";

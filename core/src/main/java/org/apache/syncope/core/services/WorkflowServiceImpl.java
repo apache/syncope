@@ -21,7 +21,7 @@ package org.apache.syncope.core.services;
 import javax.ws.rs.BadRequestException;
 
 import org.apache.syncope.common.services.WorkflowService;
-import org.apache.syncope.common.services.WorkflowTasks;
+import org.apache.syncope.common.types.WorkflowTasks;
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.rest.controller.WorkflowController;

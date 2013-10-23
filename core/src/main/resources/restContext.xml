@@ -37,6 +37,13 @@ under the License.
   <context:component-scan base-package="org.apache.syncope.core.services"/>
 
   <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.JAXBElementProvider">
+    <property name="namespacePrefixes">
+      <map>
+        <entry key="http://syncope.apache.org/1.2">
+          <value>syncope</value>
+        </entry>
+      </map>      
+    </property>
     <property name="depthProperties">
       <bean id="depthProperties" class="org.apache.cxf.staxutils.DocumentDepthProperties">
         <property name="innerElementCountThreshold" value="500"/>
@@ -68,7 +75,16 @@ under the License.
 
   <bean id="exceptionMapper" class="org.apache.syncope.core.rest.utils.RestServiceExceptionMapper"/>
 
-  <jaxrs:server id="restContainer" address="/">
+  <bean id="wadlGenerator" class="org.apache.cxf.jaxrs.model.wadl.WadlGenerator">
+    <property name="applicationTitle" value="Apache Syncope ${project.version}"/>
+    <property name="namespacePrefix" value="syncope"/>
+    <property name="linkJsonToXmlSchema" value="true"/>
+    <property name="useJaxbContextForQnames" value="true"/>
+    <property name="ignoreMessageWriters" value="true"/>
+    <property name="addResourceAndMethodIds" value="true"/>
+  </bean>
+  
+  <jaxrs:server id="restContainer" address="/" staticSubresourceResolution="true">
     <jaxrs:serviceBeans>
       <ref bean="connectorServiceImpl"/>
       <ref bean="configurationServiceImpl"/>
@@ -87,12 +103,13 @@ under the License.
       <ref bean="userWorkflowServiceImpl"/>
     </jaxrs:serviceBeans>
     <jaxrs:resourceComparator>
-      <bean id="myServiceComparator" class="org.apache.syncope.core.rest.utils.QueryResourceInfoComparator"/>
+      <bean id="queryResourceInfoComparator" class="org.apache.syncope.core.rest.utils.QueryResourceInfoComparator"/>
     </jaxrs:resourceComparator>
     <jaxrs:providers>
       <ref bean="jaxbProvider"/>
       <ref bean="jsonProvider"/>
       <ref bean="exceptionMapper"/>
+      <ref bean="wadlGenerator"/>
     </jaxrs:providers>
     <jaxrs:extensionMappings>
       <entry key="json" value="application/json;charset=UTF-8"/>

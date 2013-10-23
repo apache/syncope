@@ -16,33 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.services;
+@XmlSchema(namespace = SyncopeConstants.NAMESPACE)
+package org.apache.syncope.common.mod;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XmlRootElement
-public class ReportletConfClasses {
-
-    private List<String> confClasses;
-
-    public ReportletConfClasses() {
-        this.confClasses = new ArrayList<String>();
-    }
-
-    public ReportletConfClasses(final Collection<String> confClasses) {
-        this();
-        this.confClasses.addAll(confClasses);
-    }
-
-    public List<String> getConfClasses() {
-        return confClasses;
-    }
-
-    public void setConfClasses(final List<String> confClasses) {
-        this.confClasses = confClasses;
-    }
-}
+import javax.xml.bind.annotation.XmlSchema;
+import org.apache.syncope.common.SyncopeConstants;

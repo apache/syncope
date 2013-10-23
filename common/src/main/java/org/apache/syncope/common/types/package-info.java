@@ -16,4 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+@XmlSchema(namespace = SyncopeConstants.NAMESPACE)
 package org.apache.syncope.common.types;
+
+import javax.xml.bind.annotation.XmlSchema;
+import org.apache.syncope.common.SyncopeConstants;

@@ -35,8 +35,6 @@ import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.to.WorkflowFormPropertyTO;
-import org.apache.syncope.common.types.AuditElements;
-import org.apache.syncope.common.types.AuditLoggerName;
 import org.junit.Test;
 
 public class JSONTest {
@@ -117,19 +115,5 @@ public class JSONTest {
 
         ReportTO actual = mapper.readValue(writer.toString(), ReportTO.class);
         assertEquals(report, actual);
-    }
-
-    @Test
-    public void testAuditLoggerName() throws IOException {
-        AuditLoggerName auditLoggerName = new AuditLoggerName(AuditElements.Category.report,
-                AuditElements.ReportSubCategory.create, AuditElements.Result.failure);
-
-        ObjectMapper mapper = new ObjectMapper();
-
-        StringWriter writer = new StringWriter();
-        mapper.writeValue(writer, auditLoggerName);
-
-        AuditLoggerName actual = mapper.readValue(writer.toString(), AuditLoggerName.class);
-        assertEquals(auditLoggerName, actual);
     }
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.services;
 
+import org.apache.syncope.common.types.ReportletConfClasses;
 import java.util.List;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;

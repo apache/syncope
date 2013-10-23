@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.services.ReportService;
-import org.apache.syncope.common.services.ReportletConfClasses;
+import org.apache.syncope.common.types.ReportletConfClasses;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;

@@ -16,32 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.services;
+@XmlSchema(namespace = SyncopeConstants.NAMESPACE)
+package org.apache.syncope.common;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XmlRootElement
-public class WorkflowTasks {
-
-    private List<String> tasks;
-
-    public WorkflowTasks() {
-        this.tasks = new ArrayList<String>();
-    }
-
-    public WorkflowTasks(final Collection<String> tasks) {
-        this();
-        this.tasks.addAll(tasks);
-    }
-
-    public List<String> getTasks() {
-        return tasks;
-    }
-
-    public void setTasks(final List<String> tasks) {
-        this.tasks = tasks;
-    }
-}
+import javax.xml.bind.annotation.XmlSchema;

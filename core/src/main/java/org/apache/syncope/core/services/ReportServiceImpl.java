@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ReportService;
-import org.apache.syncope.common.services.ReportletConfClasses;
+import org.apache.syncope.common.types.ReportletConfClasses;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;

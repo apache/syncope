@@ -49,6 +49,15 @@ under the License.
     <servlet-name>CXFServlet</servlet-name>
     <url-pattern>/rest/*</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <servlet-name>WADLServlet</servlet-name>
+    <servlet-class>org.apache.syncope.core.rest.WADLServlet</servlet-class>
+    <load-on-startup>2</load-on-startup> 
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>WADLServlet</servlet-name>
+    <url-pattern>/rest/doc/*</url-pattern>
+  </servlet-mapping>
 
   <filter>
     <filter-name>encodingFilter</filter-name>

@@ -42,12 +42,12 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
     private UserController controller;
 
     @Override
-    public UserTO activate(final long userId, final String token) {
+    public UserTO activate(final Long userId, final String token) {
         return controller.activate(userId, token);
     }
 
     @Override
-    public UserTO activate(final long userId, final String token, final PropagationRequestTO propagationRequestTO) {
+    public UserTO activate(final Long userId, final String token, final PropagationRequestTO propagationRequestTO) {
         return controller.activate(userId, token, propagationRequestTO);
     }
 
@@ -93,12 +93,12 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
     }
 
     @Override
-    public UserTO reactivate(final long userId) {
+    public UserTO reactivate(final Long userId) {
         return controller.reactivate(userId);
     }
 
     @Override
-    public UserTO reactivate(final long userId, final PropagationRequestTO propagationRequestTO) {
+    public UserTO reactivate(final Long userId, final PropagationRequestTO propagationRequestTO) {
         return controller.reactivate(userId, propagationRequestTO);
     }
 
@@ -144,12 +144,12 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
     }
 
     @Override
-    public UserTO suspend(final long userId) {
+    public UserTO suspend(final Long userId) {
         return controller.suspend(userId);
     }
 
     @Override
-    public UserTO suspend(final long userId, final PropagationRequestTO propagationRequestTO) {
+    public UserTO suspend(final Long userId, final PropagationRequestTO propagationRequestTO) {
         return controller.suspend(userId, propagationRequestTO);
     }
 

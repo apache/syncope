@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.AbstractBaseBean;
 
 /**
- * Propagation request on internal storage or on 0+ external resources.
+ * External resources to be used for propagation-related operations.
  */
 @XmlRootElement(name = "propagationTargets")
 @XmlType
