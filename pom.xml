@@ -1005,7 +1005,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.4.4</version>
+          <version>1.4.5</version>
           <configuration>
             <container>
               <containerId>tomcat7x</containerId>
