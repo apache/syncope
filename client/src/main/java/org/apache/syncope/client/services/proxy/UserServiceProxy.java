@@ -77,6 +77,7 @@ public class UserServiceProxy extends SpringServiceProxy implements UserService 
 
     @Override
     public UserTO update(final Long userId, final UserMod userMod) {
+        userMod.setId(userId);
         return getRestTemplate().postForObject(baseUrl + "user/update", userMod, UserTO.class);
     }
 

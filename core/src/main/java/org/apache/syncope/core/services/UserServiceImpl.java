@@ -165,6 +165,7 @@ public class UserServiceImpl implements UserService, ContextAware {
 
     @Override
     public UserTO update(final Long userId, final UserMod userMod) {
+        userMod.setId(userId);
         return userController.update(userMod);
     }
 

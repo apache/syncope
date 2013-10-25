@@ -108,6 +108,7 @@ public class RoleServiceProxy extends SpringServiceProxy implements RoleService 
 
     @Override
     public RoleTO update(final Long roleId, final RoleMod roleMod) {
+        roleMod.setId(roleId);
         return getRestTemplate().postForObject(baseUrl + "role/update", roleMod, RoleTO.class);
     }
 }

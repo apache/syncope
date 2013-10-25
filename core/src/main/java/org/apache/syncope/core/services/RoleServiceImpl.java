@@ -115,6 +115,7 @@ public class RoleServiceImpl implements RoleService, ContextAware {
 
     @Override
     public RoleTO update(final Long roleId, final RoleMod roleMod) {
+        roleMod.setId(roleId);
         return roleController.update(roleMod);
     }
 
