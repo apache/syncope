@@ -207,7 +207,7 @@ public interface UserService {
      * @param userMod modification to be applied to user matching the provided userId
      * @return Updated user.
      */
-    @PUT
+    @POST
     @Path("{userId}")
     @Descriptions({
         @Description(target = DocTarget.METHOD, value = "Updates user matching the provided userId"),

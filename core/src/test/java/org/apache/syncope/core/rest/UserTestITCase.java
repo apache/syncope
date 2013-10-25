@@ -142,8 +142,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void selfRead() {
-        UserService userService2 =
-                clientFactory.create("rossini", ADMIN_PWD).getService(UserService.class);
+        UserService userService2 = clientFactory.create("rossini", ADMIN_PWD).getService(UserService.class);
 
         try {
             userService2.read(1L);
@@ -207,8 +206,8 @@ public class UserTestITCase extends AbstractTest {
         } finally {
             for (PasswordPolicyTO policyTO : policies) {
                 Response response = policyService.create(policyTO);
-                PasswordPolicyTO cPolicyTO =
-                        adminClient.getObject(response.getLocation(), PolicyService.class, PasswordPolicyTO.class);
+                PasswordPolicyTO cPolicyTO = adminClient.getObject(
+                        response.getLocation(), PolicyService.class, PasswordPolicyTO.class);
                 assertNotNull(cPolicyTO);
             }
         }
@@ -470,8 +469,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
 
         // 3. verify password
-        UserService userService1 =
-                clientFactory.create(newUserTO.getUsername(), "password123").getService(UserService.class);
+        UserService userService1 = clientFactory.create(
+                newUserTO.getUsername(), "password123").getService(UserService.class);
         try {
             UserTO user = userService1.readSelf();
             assertNotNull(user);
@@ -479,8 +478,8 @@ public class UserTestITCase extends AbstractTest {
             fail("Credentials should be valid and not cause AccessControlException");
         }
 
-        UserService userService2 =
-                clientFactory.create(newUserTO.getUsername(), "passwordXX").getService(UserService.class);
+        UserService userService2 = clientFactory.create(
+                newUserTO.getUsername(), "passwordXX").getService(UserService.class);
         try {
             userService2.readSelf();
             fail("Credentials are invalid, thus request should raise AccessControlException");
@@ -577,8 +576,8 @@ public class UserTestITCase extends AbstractTest {
         assertNull(form.getOwner());
 
         // 3. claim task from rossini, not in role 7 (designated for approval in workflow definition): fail
-        UserWorkflowService userService2 =
-                clientFactory.create("rossini", ADMIN_PWD).getService(UserWorkflowService.class);
+        UserWorkflowService userService2 = clientFactory.create(
+                "rossini", ADMIN_PWD).getService(UserWorkflowService.class);
 
         try {
             userService2.claimForm(form.getTaskId());
@@ -588,8 +587,8 @@ public class UserTestITCase extends AbstractTest {
         }
 
         // 4. claim task from bellini, in role 7
-        UserWorkflowService userService3 =
-                clientFactory.create("bellini", ADMIN_PWD).getService(UserWorkflowService.class);
+        UserWorkflowService userService3 = clientFactory.create(
+                "bellini", ADMIN_PWD).getService(UserWorkflowService.class);
 
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);
@@ -610,7 +609,7 @@ public class UserTestITCase extends AbstractTest {
         Exception exception = null;
         try {
             jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
-                    new String[] {userTO.getUsername()}, Integer.class);
+                    new String[] { userTO.getUsername() }, Integer.class);
         } catch (EmptyResultDataAccessException e) {
             exception = e;
         }
@@ -644,7 +643,7 @@ public class UserTestITCase extends AbstractTest {
         Exception exception = null;
         try {
             jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
-                    new String[] {userTO.getUsername()}, Integer.class);
+                    new String[] { userTO.getUsername() }, Integer.class);
         } catch (EmptyResultDataAccessException e) {
             exception = e;
         }
@@ -968,7 +967,6 @@ public class UserTestITCase extends AbstractTest {
         // --------------------------------------
         // Create operation
         // --------------------------------------
-
         UserTO userTO = getUniqueSampleTO("t@p.mode");
 
         // add a membership
@@ -1857,16 +1855,16 @@ public class UserTestITCase extends AbstractTest {
 
         final String pwdOnSyncope = userTO.getPassword();
 
-        ConnObjectTO userOnDb =
-                resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, AttributableType.USER, userTO.getId());
+        ConnObjectTO userOnDb = resourceService.getConnectorObject(
+                RESOURCE_NAME_TESTDB, AttributableType.USER, userTO.getId());
         final AttributeTO pwdOnTestDbAttr = userOnDb.getAttrMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDbAttr);
         assertNotNull(pwdOnTestDbAttr.getValues());
         assertFalse(pwdOnTestDbAttr.getValues().isEmpty());
         final String pwdOnTestDb = pwdOnTestDbAttr.getValues().iterator().next();
 
-        ConnObjectTO userOnDb2 =
-                resourceService.getConnectorObject("resource-testdb2", AttributableType.USER, userTO.getId());
+        ConnObjectTO userOnDb2 = resourceService.getConnectorObject(
+                "resource-testdb2", AttributableType.USER, userTO.getId());
         final AttributeTO pwdOnTestDb2Attr = userOnDb2.getAttrMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDb2Attr);
         assertNotNull(pwdOnTestDb2Attr.getValues());
@@ -2140,8 +2138,8 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
 
         // 3. read role on resource, check that user DN is included in uniqueMember
-        ConnObjectTO connObj =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, roleTO.getId());
+        ConnObjectTO connObj = resourceService.getConnectorObject(
+                RESOURCE_NAME_LDAP, AttributableType.ROLE, roleTO.getId());
         assertNotNull(connObj);
         assertTrue(connObj.getAttrMap().get("uniqueMember").getValues().
                 contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
@@ -2190,8 +2188,8 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
 
         // 3. read user on resource
-        ConnObjectTO connObj =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.USER, userTO.getId());
+        ConnObjectTO connObj = resourceService.getConnectorObject(
+                RESOURCE_NAME_LDAP, AttributableType.USER, userTO.getId());
         assertNotNull(connObj);
 
         // 4. remove role
@@ -2376,8 +2374,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(form);
 
         // 3. first claim ny bellini ....
-        UserWorkflowService userService3 =
-                clientFactory.create("bellini", ADMIN_PWD).getService(UserWorkflowService.class);
+        UserWorkflowService userService3 = clientFactory.create(
+                "bellini", ADMIN_PWD).getService(UserWorkflowService.class);
 
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);
@@ -2552,4 +2550,17 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.update(userMod.getId(), userMod);
         assertEquals("14", userTO.getAttrMap().get("makeItDouble").getValues().get(0));
     }
+
+    @Test
+    public void issueSYNCOPE426() {
+        UserTO userTO = getUniqueSampleTO("syncope426@syncope.apache.org");
+        userTO = createUser(userTO);
+        assertNotNull(userTO);
+
+        UserMod userMod = new UserMod();
+        userMod.setPassword("anotherPassword123");
+        userTO = userService.update(userTO.getId(), userMod);
+        assertNotNull(userTO);
+    }
+
 }

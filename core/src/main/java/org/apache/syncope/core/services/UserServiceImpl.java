@@ -165,6 +165,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
 
     @Override
     public UserTO update(final Long userId, final UserMod userMod) {
+        userMod.setId(userId);
         return controller.update(userMod);
     }
 

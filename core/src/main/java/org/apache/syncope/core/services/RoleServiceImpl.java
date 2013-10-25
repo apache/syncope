@@ -110,6 +110,7 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService,
 
     @Override
     public RoleTO update(final Long roleId, final RoleMod roleMod) {
+        roleMod.setId(roleId);
         return controller.update(roleMod);
     }
 
