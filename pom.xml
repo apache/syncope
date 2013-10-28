@@ -339,7 +339,7 @@ under the License.
 
     <apacheds.version>1.5.7</apacheds.version>
 
-    <tomcat.version>7.0.42</tomcat.version>
+    <tomcat.version>7.0.47</tomcat.version>
 
     <jasypt.version>1.9.1</jasypt.version>
  
