@@ -34,7 +34,7 @@ import org.apache.syncope.common.types.AuditElements.ConnectorSubCategory;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
@@ -43,6 +43,7 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
+import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.rest.data.ConnInstanceDataBinder;
@@ -85,19 +86,14 @@ public class ConnectorController extends AbstractController {
             connInstance = connInstanceDAO.save(connInstance);
             auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.success,
                     "Successfully created connector instance: " + connInstance.getDisplayName());
-        } catch (Exception e) {
+        } catch (InvalidEntityException e) {
             auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.failure,
                     "Could not create connector instance: " + connInstanceTO.getDisplayName(), e);
 
-            SyncopeClientCompositeException scce =
-                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-
-            SyncopeClientException invalidConnInstance = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidConnInstance);
-            invalidConnInstance.addElement(e.getMessage());
-
-            scce.addException(invalidConnInstance);
-            throw scce;
+            SyncopeClientException invalidConnInstance = SyncopeClientException.build(
+                    ClientExceptionType.InvalidConnInstance);
+            invalidConnInstance.getElements().add(e.getMessage());
+            throw invalidConnInstance;
         }
 
         return binder.getConnInstanceTO(connInstance);
@@ -112,19 +108,14 @@ public class ConnectorController extends AbstractController {
             connInstance = connInstanceDAO.save(connInstance);
             auditManager.audit(Category.connector, ConnectorSubCategory.update, Result.success,
                     "Successfully update connector instance: " + connInstance.getDisplayName());
-        } catch (Exception e) {
+        } catch (InvalidEntityException e) {
             auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.failure,
                     "Could not update connector instance: " + connInstanceTO.getDisplayName(), e);
 
-            SyncopeClientCompositeException scce =
-                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-
-            SyncopeClientException invalidConnInstance = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidConnInstance);
-            invalidConnInstance.addElement(e.getMessage());
-
-            scce.addException(invalidConnInstance);
-            throw scce;
+            SyncopeClientException invalidConnInstance = SyncopeClientException.build(
+                    ClientExceptionType.InvalidConnInstance);
+            invalidConnInstance.getElements().add(e.getMessage());
+            throw invalidConnInstance;
         }
 
         return binder.getConnInstanceTO(connInstance);
@@ -138,17 +129,12 @@ public class ConnectorController extends AbstractController {
         }
 
         if (!connInstance.getResources().isEmpty()) {
-            SyncopeClientCompositeException scce =
-                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-
-            SyncopeClientException associatedResources =
-                    new SyncopeClientException(SyncopeClientExceptionType.AssociatedResources);
+            SyncopeClientException associatedResources = SyncopeClientException.build(
+                    ClientExceptionType.AssociatedResources);
             for (ExternalResource resource : connInstance.getResources()) {
-                associatedResources.addElement(resource.getName());
+                associatedResources.getElements().add(resource.getName());
             }
-
-            scce.addException(associatedResources);
-            throw scce;
+            throw associatedResources;
         }
 
         ConnInstanceTO connToDelete = binder.getConnInstanceTO(connInstance);
@@ -228,8 +214,8 @@ public class ConnectorController extends AbstractController {
                 for (String propName : properties.getPropertyNames()) {
                     ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
 
-                    ConfigurationPropertyImpl configurationProperty =
-                            (ConfigurationPropertyImpl) properties.getProperty(propName);
+                    ConfigurationPropertyImpl configurationProperty = (ConfigurationPropertyImpl) properties.
+                            getProperty(propName);
 
                     connConfPropSchema.setName(configurationProperty.getName());
                     connConfPropSchema.setDisplayName(configurationProperty.getDisplayName(propName));
@@ -269,8 +255,8 @@ public class ConnectorController extends AbstractController {
         // We cannot use Spring bean because this method could be used during resource definition or modification:
         // bean couldn't exist or couldn't be updated.
         // This is the reason why we should take a "not mature" connector facade proxy to ask for schema names.
-        final List<String> result =
-                new ArrayList<String>(connFactory.createConnector(connInstance, conf).getSchemaNames(includeSpecial));
+        final List<String> result = new ArrayList<String>(connFactory.createConnector(connInstance, conf).
+                getSchemaNames(includeSpecial));
 
         auditManager.audit(Category.connector, ConnectorSubCategory.getSchemaNames, Result.success,
                 "Successfully listed " + (includeSpecial ? "all " : "") + "schema names (" + result.size() + ") "
@@ -329,8 +315,8 @@ public class ConnectorController extends AbstractController {
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @Transactional(readOnly = true)
     public boolean check(final ConnInstanceTO connInstanceTO) {
-        final Connector connector =
-                connFactory.createConnector(binder.getConnInstance(connInstanceTO), connInstanceTO.getConfiguration());
+        final Connector connector = connFactory.createConnector(binder.getConnInstance(connInstanceTO), connInstanceTO.
+                getConfiguration());
 
         boolean result;
         try {

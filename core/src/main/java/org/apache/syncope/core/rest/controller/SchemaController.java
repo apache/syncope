@@ -30,7 +30,7 @@ import org.apache.syncope.common.to.VirSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.SchemaType;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
@@ -94,12 +94,9 @@ public class SchemaController extends AbstractController {
             final T schemaTO) {
 
         if (StringUtils.isBlank(schemaTO.getName())) {
-            SyncopeClientCompositeException sccee =
-                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
-            sce.addElement("Schema name");
-            sccee.addException(sce);
-            throw sccee;
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
+            sce.getElements().add("Schema name");
+            throw sce;
         }
 
         final AttributableUtil attrUtil = AttributableUtil.getInstance(attrType);

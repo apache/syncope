@@ -24,7 +24,7 @@ public class ParsingValidationException extends ValidationException {
 
     private static final long serialVersionUID = 5669262895008285522L;
 
-    public ParsingValidationException(String message, Throwable cause) {
+    public ParsingValidationException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

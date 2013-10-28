@@ -121,7 +121,7 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
                 } catch (Exception e) {
                     LOG.error("While creating policy", e);
 
-                    error(getString(Constants.ERROR) + ":" + e.getMessage());
+                    error(getString(Constants.ERROR) + ": " + e.getMessage());
                     target.add(getPage().get(Constants.FEEDBACK));
                 }
             }

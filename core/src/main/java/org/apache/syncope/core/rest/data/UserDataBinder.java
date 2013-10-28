@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Resource;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -33,7 +32,7 @@ import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.common.types.ResourceOperation;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
@@ -181,8 +180,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             user.setPassword(password, getPredefinedCipherAlgoritm(), passwordHistorySize);
         } catch (NotFoundException e) {
             final SyncopeClientException invalidCiperAlgorithm =
-                    new SyncopeClientException(SyncopeClientExceptionType.NotFound);
-            invalidCiperAlgorithm.addElement(e.getMessage());
+                    SyncopeClientException.build(ClientExceptionType.NotFound);
+            invalidCiperAlgorithm.getElements().add(e.getMessage());
             scce.addException(invalidCiperAlgorithm);
 
             throw scce;
@@ -190,8 +189,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     }
 
     public void create(final SyncopeUser user, final UserTO userTO) {
-        SyncopeClientCompositeException scce =
-                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
+        SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         // memberships
         SyncopeRole role;
@@ -246,8 +244,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     public PropagationByResource update(final SyncopeUser user, final UserMod userMod) {
         PropagationByResource propByRes = new PropagationByResource();
 
-        SyncopeClientCompositeException scce =
-                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
+        SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         Set<String> currentResources = user.getResourceNames();
 

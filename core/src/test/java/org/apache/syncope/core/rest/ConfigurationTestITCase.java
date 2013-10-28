@@ -38,8 +38,7 @@ import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.types.EntityViolationType;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -57,8 +56,8 @@ public class ConfigurationTestITCase extends AbstractTest {
         Response response = configurationService.create(configurationTO);
         assertNotNull(response);
         assertEquals(HttpStatus.SC_CREATED, response.getStatus());
-        ConfigurationTO newConfigurationTO =
-                adminClient.getObject(response.getLocation(), ConfigurationService.class, ConfigurationTO.class);
+        ConfigurationTO newConfigurationTO = adminClient.getObject(response.getLocation(), ConfigurationService.class,
+                ConfigurationTO.class);
         assertEquals(configurationTO, newConfigurationTO);
     }
 
@@ -66,8 +65,8 @@ public class ConfigurationTestITCase extends AbstractTest {
     public void delete() throws UnsupportedEncodingException {
         try {
             configurationService.delete("nonExistent");
-        } catch (SyncopeClientCompositeException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
         }
 
         ConfigurationTO tokenLengthTO = configurationService.read("token.length");
@@ -75,15 +74,15 @@ public class ConfigurationTestITCase extends AbstractTest {
         configurationService.delete("token.length");
         try {
             configurationService.read("token.length");
-        } catch (SyncopeClientCompositeException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
         }
 
         Response response = configurationService.create(tokenLengthTO);
         assertNotNull(response);
         assertEquals(HttpStatus.SC_CREATED, response.getStatus());
-        ConfigurationTO newConfigurationTO =
-                adminClient.getObject(response.getLocation(), ConfigurationService.class, ConfigurationTO.class);
+        ConfigurationTO newConfigurationTO = adminClient.getObject(response.getLocation(), ConfigurationService.class,
+                ConfigurationTO.class);
         assertEquals(tokenLengthTO, newConfigurationTO);
     }
 
@@ -143,12 +142,12 @@ public class ConfigurationTestITCase extends AbstractTest {
         try {
             configurationService.create(configurationTO);
             fail();
-        } catch (SyncopeClientCompositeException scce) {
-            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidSyncopeConf);
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSyncopeConf, e.getType());
 
-            assertNotNull(sce.getElements());
-            assertEquals(1, sce.getElements().size());
-            assertTrue(sce.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
+            assertNotNull(e.getElements());
+            assertEquals(1, e.getElements().size());
+            assertTrue(e.getElements().iterator().next().toString().contains(EntityViolationType.InvalidName.name()));
         }
     }
 }

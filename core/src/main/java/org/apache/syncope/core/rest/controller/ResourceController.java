@@ -37,7 +37,7 @@ import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.ResourceSubCategory;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.MappingPurpose;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
@@ -112,12 +112,9 @@ public class ResourceController extends AbstractController {
         LOG.debug("Resource creation: {}", resourceTO);
 
         if (StringUtils.isBlank(resourceTO.getName())) {
-            SyncopeClientCompositeException sccee =
-                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
-            sce.addElement("Resource name");
-            sccee.addException(sce);
-            throw sccee;
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
+            sce.getElements().add("Resource name");
+            throw sce;
         }
 
         if (resourceDAO.find(resourceTO.getName()) != null) {
@@ -357,12 +354,9 @@ public class ResourceController extends AbstractController {
         } catch (Exception e) {
             LOG.error("Error retrieving {} method", methodName, e);
 
-            SyncopeClientCompositeException scce =
-                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Unknown);
-            sce.addElement("Operation execution failed");
-            scce.addException(sce);
-            throw scce;
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
+            sce.getElements().add("Operation execution failed");
+            throw sce;
         }
     }
 }

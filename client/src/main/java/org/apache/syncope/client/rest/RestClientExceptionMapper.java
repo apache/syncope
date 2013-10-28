@@ -19,7 +19,6 @@
 package org.apache.syncope.client.rest;
 
 import java.security.AccessControlException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +28,8 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import javax.xml.ws.WebServiceException;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.SyncopeConstants;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.slf4j.Logger;
@@ -48,28 +48,25 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
 
     @Override
     public Exception fromResponse(final Response response) {
-        Exception ex = null;
         final int statusCode = response.getStatus();
+        Exception ex;
 
-        // 1. Check for composite exception in HTTP header
-        SyncopeClientCompositeException scce = checkCompositeException(response);
+        // 1. Check for client (possibly composite) exception in HTTP header
+        SyncopeClientCompositeException scce = checkSyncopeClientCompositeException(response);
         if (scce != null) {
-            ex = scce;
-
-            // TODO reduce SCCEE to really composite ones and use normal exception for others
-            // } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
-            // ex = new UnauthorizedRoleException(-1L);
-
-            // 2. Map SC_UNAUTHORIZED
-        } else if (statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
+            if (scce.getExceptions().size() == 1) {
+                ex = scce.getExceptions().iterator().next();
+            } else {
+                ex = scce;
+            }
+        } // 2. Map SC_UNAUTHORIZED
+        else if (statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
             ex = new AccessControlException("Remote unauthorized exception");
-
-            // 3. Map SC_BAD_REQUEST
-        } else if (statusCode == Response.Status.BAD_REQUEST.getStatusCode()) {
+        } // 3. Map SC_BAD_REQUEST
+        else if (statusCode == Response.Status.BAD_REQUEST.getStatusCode()) {
             ex = new BadRequestException();
-
-        } else {
-            // 4. All other codes are mapped to runtime exception with HTTP code information
+        } // 4. All other codes are mapped to runtime exception with HTTP code information
+        else {
             ex = new WebServiceException(String.format("Remote exception with status code: %s",
                     Response.Status.fromStatusCode(statusCode).name()));
         }
@@ -77,44 +74,35 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
         return ex;
     }
 
-    private SyncopeClientCompositeException checkCompositeException(final Response response) {
-        final int statusCode = response.getStatus();
-        List<Object> exTypesInHeaders = response.getHeaders().
-                get(SyncopeClientCompositeException.EXCEPTION_TYPE_HEADER);
+    private SyncopeClientCompositeException checkSyncopeClientCompositeException(final Response response) {
+        List<Object> exTypesInHeaders = response.getHeaders().get(SyncopeConstants.REST_EXCEPTION_TYPE_HEADER);
         if (exTypesInHeaders == null) {
-            LOG.debug("No " + SyncopeClientCompositeException.EXCEPTION_TYPE_HEADER + " provided");
+            LOG.debug("No " + SyncopeConstants.REST_EXCEPTION_TYPE_HEADER + " provided");
             return null;
         }
 
-        final SyncopeClientCompositeException compException =
-                new SyncopeClientCompositeException(statusCode);
+        final SyncopeClientCompositeException compException = SyncopeClientException.buildComposite();
 
         final Set<String> handledExceptions = new HashSet<String>();
         for (Object exceptionTypeValue : exTypesInHeaders) {
             final String exTypeAsString = (String) exceptionTypeValue;
-            SyncopeClientExceptionType exceptionType = null;
+            ClientExceptionType exceptionType = null;
             try {
-                exceptionType = SyncopeClientExceptionType.getFromHeaderValue(exTypeAsString);
+                exceptionType = ClientExceptionType.fromHeaderValue(exTypeAsString);
             } catch (IllegalArgumentException e) {
-                LOG.error("Unexpected value of " + SyncopeClientCompositeException.EXCEPTION_TYPE_HEADER + ": "
+                LOG.error("Unexpected value of " + SyncopeConstants.REST_EXCEPTION_TYPE_HEADER + ": "
                         + exTypeAsString, e);
             }
             if (exceptionType != null) {
                 handledExceptions.add(exTypeAsString);
 
-                final SyncopeClientException clientException = new SyncopeClientException();
-                clientException.setType(exceptionType);
+                final SyncopeClientException clientException = SyncopeClientException.build(exceptionType);
+
                 if (response.getHeaders().get(exceptionType.getElementHeaderName()) != null
                         && !response.getHeaders().get(exceptionType.getElementHeaderName()).isEmpty()) {
-                    // TODO update clientException to support list of objects
-                    final List<Object> elObjectList = response.getHeaders().get(exceptionType.getElementHeaderName());
-                    final List<String> elStringList = new ArrayList<String>();
-                    for (Object elementObject : elObjectList) {
-                        if (elementObject instanceof String) {
-                            elStringList.add((String) elementObject);
-                        }
-                    }
-                    clientException.setElements(elStringList);
+
+                    clientException.getElements().addAll(
+                            response.getHeaders().get(exceptionType.getElementHeaderName()));
                 }
                 compException.addException(clientException);
             }

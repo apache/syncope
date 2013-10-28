@@ -21,13 +21,11 @@ package org.apache.syncope.core.rest.data;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.util.BeanUtils;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
@@ -80,30 +78,26 @@ public class ConnInstanceDataBinder {
     }
 
     public ConnInstance getConnInstance(final ConnInstanceTO connInstanceTO) {
-        SyncopeClientCompositeException scee =
-                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-
-        SyncopeClientException requiredValuesMissing = new SyncopeClientException(
-                SyncopeClientExceptionType.RequiredValuesMissing);
+        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         if (connInstanceTO.getLocation() == null) {
-            requiredValuesMissing.addElement("location");
+            sce.getElements().add("location");
         }
 
         if (connInstanceTO.getBundleName() == null) {
-            requiredValuesMissing.addElement("bundlename");
+            sce.getElements().add("bundlename");
         }
 
         if (connInstanceTO.getVersion() == null) {
-            requiredValuesMissing.addElement("bundleversion");
+            sce.getElements().add("bundleversion");
         }
 
         if (connInstanceTO.getConnectorName() == null) {
-            requiredValuesMissing.addElement("connectorname");
+            sce.getElements().add("connectorname");
         }
 
         if (connInstanceTO.getConfiguration() == null || connInstanceTO.getConfiguration().isEmpty()) {
-            requiredValuesMissing.addElement("configuration");
+            sce.getElements().add("configuration");
         }
 
         ConnInstance connInstance = new ConnInstance();
@@ -114,28 +108,18 @@ public class ConnInstanceDataBinder {
         }
 
         // Throw composite exception if there is at least one element set
-        // in the composing exceptions
-
-        if (!requiredValuesMissing.isEmpty()) {
-            scee.addException(requiredValuesMissing);
-        }
-
-        if (scee.hasExceptions()) {
-            throw scee;
+        if (!sce.isEmpty()) {
+            throw sce;
         }
 
         return connInstance;
     }
 
     public ConnInstance updateConnInstance(final long connInstanceId, final ConnInstanceTO connInstanceTO) {
-        SyncopeClientCompositeException scce =
-                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-
-        SyncopeClientException requiredValuesMissing = new SyncopeClientException(
-                SyncopeClientExceptionType.RequiredValuesMissing);
+        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         if (connInstanceId == 0) {
-            requiredValuesMissing.addElement("connector id");
+            sce.getElements().add("connector id");
         }
 
         ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
@@ -170,14 +154,8 @@ public class ConnInstanceDataBinder {
 
         connInstance.setCapabilities(connInstanceTO.getCapabilities());
 
-        if (!requiredValuesMissing.isEmpty()) {
-            scce.addException(requiredValuesMissing);
-        }
-
-        // Throw composite exception if there is at least one element set
-        // in the composing exceptions
-        if (scce.hasExceptions()) {
-            throw scce;
+        if (!sce.isEmpty()) {
+            throw sce;
         }
 
         return connInstance;

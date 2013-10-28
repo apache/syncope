@@ -38,8 +38,7 @@ import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -86,8 +85,8 @@ public class RoleTestITCase extends AbstractTest {
         try {
             createRole(roleService, newRoleTO);
             fail();
-        } catch (SyncopeClientCompositeException sccee) {
-            assertNotNull(sccee.getException(SyncopeClientExceptionType.InvalidSyncopeRole));
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSyncopeRole, e.getType());
         }
     }
 
@@ -139,8 +138,8 @@ public class RoleTestITCase extends AbstractTest {
     public void delete() {
         try {
             roleService.delete(0L);
-        } catch (SyncopeClientCompositeException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
         }
 
         RoleTO roleTO = new RoleTO();
@@ -157,8 +156,8 @@ public class RoleTestITCase extends AbstractTest {
 
         try {
             roleService.read(deletedRole.getId());
-        } catch (SyncopeClientCompositeException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
         }
     }
 
@@ -197,17 +196,14 @@ public class RoleTestITCase extends AbstractTest {
         assertTrue(userTO.getMembershipMap().containsKey(1L));
         assertFalse(userTO.getMembershipMap().containsKey(3L));
 
-        RoleService roleService2 =
-                clientFactory.create("rossini", ADMIN_PWD).getService(RoleService.class);
+        RoleService roleService2 = clientFactory.create("rossini", ADMIN_PWD).getService(RoleService.class);
 
-        SyncopeClientException exception = null;
         try {
             roleService2.selfRead(3L);
             fail();
-        } catch (SyncopeClientCompositeException e) {
-            exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.UnauthorizedRole, e.getType());
         }
-        assertNotNull(exception);
 
         RoleTO roleTO = roleService2.selfRead(1L);
         assertNotNull(roleTO);
@@ -310,21 +306,19 @@ public class RoleTestITCase extends AbstractTest {
         roleMod.setName("Managing Director");
 
         // 3. try to update as verdi, not owner of role 7 - fail
-        RoleService roleService2 =
-                clientFactory.create("verdi", ADMIN_PWD).getService(RoleService.class);
+        RoleService roleService2 = clientFactory.create("verdi", ADMIN_PWD).getService(RoleService.class);
 
         try {
             roleService2.update(roleMod.getId(), roleMod);
             fail();
-        } catch (SyncopeClientCompositeException e) {
-            assertEquals(HttpStatus.SC_FORBIDDEN, e.getStatusCode());
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_UNAUTHORIZED, e.getType().getResponseStatus().getStatusCode());
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
 
         // 4. update as puccini, owner of role 7 because owner of role 6 with inheritance - success
-        RoleService roleService3 =
-                clientFactory.create("puccini", ADMIN_PWD).getService(RoleService.class);
+        RoleService roleService3 = clientFactory.create("puccini", ADMIN_PWD).getService(RoleService.class);
 
         roleTO = roleService3.update(roleMod.getId(), roleMod);
         assertEquals("Managing Director", roleTO.getName());
@@ -496,8 +490,8 @@ public class RoleTestITCase extends AbstractTest {
         try {
             roleService.update(roleMod.getId(), roleMod);
             fail();
-        } catch (SyncopeClientCompositeException e) {
-            assertNotNull(e.getException(SyncopeClientExceptionType.RequiredValuesMissing));
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
 
         // 4. also add an actual attribute for badge - it will work        

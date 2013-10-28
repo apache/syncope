@@ -22,12 +22,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ResourceOperation;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.connid.ConnObjectUtil;
@@ -159,15 +158,14 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         role.setInheritPasswordPolicy(roleTO.isInheritPasswordPolicy());
         role.setInheritAccountPolicy(roleTO.isInheritAccountPolicy());
 
-        SyncopeClientCompositeException scce =
-                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
+        SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         // name and parent
-        SyncopeClientException invalidRoles = new SyncopeClientException(SyncopeClientExceptionType.InvalidRoles);
+        SyncopeClientException invalidRoles = SyncopeClientException.build(ClientExceptionType.InvalidRoles);
         if (roleTO.getName() == null) {
             LOG.error("No name specified for this role");
 
-            invalidRoles.addElement("No name specified for this role");
+            invalidRoles.getElements().add("No name specified for this role");
         } else {
             role.setName(roleTO.getName());
         }
@@ -177,7 +175,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             if (parentRole == null) {
                 LOG.error("Could not find role with id " + roleTO.getParent());
 
-                invalidRoles.addElement(String.valueOf(roleTO.getParent()));
+                invalidRoles.getElements().add(String.valueOf(roleTO.getParent()));
                 scce.addException(invalidRoles);
             } else {
                 role.setParent(parentRole);
@@ -189,7 +187,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         if (otherRole != null) {
             LOG.error("Another role exists with the same name " + "and the same parent role: " + otherRole);
 
-            invalidRoles.addElement(roleTO.getName());
+            invalidRoles.getElements().add(roleTO.getName());
         }
 
         // attribute templates
@@ -245,13 +243,12 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
     public PropagationByResource update(final SyncopeRole role, final RoleMod roleMod) {
         PropagationByResource propByRes = new PropagationByResource();
 
-        SyncopeClientCompositeException scce =
-                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
+        SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         Set<String> currentResources = role.getResourceNames();
 
         // name
-        SyncopeClientException invalidRoles = new SyncopeClientException(SyncopeClientExceptionType.InvalidRoles);
+        SyncopeClientException invalidRoles = SyncopeClientException.build(ClientExceptionType.InvalidRoles);
         if (roleMod.getName() != null) {
             SyncopeRole otherRole = roleDAO.find(roleMod.getName(),
                     role.getParent() == null ? null : role.getParent().getId());
@@ -267,7 +264,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             } else {
                 LOG.error("Another role exists with the same name and the same parent role: " + otherRole);
 
-                invalidRoles.addElement(roleMod.getName());
+                invalidRoles.getElements().add(roleMod.getName());
                 scce.addException(invalidRoles);
             }
         }

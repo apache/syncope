@@ -30,7 +30,7 @@ import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.commons.StatusBean;
 import org.apache.syncope.console.commons.StatusUtils;
 import org.springframework.stereotype.Component;
@@ -78,7 +78,7 @@ public class UserRestClient extends AbstractAttributableRestClient {
         UserTO userTO = null;
         try {
             userTO = getService(UserService.class).read(id);
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
             LOG.error("While reading a user", e);
         }
         return userTO;
@@ -88,7 +88,7 @@ public class UserRestClient extends AbstractAttributableRestClient {
         UserTO userTO = null;
         try {
             userTO = getService(UserService.class).read(username);
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
             LOG.error("While reading a user", e);
         }
         return userTO;

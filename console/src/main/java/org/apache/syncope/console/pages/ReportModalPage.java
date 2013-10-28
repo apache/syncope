@@ -28,7 +28,7 @@ import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.types.ReportExecStatus;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.DateFormatROModel;
 import org.apache.syncope.console.commons.HttpResourceStream;
@@ -147,9 +147,9 @@ public class ReportModalPage extends BaseModalPage {
                     ((BasePage) callerPageRef.getPage()).setModalResult(true);
 
                     window.close(target);
-                } catch (SyncopeClientCompositeException e) {
+                } catch (SyncopeClientException e) {
                     LOG.error("While creating or updating report", e);
-                    error(getString(Constants.ERROR) + ":" + e.getMessage());
+                    error(getString(Constants.ERROR) + ": " + e.getMessage());
                     target.add(feedbackPanel);
                 }
             }
@@ -507,7 +507,7 @@ public class ReportModalPage extends BaseModalPage {
                             reportTO.getExecutions().remove(taskExecutionTO);
 
                             info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (SyncopeClientCompositeException scce) {
+                        } catch (SyncopeClientException scce) {
                             error(scce.getMessage());
                         }
 

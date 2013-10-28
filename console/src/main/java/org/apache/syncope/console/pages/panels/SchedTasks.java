@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.SchedTaskModalPage;
 import org.apache.syncope.console.pages.Tasks;
@@ -141,7 +141,7 @@ public class SchedTasks extends AbstractTasks {
                         try {
                             restClient.startExecution(taskTO.getId(), false);
                             getSession().info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (SyncopeClientCompositeException scce) {
+                        } catch (SyncopeClientException scce) {
                             error(scce.getMessage());
                         }
 
@@ -159,7 +159,7 @@ public class SchedTasks extends AbstractTasks {
                         try {
                             restClient.startExecution(taskTO.getId(), true);
                             getSession().info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (SyncopeClientCompositeException scce) {
+                        } catch (SyncopeClientException scce) {
                             error(scce.getMessage());
                         }
 
@@ -177,7 +177,7 @@ public class SchedTasks extends AbstractTasks {
                         try {
                             restClient.delete(taskTO.getId(), SchedTaskTO.class);
                             info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (SyncopeClientCompositeException scce) {
+                        } catch (SyncopeClientException scce) {
                             error(scce.getMessage());
                         }
                         target.add(container);

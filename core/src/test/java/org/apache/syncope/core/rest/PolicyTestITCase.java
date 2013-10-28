@@ -30,8 +30,8 @@ import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.SyncPolicySpec;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.types.ClientExceptionType;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.sync.TestSyncRule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -81,8 +81,8 @@ public class PolicyTestITCase extends AbstractTest {
         try {
             createPolicy(policy);
             fail();
-        } catch (SyncopeClientCompositeException sccee) {
-            assertNotNull(sccee.getException(SyncopeClientExceptionType.InvalidPasswordPolicy));
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidPasswordPolicy, e.getType());
         }
     }
 
@@ -94,8 +94,8 @@ public class PolicyTestITCase extends AbstractTest {
         try {
             createPolicy(policy);
             fail();
-        } catch (SyncopeClientCompositeException sccee) {
-            assertNotNull(sccee.getException(SyncopeClientExceptionType.InvalidSyncPolicy));
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSyncPolicy, e.getType());
         }
     }
 
@@ -150,14 +150,12 @@ public class PolicyTestITCase extends AbstractTest {
 
         policyService.delete(policyTO.getId());
 
-        Throwable t = null;
         try {
             policyService.read(policyTO.getId());
-        } catch (SyncopeClientCompositeException e) {
-            t = e;
+            fail();
+        } catch (SyncopeClientException e) {
+            assertNotNull(e);
         }
-
-        assertNotNull(t);
     }
 
     @Test

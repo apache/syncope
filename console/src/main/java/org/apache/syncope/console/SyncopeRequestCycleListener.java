@@ -21,7 +21,7 @@ package org.apache.syncope.console;
 import java.security.AccessControlException;
 import javax.ws.rs.BadRequestException;
 import javax.xml.ws.WebServiceException;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.pages.ErrorPage;
 import org.apache.wicket.Page;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
@@ -68,7 +68,7 @@ public class SyncopeRequestCycleListener extends AbstractRequestCycleListener {
 
             errorPage = new ErrorPage(errorParameters);
         } else if (e.getCause() instanceof BadRequestException || e.getCause() instanceof WebServiceException
-                || e.getCause() instanceof SyncopeClientCompositeException) {
+                || e.getCause() instanceof SyncopeClientException) {
 
             errorParameters.add("errorMessage", new StringResourceModel("restClientException", null).getString());
 

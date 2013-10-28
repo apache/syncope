@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.RollbackException;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserRequestTO;
@@ -30,7 +29,7 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.UserRequestSubCategory;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
@@ -263,10 +262,7 @@ public class UserRequestController {
         if (StringUtils.isBlank(request.getOwner())
                 || !request.getOwner().equalsIgnoreCase(EntitlementUtil.getAuthenticatedUsername())) {
 
-            final SyncopeClientCompositeException scce =
-                    new SyncopeClientCompositeException(Response.Status.UNAUTHORIZED.getStatusCode());
-            scce.addException(new SyncopeClientException(SyncopeClientExceptionType.Unauthorized));
-            throw scce;
+            throw SyncopeClientException.build(ClientExceptionType.Unauthorized);
         }
 
         final UserTO res;

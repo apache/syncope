@@ -27,7 +27,7 @@ import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.PolicyType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
@@ -182,7 +182,7 @@ public class PoliciesPanel extends Panel {
                             policyRestClient.delete(accountPolicyTO.getId(), accountPolicyTO.getClass());
                             info(getString(Constants.OPERATION_SUCCEEDED));
 
-                        } catch (SyncopeClientCompositeException e) {
+                        } catch (SyncopeClientException e) {
                             error(getString(Constants.OPERATION_ERROR));
 
                             LOG.error("While deleting resource {}({})", new Object[]{accountPolicyTO.getId(),

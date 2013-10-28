@@ -39,6 +39,8 @@ public interface RoleDAO extends AttributableDAO {
 
     List<SyncopeRole> findOwned(SyncopeUser owner);
 
+    List<SyncopeRole> findOwned(SyncopeRole owner);
+
     List<SyncopeRole> findByEntitlement(final Entitlement entitlement);
 
     List<SyncopeRole> findAncestors(SyncopeRole role);

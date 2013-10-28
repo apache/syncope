@@ -32,7 +32,7 @@ import org.apache.syncope.common.to.VirSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -48,7 +48,7 @@ public class SchemaRestClient extends BaseRestClient {
 
         try {
             schemas = getService(SchemaService.class).list(attrType, schemaType);
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
             LOG.error("While getting all schemas for {} and {}", attrType, schemaType, e);
         }
 
@@ -65,7 +65,7 @@ public class SchemaRestClient extends BaseRestClient {
 
         try {
             schemas = getService(SchemaService.class).list(type, SchemaType.NORMAL);
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
             LOG.error("While getting all schemas", e);
         }
 
@@ -80,7 +80,7 @@ public class SchemaRestClient extends BaseRestClient {
             for (AbstractSchemaTO schemaTO : schemas) {
                 schemaNames.add(schemaTO.getName());
             }
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
             LOG.error("While getting all user schema names", e);
         }
 
@@ -100,7 +100,7 @@ public class SchemaRestClient extends BaseRestClient {
             for (SchemaTO schemaTO : schemas) {
                 schemaNames.add(schemaTO.getName());
             }
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
             LOG.error("While getting all user schema names", e);
         }
 
@@ -118,7 +118,7 @@ public class SchemaRestClient extends BaseRestClient {
 
         try {
             userDerSchemas = getService(SchemaService.class).list(type, SchemaType.DERIVED);
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
             LOG.error("While getting all user derived schemas", e);
         }
 
@@ -139,7 +139,7 @@ public class SchemaRestClient extends BaseRestClient {
             for (DerSchemaTO schemaTO : userDerSchemas) {
                 userDerSchemasNames.add(schemaTO.getName());
             }
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
             LOG.error("While getting all user derived schema names", e);
         }
 
@@ -157,7 +157,7 @@ public class SchemaRestClient extends BaseRestClient {
 
         try {
             userVirSchemas = getService(SchemaService.class).list(type, SchemaType.VIRTUAL);
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
             LOG.error("While getting all user derived schemas", e);
         }
 
@@ -178,7 +178,7 @@ public class SchemaRestClient extends BaseRestClient {
             for (VirSchemaTO schemaTO : userVirSchemas) {
                 userVirSchemasNames.add(schemaTO.getName());
             }
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
             LOG.error("While getting all user derived schema names", e);
         }
 
@@ -205,7 +205,7 @@ public class SchemaRestClient extends BaseRestClient {
 
         try {
             schema = getService(SchemaService.class).read(type, SchemaType.NORMAL, name);
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
             LOG.error("While reading a user schema", e);
         }
         return schema;
@@ -260,7 +260,7 @@ public class SchemaRestClient extends BaseRestClient {
         DerSchemaTO derivedSchemaTO = null;
         try {
             derivedSchemaTO = getService(SchemaService.class).read(type, SchemaType.DERIVED, name);
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
             LOG.error("While reading a derived user schema", e);
         }
         return derivedSchemaTO;
@@ -316,7 +316,7 @@ public class SchemaRestClient extends BaseRestClient {
             List<ValidatorTO> validators = new ArrayList<ValidatorTO>(getService(ConfigurationService.class)
                     .getValidators());
             response = CollectionWrapper.unwrapValidator(validators);
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
             LOG.error("While getting all validators", e);
         }
         return response;

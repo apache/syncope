@@ -127,7 +127,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
                     bulkAssociationAction(target, BulkAssociationAction.Type.UNLINK, table, columns);
                 } catch (Exception e) {
                     LOG.error("Error unlinkink resources", e);
-                    error(getString(Constants.ERROR) + ":" + e.getMessage());
+                    error(getString(Constants.ERROR) + ": " + e.getMessage());
                     target.add(feedbackPanel);
                 }
             }
@@ -143,7 +143,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
                     bulkAssociationAction(target, BulkAssociationAction.Type.DEPROVISION, table, columns);
                 } catch (Exception e) {
                     LOG.error("Error de-provisioning user", e);
-                    error(getString(Constants.ERROR) + ":" + e.getMessage());
+                    error(getString(Constants.ERROR) + ": " + e.getMessage());
                     target.add(feedbackPanel);
                 }
             }
@@ -159,7 +159,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
                     bulkAssociationAction(target, BulkAssociationAction.Type.UNASSIGN, table, columns);
                 } catch (Exception e) {
                     LOG.error("Error unassigning resources", e);
-                    error(getString(Constants.ERROR) + ":" + e.getMessage());
+                    error(getString(Constants.ERROR) + ": " + e.getMessage());
                     target.add(feedbackPanel);
                 }
             }

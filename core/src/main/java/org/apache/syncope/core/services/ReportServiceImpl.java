@@ -50,7 +50,7 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
         ReportTO createdReportTO = controller.create(reportTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(createdReportTO.getId())).build();
         return Response.created(location)
-                .header(SyncopeConstants.REST_HEADER_ID, createdReportTO.getId())
+                .header(SyncopeConstants.REST_RESOURCE_ID_HEADER, createdReportTO.getId())
                 .build();
     }
 

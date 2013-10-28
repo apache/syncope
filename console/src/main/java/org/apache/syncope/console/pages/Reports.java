@@ -29,7 +29,7 @@ import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditLoggerName;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
@@ -173,7 +173,7 @@ public class Reports extends BasePage {
                         try {
                             reportRestClient.startExecution(reportTO.getId());
                             getSession().info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (SyncopeClientCompositeException scce) {
+                        } catch (SyncopeClientException scce) {
                             error(scce.getMessage());
                         }
 
@@ -191,7 +191,7 @@ public class Reports extends BasePage {
                         try {
                             reportRestClient.delete(reportTO.getId());
                             info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (SyncopeClientCompositeException scce) {
+                        } catch (SyncopeClientException scce) {
                             error(scce.getMessage());
                         }
                         target.add(reportContainer);

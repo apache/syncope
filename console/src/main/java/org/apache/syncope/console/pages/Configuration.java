@@ -34,7 +34,7 @@ import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.LoggerLevel;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.HttpResourceStream;
 import org.apache.syncope.console.commons.PreferenceManager;
@@ -166,8 +166,8 @@ public class Configuration extends BasePage {
                 try {
                     wfRestClient.updateDefinition(workflowDef);
                     info(getString(Constants.OPERATION_SUCCEEDED));
-                } catch (SyncopeClientCompositeException scee) {
-                    error(getString(Constants.ERROR) + ":" + scee.getMessage());
+                } catch (SyncopeClientException scee) {
+                    error(getString(Constants.ERROR) + ": " + scee.getMessage());
                 }
                 target.add(feedbackPanel);
             }
@@ -266,7 +266,7 @@ public class Configuration extends BasePage {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             confRestClient.deleteConfiguration(configurationTO.getKey());
-                        } catch (SyncopeClientCompositeException e) {
+                        } catch (SyncopeClientException e) {
                             LOG.error("While deleting a conf key", e);
                             error(e.getMessage());
                             return;
@@ -435,7 +435,7 @@ public class Configuration extends BasePage {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             notificationRestClient.deleteNotification(notificationTO.getId());
-                        } catch (SyncopeClientCompositeException e) {
+                        } catch (SyncopeClientException e) {
                             LOG.error("While deleting a notification", e);
                             error(e.getMessage());
                             return;
@@ -659,7 +659,7 @@ public class Configuration extends BasePage {
                         }
 
                         info(getString(Constants.OPERATION_SUCCEEDED));
-                    } catch (SyncopeClientCompositeException e) {
+                    } catch (SyncopeClientException e) {
                         info(getString(Constants.OPERATION_ERROR));
                     }
 

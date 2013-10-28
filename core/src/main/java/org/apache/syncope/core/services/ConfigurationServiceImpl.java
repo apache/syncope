@@ -50,7 +50,7 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
         ConfigurationTO created = controller.create(configurationTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
         return Response.created(location).
-                header(SyncopeConstants.REST_HEADER_ID, created.getKey()).
+                header(SyncopeConstants.REST_RESOURCE_ID_HEADER, created.getKey()).
                 build();
     }
 

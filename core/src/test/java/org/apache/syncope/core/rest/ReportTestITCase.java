@@ -38,7 +38,7 @@ import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.types.ReportExecStatus;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -141,8 +141,8 @@ public class ReportTestITCase extends AbstractTest {
         try {
             reportService.read(report.getId());
             fail();
-        } catch (SyncopeClientCompositeException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
         }
     }
 

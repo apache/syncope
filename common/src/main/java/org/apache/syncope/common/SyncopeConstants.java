@@ -34,15 +34,20 @@ public class SyncopeConstants {
         "yyyy-MM-dd'T'HH:mm:ssz",
         "yyyy-MM-dd HH:mm:ss",
         "yyyy-MM-dd HH:mm:ss.S", // explicitly added to import date into MySql repository
-        "yyyy-MM-dd"};
+        "yyyy-MM-dd" };
 
     public static final String DEFAULT_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     /**
-     * This constant will be used to identify HTTP header key to look for object ID assigned to an object after its
-     * creation. HTTP Response after PUT operation should contain this key with resource id as its value.
+     * HTTP header key for object ID assigned to an object after its creation;
+     * HTTP Response after PUT operation should contain this key with resource id as its value.
      */
-    public static final String REST_HEADER_ID = "org.apache.syncope.resource.id";
+    public static final String REST_RESOURCE_ID_HEADER = "org.apache.syncope.resource.id";
+
+    /**
+     * HTTP header key for exception type.
+     */
+    public static final String REST_EXCEPTION_TYPE_HEADER = "Syncope.ExceptionType";
 
     /**
      * This constant is not defined in javax.ws.rs.core.HttpHeaders.

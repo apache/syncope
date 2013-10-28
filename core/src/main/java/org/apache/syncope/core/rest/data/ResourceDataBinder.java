@@ -25,14 +25,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.IntMappingType;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
@@ -184,17 +183,16 @@ public class ResourceDataBinder {
             return null;
         }
 
-        SyncopeClientCompositeException scce = 
-                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
+        SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
-        SyncopeClientException requiredValuesMissing = new SyncopeClientException(
-                SyncopeClientExceptionType.RequiredValuesMissing);
+        SyncopeClientException requiredValuesMissing = SyncopeClientException.build(
+                ClientExceptionType.RequiredValuesMissing);
 
         if (itemTO.getIntAttrName() == null) {
             if (IntMappingType.getEmbedded().contains(itemTO.getIntMappingType())) {
                 itemTO.setIntAttrName(itemTO.getIntMappingType().toString());
             } else {
-                requiredValuesMissing.addElement("intAttrName");
+                requiredValuesMissing.getElements().add("intAttrName");
             }
         }
 
@@ -208,10 +206,10 @@ public class ResourceDataBinder {
         if (!jexlUtil.isExpressionValid(itemTO.getMandatoryCondition() == null
                 ? "false" : itemTO.getMandatoryCondition())) {
 
-            SyncopeClientException invalidMandatoryCondition = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidValues);
+            SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
+                    ClientExceptionType.InvalidValues);
 
-            invalidMandatoryCondition.addElement(itemTO.getMandatoryCondition());
+            invalidMandatoryCondition.getElements().add(itemTO.getMandatoryCondition());
 
             scce.addException(invalidMandatoryCondition);
         }

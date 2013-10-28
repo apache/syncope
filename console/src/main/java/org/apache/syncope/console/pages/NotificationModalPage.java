@@ -27,7 +27,7 @@ import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.TraceLevel;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
 import org.apache.syncope.console.rest.NotificationRestClient;
@@ -224,8 +224,8 @@ class NotificationModalPage extends BaseModalPage {
                     callerPage.setModalResult(true);
 
                     window.close(target);
-                } catch (SyncopeClientCompositeException scee) {
-                    error(getString(Constants.ERROR) + ":" + scee.getMessage());
+                } catch (SyncopeClientException scee) {
+                    error(getString(Constants.ERROR) + ": " + scee.getMessage());
                     target.add(feedbackPanel);
                 }
             }

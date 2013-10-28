@@ -46,8 +46,7 @@ import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -230,17 +229,13 @@ public class ResourceTestITCase extends AbstractTest {
         try {
             createResource(resourceTO);
             fail("Create should not have worked");
-        } catch (SyncopeClientCompositeException e) {
-            SyncopeClientException requiredValueMissing = e
-                    .getException(SyncopeClientExceptionType.RequiredValuesMissing);
-            assertNotNull(requiredValueMissing);
-            assertNotNull(requiredValueMissing.getElements());
-            assertEquals(1, requiredValueMissing.getElements().size());
-            assertEquals("intAttrName", requiredValueMissing.getElements().iterator().next());
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
+            assertEquals("intAttrName", e.getElements().iterator().next());
         }
     }
 
-    @Test(expected = SyncopeClientCompositeException.class)
+    @Test(expected = SyncopeClientException.class)
     public void createWithoutExtAttr() {
         String resourceName = "ws-target-resource-create-wrong";
         ResourceTO resourceTO = new ResourceTO();
@@ -303,8 +298,8 @@ public class ResourceTestITCase extends AbstractTest {
             resourceTO.setName("resourcenotfound");
 
             resourceService.update(resourceTO.getName(), resourceTO);
-        } catch (SyncopeClientCompositeException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
         }
     }
 
@@ -359,8 +354,8 @@ public class ResourceTestITCase extends AbstractTest {
     public void deleteWithException() {
         try {
             resourceService.delete("resourcenotfound");
-        } catch (SyncopeClientCompositeException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
         }
     }
 
@@ -392,8 +387,8 @@ public class ResourceTestITCase extends AbstractTest {
 
         try {
             resourceService.read(resourceName);
-        } catch (SyncopeClientCompositeException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
         }
     }
 
@@ -432,18 +427,18 @@ public class ResourceTestITCase extends AbstractTest {
         try {
             createResource(actual);
             fail();
-        } catch (SyncopeClientCompositeException scce) {
-            assertEquals(HttpStatus.SC_CONFLICT, scce.getStatusCode());
-            assertTrue(scce.hasException(SyncopeClientExceptionType.EntityExists));
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_CONFLICT, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
 
         actual.setName(null);
         try {
             createResource(actual);
             fail();
-        } catch (SyncopeClientCompositeException scce) {
-            assertEquals(HttpStatus.SC_BAD_REQUEST, scce.getStatusCode());
-            assertTrue(scce.hasException(SyncopeClientExceptionType.RequiredValuesMissing));
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_BAD_REQUEST, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
     }
 
@@ -466,13 +461,13 @@ public class ResourceTestITCase extends AbstractTest {
         try {
             resourceService.read("forBulk1");
             fail();
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
         }
 
         try {
             resourceService.read("forBulk2");
             fail();
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
         }
     }
 
@@ -528,12 +523,10 @@ public class ResourceTestITCase extends AbstractTest {
             resourceService.create(
                     buildResourceTO("http://schemas.examples.org/security/authorization/organizationUnit"));
             fail();
-        } catch (SyncopeClientCompositeException scce) {
-            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidExternalResource);
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidExternalResource, e.getType());
 
-            assertNotNull(sce.getElements());
-            assertEquals(1, sce.getElements().size());
-            assertTrue(sce.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
+            assertTrue(e.getElements().iterator().next().toString().contains(EntityViolationType.InvalidName.name()));
         }
     }
 

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.SchedTaskTO;
@@ -34,7 +33,7 @@ import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.TaskSubCategory;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
@@ -106,12 +105,9 @@ public class TaskController extends AbstractController {
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getId(), e);
 
-            SyncopeClientCompositeException scce =
-                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
-            sce.addElement(e.getMessage());
-            scce.addException(sce);
-            throw scce;
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
+            sce.getElements().add(e.getMessage());
+            throw sce;
         }
 
         auditManager.audit(Category.task, TaskSubCategory.create, Result.success,
@@ -136,9 +132,6 @@ public class TaskController extends AbstractController {
 
         TaskUtil taskUtil = TaskUtil.getInstance(task);
 
-        SyncopeClientCompositeException scce =
-                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-
         binder.updateSchedTask(task, taskTO, taskUtil);
         task = taskDAO.save(task);
 
@@ -147,10 +140,9 @@ public class TaskController extends AbstractController {
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getId(), e);
 
-            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
-            sce.addElement(e.getMessage());
-            scce.addException(sce);
-            throw scce;
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
+            sce.getElements().add(e.getMessage());
+            throw sce;
         }
 
         auditManager.audit(Category.task, TaskSubCategory.update, Result.success,
@@ -285,12 +277,9 @@ public class TaskController extends AbstractController {
                     auditManager.audit(Category.task, TaskSubCategory.execute, Result.failure,
                             "Could not start execution for task: " + task.getId() + "/" + taskUtil, e);
 
-                    SyncopeClientCompositeException scce =
-                            new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-                    SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
-                    sce.addElement(e.getMessage());
-                    scce.addException(sce);
-                    throw scce;
+                    SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
+                    sce.getElements().add(e.getMessage());
+                    throw sce;
                 }
 
                 result = new TaskExecTO();
@@ -317,17 +306,17 @@ public class TaskController extends AbstractController {
             throw new NotFoundException("Task execution " + executionId);
         }
 
-        SyncopeClientException sce = new SyncopeClientException(
-                SyncopeClientExceptionType.InvalidPropagationTaskExecReport);
+        SyncopeClientException sce = SyncopeClientException.build(
+                ClientExceptionType.InvalidPropagationTaskExecReport);
 
         TaskUtil taskUtil = TaskUtil.getInstance(exec.getTask());
         if (TaskType.PROPAGATION == taskUtil.getType()) {
             PropagationTask task = (PropagationTask) exec.getTask();
             if (task.getPropagationMode() != PropagationMode.TWO_PHASES) {
-                sce.addElement("Propagation mode: " + task.getPropagationMode());
+                sce.getElements().add("Propagation mode: " + task.getPropagationMode());
             }
         } else {
-            sce.addElement("Task type: " + taskUtil);
+            sce.getElements().add("Task type: " + taskUtil);
         }
 
         switch (status) {
@@ -338,21 +327,16 @@ public class TaskController extends AbstractController {
             case CREATED:
             case SUBMITTED:
             case UNSUBMITTED:
-                sce.addElement("Execution status to be set: " + status);
+                sce.getElements().add("Execution status to be set: " + status);
                 break;
 
             default:
         }
 
         if (!sce.isEmpty()) {
-            SyncopeClientCompositeException scce =
-                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-            scce.addException(sce);
-
             auditManager.audit(Category.task, TaskSubCategory.report, Result.failure,
-                    "Could not reported execution status: " + exec.getId() + "/" + taskUtil, scce);
-
-            throw scce;
+                    "Could not reported execution status: " + exec.getId() + "/" + taskUtil, sce);
+            throw sce;
         }
 
         exec.setStatus(status.toString());

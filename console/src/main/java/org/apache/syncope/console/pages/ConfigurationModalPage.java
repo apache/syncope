@@ -19,7 +19,7 @@
 package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.to.ConfigurationTO;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.rest.ConfigurationRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.PageReference;
@@ -86,7 +86,7 @@ public class ConfigurationModalPage extends BaseModalPage {
                     callerPage.setModalResult(true);
 
                     window.close(target);
-                } catch (SyncopeClientCompositeException e) {
+                } catch (SyncopeClientException e) {
                     if (createFlag) {
                         error(getString("error_insert"));
                     } else {

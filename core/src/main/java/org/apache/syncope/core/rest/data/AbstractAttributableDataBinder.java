@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.validation.ValidationException;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +36,7 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ResourceOperation;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
@@ -84,6 +83,7 @@ import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.VirAttrDAO;
 import org.apache.syncope.core.persistence.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.validation.attrvalue.InvalidAttrValueException;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.JexlUtil;
@@ -230,11 +230,10 @@ public abstract class AbstractAttributableDataBinder {
             } else {
                 try {
                     attr.addValue(value, attributableUtil);
-                } catch (ValidationException e) {
+                } catch (InvalidAttrValueException e) {
                     LOG.error("Invalid value for attribute " + schema.getName() + ": " + value, e);
 
-                    invalidValues.addElement(schema.getName() + ": " + value
-                            + " - " + e.getMessage());
+                    invalidValues.getElements().add(schema.getName() + ": " + value + " - " + e.getMessage());
                 }
             }
         }
@@ -284,8 +283,8 @@ public abstract class AbstractAttributableDataBinder {
     private SyncopeClientException checkMandatory(final AttributableUtil attrUtil,
             final AbstractAttributable attributable) {
 
-        SyncopeClientException reqValMissing = new SyncopeClientException(
-                SyncopeClientExceptionType.RequiredValuesMissing);
+        SyncopeClientException reqValMissing = SyncopeClientException.build(
+                ClientExceptionType.RequiredValuesMissing);
 
         LOG.debug("Check mandatory constraint among resources {}", attributable.getResources());
 
@@ -314,7 +313,7 @@ public abstract class AbstractAttributableDataBinder {
 
                 LOG.error("Mandatory schema " + schema.getName() + " not provided with values");
 
-                reqValMissing.addElement(schema.getName());
+                reqValMissing.getElements().add(schema.getName());
             }
         }
 
@@ -340,7 +339,7 @@ public abstract class AbstractAttributableDataBinder {
 
                 LOG.error("Mandatory derived schema " + derSchema.getName() + " does not evaluate to any value");
 
-                reqValMissing.addElement(derSchema.getName());
+                reqValMissing.getElements().add(derSchema.getName());
             }
         }
 
@@ -367,7 +366,7 @@ public abstract class AbstractAttributableDataBinder {
 
                 LOG.error("Mandatory virtual schema " + virSchema.getName() + " not provided with values");
 
-                reqValMissing.addElement(virSchema.getName());
+                reqValMissing.getElements().add(virSchema.getName());
             }
         }
 
@@ -524,7 +523,7 @@ public abstract class AbstractAttributableDataBinder {
 
         PropagationByResource propByRes = new PropagationByResource();
 
-        SyncopeClientException invalidValues = new SyncopeClientException(SyncopeClientExceptionType.InvalidValues);
+        SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // 1. resources to be removed
         for (String resourceToBeRemoved : attributableMod.getResourcesToRemove()) {
@@ -783,7 +782,7 @@ public abstract class AbstractAttributableDataBinder {
             final AttributableUtil attributableUtil, final SyncopeClientCompositeException scce) {
 
         // 1. attributes
-        SyncopeClientException invalidValues = new SyncopeClientException(SyncopeClientExceptionType.InvalidValues);
+        SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // Only consider attributeTO with values
         for (AttributeTO attributeTO : attributableTO.getAttrs()) {

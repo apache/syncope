@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Resource;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
@@ -33,6 +34,9 @@ import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.RoleSubCategory;
+import org.apache.syncope.common.types.ClientExceptionType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
@@ -189,7 +193,7 @@ public class RoleController {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<RoleTO> search(final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -197,7 +201,7 @@ public class RoleController {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<RoleTO> search(final NodeCond searchCondition, final int page, final int size)
             throws InvalidSearchConditionException {
 
@@ -224,7 +228,7 @@ public class RoleController {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public int searchCount(final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -270,14 +274,13 @@ public class RoleController {
         /*
          * Actual operations: workflow, propagation
          */
-
         WorkflowResult<Long> created = rwfAdapter.create(actual);
 
         EntitlementUtil.extendAuthContext(created.getResult());
 
         List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created, actual.getVirAttrs());
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
+                PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
@@ -310,13 +313,12 @@ public class RoleController {
         /*
          * Actual operations: workflow, propagation
          */
-
         WorkflowResult<Long> updated = rwfAdapter.update(actual);
 
         List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
                 actual.getVirAttrsToRemove(), actual.getVirAttrsToUpdate());
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
+                PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
@@ -338,6 +340,21 @@ public class RoleController {
     public RoleTO delete(final Long roleId) {
         LOG.debug("Role delete called for {}", roleId);
 
+        List<SyncopeRole> ownedRoles = roleDAO.findOwned(binder.getRoleFromId(roleId));
+        if (!ownedRoles.isEmpty()) {
+            List<String> owned = new ArrayList<String>(ownedRoles.size());
+            for (SyncopeRole role : ownedRoles) {
+                owned.add(role.getId() + " " + role.getName());
+            }
+
+            auditManager.audit(Category.role, AuditElements.UserSubCategory.delete, Result.failure,
+                    "Could not delete role: " + roleId + " because of role(s) ownership " + owned);
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RoleOwnership);
+            sce.getElements().addAll(owned);
+            throw sce;
+        }
+
         // Generate propagation tasks for deleting users from role resources, if they are on those resources only
         // because of the reason being deleted (see SYNCOPE-357)
         List<PropagationTask> tasks = new ArrayList<PropagationTask>();
@@ -351,8 +368,8 @@ public class RoleController {
         RoleTO roleTO = new RoleTO();
         roleTO.setId(roleId);
 
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
+                PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
@@ -372,7 +389,7 @@ public class RoleController {
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public RoleTO unlink(final Long roleId, final Collection<String> resources) {
         LOG.debug("About to unlink role({}) and resources {}", roleId, resources);
 
@@ -394,7 +411,7 @@ public class RoleController {
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public RoleTO unassign(final Long roleId, final Collection<String> resources) {
         LOG.debug("About to unassign role({}) and resources {}", roleId, resources);
 
@@ -406,7 +423,7 @@ public class RoleController {
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public RoleTO deprovision(final Long roleId, final Collection<String> resources) {
         LOG.debug("About to deprovision role({}) from resources {}", roleId, resources);
 
@@ -416,8 +433,8 @@ public class RoleController {
         noPropResourceName.removeAll(resources);
 
         final List<PropagationTask> tasks = propagationManager.getRoleDeleteTaskIds(roleId, noPropResourceName);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
+                PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {

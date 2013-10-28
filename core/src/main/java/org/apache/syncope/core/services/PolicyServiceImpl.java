@@ -46,7 +46,7 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     public <T extends AbstractPolicyTO> Response create(final T policyTO) {
         AbstractPolicyTO policy = policyController.create(policyTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(policy.getId())).build();
-        return Response.created(location).header(SyncopeConstants.REST_HEADER_ID, policy.getId()).build();
+        return Response.created(location).header(SyncopeConstants.REST_RESOURCE_ID_HEADER, policy.getId()).build();
     }
 
     @Override

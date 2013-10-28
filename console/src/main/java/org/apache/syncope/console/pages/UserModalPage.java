@@ -194,7 +194,7 @@ public abstract class UserModalPage extends BaseModalPage {
                     closeAction(target, form);
                 } catch (Exception e) {
                     LOG.error("While creating or updating user", e);
-                    error(getString(Constants.ERROR) + ":" + e.getMessage());
+                    error(getString(Constants.ERROR) + ": " + e.getMessage());
                     target.add(feedbackPanel);
                 }
             }

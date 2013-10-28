@@ -27,7 +27,7 @@ import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
@@ -320,8 +320,8 @@ public class Resources extends BasePage {
 
                             resourceRestClient.delete(resourceTO.getName());
                             info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (SyncopeClientCompositeException e) {
-                            error(getString(Constants.ERROR) + ":" + e.getMessage());
+                        } catch (SyncopeClientException e) {
+                            error(getString(Constants.ERROR) + ": " + e.getMessage());
 
                             LOG.error("While deleting resource " + resourceTO.getName(), e);
                         }
@@ -475,8 +475,8 @@ public class Resources extends BasePage {
                         try {
                             connectorRestClient.delete(connectorTO.getId());
                             info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (SyncopeClientCompositeException e) {
-                            error(getString(Constants.ERROR) + ":" + e.getMessage());
+                        } catch (SyncopeClientException e) {
+                            error(getString(Constants.ERROR) + ": " + e.getMessage());
 
                             LOG.error("While deleting connector " + connectorTO.getId(), e);
                         }

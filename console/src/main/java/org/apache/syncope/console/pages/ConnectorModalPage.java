@@ -32,7 +32,7 @@ import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.rest.ConnectorRestClient;
@@ -422,8 +422,8 @@ public class ConnectorModalPage extends BaseModalPage {
 
                     ((Resources) pageRef.getPage()).setModalResult(true);
                     window.close(target);
-                } catch (SyncopeClientCompositeException e) {
-                    error(getString(Constants.ERROR) + ":" + e.getMessage());
+                } catch (SyncopeClientException e) {
+                    error(getString(Constants.ERROR) + ": " + e.getMessage());
                     target.add(feedbackPanel);
                     ((Resources) pageRef.getPage()).setModalResult(false);
                     LOG.error("While creating or updating connector {}", conn, e);

@@ -20,7 +20,7 @@ package org.apache.syncope.console.pages.panels;
 
 import java.io.Serializable;
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
 import org.apache.wicket.PageReference;
@@ -95,7 +95,7 @@ public class RoleSummaryPanel extends Panel {
         } else {
             try {
                 this.selectedNode = restClient.read(builder.selectedNodeId);
-            } catch (SyncopeClientCompositeException e) {
+            } catch (SyncopeClientException e) {
                 LOG.error("Could not read {}", builder.selectedNodeId, e);
                 this.selectedNode = null;
                 builder.selectedNodeId = null;

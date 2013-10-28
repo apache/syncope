@@ -70,7 +70,7 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
 
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(outUserRequestTO.getId())).build();
         return Response.created(location)
-                .header(SyncopeConstants.REST_HEADER_ID, outUserRequestTO.getId())
+                .header(SyncopeConstants.REST_RESOURCE_ID_HEADER, outUserRequestTO.getId())
                 .build();
     }
 

@@ -21,7 +21,7 @@ package org.apache.syncope.console.pages;
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.to.VirSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -86,8 +86,8 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
                     }
 
                     window.close(target);
-                } catch (SyncopeClientCompositeException e) {
-                    error(getString(Constants.ERROR) + ":" + e.getMessage());
+                } catch (SyncopeClientException e) {
+                    error(getString(Constants.ERROR) + ": " + e.getMessage());
                     target.add(feedbackPanel);
                 }
             }

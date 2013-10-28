@@ -18,58 +18,80 @@
  */
 package org.apache.syncope.common.validation;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 
-public class SyncopeClientException extends Exception {
+public class SyncopeClientException extends RuntimeException {
 
     private static final long serialVersionUID = 3380920886511913475L;
 
-    private SyncopeClientExceptionType type;
+    private ClientExceptionType type;
 
-    private Set<String> elements;
+    private final List<Object> elements = new ArrayList<Object>();
 
-    public SyncopeClientException() {
-        super();
-        elements = new HashSet<String>();
+    public static SyncopeClientException build(final ClientExceptionType type) {
+        if (type == ClientExceptionType.Composite) {
+            throw new IllegalArgumentException("Composite exceptions must be obtained via buildComposite()");
+        }
+        return new SyncopeClientException(type);
     }
 
-    public SyncopeClientException(final SyncopeClientExceptionType type) {
-        this();
+    public static SyncopeClientCompositeException buildComposite() {
+        return new SyncopeClientCompositeException();
+    }
+
+    protected SyncopeClientException(final ClientExceptionType type) {
+        super();
         setType(type);
     }
 
-    public SyncopeClientExceptionType getType() {
+    public boolean isComposite() {
+        return getType() == ClientExceptionType.Composite;
+    }
+
+    public SyncopeClientCompositeException asComposite() {
+        if (!isComposite()) {
+            throw new IllegalArgumentException("This is not a composite exception");
+        }
+
+        return (SyncopeClientCompositeException) this;
+    }
+
+    public ClientExceptionType getType() {
         return type;
     }
 
-    public final void setType(final SyncopeClientExceptionType type) {
+    public final void setType(final ClientExceptionType type) {
         this.type = type;
     }
 
-    public boolean addElement(final String element) {
-        return elements.add(element);
-    }
-
-    public boolean removeElement(final String element) {
-        return elements.remove(element);
-    }
-
-    public Set<String> getElements() {
+    public List<Object> getElements() {
         return elements;
-    }
-
-    public void setElements(final Set<String> elements) {
-        this.elements = elements;
-    }
-
-    public void setElements(final List<String> elements) {
-        this.elements.addAll(elements);
     }
 
     public boolean isEmpty() {
         return elements.isEmpty();
     }
+
+    public int size() {
+        return elements.size();
+    }
+
+    @Override
+    public String getMessage() {
+        StringBuilder message = new StringBuilder();
+
+        message.append(getType());
+        message.append(" ");
+        message.append(getElements());
+
+        return message.toString();
+    }
+
+    @Override
+    public String getLocalizedMessage() {
+        return getMessage();
+    }
+
 }

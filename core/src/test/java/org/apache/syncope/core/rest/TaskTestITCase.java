@@ -58,7 +58,7 @@ import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.types.TraceLevel;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.sync.TestSyncActions;
 import org.apache.syncope.core.sync.TestSyncRule;
 import org.apache.syncope.core.sync.impl.SyncJob;
@@ -201,8 +201,8 @@ public class TaskTestITCase extends AbstractTest {
     public void deal() {
         try {
             taskService.delete(0L);
-        } catch (SyncopeClientCompositeException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
         }
         TaskExecTO exec = taskService.execute(1L, false);
         assertEquals(PropagationTaskExecStatus.SUBMITTED.name(), exec.getStatus());
@@ -218,8 +218,8 @@ public class TaskTestITCase extends AbstractTest {
         taskService.delete(1L);
         try {
             taskService.readExecution(exec.getId());
-        } catch (SyncopeClientCompositeException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
         }
     }
 

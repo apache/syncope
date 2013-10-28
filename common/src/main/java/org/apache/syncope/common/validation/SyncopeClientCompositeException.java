@@ -21,38 +21,27 @@ package org.apache.syncope.common.validation;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 
-public class SyncopeClientCompositeException extends RuntimeException {
+public class SyncopeClientCompositeException extends SyncopeClientException {
 
     private static final long serialVersionUID = 7882118041134372129L;
 
-    public static final String EXCEPTION_TYPE_HEADER = "ExceptionType";
+    private final Set<SyncopeClientException> exceptions = new HashSet<SyncopeClientException>();
 
-    private final int statusCode;
-
-    private final Set<SyncopeClientException> exceptions;
-
-    public SyncopeClientCompositeException(final int statusCode) {
-        super();
-
-        this.statusCode = statusCode;
-        exceptions = new HashSet<SyncopeClientException>();
-    }
-
-    public int getStatusCode() {
-        return statusCode;
+    protected SyncopeClientCompositeException() {
+        super(ClientExceptionType.Composite);
     }
 
     public boolean hasExceptions() {
         return !exceptions.isEmpty();
     }
 
-    public boolean hasException(final SyncopeClientExceptionType exceptionType) {
+    public boolean hasException(final ClientExceptionType exceptionType) {
         return getException(exceptionType) != null;
     }
 
-    public SyncopeClientException getException(final SyncopeClientExceptionType exceptionType) {
+    public SyncopeClientException getException(final ClientExceptionType exceptionType) {
         boolean found = false;
         SyncopeClientException syncopeClientException = null;
         for (Iterator<SyncopeClientException> itor = exceptions.iterator(); itor.hasNext() && !found;) {
@@ -74,7 +63,7 @@ public class SyncopeClientCompositeException extends RuntimeException {
     public boolean addException(final SyncopeClientException exception) {
         if (exception.getType() == null) {
             throw new IllegalArgumentException(exception + " does not have the right "
-                    + SyncopeClientExceptionType.class.getName() + " set");
+                    + ClientExceptionType.class.getName() + " set");
         }
 
         return exceptions.add(exception);
@@ -89,9 +78,7 @@ public class SyncopeClientCompositeException extends RuntimeException {
         while (iter.hasNext()) {
             SyncopeClientException e = iter.next();
             message.append("[");
-            message.append(e.getType());
-            message.append(" ");
-            message.append(e.getElements());
+            message.append(e.getMessage());
             message.append("]");
             if (iter.hasNext()) {
                 message.append(", ");

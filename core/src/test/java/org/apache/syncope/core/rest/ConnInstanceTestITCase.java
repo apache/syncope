@@ -51,7 +51,7 @@ import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
 import org.apache.syncope.common.types.IntMappingType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.util.ConnIdBundleManager;
 import org.identityconnectors.common.security.GuardedString;
 import org.junit.BeforeClass;
@@ -85,7 +85,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertNotNull(connidDbTableVersion);
     }
 
-    @Test(expected = SyncopeClientCompositeException.class)
+    @Test(expected = SyncopeClientException.class)
     public void createWithException() {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
 
@@ -149,8 +149,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
             throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
         }
 
-        ConnInstanceTO actual =
-                adminClient.getObject(response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
+        ConnInstanceTO actual = adminClient.getObject(response.getLocation(), ConnectorService.class,
+                ConnInstanceTO.class);
         assertNotNull(actual);
 
         assertEquals(actual.getBundleName(), connectorTO.getBundleName());
@@ -170,7 +170,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         try {
             connectorService.update(connectorTO.getId(), connectorTO);
             actual = connectorService.read(connectorTO.getId());
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
             LOG.error("update failed", e);
             t = e;
         }
@@ -182,7 +182,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // check also for the deletion of the created object
         try {
             connectorService.delete(actual.getId());
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
             LOG.error("delete failed", e);
             t = e;
         }
@@ -192,8 +192,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // check the non existence
         try {
             connectorService.read(actual.getId());
-        } catch (SyncopeClientCompositeException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
         }
     }
 
@@ -341,8 +341,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
     public void deleteWithException() {
         try {
             connectorService.delete(0L);
-        } catch (SyncopeClientCompositeException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
         }
     }
 
@@ -697,13 +697,13 @@ public class ConnInstanceTestITCase extends AbstractTest {
         try {
             connectorService.read(Long.valueOf(iter.next()));
             fail();
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
         }
 
         try {
             connectorService.read(Long.valueOf(iter.next()));
             fail();
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
         }
     }
 }

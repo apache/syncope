@@ -41,9 +41,10 @@ import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.UserRequestType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -81,8 +82,8 @@ public class UserRequestTestITCase extends AbstractTest {
         try {
             createUserRequest(anonymousUserRequestService, new UserRequestTO(userTO));
             fail();
-        } catch (SyncopeClientCompositeException e) {
-            assertNotNull(e.getException(SyncopeClientExceptionType.UnauthorizedRole));
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.UnauthorizedRole, e.getType());
         }
 
         // 3. set create request allowed
@@ -128,8 +129,8 @@ public class UserRequestTestITCase extends AbstractTest {
         try {
             createUserRequest(userRequestService, new UserRequestTO(userMod));
             fail();
-        } catch (SyncopeClientCompositeException e) {
-            assertNotNull(e.getException(SyncopeClientExceptionType.UnauthorizedRole));
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.UnauthorizedRole, e.getType());
         }
 
         // 3. auth as user just created
@@ -140,8 +141,8 @@ public class UserRequestTestITCase extends AbstractTest {
         try {
             createUserRequest(userRequestService2, new UserRequestTO(userMod));
             fail();
-        } catch (SyncopeClientCompositeException scce) {
-            assertNotNull(scce.getException(SyncopeClientExceptionType.InvalidSyncopeUser));
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSyncopeUser, e.getType());
         }
 
         // 5. now request user update works
@@ -186,8 +187,8 @@ public class UserRequestTestITCase extends AbstractTest {
         try {
             createUserRequest(userRequestService, new UserRequestTO(userTO.getId()));
             fail();
-        } catch (SyncopeClientCompositeException e) {
-            assertNotNull(e.getException(SyncopeClientExceptionType.UnauthorizedRole));
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.UnauthorizedRole, e.getType());
         }
 
         // 3. auth as user just created
@@ -208,8 +209,8 @@ public class UserRequestTestITCase extends AbstractTest {
         try {
             userService.read(userTO.getId());
             fail();
-        } catch (SyncopeClientCompositeException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getStatusCode());
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
         }
     }
 
@@ -333,7 +334,7 @@ public class UserRequestTestITCase extends AbstractTest {
         assertEquals(3, userRequestService.listByUsername(userTO.getUsername()).size());
     }
 
-    @Test(expected = SyncopeClientCompositeException.class)
+    @Test(expected = SyncopeClientException.class)
     public void executeNoClaim() {
         UserTO userTO = UserTestITCase.getUniqueSampleTO("reqnoclaim@syncope.apache.org");
 

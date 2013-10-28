@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest.data;
 
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
@@ -30,10 +29,9 @@ import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.BeanUtils;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.init.JobInstanceLoader;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -85,28 +83,28 @@ public class TaskDataBinder {
     private void checkJexl(final AbstractAttributableTO attributableTO, final SyncopeClientException sce) {
         for (AttributeTO attrTO : attributableTO.getAttrs()) {
             if (!attrTO.getValues().isEmpty() && !jexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
-                sce.addElement("Invalid JEXL: " + attrTO.getValues().get(0));
+                sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
             }
         }
         for (AttributeTO attrTO : attributableTO.getVirAttrs()) {
             if (!attrTO.getValues().isEmpty() && !jexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
-                sce.addElement("Invalid JEXL: " + attrTO.getValues().get(0));
+                sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
             }
         }
     }
 
     private void fill(final SyncTask task, final SyncTaskTO taskTO) {
-        SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidSyncTask);
+        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSyncTask);
 
         // 1. validate JEXL expressions in user and role templates
         if (taskTO.getUserTemplate() != null) {
             UserTO template = taskTO.getUserTemplate();
 
             if (StringUtils.isNotBlank(template.getUsername()) && !jexlUtil.isExpressionValid(template.getUsername())) {
-                sce.addElement("Invalid JEXL: " + template.getUsername());
+                sce.getElements().add("Invalid JEXL: " + template.getUsername());
             }
             if (StringUtils.isNotBlank(template.getPassword()) && !jexlUtil.isExpressionValid(template.getPassword())) {
-                sce.addElement("Invalid JEXL: " + template.getPassword());
+                sce.getElements().add("Invalid JEXL: " + template.getPassword());
             }
 
             checkJexl(template, sce);
@@ -119,16 +117,13 @@ public class TaskDataBinder {
             RoleTO template = taskTO.getRoleTemplate();
 
             if (StringUtils.isNotBlank(template.getName()) && !jexlUtil.isExpressionValid(template.getName())) {
-                sce.addElement("Invalid JEXL: " + template.getName());
+                sce.getElements().add("Invalid JEXL: " + template.getName());
             }
 
             checkJexl(template, sce);
         }
         if (!sce.isEmpty()) {
-            SyncopeClientCompositeException scce =
-                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-            scce.addException(sce);
-            throw scce;
+            throw sce;
         }
 
         // 2. all JEXL expressions are valid: accept user and role templates

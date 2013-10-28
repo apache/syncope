@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.UserRequestType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
@@ -144,8 +144,8 @@ public class Todo extends BasePage {
                         try {
                             approvalRestClient.claimForm(formTO.getTaskId());
                             info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (SyncopeClientCompositeException scee) {
-                            error(getString(Constants.ERROR) + ":" + scee.getMessage());
+                        } catch (SyncopeClientException scee) {
+                            error(getString(Constants.ERROR) + ": " + scee.getMessage());
                         }
                         target.add(feedbackPanel);
                         target.add(approvalContainer);
@@ -259,8 +259,8 @@ public class Todo extends BasePage {
                         try {
                             userRequestRestClient.claim(model.getObject().getId());
                             info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (SyncopeClientCompositeException scee) {
-                            error(getString(Constants.ERROR) + ":" + scee.getMessage());
+                        } catch (SyncopeClientException scee) {
+                            error(getString(Constants.ERROR) + ": " + scee.getMessage());
                         }
                         target.add(feedbackPanel);
                         target.add(userRequestContainer);
@@ -299,7 +299,7 @@ public class Todo extends BasePage {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             userRequestRestClient.executeDelete(model.getObject().getId());
-                        } catch (SyncopeClientCompositeException e) {
+                        } catch (SyncopeClientException e) {
                             LOG.error("While deleting an user", e);
                             error(e.getMessage());
                             return;
@@ -323,7 +323,7 @@ public class Todo extends BasePage {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             userRequestRestClient.delete(request.getId());
-                        } catch (SyncopeClientCompositeException e) {
+                        } catch (SyncopeClientException e) {
                             LOG.error("While deleting an user request", e);
                             error(e.getMessage());
                             return;

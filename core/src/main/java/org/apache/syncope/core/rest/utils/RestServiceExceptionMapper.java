@@ -30,13 +30,15 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.types.EntityViolationType;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
+import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.workflow.WorkflowException;
@@ -59,8 +61,11 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
     public Response toResponse(final Exception ex) {
         LOG.error("Exception thrown by REST method: " + ex.getMessage(), ex);
 
-        if (ex instanceof SyncopeClientCompositeException) {
-            return getCompositeExceptionResponse((SyncopeClientCompositeException) ex);
+        if (ex instanceof SyncopeClientException) {
+            SyncopeClientException sce = (SyncopeClientException) ex;
+            return (sce.isComposite()
+                    ? getSyncopeClientCompositeExceptionResponse(sce.asComposite())
+                    : getSyncopeClientExceptionResponse(sce));
         }
 
         if (ex instanceof AccessDeniedException) {
@@ -70,20 +75,20 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         }
 
         if (ex instanceof UnauthorizedRoleException) {
-            return buildResponse(Response.status(Response.Status.FORBIDDEN),
-                    SyncopeClientExceptionType.UnauthorizedRole,
+            return buildResponse(Response.status(Response.Status.UNAUTHORIZED),
+                    ClientExceptionType.UnauthorizedRole,
                     getExMessage(ex));
         }
 
         if (ex instanceof EntityExistsException) {
             return buildResponse(Response.status(Response.Status.CONFLICT),
-                    SyncopeClientExceptionType.EntityExists,
+                    ClientExceptionType.EntityExists,
                     getExMessage(ex));
         }
 
         if (ex instanceof DataIntegrityViolationException) {
             return buildResponse(Response.status(Response.Status.CONFLICT),
-                    SyncopeClientExceptionType.DataIntegrityViolation,
+                    ClientExceptionType.DataIntegrityViolation,
                     getExMessage(ex));
         }
 
@@ -104,7 +109,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
         // Rest is interpreted as InternalServerError
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).
-                header(SyncopeClientExceptionType.Unknown.getElementHeaderName(), getExMessage(ex)).
+                header(ClientExceptionType.Unknown.getElementHeaderName(), getExMessage(ex)).
                 build();
     }
 
@@ -114,14 +119,30 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                 "Call of fromResponse() method is not expected in RestServiceExceptionMapper");
     }
 
-    private Response getCompositeExceptionResponse(final SyncopeClientCompositeException ex) {
-        ResponseBuilder responseBuilder = Response.status(ex.getStatusCode());
+    private Response getSyncopeClientExceptionResponse(final SyncopeClientException ex) {
+        ResponseBuilder responseBuilder = Response.status(ex.getType().getResponseStatus());
+        responseBuilder.header(
+                SyncopeConstants.REST_EXCEPTION_TYPE_HEADER, ex.getType().getHeaderValue());
+
+        for (Object element : ex.getElements()) {
+            responseBuilder.header(ex.getType().getElementHeaderName(), element);
+        }
+
+        return responseBuilder.build();
+    }
+
+    private Response getSyncopeClientCompositeExceptionResponse(final SyncopeClientCompositeException ex) {
+        if (ex.getExceptions().size() == 1) {
+            return getSyncopeClientExceptionResponse(ex.getExceptions().iterator().next());
+        }
+
+        ResponseBuilder responseBuilder = Response.status(Response.Status.BAD_REQUEST);
         for (SyncopeClientException sce : ex.getExceptions()) {
             responseBuilder.header(
-                    SyncopeClientCompositeException.EXCEPTION_TYPE_HEADER, sce.getType().getHeaderValue());
+                    SyncopeConstants.REST_EXCEPTION_TYPE_HEADER, sce.getType().getHeaderValue());
 
-            for (String attributeName : sce.getElements()) {
-                responseBuilder.header(sce.getType().getElementHeaderName(), attributeName);
+            for (Object element : sce.getElements()) {
+                responseBuilder.header(sce.getType().getElementHeaderName(), element);
             }
         }
         return responseBuilder.build();
@@ -130,16 +151,13 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
     private Response processNotFoundExceptions(final Exception ex) {
         ResponseBuilder responseBuilder = Response.status(Response.Status.NOT_FOUND);
 
-        if (ex instanceof javax.ws.rs.NotFoundException) {
-            return buildResponse(responseBuilder, SyncopeClientExceptionType.NotFound, getExMessage(ex));
-
-        } else if (ex instanceof NotFoundException) {
-            return buildResponse(responseBuilder, SyncopeClientExceptionType.NotFound, getExMessage(ex));
-
+        if (ex instanceof javax.ws.rs.NotFoundException || ex instanceof NotFoundException) {
+            return buildResponse(responseBuilder, ClientExceptionType.NotFound, getExMessage(ex));
         } else if (ex instanceof MissingConfKeyException) {
-            return buildResponse(responseBuilder, SyncopeClientExceptionType.NotFound, getMessage(ex,
-                    ((MissingConfKeyException) ex).getConfKey()));
+            return buildResponse(responseBuilder, ClientExceptionType.NotFound,
+                    getMessage(ex, ((MissingConfKeyException) ex).getConfKey()));
         }
+
         return null;
     }
 
@@ -158,10 +176,9 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         if (iee != null) {
             ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
 
-            SyncopeClientExceptionType exType =
-                    SyncopeClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
+            ClientExceptionType exType = ClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
 
-            builder.header(SyncopeClientCompositeException.EXCEPTION_TYPE_HEADER, exType.getHeaderValue());
+            builder.header(SyncopeConstants.REST_EXCEPTION_TYPE_HEADER, exType.getHeaderValue());
 
             for (Map.Entry<Class<?>, Set<EntityViolationType>> violation : iee.getViolations().entrySet()) {
                 for (EntityViolationType violationType : violation.getValue()) {
@@ -186,28 +203,30 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                 return ((BadRequestException) ex).getResponse();
             }
         } else if (ex instanceof WorkflowException) {
-            return buildResponse(responseBuilder, SyncopeClientExceptionType.Workflow, getExMessage(ex));
+            return buildResponse(responseBuilder, ClientExceptionType.Workflow, getExMessage(ex));
         } else if (ex instanceof InvalidSearchConditionException) {
-            return buildResponse(responseBuilder, SyncopeClientExceptionType.InvalidSearchCondition, getExMessage(ex));
+            return buildResponse(responseBuilder, ClientExceptionType.InvalidSearchCondition, getExMessage(ex));
         } else if (ex instanceof PersistenceException) {
-            return buildResponse(responseBuilder, SyncopeClientExceptionType.GenericPersistence, getExMessage(ex));
+            return buildResponse(responseBuilder, ClientExceptionType.GenericPersistence, getExMessage(ex));
         } else if (ex instanceof org.apache.ibatis.exceptions.PersistenceException) {
-            return buildResponse(responseBuilder, SyncopeClientExceptionType.Workflow, getMessage(ex,
+            return buildResponse(responseBuilder, ClientExceptionType.Workflow, getMessage(ex,
                     "Currently unavailable. Please try later."));
         } else if (ex instanceof JpaSystemException) {
-            return buildResponse(responseBuilder, SyncopeClientExceptionType.DataIntegrityViolation, getExMessage(ex));
+            return buildResponse(responseBuilder, ClientExceptionType.DataIntegrityViolation, getExMessage(ex));
         } else if (ex instanceof ConfigurationException) {
-            return buildResponse(responseBuilder, SyncopeClientExceptionType.InvalidConnIdConf, getExMessage(ex));
+            return buildResponse(responseBuilder, ClientExceptionType.InvalidConnIdConf, getExMessage(ex));
+        } else if (ex instanceof ParsingValidationException) {
+            return buildResponse(responseBuilder, ClientExceptionType.InvalidValues, getExMessage(ex));
         }
 
         return null;
     }
 
-    private Response buildResponse(final ResponseBuilder responseBuilder, final SyncopeClientExceptionType hType,
+    private Response buildResponse(final ResponseBuilder responseBuilder, final ClientExceptionType hType,
             final String msg) {
 
         return responseBuilder.header(
-                SyncopeClientCompositeException.EXCEPTION_TYPE_HEADER, hType.getHeaderValue()).
+                SyncopeConstants.REST_EXCEPTION_TYPE_HEADER, hType.getHeaderValue()).
                 header(hType.getElementHeaderName(), msg).
                 build();
     }

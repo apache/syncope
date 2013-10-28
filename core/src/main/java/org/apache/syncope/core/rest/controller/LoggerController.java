@@ -32,7 +32,7 @@ import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.LoggerSubCategory;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditLoggerName;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.LoggerLevel;
 import org.apache.syncope.common.types.LoggerType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
@@ -93,13 +93,10 @@ public class LoggerController extends AbstractController {
     }
 
     private void throwInvalidLogger(final LoggerType type) {
-        SyncopeClientCompositeException sccee = 
-                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
+        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidLogger);
+        sce.getElements().add("Expected " + type.name());
 
-        SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidLogger);
-        sce.addElement("Expected " + type.name());
-
-        throw sccee;
+        throw sce;
     }
 
     private LoggerTO setLevel(final String name, final Level level, final LoggerType expectedType) {
@@ -147,14 +144,9 @@ public class LoggerController extends AbstractController {
         try {
             setLevel(auditLoggerName.toLoggerName(), Level.DEBUG, LoggerType.AUDIT);
         } catch (IllegalArgumentException e) {
-            SyncopeClientCompositeException sccee =
-                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-
-            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidLogger);
-            sce.addElement(e.getMessage());
-            sccee.addException(sce);
-
-            throw sccee;
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidLogger);
+            sce.getElements().add(e.getMessage());
+            throw sce;
         }
     }
 
@@ -197,14 +189,9 @@ public class LoggerController extends AbstractController {
         } catch (NotFoundException e) {
             LOG.debug("Ignoring disable of non existing logger {}", auditLoggerName.toLoggerName());
         } catch (IllegalArgumentException e) {
-            SyncopeClientCompositeException sccee =
-                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-
-            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidLogger);
-            sce.addElement(e.getMessage());
-            sccee.addException(sce);
-
-            throw sccee;
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidLogger);
+            sce.getElements().add(e.getMessage());
+            throw sce;
         }
     }
 }

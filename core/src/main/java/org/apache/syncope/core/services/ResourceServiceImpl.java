@@ -49,7 +49,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
         ResourceTO resource = controller.create(resourceTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(resource.getName()).build();
         return Response.created(location)
-                .header(SyncopeConstants.REST_HEADER_ID, resource.getName())
+                .header(SyncopeConstants.REST_RESOURCE_ID_HEADER, resource.getName())
                 .build();
     }
 

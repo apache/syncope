@@ -37,7 +37,6 @@ public class PropagationException extends RuntimeException {
      * @param stackTrace original stacktrace
      */
     public PropagationException(final String resourceName, final String stackTrace) {
-
         super("Exception during provision on resource " + resourceName + "\n" + stackTrace);
 
         this.resourceName = resourceName;

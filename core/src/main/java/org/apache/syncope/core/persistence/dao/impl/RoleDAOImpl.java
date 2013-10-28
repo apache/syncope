@@ -103,8 +103,8 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
 
     @Override
     public List<SyncopeRole> find(final String name) {
-        TypedQuery<SyncopeRole> query =
-                entityManager.createQuery("SELECT e FROM SyncopeRole e WHERE e.name = :name", SyncopeRole.class);
+        TypedQuery<SyncopeRole> query = entityManager.createQuery("SELECT e FROM SyncopeRole e WHERE e.name = :name",
+                SyncopeRole.class);
         query.setParameter("name", name);
 
         return query.getResultList();
@@ -164,9 +164,25 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
     }
 
     @Override
+    public List<SyncopeRole> findOwned(final SyncopeRole owner) {
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(SyncopeRole.class.getSimpleName()).
+                append(" e WHERE e.roleOwner=:owner ");
+
+        TypedQuery<SyncopeRole> query = entityManager.createQuery(queryString.toString(), SyncopeRole.class);
+        query.setParameter("owner", owner);
+
+        List<SyncopeRole> result = new ArrayList<SyncopeRole>();
+        for (SyncopeRole role : query.getResultList()) {
+            findSameOwnerDescendants(result, role);
+        }
+
+        return result;
+    }
+
+    @Override
     public List<SyncopeRole> findByEntitlement(final Entitlement entitlement) {
-        TypedQuery<SyncopeRole> query =
-                entityManager.createQuery("SELECT e FROM " + SyncopeRole.class.getSimpleName() + " e "
+        TypedQuery<SyncopeRole> query = entityManager.createQuery("SELECT e FROM " + SyncopeRole.class.getSimpleName()
+                + " e "
                 + "WHERE :entitlement MEMBER OF e.entitlements", SyncopeRole.class);
         query.setParameter("entitlement", entitlement);
 
@@ -189,8 +205,8 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
 
     @Override
     public List<SyncopeRole> findChildren(final SyncopeRole role) {
-        TypedQuery<SyncopeRole> query =
-                entityManager.createQuery("SELECT r FROM SyncopeRole r WHERE " + "r.parent=:role", SyncopeRole.class);
+        TypedQuery<SyncopeRole> query = entityManager.createQuery("SELECT r FROM SyncopeRole r WHERE "
+                + "r.parent=:role", SyncopeRole.class);
         query.setParameter("role", role);
 
         return query.getResultList();
@@ -256,8 +272,8 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
 
     @Override
     public List<Membership> findMemberships(final SyncopeRole role) {
-        TypedQuery<Membership> query =
-                entityManager.createQuery("SELECT e FROM " + Membership.class.getSimpleName() + " e"
+        TypedQuery<Membership> query = entityManager.createQuery("SELECT e FROM " + Membership.class.getSimpleName()
+                + " e"
                 + " WHERE e.syncopeRole=:role", Membership.class);
         query.setParameter("role", role);
 
@@ -348,9 +364,9 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
         for (RVirAttr attr : rVirToBeDeleted) {
             role.removeVirAttr(attr);
         }
-        
+
         SyncopeRole merged = entityManager.merge(role);
-        
+
         // Now the same process for any exising membership of the role being saved
         if (role.getId() != null) {
             for (Long id : unmatched(role.getId(), MAttr.class, MAttrTemplate.class)) {

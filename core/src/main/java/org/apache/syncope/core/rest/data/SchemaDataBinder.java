@@ -19,12 +19,11 @@
 package org.apache.syncope.core.rest.data;
 
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.DerSchemaTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.VirSchemaTO;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
@@ -50,15 +49,9 @@ public class SchemaDataBinder {
     // --------------- NORMAL -----------------
     private <T extends AbstractNormalSchema> void fill(final T schema, final SchemaTO schemaTO) {
         if (!jexlUtil.isExpressionValid(schemaTO.getMandatoryCondition())) {
-            SyncopeClientCompositeException scce =
-                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-
-            SyncopeClientException invalidMandatoryCondition = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidValues);
-            invalidMandatoryCondition.addElement(schemaTO.getMandatoryCondition());
-
-            scce.addException(invalidMandatoryCondition);
-            throw scce;
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidValues);
+            sce.getElements().add(schemaTO.getMandatoryCondition());
+            throw sce;
         }
 
         BeanUtils.copyProperties(schemaTO, schema);
@@ -71,22 +64,21 @@ public class SchemaDataBinder {
     public <T extends AbstractNormalSchema> void update(final SchemaTO schemaTO, final T schema,
             final AttributableUtil attributableUtil) {
 
-        SyncopeClientCompositeException scce =
-                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
+        SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         List<AbstractAttr> attrs = schemaDAO.findAttrs(schema, attributableUtil.attrClass());
         if (!attrs.isEmpty()) {
             if (schema.getType() != schemaTO.getType()) {
-                SyncopeClientException e = new SyncopeClientException(SyncopeClientExceptionType.valueOf("Invalid"
+                SyncopeClientException e = SyncopeClientException.build(ClientExceptionType.valueOf("Invalid"
                         + schema.getClass().getSimpleName()));
-                e.addElement("Cannot change type since " + schema.getName() + " has attributes");
+                e.getElements().add("Cannot change type since " + schema.getName() + " has attributes");
 
                 scce.addException(e);
             }
             if (schema.isUniqueConstraint() != schemaTO.isUniqueConstraint()) {
-                SyncopeClientException e = new SyncopeClientException(SyncopeClientExceptionType.valueOf("Invalid"
+                SyncopeClientException e = SyncopeClientException.build(ClientExceptionType.valueOf("Invalid"
                         + schema.getClass().getSimpleName()));
-                e.addElement("Cannot alter unique contraint since " + schema.getName() + " has attributes");
+                e.getElements().add("Cannot alter unique contraint since " + schema.getName() + " has attributes");
 
                 scce.addException(e);
             }
@@ -108,19 +100,18 @@ public class SchemaDataBinder {
 
     // --------------- DERIVED -----------------
     private <T extends AbstractDerSchema> T populate(final T derSchema, final DerSchemaTO derSchemaTO) {
-        SyncopeClientCompositeException scce =
-                new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
+        SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         if (StringUtils.isBlank(derSchemaTO.getExpression())) {
             SyncopeClientException requiredValuesMissing =
-                    new SyncopeClientException(SyncopeClientExceptionType.RequiredValuesMissing);
-            requiredValuesMissing.addElement("expression");
+                    SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
+            requiredValuesMissing.getElements().add("expression");
 
             scce.addException(requiredValuesMissing);
         } else if (!jexlUtil.isExpressionValid(derSchemaTO.getExpression())) {
-            SyncopeClientException invalidMandatoryCondition = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidValues);
-            invalidMandatoryCondition.addElement(derSchemaTO.getExpression());
+            SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
+                    ClientExceptionType.InvalidValues);
+            invalidMandatoryCondition.getElements().add(derSchemaTO.getExpression());
 
             scce.addException(invalidMandatoryCondition);
         }

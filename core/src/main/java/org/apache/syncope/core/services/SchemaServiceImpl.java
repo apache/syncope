@@ -46,7 +46,7 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
 
         URI location = uriInfo.getAbsolutePathBuilder().path(response.getName()).build();
         return Response.created(location)
-                .header(SyncopeConstants.REST_HEADER_ID, response.getName())
+                .header(SyncopeConstants.REST_RESOURCE_ID_HEADER, response.getName())
                 .build();
     }
 

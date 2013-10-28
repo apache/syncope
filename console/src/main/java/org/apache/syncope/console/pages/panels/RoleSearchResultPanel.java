@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.ResultStatusModalPage;
 import org.apache.syncope.console.pages.RoleModalPage;
@@ -150,7 +150,7 @@ public class RoleSearchResultPanel extends AbstractSearchResultPanel {
                             });
 
                             editmodal.show(target);
-                        } catch (SyncopeClientCompositeException scce) {
+                        } catch (SyncopeClientException scce) {
                             error(getString(Constants.OPERATION_ERROR) + ": " + scce.getMessage());
                             target.add(feedbackPanel);
                         }

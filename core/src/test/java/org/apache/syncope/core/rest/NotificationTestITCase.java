@@ -21,7 +21,6 @@ package org.apache.syncope.core.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.util.List;
@@ -34,9 +33,8 @@ import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.NotificationService;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.types.IntMappingType;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.TraceLevel;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -44,6 +42,31 @@ import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class NotificationTestITCase extends AbstractTest {
+
+    private NotificationTO buildNotificationTO() {
+        NotificationTO notificationTO = new NotificationTO();
+        notificationTO.setTraceLevel(TraceLevel.SUMMARY);
+        notificationTO.getEvents().add("create");
+
+        AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
+        fullnameLeafCond1.setSchema("fullname");
+        fullnameLeafCond1.setExpression("%o%");
+        AttributeCond fullnameLeafCond2 = new AttributeCond(AttributeCond.Type.LIKE);
+        fullnameLeafCond2.setSchema("fullname");
+        fullnameLeafCond2.setExpression("%i%");
+        NodeCond about = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1),
+                NodeCond.getLeafCond(fullnameLeafCond2));
+
+        notificationTO.setAbout(about);
+
+        notificationTO.setRecipientAttrName("email");
+        notificationTO.setRecipientAttrType(IntMappingType.UserSchema);
+
+        notificationTO.setSender("syncope@syncope.apache.org");
+        notificationTO.setSubject("Test notification");
+        notificationTO.setTemplate("test");
+        return notificationTO;
+    }
 
     @Test
     public void read() {
@@ -71,8 +94,8 @@ public class NotificationTestITCase extends AbstractTest {
         notificationTO.setRecipients(recipients);
 
         Response response = notificationService.create(notificationTO);
-        NotificationTO actual =
-                adminClient.getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
+        NotificationTO actual = adminClient.getObject(response.getLocation(), NotificationService.class,
+                NotificationTO.class);
 
         assertNotNull(actual);
         assertNotNull(actual.getId());
@@ -91,10 +114,9 @@ public class NotificationTestITCase extends AbstractTest {
         try {
             notificationService.update(notificationTO.getId(), notificationTO);
             fail();
-        } catch (SyncopeClientCompositeException e) {
-            exception = e.getException(SyncopeClientExceptionType.InvalidNotification);
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidNotification, e.getType());
         }
-        assertNotNull(exception);
 
         MembershipCond membCond = new MembershipCond();
         membCond.setRoleId(7L);
@@ -120,8 +142,8 @@ public class NotificationTestITCase extends AbstractTest {
         try {
             notificationService.read(notification.getId());
             fail();
-        } catch (SyncopeClientCompositeException e) {
-            assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
         }
     }
 
@@ -135,38 +157,13 @@ public class NotificationTestITCase extends AbstractTest {
         try {
             Response response = notificationService.create(notificationTO);
             actual = adminClient.getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
-        } catch (SyncopeClientCompositeException e) {
-            exception = e.getException(SyncopeClientExceptionType.InvalidNotification);
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidNotification, e.getType());
         }
-        assertNull(exception);
         assertNotNull(actual);
         assertNotNull(actual.getId());
         notificationTO.setId(actual.getId());
         assertEquals(actual, notificationTO);
     }
 
-    private NotificationTO buildNotificationTO() {
-        NotificationTO notificationTO = new NotificationTO();
-        notificationTO.setTraceLevel(TraceLevel.SUMMARY);
-        notificationTO.getEvents().add("create");
-
-        AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
-        fullnameLeafCond1.setSchema("fullname");
-        fullnameLeafCond1.setExpression("%o%");
-        AttributeCond fullnameLeafCond2 = new AttributeCond(AttributeCond.Type.LIKE);
-        fullnameLeafCond2.setSchema("fullname");
-        fullnameLeafCond2.setExpression("%i%");
-        NodeCond about = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1),
-                NodeCond.getLeafCond(fullnameLeafCond2));
-
-        notificationTO.setAbout(about);
-
-        notificationTO.setRecipientAttrName("email");
-        notificationTO.setRecipientAttrType(IntMappingType.UserSchema);
-
-        notificationTO.setSender("syncope@syncope.apache.org");
-        notificationTO.setSubject("Test notification");
-        notificationTO.setTemplate("test");
-        return notificationTO;
-    }
 }

@@ -31,8 +31,7 @@ import org.apache.syncope.common.to.VirSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.SchemaType;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -76,14 +75,12 @@ public class VirtualSchemaTestITCase extends AbstractTest {
 
         schemaService.delete(AttributableType.ROLE, SchemaType.VIRTUAL, schema.getName());
 
-        Throwable t = null;
         try {
             schemaService.read(AttributableType.ROLE, SchemaType.VIRTUAL, "rvirtualdata");
-        } catch (SyncopeClientCompositeException e) {
-            t = e;
-            assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
         }
-        assertNotNull(t);
     }
 
     @Test
@@ -94,18 +91,18 @@ public class VirtualSchemaTestITCase extends AbstractTest {
         try {
             createSchema(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, actual);
             fail();
-        } catch (SyncopeClientCompositeException scce) {
-            assertEquals(HttpStatus.SC_CONFLICT, scce.getStatusCode());
-            assertTrue(scce.hasException(SyncopeClientExceptionType.EntityExists));
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_CONFLICT, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
 
         actual.setName(null);
         try {
             createSchema(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, actual);
             fail();
-        } catch (SyncopeClientCompositeException scce) {
-            assertEquals(HttpStatus.SC_BAD_REQUEST, scce.getStatusCode());
-            assertTrue(scce.hasException(SyncopeClientExceptionType.RequiredValuesMissing));
+        } catch (SyncopeClientException e) {
+            assertEquals(HttpStatus.SC_BAD_REQUEST, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
     }
 
@@ -117,12 +114,10 @@ public class VirtualSchemaTestITCase extends AbstractTest {
         try {
             createSchema(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, schema);
             fail();
-        } catch (SyncopeClientCompositeException scce) {
-            SyncopeClientException sce = scce.getException(SyncopeClientExceptionType.InvalidMVirSchema);
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidMVirSchema, e.getType());
 
-            assertNotNull(sce.getElements());
-            assertEquals(1, sce.getElements().size());
-            assertTrue(sce.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
+            assertTrue(e.getElements().iterator().next().toString().contains(EntityViolationType.InvalidName.name()));
         }
     }
 }

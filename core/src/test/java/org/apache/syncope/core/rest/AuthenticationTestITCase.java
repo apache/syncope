@@ -46,8 +46,7 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.SchemaType;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -110,8 +109,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
-        SchemaService schemaService2 =
-                clientFactory.create(userTO.getUsername(), "password123").getService(SchemaService.class);
+        SchemaService schemaService2 = clientFactory.create(userTO.getUsername(), "password123").getService(
+                SchemaService.class);
 
         schemaTO = schemaService2.read(AttributableType.USER, SchemaType.NORMAL, schemaName);
         assertNotNull(schemaTO);
@@ -120,9 +119,9 @@ public class AuthenticationTestITCase extends AbstractTest {
         try {
             schemaService2.update(AttributableType.ROLE, SchemaType.NORMAL, schemaName, schemaTO);
             fail("Schemaupdate as user schould not work");
-        } catch (SyncopeClientCompositeException e) {
+        } catch (SyncopeClientException e) {
             assertNotNull(e);
-            assertEquals(HttpStatus.SC_FORBIDDEN, e.getStatusCode());
+            assertEquals(HttpStatus.SC_UNAUTHORIZED, e.getType().getResponseStatus().getStatusCode());
         } catch (AccessControlException e) {
             // CXF Service will throw this exception
             assertNotNull(e);
@@ -146,23 +145,23 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserService userService2 =
-                clientFactory.create(userTO.getUsername(), "password123").getService(UserService.class);
+        UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").
+                getService(UserService.class);
 
         UserTO readUserTO = userService2.read(1L);
         assertNotNull(readUserTO);
 
-        UserService userService3 =
-                clientFactory.create("verdi", ADMIN_PWD).getService(UserService.class);
+        UserService userService3 = clientFactory.create("verdi", ADMIN_PWD).getService(UserService.class);
 
         SyncopeClientException exception = null;
         try {
             userService3.read(1L);
             fail();
-        } catch (SyncopeClientCompositeException e) {
-            exception = e.getException(SyncopeClientExceptionType.UnauthorizedRole);
+        } catch (SyncopeClientException e) {
+            exception = e;
         }
         assertNotNull(exception);
+        assertEquals(ClientExceptionType.UnauthorizedRole, exception.getType());
     }
 
     @Test
@@ -180,8 +179,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserService userService2 =
-                clientFactory.create(userTO.getUsername(), "password123").getService(UserService.class);
+        UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").
+                getService(UserService.class);
 
         AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
         isNullCond.setSchema("loginDate");
@@ -196,8 +195,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         }
         assertTrue(userIds.contains(1L));
 
-        UserService userService3 =
-                clientFactory.create("verdi", "password").getService(UserService.class);
+        UserService userService3 = clientFactory.create("verdi", "password").getService(UserService.class);
 
         matchedUsers = userService3.search(searchCondition);
 
@@ -227,20 +225,19 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(userTO);
         long userId = userTO.getId();
 
-        UserService userService2 =
-                clientFactory.create(userTO.getUsername(), "password123").getService(UserService.class);
+        UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").getService(
+                UserService.class);
         assertEquals(0, getFailedLogins(userService2, userId));
 
         // authentications failed ...
-        UserService userService3 =
-                clientFactory.create(userTO.getUsername(), "wrongpwd1").getService(UserService.class);
+        UserService userService3 = clientFactory.create(userTO.getUsername(), "wrongpwd1").getService(UserService.class);
         assertReadFails(userService3, userId);
         assertReadFails(userService3, userId);
 
         assertEquals(2, getFailedLogins(userService, userId));
 
-        UserService userService4 =
-                clientFactory.create(userTO.getUsername(), "password123").getService(UserService.class);
+        UserService userService4 = clientFactory.create(userTO.getUsername(), "password123").getService(
+                UserService.class);
         assertEquals(0, getFailedLogins(userService4, userId));
     }
 
@@ -260,13 +257,12 @@ public class AuthenticationTestITCase extends AbstractTest {
         long userId = userTO.getId();
         assertNotNull(userTO);
 
-        UserService userService2 =
-                clientFactory.create(userTO.getUsername(), "password123").getService(UserService.class);
+        UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").getService(
+                UserService.class);
         assertEquals(0, getFailedLogins(userService2, userId));
 
         // authentications failed ...
-        UserService userService3 =
-                clientFactory.create(userTO.getUsername(), "wrongpwd1").getService(UserService.class);
+        UserService userService3 = clientFactory.create(userTO.getUsername(), "wrongpwd1").getService(UserService.class);
         assertReadFails(userService3, userId);
         assertReadFails(userService3, userId);
         assertReadFails(userService3, userId);
@@ -274,8 +270,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertEquals(3, getFailedLogins(userService, userId));
 
         // last authentication before suspension
-        userService3 =
-                clientFactory.create(userTO.getUsername(), "wrongpwd1").getService(UserService.class);
+        userService3 = clientFactory.create(userTO.getUsername(), "wrongpwd1").getService(UserService.class);
         assertReadFails(userService3, userId);
 
         userTO = userService.read(userTO.getId());
@@ -286,16 +281,14 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertEquals("suspended", userTO.getStatus());
 
         // Access with correct credentials should fail as user is suspended
-        userService2 =
-                clientFactory.create(userTO.getUsername(), "password123").getService(UserService.class);
+        userService2 = clientFactory.create(userTO.getUsername(), "password123").getService(UserService.class);
         assertReadFails(userService2, userId);
 
         userTO = userService.reactivate(userTO.getId());
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        userService2 =
-                clientFactory.create(userTO.getUsername(), "password123").getService(UserService.class);
+        userService2 = clientFactory.create(userTO.getUsername(), "password123").getService(UserService.class);
         assertEquals(0, getFailedLogins(userService2, userId));
     }
 
@@ -329,8 +322,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         role1Admin = createUser(role1Admin);
         assertNotNull(role1Admin);
 
-        UserService userService2 =
-                clientFactory.create(role1Admin.getUsername(), "password").getService(UserService.class);
+        UserService userService2 = clientFactory.create(role1Admin.getUsername(), "password").getService(
+                UserService.class);
 
         // User with role 1, created by user with child role created above
         UserTO role1User = UserTestITCase.getUniqueSampleTO("syncope48user@apache.org");

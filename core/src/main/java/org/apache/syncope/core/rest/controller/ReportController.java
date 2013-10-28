@@ -45,7 +45,7 @@ import org.apache.syncope.common.types.AuditElements.ReportSubCategory;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.types.ReportExecStatus;
-import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
@@ -100,12 +100,9 @@ public class ReportController extends AbstractController {
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getId(), e);
 
-            SyncopeClientCompositeException scce =
-                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
-            sce.addElement(e.getMessage());
-            scce.addException(sce);
-            throw scce;
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
+            sce.getElements().add(e.getMessage());
+            throw sce;
         }
 
         auditManager.audit(Category.report, ReportSubCategory.create, Result.success,
@@ -131,12 +128,9 @@ public class ReportController extends AbstractController {
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getId(), e);
 
-            SyncopeClientCompositeException sccee =
-                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
-            sce.addElement(e.getMessage());
-            sccee.addException(sce);
-            throw sccee;
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
+            sce.getElements().add(e.getMessage());
+            throw sce;
         }
 
         auditManager.audit(Category.report, ReportSubCategory.update, Result.success,
@@ -294,14 +288,11 @@ public class ReportController extends AbstractController {
             throw new NotFoundException("Report execution " + executionId);
         }
         if (!ReportExecStatus.SUCCESS.name().equals(reportExec.getStatus()) || reportExec.getExecResult() == null) {
-            SyncopeClientCompositeException sccee =
-                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidReportExec);
-            sce.addElement(reportExec.getExecResult() == null
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidReportExec);
+            sce.getElements().add(reportExec.getExecResult() == null
                     ? "No report data produced"
                     : "Report did not run successfully");
-            sccee.addException(sce);
-            throw sccee;
+            throw sce;
         }
         return reportExec;
     }
@@ -331,12 +322,9 @@ public class ReportController extends AbstractController {
             auditManager.audit(Category.report, ReportSubCategory.execute, Result.failure,
                     "Could not start execution for report: " + report.getId(), e);
 
-            SyncopeClientCompositeException scce =
-                    new SyncopeClientCompositeException(Response.Status.BAD_REQUEST.getStatusCode());
-            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.Scheduling);
-            sce.addElement(e.getMessage());
-            scce.addException(sce);
-            throw scce;
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
+            sce.getElements().add(e.getMessage());
+            throw sce;
         }
 
         result = new ReportExecTO();
