@@ -88,7 +88,7 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
     @Override
     protected List<IColumn<AbstractAttributableTO, String>> getColumns() {
         final List<IColumn<AbstractAttributableTO, String>> columns =
-                new ArrayList<IColumn<AbstractAttributableTO, String>>();
+                 new ArrayList<IColumn<AbstractAttributableTO, String>>();
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {
             final Field field = ReflectionUtils.findField(UserTO.class, name);

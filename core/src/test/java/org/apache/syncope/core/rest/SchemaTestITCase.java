@@ -217,7 +217,7 @@ public class SchemaTestITCase extends AbstractTest {
 
         UserMod userMod = AttributableOperations.diff(newUserTO, userTO);
 
-        userTO = userService.update(userMod.getId(), userMod);
+        userTO = userService.update(userMod.getId(), userMod).readEntity(UserTO.class);
         assertNotNull(userTO);
     }
 

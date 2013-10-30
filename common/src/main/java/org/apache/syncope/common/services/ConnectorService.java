@@ -19,6 +19,7 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -26,7 +27,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
@@ -37,13 +40,15 @@ import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.ConnConfProperty;
 
 @Path("connectors")
+@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface ConnectorService {
 
     /**
      * Create a new connector instance.
      *
      * @param connInstanceTO connector instance to be created
-     * @return response containing URI location for created resource
+     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created connector instance
      */
     @POST
     Response create(ConnInstanceTO connInstanceTO);
@@ -144,5 +149,5 @@ public interface ConnectorService {
 
     @POST
     @Path("bulk")
-    BulkActionRes bulkAction(BulkAction bulkAction);
+    BulkActionRes bulk(BulkAction bulkAction);
 }

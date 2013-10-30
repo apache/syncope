@@ -23,11 +23,11 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.core.rest.controller.UserRequestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,14 +40,9 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
 
     @Override
     public Response getOptions() {
-        return Response.ok().header("Allow", "GET,POST,OPTIONS,HEAD")
-                .header(SYNCOPE_CREATE_ALLOWED, controller.isCreateAllowed()).
+        return Response.ok().header("Allow", "GET,POST,OPTIONS,HEAD").
+                header(RESTHeaders.USERREQUEST_CREATE_ALLOWED.toString(), controller.isCreateAllowed()).
                 build();
-    }
-
-    @Override
-    public boolean isCreateAllowed() {
-        return controller.isCreateAllowed();
     }
 
     @Override
@@ -69,9 +64,9 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
         }
 
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(outUserRequestTO.getId())).build();
-        return Response.created(location)
-                .header(SyncopeConstants.REST_RESOURCE_ID_HEADER, outUserRequestTO.getId())
-                .build();
+        return Response.created(location).
+                header(RESTHeaders.RESOURCE_ID.toString(), outUserRequestTO.getId()).
+                build();
     }
 
     @Override

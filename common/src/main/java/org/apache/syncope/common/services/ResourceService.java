@@ -19,7 +19,7 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
-import java.util.Set;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.MatrixParam;
@@ -27,6 +27,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
@@ -37,6 +39,8 @@ import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
 
 @Path("resources")
+@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface ResourceService {
 
     /**
@@ -49,7 +53,7 @@ public interface ResourceService {
 
     /**
      * @param resourceTO Resource to be created
-     * @return Response containing URI location for created resource
+     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created report
      */
     @POST
     Response create(ResourceTO resourceTO);
@@ -77,7 +81,7 @@ public interface ResourceService {
      */
     @GET
     @Path("propagationActionsClasses")
-    Set<PropagationActionClassTO> getPropagationActionsClasses();
+    List<PropagationActionClassTO> getPropagationActionsClasses();
 
     /**
      * @return Returns list of all Resources
@@ -110,15 +114,10 @@ public interface ResourceService {
 
     @POST
     @Path("bulk")
-    BulkActionRes bulkAction(BulkAction bulkAction);
+    BulkActionRes bulk(BulkAction bulkAction);
 
-    @PUT
-    @Path("{resourceName}/users")
-    BulkActionRes usersBulkAssociationAction(
-            @PathParam("resourceName") String resourceName, BulkAssociationAction bulkAction);
-
-    @PUT
-    @Path("{resourceName}/roles")
-    BulkActionRes rolesBulkAssociationAction(
-            @PathParam("resourceName") String resourceName, BulkAssociationAction bulkAction);
+    @POST
+    @Path("{resourceName}/bulkAssociation/{type}")
+    BulkActionRes bulkAssociation(@PathParam("resourceName") String resourceName,
+            BulkAssociationAction bulkAssociationAction, @PathParam("type") AttributableType type);
 }

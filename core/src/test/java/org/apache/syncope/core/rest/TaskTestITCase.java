@@ -27,7 +27,6 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.http.HttpStatus;
 import org.apache.syncope.common.mod.UserMod;
@@ -76,16 +75,31 @@ public class TaskTestITCase extends AbstractTest {
 
     private static final Long SYNC_TASK_ID = 4L;
 
+    /**
+     * Remove initial and synchronized users to make test re-runnable.
+     */
+    public void removeTestUsers() {
+        for (int i = 0; i < 10; i++) {
+            String cUserName = "test" + i;
+            try {
+                UserTO cUserTO = readUser(cUserName);
+                userService.delete(cUserTO.getId());
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+    }
+
     @Test
     public void getJobClasses() {
-        Set<JobClassTO> jobClasses = taskService.getJobClasses();
+        List<JobClassTO> jobClasses = taskService.getJobClasses();
         assertNotNull(jobClasses);
         assertFalse(jobClasses.isEmpty());
     }
 
     @Test
     public void getSyncActionsClasses() {
-        Set<SyncActionClassTO> actions = taskService.getSyncActionsClasses();
+        List<SyncActionClassTO> actions = taskService.getSyncActionsClasses();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }
@@ -290,7 +304,7 @@ public class TaskTestITCase extends AbstractTest {
             assertTrue(Integer.valueOf(userTO.getAttrMap().get("fullname").getValues().get(0)) <= 10);
 
             // check for user template
-            userTO = userService.read("test7");
+            userTO = readUser("test7");
             assertNotNull(userTO);
             assertEquals("TYPE_OTHER", userTO.getAttrMap().get("type").getValues().get(0));
             assertEquals(2, userTO.getResources().size());
@@ -299,7 +313,7 @@ public class TaskTestITCase extends AbstractTest {
             assertEquals(1, userTO.getMemberships().size());
             assertTrue(userTO.getMemberships().get(0).getAttrMap().containsKey("subscriptionDate"));
 
-            userTO = userService.read("test8");
+            userTO = readUser("test8");
             assertNotNull(userTO);
             assertEquals("TYPE_8", userTO.getAttrMap().get("type").getValues().get(0));
 
@@ -311,12 +325,11 @@ public class TaskTestITCase extends AbstractTest {
             // Check for issue 215:
             // * expected disabled user test1
             // * expected enabled user test2
-
-            userTO = userService.read("test1");
+            userTO = readUser("test1");
             assertNotNull(userTO);
             assertEquals("suspended", userTO.getStatus());
 
-            userTO = userService.read("test3");
+            userTO = readUser("test3");
             assertNotNull(userTO);
             assertEquals("active", userTO.getStatus());
 
@@ -353,7 +366,7 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(execution.getStatus());
         assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
 
-        UserTO userTO = userService.read("testuser1");
+        UserTO userTO = readUser("testuser1");
         assertNotNull(userTO);
         assertEquals("reconciled@syncope.apache.org", userTO.getAttrMap().get("userId").getValues().get(0));
         assertEquals("suspended", userTO.getStatus());
@@ -367,7 +380,7 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(execution.getStatus());
         assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
 
-        userTO = userService.read("testuser1");
+        userTO = readUser("testuser1");
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
     }
@@ -375,6 +388,7 @@ public class TaskTestITCase extends AbstractTest {
     @Test
     public void reconcileFromLDAP()
             throws InvalidSearchConditionException {
+
         // Update sync task
         SyncTaskTO task = taskService.read(11L);
         assertNotNull(task);
@@ -626,13 +640,13 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(status);
             assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
-            userTO = userService.read("testuser2");
+            userTO = readUser("testuser2");
             assertNotNull(userTO);
             assertEquals("testuser2@syncope.apache.org", userTO.getAttrMap().get("userId").getValues().get(0));
             assertEquals(2, userTO.getMemberships().size());
             assertEquals(4, userTO.getResources().size());
         } finally {
-            UserTO dUserTO = userService.delete(userTO.getId());
+            UserTO dUserTO = deleteUser(userTO.getId());
             assertNotNull(dUserTO);
         }
     }
@@ -671,7 +685,7 @@ public class TaskTestITCase extends AbstractTest {
         execSyncTask(10L, 20, false);
 
         // 3. read e-mail address for user created by the SyncTask first execution
-        UserTO userTO = userService.read("issuesyncope230");
+        UserTO userTO = readUser("issuesyncope230");
         assertNotNull(userTO);
         String email = userTO.getAttrMap().get("email").getValues().iterator().next();
         assertNotNull(email);
@@ -684,7 +698,7 @@ public class TaskTestITCase extends AbstractTest {
         execSyncTask(10L, 20, false);
 
         // 6. verify that the e-mail was updated
-        userTO = userService.read("issuesyncope230");
+        userTO = readUser("issuesyncope230");
         assertNotNull(userTO);
         email = userTO.getAttrMap().get("email").getValues().iterator().next();
         assertNotNull(email);
@@ -744,7 +758,6 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(task);
 
             // add user template
-
             AttributeTO newAttrTO = new AttributeTO();
             newAttrTO.setSchema("firstname");
             newAttrTO.getValues().add("");
@@ -770,7 +783,7 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(taskExecTO.getStatus());
             assertTrue(PropagationTaskExecStatus.valueOf(taskExecTO.getStatus()).isSuccessful());
 
-            userTO = userService.read(userTO.getUsername());
+            userTO = userService.read(userTO.getId());
             assertNotNull(userTO);
             assertNotNull(userTO.getAttrMap().get("firstname").getValues().get(0));
         } finally {
@@ -819,7 +832,7 @@ public class TaskTestITCase extends AbstractTest {
         userMod.getAttrsToRemove().add("email");
         userMod.getAttrsToUpdate().add(attributeMod("email", "s258@apache.org"));
 
-        userTO = userService.update(userMod.getId(), userMod);
+        userService.update(userMod.getId(), userMod);
 
         execSyncTask(actual.getId(), 50, false);
 
@@ -906,23 +919,8 @@ public class TaskTestITCase extends AbstractTest {
             bulkAction.getTargets().add(String.valueOf(taskTO.getId()));
         }
 
-        taskService.bulkAction(bulkAction);
+        taskService.bulk(bulkAction);
 
         assertFalse(taskService.list(TaskType.PROPAGATION).containsAll(after));
-    }
-
-    /**
-     * Remove initial and synchronized users to make test re-runnable.
-     */
-    public void removeTestUsers() {
-        for (int i = 0; i < 10; i++) {
-            String cUserName = "test" + i;
-            try {
-                UserTO cUserTO = userService.read(cUserName);
-                userService.delete(cUserTO.getId());
-            } catch (Exception e) {
-                // Ignore
-            }
-        }
     }
 }

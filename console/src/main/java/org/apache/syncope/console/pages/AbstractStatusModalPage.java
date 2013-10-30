@@ -15,7 +15,7 @@
  */
 package org.apache.syncope.console.pages;
 
-public class AbstractStatusModlaPage extends BaseModalPage {
+public class AbstractStatusModalPage extends BaseModalPage {
 
     protected static final long serialVersionUID = 6633408683036028540L;
 

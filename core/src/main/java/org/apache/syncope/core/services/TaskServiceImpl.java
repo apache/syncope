@@ -20,10 +20,8 @@ package org.apache.syncope.core.services;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Set;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.TaskService;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
@@ -34,6 +32,7 @@ import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.CollectionWrapper;
@@ -62,7 +61,9 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService,
         }
 
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(createdTask.getId())).build();
-        return Response.created(location).header(SyncopeConstants.REST_RESOURCE_ID_HEADER, createdTask.getId()).build();
+        return Response.created(location).
+                header(RESTHeaders.RESOURCE_ID.toString(), createdTask.getId()).
+                build();
     }
 
     @Override
@@ -81,13 +82,13 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService,
     }
 
     @Override
-    public Set<JobClassTO> getJobClasses() {
-        return CollectionWrapper.wrapJobClasses(controller.getJobClasses());
+    public List<JobClassTO> getJobClasses() {
+        return CollectionWrapper.wrap(controller.getJobClasses(), JobClassTO.class);
     }
 
     @Override
-    public Set<SyncActionClassTO> getSyncActionsClasses() {
-        return CollectionWrapper.wrapSyncActionClasses(controller.getSyncActionsClasses());
+    public List<SyncActionClassTO> getSyncActionsClasses() {
+        return CollectionWrapper.wrap(controller.getSyncActionsClasses(), SyncActionClassTO.class);
     }
 
     @Override
@@ -128,7 +129,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService,
     }
 
     @Override
-    public BulkActionRes bulkAction(final BulkAction bulkAction) {
-        return controller.bulkAction(bulkAction);
+    public BulkActionRes bulk(final BulkAction bulkAction) {
+        return controller.bulk(bulkAction);
     }
 }

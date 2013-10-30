@@ -23,9 +23,9 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.NotificationService;
 import org.apache.syncope.common.to.NotificationTO;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.core.rest.controller.NotificationController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,9 +40,9 @@ public class NotificationServiceImpl extends AbstractServiceImpl implements Noti
     public Response create(final NotificationTO notificationTO) {
         NotificationTO createdNotificationTO = controller.create(notificationTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(createdNotificationTO.getId())).build();
-        return Response.created(location)
-                .header(SyncopeConstants.REST_RESOURCE_ID_HEADER, createdNotificationTO.getId())
-                .build();
+        return Response.created(location).
+                header(RESTHeaders.RESOURCE_ID.toString(), createdNotificationTO.getId()).
+                build();
     }
 
     @Override

@@ -690,7 +690,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertNotNull(connectorService.read(Long.valueOf(iter.next())));
         assertNotNull(connectorService.read(Long.valueOf(iter.next())));
 
-        connectorService.bulkAction(bulkAction);
+        connectorService.bulk(bulkAction);
 
         iter = bulkAction.getTargets().iterator();
 

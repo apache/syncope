@@ -31,6 +31,7 @@ import java.util.Set;
 
 import javax.ws.rs.core.Response;
 import org.apache.http.HttpStatus;
+import org.apache.syncope.common.mod.StatusMod;
 
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.NodeCond;
@@ -47,6 +48,7 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.ClientExceptionType;
+import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -58,14 +60,15 @@ public class AuthenticationTestITCase extends AbstractTest {
     @Test
     public void testAdminEntitlements() {
         // 1. as anonymous, read all available entitlements
-        Set<EntitlementTO> allEntitlements = entitlementService.getAllEntitlements();
+        List<EntitlementTO> allEntitlements = entitlementService.getAllEntitlements();
         assertNotNull(allEntitlements);
         assertFalse(allEntitlements.isEmpty());
 
         // 2. as admin, read own entitlements
-        Set<EntitlementTO> adminEntitlements = entitlementService.getMyEntitlements();
+        List<EntitlementTO> adminEntitlements = entitlementService.getOwnEntitlements();
 
-        assertEquals(allEntitlements, adminEntitlements);
+        assertEquals(new HashSet<String>(CollectionWrapper.unwrap(allEntitlements)),
+                new HashSet<String>(CollectionWrapper.unwrap(adminEntitlements)));
     }
 
     @Test
@@ -76,7 +79,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         authRoleTO.setParent(8L);
         authRoleTO.getEntitlements().add("SCHEMA_READ");
 
-        authRoleTO = createRole(roleService, authRoleTO);
+        authRoleTO = createRole(authRoleTO);
         assertNotNull(authRoleTO);
 
         String schemaName = "authTestSchema" + getUUIDString();
@@ -262,7 +265,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertEquals(0, getFailedLogins(userService2, userId));
 
         // authentications failed ...
-        UserService userService3 = clientFactory.create(userTO.getUsername(), "wrongpwd1").getService(UserService.class);
+        UserService userService3 = clientFactory.create(userTO.getUsername(), "wrongpwd1").
+                getService(UserService.class);
         assertReadFails(userService3, userId);
         assertReadFails(userService3, userId);
         assertReadFails(userService3, userId);
@@ -284,7 +288,9 @@ public class AuthenticationTestITCase extends AbstractTest {
         userService2 = clientFactory.create(userTO.getUsername(), "password123").getService(UserService.class);
         assertReadFails(userService2, userId);
 
-        userTO = userService.reactivate(userTO.getId());
+        StatusMod reactivate = new StatusMod();
+        reactivate.setType(StatusMod.ModType.REACTIVATE);
+        userTO = userService.status(userTO.getId(), reactivate).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
@@ -301,7 +307,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         parentRole.getEntitlements().add("ROLE_1");
         parentRole.setParent(1L);
 
-        parentRole = createRole(roleService, parentRole);
+        parentRole = createRole(parentRole);
         assertNotNull(parentRole);
 
         // Child role, with no entitlements
@@ -309,7 +315,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         childRole.setName("childAdminRole");
         childRole.setParent(parentRole.getId());
 
-        childRole = createRole(roleService, childRole);
+        childRole = createRole(childRole);
         assertNotNull(childRole);
 
         // User with child role, created by admin

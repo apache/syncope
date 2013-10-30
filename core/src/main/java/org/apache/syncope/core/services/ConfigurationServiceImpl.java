@@ -22,17 +22,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.MailTemplateTO;
 import org.apache.syncope.common.to.ValidatorTO;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.persistence.dao.impl.ContentLoader;
 import org.apache.syncope.core.rest.controller.ConfigurationController;
@@ -50,7 +49,7 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
         ConfigurationTO created = controller.create(configurationTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
         return Response.created(location).
-                header(SyncopeConstants.REST_RESOURCE_ID_HEADER, created.getKey()).
+                header(RESTHeaders.RESOURCE_ID.toString(), created.getKey()).
                 build();
     }
 
@@ -63,11 +62,10 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
                 controller.export(os);
             }
         };
-        return Response.ok(sout)
-                .type(MediaType.TEXT_XML)
-                .header(SyncopeConstants.CONTENT_DISPOSITION_HEADER,
-                "attachment; filename=" + ContentLoader.CONTENT_XML)
-                .build();
+        return Response.ok(sout).
+                type(MediaType.TEXT_XML).
+                header(RESTHeaders.CONTENT_DISPOSITION.toString(), "attachment; filename=" + ContentLoader.CONTENT_XML).
+                build();
     }
 
     @Override
@@ -77,14 +75,14 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
 
     @Override
     @SuppressWarnings("unchecked")
-    public Set<MailTemplateTO> getMailTemplates() {
-        return CollectionWrapper.wrapMailTemplates(controller.getMailTemplates());
+    public List<MailTemplateTO> getMailTemplates() {
+        return CollectionWrapper.wrap(controller.getMailTemplates(), MailTemplateTO.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Set<ValidatorTO> getValidators() {
-        return CollectionWrapper.wrapValidators(controller.getValidators());
+    public List<ValidatorTO> getValidators() {
+        return CollectionWrapper.wrap(controller.getValidators(), ValidatorTO.class);
     }
 
     @Override

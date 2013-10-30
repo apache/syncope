@@ -30,10 +30,13 @@ import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnObjectTO;
+import org.apache.syncope.common.to.ResourceNameTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.console.commons.StatusBean;
-import org.apache.syncope.console.commons.StatusUtils;
+import org.apache.syncope.common.types.ResourceAssociationActionType;
+import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.console.commons.status.StatusBean;
+import org.apache.syncope.console.commons.status.StatusUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -85,12 +88,12 @@ public class RoleRestClient extends AbstractAttributableRestClient {
     }
 
     public RoleTO update(final RoleMod roleMod) {
-        return getService(RoleService.class).update(roleMod.getId(), roleMod);
+        return getService(RoleService.class).update(roleMod.getId(), roleMod).readEntity(RoleTO.class);
     }
 
     @Override
     public RoleTO delete(final Long id) {
-        return getService(RoleService.class).delete(id);
+        return getService(RoleService.class).delete(id).readEntity(RoleTO.class);
     }
 
     @Override
@@ -99,14 +102,21 @@ public class RoleRestClient extends AbstractAttributableRestClient {
     }
 
     public RoleTO unlink(final long roleId, final List<StatusBean> statuses) {
-        return getService(RoleService.class).unlink(roleId, StatusUtils.buildPropagationTargetsTO(statuses));
-    }
-
-    public RoleTO unassign(final long roleId, final List<StatusBean> statuses) {
-        return getService(RoleService.class).unassign(roleId, StatusUtils.buildPropagationTargetsTO(statuses));
+        return getService(RoleService.class).associate(roleId, ResourceAssociationActionType.UNLINK,
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceNameTO.class)).
+                readEntity(RoleTO.class);
     }
 
     public RoleTO deprovision(final long roleId, final List<StatusBean> statuses) {
-        return getService(RoleService.class).deprovision(roleId, StatusUtils.buildPropagationTargetsTO(statuses));
+        return getService(RoleService.class).associate(roleId, ResourceAssociationActionType.DEPROVISION,
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceNameTO.class)).
+                readEntity(RoleTO.class);
     }
+
+    public RoleTO unassign(final long roleId, final List<StatusBean> statuses) {
+        return getService(RoleService.class).associate(roleId, ResourceAssociationActionType.UNASSIGN,
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceNameTO.class)).
+                readEntity(RoleTO.class);
+    }
+
 }

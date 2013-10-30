@@ -20,33 +20,12 @@ package org.apache.syncope.common.to;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.AbstractWrappable;
 
 @XmlRootElement(name = "correlationRuleClass")
 @XmlType
-public class CorrelationRuleClassTO extends AbstractBaseBean {
+public class CorrelationRuleClassTO extends AbstractWrappable {
 
     private static final long serialVersionUID = -6715106427060816725L;
 
-    private String name;
-
-    public static CorrelationRuleClassTO instance(final String name) {
-        CorrelationRuleClassTO instance = new CorrelationRuleClassTO();
-        instance.setName(name);
-        return instance;
-    }
-
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param name the name to set
-     */
-    public void setName(final String name) {
-        this.name = name;
-    }
 }

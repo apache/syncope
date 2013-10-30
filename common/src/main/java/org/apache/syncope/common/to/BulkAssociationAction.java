@@ -24,10 +24,10 @@ import java.util.Collection;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.types.ResourceAssociationActionType;
 
 @XmlRootElement(name = "bulkAssociationAction")
 @XmlType
@@ -35,28 +35,18 @@ public class BulkAssociationAction extends AbstractBaseBean {
 
     private static final long serialVersionUID = 1395353278878758961L;
 
-    @XmlEnum
-    @XmlType(name = "bulkAssociationActionType")
-    public enum Type {
-
-        UNLINK,
-        UNASSIGN,
-        DEPROVISION
-
-    }
-
-    private Type operation;
+    private ResourceAssociationActionType operation;
 
     /**
      * Serialized identifiers.
      */
     private final List<Long> targets = new ArrayList<Long>();
 
-    public Type getOperation() {
+    public ResourceAssociationActionType getOperation() {
         return operation;
     }
 
-    public void setOperation(final Type operation) {
+    public void setOperation(final ResourceAssociationActionType operation) {
         this.operation = operation;
     }
 

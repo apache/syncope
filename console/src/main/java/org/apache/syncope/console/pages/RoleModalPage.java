@@ -25,7 +25,6 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.RolePanel;
-import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -36,12 +35,13 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Modal window with Role form.
  */
 public class RoleModalPage extends BaseModalPage {
+
+    private static final long serialVersionUID = -1732493223434085205L;
 
     public enum Mode {
 
@@ -49,11 +49,6 @@ public class RoleModalPage extends BaseModalPage {
         TEMPLATE;
 
     }
-
-    private static final long serialVersionUID = -1732493223434085205L;
-
-    @SpringBean
-    private RoleRestClient roleRestClient;
 
     protected final PageReference pageRef;
 
@@ -71,7 +66,7 @@ public class RoleModalPage extends BaseModalPage {
         this(pageRef, window, roleTO, Mode.ADMIN);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public RoleModalPage(final PageReference pageRef, final ModalWindow window, final RoleTO roleTO, final Mode mode) {
         super();
 
@@ -90,8 +85,8 @@ public class RoleModalPage extends BaseModalPage {
 
         form.setModel(new CompoundPropertyModel(roleTO));
 
-        this.rolePanel = new RolePanel.Builder("rolePanel").form(form).roleTO(roleTO).roleModalPageMode(mode)
-                .pageRef(getPageReference()).build();
+        this.rolePanel = new RolePanel.Builder("rolePanel").form(form).roleTO(roleTO).
+                roleModalPageMode(mode).pageRef(getPageReference()).build();
         form.add(rolePanel);
 
         final AjaxButton submit = new IndicatingAjaxButton(SUBMIT, new ResourceModel(SUBMIT)) {

@@ -24,13 +24,29 @@ import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.UserRequestType;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserRequestRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 171408947099311191L;
+
+    public boolean isSelfRegistrationAllowed() {
+        Boolean result = null;
+        try {
+            result = Boolean.valueOf(getService(UserRequestService.class).getOptions().
+                    getHeaderString(RESTHeaders.USERREQUEST_CREATE_ALLOWED.toString()));
+        } catch (SyncopeClientException e) {
+            LOG.error("While seeking if self registration is allowed", e);
+        }
+
+        return result == null
+                ? false
+                : result.booleanValue();
+    }
 
     public List<UserRequestTO> list() {
         return getService(UserRequestService.class).list();

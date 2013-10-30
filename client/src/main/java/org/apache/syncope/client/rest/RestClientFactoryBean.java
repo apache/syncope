@@ -25,12 +25,6 @@ import org.apache.cxf.jaxrs.client.WebClient;
 
 public class RestClientFactoryBean extends JAXRSClientFactoryBean {
 
-    private String contentType;
-
-    public RestClientFactoryBean() {
-        super();
-    }
-
     public <T> T createServiceInstance(final Class<T> serviceClass, final MediaType mediaType) {
         return createServiceInstance(serviceClass, mediaType, null, null);
     }

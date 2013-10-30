@@ -61,11 +61,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = { Throwable.class })
 public class UserDataBinder extends AbstractAttributableDataBinder {
 
     private static final String[] IGNORE_USER_PROPERTIES = {
-        "memberships", "attrs", "derAttrs", "virAttrs", "resources"};
+        "memberships", "attrs", "derAttrs", "virAttrs", "resources"
+    };
 
     @Autowired
     private ConnObjectUtil connObjectUtil;
@@ -179,8 +180,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         try {
             user.setPassword(password, getPredefinedCipherAlgoritm(), passwordHistorySize);
         } catch (NotFoundException e) {
-            final SyncopeClientException invalidCiperAlgorithm =
-                    SyncopeClientException.build(ClientExceptionType.NotFound);
+            final SyncopeClientException invalidCiperAlgorithm = SyncopeClientException.build(
+                    ClientExceptionType.NotFound);
             invalidCiperAlgorithm.getElements().add(e.getMessage());
             scce.addException(invalidCiperAlgorithm);
 

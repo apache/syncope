@@ -40,7 +40,7 @@ import org.junit.Test;
 public class JSONTest {
 
     @Test
-    public void testSearchCondition() throws IOException {
+    public void searchCondition() throws IOException {
         final AttributeCond usernameCond = new AttributeCond(AttributeCond.Type.LIKE);
         usernameCond.setSchema("username");
         usernameCond.setExpression("%o%");
@@ -63,7 +63,7 @@ public class JSONTest {
     }
 
     @Test
-    public void testLists() throws IOException {
+    public void lists() throws IOException {
         List<ConfigurationTO> confList = new ArrayList<ConfigurationTO>();
         ConfigurationTO configuration = new ConfigurationTO();
         configuration.setKey("key1");
@@ -87,7 +87,7 @@ public class JSONTest {
     }
 
     @Test
-    public void testMap() throws IOException {
+    public void map() throws IOException {
         WorkflowFormPropertyTO prop = new WorkflowFormPropertyTO();
         prop.getEnumValues().put("key1", "value1");
         prop.getEnumValues().put("key2", "value2");
@@ -102,7 +102,7 @@ public class JSONTest {
     }
 
     @Test
-    public void testReportletConfImplementations() throws IOException {
+    public void reportletConfImplementations() throws IOException {
         ReportTO report = new ReportTO();
         report.setName("testReportForCreate");
         report.getReportletConfs().add(new UserReportletConf("first"));

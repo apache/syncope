@@ -19,20 +19,19 @@
 package org.apache.syncope.console.pages;
 
 import java.security.AccessControlException;
+import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.syncope.common.services.EntitlementService;
-import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.EntitlementTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.rest.UserRequestRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
 import org.apache.wicket.Page;
@@ -82,6 +81,9 @@ public class Login extends WebPage {
 
     @SpringBean(name = "anonymousKey")
     private String anonymousKey;
+
+    @SpringBean
+    private UserRequestRestClient userReqRestClient;
 
     private Form<Void> form;
 
@@ -143,7 +145,7 @@ public class Login extends WebPage {
         add(editProfileModalWin);
 
         Fragment selfRegFrag;
-        if (isSelfRegistrationAllowed()) {
+        if (userReqRestClient.isSelfRegistrationAllowed()) {
             selfRegFrag = new Fragment("selfRegistration", "selfRegAllowed", this);
 
             final AjaxLink<Void> selfRegLink = new ClearIndicatingAjaxLink<Void>("link", getPageReference()) {
@@ -191,26 +193,13 @@ public class Login extends WebPage {
     }
 
     private void authenticate(final String username, final String password) {
-        Set<EntitlementTO> entitlements = SyncopeSession.get().
-                getService(EntitlementService.class, username, password).getMyEntitlements();
+        List<EntitlementTO> entitlements = SyncopeSession.get().
+                getService(EntitlementService.class, username, password).getOwnEntitlements();
 
         SyncopeSession.get().setUsername(username);
         SyncopeSession.get().setPassword(password);
         SyncopeSession.get().setEntitlements(CollectionWrapper.unwrap(entitlements).toArray(new String[0]));
         SyncopeSession.get().setVersion(getSyncopeVersion());
-    }
-
-    private boolean isSelfRegistrationAllowed() {
-        Boolean result = null;
-        try {
-            result = SyncopeSession.get().getService(UserRequestService.class).isCreateAllowed();
-        } catch (SyncopeClientException e) {
-            LOG.error("While seeking if self registration is allowed", e);
-        }
-
-        return result == null
-                ? false
-                : result.booleanValue();
     }
 
     private String getSyncopeVersion() {

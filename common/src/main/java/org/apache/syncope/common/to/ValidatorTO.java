@@ -21,33 +21,12 @@ package org.apache.syncope.common.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.AbstractWrappable;
 
 @XmlRootElement(name = "validator")
 @XmlType
-public class ValidatorTO extends AbstractBaseBean {
+public class ValidatorTO extends AbstractWrappable {
 
     private static final long serialVersionUID = 7233619557177034453L;
 
-    private String name;
-
-    public static ValidatorTO instance(final String name) {
-        ValidatorTO instance = new ValidatorTO();
-        instance.setName(name);
-        return instance;
-    }
-
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param name the name to set
-     */
-    public void setName(final String name) {
-        this.name = name;
-    }
 }

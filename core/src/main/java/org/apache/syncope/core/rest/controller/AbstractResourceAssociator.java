@@ -16,34 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.to;
+package org.apache.syncope.core.rest.controller;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import java.util.Collection;
+import org.apache.syncope.common.to.AbstractAttributableTO;
 
-/**
- * Propagation request on internal storage or on 0+ external resources.
- */
-@XmlRootElement(name = "propagationRequest")
-@XmlType
-public class PropagationRequestTO extends PropagationTargetsTO {
+public abstract class AbstractResourceAssociator<T extends AbstractAttributableTO> {
 
-    private static final long serialVersionUID = 7601716025754543004L;
+    public abstract T unlink(Long id, Collection<String> resources);
 
-    /**
-     * Whether update should be performed on internal storage.
-     */
-    private boolean onSyncope;
+    public abstract T unassign(Long id, Collection<String> resources);
 
-    public PropagationRequestTO() {
-        super();
-    }
-
-    public boolean isOnSyncope() {
-        return onSyncope;
-    }
-
-    public void setOnSyncope(final boolean onSyncope) {
-        this.onSyncope = onSyncope;
-    }
+    public abstract T deprovision(Long userId, Collection<String> resources);
 }

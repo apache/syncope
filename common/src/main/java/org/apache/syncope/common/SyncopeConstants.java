@@ -38,24 +38,6 @@ public class SyncopeConstants {
 
     public static final String DEFAULT_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
 
-    /**
-     * HTTP header key for object ID assigned to an object after its creation;
-     * HTTP Response after PUT operation should contain this key with resource id as its value.
-     */
-    public static final String REST_RESOURCE_ID_HEADER = "org.apache.syncope.resource.id";
-
-    /**
-     * HTTP header key for exception type.
-     */
-    public static final String REST_EXCEPTION_TYPE_HEADER = "Syncope.ExceptionType";
-
-    /**
-     * This constant is not defined in javax.ws.rs.core.HttpHeaders.
-     *
-     * @see javax.ws.rs.core.HttpHeaders
-     */
-    public static final String CONTENT_DISPOSITION_HEADER = "Content-Disposition";
-
     public static final String DEFAULT_ENCODING = "UTF-8";
 
     public static final String ROOT_LOGGER = "ROOT";

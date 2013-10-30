@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.console.commons;
+package org.apache.syncope.console.commons.status;
 
 import java.io.Serializable;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
@@ -37,7 +37,7 @@ public class StatusBean implements Serializable {
 
     private String accountLink = null;
 
-    private StatusUtils.Status status = StatusUtils.Status.OBJECT_NOT_FOUND;
+    private Status status = Status.OBJECT_NOT_FOUND;
 
     public StatusBean(final AbstractAttributableTO attributable, String resourceName) {
         this.attributableId = attributable.getId();
@@ -58,11 +58,11 @@ public class StatusBean implements Serializable {
         return resourceName;
     }
 
-    public StatusUtils.Status getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(final StatusUtils.Status status) {
+    public void setStatus(final Status status) {
         this.status = status;
     }
 

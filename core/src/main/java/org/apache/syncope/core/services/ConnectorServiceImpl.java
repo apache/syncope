@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ConnectorService;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
@@ -31,6 +30,7 @@ import org.apache.syncope.common.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.ConnConfProperty;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.core.rest.controller.ConnectorController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,7 +45,9 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     public Response create(final ConnInstanceTO connInstanceTO) {
         ConnInstanceTO connInstance = controller.create(connInstanceTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(connInstance.getId())).build();
-        return Response.created(location).header(SyncopeConstants.REST_RESOURCE_ID_HEADER, connInstance.getId()).build();
+        return Response.created(location).
+                header(RESTHeaders.RESOURCE_ID.toString(), connInstance.getId()).
+                build();
     }
 
     @Override
@@ -120,7 +122,7 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     }
 
     @Override
-    public BulkActionRes bulkAction(final BulkAction bulkAction) {
-        return controller.bulkAction(bulkAction);
+    public BulkActionRes bulk(final BulkAction bulkAction) {
+        return controller.bulk(bulkAction);
     }
 }

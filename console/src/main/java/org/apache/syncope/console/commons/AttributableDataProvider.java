@@ -33,9 +33,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AttributableDataProvider extends SortableDataProvider<AbstractAttributableTO, String> {
-    private static final Logger LOG = LoggerFactory.getLogger(AttributableDataProvider.class);
 
     private static final long serialVersionUID = 6267494272884913376L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(AttributableDataProvider.class);
 
     private final SortableAttributableProviderComparator comparator;
 
@@ -43,7 +44,7 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
 
     private final int paginatorRows;
 
-    private final boolean filtered ;
+    private final boolean filtered;
 
     private final AbstractAttributableRestClient restClient;
 
@@ -68,7 +69,7 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
 
     @Override
     public Iterator<? extends AbstractAttributableTO> iterator(final long first, final long count) {
-        final List<? extends AbstractAttributableTO> result;
+        List<? extends AbstractAttributableTO> result;
 
         if (filtered) {
             try {
@@ -77,7 +78,7 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
                         : restClient.search(filter, ((int) first / paginatorRows) + 1, paginatorRows);
             } catch (InvalidSearchConditionException e) {
                 LOG.error(e.getMessage(), e);
-                return Collections.<AbstractAttributableTO>emptyList().iterator();
+                result = Collections.<AbstractAttributableTO>emptyList();
             }
         } else {
             result = restClient.list(((int) first / paginatorRows) + 1, paginatorRows);
@@ -89,18 +90,22 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
 
     @Override
     public long size() {
+        long result;
+
         if (filtered) {
             try {
-                return filter == null
+                result = filter == null
                         ? 0
                         : restClient.searchCount(filter);
             } catch (InvalidSearchConditionException e) {
                 LOG.error(e.getMessage(), e);
-                return 0;
+                result = 0;
             }
         } else {
-            return restClient.count();
+            result = restClient.count();
         }
+
+        return result;
     }
 
     @Override

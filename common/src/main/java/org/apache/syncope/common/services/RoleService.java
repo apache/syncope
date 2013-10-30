@@ -19,21 +19,27 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.mod.RoleMod;
-import org.apache.syncope.common.to.PropagationTargetsTO;
+import org.apache.syncope.common.to.ResourceNameTO;
 import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.types.ResourceAssociationActionType;
 
 @Path("roles")
+@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface RoleService {
 
     /**
@@ -53,19 +59,20 @@ public interface RoleService {
 
     /**
      * @param roleTO Role to be created
-     * @return Response containing URI location for created role, as well as the role itself enriched with propagation
-     * status information
+     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created role as well as the role itself
+     * enriched with propagation status information, as <tt>Entity</tt>
      */
     @POST
     Response create(RoleTO roleTO);
 
     /**
      * @param roleId ID of role to be deleted
-     * @return Returns deleted role, enriched with propagation status information
+     * @return <tt>Response</tt> object featuring the deleted role enriched with propagation status information,
+     * as <tt>Entity</tt>
      */
     @DELETE
     @Path("{roleId}")
-    RoleTO delete(@PathParam("roleId") Long roleId);
+    Response delete(@PathParam("roleId") Long roleId);
 
     /**
      * @return Returns list of all knwon roles
@@ -100,7 +107,7 @@ public interface RoleService {
     /**
      * @param searchCondition Filter condition for role list
      * @return Returns list of roles with matching filter conditions
-     * @throws InvalidSearchConditionException
+     * @throws InvalidSearchConditionException if given search condition is not valid
      */
     @POST
     @Path("search")
@@ -111,7 +118,7 @@ public interface RoleService {
      * @param page Page of roles in relation to size parameter
      * @param size Number of roles to be displayed per page
      * @return Returns paginated list of roles with matching filter conditions
-     * @throws InvalidSearchConditionException
+     * @throws InvalidSearchConditionException if given search condition is not valid
      */
     @POST
     @Path("search")
@@ -121,7 +128,7 @@ public interface RoleService {
     /**
      * @param searchCondition Filter condition for role list
      * @return Returns number of roles matching provided filter conditions
-     * @throws InvalidSearchConditionException
+     * @throws InvalidSearchConditionException if given search condition is not valid
      */
     @POST
     @Path("search/count")
@@ -136,47 +143,29 @@ public interface RoleService {
      */
     @GET
     @Path("{roleId}/own")
-    RoleTO selfRead(@PathParam("roleId") Long roleId);
+    RoleTO readSelf(@PathParam("roleId") Long roleId);
 
     /**
      * @param roleId ID of role to be updated
      * @param roleMod Role object containing list of changes to be applied for selected role
-     * @return Returns updated role, merged from existing role and provided roleMod
+     * @return <tt>Response</tt> object featuring the updated role enriched with propagation status information,
+     * as <tt>Entity</tt>
      */
     @POST
     @Path("{roleId}")
-    RoleTO update(@PathParam("roleId") Long roleId, RoleMod roleMod);
+    Response update(@PathParam("roleId") Long roleId, RoleMod roleMod);
 
     /**
-     * Unlinks role and the given external resources specified by <tt>propagationTargetsTO</tt> parameter.
+     * Executes resource-related operations on given role.
      *
      * @param roleId role id.
-     * @param propagationTargetsTO resource names.
-     * @return updated role.
+     * @param type resource association action type
+     * @param resourceNames external resources to be used for propagation-related operations
+     * @return <tt>Response</tt> object featuring the updated role enriched with propagation status information,
+     * as <tt>Entity</tt>
      */
     @POST
-    @Path("{roleId}/unlink")
-    RoleTO unlink(@PathParam("roleId") Long roleId, PropagationTargetsTO propagationTargetsTO);
-
-    /**
-     * Unassigns resources to the given role (performs unlink + de-provision).
-     *
-     * @param roleId role id.
-     * @param propagationTargetsTO resources to be unassigned.
-     * @return updated role.
-     */
-    @POST
-    @Path("{roleId}/unassign")
-    RoleTO unassign(@PathParam("roleId") Long roleId, PropagationTargetsTO propagationTargetsTO);
-
-    /**
-     * De-provision role from the given resources without unlinking.
-     *
-     * @param roleId role id of the role to be de-provisioned.
-     * @param propagationTargetsTO resource names.
-     * @return updated role.
-     */
-    @POST
-    @Path("{roleId}/deprovision")
-    RoleTO deprovision(@PathParam("roleId") Long roleId, PropagationTargetsTO propagationTargetsTO);
+    @Path("{roleId}/associate/{type}")
+    Response associate(@PathParam("roleId") Long roleId, @PathParam("type") ResourceAssociationActionType type,
+            List<ResourceNameTO> resourceNames);
 }

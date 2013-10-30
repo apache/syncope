@@ -33,7 +33,7 @@ import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.syncope.console.commons.RoleUtils;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
-import org.apache.syncope.console.commons.StatusUtils;
+import org.apache.syncope.console.commons.status.StatusUtils;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.console.wicket.markup.html.form.NonI18nPalette;

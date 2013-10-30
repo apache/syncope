@@ -20,16 +20,15 @@ package org.apache.syncope.core.services;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Set;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.PolicyService;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.CorrelationRuleClassTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.rest.controller.PolicyController;
@@ -46,7 +45,9 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     public <T extends AbstractPolicyTO> Response create(final T policyTO) {
         AbstractPolicyTO policy = policyController.create(policyTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(policy.getId())).build();
-        return Response.created(location).header(SyncopeConstants.REST_RESOURCE_ID_HEADER, policy.getId()).build();
+        return Response.created(location).
+                header(RESTHeaders.RESOURCE_ID.toString(), policy.getId()).
+                build();
     }
 
     @Override
@@ -116,7 +117,7 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public Set<CorrelationRuleClassTO> getSyncCorrelationRuleClasses() {
-        return CollectionWrapper.wrapSyncCorrelationRuleClasses(policyController.getSyncCorrelationRuleClasses());
+    public List<CorrelationRuleClassTO> getSyncCorrelationRuleClasses() {
+        return CollectionWrapper.wrap(policyController.getSyncCorrelationRuleClasses(), CorrelationRuleClassTO.class);
     }
 }

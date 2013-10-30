@@ -19,15 +19,14 @@
 package org.apache.syncope.console.rest;
 
 import java.util.List;
-import java.util.Set;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.BulkAssociationAction;
-import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.springframework.stereotype.Component;
@@ -44,8 +43,7 @@ public class ResourceRestClient extends BaseRestClient {
         List<String> actions = null;
 
         try {
-            Set<PropagationActionClassTO> response = getService(ResourceService.class).getPropagationActionsClasses();
-            actions = CollectionWrapper.unwrapPropagationActionClasses(response);
+            actions = CollectionWrapper.unwrap(getService(ResourceService.class).getPropagationActionsClasses());
         } catch (SyncopeClientException e) {
             LOG.error("While getting all propagation actions classes", e);
         }
@@ -88,15 +86,14 @@ public class ResourceRestClient extends BaseRestClient {
     }
 
     public BulkActionRes bulkAction(final BulkAction action) {
-        return getService(ResourceService.class).bulkAction(action);
+        return getService(ResourceService.class).bulk(action);
     }
 
     public BulkActionRes bulkAssociationAction(
-            String resourceName, BulkAssociationAction bulkAction, Class<? extends AbstractAttributableTO> typeRef) {
-        if (UserTO.class.isAssignableFrom(typeRef)) {
-            return getService(ResourceService.class).usersBulkAssociationAction(resourceName, bulkAction);
-        } else {
-            return getService(ResourceService.class).rolesBulkAssociationAction(resourceName, bulkAction);
-        }
+            final String resourceName, final BulkAssociationAction bulkAssociationAction,
+            final Class<? extends AbstractAttributableTO> typeRef) {
+
+        return getService(ResourceService.class).bulkAssociation(resourceName, bulkAssociationAction,
+                UserTO.class.isAssignableFrom(typeRef) ? AttributableType.USER : AttributableType.ROLE);
     }
 }

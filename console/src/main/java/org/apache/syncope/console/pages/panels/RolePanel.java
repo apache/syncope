@@ -27,12 +27,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.console.commons.StatusBean;
+import org.apache.syncope.console.commons.status.StatusBean;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.RoleModalPage;
 import org.apache.syncope.console.rest.AuthRestClient;
-import org.apache.syncope.console.rest.RoleRestClient;
-import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.wicket.PageReference;
@@ -50,9 +48,6 @@ public class RolePanel extends Panel {
 
     @SpringBean
     private AuthRestClient authRestClient;
-
-    @SpringBean
-    private SchemaRestClient schemaRestClient;
 
     @SpringBean
     private XMLRolesReader xmlRolesReader;
@@ -77,22 +72,22 @@ public class RolePanel extends Panel {
             this.id = id;
         }
 
-        public RolePanel.Builder form(final Form form) {
+        public Builder form(final Form form) {
             this.form = form;
             return this;
         }
 
-        public RolePanel.Builder roleTO(final RoleTO roleTO) {
+        public Builder roleTO(final RoleTO roleTO) {
             this.roleTO = roleTO;
             return this;
         }
 
-        public RolePanel.Builder roleModalPageMode(final RoleModalPage.Mode mode) {
+        public Builder roleModalPageMode(final RoleModalPage.Mode mode) {
             this.mode = mode;
             return this;
         }
 
-        public RolePanel.Builder pageRef(final PageReference pageReference) {
+        public Builder pageRef(final PageReference pageReference) {
             this.pageReference = pageReference;
             return this;
         }

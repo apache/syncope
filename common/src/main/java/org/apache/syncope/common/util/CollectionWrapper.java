@@ -20,17 +20,10 @@ package org.apache.syncope.common.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import org.apache.syncope.common.to.CorrelationRuleClassTO;
-import org.apache.syncope.common.to.EntitlementTO;
-import org.apache.syncope.common.to.JobClassTO;
+import org.apache.syncope.common.AbstractWrappable;
 import org.apache.syncope.common.to.LoggerTO;
-import org.apache.syncope.common.to.MailTemplateTO;
-import org.apache.syncope.common.to.PropagationActionClassTO;
-import org.apache.syncope.common.to.SyncActionClassTO;
-import org.apache.syncope.common.to.ValidatorTO;
 import org.apache.syncope.common.types.AuditLoggerName;
 import org.apache.syncope.common.types.LoggerLevel;
 
@@ -40,52 +33,28 @@ public final class CollectionWrapper {
         // empty constructor for static utility class
     }
 
-    public static Set<EntitlementTO> wrap(final Collection<String> collection) {
-        Set<EntitlementTO> respons = new HashSet<EntitlementTO>();
-        for (String e : collection) {
-            respons.add(EntitlementTO.instance(e));
-        }
-        return respons;
+    public static <T extends AbstractWrappable> List<T> wrap(
+            final String element, final Class<T> reference) {
+
+        return Collections.singletonList(AbstractWrappable.getInstance(reference, element));
     }
 
-    public static Set<String> unwrap(final Collection<EntitlementTO> collection) {
-        Set<String> respons = new HashSet<String>();
-        for (EntitlementTO e : collection) {
-            respons.add(e.getName());
+    public static <T extends AbstractWrappable> List<T> wrap(
+            final Collection<String> collection, final Class<T> reference) {
+
+        List<T> response = new ArrayList<T>();
+        for (String element : collection) {
+            response.add(AbstractWrappable.getInstance(reference, element));
         }
-        return respons;
+        return response;
     }
 
-    public static Set<MailTemplateTO> wrapMailTemplates(final Collection<String> collection) {
-        Set<MailTemplateTO> respons = new HashSet<MailTemplateTO>();
-        for (String e : collection) {
-            respons.add(MailTemplateTO.instance(e));
+    public static <T extends AbstractWrappable> List<String> unwrap(final Collection<T> collection) {
+        List<String> response = new ArrayList<String>();
+        for (T e : collection) {
+            response.add(e.getName());
         }
-        return respons;
-    }
-
-    public static List<String> unwrapMailTemplates(final Collection<MailTemplateTO> collection) {
-        List<String> respons = new ArrayList<String>();
-        for (MailTemplateTO e : collection) {
-            respons.add(e.getName());
-        }
-        return respons;
-    }
-
-    public static Set<ValidatorTO> wrapValidators(final Collection<String> validators) {
-        Set<ValidatorTO> respons = new HashSet<ValidatorTO>();
-        for (String validator : validators) {
-            respons.add(ValidatorTO.instance(validator));
-        }
-        return respons;
-    }
-
-    public static List<String> unwrapValidator(final Collection<ValidatorTO> collection) {
-        List<String> respons = new ArrayList<String>();
-        for (ValidatorTO e : collection) {
-            respons.add(e.getName());
-        }
-        return respons;
+        return response;
     }
 
     public static List<AuditLoggerName> wrapLogger(final Collection<LoggerTO> logger) {
@@ -107,70 +76,6 @@ public final class CollectionWrapper {
             loggerTO.setName(l.toLoggerName());
             loggerTO.setLevel(LoggerLevel.DEBUG);
             respons.add(loggerTO);
-        }
-        return respons;
-    }
-
-    public static Set<JobClassTO> wrapJobClasses(final Collection<String> classes) {
-        Set<JobClassTO> respons = new HashSet<JobClassTO>();
-        for (String cl : classes) {
-            respons.add(JobClassTO.instance(cl));
-        }
-        return respons;
-    }
-
-    public static List<String> unwrapJobClasses(final Collection<JobClassTO> jobClasses) {
-        List<String> respons = new ArrayList<String>();
-        for (JobClassTO e : jobClasses) {
-            respons.add(e.getName());
-        }
-        return respons;
-    }
-
-    public static Set<SyncActionClassTO> wrapSyncActionClasses(final Collection<String> classes) {
-        Set<SyncActionClassTO> respons = new HashSet<SyncActionClassTO>();
-        for (String cl : classes) {
-            respons.add(SyncActionClassTO.instance(cl));
-        }
-        return respons;
-    }
-
-    public static List<String> unwrapSyncActionClasses(final Collection<SyncActionClassTO> actions) {
-        List<String> respons = new ArrayList<String>();
-        for (SyncActionClassTO e : actions) {
-            respons.add(e.getName());
-        }
-        return respons;
-    }
-
-    public static Set<PropagationActionClassTO> wrapPropagationActionClasses(final Collection<String> classes) {
-        Set<PropagationActionClassTO> respons = new HashSet<PropagationActionClassTO>();
-        for (String cl : classes) {
-            respons.add(PropagationActionClassTO.instance(cl));
-        }
-        return respons;
-    }
-
-    public static List<String> unwrapPropagationActionClasses(final Collection<PropagationActionClassTO> actions) {
-        List<String> respons = new ArrayList<String>();
-        for (PropagationActionClassTO e : actions) {
-            respons.add(e.getName());
-        }
-        return respons;
-    }
-
-    public static Set<CorrelationRuleClassTO> wrapSyncCorrelationRuleClasses(final Collection<String> classes) {
-        Set<CorrelationRuleClassTO> respons = new HashSet<CorrelationRuleClassTO>();
-        for (String cl : classes) {
-            respons.add(CorrelationRuleClassTO.instance(cl));
-        }
-        return respons;
-    }
-
-    public static List<String> unwrapSyncCorrelationRuleClasses(final Collection<CorrelationRuleClassTO> actions) {
-        List<String> respons = new ArrayList<String>();
-        for (CorrelationRuleClassTO e : actions) {
-            respons.add(e.getName());
         }
         return respons;
     }

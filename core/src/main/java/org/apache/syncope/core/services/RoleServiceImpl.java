@@ -24,13 +24,15 @@ import java.util.List;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.Response;
 
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.RoleService;
-import org.apache.syncope.common.to.PropagationTargetsTO;
+import org.apache.syncope.common.to.ResourceNameTO;
 import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.types.RESTHeaders;
+import org.apache.syncope.common.types.ResourceAssociationActionType;
+import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.rest.controller.RoleController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,15 +57,17 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService,
     public Response create(final RoleTO roleTO) {
         RoleTO created = controller.create(roleTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getId())).build();
-        return Response.created(location)
-                .header(SyncopeConstants.REST_RESOURCE_ID_HEADER, created.getId())
-                .entity(created)
-                .build();
+        return Response.created(location).
+                header(RESTHeaders.RESOURCE_ID.toString(), created.getId()).
+                entity(created).
+                build();
     }
 
     @Override
-    public RoleTO delete(final Long roleId) {
-        return controller.delete(roleId);
+    public Response delete(final Long roleId) {
+        RoleTO deleted = controller.delete(roleId);
+        return Response.ok(deleted).
+                build();
     }
 
     @Override
@@ -104,28 +108,41 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService,
     }
 
     @Override
-    public RoleTO selfRead(final Long roleId) {
-        return controller.selfRead(roleId);
+    public RoleTO readSelf(final Long roleId) {
+        return controller.readSelf(roleId);
     }
 
     @Override
-    public RoleTO update(final Long roleId, final RoleMod roleMod) {
-        roleMod.setId(roleId);
-        return controller.update(roleMod);
+    public Response update(final Long roleId, final RoleMod roleMod) {
+        RoleTO updated = controller.update(roleMod);
+        return Response.ok(updated).
+                build();
     }
 
     @Override
-    public RoleTO unlink(final Long roleId, final PropagationTargetsTO propagationTargetsTO) {
-        return controller.unlink(roleId, propagationTargetsTO.getResources());
-    }
+    public Response associate(final Long roleId, final ResourceAssociationActionType type,
+            final List<ResourceNameTO> resourceNames) {
 
-    @Override
-    public RoleTO unassign(final Long roleId, final PropagationTargetsTO propagationTargetsTO) {
-        return controller.unassign(roleId, propagationTargetsTO.getResources());
-    }
+        RoleTO updated = null;
 
-    @Override
-    public RoleTO deprovision(final Long roleId, final PropagationTargetsTO propagationTargetsTO) {
-        return controller.deprovision(roleId, propagationTargetsTO.getResources());
+        switch (type) {
+            case UNLINK:
+                updated = controller.unlink(roleId, CollectionWrapper.unwrap(resourceNames));
+                break;
+
+            case UNASSIGN:
+                updated = controller.unassign(roleId, CollectionWrapper.unwrap(resourceNames));
+                break;
+
+            case DEPROVISION:
+                updated = controller.deprovision(roleId, CollectionWrapper.unwrap(resourceNames));
+                break;
+
+            default:
+                updated = controller.read(roleId);
+        }
+
+        return Response.ok(updated).
+                build();
     }
 }

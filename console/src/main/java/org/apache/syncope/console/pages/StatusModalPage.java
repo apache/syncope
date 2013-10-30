@@ -20,17 +20,16 @@ package org.apache.syncope.console.pages;
 
 import static org.apache.syncope.console.pages.AbstractBasePage.LOG;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.StatusBean;
-import org.apache.syncope.console.commons.StatusUtils;
-import org.apache.syncope.console.commons.StatusUtils.ConnObjectWrapper;
-import org.apache.syncope.console.commons.StatusUtils.Status;
-import org.apache.syncope.console.commons.StatusUtils.StatusBeanProvider;
+import org.apache.syncope.console.commons.status.StatusBean;
+import org.apache.syncope.console.commons.status.StatusUtils;
+import org.apache.syncope.console.commons.status.ConnObjectWrapper;
+import org.apache.syncope.console.commons.status.Status;
+import org.apache.syncope.console.commons.status.AbstractStatusBeanProvider;
 import org.apache.syncope.console.pages.panels.ActionDataTablePanel;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.wicket.PageReference;
@@ -45,7 +44,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractStatusModlaPage {
+public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractStatusModalPage {
 
     private static final long serialVersionUID = 4114026480146090961L;
 
@@ -85,22 +84,23 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
         columns.add(new AbstractColumn<StatusBean, String>(
                 new StringResourceModel("status", this, null, "")) {
 
-            private static final long serialVersionUID = -3503023501954863131L;
+                    private static final long serialVersionUID = -3503023501954863131L;
 
-            @Override
-            public String getCssClass() {
-                return "action";
-            }
+                    @Override
+                    public String getCssClass() {
+                        return "action";
+                    }
 
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<StatusBean>> cellItem,
-                    final String componentId,
-                    final IModel<StatusBean> model) {
+                    @Override
+                    public void populateItem(
+                            final Item<ICellPopulator<StatusBean>> cellItem,
+                            final String componentId,
+                            final IModel<StatusBean> model) {
 
-                cellItem.add(statusUtils.getStatusImagePanel(componentId, model.getObject().getStatus()));
-            }
-        });
+                                cellItem.
+                                add(statusUtils.getStatusImagePanel(componentId, model.getObject().getStatus()));
+                            }
+                });
 
         final ActionDataTablePanel<StatusBean, String> table = new ActionDataTablePanel<StatusBean, String>(
                 "resourceDatatable",
@@ -109,13 +109,13 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                 rowsPerPage,
                 pageRef) {
 
-            private static final long serialVersionUID = 6510391461033818316L;
+                    private static final long serialVersionUID = 6510391461033818316L;
 
-            @Override
-            public boolean isElementEnabled(final StatusBean element) {
-                return !statusOnly || element.getStatus() != Status.OBJECT_NOT_FOUND;
-            }
-        };
+                    @Override
+                    public boolean isElementEnabled(final StatusBean element) {
+                        return !statusOnly || element.getStatus() != Status.OBJECT_NOT_FOUND;
+                    }
+                };
 
         final String pageId = attributableTO instanceof RoleTO ? "Roles" : "Users";
 
@@ -248,7 +248,7 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
         add(table);
     }
 
-    class AttributableStatusProvider extends StatusBeanProvider {
+    private class AttributableStatusProvider extends AbstractStatusBeanProvider {
 
         private static final long serialVersionUID = 4586969457669796621L;
 
@@ -259,9 +259,7 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
         @SuppressWarnings("unchecked")
         @Override
         public List<StatusBean> getStatusBeans() {
-
-            final List<ConnObjectWrapper> connObjects =
-                    statusUtils.getConnectorObjects(Collections.<AbstractAttributableTO>singleton(attributableTO));
+            final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(attributableTO);
 
             final List<StatusBean> statusBeans = new ArrayList<StatusBean>(connObjects.size() + 1);
 

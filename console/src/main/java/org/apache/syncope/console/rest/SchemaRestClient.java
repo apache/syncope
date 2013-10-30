@@ -313,9 +313,8 @@ public class SchemaRestClient extends BaseRestClient {
         List<String> response = null;
 
         try {
-            List<ValidatorTO> validators = new ArrayList<ValidatorTO>(getService(ConfigurationService.class)
-                    .getValidators());
-            response = CollectionWrapper.unwrapValidator(validators);
+            response = CollectionWrapper.unwrap(
+                    new ArrayList<ValidatorTO>(getService(ConfigurationService.class).getValidators()));
         } catch (SyncopeClientException e) {
             LOG.error("While getting all validators", e);
         }

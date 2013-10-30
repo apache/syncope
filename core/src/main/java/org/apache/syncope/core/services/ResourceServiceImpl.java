@@ -19,13 +19,15 @@
 package org.apache.syncope.core.services;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import javax.ws.rs.BadRequestException;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ResourceService;
+import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.BulkAssociationAction;
@@ -33,8 +35,12 @@ import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.PropagationActionClassTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.core.rest.controller.AbstractResourceAssociator;
 import org.apache.syncope.core.rest.controller.ResourceController;
+import org.apache.syncope.core.rest.controller.RoleController;
+import org.apache.syncope.core.rest.controller.UserController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,13 +50,19 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     @Autowired
     private ResourceController controller;
 
+    @Autowired
+    private UserController userController;
+
+    @Autowired
+    private RoleController roleController;
+
     @Override
     public Response create(final ResourceTO resourceTO) {
-        ResourceTO resource = controller.create(resourceTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(resource.getName()).build();
-        return Response.created(location)
-                .header(SyncopeConstants.REST_RESOURCE_ID_HEADER, resource.getName())
-                .build();
+        ResourceTO created = controller.create(resourceTO);
+        URI location = uriInfo.getAbsolutePathBuilder().path(created.getName()).build();
+        return Response.created(location).
+                header(RESTHeaders.RESOURCE_ID.toString(), created.getName()).
+                build();
     }
 
     @Override
@@ -69,8 +81,8 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public Set<PropagationActionClassTO> getPropagationActionsClasses() {
-        return CollectionWrapper.wrapPropagationActionClasses(controller.getPropagationActionsClasses());
+    public List<PropagationActionClassTO> getPropagationActionsClasses() {
+        return CollectionWrapper.wrap(controller.getPropagationActionsClasses(), PropagationActionClassTO.class);
     }
 
     @Override
@@ -94,17 +106,51 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public BulkActionRes bulkAction(final BulkAction bulkAction) {
-        return controller.bulkAction(bulkAction);
+    public BulkActionRes bulk(final BulkAction bulkAction) {
+        return controller.bulk(bulkAction);
     }
 
     @Override
-    public BulkActionRes usersBulkAssociationAction(final String resourceName, final BulkAssociationAction bulkAction) {
-        return controller.usersBulkAssociationAction(resourceName, bulkAction);
+    public BulkActionRes bulkAssociation(final String resourceName,
+            final BulkAssociationAction bulkAssociationAction, final AttributableType type) {
+
+        if (bulkAssociationAction.getOperation() == null || type == AttributableType.MEMBERSHIP) {
+            throw new BadRequestException();
+        }
+
+        AbstractResourceAssociator<? extends AbstractAttributableTO> associator = type == AttributableType.USER
+                ? userController
+                : roleController;
+
+        final BulkActionRes res = new BulkActionRes();
+
+        for (Long id : bulkAssociationAction.getTargets()) {
+            final Set<String> resources = Collections.singleton(resourceName);
+            try {
+                switch (bulkAssociationAction.getOperation()) {
+                    case DEPROVISION:
+                        associator.deprovision(id, resources);
+                        break;
+
+                    case UNASSIGN:
+                        associator.unassign(id, resources);
+                        break;
+
+                    case UNLINK:
+                        associator.unlink(id, resources);
+                        break;
+
+                    default:
+                }
+
+                res.add(id, BulkActionRes.Status.SUCCESS);
+            } catch (Exception e) {
+                LOG.warn("While executing {} on {} {}", bulkAssociationAction.getOperation(), type, id, e);
+                res.add(id, BulkActionRes.Status.FAILURE);
+            }
+        }
+
+        return res;
     }
 
-    @Override
-    public BulkActionRes rolesBulkAssociationAction(final String resourceName, final BulkAssociationAction bulkAction) {
-        return controller.rolesBulkAssociationAction(resourceName, bulkAction);
-    }
 }

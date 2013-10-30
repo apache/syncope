@@ -18,39 +18,14 @@
  */
 package org.apache.syncope.common.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.HashSet;
-import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.AbstractWrappable;
 
-/**
- * External resources to be used for propagation-related operations.
- */
-@XmlRootElement(name = "propagationTargets")
+@XmlRootElement(name = "resourceName")
 @XmlType
-public class PropagationTargetsTO extends AbstractBaseBean {
+public class ResourceNameTO extends AbstractWrappable {
 
-    private static final long serialVersionUID = -2410740018092105778L;
+    private static final long serialVersionUID = -175720097924079573L;
 
-    /**
-     * External resources propagation is requested to.
-     */
-    private final Set<String> resources;
-
-    public PropagationTargetsTO() {
-        super();
-
-        this.resources = new HashSet<String>();
-    }
-
-    @XmlElementWrapper(name = "resources")
-    @XmlElement(name = "resource")
-    @JsonProperty("resources")
-    public Set<String> getResources() {
-        return resources;
-    }
 }

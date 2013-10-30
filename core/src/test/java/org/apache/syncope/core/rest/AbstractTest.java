@@ -33,6 +33,8 @@ import org.apache.http.HttpStatus;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.client.SyncopeClientFactoryBean;
 import org.apache.syncope.common.mod.AttributeMod;
+import org.apache.syncope.common.mod.RoleMod;
+import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.services.ConnectorService;
 import org.apache.syncope.common.services.EntitlementService;
@@ -55,6 +57,7 @@ import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.core.util.PasswordEncoder;
 import org.junit.BeforeClass;
@@ -66,7 +69,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:testJDBCContext.xml"})
+@ContextConfiguration(locations = { "classpath:testJDBCContext.xml" })
 public abstract class AbstractTest {
 
     /**
@@ -199,6 +202,19 @@ public abstract class AbstractTest {
         return response.readEntity(UserTO.class);
     }
 
+    protected UserTO readUser(final String username) {
+        return userService.read(Long.valueOf(
+                userService.getUserId(username).getHeaderString(RESTHeaders.USER_ID.toString())));
+    }
+
+    protected UserTO updateUser(final UserMod userMod) {
+        return userService.update(userMod.getId(), userMod).readEntity(UserTO.class);
+    }
+
+    protected UserTO deleteUser(final Long id) {
+        return userService.delete(id).readEntity(UserTO.class);
+    }
+
     @SuppressWarnings("unchecked")
     protected <T extends AbstractSchemaTO> T createSchema(final AttributableType kind,
             final SchemaType type, final T schemaTO) {
@@ -214,7 +230,7 @@ public abstract class AbstractTest {
         return (T) adminClient.getObject(response.getLocation(), SchemaService.class, schemaTO.getClass());
     }
 
-    protected RoleTO createRole(final RoleService roleService, final RoleTO newRoleTO) {
+    protected RoleTO createRole(final RoleTO newRoleTO) {
         Response response = roleService.create(newRoleTO);
         if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
@@ -223,6 +239,14 @@ public abstract class AbstractTest {
             }
         }
         return adminClient.getObject(response.getLocation(), RoleService.class, RoleTO.class);
+    }
+
+    protected RoleTO updateRole(final RoleMod roleMod) {
+        return roleService.update(roleMod.getId(), roleMod).readEntity(RoleTO.class);
+    }
+
+    protected RoleTO deleteRole(final Long id) {
+        return roleService.delete(id).readEntity(RoleTO.class);
     }
 
     @SuppressWarnings("unchecked")

@@ -16,28 +16,30 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:head>
-  <link rel="stylesheet" type="text/css" href="css/bulk.css" media="all"/>
-</wicket:head>
-<wicket:extend>
-  <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:head>
+    <link rel="stylesheet" type="text/css" href="css/bulk.css" media="all"/>
+  </wicket:head>
+  <wicket:extend>
+    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
 
-<div id="selectedObjects">
-  <table class="ui-widget ui-widget-content table-hover pageRowElement" wicket:id="selectedObjects">[DataTable]</table>
+    <div id="selectedObjects">
+      <table class="ui-widget ui-widget-content table-hover pageRowElement" wicket:id="selectedObjects">[DataTable]</table>
 
-  <div id="actionRow" class="pageRowElement">
-    <div id="actions">
-      <div id="actionPanel" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
-        <span wicket:id="actions">[Actions]</span>
-      </div>
+      <div id="actionRow" class="pageRowElement">
+        <div id="actions">
+          <div id="actionPanel" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+            <span wicket:id="actions">[Actions]</span>
+          </div>
 
-      <div id="cancelBtmForm">
-        <form wicket:id="form">
-          <input type="button" wicket:id="cancel" id="cancel"
-                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"/>
-        </form>
+          <div id="cancelBtmForm">
+            <form wicket:id="form">
+              <input type="button" wicket:id="cancel" id="cancel"
+                     class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"/>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-</wicket:extend>
+  </wicket:extend>
+</html>

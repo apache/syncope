@@ -16,23 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.services;
+package org.apache.syncope.common;
 
-import javax.ws.rs.core.UriInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public abstract class AbstractWrappable extends AbstractBaseBean {
 
-abstract class AbstractServiceImpl implements ContextAware {
+    private static final long serialVersionUID = 1712808704911635170L;
+
+    private String name;
+
+    public static <T extends AbstractWrappable> T getInstance(final Class<T> reference, final String name) {
+        try {
+            T instance = reference.newInstance();
+            instance.setName(name);
+            return instance;
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not instantiate " + reference.getName(), e);
+        }
+    }
 
     /**
-     * Logger.
+     * @return the name
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractServiceImpl.class);
+    public String getName() {
+        return name;
+    }
 
-    protected UriInfo uriInfo;
-
-    @Override
-    public void setUriInfo(final UriInfo uriInfo) {
-        this.uriInfo = uriInfo;
+    /**
+     * @param name the name to set
+     */
+    public void setName(final String name) {
+        this.name = name;
     }
 }

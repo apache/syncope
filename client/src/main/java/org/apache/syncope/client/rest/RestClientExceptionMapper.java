@@ -28,8 +28,8 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import javax.xml.ws.WebServiceException;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.types.ClientExceptionType;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.slf4j.Logger;
@@ -75,9 +75,9 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
     }
 
     private SyncopeClientCompositeException checkSyncopeClientCompositeException(final Response response) {
-        List<Object> exTypesInHeaders = response.getHeaders().get(SyncopeConstants.REST_EXCEPTION_TYPE_HEADER);
+        List<Object> exTypesInHeaders = response.getHeaders().get(RESTHeaders.EXCEPTION_TYPE.toString());
         if (exTypesInHeaders == null) {
-            LOG.debug("No " + SyncopeConstants.REST_EXCEPTION_TYPE_HEADER + " provided");
+            LOG.debug("No " + RESTHeaders.EXCEPTION_TYPE + " provided");
             return null;
         }
 
@@ -90,8 +90,7 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
             try {
                 exceptionType = ClientExceptionType.fromHeaderValue(exTypeAsString);
             } catch (IllegalArgumentException e) {
-                LOG.error("Unexpected value of " + SyncopeConstants.REST_EXCEPTION_TYPE_HEADER + ": "
-                        + exTypeAsString, e);
+                LOG.error("Unexpected value of " + RESTHeaders.EXCEPTION_TYPE + ": " + exTypeAsString, e);
             }
             if (exceptionType != null) {
                 handledExceptions.add(exTypeAsString);

@@ -21,33 +21,12 @@ package org.apache.syncope.common.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.AbstractWrappable;
 
 @XmlRootElement(name = "jobClass")
 @XmlType
-public class JobClassTO extends AbstractBaseBean {
+public class JobClassTO extends AbstractWrappable {
 
     private static final long serialVersionUID = -1953799905627918822L;
 
-    private String name;
-
-    public static JobClassTO instance(final String name) {
-        JobClassTO instance = new JobClassTO();
-        instance.setName(name);
-        return instance;
-    }
-
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param name the name to set
-     */
-    public void setName(final String name) {
-        this.name = name;
-    }
 }

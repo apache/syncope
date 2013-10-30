@@ -23,10 +23,10 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.core.rest.controller.SchemaController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +45,9 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
         T response = controller.create(attrType, schemaType, schemaTO);
 
         URI location = uriInfo.getAbsolutePathBuilder().path(response.getName()).build();
-        return Response.created(location)
-                .header(SyncopeConstants.REST_RESOURCE_ID_HEADER, response.getName())
-                .build();
+        return Response.created(location).
+                header(RESTHeaders.RESOURCE_ID.toString(), response.getName()).
+                build();
     }
 
     @Override

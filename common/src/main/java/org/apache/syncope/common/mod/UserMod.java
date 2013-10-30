@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.to.PropagationRequestTO;
 
 @XmlRootElement(name = "userMod")
 @XmlType
@@ -42,7 +41,7 @@ public class UserMod extends AbstractAttributableMod {
 
     private final Set<Long> membershipsToRemove;
 
-    private PropagationRequestTO pwdPropRequest;
+    private StatusMod pwdPropRequest;
 
     public UserMod() {
         super();
@@ -81,11 +80,11 @@ public class UserMod extends AbstractAttributableMod {
         return membershipsToRemove;
     }
 
-    public PropagationRequestTO getPwdPropRequest() {
+    public StatusMod getPwdPropRequest() {
         return pwdPropRequest;
     }
 
-    public void setPwdPropRequest(final PropagationRequestTO pwdPropRequest) {
+    public void setPwdPropRequest(final StatusMod pwdPropRequest) {
         this.pwdPropRequest = pwdPropRequest;
     }
 

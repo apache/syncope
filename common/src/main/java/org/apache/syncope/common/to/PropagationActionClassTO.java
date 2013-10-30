@@ -21,33 +21,12 @@ package org.apache.syncope.common.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.AbstractWrappable;
 
 @XmlRootElement(name = "propagationActionClass")
 @XmlType
-public class PropagationActionClassTO extends AbstractBaseBean {
+public class PropagationActionClassTO extends AbstractWrappable {
 
     private static final long serialVersionUID = 2187654394121198308L;
 
-    private String name;
-
-    public static PropagationActionClassTO instance(final String name) {
-        PropagationActionClassTO instance = new PropagationActionClassTO();
-        instance.setName(name);
-        return instance;
-    }
-
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param name the name to set
-     */
-    public void setName(final String name) {
-        this.name = name;
-    }
 }

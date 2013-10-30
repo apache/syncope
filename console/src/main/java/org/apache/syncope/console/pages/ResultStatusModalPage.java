@@ -40,7 +40,8 @@ import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.StatusUtils;
+import org.apache.syncope.console.commons.status.Status;
+import org.apache.syncope.console.commons.status.StatusUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -187,7 +188,7 @@ public class ResultStatusModalPage extends BaseModalPage {
                         case SUCCESS:
                         case SUBMITTED:
                         case CREATED:
-                            image = new Image("icon", IMG_STATUSES + StatusUtils.Status.ACTIVE.toString()
+                            image = new Image("icon", IMG_STATUSES + Status.ACTIVE.toString()
                                     + Constants.PNG_EXT);
                             alt = "success icon";
                             title = "success";
@@ -196,7 +197,7 @@ public class ResultStatusModalPage extends BaseModalPage {
                             break;
 
                         default:
-                            image = new Image("icon", IMG_STATUSES + StatusUtils.Status.SUSPENDED.toString()
+                            image = new Image("icon", IMG_STATUSES + Status.SUSPENDED.toString()
                                     + Constants.PNG_EXT);
                             alt = "failure icon";
                             title = "failure";
@@ -392,14 +393,14 @@ public class ResultStatusModalPage extends BaseModalPage {
                 attributable, resourceName, objectTO, this.attributable instanceof RoleTO).getStatus()) {
 
             case ACTIVE:
-                image = new Image("status", IMG_STATUSES + StatusUtils.Status.ACTIVE.toString()
+                image = new Image("status", IMG_STATUSES + Status.ACTIVE.toString()
                         + Constants.PNG_EXT);
                 alt = "active icon";
                 title = "Enabled";
                 break;
 
             case SUSPENDED:
-                image = new Image("status", IMG_STATUSES + StatusUtils.Status.SUSPENDED.toString()
+                image = new Image("status", IMG_STATUSES + Status.SUSPENDED.toString()
                         + Constants.PNG_EXT);
                 alt = "inactive icon";
                 title = "Disabled";

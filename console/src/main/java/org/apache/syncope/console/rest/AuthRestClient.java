@@ -50,6 +50,6 @@ public class AuthRestClient extends BaseRestClient {
      */
     public List<String> getOwnedEntitlements() {
         return new ArrayList<String>(
-                CollectionWrapper.unwrap(getService(EntitlementService.class).getMyEntitlements()));
+                CollectionWrapper.unwrap(getService(EntitlementService.class).getOwnEntitlements()));
     }
 }

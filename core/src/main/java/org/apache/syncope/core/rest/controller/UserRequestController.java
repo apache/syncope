@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.Resource;
 import javax.persistence.RollbackException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.UserMod;

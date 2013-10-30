@@ -19,16 +19,19 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
-import java.util.Set;
+import javax.ws.rs.Consumes;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
@@ -42,6 +45,8 @@ import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.types.TaskType;
 
 @Path("tasks")
+@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface TaskService {
 
     /**
@@ -49,13 +54,13 @@ public interface TaskService {
      * @return Returns number of tasks with matching type
      */
     @GET
-    @Path("{type}/count")
-    int count(@PathParam("type") TaskType taskType);
+    @Path("count")
+    int count(@MatrixParam("type") TaskType taskType);
 
     /**
      * @param taskTO Task to be created
      * @param <T> type of taskTO
-     * @return Response containing URI location for created resource
+     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created task
      */
     @POST
     <T extends SchedTaskTO> Response create(T taskTO);
@@ -88,14 +93,14 @@ public interface TaskService {
      */
     @GET
     @Path("jobClasses")
-    Set<JobClassTO> getJobClasses();
+    List<JobClassTO> getJobClasses();
 
     /**
      * @return Returns list of SyncActionClasses
      */
     @GET
     @Path("syncActionsClasses")
-    Set<SyncActionClassTO> getSyncActionsClasses();
+    List<SyncActionClassTO> getSyncActionsClasses();
 
     /**
      * @param taskType Type of tasks to be listed
@@ -103,8 +108,7 @@ public interface TaskService {
      * @return Returns list of tasks with matching type
      */
     @GET
-    @Path("{type}/list")
-    <T extends AbstractTaskTO> List<T> list(@PathParam("type") TaskType taskType);
+    <T extends AbstractTaskTO> List<T> list(@MatrixParam("type") TaskType taskType);
 
     /**
      * @param taskType Type of tasks to be listed
@@ -114,8 +118,7 @@ public interface TaskService {
      * @return Returns paginated list of task with matching type
      */
     @GET
-    @Path("{type}/list")
-    <T extends AbstractTaskTO> List<T> list(@PathParam("type") TaskType taskType,
+    <T extends AbstractTaskTO> List<T> list(@MatrixParam("type") TaskType taskType,
             @QueryParam("page") int page, @QueryParam("size") @DefaultValue("25") int size);
 
     /**
@@ -153,5 +156,5 @@ public interface TaskService {
 
     @POST
     @Path("bulk")
-    BulkActionRes bulkAction(BulkAction bulkAction);
+    BulkActionRes bulk(BulkAction bulkAction);
 }

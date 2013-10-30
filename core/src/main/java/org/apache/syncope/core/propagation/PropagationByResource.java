@@ -110,7 +110,7 @@ public class PropagationByResource implements Serializable {
      * @param resourceNames target resources
      * @return whether the operation was successful or not
      */
-    public boolean addAll(final ResourceOperation type, final Set<String> resourceNames) {
+    public boolean addAll(final ResourceOperation type, final Collection<String> resourceNames) {
         Set<String> set;
         switch (type) {
             case CREATE:

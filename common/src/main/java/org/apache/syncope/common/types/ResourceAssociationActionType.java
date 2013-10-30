@@ -16,23 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.services;
+package org.apache.syncope.common.types;
 
-import javax.ws.rs.core.UriInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.xml.bind.annotation.XmlEnum;
 
-abstract class AbstractServiceImpl implements ContextAware {
+@XmlEnum
+public enum ResourceAssociationActionType {
 
     /**
-     * Logger.
+     * Remove association between user/role on Syncope and external resource(s).
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractServiceImpl.class);
+    UNLINK,
+    /**
+     * Remove user/role from external resource(s).
+     */
+    DEPROVISION,
+    /**
+     * Unassign (unlink + deprovision) external resource(s) from user/role.
+     */
+    UNASSIGN
 
-    protected UriInfo uriInfo;
-
-    @Override
-    public void setUriInfo(final UriInfo uriInfo) {
-        this.uriInfo = uriInfo;
-    }
 }

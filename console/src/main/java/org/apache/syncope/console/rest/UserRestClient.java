@@ -20,6 +20,7 @@ package org.apache.syncope.console.rest;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
@@ -28,11 +29,14 @@ import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnObjectTO;
+import org.apache.syncope.common.to.ResourceNameTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.ResourceAssociationActionType;
+import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import org.apache.syncope.console.commons.StatusBean;
-import org.apache.syncope.console.commons.StatusUtils;
+import org.apache.syncope.console.commons.status.StatusBean;
+import org.apache.syncope.console.commons.status.StatusUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -66,28 +70,18 @@ public class UserRestClient extends AbstractAttributableRestClient {
     }
 
     public UserTO update(final UserMod userModTO) {
-        return getService(UserService.class).update(userModTO.getId(), userModTO);
+        return getService(UserService.class).update(userModTO.getId(), userModTO).readEntity(UserTO.class);
     }
 
     @Override
     public UserTO delete(final Long id) {
-        return getService(UserService.class).delete(id);
+        return getService(UserService.class).delete(id).readEntity(UserTO.class);
     }
 
     public UserTO read(final Long id) {
         UserTO userTO = null;
         try {
             userTO = getService(UserService.class).read(id);
-        } catch (SyncopeClientException e) {
-            LOG.error("While reading a user", e);
-        }
-        return userTO;
-    }
-
-    public UserTO read(final String username) {
-        UserTO userTO = null;
-        try {
-            userTO = getService(UserService.class).read(username);
         } catch (SyncopeClientException e) {
             LOG.error("While reading a user", e);
         }
@@ -115,28 +109,36 @@ public class UserRestClient extends AbstractAttributableRestClient {
         return getService(ResourceService.class).getConnectorObject(resourceName, AttributableType.USER, id);
     }
 
-    public UserTO suspend(final long userId, final List<StatusBean> statuses) {
-        return getService(UserService.class).suspend(userId, StatusUtils.buildPropagationRequestTO(statuses, false));
+    public void suspend(final long userId, final List<StatusBean> statuses) {
+        StatusMod statusMod = StatusUtils.buildStatusMod(statuses, false);
+        statusMod.setType(StatusMod.ModType.SUSPEND);
+        getService(UserService.class).status(userId, statusMod);
     }
 
-    public UserTO reactivate(final long userId, final List<StatusBean> statuses) {
-        return getService(UserService.class).reactivate(userId, StatusUtils.buildPropagationRequestTO(statuses, true));
+    public void reactivate(final long userId, final List<StatusBean> statuses) {
+        StatusMod statusMod = StatusUtils.buildStatusMod(statuses, true);
+        statusMod.setType(StatusMod.ModType.REACTIVATE);
+        getService(UserService.class).status(userId, statusMod);
     }
 
     @Override
     public BulkActionRes bulkAction(final BulkAction action) {
-        return getService(UserService.class).bulkAction(action);
+        return getService(UserService.class).bulk(action);
     }
 
-    public UserTO unlink(final long userId, final List<StatusBean> statuses) {
-        return getService(UserService.class).unlink(userId, StatusUtils.buildPropagationTargetsTO(statuses));
+    public void unlink(final long userId, final List<StatusBean> statuses) {
+        getService(UserService.class).associate(userId, ResourceAssociationActionType.UNLINK,
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceNameTO.class));
     }
 
-    public UserTO unassign(final long userId, final List<StatusBean> statuses) {
-        return getService(UserService.class).unassign(userId, StatusUtils.buildPropagationTargetsTO(statuses));
+    public void deprovision(final long userId, final List<StatusBean> statuses) {
+        getService(UserService.class).associate(userId, ResourceAssociationActionType.DEPROVISION,
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceNameTO.class));
     }
 
-    public UserTO deprovision(final long userId, final List<StatusBean> statuses) {
-        return getService(UserService.class).deprovision(userId, StatusUtils.buildPropagationTargetsTO(statuses));
+    public void unassign(final long userId, final List<StatusBean> statuses) {
+        getService(UserService.class).associate(userId, ResourceAssociationActionType.UNASSIGN,
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceNameTO.class));
     }
+
 }

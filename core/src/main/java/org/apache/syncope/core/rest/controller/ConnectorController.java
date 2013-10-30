@@ -363,8 +363,8 @@ public class ConnectorController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE")
-    public BulkActionRes bulkAction(final BulkAction bulkAction) {
-        LOG.debug("Bulk action '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
+    public BulkActionRes bulk(final BulkAction bulkAction) {
+        LOG.debug("Bulk '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
 
         BulkActionRes res = new BulkActionRes();
 

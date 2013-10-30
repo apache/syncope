@@ -42,7 +42,7 @@ public class UserTO extends AbstractAttributableTO {
 
     private String password;
 
-    private List<MembershipTO> memberships = new ArrayList<MembershipTO>();
+    private final List<MembershipTO> memberships = new ArrayList<MembershipTO>();
 
     private String status;
 

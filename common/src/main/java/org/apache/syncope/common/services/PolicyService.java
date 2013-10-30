@@ -19,25 +19,30 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
-import java.util.Set;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.CorrelationRuleClassTO;
 import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.types.PolicyType;
 
 @Path("policies")
+@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface PolicyService {
 
     /**
      * @param policyTO Policy to be created (needs to match type)
      * @param <T> response type (extending PolicyTO)
-     * @return Response containing URI location for created resource
+     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created policy
      */
     @POST
     <T extends AbstractPolicyTO> Response create(T policyTO);
@@ -56,8 +61,7 @@ public interface PolicyService {
      * @return List of policies with matching type
      */
     @GET
-    @Path("{type}/list")
-    <T extends AbstractPolicyTO> List<T> list(@PathParam("type") PolicyType type);
+    <T extends AbstractPolicyTO> List<T> list(@MatrixParam("type") PolicyType type);
 
     /**
      * @param policyId ID of requested policy
@@ -74,8 +78,8 @@ public interface PolicyService {
      * @return Global Policy for matching type
      */
     @GET
-    @Path("{type}/0")
-    <T extends AbstractPolicyTO> T readGlobal(@PathParam("type") PolicyType type);
+    @Path("global")
+    <T extends AbstractPolicyTO> T readGlobal(@MatrixParam("type") PolicyType type);
 
     /**
      * @param policyId ID of policy to be updated
@@ -87,10 +91,9 @@ public interface PolicyService {
     <T extends AbstractPolicyTO> void update(@PathParam("policyId") Long policyId, T policyTO);
 
     /**
-     * @param type PolicyType (just SYNC is supported).
      * @return correlation rules java classes
      */
     @GET
     @Path("syncCorrelationRuleClasses")
-    Set<CorrelationRuleClassTO> getSyncCorrelationRuleClasses();
+    List<CorrelationRuleClassTO> getSyncCorrelationRuleClasses();
 }

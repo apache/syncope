@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
@@ -32,7 +33,6 @@ import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.BulkActionRes.Status;
 import org.apache.syncope.common.to.MembershipTO;
-import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements.Category;
@@ -40,7 +40,6 @@ import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.UserSubCategory;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.ClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.notification.NotificationManager;
@@ -76,7 +75,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @see AbstractController
  */
 @Component
-public class UserController {
+public class UserController extends AbstractResourceAssociator<UserTO> {
 
     /**
      * Logger.
@@ -113,14 +112,24 @@ public class UserController {
     @Autowired
     protected NotificationManager notificationManager;
 
+    @PreAuthorize("hasRole('USER_READ')")
+    public String getUsername(final Long userId) {
+        return binder.getUserTO(userId).getUsername();
+    }
+
+    @PreAuthorize("hasRole('USER_READ')")
+    public Long getUserId(final String username) {
+        return binder.getUserTO(username).getId();
+    }
+
     @PreAuthorize("hasRole('USER_LIST')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public int count() {
         return userDAO.count(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()));
     }
 
     @PreAuthorize("hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public int searchCount(final NodeCond searchCondition) throws InvalidSearchConditionException {
         if (!searchCondition.isValid()) {
             LOG.error("Invalid search condition: {}", searchCondition);
@@ -132,10 +141,10 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<UserTO> list() {
-        List<SyncopeUser> users =
-                userDAO.findAll(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()));
+        List<SyncopeUser> users = userDAO.findAll(
+                EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()));
 
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
@@ -149,7 +158,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<UserTO> list(final int page, final int size) {
         Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
 
@@ -166,7 +175,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public UserTO read(final Long userId) {
         UserTO result = binder.getUserTO(userId);
 
@@ -176,21 +185,10 @@ public class UserController {
         return result;
     }
 
-    @PreAuthorize("#username == authentication.name or hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
-    public UserTO read(final String username) {
-        UserTO result = binder.getUserTO(username);
-
-        auditManager.audit(Category.user, UserSubCategory.read, Result.success,
-                "Successfully read user: " + username);
-
-        return result;
-    }
-
     @PreAuthorize("isAuthenticated() "
             + "and not(hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT))")
     @Transactional(readOnly = true)
-    public UserTO read() {
+    public UserTO readSelf() {
         UserTO userTO = binder.getAuthenticatedUserTO();
 
         auditManager.audit(Category.user, UserSubCategory.read, Result.success,
@@ -200,7 +198,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<UserTO> search(final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -208,7 +206,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<UserTO> search(final NodeCond searchCondition, final int page, final int size)
             throws InvalidSearchConditionException {
 
@@ -255,13 +253,12 @@ public class UserController {
         /*
          * Actual operations: workflow, propagation, notification
          */
-
         WorkflowResult<Map.Entry<Long, Boolean>> created = uwfAdapter.create(actual);
 
         List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(
                 created, actual.getPassword(), actual.getVirAttrs());
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
+                getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
@@ -310,7 +307,7 @@ public class UserController {
             final PropagationByResource origPropByRes = new PropagationByResource();
             origPropByRes.merge(updated.getPropByRes());
 
-            Set<String> pwdResourceNames = actual.getPwdPropRequest().getResources();
+            List<String> pwdResourceNames = actual.getPwdPropRequest().getResourceNames();
             SyncopeUser user = binder.getUserFromId(updated.getResult().getKey());
             pwdResourceNames.retainAll(user.getResourceNames());
             final PropagationByResource pwdPropByRes = new PropagationByResource();
@@ -347,8 +344,8 @@ public class UserController {
             updated.setPropByRes(origPropByRes);
         }
 
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
+                getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
@@ -371,137 +368,48 @@ public class UserController {
         return updatedTO;
     }
 
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
-    public UserTO activate(final Long userId, final String token) {
-        return activate(userId, token, null);
+    protected WorkflowResult<Long> setStatusOnWfAdapter(final SyncopeUser user, final StatusMod statusMod) {
+        WorkflowResult<Long> updated;
+
+        switch (statusMod.getType()) {
+            case SUSPEND:
+                updated = uwfAdapter.suspend(user.getId());
+                break;
+
+            case REACTIVATE:
+                updated = uwfAdapter.reactivate(user.getId());
+                break;
+
+            case ACTIVATE:
+            default:
+                updated = uwfAdapter.activate(user.getId(), statusMod.getToken());
+                break;
+
+        }
+
+        return updated;
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
-    public UserTO activate(final Long userId, final String token, final PropagationRequestTO propagationRequestTO) {
-        LOG.debug("About to activate " + userId);
+    @Transactional(rollbackFor = { Throwable.class })
+    public UserTO status(final StatusMod statusMod) {
+        LOG.debug("About to mod status {}", statusMod);
 
-        SyncopeUser user = binder.getUserFromId(userId);
-
-        return setStatus(user, token, propagationRequestTO, true, "activate");
-    }
-
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
-    public UserTO activate(final String username, final String token) {
-        return activate(username, token, null);
-    }
-
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
-    public UserTO activate(final String username, final String token, final PropagationRequestTO propagationRequestTO) {
-        LOG.debug("About to activate " + username);
-
-        SyncopeUser user = binder.getUserFromUsername(username);
-
-        return setStatus(user, token, propagationRequestTO, true, "activate");
-    }
-
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
-    public UserTO suspend(final Long userId) {
-        return suspend(userId, null);
-    }
-
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
-    public UserTO suspend(final Long userId, final PropagationRequestTO propagationRequestTO) {
-        LOG.debug("About to suspend " + userId);
-
-        SyncopeUser user = binder.getUserFromId(userId);
-
-        return setStatus(user, null, propagationRequestTO, false, "suspend");
-    }
-
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
-    public UserTO suspend(final String username) {
-        return suspend(username, null);
-    }
-
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
-    public UserTO suspend(final String username, final PropagationRequestTO propagationRequestTO) {
-        LOG.debug("About to suspend " + username);
-
-        SyncopeUser user = binder.getUserFromUsername(username);
-
-        return setStatus(user, null, propagationRequestTO, false, "suspend");
-    }
-
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
-    public UserTO reactivate(final Long userId) {
-        return reactivate(userId, null);
-    }
-
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
-    public UserTO reactivate(final Long userId, final PropagationRequestTO propagationRequestTO) {
-        LOG.debug("About to reactivate " + userId);
-
-        SyncopeUser user = binder.getUserFromId(userId);
-
-        return setStatus(user, null, propagationRequestTO, true, "reactivate");
-    }
-
-    @Transactional(rollbackFor = {Throwable.class})
-    public UserTO reactivate(final String username) {
-        return reactivate(username, null);
-    }
-
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
-    public UserTO reactivate(final String username, final PropagationRequestTO propagationRequestTO) {
-        LOG.debug("About to reactivate " + username);
-
-        SyncopeUser user = binder.getUserFromUsername(username);
-
-        return setStatus(user, null, propagationRequestTO, true, "reactivate");
-    }
-
-    @PreAuthorize("hasRole('USER_DELETE')")
-    public UserTO delete(final Long userId) {
-        LOG.debug("User delete called with {}", userId);
-
-        return doDelete(userId);
-    }
-
-    @PreAuthorize("hasRole('USER_DELETE')")
-    public UserTO delete(final String username) {
-        LOG.debug("User delete called with {}", username);
-
-        UserTO result = binder.getUserTO(username);
-        long userId = result.getId();
-
-        return doDelete(userId);
-    }
-
-    protected UserTO setStatus(final SyncopeUser user, final String token,
-            final PropagationRequestTO propagationRequestTO, final boolean status, final String task) {
-
-        LOG.debug("About to set 'enabled:{}' status to {}", user, status);
+        SyncopeUser user = binder.getUserFromId(statusMod.getId());
 
         WorkflowResult<Long> updated;
-        if (propagationRequestTO == null || propagationRequestTO.isOnSyncope()) {
-            updated = setStatusOnWfAdapter(user, token, task);
+        if (statusMod.isOnSyncope()) {
+            updated = setStatusOnWfAdapter(user, statusMod);
         } else {
-            updated = new WorkflowResult<Long>(user.getId(), null, task);
+            updated = new WorkflowResult<Long>(user.getId(), null, statusMod.getType().name().toLowerCase());
         }
 
         // Resources to exclude from propagation
         Set<String> resourcesToBeExcluded = new HashSet<String>(user.getResourceNames());
-        if (propagationRequestTO != null) {
-            resourcesToBeExcluded.removeAll(propagationRequestTO.getResources());
-        }
+        resourcesToBeExcluded.removeAll(statusMod.getResourceNames());
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(user, status, resourcesToBeExcluded);
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
+                user, statusMod.getType() != StatusMod.ModType.SUSPEND, resourcesToBeExcluded);
         taskExecutor.execute(tasks);
 
         notificationManager.createTasks(updated.getResult(), updated.getPerformedTasks());
@@ -516,19 +424,8 @@ public class UserController {
         return savedTO;
     }
 
-    protected WorkflowResult<Long> setStatusOnWfAdapter(final SyncopeUser user, final String token, final String task) {
-        WorkflowResult<Long> updated;
-        if ("suspend".equals(task)) {
-            updated = uwfAdapter.suspend(user.getId());
-        } else if ("reactivate".equals(task)) {
-            updated = uwfAdapter.reactivate(user.getId());
-        } else {
-            updated = uwfAdapter.activate(user.getId(), token);
-        }
-        return updated;
-    }
-
-    protected UserTO doDelete(final Long userId) {
+    @PreAuthorize("hasRole('USER_DELETE')")
+    public UserTO delete(final Long userId) {
         LOG.debug("User delete called for {}", userId);
 
         List<SyncopeRole> ownedRoles = roleDAO.findOwned(binder.getUserFromId(userId));
@@ -558,8 +455,8 @@ public class UserController {
         final UserTO userTO = new UserTO();
         userTO.setId(userId);
 
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
+                getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
@@ -583,8 +480,8 @@ public class UserController {
             + "(hasRole('USER_UPDATE') and "
             + "(#bulkAction.operation == #bulkAction.operation.REACTIVATE or "
             + "#bulkAction.operation == #bulkAction.operation.SUSPEND))")
-    public BulkActionRes bulkAction(final BulkAction bulkAction) {
-        LOG.debug("Bulk action '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
+    public BulkActionRes bulk(final BulkAction bulkAction) {
+        LOG.debug("Bulk '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
 
         BulkActionRes res = new BulkActionRes();
 
@@ -592,33 +489,42 @@ public class UserController {
             case DELETE:
                 for (String userId : bulkAction.getTargets()) {
                     try {
-                        res.add(doDelete(Long.valueOf(userId)).getId(), Status.SUCCESS);
+                        res.add(delete(Long.valueOf(userId)).getId(), Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing delete for user {}", userId, e);
                         res.add(userId, Status.FAILURE);
                     }
                 }
                 break;
+
             case SUSPEND:
                 for (String userId : bulkAction.getTargets()) {
+                    StatusMod statusMod = new StatusMod();
+                    statusMod.setId(Long.valueOf(userId));
+                    statusMod.setType(StatusMod.ModType.SUSPEND);
                     try {
-                        res.add(suspend(Long.valueOf(userId)).getId(), Status.SUCCESS);
+                        res.add(status(statusMod).getId(), Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing suspend for user {}", userId, e);
                         res.add(userId, Status.FAILURE);
                     }
                 }
                 break;
+
             case REACTIVATE:
                 for (String userId : bulkAction.getTargets()) {
+                    StatusMod statusMod = new StatusMod();
+                    statusMod.setId(Long.valueOf(userId));
+                    statusMod.setType(StatusMod.ModType.REACTIVATE);
                     try {
-                        res.add(reactivate(Long.valueOf(userId)).getId(), Status.SUCCESS);
+                        res.add(status(statusMod).getId(), Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing reactivate for user {}", userId, e);
                         res.add(userId, Status.FAILURE);
                     }
                 }
                 break;
+
             default:
         }
 
@@ -626,7 +532,8 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
+    @Override
     public UserTO unlink(final Long userId, final Collection<String> resources) {
         LOG.debug("About to unlink user({}) and resources {}", userId, resources);
 
@@ -648,7 +555,8 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
+    @Override
     public UserTO unassign(final Long userId, final Collection<String> resources) {
         LOG.debug("About to unassign user({}) and resources {}", userId, resources);
 
@@ -660,7 +568,8 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
+    @Override
     public UserTO deprovision(final Long userId, final Collection<String> resources) {
         LOG.debug("About to deprovision user({}) from resources {}", userId, resources);
 
@@ -670,8 +579,8 @@ public class UserController {
         noPropResourceName.removeAll(resources);
 
         final List<PropagationTask> tasks = propagationManager.getUserDeleteTaskIds(userId, noPropResourceName);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
+                getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {

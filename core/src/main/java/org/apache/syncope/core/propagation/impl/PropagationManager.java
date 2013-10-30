@@ -64,7 +64,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Manage the data propagation to external resources.
  */
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = { Throwable.class })
 public class PropagationManager {
 
     /**
@@ -267,7 +267,7 @@ public class PropagationManager {
      */
     public List<PropagationTask> getUserUpdateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
             final String password, final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
-            final Set<String> noPropResourceNames)
+            final Collection<String> noPropResourceNames)
             throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeUser user = userDataBinder.getUserFromId(wfResult.getResult().getKey());
@@ -316,7 +316,7 @@ public class PropagationManager {
     protected List<PropagationTask> getUpdateTaskIds(final AbstractAttributable attributable,
             final String password, final Boolean enable,
             final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
-            final PropagationByResource propByRes, final Set<String> noPropResourceNames)
+            final PropagationByResource propByRes, final Collection<String> noPropResourceNames)
             throws NotFoundException {
 
         AbstractAttributableDataBinder binder = attributable instanceof SyncopeUser

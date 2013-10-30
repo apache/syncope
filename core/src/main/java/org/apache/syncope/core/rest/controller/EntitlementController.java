@@ -41,7 +41,7 @@ public class EntitlementController extends AbstractController {
     @Autowired
     private EntitlementDAO entitlementDAO;
 
-    public List<String> listEntitlements() {
+    public List<String> getAll() {
         List<Entitlement> entitlements = entitlementDAO.findAll();
         List<String> result = new ArrayList<String>(entitlements.size());
         for (Entitlement entitlement : entitlements) {
@@ -51,7 +51,7 @@ public class EntitlementController extends AbstractController {
         return result;
     }
 
-    public Set<String> getEntitlements() {
+    public Set<String> getOwn() {
         Set<String> result = EntitlementUtil.getOwnedEntitlementNames();
 
         auditManager.audit(Category.authentication, AuthenticationSubCategory.getEntitlements, Result.success,

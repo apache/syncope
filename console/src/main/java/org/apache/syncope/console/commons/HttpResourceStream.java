@@ -26,7 +26,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.apache.syncope.common.SyncopeConstants;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.resource.AbstractResourceStream;
 import org.apache.wicket.util.resource.IFixedLocationResourceStream;
@@ -47,7 +47,7 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
         if (response.getStatus() == HttpStatus.SC_OK && (entity instanceof InputStream)) {
             this.inputStream = (InputStream) entity;
             this.contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
-            String contentDisposition = response.getHeaderString(SyncopeConstants.CONTENT_DISPOSITION_HEADER);
+            String contentDisposition = response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION.toString());
             if (StringUtils.isNotBlank(contentDisposition)) {
                 String[] splitted = contentDisposition.split("=");
                 if (splitted != null && splitted.length > 1) {

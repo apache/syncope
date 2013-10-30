@@ -91,7 +91,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void getPropagationActionsClasses() {
-        Set<PropagationActionClassTO> actions = resourceService.getPropagationActionsClasses();
+        List<PropagationActionClassTO> actions = resourceService.getPropagationActionsClasses();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }
@@ -456,7 +456,7 @@ public class ResourceTestITCase extends AbstractTest {
         bulkAction.getTargets().add(String.valueOf("forBulk1"));
         bulkAction.getTargets().add(String.valueOf("forBulk2"));
 
-        resourceService.bulkAction(bulkAction);
+        resourceService.bulk(bulkAction);
 
         try {
             resourceService.read("forBulk1");

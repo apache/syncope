@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Resource;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
@@ -35,7 +34,6 @@ import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.RoleSubCategory;
 import org.apache.syncope.common.types.ClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
@@ -65,7 +63,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class RoleController {
+public class RoleController extends AbstractResourceAssociator<RoleTO> {
 
     /**
      * Logger.
@@ -122,7 +120,7 @@ public class RoleController {
     @PreAuthorize("isAuthenticated() "
             + "and not(hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT))")
     @Transactional(readOnly = true)
-    public RoleTO selfRead(final Long roleId) {
+    public RoleTO readSelf(final Long roleId) {
         // Explicit search instead of using binder.getRoleFromId() in order to bypass auth checks - will do here
         SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
@@ -390,6 +388,7 @@ public class RoleController {
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
     @Transactional(rollbackFor = { Throwable.class })
+    @Override
     public RoleTO unlink(final Long roleId, final Collection<String> resources) {
         LOG.debug("About to unlink role({}) and resources {}", roleId, resources);
 
@@ -412,6 +411,7 @@ public class RoleController {
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
     @Transactional(rollbackFor = { Throwable.class })
+    @Override
     public RoleTO unassign(final Long roleId, final Collection<String> resources) {
         LOG.debug("About to unassign role({}) and resources {}", roleId, resources);
 
@@ -424,6 +424,7 @@ public class RoleController {
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
     @Transactional(rollbackFor = { Throwable.class })
+    @Override
     public RoleTO deprovision(final Long roleId, final Collection<String> resources) {
         LOG.debug("About to deprovision role({}) from resources {}", roleId, resources);
 

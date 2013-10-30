@@ -19,26 +19,30 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
-import java.util.Set;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.MailTemplateTO;
 import org.apache.syncope.common.to.ValidatorTO;
 
 @Path("configurations")
+@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface ConfigurationService {
 
     /**
      * Creates a new configuration element.
      *
      * @param configurationTO Configuration to be stored.
-     * @return Response containing URI location for created resource.
+     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created configuration
      */
     @POST
     Response create(ConfigurationTO configurationTO);
@@ -62,14 +66,14 @@ public interface ConfigurationService {
      */
     @GET
     @Path("mailTemplates")
-    Set<MailTemplateTO> getMailTemplates();
+    List<MailTemplateTO> getMailTemplates();
 
     /**
      * @return Returns a list of known validator names.
      */
     @GET
     @Path("validators")
-    Set<ValidatorTO> getValidators();
+    List<ValidatorTO> getValidators();
 
     /**
      * @return Returns a list of all configuration elements.

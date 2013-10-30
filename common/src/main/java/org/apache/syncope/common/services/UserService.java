@@ -23,8 +23,8 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -34,18 +34,27 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.model.wadl.Description;
 import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
+import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
-import org.apache.syncope.common.to.PropagationRequestTO;
-import org.apache.syncope.common.to.PropagationTargetsTO;
+import org.apache.syncope.common.to.ResourceNameTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.ResourceAssociationActionType;
 
 @Path("users")
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface UserService {
+
+    @OPTIONS
+    @Path("{userId}/username")
+    Response getUsername(@PathParam("userId") Long userId);
+
+    @OPTIONS
+    @Path("{username}/userId")
+    Response getUserId(@PathParam("username") String username);
 
     /**
      * Reads the user matching the provided userId.
@@ -60,6 +69,32 @@ public interface UserService {
         @Description(target = DocTarget.RETURN, value = "User matching the provided userId")
     })
     UserTO read(@Description("id of user to be read") @PathParam("userId") Long userId);
+
+    /**
+     * Reads data about the authenticated user.
+     *
+     * @return Data about the authenticated user
+     */
+    @GET
+    @Path("self")
+    @Descriptions({
+        @Description(target = DocTarget.METHOD, value = "Reads data about the authenticated user"),
+        @Description(target = DocTarget.RETURN, value = "Data about the authenticated user")
+    })
+    UserTO readSelf();
+
+    /**
+     * Returns the number of existing users.
+     *
+     * @return Number of existing users
+     */
+    @GET
+    @Path("count")
+    @Descriptions({
+        @Description(target = DocTarget.METHOD, value = "Returns the number of existing users"),
+        @Description(target = DocTarget.RETURN, value = "Number of existing users")
+    })
+    int count();
 
     /**
      * Returns a list of all existing users.
@@ -89,43 +124,22 @@ public interface UserService {
             @Description("number of entries per page") @QueryParam("size") @DefaultValue("25") int size);
 
     /**
-     * Returns the number of existing users.
+     * Returns the number of users matching the provided search condition.
      *
-     * @return Number of existing users
+     * @param searchCondition search condition
+     * @return Number of users matching the provided search condition
+     * @throws InvalidSearchConditionException if provided search condition is not valid
      */
-    @GET
-    @Path("count")
+    @POST
+    @Path("search/count")
     @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Returns the number of existing users"),
-        @Description(target = DocTarget.RETURN, value = "Number of existing users")
+        @Description(target = DocTarget.METHOD,
+                value = "Returns the number of users matching the provided search condition"),
+        @Description(target = DocTarget.RETURN,
+                value = "Number of users matching the provided search condition")
     })
-    int count();
-
-    /**
-     * Reads the user matching the provided username.
-     *
-     * @param username username of user to be read
-     * @return User matching the provided username
-     */
-    @GET
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Reads the user matching the provided username"),
-        @Description(target = DocTarget.RETURN, value = "User matching the provided username")
-    })
-    UserTO read(@Description("username of user to be read") @QueryParam("username") String username);
-
-    /**
-     * Reads data about the authenticated user.
-     *
-     * @return Data about the authenticated user
-     */
-    @GET
-    @Path("self")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Reads the user matching the provided username"),
-        @Description(target = DocTarget.RETURN, value = "Data about the authenticated user")
-    })
-    UserTO readSelf();
+    int searchCount(@Description("search condition") NodeCond searchCondition)
+            throws InvalidSearchConditionException;
 
     /**
      * Returns the list of users matching the given search condition.
@@ -167,28 +181,11 @@ public interface UserService {
             throws InvalidSearchConditionException;
 
     /**
-     * Returns the number of users matching the provided search condition.
-     *
-     * @param searchCondition search condition
-     * @return Number of users matching the provided search condition
-     * @throws InvalidSearchConditionException if provided search condition is not valid
-     */
-    @POST
-    @Path("search/count")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "Returns the number of users matching the provided search condition"),
-        @Description(target = DocTarget.RETURN,
-                value = "Number of users matching the provided search condition")
-    })
-    int searchCount(@Description("search condition") NodeCond searchCondition)
-            throws InvalidSearchConditionException;
-
-    /**
      * Creates a new user.
      *
      * @param userTO user to be created
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created user
+     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created user as well as the user itself
+     * enriched with propagation status information, as <tt>Entity</tt>
      */
     @POST
     @Descriptions({
@@ -205,30 +202,73 @@ public interface UserService {
      *
      * @param userId id of user to be updated
      * @param userMod modification to be applied to user matching the provided userId
-     * @return Updated user.
+     * @return <tt>Response</tt> object featuring the updated user enriched with propagation status information,
+     * as <tt>Entity</tt>
      */
     @POST
     @Path("{userId}")
     @Descriptions({
         @Description(target = DocTarget.METHOD, value = "Updates user matching the provided userId"),
-        @Description(target = DocTarget.RETURN, value = "Updated user")
+        @Description(target = DocTarget.RETURN, value = "<tt>Response</tt> object featuring the updated user enriched "
+                + "with propagation status information, as <tt>Entity</tt>")
     })
-    UserTO update(@Description("id of user to be updated") @PathParam("userId") Long userId,
+    Response update(@Description("id of user to be updated") @PathParam("userId") Long userId,
             @Description("modification to be applied to user matching the provided userId") UserMod userMod);
+
+    /**
+     * Performs a status update on user matching provided userId.
+     *
+     * @param userId id of user to be subjected to status update
+     * @param statusMod status update details
+     * @return <tt>Response</tt> object featuring the updated user enriched with propagation status information,
+     * as <tt>Entity</tt>
+     */
+    @POST
+    @Path("{userId}/status")
+    @Descriptions({
+        @Description(target = DocTarget.METHOD, value = "Performs a status update on user matching provided userId"),
+        @Description(target = DocTarget.RETURN, value = "<tt>Response</tt> object featuring the updated user enriched "
+                + "with propagation status information, as <tt>Entity</tt>")
+    })
+    Response status(@Description("id of user to be subjected to status update") @PathParam("userId") Long userId,
+            @Description("status update details") StatusMod statusMod);
 
     /**
      * Deletes user matching provided userId.
      *
      * @param userId id of user to be deleted
-     * @return Deleted user
+     * @return <tt>Response</tt> object featuring the deleted user enriched with propagation status information,
+     * as <tt>Entity</tt>
      */
     @DELETE
     @Path("{userId}")
     @Descriptions({
         @Description(target = DocTarget.METHOD, value = "Deletes user matching provided userId"),
-        @Description(target = DocTarget.RETURN, value = "Deleted user")
+        @Description(target = DocTarget.RETURN, value = "<tt>Response</tt> object featuring the deleted user enriched "
+                + "with propagation status information, as <tt>Entity</tt>")
     })
-    UserTO delete(@Description("id of user to be deleted") @PathParam("userId") Long userId);
+    Response delete(@Description("id of user to be deleted") @PathParam("userId") Long userId);
+
+    /**
+     * Executes resource-related operations on given user.
+     *
+     * @param userId user id.
+     * @param type resource association action type
+     * @param resourceNames external resources to be used for propagation-related operations
+     * @return <tt>Response</tt> object featuring the updated user enriched with propagation status information,
+     * as <tt>Entity</tt>
+     */
+    @POST
+    @Path("{userId}/associate/{type}")
+    @Descriptions({
+        @Description(target = DocTarget.METHOD, value = "Executes resource-related operations on given user"),
+        @Description(target = DocTarget.RETURN, value = "<tt>Response</tt> object featuring the updated user enriched "
+                + "with propagation status information, as <tt>Entity</tt>")
+    })
+    Response associate(@Description("user id") @PathParam("userId") Long userId,
+            @Description("resource association action type") @PathParam("type") ResourceAssociationActionType type,
+            @Description("external resources to be used for propagation-related operations"
+            ) List<ResourceNameTO> resourceNames);
 
     /**
      * Executes the provided bulk action.
@@ -242,273 +282,6 @@ public interface UserService {
         @Description(target = DocTarget.METHOD, value = "Executes the provided bulk action"),
         @Description(target = DocTarget.RETURN, value = "Bulk action result")
     })
-    BulkActionRes bulkAction(@Description("list of &lt;username, action&gt; pairs") BulkAction bulkAction);
-
-    /**
-     * Activates user matching provided userId if provided token is valid.
-     *
-     * @param userId id of user to be activated
-     * @param token validity token
-     * @return Activated user
-     */
-    @POST
-    @Path("{userId}/status/activate")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "Activates user matching provided userId if provided token is valid"),
-        @Description(target = DocTarget.RETURN, value = "Activated user")
-    })
-    UserTO activate(@Description("id of user to be activated") @PathParam("userId") Long userId,
-            @Description("validity token") @QueryParam("token") String token);
-
-    /**
-     * Activates user matching provided userId if provided token is valid and propagates this update
-     * only to resources contained in the propagation request.
-     *
-     * @param userId id of user to be activated
-     * @param token validity token
-     * @param propagationRequestTO propagation request on internal storage or on 0+ external resources
-     * @return Activated user
-     */
-    @POST
-    @Path("{userId}/status/activate/propagation")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "Activates user matching provided userId if provided token is valid and propagates "
-                + "this update only to resources contained in the propagation request."),
-        @Description(target = DocTarget.RETURN, value = "Activated user")
-    })
-    UserTO activate(@Description("id of user to be activated") @PathParam("userId") Long userId,
-            @Description("validity token") @QueryParam("token") String token,
-            @Description("propagation request on internal storage or on 0+ external resources"
-            ) PropagationRequestTO propagationRequestTO);
-
-    /**
-     * Activates user matching provided username if provided token is valid.
-     *
-     * @param username username of user to be activated
-     * @param token validity token
-     * @return Activated user
-     */
-    @POST
-    @Path("activateByUsername/{username}")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "Activates user matching provided username if provided token is valid"),
-        @Description(target = DocTarget.RETURN, value = "Activated user")
-    })
-    UserTO activateByUsername(@Description("username of user to be activated") @PathParam("username") String username,
-            @Description("validity token") @QueryParam("token") String token);
-
-    /**
-     * Activates user matching provided username if provided token is valid and propagates this update
-     * only to resources contained in the propagation request.
-     *
-     * @param username username of user to be activated
-     * @param token validity token
-     * @param propagationRequestTO propagation request on internal storage or on 0+ external resources
-     * @return Activated user
-     */
-    @POST
-    @Path("activateByUsername/{username}/propagation")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "Activates user matching provided username if provided token is valid and propagates "
-                + "this update only to resources contained in the propagation request."),
-        @Description(target = DocTarget.RETURN, value = "Activated user")
-    })
-    UserTO activateByUsername(@Description("username of user to be activated") @PathParam("username") String username,
-            @Description("validity token") @QueryParam("token") String token,
-            @Description("propagation request on internal storage or on 0+ external resources"
-            ) PropagationRequestTO propagationRequestTO);
-
-    /**
-     * Suspends user matching provided userId.
-     *
-     * @param userId id of user to be suspended
-     * @return Suspended user
-     */
-    @POST
-    @Path("{userId}/status/suspend")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Suspends user matching provided userId"),
-        @Description(target = DocTarget.RETURN, value = "Suspended user")
-    })
-    UserTO suspend(@Description("id of user to be suspended") @PathParam("userId") Long userId);
-
-    /**
-     * Suspend user matching provided userId and propagates this update only to resources contained in the
-     * propagation request.
-     *
-     * @param userId id of user to be activated
-     * @param propagationRequestTO propagation request on internal storage or on 0+ external resources
-     * @return Suspended user
-     */
-    @POST
-    @Path("{userId}/status/suspend/propagation")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Suspend user matching provided userId and propagates this "
-                + "update only to resources contained in the propagation request"),
-        @Description(target = DocTarget.RETURN, value = "Suspended user")
-    })
-    UserTO suspend(@Description("id of user to be suspended") @PathParam("userId") Long userId,
-            @Description("propagation request on internal storage or on 0+ external resources"
-            ) PropagationRequestTO propagationRequestTO);
-
-    /**
-     * Suspends user matching provided username.
-     *
-     * @param username username of user to be suspended
-     * @return Suspended user
-     */
-    @POST
-    @Path("suspendByUsername/{username}")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Suspends user matching provided username"),
-        @Description(target = DocTarget.RETURN, value = "Suspended user")
-    })
-    UserTO suspendByUsername(@Description("username of user to be suspended") @PathParam("username") String username);
-
-    /**
-     * Suspend user matching provided username and propagates this update only to resources contained in the
-     * propagation request.
-     *
-     * @param username username of user to be activated
-     * @param propagationRequestTO propagation request on internal storage or on 0+ external resources
-     * @return Suspended user
-     */
-    @POST
-    @Path("suspendByUsername/{username}/propagation")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Suspend user matching provided username and propagates this "
-                + "update only to resources contained in the propagation request"),
-        @Description(target = DocTarget.RETURN, value = "Suspended user")
-    })
-    UserTO suspendByUsername(@Description("username of user to be suspended") @PathParam("username") String username,
-            @Description("propagation request on internal storage or on 0+ external resources"
-            ) PropagationRequestTO propagationRequestTO);
-
-    /**
-     * Reactivates user matching provided userId.
-     *
-     * @param userId id of user to be reactivated
-     * @return Reactivated user
-     */
-    @POST
-    @Path("{userId}/status/reactivate")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Reactivates user matching provided userId"),
-        @Description(target = DocTarget.RETURN, value = "Reactivated user")
-    })
-    UserTO reactivate(@Description("id of user to be reactivated") @PathParam("userId") Long userId);
-
-    /**
-     * Reactivates user matching provided userId and propagates this update only to resources contained in the
-     * propagation request.
-     *
-     * @param userId id of user to be activated
-     * @param propagationRequestTO propagation request on internal storage or on 0+ external resources
-     * @return Reactivated user
-     */
-    @POST
-    @Path("{userId}/status/reactivate/propagation")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "Reactivates user matching provided userId and propagates this update only to resources "
-                + "contained in the propagation request"),
-        @Description(target = DocTarget.RETURN, value = "Reactivated user")
-    })
-    UserTO reactivate(@Description("id of user to be reactivated") @PathParam("userId") Long userId,
-            @Description("propagation request on internal storage or on 0+ external resources"
-            ) PropagationRequestTO propagationRequestTO);
-
-    /**
-     * Reactivates user matching provided username.
-     *
-     * @param username username of user to be reactivated
-     * @return Reactivated user
-     */
-    @POST
-    @Path("reactivateByUsername/{username}")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Reactivates user matching provided username"),
-        @Description(target = DocTarget.RETURN, value = "Reactivated user")
-    })
-    UserTO reactivateByUsername(
-            @Description("username of user to be reactivated") @PathParam("username") String username);
-
-    /**
-     * Reactivates user matching provided username and propagates this update only to resources contained in the
-     * propagation request.
-     *
-     * @param username username of user to be activated
-     * @param propagationRequestTO propagation request on internal storage or on 0+ external resources
-     * @return Reactivated user
-     */
-    @POST
-    @Path("reactivateByUsername/{username}/propagation")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "Reactivates user matching provided username and propagates this update only to resources "
-                + "contained in the propagation request"),
-        @Description(target = DocTarget.RETURN, value = "Reactivated user")
-    })
-    UserTO reactivateByUsername(
-            @Description("username of user to be reactivated") @PathParam("username") String username,
-            @Description("propagation request on internal storage or on 0+ external resources"
-            ) PropagationRequestTO propagationRequestTO);
-
-    /**
-     * Unlinks user from the given external resources.
-     *
-     * @param userId id of user to be unlinked
-     * @param propagationTargetsTO external resources to be used for propagation-related operations
-     * @return Updated user
-     */
-    @PUT
-    @Path("{userId}/unlink")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Unlinks user from the given external resources"),
-        @Description(target = DocTarget.RETURN, value = "Updated user")
-    })
-    UserTO unlink(@Description("id of user to be unlinked") @PathParam("userId") Long userId,
-            @Description("external resources to be used for propagation-related operations"
-            ) PropagationTargetsTO propagationTargetsTO);
-
-    /**
-     * De-provision user from the given external resources without unlinking.
-     *
-     * @param userId id of user to be de-provisioned
-     * @param propagationTargetsTO external resources to be used for propagation-related operations
-     * @return Updated user
-     */
-    @PUT
-    @Path("{userId}/deprovision")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "De-provision user from the given external resources without unlinking"),
-        @Description(target = DocTarget.RETURN, value = "Updated user")
-    })
-    UserTO deprovision(@Description("id of user to be de-provisioned") @PathParam("userId") Long userId,
-            @Description("De-provision user from the given external resources without unlinking"
-            ) PropagationTargetsTO propagationTargetsTO);
-
-    /**
-     * Unassigns (unlink + de-provision) user from the given external resources.
-     *
-     * @param userId id of user to be unassigned
-     * @param propagationTargetsTO external resources to be used for propagation-related operations
-     * @return Updated user
-     */
-    @PUT
-    @Path("{userId}/unassign")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "Unassigns (unlink + de-provision) user from the given external resources"),
-        @Description(target = DocTarget.RETURN, value = "Updated user")
-    })
-    UserTO unassign(@Description("id of user to be unassigned") @PathParam("userId") Long userId,
-            @Description("De-provision user from the given external resources without unlinking"
-            ) PropagationTargetsTO propagationTargetsTO);
+    BulkActionRes bulk(@Description("list of &lt;username, action&gt; pairs") BulkAction bulkAction);
 
 }

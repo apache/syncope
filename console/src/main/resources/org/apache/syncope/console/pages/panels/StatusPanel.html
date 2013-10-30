@@ -16,114 +16,115 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:head>
-  <style>
-    div.group{
-      width:100%;
-    }
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:head>
+    <style>
+      div.group{
+        width:100%;
+      }
 
-    div#check{
-      width:8%;
-      height: 25px;
-      float:left;
-    }
+      div#check{
+        height: 25px;
+        float:left;
+      }
 
-    div#resource{
-      margin-top: 3px;
-      margin-left: 5px;
-      width: 35%;
-      height: 25px;
-      float:left;
-    }
+      div#resource{
+        margin-top: 3px;
+        margin-left: 5px;
+        width: 35%;
+        height: 25px;
+        float:left;
+      }
 
-    div#accountLink{
-      margin-top: 3px;
-      width:45%;
-      height: 25px;
-      float:left
-    }
+      div#accountLink{
+        margin-top: 3px;
+        width:45%;
+        height: 25px;
+        float:left
+      }
 
-    div#status{
-      margin-top: 3px;
-      height: 25px;
-      width: 5%;
-      float: left;
-      text-align: center;
-    }
+      div#status{
+        margin-top: 3px;
+        height: 25px;
+        width: 5%;
+        float: left;
+        text-align: center;
+      }
 
-    div#connObject{
-      margin-top: 3px;
-      height: 25px;
-      width: 5%;
-      float: left;
-      text-align: center;
-    }
+      div#connObject{
+        margin-top: 3px;
+        height: 25px;
+        width: 5%;
+        float: left;
+        text-align: center;
+      }
 
-    div.assignment {
-      display: inline-table;
-      width: 100%
-    }
+      div.assignment {
+        display: inline-table;
+        width: 100%
+      }
 
-    div.assignments {
-      margin-top: 5px;
-      display: inline-table;
-      width: 100%;
-      border: 1px solid #DDDDDD;
-      color: #555555;
-    }
-  </style>
-</wicket:head>
-<wicket:panel>
-  <div class="assignments">
-    <div class="group">
-      <div>
-        <div id="check">
-          <input type="checkbox" wicket:id="groupselector" />
-        </div>
-
-        <div id="resource">
-          <span style="font: Verdana,Arial,sans-serif; font-weight: bold">
-            <wicket:message key="resourceheader"/>
-          </span>
-        </div>
-        <div id="accountLink">
-          <span style="font: Verdana,Arial,sans-serif; font-weight: bold">
-            <wicket:message key="accountlinkheader"/>
-          </span>
-        </div>
-        <div id="status">
-          <span style="font: Verdana,Arial,sans-serif; font-weight: bold">
-            <wicket:message key="statusheader"/>
-          </span>
-        </div>
-        <div id="connObject">
-        </div>
-      </div>
-
-      <span wicket:id="group">
-
-        <div wicket:id="resources" class="assignment">
+      div.assignments {
+        margin-top: 5px;
+        display: inline-table;
+        width: 100%;
+        border: 1px solid #DDDDDD;
+        color: #555555;
+      }
+    </style>
+  </wicket:head>
+  <wicket:panel>
+    <div class="assignments">
+      <div class="group">
+        <div>
           <div id="check">
-            <input type="checkbox" wicket:id="check"/>
+            <input type="checkbox" wicket:id="groupselector" />
           </div>
 
           <div id="resource">
-            <span wicket:id="resource">[resource name]</span>
+            <span style="font: Verdana,Arial,sans-serif; font-weight: bold">
+              <wicket:message key="resourceheader"/>
+            </span>
           </div>
           <div id="accountLink">
-            <span wicket:id="accountLink">[accountLink]</span>
+            <span style="font: Verdana,Arial,sans-serif; font-weight: bold">
+              <wicket:message key="accountlinkheader"/>
+            </span>
           </div>
           <div id="status">
-            <img wicket:id="icon"/>
+            <span style="font: Verdana,Arial,sans-serif; font-weight: bold">
+              <wicket:message key="statusheader"/>
+            </span>
           </div>
           <div id="connObject">
-            <span wicket:id="connObject">[connObject]</span>
           </div>
         </div>
-      </span>
+
+        <span wicket:id="group">
+
+          <div wicket:id="resources" class="assignment">
+            <div id="check">
+              <input type="checkbox" wicket:id="check"/>
+            </div>
+
+            <div id="resource">
+              <span wicket:id="resource">[resource name]</span>
+            </div>
+            <div id="accountLink">
+              <span wicket:id="accountLink">[accountLink]</span>
+            </div>
+            <div id="status">
+              <img wicket:id="icon"/>
+            </div>
+            <div id="connObject">
+              <span wicket:id="connObject">[connObject]</span>
+            </div>
+          </div>
+        </span>
+      </div>
+
     </div>
 
-  </div>
-
-  <div wicket:id="connObjectWin">[Show modal window for showing connector object]</div>
-</wicket:panel>
+    <div wicket:id="connObjectWin">[Show modal window for showing connector object]</div>
+  </wicket:panel>
+</html>

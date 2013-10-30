@@ -21,16 +21,18 @@ package org.apache.syncope.core.services;
 import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.SyncopeConstants;
+import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
-import org.apache.syncope.common.to.PropagationRequestTO;
-import org.apache.syncope.common.to.PropagationTargetsTO;
+import org.apache.syncope.common.to.ResourceNameTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.RESTHeaders;
+import org.apache.syncope.common.types.ResourceAssociationActionType;
+import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.rest.controller.UserController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,24 +44,17 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
     private UserController controller;
 
     @Override
-    public UserTO activate(final Long userId, final String token) {
-        return controller.activate(userId, token);
+    public Response getUsername(final Long userId) {
+        return Response.ok().header("Allow", "GET,POST,OPTIONS,HEAD").
+                header(RESTHeaders.USERNAME.toString(), controller.getUsername(userId)).
+                build();
     }
 
     @Override
-    public UserTO activate(final Long userId, final String token, final PropagationRequestTO propagationRequestTO) {
-        return controller.activate(userId, token, propagationRequestTO);
-    }
-
-    @Override
-    public UserTO activateByUsername(final String username, final String token) {
-        return controller.activate(username, token);
-    }
-
-    @Override
-    public UserTO activateByUsername(final String username, final String token,
-            final PropagationRequestTO propagationRequestTO) {
-        return controller.activate(username, token, propagationRequestTO);
+    public Response getUserId(final String username) {
+        return Response.ok().header("Allow", "GET,POST,OPTIONS,HEAD").
+                header(RESTHeaders.USER_ID.toString(), controller.getUserId(username)).
+                build();
     }
 
     @Override
@@ -72,14 +67,16 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
         UserTO created = controller.create(userTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getId())).build();
         return Response.created(location).
-                header(SyncopeConstants.REST_RESOURCE_ID_HEADER, created.getId()).
-                entity(created)
-                .build();
+                header(RESTHeaders.RESOURCE_ID.toString(), created.getId()).
+                entity(created).
+                build();
     }
 
     @Override
-    public UserTO delete(final Long userId) {
-        return controller.delete(userId);
+    public Response delete(final Long userId) {
+        UserTO deleted = controller.delete(userId);
+        return Response.ok(deleted).
+                build();
     }
 
     @Override
@@ -93,38 +90,13 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
     }
 
     @Override
-    public UserTO reactivate(final Long userId) {
-        return controller.reactivate(userId);
-    }
-
-    @Override
-    public UserTO reactivate(final Long userId, final PropagationRequestTO propagationRequestTO) {
-        return controller.reactivate(userId, propagationRequestTO);
-    }
-
-    @Override
-    public UserTO reactivateByUsername(final String username) {
-        return controller.reactivate(username);
-    }
-
-    @Override
-    public UserTO reactivateByUsername(final String username, final PropagationRequestTO propagationRequestTO) {
-        return controller.reactivate(username, propagationRequestTO);
-    }
-
-    @Override
     public UserTO read(final Long userId) {
         return controller.read(userId);
     }
 
     @Override
-    public UserTO read(final String username) {
-        return controller.read(username);
-    }
-
-    @Override
     public UserTO readSelf() {
-        return controller.read();
+        return controller.readSelf();
     }
 
     @Override
@@ -135,6 +107,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
     @Override
     public List<UserTO> search(final NodeCond searchCondition, final int page, final int size)
             throws InvalidSearchConditionException {
+
         return controller.search(searchCondition, page, size);
     }
 
@@ -144,48 +117,50 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
     }
 
     @Override
-    public UserTO suspend(final Long userId) {
-        return controller.suspend(userId);
-    }
-
-    @Override
-    public UserTO suspend(final Long userId, final PropagationRequestTO propagationRequestTO) {
-        return controller.suspend(userId, propagationRequestTO);
-    }
-
-    @Override
-    public UserTO suspendByUsername(final String username) {
-        return controller.suspend(username);
-    }
-
-    @Override
-    public UserTO suspendByUsername(final String username, final PropagationRequestTO propagationRequestTO) {
-        return controller.suspend(username, propagationRequestTO);
-    }
-
-    @Override
-    public UserTO update(final Long userId, final UserMod userMod) {
+    public Response update(final Long userId, final UserMod userMod) {
         userMod.setId(userId);
-        return controller.update(userMod);
+        UserTO updated = controller.update(userMod);
+        return Response.ok(updated).
+                build();
     }
 
     @Override
-    public BulkActionRes bulkAction(final BulkAction bulkAction) {
-        return controller.bulkAction(bulkAction);
+    public Response status(final Long userId, final StatusMod statusMod) {
+        statusMod.setId(userId);
+        UserTO updated = controller.status(statusMod);
+        return Response.ok(updated).
+                build();
     }
 
     @Override
-    public UserTO unlink(final Long userId, final PropagationTargetsTO propagationTargetsTO) {
-        return controller.unlink(userId, propagationTargetsTO.getResources());
+    public BulkActionRes bulk(final BulkAction bulkAction) {
+        return controller.bulk(bulkAction);
     }
 
     @Override
-    public UserTO unassign(final Long userId, final PropagationTargetsTO propagationTargetsTO) {
-        return controller.unassign(userId, propagationTargetsTO.getResources());
-    }
+    public Response associate(final Long userId, final ResourceAssociationActionType type,
+            final List<ResourceNameTO> resourceNames) {
 
-    @Override
-    public UserTO deprovision(final Long userId, final PropagationTargetsTO propagationTargetsTO) {
-        return controller.deprovision(userId, propagationTargetsTO.getResources());
+        UserTO updated = null;
+
+        switch (type) {
+            case UNLINK:
+                updated = controller.unlink(userId, CollectionWrapper.unwrap(resourceNames));
+                break;
+
+            case UNASSIGN:
+                updated = controller.unassign(userId, CollectionWrapper.unwrap(resourceNames));
+                break;
+
+            case DEPROVISION:
+                updated = controller.deprovision(userId, CollectionWrapper.unwrap(resourceNames));
+                break;
+
+            default:
+                updated = controller.read(userId);
+        }
+
+        return Response.ok(updated).
+                build();
     }
 }

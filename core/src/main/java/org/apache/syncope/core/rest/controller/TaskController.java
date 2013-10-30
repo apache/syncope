@@ -391,8 +391,8 @@ public class TaskController extends AbstractController {
             + "(hasRole('TASK_EXECUTE') and "
             + "(#bulkAction.operation == #bulkAction.operation.EXECUTE or "
             + "#bulkAction.operation == #bulkAction.operation.DRYRUN))")
-    public BulkActionRes bulkAction(final BulkAction bulkAction) {
-        LOG.debug("Bulk action '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
+    public BulkActionRes bulk(final BulkAction bulkAction) {
+        LOG.debug("Bulk '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
 
         BulkActionRes res = new BulkActionRes();
 

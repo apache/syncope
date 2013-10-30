@@ -36,6 +36,7 @@ import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.types.ReportletConfClasses;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.types.ReportExecStatus;
 import org.apache.syncope.common.validation.SyncopeClientException;
@@ -150,8 +151,8 @@ public class ReportTestITCase extends AbstractTest {
         final Response response = reportService.exportExecutionResult(execId, fmt);
         assertNotNull(response);
         assertEquals(HttpStatus.SC_OK, response.getStatus());
-        assertNotNull(response.getHeaderString(SyncopeConstants.CONTENT_DISPOSITION_HEADER));
-        assertTrue(response.getHeaderString(SyncopeConstants.CONTENT_DISPOSITION_HEADER).
+        assertNotNull(response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION.toString()));
+        assertTrue(response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION.toString()).
                 endsWith("." + fmt.name().toLowerCase()));
 
         Object entity = response.getEntity();

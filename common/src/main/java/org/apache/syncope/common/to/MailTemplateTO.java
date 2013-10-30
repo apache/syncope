@@ -21,33 +21,12 @@ package org.apache.syncope.common.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.AbstractWrappable;
 
 @XmlRootElement(name = "mailTemplate")
 @XmlType
-public class MailTemplateTO extends AbstractBaseBean {
+public class MailTemplateTO extends AbstractWrappable {
 
     private static final long serialVersionUID = 7232619557172031478L;
 
-    private String name;
-
-    public static MailTemplateTO instance(final String name) {
-        MailTemplateTO templateTO = new MailTemplateTO();
-        templateTO.setName(name);
-        return templateTO;
-    }
-
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param name the name to set
-     */
-    public void setName(final String name) {
-        this.name = name;
-    }
 }

@@ -24,11 +24,11 @@ import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.types.ReportletConfClasses;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.core.persistence.beans.ReportExec;
 import org.apache.syncope.core.persistence.dao.ReportDAO;
@@ -49,9 +49,9 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     public Response create(final ReportTO reportTO) {
         ReportTO createdReportTO = controller.create(reportTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(createdReportTO.getId())).build();
-        return Response.created(location)
-                .header(SyncopeConstants.REST_RESOURCE_ID_HEADER, createdReportTO.getId())
-                .build();
+        return Response.created(location).
+                header(RESTHeaders.RESOURCE_ID.toString(), createdReportTO.getId()).
+                build();
     }
 
     @Override
@@ -102,9 +102,9 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
         };
         String disposition = "attachment; filename=" + reportExec.getReport().getName() + "." + format.name().
                 toLowerCase();
-        return Response.ok(sout)
-                .header(SyncopeConstants.CONTENT_DISPOSITION_HEADER, disposition)
-                .build();
+        return Response.ok(sout).
+                header(RESTHeaders.CONTENT_DISPOSITION.toString(), disposition).
+                build();
     }
 
     @Override

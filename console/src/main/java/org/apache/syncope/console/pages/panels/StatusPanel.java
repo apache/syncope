@@ -20,20 +20,19 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.ConnObjectTO;
-import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.console.commons.StatusBean;
-import org.apache.syncope.console.commons.StatusUtils;
-import org.apache.syncope.console.commons.StatusUtils.ConnObjectWrapper;
-import org.apache.syncope.console.commons.StatusUtils.Status;
+import org.apache.syncope.console.commons.status.StatusBean;
+import org.apache.syncope.console.commons.status.StatusUtils;
+import org.apache.syncope.console.commons.status.ConnObjectWrapper;
+import org.apache.syncope.console.commons.status.Status;
 import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.pages.ConnObjectModalPage;
 import org.apache.syncope.console.rest.RoleRestClient;
@@ -109,7 +108,7 @@ public class StatusPanel extends Panel implements IHeaderContributor {
 
         statusUtils = new StatusUtils(attributable instanceof RoleTO ? roleRestClient : userRestClient);
 
-        connObjects = statusUtils.getConnectorObjects(Collections.<AbstractAttributableTO>singleton(attributable));
+        connObjects = statusUtils.getConnectorObjects(attributable);
 
         final List<StatusBean> statusBeans = new ArrayList<StatusBean>(connObjects.size() + 1);
         initialStatusBeanMap = new LinkedHashMap<String, StatusBean>(connObjects.size() + 1);
@@ -154,13 +153,17 @@ public class StatusPanel extends Panel implements IHeaderContributor {
             private static final long serialVersionUID = -151291731388673682L;
 
             @Override
-            protected void onUpdate(AjaxRequestTarget target) {
+            protected void onUpdate(final AjaxRequestTarget target) {
                 // ignore
             }
         });
         add(checkGroup);
 
-        add(new CheckGroupSelector("groupselector", checkGroup));
+        CheckGroupSelector groupSelector = new CheckGroupSelector("groupselector", checkGroup);
+        if (attributable instanceof RoleTO) {
+            groupSelector.setVisible(false);
+        }
+        add(groupSelector);
 
         statusBeansListView = new AltListView<StatusBean>("resources", statusBeans) {
 
@@ -171,6 +174,9 @@ public class StatusPanel extends Panel implements IHeaderContributor {
                 item.add(statusUtils.getStatusImage("icon", item.getModelObject().getStatus()));
 
                 final Check<StatusBean> check = new Check<StatusBean>("check", item.getModel(), checkGroup);
+                if (attributable instanceof RoleTO) {
+                    check.setVisible(false);
+                }
                 item.add(check);
 
                 item.add(new Label("resource", new ResourceModel(item.getModelObject().getResourceName(), item
@@ -188,8 +194,9 @@ public class StatusPanel extends Panel implements IHeaderContributor {
                         item.getModelObject().getResourceName(),
                         connObjects);
 
-                if (pageref != null && connObjectTO != null) {
-
+                if (pageref == null || connObjectTO == null) {
+                    item.add(new Label("connObject", new Model<String>()));
+                } else {
                     final ActionLinksPanel connObject = new ActionLinksPanel("connObject", new Model(), pageref);
 
                     connObject.add(new ActionLink() {
@@ -213,8 +220,6 @@ public class StatusPanel extends Panel implements IHeaderContributor {
                     }, ActionLink.ActionType.SEARCH, "Resources", "getConnectorObject");
 
                     item.add(connObject);
-                } else {
-                    item.add(new Label("connObject", new Model<String>()));
                 }
             }
         };
@@ -222,12 +227,12 @@ public class StatusPanel extends Panel implements IHeaderContributor {
         checkGroup.add(statusBeansListView);
     }
 
-    public PropagationRequestTO getPropagationRequestTO() {
-        PropagationRequestTO result = null;
+    public StatusMod getStatusMod() {
+        StatusMod result = null;
 
         Collection<StatusBean> statusBeans = checkGroup.getModel().getObject();
         if (statusBeans != null && !statusBeans.isEmpty()) {
-            result = StatusUtils.buildPropagationRequestTO(statusBeans);
+            result = StatusUtils.buildStatusMod(statusBeans);
 
         }
 
@@ -249,7 +254,7 @@ public class StatusPanel extends Panel implements IHeaderContributor {
 
         for (StatusBean statusBean : statusBeans) {
             if (!checkGroup.getModelObject().contains(statusBean)
-                    && statusBean.getStatus() == StatusUtils.Status.NOT_YET_SUBMITTED) {
+                    && statusBean.getStatus() == Status.NOT_YET_SUBMITTED) {
 
                 checkGroup.getModelObject().add(statusBean);
             }

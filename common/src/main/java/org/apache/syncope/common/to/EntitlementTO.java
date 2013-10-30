@@ -21,33 +21,12 @@ package org.apache.syncope.common.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.AbstractWrappable;
 
 @XmlRootElement(name = "entitlement")
 @XmlType
-public class EntitlementTO extends AbstractBaseBean {
+public class EntitlementTO extends AbstractWrappable {
 
     private static final long serialVersionUID = 7133614577172038452L;
 
-    private String name;
-
-    public static EntitlementTO instance(final String name) {
-        EntitlementTO instance = new EntitlementTO();
-        instance.setName(name);
-        return instance;
-    }
-
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param name the name to set
-     */
-    public void setName(final String name) {
-        this.name = name;
-    }
 }

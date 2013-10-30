@@ -31,10 +31,12 @@ import org.apache.syncope.common.to.BulkAssociationAction;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.StatusBean;
-import org.apache.syncope.console.commons.StatusUtils;
-import org.apache.syncope.console.commons.StatusUtils.ConnObjectWrapper;
+import org.apache.syncope.console.commons.status.AbstractStatusBeanProvider;
+import org.apache.syncope.console.commons.status.StatusBean;
+import org.apache.syncope.console.commons.status.StatusUtils;
+import org.apache.syncope.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.console.pages.panels.ActionDataTablePanel;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.wicket.PageReference;
@@ -49,7 +51,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class ProvisioningModalPage<T extends AbstractAttributableTO> extends AbstractStatusModlaPage {
+public class ProvisioningModalPage<T extends AbstractAttributableTO> extends AbstractStatusModalPage {
 
     private static final long serialVersionUID = 4114026480146090961L;
 
@@ -82,31 +84,36 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
 
         final List<IColumn<StatusBean, String>> columns = new ArrayList<IColumn<StatusBean, String>>();
         columns.add(new PropertyColumn<StatusBean, String>(
-                new StringResourceModel("id", this, null, "Attributable id"), "attributableId", "attributableId"));
+                new StringResourceModel("id", this, null, "Attributable id"),
+                "attributableId", "attributableId"));
         columns.add(new PropertyColumn<StatusBean, String>(
-                new StringResourceModel("name", this, null, "Attributable name"), "attributableName", "attributableName"));
+                new StringResourceModel("name", this, null, "Attributable name"),
+                "attributableName", "attributableName"));
         columns.add(new PropertyColumn<StatusBean, String>(
-                new StringResourceModel("resourceName", this, null, "Resource name"), "resourceName", "resourceName"));
+                new StringResourceModel("resourceName", this, null, "Resource name"),
+                "resourceName", "resourceName"));
         columns.add(new PropertyColumn<StatusBean, String>(
-                new StringResourceModel("accountLink", this, null, "Account link"), "accountLink", "accountLink"));
+                new StringResourceModel("accountLink", this, null, "Account link"),
+                "accountLink", "accountLink"));
         columns.add(new AbstractColumn<StatusBean, String>(
                 new StringResourceModel("status", this, null, "")) {
 
-            private static final long serialVersionUID = -3503023501954863131L;
+                    private static final long serialVersionUID = -3503023501954863131L;
 
-            @Override
-            public String getCssClass() {
-                return "action";
-            }
+                    @Override
+                    public String getCssClass() {
+                        return "action";
+                    }
 
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<StatusBean>> cellItem,
-                    final String componentId,
-                    final IModel<StatusBean> model) {
-                cellItem.add(statusUtils.getStatusImagePanel(componentId, model.getObject().getStatus()));
-            }
-        });
+                    @Override
+                    public void populateItem(
+                            final Item<ICellPopulator<StatusBean>> cellItem,
+                            final String componentId,
+                            final IModel<StatusBean> model) {
+                                cellItem.
+                                add(statusUtils.getStatusImagePanel(componentId, model.getObject().getStatus()));
+                            }
+                });
 
         final ActionDataTablePanel<StatusBean, String> table = new ActionDataTablePanel<StatusBean, String>(
                 "resourceDatatable",
@@ -124,7 +131,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    bulkAssociationAction(target, BulkAssociationAction.Type.UNLINK, table, columns);
+                    bulkAssociationAction(target, ResourceAssociationActionType.UNLINK, table, columns);
                 } catch (Exception e) {
                     LOG.error("Error unlinkink resources", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
@@ -140,7 +147,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    bulkAssociationAction(target, BulkAssociationAction.Type.DEPROVISION, table, columns);
+                    bulkAssociationAction(target, ResourceAssociationActionType.DEPROVISION, table, columns);
                 } catch (Exception e) {
                     LOG.error("Error de-provisioning user", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
@@ -156,7 +163,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    bulkAssociationAction(target, BulkAssociationAction.Type.UNASSIGN, table, columns);
+                    bulkAssociationAction(target, ResourceAssociationActionType.UNASSIGN, table, columns);
                 } catch (Exception e) {
                     LOG.error("Error unassigning resources", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
@@ -170,7 +177,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
         add(table);
     }
 
-    private class StatusBeanProvider extends StatusUtils.StatusBeanProvider {
+    private class StatusBeanProvider extends AbstractStatusBeanProvider {
 
         private static final long serialVersionUID = 4287357360778016173L;
 
@@ -200,8 +207,8 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
                     (List<AbstractAttributableTO>) attributables, Collections.<String>singleton(resourceTO.getName()));
 
             final List<StatusBean> statusBeans = new ArrayList<StatusBean>(connObjects.size() + 1);
-            final LinkedHashMap<String, StatusBean> initialStatusBeanMap =
-                    new LinkedHashMap<String, StatusBean>(connObjects.size());
+            final LinkedHashMap<String, StatusBean> initialStatusBeanMap = new LinkedHashMap<String, StatusBean>(
+                    connObjects.size());
 
             for (ConnObjectWrapper entry : connObjects) {
                 final StatusBean statusBean = statusUtils.getStatusBean(
@@ -220,7 +227,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
 
     private void bulkAssociationAction(
             final AjaxRequestTarget target,
-            final BulkAssociationAction.Type type,
+            final ResourceAssociationActionType type,
             final ActionDataTablePanel<StatusBean, String> table,
             final List<IColumn<StatusBean, String>> columns) {
 
@@ -233,16 +240,16 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             bulkAction.getTargets().add(bean.getAttributableId());
         }
 
-        if (!beans.isEmpty()) {
-            final BulkActionRes res =
-                    resourceRestClient.bulkAssociationAction(resourceTO.getName(), bulkAction, typeRef);
+        if (beans.isEmpty()) {
+            window.close(target);
+        } else {
+            final BulkActionRes res = resourceRestClient.bulkAssociationAction(
+                    resourceTO.getName(), bulkAction, typeRef);
 
             ((BasePage) pageRef.getPage()).setModalResult(true);
 
             setResponsePage(new BulkActionResultModalPage<StatusBean, String>(
                     window, beans, columns, res, "attributableId"));
-        } else {
-            window.close(target);
         }
     }
 }

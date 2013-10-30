@@ -19,45 +19,39 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+import javax.ws.rs.Consumes;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.MatrixParam;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.UserMod;
 
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.UserTO;
 
-@Path("requests/user")
+@Path("userrequests")
+@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface UserRequestService {
 
-    public static final String SYNCOPE_CREATE_ALLOWED = "Syncope-Create-Allowed";
-
     /**
-     * This method is similar to {@link #isCreateAllowed()}, but follows RESTful best practices.
-     *
-     * @return Response contains special syncope HTTP header (SYNCOPE_CREATE_ALLOWED), indicating if user is allowed to
+     * @return Response contains special syncope HTTP header indicating if user is allowed to
      * make a create UserRequest
+     * @see org.apache.syncope.common.SyncopeConstants.REST_USER_REQUEST_CREATE_ALLOWED
      */
     @OPTIONS
     Response getOptions();
 
     /**
-     * This method is similar to {@link #getOptions()}, but without following RESTful best practices.
-     *
-     * @return Returns true, if user is allowed to make user create requests
-     */
-    @GET
-    @Path("create/allowed")
-    boolean isCreateAllowed();
-
-    /**
      * @param userRequestTO Request for user to be created
-     * @return Response containing URI location for created resource
+     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created user request
      */
     @POST
     Response create(UserRequestTO userRequestTO);
@@ -66,15 +60,14 @@ public interface UserRequestService {
      * @return Returns list of all UserRequests.
      */
     @GET
-    @Path("executed")
     List<UserRequestTO> list();
 
     /**
+     * @param username user name
      * @return Returns list of all UserRequests of the given user.
      */
     @GET
-    @Path("filter/{username}")
-    List<UserRequestTO> listByUsername(@PathParam("username") String username);
+    List<UserRequestTO> listByUsername(@MatrixParam("username") String username);
 
     /**
      * @param requestId ID of UserRequest to be read
@@ -96,14 +89,14 @@ public interface UserRequestService {
     UserRequestTO claim(@PathParam("requestId") Long requestId);
 
     @POST
-    @Path("create/execute/{requestId}")
+    @Path("execute/create/{requestId}")
     UserTO executeCreate(@PathParam("requestId") Long requestId, UserTO reviewed);
 
     @POST
-    @Path("update/execute/{requestId}")
+    @Path("execute/update/{requestId}")
     UserTO executeUpdate(@PathParam("requestId") Long requestId, UserMod changes);
 
-    @DELETE
-    @Path("delete/execute/{requestId}")
+    @POST
+    @Path("execute/delete/{requestId}")
     UserTO executeDelete(@PathParam("requestId") Long requestId);
 }

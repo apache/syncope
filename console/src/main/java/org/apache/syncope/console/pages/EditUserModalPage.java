@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.AttributableOperations;
-import org.apache.syncope.console.commons.StatusBean;
+import org.apache.syncope.console.commons.status.StatusBean;
 import org.apache.syncope.console.pages.panels.AccountInformationPanel;
 import org.apache.syncope.console.pages.panels.MembershipsPanel;
 import org.apache.syncope.console.pages.panels.ResourcesPanel;
@@ -85,7 +85,7 @@ public class EditUserModalPage extends UserModalPage {
             final UserMod userMod = AttributableOperations.diff(updatedUserTO, initialUserTO);
 
             if (statusPanel != null) {
-                userMod.setPwdPropRequest(statusPanel.getPropagationRequestTO());
+                userMod.setPwdPropRequest(statusPanel.getStatusMod());
             }
 
             // update user just if it is changed

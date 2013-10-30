@@ -16,23 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.services;
+package org.apache.syncope.console.commons.status;
 
-import javax.ws.rs.core.UriInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public enum Status {
 
-abstract class AbstractServiceImpl implements ContextAware {
+    NOT_YET_SUBMITTED(""),
+    CREATED("created"),
+    ACTIVE("active"),
+    SUSPENDED("inactive"),
+    UNDEFINED("undefined"),
+    OBJECT_NOT_FOUND("objectnotfound");
 
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractServiceImpl.class);
+    public boolean isActive() {
+        return this == ACTIVE;
+    }
 
-    protected UriInfo uriInfo;
+    private Status(final String name) {
+        this.name = name;
+    }
+
+    private final String name;
 
     @Override
-    public void setUriInfo(final UriInfo uriInfo) {
-        this.uriInfo = uriInfo;
+    public String toString() {
+        return name;
     }
+
 }

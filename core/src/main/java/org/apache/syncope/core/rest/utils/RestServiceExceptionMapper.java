@@ -30,10 +30,10 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.ClientExceptionType;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
@@ -121,8 +121,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
     private Response getSyncopeClientExceptionResponse(final SyncopeClientException ex) {
         ResponseBuilder responseBuilder = Response.status(ex.getType().getResponseStatus());
-        responseBuilder.header(
-                SyncopeConstants.REST_EXCEPTION_TYPE_HEADER, ex.getType().getHeaderValue());
+        responseBuilder.header(RESTHeaders.EXCEPTION_TYPE.toString(), ex.getType().getHeaderValue());
 
         for (Object element : ex.getElements()) {
             responseBuilder.header(ex.getType().getElementHeaderName(), element);
@@ -138,8 +137,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
         ResponseBuilder responseBuilder = Response.status(Response.Status.BAD_REQUEST);
         for (SyncopeClientException sce : ex.getExceptions()) {
-            responseBuilder.header(
-                    SyncopeConstants.REST_EXCEPTION_TYPE_HEADER, sce.getType().getHeaderValue());
+            responseBuilder.header(RESTHeaders.EXCEPTION_TYPE.toString(), sce.getType().getHeaderValue());
 
             for (Object element : sce.getElements()) {
                 responseBuilder.header(sce.getType().getElementHeaderName(), element);
@@ -178,7 +176,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
             ClientExceptionType exType = ClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
 
-            builder.header(SyncopeConstants.REST_EXCEPTION_TYPE_HEADER, exType.getHeaderValue());
+            builder.header(RESTHeaders.EXCEPTION_TYPE.toString(), exType.getHeaderValue());
 
             for (Map.Entry<Class<?>, Set<EntityViolationType>> violation : iee.getViolations().entrySet()) {
                 for (EntityViolationType violationType : violation.getValue()) {
@@ -225,8 +223,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
     private Response buildResponse(final ResponseBuilder responseBuilder, final ClientExceptionType hType,
             final String msg) {
 
-        return responseBuilder.header(
-                SyncopeConstants.REST_EXCEPTION_TYPE_HEADER, hType.getHeaderValue()).
+        return responseBuilder.header(RESTHeaders.EXCEPTION_TYPE.toString(), hType.getHeaderValue()).
                 header(hType.getElementHeaderName(), msg).
                 build();
     }

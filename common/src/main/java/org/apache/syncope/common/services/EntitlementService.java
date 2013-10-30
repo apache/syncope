@@ -18,26 +18,31 @@
  */
 package org.apache.syncope.common.services;
 
-import java.util.Set;
+import java.util.List;
+import javax.ws.rs.Consumes;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.syncope.common.to.EntitlementTO;
 
 @Path("entitlements")
+@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface EntitlementService {
 
     /**
      * @return Returns a collection of all known entitlements.
      */
     @GET
-    Set<EntitlementTO> getAllEntitlements();
+    List<EntitlementTO> getAllEntitlements();
 
     /**
      * @return Returns a collection of entitlements assigned to user making this request (Service Call).
      */
     @GET
     @Path("own")
-    Set<EntitlementTO> getMyEntitlements();
+    List<EntitlementTO> getOwnEntitlements();
 }

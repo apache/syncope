@@ -39,6 +39,7 @@ import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.ClientExceptionType;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -124,7 +125,7 @@ public class ConfigurationTestITCase extends AbstractTest {
         assertEquals(HttpStatus.SC_OK, response.getStatus());
         String contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
         assertTrue(contentType.contains("xml"));
-        String contentDisposition = response.getHeaderString(SyncopeConstants.CONTENT_DISPOSITION_HEADER);
+        String contentDisposition = response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION.toString());
         assertNotNull(contentDisposition);
 
         Object entity = response.getEntity();

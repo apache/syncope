@@ -28,7 +28,7 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.syncope.console.commons.RoleUtils;
-import org.apache.syncope.console.commons.StatusUtils;
+import org.apache.syncope.console.commons.status.StatusUtils;
 import org.apache.syncope.console.pages.MembershipModalPage;
 import org.apache.syncope.console.pages.UserModalPage;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;

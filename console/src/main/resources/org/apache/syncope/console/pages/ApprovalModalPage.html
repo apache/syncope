@@ -16,35 +16,37 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:extend>
-  <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
-<div style="margin:10px">
-  <form wicket:id="form">
-    <div id="formtable">
-      <div class="tablerow" wicket:id="propView">
-        <div class="tablecolumn_label medium_dynamicsize">
-          <span wicket:id="key">[key]</span>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:extend>
+    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+    <div style="margin:10px">
+      <form wicket:id="form">
+        <div id="formtable">
+          <div class="tablerow" wicket:id="propView">
+            <div class="tablecolumn_label medium_dynamicsize">
+              <span wicket:id="key">[key]</span>
+            </div>
+            <div class="tablecolumn_field medium_dynamicsize">
+              <span wicket:id="value">[value]</span>
+
+            </div>
+          </div>
         </div>
-        <div class="tablecolumn_field medium_dynamicsize">
-          <span wicket:id="value">[value]</span>
 
+        <div style="margin: 20px 0">
+          <input type="button"
+                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                 wicket:id="userDetails"/>
+          <input type="submit"
+                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                 wicket:id="apply"/>
+          <input type="button"
+                 accept=""class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                 wicket:id="cancel"/>
         </div>
-      </div>
-    </div>
 
-    <div style="margin: 20px 0">
-      <input type="button"
-             class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-             wicket:id="userDetails"/>
-      <input type="submit"
-             class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-             wicket:id="apply"/>
-      <input type="button"
-             accept=""class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-             wicket:id="cancel"/>
+      </form>
+      <div wicket:id="editUserWin">[Show modal window for editing user under approval]</div>
     </div>
-
-  </form>
-  <div wicket:id="editUserWin">[Show modal window for editing user under approval]</div>
-</div>
-</wicket:extend>
+  </wicket:extend>
+</html>

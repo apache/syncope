@@ -44,7 +44,6 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.UserRequestType;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -70,15 +69,15 @@ public class UserRequestTestITCase extends AbstractTest {
         Response response = configurationService.create(configurationTO);
         assertNotNull(response);
         assertEquals(HttpStatus.SC_CREATED, response.getStatus());
-        configurationTO =
-                adminClient.getObject(response.getLocation(), ConfigurationService.class, ConfigurationTO.class);
+        configurationTO = adminClient.getObject(response.getLocation(), ConfigurationService.class,
+                ConfigurationTO.class);
         assertNotNull(configurationTO);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("selfcreate@syncope.apache.org");
 
         // 2. get unauthorized when trying to request user create
-        UserRequestService anonymousUserRequestService =
-                clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(UserRequestService.class);
+        UserRequestService anonymousUserRequestService = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).
+                getService(UserRequestService.class);
         try {
             createUserRequest(anonymousUserRequestService, new UserRequestTO(userTO));
             fail();
@@ -92,8 +91,8 @@ public class UserRequestTestITCase extends AbstractTest {
         response = configurationService.create(configurationTO);
         assertNotNull(response);
         assertEquals(HttpStatus.SC_CREATED, response.getStatus());
-        configurationTO =
-                adminClient.getObject(response.getLocation(), ConfigurationService.class, ConfigurationTO.class);
+        configurationTO = adminClient.getObject(response.getLocation(), ConfigurationService.class,
+                ConfigurationTO.class);
         assertNotNull(configurationTO);
 
         // 4. as anonymous, request user create works
@@ -134,8 +133,8 @@ public class UserRequestTestITCase extends AbstractTest {
         }
 
         // 3. auth as user just created
-        UserRequestService userRequestService2 =
-                clientFactory.create(userTO.getUsername(), initialPassword).getService(UserRequestService.class);
+        UserRequestService userRequestService2 = clientFactory.create(userTO.getUsername(), initialPassword).getService(
+                UserRequestService.class);
 
         // 4. update with same password: not matching password policy
         try {
@@ -150,8 +149,8 @@ public class UserRequestTestITCase extends AbstractTest {
         createUserRequest(userRequestService2, new UserRequestTO(userMod));
 
         // 6. user password has not changed yet
-        UserService userService1 =
-                clientFactory.create(userTO.getUsername(), userMod.getPassword()).getService(UserService.class);
+        UserService userService1 = clientFactory.create(userTO.getUsername(), userMod.getPassword()).getService(
+                UserService.class);
         try {
             userService1.readSelf();
             fail("Credentials are not updated yet, thus request should raise AccessControlException");
@@ -160,12 +159,12 @@ public class UserRequestTestITCase extends AbstractTest {
         }
 
         // 7. actually update user
-        userTO = userService.update(userMod.getId(), userMod);
+        userTO = userService.update(userMod.getId(), userMod).readEntity(UserTO.class);
         assertNotNull(userTO);
 
         // 8. user password has now changed
-        UserService userService2 =
-                clientFactory.create(userTO.getUsername(), userMod.getPassword()).getService(UserService.class);
+        UserService userService2 = clientFactory.create(userTO.getUsername(), userMod.getPassword()).getService(
+                UserService.class);
         try {
             UserTO user = userService2.readSelf();
             assertNotNull(user);
@@ -192,8 +191,8 @@ public class UserRequestTestITCase extends AbstractTest {
         }
 
         // 3. auth as user just created
-        UserRequestService userRequestService2 =
-                clientFactory.create(userTO.getUsername(), initialPassword).getService(UserRequestService.class);
+        UserRequestService userRequestService2 = clientFactory.create(userTO.getUsername(), initialPassword).getService(
+                UserRequestService.class);
 
         // 4. now request user delete works
         createUserRequest(userRequestService2, new UserRequestTO(userTO.getId()));
@@ -220,12 +219,12 @@ public class UserRequestTestITCase extends AbstractTest {
         UserTO userTO = UserTestITCase.getUniqueSampleTO(USERNAME);
         final String initialPassword = userTO.getPassword();
 
-        UserRequestService selfservice =
-                clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(UserRequestService.class);
+        UserRequestService selfservice = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(
+                UserRequestService.class);
         Response response = createUserRequest(selfservice, new UserRequestTO(userTO));
 
-        UserRequestTO userRequest =
-                adminClient.getObject(response.getLocation(), UserRequestService.class, UserRequestTO.class);
+        UserRequestTO userRequest = adminClient.getObject(response.getLocation(), UserRequestService.class,
+                UserRequestTO.class);
         assertNotNull(userRequest);
         assertEquals(UserRequestType.CREATE, userRequest.getType());
         assertTrue(userRequest.getUsername().endsWith(USERNAME));
@@ -234,7 +233,7 @@ public class UserRequestTestITCase extends AbstractTest {
         assertNull(userRequest.getExecutionDate());
 
         try {
-            userService.read(userTO.getUsername());
+            userService.read(userTO.getId());
             fail();
         } catch (Exception ignore) {
             assertNotNull(ignore);
@@ -248,7 +247,8 @@ public class UserRequestTestITCase extends AbstractTest {
         assertNotNull(userRequest.getClaimDate());
         assertNull(userRequest.getExecutionDate());
 
-        assertNotNull(userRequestService.executeCreate(userRequest.getId(), userTO));
+        userTO = userRequestService.executeCreate(userRequest.getId(), userTO);
+        assertNotNull(userTO);
 
         userRequest = userRequestService.read(userRequest.getId());
         assertTrue(userRequest.isExecuted());
@@ -261,7 +261,7 @@ public class UserRequestTestITCase extends AbstractTest {
             assertFalse(userRequestTO.isExecuted());
         }
 
-        userTO = userService.read(userTO.getUsername());
+        userTO = userService.read(userTO.getId());
         assertNotNull(userTO);
 
         UserMod userMod = new UserMod();
@@ -293,7 +293,7 @@ public class UserRequestTestITCase extends AbstractTest {
             assertFalse(userRequestTO.isExecuted());
         }
 
-        assertNotNull(userService.read(userTO.getUsername()));
+        assertNotNull(userService.read(userTO.getId()));
 
         try {
             clientFactory.create(userTO.getUsername(), "new" + initialPassword).
@@ -305,8 +305,7 @@ public class UserRequestTestITCase extends AbstractTest {
 
         assertNotNull(clientFactory.create(userTO.getUsername(), newpwd).getService(UserService.class).readSelf());
 
-        selfservice =
-                clientFactory.create(userTO.getUsername(), newpwd).getService(UserRequestService.class);
+        selfservice = clientFactory.create(userTO.getUsername(), newpwd).getService(UserRequestService.class);
         response = createUserRequest(selfservice, new UserRequestTO(userTO.getId()));
 
         userRequest = adminClient.getObject(response.getLocation(), UserRequestService.class, UserRequestTO.class);
@@ -325,7 +324,7 @@ public class UserRequestTestITCase extends AbstractTest {
         }
 
         try {
-            userService.read(userTO.getUsername());
+            userService.read(userTO.getId());
             fail();
         } catch (Exception ignore) {
             assertNotNull(ignore);
@@ -338,8 +337,8 @@ public class UserRequestTestITCase extends AbstractTest {
     public void executeNoClaim() {
         UserTO userTO = UserTestITCase.getUniqueSampleTO("reqnoclaim@syncope.apache.org");
 
-        final UserRequestService selfservice =
-                clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(UserRequestService.class);
+        final UserRequestService selfservice = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(
+                UserRequestService.class);
 
         final UserRequestTO userRequest = adminClient.getObject(
                 createUserRequest(selfservice, new UserRequestTO(userTO)).getLocation(),

@@ -16,39 +16,41 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:panel>
-  <div style="float:left; width:65%;">
-    <p style="height:15px; margin-top: 0px;" class="ui-widget ui-corner-all ui-widget-header">
-    <wicket:message key="title"/>
-    <span wicket:id="displayName"/>
-    <span wicket:id="actionLink"/>
-    </p>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:panel>
+    <div style="float:left; width:70%;">
+      <p style="height:15px; margin-top: 0px;" class="ui-widget ui-corner-all ui-widget-header">
+        <wicket:message key="title"/>
+        <span wicket:id="displayName"/>
+        <span wicket:id="actionLink"/>
+      </p>
 
-    <form wicket:id="roleForm">
-      <div id="tabs" style="margin: 0px;">
-        <ul>
-          <li><a href="#details"><span><wicket:message key="details"/></span></a></li>
-          <li><a href="#templates"><span><wicket:message key="templates"/></span></a></li>
-          <li><a href="#attrs"><span><wicket:message key="attrs"/></span></a></li>
-          <li><a href="#derAttrs"><span><wicket:message key="derAttrs"/></span></a></li>
-          <li><a href="#virAttrs"><span><wicket:message key="virAttrs"/></span></a></li>
-          <li><a href="#resources"><span><wicket:message key="resources"/></span></a></li>
-          <li><a href="#entitlements"><span><wicket:message key="entitlements"/></span></a></li>
-          <li><a href="#security"><span><wicket:message key="security"/></span></a></li>
-          <li><a href="#users"><span><wicket:message key="users"/></span></a></li>
-        </ul>
-        <div wicket:id="rolePanel">
-        </div>
-        <div id="users">
-          <div wicket:id="userListContainer">
-            <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                   wicket:id="search"/>
-            <div id="users-contain" class="ui-widget" style="width:auto">
-              <span wicket:id="userList"> [userList] </span>
+      <form wicket:id="roleForm">
+        <div id="tabs" style="margin: 0px;">
+          <ul>
+            <li><a href="#details"><span><wicket:message key="details"/></span></a></li>
+            <li><a href="#templates"><span><wicket:message key="templates"/></span></a></li>
+            <li><a href="#attrs"><span><wicket:message key="attrs"/></span></a></li>
+            <li><a href="#derAttrs"><span><wicket:message key="derAttrs"/></span></a></li>
+            <li><a href="#virAttrs"><span><wicket:message key="virAttrs"/></span></a></li>
+            <li><a href="#resources"><span><wicket:message key="resources"/></span></a></li>
+            <li><a href="#entitlements"><span><wicket:message key="entitlements"/></span></a></li>
+            <li><a href="#security"><span><wicket:message key="security"/></span></a></li>
+            <li><a href="#users"><span><wicket:message key="users"/></span></a></li>
+          </ul>
+          <div wicket:id="rolePanel">
+          </div>
+          <div id="users">
+            <div wicket:id="userListContainer">
+              <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                     wicket:id="search"/>
+              <div id="users-contain" class="ui-widget" style="width:auto">
+                <span wicket:id="userList"> [userList] </span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </form>
-  </div>
-</wicket:panel>
+      </form>
+    </div>
+  </wicket:panel>
+</html>

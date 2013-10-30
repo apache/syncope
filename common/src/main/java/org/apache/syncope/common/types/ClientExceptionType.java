@@ -19,7 +19,6 @@
 package org.apache.syncope.common.types;
 
 import javax.ws.rs.core.Response;
-import javax.xml.bind.annotation.XmlEnum;
 
 public enum ClientExceptionType {
 

@@ -210,6 +210,6 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public BulkActionRes bulkAction(final BulkAction action) {
-        return getService(ConnectorService.class).bulkAction(action);
+        return getService(ConnectorService.class).bulk(action);
     }
 }

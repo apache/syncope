@@ -24,7 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.client.SyncopeClientFactoryBean;
 import org.apache.wicket.Session;
@@ -43,7 +45,7 @@ public class SyncopeSession extends WebSession {
     private static final long serialVersionUID = 7743446298924805872L;
 
     public static final List<Locale> SUPPORTED_LOCALES = Arrays.asList(new Locale[] {
-        Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR")});
+        Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR") });
 
     private String username;
 
@@ -64,8 +66,8 @@ public class SyncopeSession extends WebSession {
     public SyncopeSession(final Request request) {
         super(request);
 
-        final ApplicationContext applicationContext =
-                WebApplicationContextUtils.getWebApplicationContext(WebApplication.get().getServletContext());
+        final ApplicationContext applicationContext = WebApplicationContextUtils.
+                getWebApplicationContext(WebApplication.get().getServletContext());
 
         clientFactory = applicationContext.getBean(SyncopeClientFactoryBean.class);
     }
@@ -82,6 +84,10 @@ public class SyncopeSession extends WebSession {
 
         if (!clients.containsKey(clientKey)) {
             clients.put(clientKey, clientFactory.create(username, password));
+
+            // force JSON
+            WebClient.client(clients.get(clientKey).getService(serviceClass)).
+                    accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON);
         }
 
         return clients.get(clientKey).getService(serviceClass);

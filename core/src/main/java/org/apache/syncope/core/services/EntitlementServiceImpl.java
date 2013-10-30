@@ -18,8 +18,7 @@
  */
 package org.apache.syncope.core.services;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import org.apache.syncope.common.services.EntitlementService;
 import org.apache.syncope.common.to.EntitlementTO;
@@ -35,14 +34,12 @@ public class EntitlementServiceImpl extends AbstractServiceImpl implements Entit
     private EntitlementController controller;
 
     @Override
-    public Set<EntitlementTO> getAllEntitlements() {
-        Set<String> entitlements = new HashSet<String>(controller.listEntitlements());
-        return CollectionWrapper.wrap(entitlements);
+    public List<EntitlementTO> getAllEntitlements() {
+        return CollectionWrapper.wrap(controller.getAll(), EntitlementTO.class);
     }
 
     @Override
-    public Set<EntitlementTO> getMyEntitlements() {
-        Set<String> entitlements = controller.getEntitlements();
-        return CollectionWrapper.wrap(entitlements);
+    public List<EntitlementTO> getOwnEntitlements() {
+        return CollectionWrapper.wrap(controller.getOwn(), EntitlementTO.class);
     }
 }

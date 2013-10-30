@@ -56,8 +56,8 @@ public class NotificationRestClient extends BaseRestClient {
     }
 
     public List<String> getMailTemplates() {
-        return CollectionWrapper.unwrapMailTemplates(new ArrayList<MailTemplateTO>(getService(
-                ConfigurationService.class).getMailTemplates()));
+        return CollectionWrapper.unwrap(
+                new ArrayList<MailTemplateTO>(getService(ConfigurationService.class).getMailTemplates()));
     }
 
     public List<String> getEvents() {

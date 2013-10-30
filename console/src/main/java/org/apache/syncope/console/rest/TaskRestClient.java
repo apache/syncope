@@ -56,7 +56,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         } catch (SyncopeClientException e) {
             LOG.error("While getting all job classes", e);
         }
-        return CollectionWrapper.unwrapJobClasses(jobClasses);
+        return CollectionWrapper.unwrap(jobClasses);
     }
 
     public List<String> getSyncActionsClasses() {
@@ -67,7 +67,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         } catch (SyncopeClientException e) {
             LOG.error("While getting all sync actions classes", e);
         }
-        return CollectionWrapper.unwrapSyncActionClasses(actions);
+        return CollectionWrapper.unwrap(actions);
     }
 
     /**
@@ -167,6 +167,6 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     public BulkActionRes bulkAction(final BulkAction action) {
-        return getService(TaskService.class).bulkAction(action);
+        return getService(TaskService.class).bulk(action);
     }
 }
