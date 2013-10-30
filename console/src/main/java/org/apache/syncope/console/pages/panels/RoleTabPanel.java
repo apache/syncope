@@ -21,10 +21,19 @@ package org.apache.syncope.console.pages.panels;
 import org.apache.syncope.common.search.MembershipCond;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.pages.ResultStatusModalPage;
 import org.apache.syncope.console.pages.RoleModalPage;
+import org.apache.syncope.console.pages.Roles;
+import org.apache.syncope.console.pages.StatusModalPage;
+import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
-import org.apache.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -33,6 +42,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -41,25 +51,122 @@ public class RoleTabPanel extends Panel {
     private static final long serialVersionUID = 859236186975983959L;
 
     @SpringBean
-    private UserRestClient restClient;
+    private XMLRolesReader xmlRolesReader;
 
-    public RoleTabPanel(final String id, final RoleTO roleTO, final ModalWindow window,
+    @SpringBean
+    private RoleRestClient roleRestClient;
+
+    @SpringBean
+    private UserRestClient userRestClient;
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public RoleTabPanel(final String id, final RoleTO selectedNode, final ModalWindow window,
             final PageReference pageRef) {
 
         super(id);
 
+        this.add(new Label("displayName", selectedNode.getDisplayName()));
+
+        final ActionLinksPanel links = new ActionLinksPanel("actionLinks", new Model(), pageRef);
+        links.setOutputMarkupId(true);
+        this.add(links);
+        links.addWithRoles(new ActionLink() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                window.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID = -7834632442532690940L;
+
+                    @Override
+                    public Page createPage() {
+                        RoleTO roleTO = new RoleTO();
+                        roleTO.setParent(selectedNode.getId());
+                        RoleModalPage form = new RoleModalPage(pageRef, window, roleTO);
+                        return form;
+                    }
+                });
+
+                window.show(target);
+            }
+        }, ActionLink.ActionType.CREATE, xmlRolesReader.getAllAllowedRoles("Roles", "create"));
+        links.addWithRoles(new ActionLink() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                window.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID = -7834632442532690940L;
+
+                    @Override
+                    public Page createPage() {
+                        return new StatusModalPage<RoleTO>(pageRef, window, roleRestClient.read(selectedNode.getId()));
+                    }
+                });
+
+                window.show(target);
+            }
+        }, ActionLink.ActionType.MANAGE_RESOURCES, xmlRolesReader.getAllAllowedRoles("Roles", "update"));
+        links.addWithRoles(new ActionLink() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                window.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID = -7834632442532690940L;
+
+                    @Override
+                    public Page createPage() {
+                        RoleTO roleTO = roleRestClient.read(selectedNode.getId());
+                        RoleModalPage form = new RoleModalPage(pageRef, window, roleTO);
+                        return form;
+                    }
+                });
+
+                window.show(target);
+            }
+        }, ActionLink.ActionType.EDIT, xmlRolesReader.getAllAllowedRoles("Roles", "update"));
+        links.addWithRoles(new ActionLink() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                try {
+                    final RoleTO roleTO = roleRestClient.delete(selectedNode.getId());
+
+                    ((Roles) pageRef.getPage()).setModalResult(true);
+
+                    window.setPageCreator(new ModalWindow.PageCreator() {
+
+                        private static final long serialVersionUID = -7834632442532690940L;
+
+                        @Override
+                        public Page createPage() {
+                            return new ResultStatusModalPage.Builder(window, roleTO).build();
+                        }
+                    });
+
+                    window.show(target);
+                } catch (SyncopeClientException e) {
+                    error(getString(Constants.OPERATION_ERROR) + ": " + e.getMessage());
+                    target.add(((Roles) pageRef.getPage()).getFeedbackPanel());
+                }
+            }
+        }, ActionLink.ActionType.DELETE, xmlRolesReader.getAllAllowedRoles("Roles", "delete"));
+
         final Form form = new Form("roleForm");
-
-        final TreeActionLinkPanel actionLink = new TreeActionLinkPanel("actionLink", roleTO.getId(), window, pageRef);
-
-        this.add(actionLink);
-        this.add(new Label("displayName", roleTO.getDisplayName()));
-
-        form.setModel(new CompoundPropertyModel(roleTO));
+        form.setModel(new CompoundPropertyModel(selectedNode));
         form.setOutputMarkupId(true);
 
-        final RolePanel rolePanel = new RolePanel.Builder("rolePanel").form(form).roleTO(roleTO)
-                .roleModalPageMode(RoleModalPage.Mode.ADMIN).build();
+        final RolePanel rolePanel = new RolePanel.Builder("rolePanel").form(form).roleTO(selectedNode).
+                roleModalPageMode(RoleModalPage.Mode.ADMIN).build();
         rolePanel.setEnabled(false);
         form.add(rolePanel);
 
@@ -67,7 +174,7 @@ public class RoleTabPanel extends Panel {
 
         userListContainer.setOutputMarkupId(true);
         userListContainer.setEnabled(true);
-        userListContainer.add(new UserSearchResultPanel("userList", true, null, pageRef, restClient));
+        userListContainer.add(new UserSearchResultPanel("userList", true, null, pageRef, userRestClient));
         userListContainer.add(new ClearIndicatingAjaxButton("search", new ResourceModel("search"), pageRef) {
 
             private static final long serialVersionUID = -958724007591692537L;
@@ -75,10 +182,10 @@ public class RoleTabPanel extends Panel {
             @Override
             protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 final MembershipCond membershipCond = new MembershipCond();
-                membershipCond.setRoleName(roleTO.getName());
+                membershipCond.setRoleName(selectedNode.getName());
                 NodeCond cond = NodeCond.getLeafCond(membershipCond);
 
-                userListContainer.replace(new UserSearchResultPanel("userList", true, cond, pageRef, restClient));
+                userListContainer.replace(new UserSearchResultPanel("userList", true, cond, pageRef, userRestClient));
 
                 target.add(userListContainer);
             }

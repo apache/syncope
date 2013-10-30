@@ -49,10 +49,9 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.click("//div/div/span/div/div/div/div/div[2]/div/div/span/a");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div/div/span[2]/span/span/div/p/span[2]/span/a\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"css=img[title='Create']\");", "30000");
 
-        selenium.click("//div/div/span[2]/span/span/div/p/span[2]/span/a");
+        selenium.click("css=img[title='Create']");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
 
@@ -78,16 +77,15 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.click("//div/div/span/div/div/div/div/div[2]/div/div/span/a");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div/div/span[2]/span/span/div/p/span[2]/span/a[2]\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"css=img[title='Edit']\");", "30000");
 
-        selenium.click("//div/div/span[2]/span/span/div/p/span[2]/span/a[2]");
+        selenium.click("css=img[title='Edit']");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
 
         selenium.selectFrame("relative=up");
 
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//div[2]/form/div[3]/div/ul/li[1]/a/span\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[2]/form/div[3]/div/ul/li[1]/a/span\");", "30000");
 
         selenium.click("//div[2]/form/div[3]/div/ul/li[2]/a/span");
         selenium.click("//div[2]/form/div[3]/div/ul/li[3]/a/span");
@@ -142,7 +140,7 @@ public class RoleTestITCase extends AbstractTest {
     }
 
     @Test
-    public void deleteUser() {
+    public void searchUsers() {
         selenium.click("css=img[alt=\"Roles\"]");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='navigationPane']\");", "30000");
@@ -152,15 +150,11 @@ public class RoleTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//div/div/span[2]/span/span/div/form/div[2]/ul/li[8]/a\");", "30000");
 
-        selenium.click("//div/form/div[2]/ul/li[7]/a");
+        selenium.click("//div/div/span[2]/span/span/div/form/div[2]/ul/li[8]/a");
 
         selenium.click("//input[@name=\"userListContainer:search\"]");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//span[14]/a\");", "30000");
-
-        selenium.click("//span[14]/a");
-
-        assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
     }
 
     @Test
@@ -172,9 +166,9 @@ public class RoleTestITCase extends AbstractTest {
         selenium.click(
                 "//div/div/span/div/div/div/div/div[2]/div[2]/div[2]/div/div[2]/div[3]/div/span[2]/a/span");
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div/p/span[2]/span/a[3]\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"css=img[title='Delete']\");", "30000");
 
-        selenium.click("//div/div/span[2]/span/span/div/p/span[2]/span/a[3]");
+        selenium.click("css=img[title='Delete']");
 
         assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
     }
