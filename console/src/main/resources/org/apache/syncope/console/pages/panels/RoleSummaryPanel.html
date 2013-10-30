@@ -16,22 +16,24 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:panel>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:panel>
 
-  <span wicket:id="roleSummaryPanel">[Role panel]</span>
+    <span wicket:id="roleSummaryPanel">[Role panel]</span>
 
-  <wicket:fragment wicket:id="roleViewPanel">
-    <span wicket:id="nodeViewPanel"></span>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="roleViewPanel">
+      <span wicket:id="nodeViewPanel"></span>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="rootPanel">
-    <div style="float:left; width:65%;">
-      <p style="height:15px; margin-top: 0px;" class="ui-widget ui-corner-all ui-widget-header">
-        <span wicket:id="actionLink"/>
-      </p>
-    </div>
-  </wicket:fragment>
+    <wicket:fragment wicket:id="rootPanel">
+      <div style="float:left; width:65%;">
+        <p style="height:15px; margin-top: 0px;" class="ui-widget ui-corner-all ui-widget-header">
+          <span style="float:right;" wicket:id="actionLinks"/>
+        </p>
+      </div>
+    </wicket:fragment>
 
-  <wicket:fragment wicket:id="fakerootFrag">
-  </wicket:fragment>
-</wicket:panel>
+    <wicket:fragment wicket:id="fakerootFrag">
+    </wicket:fragment>
+  </wicket:panel>
+</html>
