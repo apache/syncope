@@ -197,6 +197,7 @@ public class ReportTestITCase extends AbstractTest {
         checkExport(execId, ReportExecExportFormat.HTML);
         checkExport(execId, ReportExecExportFormat.PDF);
         checkExport(execId, ReportExecExportFormat.RTF);
+        checkExport(execId, ReportExecExportFormat.CSV);
     }
 
     @Test

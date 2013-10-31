@@ -275,8 +275,51 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
         }
     }
 
+    private void doExtractConf(final ContentHandler handler) throws SAXException {
+
+        if (conf == null) {
+            LOG.debug("Report configuration is not present");
+        }
+
+        AttributesImpl atts = new AttributesImpl();
+        handler.startElement("", "", "configurations", null);
+        handler.startElement("", "", "roleAttributes", atts);
+
+        for (Feature feature : conf.getFeatures()) {
+            atts.clear();
+            handler.startElement("", "", "feature", atts);
+            handler.characters(feature.name().toCharArray(), 0, feature.name().length());
+            handler.endElement("", "", "feature");
+        }
+
+        for (String attr : conf.getAttrs()) {
+            atts.clear();
+            handler.startElement("", "", "attribute", atts);
+            handler.characters(attr.toCharArray(), 0, attr.length());
+            handler.endElement("", "", "attribute");
+        }
+
+        for (String derAttr : conf.getDerAttrs()) {
+            atts.clear();
+            handler.startElement("", "", "derAttribute", atts);
+            handler.characters(derAttr.toCharArray(), 0, derAttr.length());
+            handler.endElement("", "", "derAttribute");
+        }
+
+        for (String virAttr : conf.getVirAttrs()) {
+            atts.clear();
+            handler.startElement("", "", "virAttribute", atts);
+            handler.characters(virAttr.toCharArray(), 0, virAttr.length());
+            handler.endElement("", "", "virAttribute");
+        }
+
+        handler.endElement("", "", "roleAttributes");
+        handler.endElement("", "", "configurations");
+    }
+
     @Override
     protected void doExtract(final ContentHandler handler) throws SAXException, ReportException {
+        doExtractConf(handler);
         for (int i = 1; i <= (count() / PAGE_SIZE) + 1; i++) {
             doExtract(handler, getPagedRoles(i));
         }
