@@ -26,6 +26,7 @@ public enum ReportExecExportFormat {
     XML,
     HTML,
     PDF,
-    RTF
+    RTF,
+    CSV
 
 }

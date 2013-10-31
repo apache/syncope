@@ -47,6 +47,7 @@ import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.ReportSubCategory;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.ReportExecExportFormat;
+import static org.apache.syncope.common.types.ReportExecExportFormat.RTF;
 import org.apache.syncope.common.types.ReportExecStatus;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
@@ -59,6 +60,7 @@ import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.ReportDAO;
 import org.apache.syncope.core.persistence.dao.ReportExecDAO;
 import org.apache.syncope.core.report.Reportlet;
+import org.apache.syncope.core.report.cocoon.TextSerializer;
 import org.apache.syncope.core.rest.data.ReportDataBinder;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobKey;
@@ -290,7 +292,7 @@ public class ReportController extends AbstractController {
 
             Pipeline<SAXPipelineComponent> pipeline = new NonCachingPipeline<SAXPipelineComponent>();
             pipeline.addComponent(new XMLGenerator(zis));
-
+            
             Map<String, Object> parameters = new HashMap<String, Object>();
             parameters.put("status", reportExec.getStatus());
             parameters.put("message", reportExec.getMessage());
@@ -317,6 +319,13 @@ public class ReportController extends AbstractController {
                     xsl2rtf.setParameters(parameters);
                     pipeline.addComponent(xsl2rtf);
                     pipeline.addComponent(new FopSerializer(MimeConstants.MIME_RTF));
+                    break;
+
+                case CSV:
+                    XSLTTransformer xsl2csv = new XSLTTransformer(getClass().getResource("/report/report2csv.xsl"));
+                    xsl2csv.setParameters(parameters);
+                    pipeline.addComponent(xsl2csv);
+                    pipeline.addComponent(new TextSerializer());
                     break;
 
                 case XML:
