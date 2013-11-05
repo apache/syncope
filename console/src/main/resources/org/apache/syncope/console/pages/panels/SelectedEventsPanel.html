@@ -19,14 +19,15 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:head>
     <style>
-
+      div#selectionContainer select{
+        width: 585px;
+        min-width: 585px;
+      }
     </style>
   </wicket:head>
   <wicket:panel>
-    <div wicket:id="selectionContainer">
-      <div wicket:id="selectedEvents">
-        <label wicket:id="selectedEvent"/>
-      </div>
+    <div id="selectionContainer" wicket:id="selectionContainer">
+      <select wicket:id="selectedEvents" ></select>
     </div>
   </wicket:panel>
 </html>

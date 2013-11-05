@@ -25,11 +25,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.to.EventCategoryTO;
+import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.EventCategoryType;
+import org.apache.syncope.common.util.LoggerEventUtils;
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.pages.panels.SelectedEventsPanel.InspectSelectedEvent;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -178,7 +182,7 @@ public abstract class LoggerCategoryPanel extends Panel {
             private static final long serialVersionUID = 3513194801190026082L;
 
             @Override
-            public void onEvent(final IEvent<?> event) {
+            protected void onEventAction(final IEvent<?> event) {
                 onEventAction(event);
             }
         });
@@ -241,18 +245,28 @@ public abstract class LoggerCategoryPanel extends Panel {
                 eventCategoryTO.setSubcategory(subcategory.getModelObject());
             }
 
-            setEvents();
+            updateEventsContainer(change.getTarget());
+        } else if (event.getPayload() instanceof InspectSelectedEvent) {
+            // update objects ....
+            eventCategoryTO.getEvents().clear();
 
-            eventsContainer.addOrReplace(new EventSelectionPanel("eventsPanel", eventCategoryTO, model) {
+            final InspectSelectedEvent inspectSelectedEvent = (InspectSelectedEvent) event.getPayload();
 
-                private static final long serialVersionUID = 3513194801190026082L;
+            final Map.Entry<EventCategoryTO, AuditElements.Result> categoryEvent =
+                    LoggerEventUtils.parseEventCategory(inspectSelectedEvent.getEvent());
 
-                @Override
-                public void onEvent(final IEvent<?> event) {
-                    onEventAction(event);
-                }
-            });
-            change.getTarget().add(eventsContainer);
+            eventCategoryTO.setType(categoryEvent.getKey().getType());
+            category.setChoices(filter(eventCategoryTOs, type.getModelObject()));
+
+            eventCategoryTO.setCategory(categoryEvent.getKey().getCategory());
+            subcategory.setChoices(filter(eventCategoryTOs, type.getModelObject(), category.getModelObject()));
+
+            eventCategoryTO.setSubcategory(categoryEvent.getKey().getSubcategory());
+
+
+
+            inspectSelectedEvent.getTarget().add(categoryContainer);
+            updateEventsContainer(inspectSelectedEvent.getTarget());
         }
     }
 
@@ -308,6 +322,21 @@ public abstract class LoggerCategoryPanel extends Panel {
             MetaDataRoleAuthorizationStrategy.authorize(categoryContainer, RENDER, role);
             MetaDataRoleAuthorizationStrategy.authorize(eventsContainer, RENDER, role);
         }
+    }
+
+    private void updateEventsContainer(final AjaxRequestTarget target) {
+        setEvents();
+
+        eventsContainer.addOrReplace(new EventSelectionPanel("eventsPanel", eventCategoryTO, model) {
+
+            private static final long serialVersionUID = 3513194801190026082L;
+
+            @Override
+            public void onEventAction(final IEvent<?> event) {
+                LoggerCategoryPanel.this.onEventAction(event);
+            }
+        });
+        target.add(eventsContainer);
     }
 
     protected abstract String[] getListRoles();

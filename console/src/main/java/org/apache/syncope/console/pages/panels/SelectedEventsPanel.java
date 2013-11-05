@@ -17,15 +17,18 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.wicket.markup.html.form.ListMultipleChoice;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.util.ListModel;
 
 public class SelectedEventsPanel extends Panel {
 
@@ -33,7 +36,7 @@ public class SelectedEventsPanel extends Panel {
 
     private final WebMarkupContainer selectionContainer;
 
-    private ListView<String> selectedEvents;
+    private ListMultipleChoice<String> selectedEvents;
 
     private final IModel<List<String>> model;
 
@@ -46,15 +49,46 @@ public class SelectedEventsPanel extends Panel {
         selectionContainer.setOutputMarkupId(true);
         add(selectionContainer);
 
-        selectedEvents = new ListView<String>("selectedEvents", model.getObject()) {
+        selectedEvents = new ListMultipleChoice<String>("selectedEvents", new ListModel<String>(), model) {
 
-            private static final long serialVersionUID = 4949588177564901031L;
+            private static final long serialVersionUID = 1226677544225737338L;
 
             @Override
-            protected void populateItem(final ListItem<String> item) {
-                item.add(new Label("selectedEvent", new ResourceModel(item.getModelObject(), item.getModelObject())));
+            protected void onComponentTag(final ComponentTag tag) {
+                super.onComponentTag(tag);
+                tag.remove("size");
+                tag.remove("multiple");
+                tag.put("size", 5);
             }
         };
+
+        selectedEvents.setMaxRows(5);
+        selectedEvents.setChoiceRenderer(new IChoiceRenderer<String>() {
+
+            private static final long serialVersionUID = -4288397951948436434L;
+
+            @Override
+            public Object getDisplayValue(final String object) {
+                return object;
+            }
+
+            @Override
+            public String getIdValue(final String object, final int index) {
+                return object;
+            }
+        });
+
+        selectedEvents.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -151291731388673682L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                send(SelectedEventsPanel.this.getPage(),
+                        Broadcast.BREADTH,
+                        new InspectSelectedEvent(target, selectedEvents.getModelValue()));
+            }
+        });
 
         selectionContainer.add(selectedEvents);
     }
@@ -75,6 +109,26 @@ public class SelectedEventsPanel extends Panel {
             }
 
             eventSelectionChanged.getTarget().add(selectionContainer);
+        }
+    }
+
+    public static class InspectSelectedEvent {
+
+        private final AjaxRequestTarget target;
+
+        private final String event;
+
+        public InspectSelectedEvent(final AjaxRequestTarget target, final String event) {
+            this.target = target;
+            this.event = event;
+        }
+
+        public AjaxRequestTarget getTarget() {
+            return target;
+        }
+
+        public String getEvent() {
+            return event;
         }
     }
 
