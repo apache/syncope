@@ -21,13 +21,11 @@ package org.apache.syncope.core.workflow;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.policy.UserSuspender;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
-import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,9 +45,6 @@ public class WorkflowUserSuspender implements UserSuspender {
 
     @Autowired
     private PropagationTaskExecutor taskExecutor;
-
-    @Autowired
-    private UserDataBinder userDataBinder;
 
     @Override
     public void suspend(final SyncopeUser user, final boolean suspend) {

@@ -25,6 +25,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 
 import org.apache.syncope.common.services.LoggerService;
+import org.apache.syncope.common.to.EventCategoryTO;
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.types.AuditLoggerName;
 import org.apache.syncope.common.types.LoggerType;
@@ -103,5 +104,10 @@ public class LoggerServiceProxy extends SpringServiceProxy implements LoggerServ
                 throw new BadRequestException();
         }
 
+    }
+
+    @Override
+    public List<EventCategoryTO> events() {
+        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "logger/events", EventCategoryTO[].class));
     }
 }

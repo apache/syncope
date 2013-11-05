@@ -43,6 +43,7 @@ import org.apache.syncope.console.rest.LoggerRestClient;
 import org.apache.syncope.console.rest.NotificationRestClient;
 import org.apache.syncope.console.rest.WorkflowRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Page;
@@ -119,7 +120,7 @@ public class Configuration extends BasePage {
 
     private static final int NOTIFICATION_WIN_HEIGHT = 500;
 
-    private static final int NOTIFICATION_WIN_WIDTH = 900;
+    private static final int NOTIFICATION_WIN_WIDTH = 1100;
 
     private WebMarkupContainer confContainer;
 
@@ -188,7 +189,8 @@ public class Configuration extends BasePage {
         add(workflowDefContainer);
 
         // Logger stuff
-        PropertyListView coreLoggerList = new LoggerPropertyList(null, "corelogger", loggerRestClient.listLogs());
+        PropertyListView<LoggerTO> coreLoggerList =
+                new LoggerPropertyList(null, "corelogger", loggerRestClient.listLogs());
         WebMarkupContainer coreLoggerContainer = new WebMarkupContainer("coreLoggerContainer");
         coreLoggerContainer.add(coreLoggerList);
         coreLoggerContainer.setOutputMarkupId(true);
@@ -198,8 +200,8 @@ public class Configuration extends BasePage {
         add(coreLoggerContainer);
 
         ConsoleLoggerController consoleLoggerController = new ConsoleLoggerController();
-        PropertyListView consoleLoggerList = new LoggerPropertyList(consoleLoggerController, "consolelogger",
-                consoleLoggerController.getLoggers());
+        PropertyListView<LoggerTO> consoleLoggerList =
+                new LoggerPropertyList(consoleLoggerController, "consolelogger", consoleLoggerController.getLoggers());
         WebMarkupContainer consoleLoggerContainer = new WebMarkupContainer("consoleLoggerContainer");
         consoleLoggerContainer.add(consoleLoggerList);
         consoleLoggerContainer.setOutputMarkupId(true);
@@ -212,11 +214,9 @@ public class Configuration extends BasePage {
     private void setupSyncopeConf() {
         confPaginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_CONFIGURATION_PAGINATOR_ROWS);
 
-        List<IColumn> confColumns = new ArrayList<IColumn>();
-
-        confColumns.add(new PropertyColumn(new ResourceModel("key"), "key", "key"));
-
-        confColumns.add(new PropertyColumn(new ResourceModel("value"), "value", "value"));
+        final List<IColumn<ConfigurationTO, String>> confColumns = new ArrayList<IColumn<ConfigurationTO, String>>();
+        confColumns.add(new PropertyColumn<ConfigurationTO, String>(new ResourceModel("key"), "key", "key"));
+        confColumns.add(new PropertyColumn<ConfigurationTO, String>(new ResourceModel("value"), "value", "value"));
 
         confColumns.add(new AbstractColumn<ConfigurationTO, String>(new ResourceModel("actions", "")) {
 
@@ -282,8 +282,9 @@ public class Configuration extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable confTable = new AjaxFallbackDefaultDataTable("syncopeconf", confColumns,
-                new SyncopeConfProvider(), confPaginatorRows);
+        final AjaxFallbackDefaultDataTable<ConfigurationTO, String> confTable =
+                new AjaxFallbackDefaultDataTable<ConfigurationTO, String>(
+                "syncopeconf", confColumns, new SyncopeConfProvider(), confPaginatorRows);
 
         confContainer = new WebMarkupContainer("confContainer");
         confContainer.add(confTable);
@@ -380,12 +381,17 @@ public class Configuration extends BasePage {
     private void setupNotification() {
         notificationPaginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_NOTIFICATION_PAGINATOR_ROWS);
 
-        List<IColumn> notificationCols = new ArrayList<IColumn>();
-        notificationCols.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
-        notificationCols.add(new PropertyColumn(new ResourceModel("events"), "events", "events"));
-        notificationCols.add(new PropertyColumn(new ResourceModel("subject"), "subject", "subject"));
-        notificationCols.add(new PropertyColumn(new ResourceModel("template"), "template", "template"));
-        notificationCols.add(new PropertyColumn(new ResourceModel("traceLevel"), "traceLevel", "traceLevel"));
+        final List<IColumn<NotificationTO, String>> notificationCols = new ArrayList<IColumn<NotificationTO, String>>();
+        notificationCols.add(new PropertyColumn<NotificationTO, String>(
+                new ResourceModel("id"), "id", "id"));
+        notificationCols.add(new CollectionPropertyColumn<NotificationTO>(
+                new ResourceModel("events"), "events", "events"));
+        notificationCols.add(new PropertyColumn<NotificationTO, String>(
+                new ResourceModel("subject"), "subject", "subject"));
+        notificationCols.add(new PropertyColumn<NotificationTO, String>(
+                new ResourceModel("template"), "template", "template"));
+        notificationCols.add(new PropertyColumn<NotificationTO, String>(
+                new ResourceModel("traceLevel"), "traceLevel", "traceLevel"));
 
         notificationCols.add(new AbstractColumn<NotificationTO, String>(new ResourceModel("actions", "")) {
 
@@ -451,8 +457,9 @@ public class Configuration extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable notificationTable = new AjaxFallbackDefaultDataTable("notificationTable",
-                notificationCols, new NotificationProvider(), notificationPaginatorRows);
+        final AjaxFallbackDefaultDataTable<NotificationTO, String> notificationTable =
+                new AjaxFallbackDefaultDataTable<NotificationTO, String>(
+                "notificationTable", notificationCols, new NotificationProvider(), notificationPaginatorRows);
 
         notificationContainer = new WebMarkupContainer("notificationContainer");
         notificationContainer.add(notificationTable);

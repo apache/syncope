@@ -19,16 +19,22 @@
 package org.apache.syncope.core.notification;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.SyncopeConstants;
+import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.AuditElements;
+import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.util.LoggerEventUtils;
 import org.apache.syncope.core.connid.ConnObjectUtil;
+import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.Notification;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
@@ -42,8 +48,11 @@ import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.NotificationDAO;
+import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.rest.controller.RoleController;
+import org.apache.syncope.core.rest.controller.UserController;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
@@ -87,6 +96,12 @@ public class NotificationManager {
     private UserDAO userDAO;
 
     /**
+     * Role DAO.
+     */
+    @Autowired
+    private RoleDAO roleDAO;
+
+    /**
      * User data binder.
      */
     @Autowired
@@ -120,11 +135,16 @@ public class NotificationManager {
      * Create a notification task.
      *
      * @param notification notification to take as model
-     * @param user the user this task is about
+     * @param attributable the user this task is about
      * @return notification task, fully populated
      */
-    private NotificationTask getNotificationTask(final Notification notification, final SyncopeUser user) {
-        connObjectUtil.retrieveVirAttrValues(user, AttributableUtil.getInstance(AttributableType.USER));
+    private NotificationTask getNotificationTask(
+            final Notification notification,
+            final AbstractAttributable attributable,
+            final Map<String, Object> model) {
+        if (attributable != null) {
+            connObjectUtil.retrieveVirAttrValues(attributable, AttributableUtil.getInstance(AttributableType.USER));
+        }
 
         final List<SyncopeUser> recipients = new ArrayList<SyncopeUser>();
 
@@ -133,8 +153,8 @@ public class NotificationManager {
                     notification.getRecipients(), AttributableUtil.getInstance(AttributableType.USER)));
         }
 
-        if (notification.isSelfAsRecipient()) {
-            recipients.add(user);
+        if (notification.isSelfAsRecipient() && attributable instanceof SyncopeUser) {
+            recipients.add((SyncopeUser) attributable);
         }
 
         final Set<String> recipientEmails = new HashSet<String>();
@@ -152,17 +172,15 @@ public class NotificationManager {
             }
         }
 
+        model.put("recipients", recipientTOs);
+        model.put("syncopeConf", this.findAllSyncopeConfs());
+        model.put("events", notification.getEvents());
+
         NotificationTask task = new NotificationTask();
         task.setTraceLevel(notification.getTraceLevel());
         task.setRecipients(recipientEmails);
         task.setSender(notification.getSender());
         task.setSubject(notification.getSubject());
-
-        final Map<String, Object> model = new HashMap<String, Object>();
-        model.put("user", userDataBinder.getUserTO(user));
-        model.put("syncopeConf", this.findAllSyncopeConfs());
-        model.put("recipients", recipientTOs);
-        model.put("events", notification.getEvents());
 
         String htmlBody;
         String textBody;
@@ -190,27 +208,60 @@ public class NotificationManager {
      * @param performedTasks set of actions performed on given user id
      * @throws NotFoundException if user contained in the workflow result cannot be found
      */
-    public void createTasks(final Long userId, final Set<String> performedTasks)
-            throws NotFoundException {
+    public void createTasks(
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final String subcategory,
+            final String event,
+            final Result condition,
+            final Object before,
+            final Object output,
+            final Object... input) {
+        AttributableType attributableType = null;
+        AbstractAttributable attributable = null;
 
-        SyncopeUser user = userDAO.find(userId);
-        if (user == null) {
-            throw new NotFoundException("User " + userId);
+        if (UserController.class.getSimpleName().equals(category)) {
+            attributableType = AttributableType.USER;
+
+            if (before instanceof UserTO) {
+                attributable = userDAO.find(((UserTO) before).getId());
+            } else if (output instanceof UserTO) {
+                attributable = userDAO.find(((UserTO) output).getId());
+            }
+        } else if (RoleController.class.getSimpleName().equals(category)) {
+            attributableType = AttributableType.ROLE;
+
+            if (before instanceof RoleTO) {
+                attributable = roleDAO.find(((RoleTO) before).getId());
+            } else if (output instanceof RoleTO) {
+                attributable = roleDAO.find(((RoleTO) output).getId());
+            }
         }
 
+        LOG.info("Search notification for [{}]{}", attributableType, attributable);
+
         for (Notification notification : notificationDAO.findAll()) {
-            if (notification.getAbout() == null
-                    || searchDAO.matches(user, notification.getAbout(),
-                    AttributableUtil.getInstance(AttributableType.USER))) {
+            LOG.info("Notification available about {}", notification.getAbout());
 
-                Set<String> events = new HashSet<String>(notification.getEvents());
-                events.retainAll(performedTasks);
+            final Set<String> events = new HashSet<String>(notification.getEvents());
+            events.retainAll(Collections.<String>singleton(LoggerEventUtils.buildEvent(
+                    type, category, subcategory, event, condition)));
 
-                if (events.isEmpty()) {
-                    LOG.debug("No events found about {}", user);
-                } else {
-                    LOG.debug("Creating notification task for events {} about {}", events, user);
-                    taskDAO.save(getNotificationTask(notification, user));
+            if (events.isEmpty()) {
+                LOG.debug("No events found about {}", attributable);
+            } else {
+                if (attributableType == null || attributable == null || notification.getAbout() == null || searchDAO.
+                        matches(
+                        attributable, notification.getAbout(), AttributableUtil.getInstance(attributableType))) {
+
+                    LOG.debug("Creating notification task for events {} about {}", events, attributable);
+
+                    final Map<String, Object> model = new HashMap<String, Object>();
+                    model.put("before", before);
+                    model.put("output", output);
+                    model.put("input", input);
+
+                    taskDAO.save(getNotificationTask(notification, attributable, model));
                 }
             }
         }

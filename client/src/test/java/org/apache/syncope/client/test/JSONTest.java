@@ -121,8 +121,12 @@ public class JSONTest {
 
     @Test
     public void testAuditLoggerName() throws IOException {
-        AuditLoggerName auditLoggerName = new AuditLoggerName(AuditElements.Category.report,
-                AuditElements.ReportSubCategory.create, AuditElements.Result.failure);
+        AuditLoggerName auditLoggerName = new AuditLoggerName(
+                AuditElements.EventCategoryType.REST,
+                "ReportController",
+                null,
+                "create",
+                AuditElements.Result.FAILURE);
 
         ObjectMapper mapper = new ObjectMapper();
 

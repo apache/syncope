@@ -20,6 +20,7 @@ package org.apache.syncope.core.rest.controller;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,12 +28,9 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.ConfigurationTO;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.ConfigurationSubCategory;
-import org.apache.syncope.common.types.AuditElements.Result;
-import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.init.WorkflowAdapterLoader;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
@@ -56,10 +54,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/configuration")
-public class ConfigurationController extends AbstractController {
-
-    @Autowired
-    private AuditManager auditManager;
+public class ConfigurationController extends AbstractTransactionalController<ConfigurationTO> {
 
     @Autowired
     private ConfDAO confDAO;
@@ -88,9 +83,6 @@ public class ConfigurationController extends AbstractController {
         SyncopeConf conf = binder.create(configurationTO);
         conf = confDAO.save(conf);
 
-        auditManager.audit(Category.configuration, ConfigurationSubCategory.create, Result.success,
-                "Successfully created conf: " + conf.getKey());
-
         response.setStatus(HttpServletResponse.SC_CREATED);
 
         return binder.getConfigurationTO(conf);
@@ -102,9 +94,6 @@ public class ConfigurationController extends AbstractController {
         SyncopeConf conf = confDAO.find(key);
         ConfigurationTO confToDelete = binder.getConfigurationTO(conf);
         confDAO.delete(key);
-
-        auditManager.audit(Category.configuration, ConfigurationSubCategory.delete, Result.success,
-                "Successfully deleted conf: " + key);
         return confToDelete;
     }
 
@@ -118,9 +107,6 @@ public class ConfigurationController extends AbstractController {
             configurationTOs.add(binder.getConfigurationTO(configuration));
         }
 
-        auditManager.audit(Category.configuration, ConfigurationSubCategory.list, Result.success,
-                "Successfully listed all confs: " + configurationTOs.size());
-
         return configurationTOs;
     }
 
@@ -131,17 +117,11 @@ public class ConfigurationController extends AbstractController {
         try {
             SyncopeConf conf = confDAO.find(key);
             result = binder.getConfigurationTO(conf);
-
-            auditManager.audit(Category.configuration, ConfigurationSubCategory.read, Result.success,
-                    "Successfully read conf: " + key);
         } catch (MissingConfKeyException e) {
             LOG.error("Could not find configuration key '" + key + "', returning null");
 
             result = new ConfigurationTO();
             result.setKey(key);
-
-            auditManager.audit(Category.configuration, ConfigurationSubCategory.read, Result.failure,
-                    "Could not find conf: " + key);
         }
 
         return result;
@@ -152,22 +132,14 @@ public class ConfigurationController extends AbstractController {
     public ConfigurationTO update(@RequestBody final ConfigurationTO configurationTO) {
         SyncopeConf conf = confDAO.find(configurationTO.getKey());
         conf.setValue(configurationTO.getValue());
-
-        auditManager.audit(Category.configuration, ConfigurationSubCategory.update, Result.success,
-                "Successfully updated conf: " + conf.getKey());
-
         return binder.getConfigurationTO(conf);
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/validators")
     public ModelAndView getValidators() {
-        Set<String> validators = classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.VALIDATOR);
-
-        auditManager.audit(Category.configuration, ConfigurationSubCategory.getValidators, Result.success,
-                "Successfully listed all validators: " + validators.size());
-
-        return new ModelAndView().addObject(validators);
+        return new ModelAndView().addObject(
+                classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.VALIDATOR));
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_LIST')")
@@ -196,9 +168,6 @@ public class ConfigurationController extends AbstractController {
         // Only templates available both as HTML and TEXT are considered
         htmlTemplates.retainAll(textTemplates);
 
-        auditManager.audit(Category.configuration, ConfigurationSubCategory.getMailTemplates, Result.success,
-                "Successfully listed all mail templates: " + htmlTemplates.size());
-
         return new ModelAndView().addObject(htmlTemplates);
     }
 
@@ -219,14 +188,39 @@ public class ConfigurationController extends AbstractController {
     public void dbExportInternal(final OutputStream os) {
         try {
             exporter.export(os, wfAdapterLoader.getTablePrefix());
-
-            auditManager.audit(Category.configuration, ConfigurationSubCategory.dbExport, Result.success,
-                    "Successfully exported database content");
             LOG.debug("Database content successfully exported");
         } catch (Exception e) {
-            auditManager.audit(Category.configuration, ConfigurationSubCategory.dbExport, Result.failure,
-                    "Could not export database content", e);
             LOG.error("While exporting database content", e);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected ConfigurationTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+        String key = null;
+
+        if (ArrayUtils.isNotEmpty(args)) {
+            for (int i = 0; key == null && i < args.length; i++) {
+                if (args[i] instanceof String) {
+                    key = (String) args[i];
+                } else if (args[i] instanceof ConfigurationTO) {
+                    key = ((ConfigurationTO) args[i]).getKey();
+                }
+            }
+        }
+
+        if (key != null) {
+            try {
+                return binder.getConfigurationTO(confDAO.find(key));
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
+        throw new UnresolvedReferenceException();
     }
 }

@@ -18,13 +18,9 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.lang.reflect.Method;
 import java.util.List;
-
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.Result;
-import org.apache.syncope.common.types.AuditElements.WorkflowSubCategory;
-import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.workflow.WorkflowAdapter;
 import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
@@ -40,10 +36,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/workflow")
-public class WorkflowController extends AbstractController {
-
-    @Autowired
-    private AuditManager auditManager;
+public class WorkflowController extends AbstractTransactionalController<WorkflowDefinitionTO> {
 
     @Autowired
     private UserWorkflowAdapter uwfAdapter;
@@ -53,10 +46,6 @@ public class WorkflowController extends AbstractController {
 
     private WorkflowDefinitionTO getDefinition(final WorkflowAdapter adapter) throws WorkflowException {
         WorkflowDefinitionTO result = adapter.getDefinition();
-
-        auditManager.audit(Category.workflow, WorkflowSubCategory.getDefinition, Result.success,
-                "Successfully read workflow definition");
-
         return result;
     }
 
@@ -76,9 +65,6 @@ public class WorkflowController extends AbstractController {
 
     private void updateDefinition(final WorkflowAdapter adapter, final WorkflowDefinitionTO definition) {
         adapter.updateDefinition(definition);
-
-        auditManager.audit(Category.workflow, WorkflowSubCategory.updateDefinition, Result.success,
-                "Successfully updated workflow definition");
     }
 
     @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
@@ -94,12 +80,7 @@ public class WorkflowController extends AbstractController {
     }
 
     private List<String> getDefinedTasks(final WorkflowAdapter adapter) {
-        List<String> definedTasks = adapter.getDefinedTasks();
-
-        auditManager.audit(Category.workflow, WorkflowSubCategory.getDefinedTasks, Result.success,
-                "Successfully got the list of defined workflow tasks: " + definedTasks.size());
-
-        return definedTasks;
+        return adapter.getDefinedTasks();
     }
 
     @PreAuthorize("hasRole('WORKFLOW_TASK_LIST')")
@@ -112,5 +93,14 @@ public class WorkflowController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET, value = "/tasks/role")
     public ModelAndView getDefinedRoleTasks() {
         return new ModelAndView().addObject(getDefinedTasks(rwfAdapter));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected WorkflowDefinitionTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+        throw new UnresolvedReferenceException();
     }
 }

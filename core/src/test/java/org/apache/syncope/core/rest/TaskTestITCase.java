@@ -516,7 +516,6 @@ public class TaskTestITCase extends AbstractTest {
         List<NotificationTaskTO> tasks = (List<NotificationTaskTO>) taskService.list(TaskType.NOTIFICATION);
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
-
         NotificationTaskTO taskTO = null;
         for (NotificationTaskTO task : tasks) {
             if (sender.equals(task.getSender())) {
@@ -530,7 +529,7 @@ public class TaskTestITCase extends AbstractTest {
         // 1. Create notification
         NotificationTO notification = new NotificationTO();
         notification.setTraceLevel(TraceLevel.FAILURES);
-        notification.addEvent("create");
+        notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
 
         MembershipCond membCond = new MembershipCond();
         membCond.setRoleId(7L);

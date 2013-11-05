@@ -18,21 +18,19 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import static org.apache.syncope.core.rest.controller.AbstractController.LOG;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.AuditElements;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.Result;
-import org.apache.syncope.common.types.AuditElements.RoleSubCategory;
-import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -51,8 +49,6 @@ import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -66,15 +62,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/role")
-public class RoleController {
-
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(RoleController.class);
-
-    @Autowired
-    protected AuditManager auditManager;
+public class RoleController extends AbstractController<RoleTO> {
 
     @Autowired
     protected RoleDAO roleDAO;
@@ -111,9 +99,6 @@ public class RoleController {
             throw new UnauthorizedRoleException(role.getId());
         }
 
-        auditManager.audit(Category.role, RoleSubCategory.read, Result.success,
-                "Successfully read role: " + role.getId());
-
         return binder.getRoleTO(role);
     }
 
@@ -141,9 +126,6 @@ public class RoleController {
             throw new UnauthorizedRoleException(role.getId());
         }
 
-        auditManager.audit(Category.role, RoleSubCategory.selfRead, Result.success,
-                "Successfully read own role: " + role.getId());
-
         return binder.getRoleTO(role);
     }
 
@@ -161,11 +143,6 @@ public class RoleController {
         RoleTO result = role.getParent() == null
                 ? null
                 : binder.getRoleTO(role.getParent());
-
-        auditManager.audit(Category.role, RoleSubCategory.parent, Result.success,
-                result == null
-                ? "Role " + role.getId() + " is a root role"
-                : "Found parent for role " + role.getId() + ": " + result.getId());
 
         return result;
     }
@@ -185,9 +162,6 @@ public class RoleController {
                 childrenTOs.add(binder.getRoleTO(child));
             }
         }
-
-        auditManager.audit(Category.role, RoleSubCategory.children, Result.success,
-                "Found " + childrenTOs.size() + " children of role " + roleId);
 
         return childrenTOs;
     }
@@ -224,9 +198,6 @@ public class RoleController {
             result.add(binder.getRoleTO(role));
         }
 
-        auditManager.audit(Category.role, AuditElements.RoleSubCategory.read, Result.success,
-                "Successfully searched for roles (page=" + page + ", size=" + size + "): " + result.size());
-
         return result;
     }
 
@@ -255,9 +226,6 @@ public class RoleController {
         for (SyncopeRole role : roles) {
             roleTOs.add(binder.getRoleTO(role));
         }
-
-        auditManager.audit(Category.role, RoleSubCategory.list, Result.success,
-                "Successfully listed all roles: " + roleTOs.size());
 
         return roleTOs;
     }
@@ -300,9 +268,6 @@ public class RoleController {
 
         LOG.debug("About to return created role\n{}", savedTO);
 
-        auditManager.audit(Category.role, RoleSubCategory.create, Result.success,
-                "Successfully created role: " + savedTO.getId());
-
         response.setStatus(HttpServletResponse.SC_CREATED);
         return savedTO;
     }
@@ -337,9 +302,6 @@ public class RoleController {
         }
         final RoleTO updatedTO = binder.getRoleTO(updated.getResult());
         updatedTO.setPropagationStatusTOs(propagationReporter.getStatuses());
-
-        auditManager.audit(Category.role, RoleSubCategory.update, Result.success,
-                "Successfully updated role: " + role.getId());
 
         LOG.debug("About to return updated role\n{}", updatedTO);
 
@@ -376,11 +338,39 @@ public class RoleController {
 
         rwfAdapter.delete(roleId);
 
-        auditManager.audit(Category.role, RoleSubCategory.delete, Result.success,
-                "Successfully deleted role: " + roleId);
-
         LOG.debug("Role successfully deleted: {}", roleId);
 
         return roleTO;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected RoleTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
+        Long id = null;
+
+        if (ArrayUtils.isNotEmpty(args)) {
+            for (int i = 0; id == null && i < args.length; i++) {
+                if (args[i] instanceof Long) {
+                    id = (Long) args[i];
+                } else if (args[i] instanceof RoleTO) {
+                    id = ((RoleTO) args[i]).getId();
+                } else if (args[i] instanceof RoleMod) {
+                    id = ((RoleMod) args[i]).getId();
+                }
+            }
+        }
+
+        if (id != null) {
+            try {
+                return binder.getRoleTO(id);
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
+        throw new UnresolvedReferenceException();
     }
 }

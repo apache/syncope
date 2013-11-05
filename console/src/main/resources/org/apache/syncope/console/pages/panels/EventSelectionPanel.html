@@ -60,58 +60,65 @@ under the License.
         width: 105px;
         height: 20px;
       }
+
     </style>
   </wicket:head>
   <wicket:panel>
-    <div class="container">
-      <div style="display:inline-table;">
-        <div class="label">
-          &nbsp;
-        </div>
-        <div style="display: table-cell">
-          <div class="divtableheadercell">
-            <div class="divtableheaderlabel">Success</div>
-            <div style="display: table-cell">
-              <input type="checkbox" wicket:id="successSelector" style="margin-top: 0px;margin-bottom: 0px;"/>
-            </div>
-          </div>
-        </div>
-        <div style="display: table-cell">
-          <div class="divtableheadercell">
-            <div class="divtableheaderlabel">Failure</div>
-            <div style="display: table-cell">
-              <input type="checkbox" wicket:id="failureSelector" style="margin-top: 0px;margin-bottom: 0px;"/>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="container">
-      <div class="label">
-        <div id="divtablerow-label" wicket:id="categoryView">
+    <div class="eventSelectionWidzard">
+      <div class="container">
+        <div style="display:inline-table;">
           <div class="label">
-            <span wicket:id="subcategory">[subcategory]</span>
+            &nbsp;
+          </div>
+          <div style="display: table-cell">
+            <div class="divtableheadercell">
+              <div class="divtableheaderlabel">
+                <label wicket:id="successLabel"/>
+              </div>
+              <div style="display: table-cell">
+                <input type="checkbox" wicket:id="successSelector" style="margin-top: 0px;margin-bottom: 0px;"/>
+              </div>
+            </div>
+          </div>
+          <div style="display: table-cell">
+            <div class="divtableheadercell">
+              <div class="divtableheaderlabel">
+                <label wicket:id="failureLabel"/>
+              </div>
+              <div style="display: table-cell">
+                <input type="checkbox" wicket:id="failureSelector" style="margin-top: 0px;margin-bottom: 0px;"/>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div id="divtablerow-success" class="divtablecheckcolumn">
-        <span wicket:id="successGroup">
-          <div wicket:id="successView" class="divtablecheck">
-            <div class="divtableheaderlabel">&nbsp;</div>
-            <input type="checkbox" wicket:id="successCheck"/>
+      <div class="container">
+        <div class="label">
+          <div id="divtablerow-label" wicket:id="categoryView">
+            <div class="label">
+              <span wicket:id="subcategory">[subcategory]</span>
+            </div>
           </div>
-        </span>
-      </div>
+        </div>
 
-      <div id="divtablerow-failure" class="divtablecheckcolumn">
-        <span wicket:id="failureGroup">
-          <div wicket:id="failureView" class="divtablecheck">
-            <div class="divtableheaderlabel">&nbsp;</div>
-            <input type="checkbox" wicket:id="failureCheck"/>
-          </div>
-        </span>
+        <div id="divtablerow-success" class="divtablecheckcolumn">
+          <span wicket:id="successGroup">
+            <div wicket:id="successView" class="divtablecheck">
+              <div class="divtableheaderlabel">&nbsp;</div>
+              <input type="checkbox" wicket:id="successCheck"/>
+            </div>
+          </span>
+        </div>
+
+        <div id="divtablerow-failure" class="divtablecheckcolumn">
+          <span wicket:id="failureGroup">
+            <div wicket:id="failureView" class="divtablecheck">
+              <div class="divtableheaderlabel">&nbsp;</div>
+              <input type="checkbox" wicket:id="failureCheck"/>
+            </div>
+          </span>
+        </div>
       </div>
     </div>
   </wicket:panel>

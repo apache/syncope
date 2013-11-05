@@ -18,19 +18,17 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.to.DerivedSchemaTO;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.Result;
-import org.apache.syncope.common.types.AuditElements.SchemaSubCategory;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
@@ -47,10 +45,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 @RequestMapping("/derivedSchema")
-public class DerivedSchemaController extends AbstractController {
-
-    @Autowired
-    private AuditManager auditManager;
+public class DerivedSchemaController extends AbstractTransactionalController<DerivedSchemaTO> {
 
     @Autowired
     private DerSchemaDAO derSchemaDAO;
@@ -81,9 +76,6 @@ public class DerivedSchemaController extends AbstractController {
 
         AbstractDerSchema derivedSchema = derSchemaDAO.save(binder.create(derSchemaTO, attrUtil.newDerSchema()));
 
-        auditManager.audit(Category.schema, SchemaSubCategory.createDerived, Result.success,
-                "Successfully created derived schema: " + kind + "/" + derivedSchema.getName());
-
         response.setStatus(HttpServletResponse.SC_CREATED);
         return binder.getDerivedSchemaTO(derivedSchema);
     }
@@ -100,12 +92,7 @@ public class DerivedSchemaController extends AbstractController {
         }
 
         DerivedSchemaTO schemaToDelete = binder.getDerivedSchemaTO(derivedSchema);
-
         derSchemaDAO.delete(derivedSchemaName, getAttributableUtil(kind));
-
-        auditManager.audit(Category.schema, SchemaSubCategory.deleteDerived, Result.success,
-                "Successfully deleted derived schema: " + kind + "/" + derivedSchema.getName());
-
         return schemaToDelete;
     }
 
@@ -118,9 +105,6 @@ public class DerivedSchemaController extends AbstractController {
         for (AbstractDerSchema derivedSchema : derivedAttributeSchemas) {
             derivedSchemaTOs.add(binder.getDerivedSchemaTO(derivedSchema));
         }
-
-        auditManager.audit(Category.schema, SchemaSubCategory.listDerived, Result.success,
-                "Successfully listed all derived schemas: " + kind + "/" + derivedSchemaTOs.size());
 
         return derivedSchemaTOs;
     }
@@ -135,9 +119,6 @@ public class DerivedSchemaController extends AbstractController {
         if (derivedSchema == null) {
             throw new NotFoundException("Derived schema '" + derivedSchemaName + "'");
         }
-
-        auditManager.audit(Category.schema, SchemaSubCategory.readDerived, Result.success,
-                "Successfully read derived schema: " + kind + "/" + derivedSchema.getName());
 
         return binder.getDerivedSchemaTO(derivedSchema);
     }
@@ -155,10 +136,41 @@ public class DerivedSchemaController extends AbstractController {
 
         derivedSchema = binder.update(derivedSchemaTO, derivedSchema);
         derivedSchema = derSchemaDAO.save(derivedSchema);
-
-        auditManager.audit(Category.schema, SchemaSubCategory.updateDerived, Result.success,
-                "Successfully updated derived schema: " + kind + "/" + derivedSchema.getName());
-
         return binder.getDerivedSchemaTO(derivedSchema);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected DerivedSchemaTO resolveReference(final Method method, final Object... args) throws
+            UnresolvedReferenceException {
+        String kind = null;
+        String name = null;
+
+        if (ArrayUtils.isNotEmpty(args)) {
+            for (int i = 0; (name == null || kind == null) && i < args.length; i++) {
+                if (args[i] instanceof String) {
+                    if (kind == null) {
+                        kind = (String) args[i];
+                    } else {
+                        name = (String) args[i];
+                    }
+                } else if (args[i] instanceof DerivedSchemaTO) {
+                    name = ((DerivedSchemaTO) args[i]).getName();
+                }
+            }
+        }
+
+        if (name != null) {
+            try {
+                return binder.getDerivedSchemaTO(derSchemaDAO.find(name, getAttributableUtil(kind).derSchemaClass()));
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
+        throw new UnresolvedReferenceException();
     }
 }

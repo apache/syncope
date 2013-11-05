@@ -33,9 +33,16 @@ import org.apache.syncope.common.to.SyncActionClassTO;
 import org.apache.syncope.common.to.ValidatorTO;
 import org.apache.syncope.common.types.AuditLoggerName;
 import org.apache.syncope.common.types.SyncopeLoggerLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
 
 public final class CollectionWrapper {
+
+    /**
+     * Logger.
+     */
+    private final static Logger LOG = LoggerFactory.getLogger(CollectionWrapper.class);
 
     private CollectionWrapper() {
         // empty constructor for static utility class
@@ -100,7 +107,7 @@ public final class CollectionWrapper {
             try {
                 respons.add(AuditLoggerName.fromLoggerName(l.getName()));
             } catch (Exception e) {
-                //TODO log event
+                LOG.error("Error wrapping logger", e);
             }
         }
         return respons;

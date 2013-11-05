@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
@@ -41,25 +42,47 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         final List<PropagationTask> prioritizedTasks = new ArrayList<PropagationTask>(tasks);
         Collections.sort(prioritizedTasks, new PriorityComparator());
 
-        for (PropagationTask task : prioritizedTasks) {
-            LOG.debug("Execution started for {}", task);
+        try {
+            for (PropagationTask task : prioritizedTasks) {
+                LOG.debug("Execution started for {}", task);
 
-            TaskExec execution = execute(task, reporter);
+                TaskExec execution = execute(task, reporter);
 
-            LOG.debug("Execution finished for {}, {}", task, execution);
+                LOG.debug("Execution finished for {}, {}", task, execution);
 
-            // Propagation is interrupted as soon as the result of the
-            // communication with a primary resource is in error
-            PropagationTaskExecStatus execStatus;
-            try {
-                execStatus = PropagationTaskExecStatus.valueOf(execution.getStatus());
-            } catch (IllegalArgumentException e) {
-                LOG.error("Unexpected execution status found {}", execution.getStatus());
-                execStatus = PropagationTaskExecStatus.FAILURE;
+                // Propagation is interrupted as soon as the result of the
+                // communication with a primary resource is in error
+                PropagationTaskExecStatus execStatus;
+                try {
+                    execStatus = PropagationTaskExecStatus.valueOf(execution.getStatus());
+                } catch (IllegalArgumentException e) {
+                    LOG.error("Unexpected execution status found {}", execution.getStatus());
+                    execStatus = PropagationTaskExecStatus.FAILURE;
+                }
+                if (task.getResource().isPropagationPrimary() && !execStatus.isSuccessful()) {
+                    throw new PropagationException(task.getResource().getName(), execution.getMessage());
+                }
             }
-            if (task.getResource().isPropagationPrimary() && !execStatus.isSuccessful()) {
-                throw new PropagationException(task.getResource().getName(), execution.getMessage());
-            }
+        } finally {
+            notificationManager.createTasks(
+                    AuditElements.EventCategoryType.PROPAGATION,
+                    null,
+                    null,
+                    null,
+                    null,
+                    reporter instanceof DefaultPropagationReporter
+                    ? ((DefaultPropagationReporter) reporter).getStatuses() : null,
+                    tasks);
+
+            auditManager.audit(
+                    AuditElements.EventCategoryType.PROPAGATION,
+                    null,
+                    null,
+                    null,
+                    null,
+                    reporter instanceof DefaultPropagationReporter
+                    ? ((DefaultPropagationReporter) reporter).getStatuses() : null,
+                    tasks);
         }
     }
 

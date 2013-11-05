@@ -18,26 +18,20 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.RollbackException;
-
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.Result;
-import org.apache.syncope.common.types.AuditElements.UserRequestSubCategory;
-import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.persistence.beans.UserRequest;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.UserRequestDAO;
 import org.apache.syncope.core.rest.data.UserRequestDataBinder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -50,15 +44,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/user/request")
-public class UserRequestController {
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(UserRequestController.class);
-
-    @Autowired
-    private AuditManager auditManager;
+public class UserRequestController extends AbstractController<UserRequestTO> {
 
     @Autowired
     private ConfDAO confDAO;
@@ -78,9 +64,6 @@ public class UserRequestController {
     @RequestMapping(method = RequestMethod.GET, value = "/create/allowed")
     @Transactional(readOnly = true)
     public ModelAndView isCreateAllowed() {
-        auditManager.audit(Category.userRequest, UserRequestSubCategory.isCreateAllowed, Result.success,
-                "Successfully checked whether self create is allowed");
-
         return new ModelAndView().addObject(isCreateAllowedByConf());
     }
 
@@ -102,12 +85,7 @@ public class UserRequestController {
 
         UserRequest request = new UserRequest();
         request.setUserTO(userTO);
-        request = userRequestDAO.save(request);
-
-        auditManager.audit(Category.userRequest, UserRequestSubCategory.create, Result.success,
-                "Successfully created user request for " + request.getUserTO().getUsername());
-
-        return binder.getUserRequestTO(request);
+        return binder.getUserRequestTO(userRequestDAO.save(request));
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -123,12 +101,7 @@ public class UserRequestController {
 
         UserRequest request = new UserRequest();
         request.setUserMod(userMod);
-        request = userRequestDAO.save(request);
-
-        auditManager.audit(Category.userRequest, UserRequestSubCategory.update, Result.success,
-                "Successfully updated user request for " + request.getUserMod().getUsername());
-
-        return binder.getUserRequestTO(request);
+        return binder.getUserRequestTO(userRequestDAO.save(request));
     }
 
     @PreAuthorize("hasRole('USER_REQUEST_LIST')")
@@ -136,14 +109,9 @@ public class UserRequestController {
     @Transactional(readOnly = true)
     public List<UserRequestTO> list() {
         List<UserRequestTO> result = new ArrayList<UserRequestTO>();
-
         for (UserRequest request : userRequestDAO.findAll()) {
             result.add(binder.getUserRequestTO(request));
         }
-
-        auditManager.audit(Category.userRequest, UserRequestSubCategory.list, Result.success,
-                "Successfully listed all user requests: " + result.size());
-
         return result;
     }
 
@@ -155,10 +123,6 @@ public class UserRequestController {
         if (request == null) {
             throw new NotFoundException("User request " + requestId);
         }
-
-        auditManager.audit(Category.userRequest, UserRequestSubCategory.read, Result.success,
-                "Successfully read user request for " + request.getUserTO().getUsername());
-
         return binder.getUserRequestTO(request);
     }
 
@@ -175,12 +139,7 @@ public class UserRequestController {
 
         UserRequest request = new UserRequest();
         request.setUserId(userId);
-        request = userRequestDAO.save(request);
-
-        auditManager.audit(Category.userRequest, UserRequestSubCategory.delete, Result.success,
-                "Successfully deleted user request for user" + userId);
-
-        return binder.getUserRequestTO(request);
+        return binder.getUserRequestTO(userRequestDAO.save(request));
     }
 
     @PreAuthorize("hasRole('USER_REQUEST_DELETE')")
@@ -192,12 +151,25 @@ public class UserRequestController {
         }
 
         UserRequestTO requestToDelete = binder.getUserRequestTO(request);
-
-        auditManager.audit(Category.userRequest, UserRequestSubCategory.delete, Result.success,
-                "Successfully deleted user request for user" + request.getUserId());
-
         userRequestDAO.delete(requestId);
-
         return requestToDelete;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected UserRequestTO resolveReference(final Method method, final Object... obj) {
+        final UserRequestTO result;
+
+        if (ArrayUtils.isNotEmpty(obj) && obj[0] instanceof Long
+                && ("deleteRequest".equals(method.getName()) || "read".equals(method.getName()))) {
+            final UserRequest request = userRequestDAO.find((Long) obj[0]);
+            result = request == null ? null : binder.getUserRequestTO(request);
+        } else {
+            result = null;
+        }
+
+        return result;
     }
 }

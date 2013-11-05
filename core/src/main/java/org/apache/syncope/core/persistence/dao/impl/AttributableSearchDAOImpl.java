@@ -165,18 +165,26 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         // 1. get the query string from the search condition
         StringBuilder queryString = getQuery(searchCondition, parameters, attrUtil);
 
-        // 2. take into account the passed user
-        queryString.insert(0, "SELECT u.subject_id FROM (");
-        queryString.append(") u WHERE subject_id=?").append(setParameter(parameters, user.getId()));
+        final boolean res;
+        if (queryString.length() == 0) {
+            // Could be empty: got into a role search with a single membership condition ...
+            res = false;
+        } else {
+            // 2. take into account the passed user
+            queryString.insert(0, "SELECT u.subject_id FROM (");
+            queryString.append(") u WHERE subject_id=?").append(setParameter(parameters, user.getId()));
 
-        // 3. prepare the search query
-        Query query = entityManager.createNativeQuery(queryString.toString());
+            // 3. prepare the search query
+            Query query = entityManager.createNativeQuery(queryString.toString());
 
-        // 4. populate the search query with parameter values
-        fillWithParameters(query, parameters);
+            // 4. populate the search query with parameter values
+            fillWithParameters(query, parameters);
 
-        // 5. executes query
-        return !query.getResultList().isEmpty();
+            // 5. executes query
+            res = !query.getResultList().isEmpty();
+        }
+
+        return res;
     }
 
     private int setParameter(final List<Object> parameters, final Object parameter) {

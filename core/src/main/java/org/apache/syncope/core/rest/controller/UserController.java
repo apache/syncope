@@ -18,14 +18,16 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import static org.apache.syncope.core.rest.controller.AbstractController.LOG;
+import java.lang.reflect.Method;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
@@ -37,15 +39,10 @@ import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.Result;
-import org.apache.syncope.common.types.AuditElements.UserSubCategory;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -64,8 +61,6 @@ import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -87,15 +82,7 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 @RequestMapping("/user")
-public class UserController {
-
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(UserController.class);
-
-    @Autowired
-    protected AuditManager auditManager;
+public class UserController extends AbstractController<UserTO> {
 
     @Autowired
     protected UserDAO userDAO;
@@ -119,9 +106,6 @@ public class UserController {
     protected PropagationTaskExecutor taskExecutor;
 
     @Autowired
-    protected NotificationManager notificationManager;
-
-    @Autowired
     protected AttributableTransformer attrTransformer;
 
     @RequestMapping(method = RequestMethod.GET, value = "/verifyPassword/{username}")
@@ -134,8 +118,6 @@ public class UserController {
     @PreAuthorize("hasRole('USER_READ')")
     @Transactional(readOnly = true)
     public Boolean verifyPasswordInternal(final String username, final String password) {
-        auditManager.audit(Category.user, UserSubCategory.create, Result.success,
-                "Verified password for: " + username);
         return binder.verifyPassword(username, password);
     }
 
@@ -181,9 +163,6 @@ public class UserController {
             userTOs.add(binder.getUserTO(user));
         }
 
-        auditManager.audit(Category.user, UserSubCategory.list, Result.success,
-                "Successfully listed all users: " + userTOs.size());
-
         return userTOs;
     }
 
@@ -199,9 +178,6 @@ public class UserController {
             userTOs.add(binder.getUserTO(user));
         }
 
-        auditManager.audit(Category.user, UserSubCategory.list, Result.success,
-                "Successfully listed all users (page=" + page + ", size=" + size + "): " + userTOs.size());
-
         return userTOs;
     }
 
@@ -209,36 +185,21 @@ public class UserController {
     @RequestMapping(method = RequestMethod.GET, value = "/read/{userId}")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public UserTO read(@PathVariable("userId") final Long userId) {
-        UserTO result = binder.getUserTO(userId);
-
-        auditManager.audit(Category.user, UserSubCategory.read, Result.success,
-                "Successfully read user: " + userId);
-
-        return result;
+        return binder.getUserTO(userId);
     }
 
     @PreAuthorize("#username == authentication.name or hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/readByUsername/{username}")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public UserTO read(@PathVariable final String username) {
-        UserTO result = binder.getUserTO(username);
-
-        auditManager.audit(Category.user, UserSubCategory.read, Result.success,
-                "Successfully read user: " + username);
-
-        return result;
+        return binder.getUserTO(username);
     }
 
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(method = RequestMethod.GET, value = "/read/self")
     @Transactional(readOnly = true)
     public UserTO read() {
-        UserTO userTO = binder.getAuthenticatedUserTO();
-
-        auditManager.audit(Category.user, UserSubCategory.read, Result.success,
-                "Successfully read own data: " + userTO.getUsername());
-
-        return userTO;
+        return binder.getAuthenticatedUserTO();
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -272,9 +233,6 @@ public class UserController {
         for (SyncopeUser user : matchingUsers) {
             result.add(binder.getUserTO(user));
         }
-
-        auditManager.audit(Category.user, UserSubCategory.read, Result.success,
-                "Successfully searched for users (page=" + page + ", size=" + size + "): " + result.size());
 
         return result;
     }
@@ -322,15 +280,10 @@ public class UserController {
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
-
         final UserTO savedTO = binder.getUserTO(created.getResult().getKey());
         savedTO.setPropagationStatusTOs(propagationReporter.getStatuses());
 
         LOG.debug("About to return created user\n{}", savedTO);
-
-        auditManager.audit(Category.user, UserSubCategory.create, Result.success,
-                "Successfully created user: " + savedTO.getUsername());
 
         return savedTO;
     }
@@ -410,15 +363,9 @@ public class UserController {
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        // 3. create notification tasks
-        notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
-
         // 4. prepare result, including propagation status on external resources
         final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey());
         updatedTO.setPropagationStatusTOs(propagationReporter.getStatuses());
-
-        auditManager.audit(Category.user, UserSubCategory.update, Result.success,
-                "Successfully updated user: " + updatedTO.getUsername());
 
         LOG.debug("About to return updated user\n{}", updatedTO);
 
@@ -585,14 +532,9 @@ public class UserController {
 
         taskExecutor.execute(tasks);
 
-        notificationManager.createTasks(updated.getResult(), updated.getPerformedTasks());
-
         final UserTO savedTO = binder.getUserTO(updated.getResult());
 
         LOG.debug("About to return updated user\n{}", savedTO);
-
-        auditManager.audit(Category.user, UserSubCategory.executeWorkflow, Result.success,
-                "Successfully executed workflow action " + taskId + " on user: " + userTO.getUsername());
 
         return savedTO;
     }
@@ -601,12 +543,7 @@ public class UserController {
     @RequestMapping(method = RequestMethod.GET, value = "/workflow/form/list")
     @Transactional(rollbackFor = {Throwable.class})
     public List<WorkflowFormTO> getForms() {
-        List<WorkflowFormTO> forms = uwfAdapter.getForms();
-
-        auditManager.audit(Category.user, UserSubCategory.getForms, Result.success,
-                "Successfully list workflow forms: " + forms.size());
-
-        return forms;
+        return uwfAdapter.getForms();
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
@@ -614,25 +551,14 @@ public class UserController {
     @Transactional(rollbackFor = {Throwable.class})
     public WorkflowFormTO getFormForUser(@PathVariable("userId") final Long userId) {
         SyncopeUser user = binder.getUserFromId(userId);
-        WorkflowFormTO result = uwfAdapter.getForm(user.getWorkflowId());
-
-        auditManager.audit(Category.user, UserSubCategory.getFormForUser, Result.success,
-                "Successfully read workflow form for user: " + user.getUsername());
-
-        return result;
+        return uwfAdapter.getForm(user.getWorkflowId());
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_CLAIM')")
     @RequestMapping(method = RequestMethod.GET, value = "/workflow/form/claim/{taskId}")
     @Transactional(rollbackFor = {Throwable.class})
     public WorkflowFormTO claimForm(@PathVariable("taskId") final String taskId) {
-        WorkflowFormTO result = uwfAdapter.claimForm(taskId,
-                SecurityContextHolder.getContext().getAuthentication().getName());
-
-        auditManager.audit(Category.user, UserSubCategory.claimForm, Result.success,
-                "Successfully claimed workflow form: " + taskId);
-
-        return result;
+        return uwfAdapter.claimForm(taskId, SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_SUBMIT')")
@@ -661,9 +587,6 @@ public class UserController {
 
         final UserTO savedTO = binder.getUserTO(updated.getResult().getKey());
 
-        auditManager.audit(Category.user, UserSubCategory.submitForm, Result.success,
-                "Successfully submitted workflow form for user: " + savedTO.getUsername());
-
         LOG.debug("About to return user after form processing\n{}", savedTO);
 
         return savedTO;
@@ -688,14 +611,17 @@ public class UserController {
         }
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(user, status, resourcesToBeExcluded);
-        taskExecutor.execute(tasks);
-
-        notificationManager.createTasks(updated.getResult(), updated.getPerformedTasks());
+        PropagationReporter propReporter =
+                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+        try {
+            taskExecutor.execute(tasks, propReporter);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propReporter.onPrimaryResourceFailure(tasks);
+        }
 
         final UserTO savedTO = binder.getUserTO(updated.getResult());
-
-        auditManager.audit(Category.user, UserSubCategory.setStatus, Result.success,
-                "Successfully changed status to " + savedTO.getStatus() + " for user: " + savedTO.getUsername());
+        savedTO.setPropagationStatusTOs(propReporter.getStatuses());
 
         LOG.debug("About to return updated user\n{}", savedTO);
 
@@ -722,9 +648,6 @@ public class UserController {
                 owned.add(role.getId() + " " + role.getName());
             }
 
-            auditManager.audit(Category.user, UserSubCategory.delete, Result.failure,
-                    "Could not delete user: " + userId + " because of role(s) ownership " + owned);
-
             SyncopeClientCompositeErrorException sccee =
                     new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
@@ -740,7 +663,6 @@ public class UserController {
         // information could only be available after uwfAdapter.delete(), which
         // will also effectively remove user from db, thus making virtually
         // impossible by NotificationManager to fetch required user information
-        notificationManager.createTasks(userId, Collections.singleton("delete"));
 
         List<PropagationTask> tasks = propagationManager.getUserDeleteTaskIds(userId);
 
@@ -759,9 +681,6 @@ public class UserController {
         userTO.setPropagationStatusTOs(propagationReporter.getStatuses());
 
         uwfAdapter.delete(userId);
-
-        auditManager.audit(Category.user, UserSubCategory.delete, Result.success,
-                "Successfully deleted user: " + userId);
 
         LOG.debug("User successfully deleted: {}", userId);
 
@@ -813,5 +732,38 @@ public class UserController {
         }
 
         return res;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected UserTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
+        Object id = null;
+
+        if (ArrayUtils.isNotEmpty(args) && !"claimForm".equals(method.getName())) {
+            for (int i = 0; id == null && i < args.length; i++) {
+                if (args[i] instanceof Long) {
+                    id = (Long) args[i];
+                } else if (args[i] instanceof String) {
+                    id = (String) args[i];
+                } else if (args[i] instanceof UserTO) {
+                    id = ((UserTO) args[i]).getId();
+                } else if (args[i] instanceof UserMod) {
+                    id = ((UserMod) args[i]).getId();
+                }
+            }
+        }
+
+        if (id != null) {
+            try {
+                return id instanceof Long ? binder.getUserTO((Long) id) : binder.getUserTO((String) id);
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
+        throw new UnresolvedReferenceException();
     }
 }

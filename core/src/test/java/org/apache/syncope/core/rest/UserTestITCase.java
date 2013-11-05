@@ -253,7 +253,7 @@ public class UserTestITCase extends AbstractTest {
 
         sce = null;
         try {
-            userTO = userService.update(userMod.getId(), userMod);
+            userService.update(userMod.getId(), userMod);
         } catch (SyncopeClientCompositeErrorException scce) {
             sce = scce.getException(SyncopeClientExceptionType.InvalidSyncopeUser);
         }
@@ -829,7 +829,7 @@ public class UserTestITCase extends AbstractTest {
         userMod.setId(userTO.getId());
         userMod.setPassword("pass");
 
-        userTO = userService.update(userMod.getId(), userMod);
+        userService.update(userMod.getId(), userMod);
     }
 
     @Test(expected = SyncopeClientCompositeErrorException.class)
@@ -843,7 +843,7 @@ public class UserTestITCase extends AbstractTest {
         userMod.setId(userTO.getId());
         userMod.setPassword("password123");
 
-        userTO = userService.update(userMod.getId(), userMod);
+        userService.update(userMod.getId(), userMod);
     }
 
     @Test
@@ -1160,7 +1160,7 @@ public class UserTestITCase extends AbstractTest {
         propagationRequestTO = new PropagationRequestTO();
         propagationRequestTO.setOnSyncope(false);
         propagationRequestTO.addResource(RESOURCE_NAME_LDAP);
-        userTO = userService.suspend(userId, propagationRequestTO);
+        userService.suspend(userId, propagationRequestTO);
         userTO = userService.reactivate(userId, propagationRequestTO);
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());

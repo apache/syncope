@@ -18,19 +18,17 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.to.SchemaTO;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.Result;
-import org.apache.syncope.common.types.AuditElements.SchemaSubCategory;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
@@ -47,10 +45,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 @RequestMapping("/schema")
-public class SchemaController extends AbstractController {
-
-    @Autowired
-    private AuditManager auditManager;
+public class SchemaController extends AbstractTransactionalController<SchemaTO> {
 
     @Autowired
     private SchemaDAO schemaDAO;
@@ -83,11 +78,8 @@ public class SchemaController extends AbstractController {
         binder.create(schemaTO, schema);
         schema = schemaDAO.save(schema);
 
-        auditManager.audit(Category.schema, SchemaSubCategory.create, Result.success,
-                "Successfully created schema: " + kind + "/" + schema.getName());
-
         response.setStatus(HttpServletResponse.SC_CREATED);
-        return binder.getSchemaTO(schema, attrUtil);
+        return binder.getSchemaTO(schema);
     }
 
     @PreAuthorize("hasRole('SCHEMA_DELETE')")
@@ -101,13 +93,8 @@ public class SchemaController extends AbstractController {
             throw new NotFoundException("Schema '" + schemaName + "'");
         }
 
-        SchemaTO schemaToDelete = binder.getSchemaTO(schema, getAttributableUtil(kind));
-
+        SchemaTO schemaToDelete = binder.getSchemaTO(schema);
         schemaDAO.delete(schemaName, getAttributableUtil(kind));
-
-        auditManager.audit(Category.schema, SchemaSubCategory.delete, Result.success,
-                "Successfully deleted schema: " + kind + "/" + schema.getName());
-
         return schemaToDelete;
     }
 
@@ -118,11 +105,8 @@ public class SchemaController extends AbstractController {
 
         List<SchemaTO> schemaTOs = new ArrayList<SchemaTO>(schemas.size());
         for (AbstractSchema schema : schemas) {
-            schemaTOs.add(binder.getSchemaTO(schema, attributableUtil));
+            schemaTOs.add(binder.getSchemaTO(schema));
         }
-
-        auditManager.audit(Category.schema, SchemaSubCategory.list, Result.success,
-                "Successfully listed all schemas: " + kind + "/" + schemaTOs.size());
 
         return schemaTOs;
     }
@@ -138,10 +122,7 @@ public class SchemaController extends AbstractController {
             throw new NotFoundException("Schema '" + schemaName + "'");
         }
 
-        auditManager.audit(Category.schema, SchemaSubCategory.read, Result.success,
-                "Successfully read schema: " + kind + "/" + schema.getName());
-
-        return binder.getSchemaTO(schema, attributableUtil);
+        return binder.getSchemaTO(schema);
     }
 
     @PreAuthorize("hasRole('SCHEMA_UPDATE')")
@@ -156,11 +137,41 @@ public class SchemaController extends AbstractController {
         }
 
         binder.update(schemaTO, schema, attributableUtil);
-        schema = schemaDAO.save(schema);
+        return binder.getSchemaTO(schemaDAO.save(schema));
+    }
 
-        auditManager.audit(Category.schema, SchemaSubCategory.update, Result.success,
-                "Successfully updated schema: " + kind + "/" + schema.getName());
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected SchemaTO resolveReference(final Method method, final Object... args) throws
+            UnresolvedReferenceException {
+        String kind = null;
+        String name = null;
 
-        return binder.getSchemaTO(schema, attributableUtil);
+        if (ArrayUtils.isNotEmpty(args)) {
+            for (int i = 0; (name == null || kind == null) && i < args.length; i++) {
+                if (args[i] instanceof String) {
+                    if (kind == null) {
+                        kind = (String) args[i];
+                    } else {
+                        name = (String) args[i];
+                    }
+                } else if (args[i] instanceof SchemaTO) {
+                    name = ((SchemaTO) args[i]).getName();
+                }
+            }
+        }
+
+        if (name != null) {
+            try {
+                return binder.getSchemaTO(schemaDAO.find(name, getAttributableUtil(kind).schemaClass()));
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
+        throw new UnresolvedReferenceException();
     }
 }

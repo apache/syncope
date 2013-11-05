@@ -21,6 +21,10 @@ package org.apache.syncope.core.quartz;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
+import org.apache.syncope.common.types.AuditElements;
+import org.apache.syncope.common.types.AuditElements.Result;
+import org.apache.syncope.core.audit.AuditManager;
+import org.apache.syncope.core.notification.NotificationManager;
 
 import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.beans.TaskExec;
@@ -74,6 +78,18 @@ public abstract class AbstractTaskJob implements TaskJob {
     private TaskExecDAO taskExecDAO;
 
     /**
+     * Notification manager.
+     */
+    @Autowired
+    private NotificationManager notificationManager;
+
+    /**
+     * Audit manager.
+     */
+    @Autowired
+    private AuditManager auditManager;
+
+    /**
      * Id, set by the caller, for identifying the task to be executed.
      */
     protected Long taskId;
@@ -104,12 +120,15 @@ public abstract class AbstractTaskJob implements TaskJob {
         execution.setStartDate(new Date());
         execution.setTask(task);
 
+        Result result;
+
         try {
             execution.setMessage(doExecute(context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY)));
-
             execution.setStatus(Status.SUCCESS.name());
+            result = Result.SUCCESS;
         } catch (JobExecutionException e) {
             LOG.error("While executing task " + taskId, e);
+            result = Result.FAILURE;
 
             StringWriter exceptionWriter = new StringWriter();
             exceptionWriter.write(e.getMessage() + "\n\n");
@@ -125,6 +144,24 @@ public abstract class AbstractTaskJob implements TaskJob {
         }
 
         task = taskDAO.save(task);
+
+        notificationManager.createTasks(
+                AuditElements.EventCategoryType.TASK,
+                task.getClass().getSimpleName(),
+                null,
+                null, // searching for before object is too much expensive ...
+                result,
+                task,
+                (Object[]) null);
+
+        auditManager.audit(
+                AuditElements.EventCategoryType.TASK,
+                task.getClass().getSimpleName(),
+                null,
+                null, // searching for before object is too much expensive ...
+                result,
+                task,
+                (Object[]) null);
     }
 
     /**

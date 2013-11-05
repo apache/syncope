@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ConfigurationTestITCase extends AbstractTest {
@@ -156,10 +155,39 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.click("//div[2]/form/div[3]/ul/li[3]/a/span");
 
-        selenium.click("//div[2]/form/div[3]/div[3]/span/span/div/div[2]/div/select/option");
+        selenium.waitForCondition("selenium.isElementPresent(\""
+                + "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']"
+                + "/option[text()='PROPAGATION']\");",
+                "30000");
+        
+        selenium.select(
+                "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']",
+                "label=PROPAGATION");
 
-        selenium.click("//div[2]/form/div[3]/div[3]/span/span/div/div[2]/div[2]/div/a");
+        selenium.waitForCondition("selenium.isElementPresent(\""
+                + "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']"
+                + "/option[text()='role']\");",
+                "30000");
 
+        selenium.select(
+                "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']",
+                "label=role");
+
+        selenium.waitForCondition("selenium.isElementPresent(\""
+                + "//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']"
+                + "/option[text()='resource-db-sync']\");",
+                "30000");
+
+        selenium.select(
+                "//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']",
+                "label=resource-db-sync");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//input[@name='eventSelection:eventsContainer:eventsPanel:failureGroup']\");",
+                "30000");
+        
+        selenium.click("//div[@class='eventSelectionWidzard']/div[2]/div[3]/span/div/input");
+        
         selenium.click("//div[2]/form/div[3]/ul/li[4]/a/span");
 
         selenium.waitForCondition("selenium.isElementPresent("

@@ -42,15 +42,12 @@ public class NotificationDataBinder {
 
     public Notification createNotification(final NotificationTO notificationTO) {
         Notification result = new Notification();
-
         updateNotification(result, notificationTO);
-
         return result;
     }
 
     public void updateNotification(final Notification notification, final NotificationTO notificationTO) {
         BeanUtils.copyProperties(notificationTO, notification, IGNORE_PROPERTIES);
-
         notification.setAbout(notificationTO.getAbout());
         notification.setRecipients(notificationTO.getRecipients());
     }

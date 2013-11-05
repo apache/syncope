@@ -39,10 +39,13 @@ import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.AuditElements;
+import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.ConflictResolutionAction;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.SyncPolicySpec;
+import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
@@ -184,6 +187,12 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
      */
     @Autowired
     protected NotificationManager notificationManager;
+
+    /**
+     * Audit Manager.
+     */
+    @Autowired
+    protected AuditManager auditManager;
 
     @Autowired
     protected AttributableTransformer attrTransformer;
@@ -535,6 +544,9 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 result.setName(((RoleTO) actual).getName());
             }
         } else {
+            Object output = null;
+            Result resultStatus;
+
             try {
                 if (AttributableType.USER == attrUtil.getType()) {
                     Boolean enabled = readEnabled(delta.getObject());
@@ -547,14 +559,11 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
                     taskExecutor.execute(tasks);
 
-                    notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
-
                     actual = userDataBinder.getUserTO(created.getResult().getKey());
 
                     result.setId(created.getResult().getKey());
                     result.setName(((UserTO) actual).getUsername());
-                }
-                if (AttributableType.ROLE == attrUtil.getType()) {
+                } else if (AttributableType.ROLE == attrUtil.getType()) {
                     WorkflowResult<Long> created = rwfAdapter.create((RoleTO) actual);
                     AttributeTO roleOwner = actual.getAttributeMap().get(StringUtils.EMPTY);
                     if (roleOwner != null) {
@@ -574,15 +583,42 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     result.setName(((RoleTO) actual).getName());
                 }
 
+                output = subjectTO;
+                resultStatus = Result.SUCCESS;
+
             } catch (PropagationException e) {
                 // A propagation failure doesn't imply a synchronization failure.
                 // The propagation exception status will be reported into the propagation task execution.
                 LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
+                output = e;
+                resultStatus = Result.FAILURE;
             } catch (Exception e) {
                 result.setStatus(SyncResult.Status.FAILURE);
                 result.setMessage(e.getMessage());
                 LOG.error("Could not create {} {} ", attrUtil.getType(), delta.getUid().getUidValue(), e);
+                output = e;
+                resultStatus = Result.FAILURE;
             }
+
+            notificationManager.createTasks(
+                    AuditElements.EventCategoryType.SYNCHRONIZATION,
+                    AttributableType.USER.name().toLowerCase(),
+                    syncTask.getResource().getName(),
+                    "create",
+                    resultStatus,
+                    null, // searching for before object is too much expensive ... 
+                    output,
+                    delta);
+
+            auditManager.audit(
+                    AuditElements.EventCategoryType.SYNCHRONIZATION,
+                    AttributableType.USER.name().toLowerCase(),
+                    syncTask.getResource().getName(),
+                    "create",
+                    resultStatus,
+                    null, // searching for before object is too much expensive ... 
+                    output,
+                    delta);
         }
 
         actions.after(this, delta, actual, result);
@@ -650,8 +686,6 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         taskExecutor.execute(tasks);
 
-        notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
-
         userTO = userDataBinder.getUserTO(updated.getResult().getKey());
 
         actions.after(this, delta, userTO, result);
@@ -717,6 +751,9 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         for (Long id : subjects) {
             LOG.debug("About to update {}", id);
 
+            Object output = null;
+            Result resultStatus;
+
             final SyncResult result = new SyncResult();
             result.setOperation(ResourceOperation.UPDATE);
             result.setSubjectType(attrUtil.getType());
@@ -724,26 +761,54 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             result.setId(id);
 
             try {
+                final AbstractAttributableTO updated;
                 if (AttributableType.USER == attrUtil.getType()) {
-                    UserTO updated = updateUser(id, delta, dryRun, result);
-                    result.setName(updated.getUsername());
+                    updated = updateUser(id, delta, dryRun, result);
+                    result.setName(((UserTO) updated).getUsername());
+                } else if (AttributableType.ROLE == attrUtil.getType()) {
+                    updated = updateRole(id, delta, dryRun, result);
+                    result.setName(((RoleTO) updated).getName());
+                } else {
+                    updated = null;
                 }
-
-                if (AttributableType.ROLE == attrUtil.getType()) {
-                    RoleTO updated = updateRole(id, delta, dryRun, result);
-                    result.setName(updated.getName());
-                }
+                output = updated;
+                resultStatus = Result.SUCCESS;
             } catch (PropagationException e) {
                 // A propagation failure doesn't imply a synchronization failure.
                 // The propagation exception status will be reported into the propagation task execution.
                 LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
+                output = e;
+                resultStatus = Result.FAILURE;
             } catch (Exception e) {
                 result.setStatus(SyncResult.Status.FAILURE);
                 result.setMessage(e.getMessage());
-
                 LOG.error("Could not update {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
+                output = e;
+                resultStatus = Result.FAILURE;
             }
             updResults.add(result);
+
+            if (!dryRun) {
+                notificationManager.createTasks(
+                        AuditElements.EventCategoryType.SYNCHRONIZATION,
+                        attrUtil.getType().name().toLowerCase(),
+                        syncTask.getResource().getName(),
+                        "update",
+                        resultStatus,
+                        null, // searching for before object is too much expensive ... 
+                        output,
+                        delta);
+
+                auditManager.audit(
+                        AuditElements.EventCategoryType.SYNCHRONIZATION,
+                        attrUtil.getType().name().toLowerCase(),
+                        syncTask.getResource().getName(),
+                        "update",
+                        resultStatus,
+                        null, // searching for before object is too much expensive ... 
+                        output,
+                        delta);
+            }
 
             LOG.debug("{} {} successfully updated", attrUtil.getType(), id);
         }
@@ -765,6 +830,9 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         List<SyncResult> delResults = new ArrayList<SyncResult>();
 
         for (Long id : subjects) {
+            Object output = null;
+            Result resultStatus = Result.FAILURE;
+
             try {
                 AbstractAttributableTO subjectTO = AttributableType.USER == attrUtil.getType()
                         ? userDataBinder.getUserTO(id)
@@ -788,9 +856,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                         List<PropagationTask> tasks = Collections.<PropagationTask>emptyList();
                         if (AttributableType.USER == attrUtil.getType()) {
                             tasks = propagationManager.getUserDeleteTaskIds(id, syncTask.getResource().getName());
-                            notificationManager.createTasks(id, Collections.<String>singleton("delete"));
-                        }
-                        if (AttributableType.ROLE == attrUtil.getType()) {
+                        } else if (AttributableType.ROLE == attrUtil.getType()) {
                             tasks = propagationManager.getRoleDeleteTaskIds(id, syncTask.getResource().getName());
                         }
                         taskExecutor.execute(tasks);
@@ -803,23 +869,48 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     try {
                         if (AttributableType.USER == attrUtil.getType()) {
                             uwfAdapter.delete(id);
-                        }
-                        if (AttributableType.ROLE == attrUtil.getType()) {
+                        } else if (AttributableType.ROLE == attrUtil.getType()) {
                             rwfAdapter.delete(id);
                         }
+                        output = null;
+                        resultStatus = Result.SUCCESS;
                     } catch (Exception e) {
                         result.setStatus(SyncResult.Status.FAILURE);
                         result.setMessage(e.getMessage());
                         LOG.error("Could not delete {} {}", attrUtil.getType(), id, e);
+                        output = e;
                     }
                 }
 
                 actions.after(this, delta, subjectTO, result);
                 delResults.add(result);
+
             } catch (NotFoundException e) {
                 LOG.error("Could not find {} {}", attrUtil.getType(), id, e);
             } catch (UnauthorizedRoleException e) {
                 LOG.error("Not allowed to read {} {}", attrUtil.getType(), id, e);
+            }
+
+            if (!dryRun) {
+                notificationManager.createTasks(
+                        AuditElements.EventCategoryType.SYNCHRONIZATION,
+                        attrUtil.getType().name().toLowerCase(),
+                        syncTask.getResource().getName(),
+                        "delete",
+                        resultStatus,
+                        null, // searching for before object is too much expensive ... 
+                        output,
+                        delta);
+
+                auditManager.audit(
+                        AuditElements.EventCategoryType.SYNCHRONIZATION,
+                        attrUtil.getType().name().toLowerCase(),
+                        syncTask.getResource().getName(),
+                        "delete",
+                        resultStatus,
+                        null, // searching for before object is too much expensive ... 
+                        output,
+                        delta);
             }
         }
 
@@ -876,9 +967,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     default:
                 }
             }
-        }
-
-        if (SyncDeltaType.DELETE == delta.getDeltaType()) {
+        } else if (SyncDeltaType.DELETE == delta.getDeltaType()) {
             if (subjectIds.isEmpty()) {
                 LOG.debug("No match found for deletion");
             } else if (subjectIds.size() == 1) {

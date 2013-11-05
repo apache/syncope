@@ -24,8 +24,7 @@ import java.util.Date;
 import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.SyncopeConstants;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.NotificationSubCategory;
+import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.core.audit.AuditManager;
@@ -199,7 +198,15 @@ public class NotificationJob implements Job {
                         execution.setMessage(report.toString());
                     }
 
-                    auditManager.audit(Category.notification, NotificationSubCategory.send, Result.success,
+                    auditManager.audit(
+                            AuditElements.EventCategoryType.TASK,
+                            "notification",
+                            null,
+                            "send",
+                            Result.SUCCESS,
+                            null,
+                            null,
+                            task,
                             "Successfully sent notification to " + to);
                 } catch (Exception e) {
                     LOG.error("Could not send e-mail", e);
@@ -213,7 +220,15 @@ public class NotificationJob implements Job {
                         execution.setMessage(exceptionWriter.toString());
                     }
 
-                    auditManager.audit(Category.notification, NotificationSubCategory.send, Result.failure,
+                    auditManager.audit(
+                            AuditElements.EventCategoryType.TASK,
+                            "notification",
+                            null,
+                            "send",
+                            Result.FAILURE,
+                            null,
+                            null,
+                            task,
                             "Could not send notification to " + to, e);
                 }
 
@@ -271,12 +286,28 @@ public class NotificationJob implements Job {
                     execution.getTask(), failedExecutionsCount, maxRetries);
             notificationManager.setTaskExecuted(execution.getTask().getId(), false);
 
-            auditManager.audit(Category.notification, NotificationSubCategory.retry, Result.success,
+            auditManager.audit(
+                    AuditElements.EventCategoryType.TASK,
+                    "notification",
+                    null,
+                    "retry",
+                    Result.SUCCESS,
+                    null,
+                    null,
+                    execution,
                     "Notification task " + execution.getTask().getId() + " will be retried");
         } else {
             LOG.error("Maximum number of retries reached for task {} - giving up", execution.getTask());
 
-            auditManager.audit(Category.notification, NotificationSubCategory.retry, Result.failure,
+            auditManager.audit(
+                    AuditElements.EventCategoryType.TASK,
+                    "notification",
+                    null,
+                    "retry",
+                    Result.FAILURE,
+                    null,
+                    null,
+                    execution,
                     "Giving up retries on notification task " + execution.getTask().getId());
         }
     }

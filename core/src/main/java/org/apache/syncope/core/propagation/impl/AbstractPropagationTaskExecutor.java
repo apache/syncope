@@ -27,11 +27,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.common.types.AuditElements;
+import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TraceLevel;
+import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
+import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
@@ -93,6 +97,18 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     @Autowired
     protected RoleDataBinder roleDataBinder;
+
+    /**
+     * Notification Manager.
+     */
+    @Autowired
+    protected NotificationManager notificationManager;
+
+    /**
+     * Audit Manager.
+     */
+    @Autowired
+    protected AuditManager auditManager;
 
     @Override
     public TaskExec execute(final PropagationTask task) {
@@ -284,6 +300,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         ConnectorObject afterObj = null;
 
         Connector connector = null;
+        Result result;
         try {
             connector = connLoader.getConnector(task.getResource());
 
@@ -310,7 +327,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     : PropagationTaskExecStatus.SUBMITTED.name());
 
             LOG.debug("Successfully propagated to {}", task.getResource());
+            result = Result.SUCCESS;
         } catch (Exception e) {
+            result = Result.FAILURE;
             LOG.error("Exception during provision on resource " + task.getResource().getName(), e);
 
             if (e instanceof ConnectorException && e.getCause() != null) {
@@ -381,6 +400,26 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
 
         actions.after(task, execution, afterObj);
+
+        notificationManager.createTasks(
+                AuditElements.EventCategoryType.PROPAGATION,
+                task.getSubjectType().name().toLowerCase(),
+                task.getResource().getName(),
+                task.getPropagationOperation().name().toLowerCase(),
+                result,
+                beforeObj, // searching for before object is too much expensive ... 
+                new Object[] {execution, afterObj},
+                task);
+
+        auditManager.audit(
+                AuditElements.EventCategoryType.PROPAGATION,
+                task.getSubjectType().name().toLowerCase(),
+                task.getResource().getName(),
+                task.getPropagationOperation().name().toLowerCase(),
+                result,
+                beforeObj, // searching for before object is too much expensive ... 
+                new Object[] {execution, afterObj},
+                task);
 
         return execution;
     }

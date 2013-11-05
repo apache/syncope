@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.lang.reflect.Method;
+import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
@@ -34,8 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(rollbackFor = { Throwable.class })
-public abstract class AbstractController {
+public abstract class AbstractController<T extends AbstractBaseBean> {
 
     /**
      * Logger.
@@ -74,12 +75,12 @@ public abstract class AbstractController {
         TaskUtil result = (task instanceof PropagationTask)
                 ? TaskUtil.PROPAGATION
                 : (task instanceof NotificationTask)
-                        ? TaskUtil.NOTIFICATION
-                        : (task instanceof SyncTask)
-                                ? TaskUtil.SYNC
-                                : (task instanceof SchedTask)
-                                        ? TaskUtil.SCHED
-                                        : null;
+                ? TaskUtil.NOTIFICATION
+                : (task instanceof SyncTask)
+                ? TaskUtil.SYNC
+                : (task instanceof SchedTask)
+                ? TaskUtil.SCHED
+                : null;
 
         if (result == null) {
             LOG.error("Task not supported: " + task.getClass().getName());
@@ -94,10 +95,10 @@ public abstract class AbstractController {
         TaskUtil result = (taskTO instanceof PropagationTaskTO)
                 ? TaskUtil.PROPAGATION
                 : (taskTO instanceof SyncTaskTO)
-                        ? TaskUtil.SYNC
-                        : (taskTO instanceof SchedTaskTO)
-                                ? TaskUtil.SCHED
-                                : null;
+                ? TaskUtil.SYNC
+                : (taskTO instanceof SchedTaskTO)
+                ? TaskUtil.SCHED
+                : null;
 
         if (result == null) {
             LOG.error("Task not supported: " + taskTO.getClass().getName());
@@ -107,4 +108,24 @@ public abstract class AbstractController {
 
         return result;
     }
+
+    /**
+     * Resolves stored bean (if existing) referred by the given CUD method.
+     * <br />
+     * Read-only methods will be unresolved for performance reasons.
+     *
+     * @param method method.
+     * @param args method arguments.
+     * @return referred stored bean.
+     * @throws UnresolvedReferenceException in case of failures, read-only methods and unresolved bean.
+     */
+    public T resolveBeanReference(final Method method, final Object... args) throws UnresolvedReferenceException {
+        final Transactional transactional = method.getAnnotation(Transactional.class);
+        if (transactional != null && transactional.readOnly()) {
+            throw new UnresolvedReferenceException();
+        }
+        return resolveReference(method, args);
+    }
+
+    protected abstract T resolveReference(Method method, Object... args) throws UnresolvedReferenceException;
 }

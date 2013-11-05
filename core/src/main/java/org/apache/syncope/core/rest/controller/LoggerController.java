@@ -20,18 +20,13 @@ package org.apache.syncope.core.rest.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.syncope.common.to.LoggerTO;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.LoggerSubCategory;
-import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditLoggerName;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.types.SyncopeLoggerLevel;
 import org.apache.syncope.common.types.SyncopeLoggerType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.SyncopeLogger;
 import org.apache.syncope.core.persistence.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
@@ -46,20 +41,43 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.HashSet;
+import java.util.Set;
+import org.apache.syncope.common.to.EventCategoryTO;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.AuditElements.EventCategoryType;
+import org.apache.syncope.common.types.ResourceOperation;
+import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.SchedTask;
+import org.apache.syncope.core.persistence.beans.SyncTask;
+import org.apache.syncope.core.persistence.dao.ResourceDAO;
+import org.apache.syncope.core.persistence.dao.TaskDAO;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.MetadataReaderFactory;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.SystemPropertyUtils;
 
 @Controller
 @RequestMapping("/logger")
-public class LoggerController extends AbstractController {
-
-    @Autowired
-    private AuditManager auditManager;
+public class LoggerController extends AbstractTransactionalController<LoggerTO> {
 
     @Autowired
     private LoggerDAO loggerDAO;
+
+    @Autowired
+    private ResourceDAO resourceDAO;
+
+    @Autowired
+    private TaskDAO taskDAO;
 
     private List<LoggerTO> list(final SyncopeLoggerType type) {
         List<LoggerTO> result = new ArrayList<LoggerTO>();
@@ -68,9 +86,6 @@ public class LoggerController extends AbstractController {
             BeanUtils.copyProperties(syncopeLogger, loggerTO);
             result.add(loggerTO);
         }
-
-        auditManager.audit(Category.logger, LoggerSubCategory.list, Result.success,
-                "Successfully listed all loggers (" + type + "): " + result.size());
 
         return result;
     }
@@ -92,7 +107,7 @@ public class LoggerController extends AbstractController {
             try {
                 result.add(AuditLoggerName.fromLoggerName(logger.getName()));
             } catch (Exception e) {
-                LOG.error("Unexpected audit logger name: {}", logger.getName(), e);
+                LOG.warn("Unexpected audit logger name: {}", logger.getName(), e);
             }
         }
 
@@ -133,9 +148,6 @@ public class LoggerController extends AbstractController {
 
         LoggerTO result = new LoggerTO();
         BeanUtils.copyProperties(syncopeLogger, result);
-
-        auditManager.audit(Category.logger, LoggerSubCategory.setLevel, Result.success,
-                String.format("Successfully set level %s to logger %s (%s)", level, name, expectedType));
 
         return result;
     }
@@ -182,9 +194,6 @@ public class LoggerController extends AbstractController {
         Logger logger = lc.getLogger(name);
         logger.setLevel(Level.OFF);
 
-        auditManager.audit(Category.logger, LoggerSubCategory.setLevel, Result.success, String.format(
-                "Successfully deleted logger %s (%s)", name, expectedType));
-
         return loggerToDelete;
     }
 
@@ -211,5 +220,93 @@ public class LoggerController extends AbstractController {
 
             throw sccee;
         }
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/events")
+    public List<EventCategoryTO> listAuditEvents() {
+        // use set to avoi duplications or null elements
+        final Set<EventCategoryTO> events = new HashSet<EventCategoryTO>();
+
+        try {
+            final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+            final MetadataReaderFactory metadataReaderFactory =
+                    new CachingMetadataReaderFactory(resourcePatternResolver);
+
+            final String packageSearchPath =
+                    ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
+                    + ClassUtils.convertClassNameToResourcePath(
+                    SystemPropertyUtils.resolvePlaceholders(this.getClass().getPackage().getName()))
+                    + "/" + "**/*.class";
+
+            final Resource[] resources = resourcePatternResolver.getResources(packageSearchPath);
+            for (Resource resource : resources) {
+                if (resource.isReadable()) {
+                    final MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
+                    final Class<?> clazz = Class.forName(metadataReader.getClassMetadata().getClassName());
+
+                    if (clazz.isAnnotationPresent(Controller.class)) {
+                        final EventCategoryTO eventCategoryTO = new EventCategoryTO();
+                        eventCategoryTO.setCategory(clazz.getSimpleName());
+                        for (Method method : clazz.getDeclaredMethods()) {
+                            if (Modifier.isPublic(method.getModifiers())) {
+                                eventCategoryTO.getEvents().add(method.getName());
+                            }
+                        }
+                        events.add(eventCategoryTO);
+                    }
+                }
+            }
+
+            events.add(new EventCategoryTO(EventCategoryType.PROPAGATION));
+            events.add(new EventCategoryTO(EventCategoryType.SYNCHRONIZATION));
+
+            for (AttributableType attributableType : AttributableType.values()) {
+                for (ExternalResource resource : resourceDAO.findAll()) {
+                    final EventCategoryTO propEventCategoryTO = new EventCategoryTO(EventCategoryType.PROPAGATION);
+                    final EventCategoryTO syncEventCategoryTO = new EventCategoryTO(EventCategoryType.SYNCHRONIZATION);
+
+                    propEventCategoryTO.setCategory(attributableType.name().toLowerCase());
+                    propEventCategoryTO.setSubcategory(resource.getName());
+
+                    syncEventCategoryTO.setCategory(attributableType.name().toLowerCase());
+                    syncEventCategoryTO.setSubcategory(resource.getName());
+
+                    for (ResourceOperation resourceOperation : ResourceOperation.values()) {
+                        propEventCategoryTO.getEvents().add(resourceOperation.name().toLowerCase());
+                        syncEventCategoryTO.getEvents().add(resourceOperation.name().toLowerCase());
+                    }
+
+                    events.add(propEventCategoryTO);
+                    events.add(syncEventCategoryTO);
+                }
+            }
+
+            for (SchedTask task : taskDAO.findAll(SchedTask.class)) {
+                final EventCategoryTO eventCategoryTO = new EventCategoryTO(EventCategoryType.TASK);
+                eventCategoryTO.setCategory(Class.forName(task.getJobClassName()).getSimpleName());
+                events.add(eventCategoryTO);
+            }
+
+            for (SyncTask task : taskDAO.findAll(SyncTask.class)) {
+                final EventCategoryTO eventCategoryTO = new EventCategoryTO(EventCategoryType.TASK);
+                eventCategoryTO.setCategory(Class.forName(task.getJobClassName()).getSimpleName());
+                events.add(eventCategoryTO);
+            }
+
+
+        } catch (Exception e) {
+            LOG.error("Failure retrieving audit/notification events", e);
+        }
+
+        return new ArrayList<EventCategoryTO>(events);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected LoggerTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+        throw new UnresolvedReferenceException();
     }
 }

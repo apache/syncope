@@ -24,17 +24,17 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import org.apache.syncope.common.to.EventCategoryTO;
 import org.apache.syncope.common.to.ReportTO;
-import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditLoggerName;
+import org.apache.syncope.common.util.LoggerEventUtils;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.console.markup.html.list.AltListView;
-import org.apache.syncope.console.pages.panels.JQueryUITabbedPanel;
+import org.apache.syncope.console.pages.panels.LoggerCategoryPanel;
+import org.apache.syncope.console.pages.panels.SelectedEventsPanel;
 import org.apache.syncope.console.rest.LoggerRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
@@ -44,36 +44,28 @@ import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
-import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Check;
-import org.apache.wicket.markup.html.form.CheckGroup;
-import org.apache.wicket.markup.html.form.CheckGroupSelector;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.springframework.util.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Auditing and Reporting.
@@ -222,8 +214,8 @@ public class Reports extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable reportTable = new AjaxFallbackDefaultDataTable("reportTable", columns,
-                new ReportProvider(), paginatorRows);
+        final AjaxFallbackDefaultDataTable reportTable =
+                new AjaxFallbackDefaultDataTable("reportTable", columns, new ReportProvider(), paginatorRows);
 
         reportContainer.add(reportTable);
         reportContainer.setOutputMarkupId(true);
@@ -286,27 +278,90 @@ public class Reports extends BasePage {
         auditContainer.setOutputMarkupId(true);
         add(auditContainer);
 
-        MetaDataRoleAuthorizationStrategy.authorize(auditContainer, RENDER, xmlRolesReader.getAllAllowedRoles("Audit",
-                "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(
+                auditContainer, RENDER, xmlRolesReader.getAllAllowedRoles("Audit", "list"));
 
-        Form form = new Form("auditForm");
+        final Form form = new Form("auditForm");
         auditContainer.add(form);
 
-        List<ITab> tabs = new ArrayList<ITab>();
+        final List<String> events = new ArrayList<String>();
 
-        for (final Category category : Category.values()) {
-            tabs.add(new AbstractTab(new Model<String>(StringUtils.capitalize(category.name()))) {
-
-                private static final long serialVersionUID = -5861786415855103549L;
-
-                @Override
-                public WebMarkupContainer getPanel(final String panelId) {
-                    return new AuditCategoryPanel(panelId, category);
-                }
-            });
+        final List<AuditLoggerName> audits = loggerRestClient.listAudits();
+        for (AuditLoggerName audit : audits) {
+            events.add(LoggerEventUtils.buildEvent(
+                    audit.getType(),
+                    audit.getCategory(),
+                    audit.getSubcategory(),
+                    audit.getEvent(),
+                    audit.getResult()));
         }
 
-        form.add(new JQueryUITabbedPanel("categoriesTabs", tabs));
+        final ListModel<String> model = new ListModel<String>(new ArrayList<String>(events));
+
+        form.add(new LoggerCategoryPanel("events", loggerRestClient.listEvents(), model) {
+
+            private static final long serialVersionUID = 6113164334533550277L;
+
+            @Override
+            protected String[] getListRoles() {
+                return new String[] {
+                    xmlRolesReader.getAllAllowedRoles("Audit", "list")
+                };
+            }
+
+            @Override
+            protected String[] getChangeRoles() {
+                return new String[] {
+                    xmlRolesReader.getAllAllowedRoles("Audit", "enable"),
+                    xmlRolesReader.getAllAllowedRoles("Audit", "disable")
+                };
+            }
+
+            @Override
+            public void onEventAction(final IEvent<?> event) {
+                if (event.getPayload() instanceof SelectedEventsPanel.EventSelectionChanged) {
+
+                    final SelectedEventsPanel.EventSelectionChanged eventSelectionChanged =
+                            (SelectedEventsPanel.EventSelectionChanged) event.getPayload();
+
+                    for (String toBeRemoved : eventSelectionChanged.getToBeRemoved()) {
+                        if (events.contains(toBeRemoved)) {
+                            final Map.Entry<EventCategoryTO, Result> eventCategory =
+                                    LoggerEventUtils.parseEventCategory(toBeRemoved);
+
+                            final AuditLoggerName auditLoggerName = new AuditLoggerName(
+                                    eventCategory.getKey().getType(),
+                                    eventCategory.getKey().getCategory(),
+                                    eventCategory.getKey().getSubcategory(),
+                                    CollectionUtils.isEmpty(eventCategory.getKey().getEvents())
+                                    ? null : eventCategory.getKey().getEvents().iterator().next(),
+                                    eventCategory.getValue());
+
+                            loggerRestClient.disableAudit(auditLoggerName);
+                            events.remove(toBeRemoved);
+                        }
+                    }
+
+                    for (String toBeAdded : eventSelectionChanged.getToBeAdded()) {
+                        if (!events.contains(toBeAdded)) {
+                            final Map.Entry<EventCategoryTO, Result> eventCategory =
+                                    LoggerEventUtils.parseEventCategory(toBeAdded);
+
+                            final AuditLoggerName auditLoggerName = new AuditLoggerName(
+                                    eventCategory.getKey().getType(),
+                                    eventCategory.getKey().getCategory(),
+                                    eventCategory.getKey().getSubcategory(),
+                                    CollectionUtils.isEmpty(eventCategory.getKey().getEvents())
+                                    ? null : eventCategory.getKey().getEvents().iterator().next(),
+                                    eventCategory.getValue());
+
+                            loggerRestClient.enableAudit(auditLoggerName);
+                            events.add(toBeAdded);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     private class ReportProvider extends SortableDataProvider<ReportTO, String> {
@@ -323,11 +378,8 @@ public class Reports extends BasePage {
 
         @Override
         public Iterator<ReportTO> iterator(final long first, final long count) {
-
-            List<ReportTO> list = reportRestClient.list(((int) first / paginatorRows) + 1, paginatorRows);
-
+            final List<ReportTO> list = reportRestClient.list(((int) first / paginatorRows) + 1, paginatorRows);
             Collections.sort(list, comparator);
-
             return list.iterator();
         }
 
@@ -349,153 +401,5 @@ public class Reports extends BasePage {
                 }
             };
         }
-    }
-
-    private class AuditsByCategoryModel implements IModel<List<AuditLoggerName>> {
-
-        private static final long serialVersionUID = 605983084097505724L;
-
-        private final Category category;
-
-        private final Result result;
-
-        public AuditsByCategoryModel(final Category category, final Result result) {
-            this.category = category;
-            this.result = result;
-        }
-
-        @Override
-        public List<AuditLoggerName> getObject() {
-            Map<Category, Set<AuditLoggerName>> audits = loggerRestClient.listAuditsByCategory();
-
-            List<AuditLoggerName> object = new ArrayList<AuditLoggerName>();
-            for (Enum<?> subcategory : category.getSubCategoryElements()) {
-                AuditLoggerName auditLoggerName = new AuditLoggerName(category, subcategory, result);
-                if (audits.containsKey(category) && audits.get(category).contains(auditLoggerName)) {
-                    object.add(auditLoggerName);
-                }
-            }
-
-            return object;
-        }
-
-        @Override
-        public void setObject(final List<AuditLoggerName> object) {
-            for (Enum<?> subcategory : category.getSubCategoryElements()) {
-                AuditLoggerName auditLoggerName = new AuditLoggerName(category, subcategory, result);
-
-                if (object.contains(auditLoggerName)) {
-                    loggerRestClient.enableAudit(auditLoggerName);
-                } else {
-                    loggerRestClient.disableAudit(auditLoggerName);
-                }
-            }
-        }
-
-        @Override
-        public void detach() {
-            // Not needed.
-        }
-    }
-
-    private class AuditCategoryPanel extends Panel {
-
-        private static final long serialVersionUID = 1076251735476895253L;
-
-        public AuditCategoryPanel(final String id, final Category category) {
-            super(id);
-            setOutputMarkupId(true);
-
-            final CheckGroup<AuditLoggerName> successGroup = new CheckGroup<AuditLoggerName>("successGroup",
-                    new AuditsByCategoryModel(category, Result.success));
-            successGroup.add(new AjaxFormChoiceComponentUpdatingBehavior() {
-
-                private static final long serialVersionUID = -151291731388673682L;
-
-                @Override
-                protected void onUpdate(final AjaxRequestTarget target) {
-                    // Empty method: here only to let Model.setObject() be invoked.
-                }
-            });
-            add(successGroup);
-            authorizeComponent(successGroup);
-
-            final CheckGroupSelector successSelector = new CheckGroupSelector("successSelector", successGroup);
-            add(successSelector);
-            authorizeComponent(successSelector);
-
-            final CheckGroup<AuditLoggerName> failureGroup = new CheckGroup<AuditLoggerName>("failureGroup",
-                    new AuditsByCategoryModel(category, Result.failure));
-            failureGroup.add(new AjaxFormChoiceComponentUpdatingBehavior() {
-
-                private static final long serialVersionUID = -151291731388673682L;
-
-                @Override
-                protected void onUpdate(final AjaxRequestTarget target) {
-                    // Empty method: here only to let Model.setObject() be invoked.
-                }
-            });
-            add(failureGroup);
-            authorizeComponent(failureGroup);
-
-            final CheckGroupSelector failureSelector = new CheckGroupSelector("failureSelector", failureGroup);
-            add(failureSelector);
-            authorizeComponent(failureSelector);
-
-            ListView<Enum<?>> categoryView =
-                    new AltListView<Enum<?>>("categoryView", new ArrayList(category.getSubCategoryElements())) {
-
-                private static final long serialVersionUID = 4949588177564901031L;
-
-                @Override
-                protected void populateItem(final ListItem<Enum<?>> item) {
-                    final Enum<?> subcategory = item.getModelObject();
-
-                    item.add(new Label("subcategory", subcategory.name()));
-                }
-            };
-            add(categoryView);
-
-            ListView<Enum<?>> successView =
-                    new AltListView<Enum<?>>("successView", new ArrayList(category.getSubCategoryElements())) {
-
-                private static final long serialVersionUID = 4949588177564901031L;
-
-                @Override
-                protected void populateItem(final ListItem<Enum<?>> item) {
-                    final Enum<?> subcategory = item.getModelObject();
-
-                    final Check<AuditLoggerName> successCheck = new Check<AuditLoggerName>("successCheck",
-                            new Model<AuditLoggerName>(
-                            new AuditLoggerName(category, subcategory, Result.success)), successGroup);
-                    item.add(successCheck);
-                }
-            };
-            successGroup.add(successView);
-
-            ListView<Enum<?>> failureView =
-                    new AltListView<Enum<?>>("failureView", new ArrayList(category.getSubCategoryElements())) {
-
-                private static final long serialVersionUID = 4949588177564901031L;
-
-                @Override
-                protected void populateItem(final ListItem<Enum<?>> item) {
-                    final Enum<?> subcategory = item.getModelObject();
-
-                    final Check<AuditLoggerName> failureCheck = new Check<AuditLoggerName>("failureCheck",
-                            new Model<AuditLoggerName>(
-                            new AuditLoggerName(category, subcategory, Result.failure)), failureGroup);
-                    item.add(failureCheck);
-                }
-            };
-            failureGroup.add(failureView);
-        }
-    }
-
-    private void authorizeComponent(final Component component) {
-        MetaDataRoleAuthorizationStrategy.authorize(component, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Audit", "enable"));
-        MetaDataRoleAuthorizationStrategy.authorize(component, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Audit", "disable"));
     }
 }

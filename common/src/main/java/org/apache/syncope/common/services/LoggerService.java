@@ -25,6 +25,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import org.apache.syncope.common.to.EventCategoryTO;
 
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.types.LoggerType;
@@ -65,4 +66,6 @@ public interface LoggerService {
     @Path("{name}/level")
     void update(@PathParam("type") LoggerType type, @PathParam("name") String name, LoggerTO logger);
 
+    @GET
+    List<EventCategoryTO> events();
 }
