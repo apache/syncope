@@ -238,10 +238,10 @@ public class NotificationManager {
             }
         }
 
-        LOG.info("Search notification for [{}]{}", attributableType, attributable);
+        LOG.debug("Search notification for [{}]{}", attributableType, attributable);
 
         for (Notification notification : notificationDAO.findAll()) {
-            LOG.info("Notification available about {}", notification.getAbout());
+            LOG.debug("Notification available about {}", notification.getAbout());
 
             final Set<String> events = new HashSet<String>(notification.getEvents());
             events.retainAll(Collections.<String>singleton(LoggerEventUtils.buildEvent(
@@ -250,8 +250,8 @@ public class NotificationManager {
             if (events.isEmpty()) {
                 LOG.debug("No events found about {}", attributable);
             } else {
-                if (attributableType == null || attributable == null || notification.getAbout() == null || searchDAO.
-                        matches(
+                if (attributableType == null || attributable == null || notification.getAbout() == null
+                        || searchDAO.matches(
                         attributable, notification.getAbout(), AttributableUtil.getInstance(attributableType))) {
 
                     LOG.debug("Creating notification task for events {} about {}", events, attributable);

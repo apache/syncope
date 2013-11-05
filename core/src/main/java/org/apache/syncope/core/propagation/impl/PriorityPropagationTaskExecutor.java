@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import org.apache.syncope.common.types.AuditElements;
+import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
@@ -41,6 +42,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
     public void execute(final Collection<PropagationTask> tasks, final PropagationReporter reporter) {
         final List<PropagationTask> prioritizedTasks = new ArrayList<PropagationTask>(tasks);
         Collections.sort(prioritizedTasks, new PriorityComparator());
+
+        Result result = Result.SUCCESS;
 
         try {
             for (PropagationTask task : prioritizedTasks) {
@@ -60,6 +63,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                     execStatus = PropagationTaskExecStatus.FAILURE;
                 }
                 if (task.getResource().isPropagationPrimary() && !execStatus.isSuccessful()) {
+                    result = Result.FAILURE;
                     throw new PropagationException(task.getResource().getName(), execution.getMessage());
                 }
             }
@@ -69,7 +73,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                     null,
                     null,
                     null,
-                    null,
+                    result,
                     reporter instanceof DefaultPropagationReporter
                     ? ((DefaultPropagationReporter) reporter).getStatuses() : null,
                     tasks);
@@ -79,7 +83,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                     null,
                     null,
                     null,
-                    null,
+                    result,
                     reporter instanceof DefaultPropagationReporter
                     ? ((DefaultPropagationReporter) reporter).getStatuses() : null,
                     tasks);

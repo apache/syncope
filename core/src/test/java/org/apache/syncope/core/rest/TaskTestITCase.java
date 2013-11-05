@@ -530,6 +530,7 @@ public class TaskTestITCase extends AbstractTest {
         NotificationTO notification = new NotificationTO();
         notification.setTraceLevel(TraceLevel.FAILURES);
         notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
+        notification.addEvent("[REST]:[UserController]:[]:[createInternal]:[SUCCESS]");
 
         MembershipCond membCond = new MembershipCond();
         membCond.setRoleId(7L);
