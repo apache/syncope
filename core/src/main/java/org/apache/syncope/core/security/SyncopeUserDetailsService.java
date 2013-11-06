@@ -84,7 +84,7 @@ public class SyncopeUserDetailsService implements UserDetailsService {
                 }
             }
             // Give role operational entitlements for owned roles
-            List<SyncopeRole> ownedRoles = roleDAO.findOwned(user);
+            List<SyncopeRole> ownedRoles = roleDAO.findOwnedByUser(user.getId());
             if (!ownedRoles.isEmpty()) {
                 authorities.add(new SimpleGrantedAuthority("ROLE_CREATE"));
                 authorities.add(new SimpleGrantedAuthority("ROLE_READ"));

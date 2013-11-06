@@ -27,7 +27,7 @@ import org.apache.syncope.common.AbstractBaseBean;
 
 @XmlRootElement(name = "abstractSchema")
 @XmlType
-@XmlSeeAlso({SchemaTO.class, DerSchemaTO.class, VirSchemaTO.class})
+@XmlSeeAlso({ SchemaTO.class, DerSchemaTO.class, VirSchemaTO.class })
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public abstract class AbstractSchemaTO extends AbstractBaseBean {
 

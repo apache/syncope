@@ -491,8 +491,8 @@ public class SyncopeUser extends AbstractAttributable {
                 res = passwordHistory.subList(size >= passwordHistory.size()
                         ? 0
                         : passwordHistory.size() - size, passwordHistory.size()).contains(cipherAlgorithm == null
-                        ? password
-                        : PasswordEncoder.encode(password, cipherAlgorithm));
+                                ? password
+                                : PasswordEncoder.encode(password, cipherAlgorithm));
             } catch (Exception e) {
                 LOG.error("Error evaluating password history", e);
             }

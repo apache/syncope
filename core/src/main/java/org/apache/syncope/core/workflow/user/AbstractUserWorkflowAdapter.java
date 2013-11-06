@@ -29,10 +29,12 @@ import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.WorkflowInstanceLoader;
 import org.apache.syncope.core.workflow.WorkflowResult;
+import org.identityconnectors.common.security.EncryptorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = { Throwable.class })
 public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter {
 
     @Autowired
@@ -40,6 +42,19 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
 
     @Autowired
     protected UserDAO userDAO;
+
+    public static String encrypt(final String clear) {
+        byte[] encryptedBytes = EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(clear.getBytes());
+
+        return new String(Base64.encode(encryptedBytes));
+    }
+
+    public static String decrypt(final String crypted) {
+        byte[] decryptedBytes =
+                EncryptorFactory.getInstance().getDefaultEncryptor().decrypt(Base64.decode(crypted.getBytes()));
+
+        return new String(decryptedBytes);
+    }
 
     @Override
     public Class<? extends WorkflowInstanceLoader> getLoaderClass() {
@@ -62,11 +77,11 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
         return doActivate(dataBinder.getUserFromId(userId), token);
     }
 
-    protected abstract WorkflowResult<Map.Entry<Long, Boolean>> doUpdate(SyncopeUser user, UserMod userMod)
+    protected abstract WorkflowResult<Map.Entry<UserMod, Boolean>> doUpdate(SyncopeUser user, UserMod userMod)
             throws WorkflowException;
 
     @Override
-    public WorkflowResult<Map.Entry<Long, Boolean>> update(final UserMod userMod)
+    public WorkflowResult<Map.Entry<UserMod, Boolean>> update(final UserMod userMod)
             throws UnauthorizedRoleException, WorkflowException {
 
         return doUpdate(dataBinder.getUserFromId(userMod.getId()), userMod);

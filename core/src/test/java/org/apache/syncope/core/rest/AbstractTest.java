@@ -46,7 +46,7 @@ import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.services.TaskService;
-import org.apache.syncope.common.services.UserRequestService;
+import org.apache.syncope.common.services.UserSelfService;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.services.UserWorkflowService;
 import org.apache.syncope.common.services.WorkflowService;
@@ -87,6 +87,12 @@ public abstract class AbstractTest {
 
     protected static final SyncopeClientFactoryBean clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS);
 
+    protected static final String RESOURCE_NAME_LDAP = "resource-ldap";
+
+    protected static final String RESOURCE_NAME_TESTDB = "resource-testdb";
+
+    protected static final String RESOURCE_NAME_CSV = "resource-csv";
+
     protected static String ANONYMOUS_UNAME;
 
     protected static String ANONYMOUS_KEY;
@@ -94,6 +100,8 @@ public abstract class AbstractTest {
     protected static SyncopeClient adminClient;
 
     protected static UserService userService;
+
+    protected static UserSelfService userSelfService;
 
     protected static UserWorkflowService userWorkflowService;
 
@@ -118,8 +126,6 @@ public abstract class AbstractTest {
     protected static NotificationService notificationService;
 
     protected static SchemaService schemaService;
-
-    protected static UserRequestService userRequestService;
 
     protected static PolicyService policyService;
 
@@ -157,6 +163,7 @@ public abstract class AbstractTest {
         adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
 
         userService = adminClient.getService(UserService.class);
+        userSelfService = adminClient.getService(UserSelfService.class);
         userWorkflowService = adminClient.getService(UserWorkflowService.class);
         roleService = adminClient.getService(RoleService.class);
         resourceService = adminClient.getService(ResourceService.class);
@@ -170,7 +177,6 @@ public abstract class AbstractTest {
         workflowService = adminClient.getService(WorkflowService.class);
         notificationService = adminClient.getService(NotificationService.class);
         schemaService = adminClient.getService(SchemaService.class);
-        userRequestService = adminClient.getService(UserRequestService.class);
     }
 
     protected static String getUUIDString() {

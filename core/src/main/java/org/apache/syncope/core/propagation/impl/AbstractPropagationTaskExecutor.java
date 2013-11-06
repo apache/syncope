@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.propagation.impl;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -48,6 +46,7 @@ import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.AttributableUtil;
+import org.apache.syncope.core.util.ExceptionUtil;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -62,7 +61,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = { Throwable.class })
 public abstract class AbstractPropagationTaskExecutor implements PropagationTaskExecutor {
 
     /**
@@ -317,10 +316,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 taskExecutionMessage = e.getCause().getMessage();
                 failureReason = e.getMessage() + "\n\n Cause: " + e.getCause().getMessage().split("\n")[0];
             } else {
-                StringWriter exceptionWriter = new StringWriter();
-                exceptionWriter.write(e.getMessage() + "\n\n");
-                e.printStackTrace(new PrintWriter(exceptionWriter));
-                taskExecutionMessage = exceptionWriter.toString();
+                taskExecutionMessage = ExceptionUtil.getFullStackTrace(e);
                 if (e.getCause() == null) {
                     failureReason = e.getMessage();
                 } else {
@@ -451,7 +447,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     new ObjectClass(task.getObjectClassName()),
                     new Uid(accountId),
                     connector.getOperationOptions(AttributableUtil.getInstance(task.getSubjectType()).
-                    getMappingItems(task.getResource(), MappingPurpose.PROPAGATION)));
+                            getMappingItems(task.getResource(), MappingPurpose.PROPAGATION)));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;

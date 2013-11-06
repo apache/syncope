@@ -37,14 +37,12 @@ import org.apache.syncope.core.persistence.beans.Notification;
 import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
-import org.apache.syncope.core.persistence.beans.UserRequest;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
-import org.apache.syncope.core.persistence.dao.UserRequestDAO;
 import org.apache.syncope.core.persistence.dao.impl.AbstractContentDealer;
 import org.apache.syncope.core.util.ConnIdBundleManager;
 import org.apache.syncope.core.util.XMLSerializer;
@@ -80,9 +78,6 @@ public class ContentUpgrader extends AbstractContentDealer {
     @Autowired
     private TaskDAO taskDAO;
 
-    @Autowired
-    private UserRequestDAO userRequestDAO;
-
     private void upgradeActiviti() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
@@ -93,14 +88,14 @@ public class ContentUpgrader extends AbstractContentDealer {
                     "org\\.apache.syncope\\.core\\.workflow\\.activiti\\.",
                     "org.apache.syncope.core.workflow.user.activiti.task.").
                     replaceAll("org\\.apache\\.syncope\\.client\\.to\\.",
-                    "org.apache.syncope.common.to").
+                            "org.apache.syncope.common.to").
                     replaceAll("org\\.apache\\.syncope\\.types\\.",
-                    "org.apache.syncope.common.types").
+                            "org.apache.syncope.common.types").
                     replaceAll("org/apache/syncope/types/",
-                    "org/apache/syncope/common/types/").
+                            "org/apache/syncope/common/types/").
                     getBytes();
             jdbcTemplate.update("UPDATE ACT_GE_BYTEARRAY SET BYTES_=? WHERE ID_=?",
-                    new Object[] {updated, row.get("ID_")});
+                    new Object[] { updated, row.get("ID_") });
         }
     }
 
@@ -135,8 +130,8 @@ public class ContentUpgrader extends AbstractContentDealer {
                 String oldConf = (String) xmlConfiguration.get(connInstance);
                 connInstance.setConfiguration(
                         XMLSerializer.<HashSet<ConnConfProperty>>deserialize(
-                        oldConf.replaceAll("org\\.apache\\.syncope\\.types\\.ConnConfProperty",
-                        ConnConfProperty.class.getName())));
+                                oldConf.replaceAll("org\\.apache\\.syncope\\.types\\.ConnConfProperty",
+                                        ConnConfProperty.class.getName())));
             } catch (Exception e) {
                 LOG.error("While upgrading {}", connInstance, e);
             }
@@ -152,8 +147,8 @@ public class ContentUpgrader extends AbstractContentDealer {
                 if (StringUtils.isNotBlank(oldConf)) {
                     resource.setConnInstanceConfiguration(
                             XMLSerializer.<HashSet<ConnConfProperty>>deserialize(
-                            oldConf.replaceAll("org\\.apache\\.syncope\\.types\\.ConnConfProperty",
-                            ConnConfProperty.class.getName())));
+                                    oldConf.replaceAll("org\\.apache\\.syncope\\.types\\.ConnConfProperty",
+                                            ConnConfProperty.class.getName())));
                 }
             } catch (Exception e) {
                 LOG.error("While upgrading {}", resource, e);
@@ -169,9 +164,9 @@ public class ContentUpgrader extends AbstractContentDealer {
                 String oldConf = (String) specification.get(policy);
                 policy.setSpecification(
                         XMLSerializer.<AbstractPolicySpec>deserialize(
-                        oldConf.replaceAll("org\\.apache\\.syncope\\.types\\.",
-                        "org.apache.syncope.common.types.").
-                        replaceAll("alternativeSearchAttrs", "uAltSearchSchemas")));
+                                oldConf.replaceAll("org\\.apache\\.syncope\\.types\\.",
+                                        "org.apache.syncope.common.types.").
+                                replaceAll("alternativeSearchAttrs", "uAltSearchSchemas")));
             } catch (Exception e) {
                 LOG.error("While upgrading {}", policy, e);
             }
@@ -189,15 +184,15 @@ public class ContentUpgrader extends AbstractContentDealer {
                 if (oldAbout != null) {
                     notification.setAbout(
                             XMLSerializer.<NodeCond>deserialize(
-                            oldAbout.replaceAll("org\\.apache\\.syncope\\.client\\.search\\.",
-                            "org.apache.syncope.common.search.")));
+                                    oldAbout.replaceAll("org\\.apache\\.syncope\\.client\\.search\\.",
+                                            "org.apache.syncope.common.search.")));
                 }
                 String oldRecipients = (String) xmlRecipients.get(notification);
                 if (oldRecipients != null) {
                     notification.setRecipients(
                             XMLSerializer.<NodeCond>deserialize(
-                            oldRecipients.replaceAll("org\\.apache\\.syncope\\.client\\.search\\.",
-                            "org.apache.syncope.common.search.")));
+                                    oldRecipients.replaceAll("org\\.apache\\.syncope\\.client\\.search\\.",
+                                            "org.apache.syncope.common.search.")));
                 }
             } catch (Exception e) {
                 LOG.error("While upgrading {}", notification, e);
@@ -214,10 +209,10 @@ public class ContentUpgrader extends AbstractContentDealer {
                 if (oldUserTemplate != null) {
                     task.setUserTemplate(
                             XMLSerializer.<UserTO>deserialize(
-                            oldUserTemplate.replaceAll("org\\.apache\\.syncope\\.client\\.to\\.",
-                            "org.apache.syncope.common.to.").
-                            replaceAll("propagationTOs",
-                            "propagationStatusTOs")));
+                                    oldUserTemplate.replaceAll("org\\.apache\\.syncope\\.client\\.to\\.",
+                                            "org.apache.syncope.common.to.").
+                                    replaceAll("propagationTOs",
+                                            "propagationStatusTOs")));
                 }
             } catch (Exception e) {
                 LOG.error("While upgrading {}", task, e);
@@ -233,28 +228,9 @@ public class ContentUpgrader extends AbstractContentDealer {
         for (Map<String, Object> row : rcInstances) {
             String updated = ((String) row.get("serializedInstance")).
                     replaceAll("org\\.apache\\.syncope\\.client\\.report\\.",
-                    "org.apache.syncope.common.report.");
+                            "org.apache.syncope.common.report.");
             jdbcTemplate.update("UPDATE ReportletConfInstance SET serializedInstance=? WHERE id=?",
-                    new Object[] {updated, row.get("id")});
-        }
-    }
-
-    private void upgradeUserRequest() {
-        Field payload = ReflectionUtils.findField(UserRequest.class, "payload");
-        payload.setAccessible(true);
-        for (UserRequest request : userRequestDAO.findAll()) {
-            try {
-                String oldPayload = (String) payload.get(request);
-                if (oldPayload != null) {
-                    payload.set(request,
-                            oldPayload.replaceAll("org\\.apache\\.syncope\\.client\\.to\\.",
-                            "org.apache.syncope.common.to.").
-                            replaceAll("org\\.apache\\.syncope\\.client\\.mod\\.",
-                            "org.apache.syncope.common.mod."));
-                }
-            } catch (Exception e) {
-                LOG.error("While upgrading {}", request, e);
-            }
+                    new Object[] { updated, row.get("id") });
         }
     }
 
@@ -282,8 +258,6 @@ public class ContentUpgrader extends AbstractContentDealer {
         upgradeSyncTask();
 
         upgradeReportletConf();
-
-        upgradeUserRequest();
 
         Connection conn = DataSourceUtils.getConnection(dataSource);
         try {

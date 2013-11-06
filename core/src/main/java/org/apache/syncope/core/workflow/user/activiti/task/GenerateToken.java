@@ -18,20 +18,27 @@
  */
 package org.apache.syncope.core.workflow.user.activiti.task;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.workflow.user.activiti.ActivitiUserWorkflowAdapter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class GenerateToken extends AbstractActivitiDelegate {
+@Component
+public class GenerateToken extends AbstractActivitiServiceTask {
+
+    @Autowired
+    private ConfDAO confDAO;
 
     @Override
-    protected void doExecute(final DelegateExecution execution) throws Exception {
-        SyncopeUser user = (SyncopeUser) execution.getVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER);
+    protected void doExecute(final String executionId) {
+        SyncopeUser user =
+                (SyncopeUser) runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER);
 
         user.generateToken(
                 Integer.parseInt(confDAO.find("token.length", "256").getValue()),
                 Integer.parseInt(confDAO.find("token.expireTime", "60").getValue()));
 
-        execution.setVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
+        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
     }
 }

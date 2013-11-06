@@ -18,23 +18,24 @@
  */
 package org.apache.syncope.core.workflow.user.activiti.task;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.workflow.user.activiti.ActivitiUserWorkflowAdapter;
+import org.springframework.stereotype.Component;
 
-public class Delete extends AbstractActivitiDelegate {
+@Component
+public class Delete extends AbstractActivitiServiceTask {
 
     @Override
-    protected void doExecute(final DelegateExecution execution) throws Exception {
+    protected void doExecute(final String executionId) {
+        SyncopeUser user =
+                (SyncopeUser) runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER);
 
-        SyncopeUser user = (SyncopeUser) execution.getVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER);
-
-        // TODO: do something with SyncopeUser...
+        // Do something with SyncopeUser...
         if (user != null) {
             user.checkToken("");
         }
 
         // remove SyncopeUser variable
-        execution.removeVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER);
+        runtimeService.removeVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER);
     }
 }

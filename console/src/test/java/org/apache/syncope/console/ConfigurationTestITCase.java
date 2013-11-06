@@ -50,7 +50,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='key:textField']\");", "30000");
 
-        assertEquals("createRequest.allowed", selenium.getAttribute("//input[@name='key:textField']@value"));
+        assertEquals("notification.maxRetries", selenium.getAttribute("//input[@name='key:textField']@value"));
 
         selenium.click("css=a.w_close");
     }

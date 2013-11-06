@@ -20,7 +20,6 @@ package org.apache.syncope.core.report;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
 import java.util.zip.Deflater;
@@ -31,6 +30,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.types.ReportExecStatus;
@@ -40,6 +40,7 @@ import org.apache.syncope.core.persistence.dao.ReportDAO;
 import org.apache.syncope.core.persistence.dao.ReportExecDAO;
 import org.apache.syncope.core.rest.data.ReportDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
+import org.apache.syncope.core.util.ExceptionUtil;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -165,9 +166,9 @@ public class ReportJob implements Job {
                         Throwable t = e instanceof ReportException
                                 ? e.getCause()
                                 : e;
-                        exceptionWriter.write(t.getMessage() + "\n\n");
-                        t.printStackTrace(new PrintWriter(exceptionWriter));
-                        reportExecutionMessage.append(exceptionWriter.toString()).append("\n==================\n");
+                        reportExecutionMessage.
+                                append(ExceptionUtil.getFullStackTrace(t)).
+                                append("\n==================\n");
                     }
                 }
             }
@@ -181,17 +182,14 @@ public class ReportJob implements Job {
             }
         } catch (Exception e) {
             execution.setStatus(ReportExecStatus.FAILURE);
-
-            exceptionWriter.write(e.getMessage() + "\n\n");
-            e.printStackTrace(new PrintWriter(exceptionWriter));
-            reportExecutionMessage.append(exceptionWriter.toString());
+            reportExecutionMessage.append(ExceptionUtil.getFullStackTrace(e));
 
             throw new JobExecutionException(e, true);
         } finally {
             try {
                 zos.closeEntry();
-                zos.close();
-                baos.close();
+                IOUtils.closeQuietly(zos);
+                IOUtils.closeQuietly(baos);
             } catch (IOException e) {
                 LOG.error("While closing StreamResult's backend", e);
             }

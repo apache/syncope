@@ -198,16 +198,14 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
         }
 
         try {
-            WorkflowResult<Map.Entry<Long, Boolean>> updated = uwfAdapter.update(userMod);
+            WorkflowResult<Map.Entry<UserMod, Boolean>> updated = uwfAdapter.update(userMod);
 
-            List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated,
-                    userMod.getPassword(), userMod.getVirAttrsToRemove(),
-                    userMod.getVirAttrsToUpdate(),
-                    Collections.singleton(resourceName));
+            List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
+                    updated, Collections.singleton(resourceName));
 
             taskExecutor.execute(tasks);
 
-            notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
+            notificationManager.createTasks(updated.getResult().getKey().getId(), updated.getPerformedTasks());
         } catch (PropagationException e) {
             LOG.error("Could not propagate {}", userMod, e);
         } catch (Exception e) {

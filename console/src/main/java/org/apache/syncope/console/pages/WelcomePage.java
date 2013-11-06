@@ -20,7 +20,7 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.console.SyncopeApplication;
 import org.apache.syncope.console.commons.XMLRolesReader;
-import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.console.rest.UserSelfRestClient;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -36,7 +36,7 @@ public class WelcomePage extends WebPage {
     private XMLRolesReader xmlRolesReader;
 
     @SpringBean
-    protected UserRestClient userRestClient;
+    private UserSelfRestClient userSelfRestClient;
 
     public WelcomePage(final PageParameters parameters) {
         super(parameters);
@@ -50,6 +50,6 @@ public class WelcomePage extends WebPage {
     }
 
     private void setupEditProfileModal() {
-        ((SyncopeApplication) getApplication()).setupEditProfileModal(this, userRestClient);
+        ((SyncopeApplication) getApplication()).setupEditProfileModal(this, userSelfRestClient);
     }
 }

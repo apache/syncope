@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -60,6 +61,7 @@ import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO {
@@ -144,8 +146,14 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
         result.add(role);
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public List<SyncopeRole> findOwned(final SyncopeUser owner) {
+    public List<SyncopeRole> findOwnedByUser(final Long userId) {
+        SyncopeUser owner = userDAO.find(userId);
+        if (owner == null) {
+            return Collections.emptyList();
+        }
+
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(SyncopeRole.class.getSimpleName()).
                 append(" e WHERE e.userOwner=:owner ");
         for (Long roleId : owner.getRoleIds()) {
@@ -163,8 +171,14 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
         return result;
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public List<SyncopeRole> findOwned(final SyncopeRole owner) {
+    public List<SyncopeRole> findOwnedByRole(final Long roleId) {
+        SyncopeRole owner = find(roleId);
+        if (owner == null) {
+            return Collections.emptyList();
+        }
+
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(SyncopeRole.class.getSimpleName()).
                 append(" e WHERE e.roleOwner=:owner ");
 

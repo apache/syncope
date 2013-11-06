@@ -40,11 +40,11 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Simple implementation basically not involving any workflow engine.
  */
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = { Throwable.class })
 public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     private static final List<String> TASKS =
-            Arrays.asList(new String[] {"create", "activate", "update", "suspend", "reactivate", "delete"});
+            Arrays.asList(new String[] { "create", "activate", "update", "suspend", "reactivate", "delete" });
 
     public static final String ENABLED = "enabled";
 
@@ -107,15 +107,16 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Map.Entry<Long, Boolean>> doUpdate(final SyncopeUser user, final UserMod userMod)
+    protected WorkflowResult<Map.Entry<UserMod, Boolean>> doUpdate(final SyncopeUser user, final UserMod userMod)
             throws WorkflowException {
 
         PropagationByResource propByRes = dataBinder.update(user, userMod);
 
         SyncopeUser updated = userDAO.save(user);
 
-        return new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new AbstractMap.SimpleEntry<Long, Boolean>(updated.getId(), !user.isSuspended()), propByRes, "update");
+        userMod.setId(updated.getId());
+        return new WorkflowResult<Map.Entry<UserMod, Boolean>>(
+                new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, !user.isSuspended()), propByRes, "update");
     }
 
     @Override
@@ -198,7 +199,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Map.Entry<Long, String>> submitForm(final WorkflowFormTO form, final String username)
+    public WorkflowResult<UserMod> submitForm(final WorkflowFormTO form, final String username)
             throws NotFoundException, WorkflowException {
 
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.mod.AttributeMod;
+import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
@@ -223,56 +224,62 @@ public class PropagationManager {
     /**
      * Performs update on each resource associated to the user.
      *
-     * @param wfResult user to be propagated (and info associated), as per result from workflow.
-     * @return list of propagation tasks
-     * @throws NotFoundException if user is not found
-     * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given user
-     */
-    public List<PropagationTask> getUserUpdateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult)
-            throws NotFoundException, UnauthorizedRoleException {
-
-        return getUserUpdateTaskIds(
-                wfResult, null, Collections.<String>emptySet(), Collections.<AttributeMod>emptySet(), null);
-    }
-
-    /**
-     * Performs update on each resource associated to the user.
-     *
      * @param wfResult user to be propagated (and info associated), as per result from workflow
-     * @param password to be updated
-     * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeUpdated virtual attributes to be added
-     * @return list of propagation tasks
-     * @throws NotFoundException if user is not found
-     * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given user
-     */
-    public List<PropagationTask> getUserUpdateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password, final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated)
-            throws NotFoundException, UnauthorizedRoleException {
-
-        return getUserUpdateTaskIds(wfResult, password, vAttrsToBeRemoved, vAttrsToBeUpdated, null);
-    }
-
-    /**
-     * Performs update on each resource associated to the user.
-     *
-     * @param wfResult user to be propagated (and info associated), as per result from workflow
-     * @param password to be updated
-     * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeUpdated virtual attributes to be added
      * @param noPropResourceNames external resources not to be considered for propagation
      * @return list of propagation tasks
      * @throws NotFoundException if user is not found
      * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given user
      */
-    public List<PropagationTask> getUserUpdateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password, final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
+    public List<PropagationTask> getUserUpdateTaskIds(final WorkflowResult<Map.Entry<UserMod, Boolean>> wfResult,
             final Collection<String> noPropResourceNames)
             throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeUser user = userDataBinder.getUserFromId(wfResult.getResult().getKey());
-        return getUpdateTaskIds(user, password, wfResult.getResult().getValue(),
-                vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.getPropByRes(), noPropResourceNames);
+        SyncopeUser user = userDataBinder.getUserFromId(wfResult.getResult().getKey().getId());
+        return getUpdateTaskIds(user,
+                wfResult.getResult().getKey().getPassword(),
+                wfResult.getResult().getValue(),
+                wfResult.getResult().getKey().getVirAttrsToRemove(),
+                wfResult.getResult().getKey().getVirAttrsToUpdate(),
+                wfResult.getPropByRes(),
+                noPropResourceNames);
+    }
+
+    public List<PropagationTask> getUserUpdateTaskIds(final WorkflowResult<Map.Entry<UserMod, Boolean>> wfResult) {
+        UserMod userMod = wfResult.getResult().getKey();
+
+        // Propagate password update only to requested resources
+        List<PropagationTask> tasks = new ArrayList<PropagationTask>();
+        if (userMod.getPwdPropRequest() == null) {
+            // a. no specific password propagation request: generate propagation tasks for any resource associated
+            tasks = getUserUpdateTaskIds(wfResult, null);
+        } else {
+            // b. generate the propagation task list in two phases: first the ones containing password,
+            // the the rest (with no password)
+            final PropagationByResource origPropByRes = new PropagationByResource();
+            origPropByRes.merge(wfResult.getPropByRes());
+
+            Set<String> pwdResourceNames = new HashSet<String>(userMod.getPwdPropRequest().getResourceNames());
+            Set<String> currentResourceNames = userDataBinder.getResourceNamesForUserId(userMod.getId());
+            pwdResourceNames.retainAll(currentResourceNames);
+            PropagationByResource pwdPropByRes = new PropagationByResource();
+            pwdPropByRes.addAll(ResourceOperation.UPDATE, pwdResourceNames);
+            if (!pwdPropByRes.isEmpty()) {
+                Set<String> toBeExcluded = new HashSet<String>(currentResourceNames);
+                toBeExcluded.addAll(userMod.getResourcesToAdd());
+                toBeExcluded.removeAll(pwdResourceNames);
+                tasks.addAll(getUserUpdateTaskIds(wfResult, toBeExcluded));
+            }
+
+            final PropagationByResource nonPwdPropByRes = new PropagationByResource();
+            nonPwdPropByRes.merge(origPropByRes);
+            nonPwdPropByRes.removeAll(pwdResourceNames);
+            nonPwdPropByRes.purge();
+            if (!nonPwdPropByRes.isEmpty()) {
+                tasks.addAll(getUserUpdateTaskIds(wfResult, pwdResourceNames));
+            }
+        }
+
+        return tasks;
     }
 
     /**

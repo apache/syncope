@@ -18,13 +18,14 @@
  */
 package org.apache.syncope.core.workflow.user.activiti.task;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.apache.syncope.core.workflow.user.activiti.ActivitiUserWorkflowAdapter;
+import org.springframework.stereotype.Component;
 
-public class AutoActivate extends AbstractActivitiDelegate {
+@Component
+public class AutoActivate extends AbstractActivitiServiceTask {
 
     @Override
-    protected void doExecute(final DelegateExecution execution) throws Exception {
-        execution.setVariable(ActivitiUserWorkflowAdapter.PROPAGATE_ENABLE, Boolean.TRUE);
+    protected void doExecute(final String executionId) {
+        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.PROPAGATE_ENABLE, Boolean.TRUE);
     }
 }

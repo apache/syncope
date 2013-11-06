@@ -19,7 +19,7 @@
 package org.apache.syncope.core.workflow;
 
 import java.util.List;
-import java.util.Map;
+import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
@@ -108,6 +108,6 @@ public interface WorkflowAdapter {
      * @throws NotFoundException not found exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Map.Entry<Long, String>> submitForm(WorkflowFormTO form, String username)
+    WorkflowResult<? extends AbstractAttributableMod> submitForm(WorkflowFormTO form, String username)
             throws NotFoundException, WorkflowException;
 }

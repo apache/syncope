@@ -57,6 +57,22 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class AuthenticationTestITCase extends AbstractTest {
 
+    private int getFailedLogins(UserService testUserService, long userId) {
+        UserTO readUserTO = testUserService.read(userId);
+        assertNotNull(readUserTO);
+        assertNotNull(readUserTO.getFailedLogins());
+        return readUserTO.getFailedLogins();
+    }
+
+    private void assertReadFails(UserService userService, long id) {
+        try {
+            userService.read(id);
+            fail("access should not work");
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
+    }
+
     @Test
     public void testAdminEntitlements() {
         // 1. as anonymous, read all available entitlements
@@ -260,8 +276,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         long userId = userTO.getId();
         assertNotNull(userTO);
 
-        UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").getService(
-                UserService.class);
+        UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").
+                getService(UserService.class);
         assertEquals(0, getFailedLogins(userService2, userId));
 
         // authentications failed ...
@@ -274,11 +290,9 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertEquals(3, getFailedLogins(userService, userId));
 
         // last authentication before suspension
-        userService3 = clientFactory.create(userTO.getUsername(), "wrongpwd1").getService(UserService.class);
         assertReadFails(userService3, userId);
 
         userTO = userService.read(userTO.getId());
-
         assertNotNull(userTO);
         assertNotNull(userTO.getFailedLogins());
         assertEquals(Integer.valueOf(3), userTO.getFailedLogins());
@@ -341,21 +355,5 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(response);
         role1User = response.readEntity(UserTO.class);
         assertNotNull(role1User);
-    }
-
-    private int getFailedLogins(UserService testUserService, long userId) {
-        UserTO readUserTO = testUserService.read(userId);
-        assertNotNull(readUserTO);
-        assertNotNull(readUserTO.getFailedLogins());
-        return readUserTO.getFailedLogins();
-    }
-
-    private void assertReadFails(UserService userService, long id) {
-        try {
-            userService.read(id);
-            fail("access should not work");
-        } catch (Exception e) {
-            assertNotNull(e);
-        }
     }
 }

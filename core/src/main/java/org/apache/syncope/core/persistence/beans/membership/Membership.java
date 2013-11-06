@@ -40,7 +40,7 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 
 @Entity
 @Table(uniqueConstraints =
-        @UniqueConstraint(columnNames = {"syncopeUser_id", "syncopeRole_id"}))
+        @UniqueConstraint(columnNames = { "syncopeUser_id", "syncopeRole_id" }))
 public class Membership extends AbstractAttributable {
 
     private static final long serialVersionUID = 5030106264797289469L;

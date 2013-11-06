@@ -18,29 +18,31 @@
  */
 package org.apache.syncope.core.workflow.user.activiti.task;
 
-import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.rest.data.UserDataBinder;
-import org.apache.syncope.core.workflow.user.activiti.ActivitiUserWorkflowAdapter;
+import org.activiti.engine.RuntimeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Abstract base class for Activiti's service tasks in Syncope, with Spring support.
+ */
 @Component
-public class Create extends AbstractActivitiServiceTask {
+public abstract class AbstractActivitiServiceTask {
+
+    /**
+     * Logger.
+     */
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractActivitiServiceTask.class);
 
     @Autowired
-    private UserDataBinder dataBinder;
+    protected RuntimeService runtimeService;
 
-    @Override
-    protected void doExecute(final String executionId) {
-        UserTO userTO = (UserTO) runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER_TO);
-
-        // create and set workflow id
-        SyncopeUser user = new SyncopeUser();
-        dataBinder.create(user, userTO);
-        user.setWorkflowId(executionId);
-
-        // report SyncopeUser as result
-        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
+    @Transactional(rollbackFor = { Throwable.class })
+    public void execute(final String executionId) {
+        doExecute(executionId);
     }
+
+    protected abstract void doExecute(final String executionId);
 }

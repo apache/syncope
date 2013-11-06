@@ -88,10 +88,6 @@ public class UserRestClient extends AbstractAttributableRestClient {
         return userTO;
     }
 
-    public UserTO readSelf() {
-        return getService(UserService.class).readSelf();
-    }
-
     @Override
     public Integer searchCount(final NodeCond searchCond) throws InvalidSearchConditionException {
         return getService(UserService.class).searchCount(searchCond);

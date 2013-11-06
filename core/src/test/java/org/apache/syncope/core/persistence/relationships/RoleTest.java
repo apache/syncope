@@ -103,7 +103,7 @@ public class RoleTest extends AbstractDAOTest {
         assertNotNull(child2);
         assertEquals(role, child2.getParent());
 
-        List<SyncopeRole> ownedRoles = roleDAO.findOwned(user);
+        List<SyncopeRole> ownedRoles = roleDAO.findOwnedByUser(user.getId());
         assertFalse(ownedRoles.isEmpty());
         assertEquals(2, ownedRoles.size());
         assertTrue(ownedRoles.contains(role));

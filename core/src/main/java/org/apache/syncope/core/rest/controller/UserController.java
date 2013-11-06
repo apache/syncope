@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,21 +36,22 @@ import org.apache.syncope.common.to.BulkActionRes.Status;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditElements.UserSubCategory;
-import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
+import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationReporter;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
@@ -95,6 +97,9 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     protected AttributableSearchDAO searchDAO;
 
     @Autowired
+    protected ConfDAO confDAO;
+
+    @Autowired
     protected UserDataBinder binder;
 
     @Autowired
@@ -111,6 +116,15 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
     @Autowired
     protected NotificationManager notificationManager;
+
+    public boolean isSelfRegistrationAllowed() {
+        final SyncopeConf selfRegistrationAllowed = confDAO.find("selfRegistration.allowed", "false");
+
+        auditManager.audit(Category.user, AuditElements.UserSubCategory.selfRegistrationAllowed, Result.success,
+                "Successfully checked whether self registration is allowed");
+
+        return Boolean.valueOf(selfRegistrationAllowed.getValue());
+    }
 
     @PreAuthorize("hasRole('USER_READ')")
     public String getUsername(final Long userId) {
@@ -174,17 +188,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
         return userTOs;
     }
 
-    @PreAuthorize("hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
-    public UserTO read(final Long userId) {
-        UserTO result = binder.getUserTO(userId);
-
-        auditManager.audit(Category.user, UserSubCategory.read, Result.success,
-                "Successfully read user: " + userId);
-
-        return result;
-    }
-
     @PreAuthorize("isAuthenticated() "
             + "and not(hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT))")
     @Transactional(readOnly = true)
@@ -195,6 +198,17 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
                 "Successfully read own data: " + userTO.getUsername());
 
         return userTO;
+    }
+
+    @PreAuthorize("hasRole('USER_READ')")
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    public UserTO read(final Long userId) {
+        UserTO result = binder.getUserTO(userId);
+
+        auditManager.audit(Category.user, UserSubCategory.read, Result.success,
+                "Successfully read user: " + userId);
+
+        return result;
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -232,6 +246,16 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
         return result;
     }
 
+    @PreAuthorize("isAnonymous() or hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
+    public UserTO createSelf(final UserTO userTO) {
+        if (!isSelfRegistrationAllowed()) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unauthorized);
+            sce.getElements().add("SelfRegistration forbidden by configuration");
+        }
+
+        return doCreate(userTO);
+    }
+
     @PreAuthorize("hasRole('USER_CREATE')")
     public UserTO create(final UserTO userTO) {
         LOG.debug("User create called with {}", userTO);
@@ -246,6 +270,10 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
             throw new UnauthorizedRoleException(requestRoleIds);
         }
 
+        return doCreate(userTO);
+    }
+
+    protected UserTO doCreate(final UserTO userTO) {
         // Attributable transformation (if configured)
         UserTO actual = attrTransformer.transform(userTO);
         LOG.debug("Transformed: {}", actual);
@@ -279,70 +307,31 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
         return savedTO;
     }
 
+    @PreAuthorize("isAuthenticated() "
+            + "and not(hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT))")
+    public UserTO updateSelf(final UserMod userMod) {
+        UserTO userTO = binder.getAuthenticatedUserTO();
+
+        if (userTO.getId() != userMod.getId()) {
+            throw new AccessControlException("Not allowed for user id " + userMod.getId());
+        }
+
+        return update(userMod);
+    }
+
     @PreAuthorize("hasRole('USER_UPDATE')")
     public UserTO update(final UserMod userMod) {
         LOG.debug("User update called with {}", userMod);
 
-        final String changedPwd = userMod.getPassword();
-
         // AttributableMod transformation (if configured)
         UserMod actual = attrTransformer.transform(userMod);
         LOG.debug("Transformed: {}", actual);
+        /*
+         * Actual operations: workflow, propagation, notification
+         */
+        WorkflowResult<Map.Entry<UserMod, Boolean>> updated = uwfAdapter.update(actual);
 
-        // 1. update password internally only if required
-        if (actual.getPwdPropRequest() != null && !actual.getPwdPropRequest().isOnSyncope()) {
-            actual.setPassword(null);
-        }
-        WorkflowResult<Map.Entry<Long, Boolean>> updated = uwfAdapter.update(actual);
-
-        // 2. propagate password update only to requested resources
-        List<PropagationTask> tasks = new ArrayList<PropagationTask>();
-        if (actual.getPwdPropRequest() == null) {
-            // 2a. no specific password propagation request: generate propagation tasks for any resource associated
-            tasks = propagationManager.getUserUpdateTaskIds(updated, changedPwd,
-                    actual.getVirAttrsToRemove(), actual.getVirAttrsToUpdate());
-        } else {
-            // 2b. generate the propagation task list in two phases: first the ones containing password,
-            // the the rest (with no password)
-            final PropagationByResource origPropByRes = new PropagationByResource();
-            origPropByRes.merge(updated.getPropByRes());
-
-            List<String> pwdResourceNames = actual.getPwdPropRequest().getResourceNames();
-            SyncopeUser user = binder.getUserFromId(updated.getResult().getKey());
-            pwdResourceNames.retainAll(user.getResourceNames());
-            final PropagationByResource pwdPropByRes = new PropagationByResource();
-            pwdPropByRes.addAll(ResourceOperation.UPDATE, pwdResourceNames);
-            updated.setPropByRes(pwdPropByRes);
-
-            if (!pwdPropByRes.isEmpty()) {
-                Set<String> toBeExcluded = new HashSet<String>(user.getResourceNames());
-                toBeExcluded.addAll(actual.getResourcesToAdd());
-                toBeExcluded.removeAll(pwdResourceNames);
-                tasks.addAll(propagationManager.getUserUpdateTaskIds(
-                        updated,
-                        changedPwd,
-                        actual.getVirAttrsToRemove(),
-                        actual.getVirAttrsToUpdate(),
-                        toBeExcluded));
-            }
-
-            final PropagationByResource nonPwdPropByRes = new PropagationByResource();
-            nonPwdPropByRes.merge(origPropByRes);
-            nonPwdPropByRes.removeAll(pwdResourceNames);
-            nonPwdPropByRes.purge();
-            updated.setPropByRes(nonPwdPropByRes);
-
-            if (!nonPwdPropByRes.isEmpty()) {
-                tasks.addAll(propagationManager.getUserUpdateTaskIds(
-                        updated,
-                        null,
-                        actual.getVirAttrsToRemove(),
-                        actual.getVirAttrsToUpdate(),
-                        pwdResourceNames));
-            }
-
-            updated.setPropByRes(origPropByRes);
-        }
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated);
 
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
                 getBean(PropagationReporter.class);
@@ -353,11 +342,9 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        // 3. create notification tasks
-        notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
+        notificationManager.createTasks(updated.getResult().getKey().getId(), updated.getPerformedTasks());
 
-        // 4. prepare result, including propagation status on external resources
-        final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey());
+        final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey().getId());
         updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
 
         auditManager.audit(Category.user, UserSubCategory.update, Result.success,
@@ -424,11 +411,19 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
         return savedTO;
     }
 
+    @PreAuthorize("isAuthenticated() "
+            + "and not(hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT))")
+    public UserTO deleteSelf() {
+        UserTO userTO = binder.getAuthenticatedUserTO();
+
+        return delete(userTO.getId());
+    }
+
     @PreAuthorize("hasRole('USER_DELETE')")
     public UserTO delete(final Long userId) {
         LOG.debug("User delete called for {}", userId);
 
-        List<SyncopeRole> ownedRoles = roleDAO.findOwned(binder.getUserFromId(userId));
+        List<SyncopeRole> ownedRoles = roleDAO.findOwnedByUser(userId);
         if (!ownedRoles.isEmpty()) {
             List<String> owned = new ArrayList<String>(ownedRoles.size());
             for (SyncopeRole role : ownedRoles) {
@@ -452,9 +447,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
         List<PropagationTask> tasks = propagationManager.getUserDeleteTaskIds(userId);
 
-        final UserTO userTO = new UserTO();
-        userTO.setId(userId);
-
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
                 getBean(PropagationReporter.class);
         try {
@@ -464,16 +456,24 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        userTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
-
         uwfAdapter.delete(userId);
+
+        final UserTO deletedTO;
+        SyncopeUser deleted = userDAO.find(userId);
+        if (deleted == null) {
+            deletedTO = new UserTO();
+            deletedTO.setId(userId);
+        } else {
+            deletedTO = binder.getUserTO(userId);
+        }
+        deletedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
 
         auditManager.audit(Category.user, UserSubCategory.delete, Result.success,
                 "Successfully deleted user: " + userId);
 
         LOG.debug("User successfully deleted: {}", userId);
 
-        return userTO;
+        return deletedTO;
     }
 
     @PreAuthorize("(hasRole('USER_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE) or "
@@ -542,9 +542,9 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
         userMod.getResourcesToRemove().addAll(resources);
 
-        final WorkflowResult<Map.Entry<Long, Boolean>> updated = uwfAdapter.update(userMod);
+        WorkflowResult<Map.Entry<UserMod, Boolean>> updated = uwfAdapter.update(userMod);
 
-        final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey());
+        final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey().getId());
 
         auditManager.audit(Category.user, UserSubCategory.update, Result.success,
                 "Successfully updated user: " + updatedTO.getUsername());

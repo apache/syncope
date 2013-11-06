@@ -93,12 +93,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
     public UserTO read(final Long userId) {
         return controller.read(userId);
     }
-
-    @Override
-    public UserTO readSelf() {
-        return controller.readSelf();
-    }
-
+    
     @Override
     public List<UserTO> search(final NodeCond searchCondition) throws InvalidSearchConditionException {
         return controller.search(searchCondition);

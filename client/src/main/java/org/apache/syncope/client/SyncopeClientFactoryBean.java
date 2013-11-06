@@ -79,7 +79,7 @@ public class SyncopeClientFactoryBean {
         return new JacksonJaxbJsonProvider();
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected JAXBElementProvider defaultJAXBProvider() {
         JAXBElementProvider defaultJAXBProvider = new JAXBElementProvider();
 
@@ -192,6 +192,10 @@ public class SyncopeClientFactoryBean {
     public SyncopeClientFactoryBean setRestClientFactoryBean(final RestClientFactoryBean restClientFactoryBean) {
         this.restClientFactoryBean = restClientFactoryBean;
         return this;
+    }
+
+    public SyncopeClient createAnonymous() {
+        return create(null, null);
     }
 
     public SyncopeClient create(final String username, final String password) {

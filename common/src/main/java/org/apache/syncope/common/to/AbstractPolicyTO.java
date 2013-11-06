@@ -30,7 +30,7 @@ import org.apache.syncope.common.types.PolicyType;
 
 @XmlRootElement(name = "policy")
 @XmlType
-@XmlSeeAlso({AccountPolicyTO.class, PasswordPolicyTO.class, SyncPolicyTO.class})
+@XmlSeeAlso({ AccountPolicyTO.class, PasswordPolicyTO.class, SyncPolicyTO.class })
 @JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY, property = "@class")
 public abstract class AbstractPolicyTO extends AbstractBaseBean {
 

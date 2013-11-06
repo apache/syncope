@@ -34,7 +34,7 @@ public enum RESTHeaders {
     /**
      * Option key stating if user request create is allowed or not.
      */
-    USERREQUEST_CREATE_ALLOWED("Syncope.UserRequestCreate.Allowed"),
+    SELFREGISTRATION_ALLOWED("Syncope.SelfRegistration.Allowed"),
     /**
      * HTTP header key for object ID assigned to an object after its creation.
      */

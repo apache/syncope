@@ -284,7 +284,7 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void anonymous() {
-        SchemaService unauthenticated = clientFactory.create(null, null).getService(SchemaService.class);
+        SchemaService unauthenticated = clientFactory.createAnonymous().getService(SchemaService.class);
         try {
             unauthenticated.list(AttributableType.USER, SchemaType.VIRTUAL);
             fail();

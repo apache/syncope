@@ -71,19 +71,6 @@ public interface UserService {
     UserTO read(@Description("id of user to be read") @PathParam("userId") Long userId);
 
     /**
-     * Reads data about the authenticated user.
-     *
-     * @return Data about the authenticated user
-     */
-    @GET
-    @Path("self")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Reads data about the authenticated user"),
-        @Description(target = DocTarget.RETURN, value = "Data about the authenticated user")
-    })
-    UserTO readSelf();
-
-    /**
      * Returns the number of existing users.
      *
      * @return Number of existing users

@@ -97,7 +97,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @throws UnauthorizedRoleException authorization exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Map.Entry<Long, Boolean>> update(UserMod userMod)
+    WorkflowResult<Map.Entry<UserMod, Boolean>> update(UserMod userMod)
             throws UnauthorizedRoleException, WorkflowException;
 
     /**

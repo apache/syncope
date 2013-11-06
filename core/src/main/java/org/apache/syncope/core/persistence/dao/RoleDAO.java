@@ -26,7 +26,6 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.RAttrValue;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 public interface RoleDAO extends AttributableDAO {
@@ -37,9 +36,9 @@ public interface RoleDAO extends AttributableDAO {
 
     SyncopeRole find(String name, Long parent);
 
-    List<SyncopeRole> findOwned(SyncopeUser owner);
+    List<SyncopeRole> findOwnedByUser(Long userId);
 
-    List<SyncopeRole> findOwned(SyncopeRole owner);
+    List<SyncopeRole> findOwnedByRole(Long roleId);
 
     List<SyncopeRole> findByEntitlement(final Entitlement entitlement);
 

@@ -298,14 +298,25 @@ public class PropagationByResource implements Serializable {
      * @param propByRes to be merged
      */
     public final void merge(final PropagationByResource propByRes) {
-        toBeCreated.addAll(propByRes.get(ResourceOperation.CREATE));
-        toBeUpdated.addAll(propByRes.get(ResourceOperation.UPDATE));
-        toBeDeleted.addAll(propByRes.get(ResourceOperation.DELETE));
-        oldAccountIds.putAll(propByRes.getOldAccountIds());
+        if (propByRes != null) {
+            toBeCreated.addAll(propByRes.get(ResourceOperation.CREATE));
+            toBeUpdated.addAll(propByRes.get(ResourceOperation.UPDATE));
+            toBeDeleted.addAll(propByRes.get(ResourceOperation.DELETE));
+            oldAccountIds.putAll(propByRes.getOldAccountIds());
+        }
     }
 
     /**
-     * whether no operations are present.
+     * Removes all of the operations.
+     */
+    public void clear() {
+        toBeCreated.clear();
+        toBeUpdated.clear();
+        toBeDeleted.clear();
+    }
+
+    /**
+     * Whether no operations are present.
      *
      * @return true if no operations (create / update / delete) and no old account ids are present
      */

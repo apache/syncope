@@ -63,7 +63,7 @@ import org.apache.syncope.core.persistence.validation.entity.SyncopeRoleCheck;
 
 @Entity
 @Table(uniqueConstraints =
-        @UniqueConstraint(columnNames = {"name", "parent_id"}))
+        @UniqueConstraint(columnNames = { "name", "parent_id" }))
 @Cacheable
 @SyncopeRoleCheck
 public class SyncopeRole extends AbstractAttributable {
@@ -284,7 +284,7 @@ public class SyncopeRole extends AbstractAttributable {
         this.inheritTemplates = getBooleanAsInteger(inheritAttrTemplates);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T extends AbstractAttrTemplate> List<T> getAttrTemplates(final Class<T> reference) {
         List<T> result = null;
 

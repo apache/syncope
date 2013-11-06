@@ -19,8 +19,11 @@ under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans   
-                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd">
 
   <bean id="uwfAdapter" class="${uwfAdapter}"/>
   <bean id="rwfAdapter" class="${rwfAdapter}"/>
@@ -69,6 +72,8 @@ under the License.
   <bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService"/>
   <bean id="formService" factory-bean="processEngine" factory-method="getFormService"/>
 
+  <context:component-scan base-package="org.apache.syncope.core.workflow.user.activiti.task"/>
+  
   <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
     <property name="velocityProperties">
       <value>

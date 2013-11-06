@@ -32,11 +32,10 @@ import org.apache.syncope.console.pages.Roles;
 import org.apache.syncope.console.pages.Schema;
 import org.apache.syncope.console.pages.Tasks;
 import org.apache.syncope.console.pages.Todo;
-import org.apache.syncope.console.pages.UserModalPage;
-import org.apache.syncope.console.pages.UserRequestModalPage;
+import org.apache.syncope.console.pages.UserSelfModalPage;
 import org.apache.syncope.console.pages.Users;
 import org.apache.syncope.console.pages.WelcomePage;
-import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.console.rest.UserSelfRestClient;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.RestartResponseAtInterceptPageException;
@@ -189,7 +188,7 @@ public class SyncopeApplication
         page.add(new BookmarkablePageLink<Void>("logout", Logout.class));
     }
 
-    public void setupEditProfileModal(final WebPage page, final UserRestClient userRestClient) {
+    public void setupEditProfileModal(final WebPage page, final UserSelfRestClient userSelfRestClient) {
         // Modal window for editing user profile
         final ModalWindow editProfileModalWin = new ModalWindow("editProfileModal");
         editProfileModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
@@ -205,7 +204,7 @@ public class SyncopeApplication
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 final UserTO userTO = SyncopeSession.get().isAuthenticated()
-                        ? userRestClient.readSelf()
+                        ? userSelfRestClient.read()
                         : new UserTO();
 
                 editProfileModalWin.setPageCreator(new ModalWindow.PageCreator() {
@@ -214,8 +213,7 @@ public class SyncopeApplication
 
                     @Override
                     public Page createPage() {
-                        return new UserRequestModalPage(page.getPageReference(), editProfileModalWin,
-                                userTO, UserModalPage.Mode.SELF);
+                        return new UserSelfModalPage(page.getPageReference(), editProfileModalWin, userTO);
                     }
                 });
 

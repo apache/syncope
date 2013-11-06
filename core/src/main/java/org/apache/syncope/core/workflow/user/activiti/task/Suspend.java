@@ -18,11 +18,12 @@
  */
 package org.apache.syncope.core.workflow.user.activiti.task;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import org.springframework.stereotype.Component;
 
-public class Suspend extends AbstractActivitiDelegate {
+@Component
+public class Suspend extends AbstractActivitiServiceTask {
 
     @Override
-    protected void doExecute(final DelegateExecution execution) throws Exception {
+    protected void doExecute(final String executionId) {
     }
 }

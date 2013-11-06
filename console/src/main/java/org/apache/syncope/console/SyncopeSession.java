@@ -57,6 +57,10 @@ public class SyncopeSession extends WebSession {
 
     private final SyncopeClientFactoryBean clientFactory;
 
+    private final String anonymousUser;
+
+    private final String anonymousKey;
+
     private final Map<Integer, SyncopeClient> clients = new HashMap<Integer, SyncopeClient>();
 
     public static SyncopeSession get() {
@@ -70,10 +74,23 @@ public class SyncopeSession extends WebSession {
                 getWebApplicationContext(WebApplication.get().getServletContext());
 
         clientFactory = applicationContext.getBean(SyncopeClientFactoryBean.class);
+        anonymousUser = applicationContext.getBean("anonymousUser", String.class);
+        anonymousKey = applicationContext.getBean("anonymousKey", String.class);
+    }
+
+    public boolean isSelfRegistrationAllowed() {
+        SyncopeClient client = clients.isEmpty()
+                ? clientFactory.createAnonymous()
+                : clients.values().iterator().next();
+        return client.isSelfRegistrationAllowed();
     }
 
     public <T> T getService(final Class<T> service) {
         return getService(service, this.username, this.password);
+    }
+
+    public <T> T getAnonymousService(final Class<T> service) {
+        return getService(service, this.anonymousUser, this.anonymousKey);
     }
 
     public <T> T getService(final Class<T> serviceClass, final String username, final String password) {

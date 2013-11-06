@@ -21,6 +21,8 @@ package org.apache.syncope.core.rest.controller;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.syncope.common.mod.AbstractAttributableMod;
+import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.AuditElements;
@@ -61,7 +63,7 @@ public class UserWorkflowController extends AbstractController {
     protected UserDataBinder binder;
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_CLAIM')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public WorkflowFormTO claimForm(final String taskId) {
         WorkflowFormTO result = uwfAdapter.claimForm(taskId,
                 SecurityContextHolder.getContext().getAuthentication().getName());
@@ -79,10 +81,13 @@ public class UserWorkflowController extends AbstractController {
 
         WorkflowResult<Long> updated = uwfAdapter.execute(userTO, taskId);
 
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
-                new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new AbstractMap.SimpleEntry<Long, Boolean>(updated.getResult(), null),
-                updated.getPropByRes(), updated.getPerformedTasks()));
+                new WorkflowResult<Map.Entry<UserMod, Boolean>>(
+                        new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, null),
+                        updated.getPropByRes(), updated.getPerformedTasks()));
 
         taskExecutor.execute(tasks);
 
@@ -100,7 +105,7 @@ public class UserWorkflowController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public WorkflowFormTO getFormForUser(final Long userId) {
         SyncopeUser user = binder.getUserFromId(userId);
         WorkflowFormTO result = uwfAdapter.getForm(user.getWorkflowId());
@@ -113,7 +118,7 @@ public class UserWorkflowController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_LIST')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public List<WorkflowFormTO> getForms() {
         List<WorkflowFormTO> forms = uwfAdapter.getForms();
 
@@ -125,7 +130,7 @@ public class UserWorkflowController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public List<WorkflowFormTO> getForms(final Long userId, final String formName) {
         SyncopeUser user = binder.getUserFromId(userId);
         final List<WorkflowFormTO> result = uwfAdapter.getForms(user.getWorkflowId(), formName);
@@ -138,33 +143,32 @@ public class UserWorkflowController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_SUBMIT')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public UserTO submitForm(final WorkflowFormTO form) {
         LOG.debug("About to process form {}", form);
 
-        WorkflowResult<Map.Entry<Long, String>> updated = uwfAdapter.submitForm(form,
-                SecurityContextHolder.getContext().getAuthentication().getName());
+        WorkflowResult<? extends AbstractAttributableMod> updated =
+                uwfAdapter.submitForm(form, SecurityContextHolder.getContext().getAuthentication().getName());
 
-        // propByRes can be made empty by the workflow definition is no propagation should occur 
+        // propByRes can be made empty by the workflow definition if no propagation should occur 
         // (for example, with rejected users)
-        if (updated.getPropByRes() != null && !updated.getPropByRes().isEmpty()) {
+        if (updated.getResult() instanceof UserMod
+                && updated.getPropByRes() != null && !updated.getPropByRes().isEmpty()) {
+
             List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
-                    new WorkflowResult<Map.Entry<Long, Boolean>>(
-                    new AbstractMap.SimpleEntry<Long, Boolean>(updated.getResult().getKey(), Boolean.TRUE),
-                    updated.getPropByRes(),
-                    updated.getPerformedTasks()),
-                    updated.getResult().getValue(),
-                    null,
-                    null,
-                    null);
+                    new WorkflowResult<Map.Entry<UserMod, Boolean>>(
+                            new AbstractMap.SimpleEntry<UserMod, Boolean>((UserMod) updated.getResult(), Boolean.TRUE),
+                            updated.getPropByRes(),
+                            updated.getPerformedTasks()));
+
             taskExecutor.execute(tasks);
         }
 
-        final UserTO savedTO = binder.getUserTO(updated.getResult().getKey());
+        UserTO savedTO = binder.getUserTO(updated.getResult().getId());
 
         auditManager.audit(AuditElements.Category.user, AuditElements.UserSubCategory.submitForm,
                 AuditElements.Result.success,
-                "Successfully submitted workflow form for user: " + savedTO.getUsername());
+                "Successfully submitted workflow form for : " + savedTO.getUsername());
 
         LOG.debug("About to return user after form processing\n{}", savedTO);
 

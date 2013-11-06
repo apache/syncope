@@ -67,19 +67,20 @@ import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.WorkflowFormPropertyType;
 import org.apache.syncope.common.util.BeanUtils;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
+import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
+import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.WorkflowInstanceLoader;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.user.AbstractUserWorkflowAdapter;
-import org.identityconnectors.common.security.EncryptorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.codec.Base64;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -94,13 +95,15 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
      */
     private static final Logger LOG = LoggerFactory.getLogger(ActivitiUserWorkflowAdapter.class);
 
-    private static final String[] PROPERTY_IGNORE_PROPS = {"type"};
+    private static final String[] PROPERTY_IGNORE_PROPS = { "type" };
 
     public static final String WF_PROCESS_ID = "userWorkflow";
 
     public static final String WF_PROCESS_RESOURCE = "userWorkflow.bpmn20.xml";
 
     public static final String SYNCOPE_USER = "syncopeUser";
+
+    public static final String WF_EXECUTOR = "wfExecutor";
 
     public static final String USER_TO = "userTO";
 
@@ -145,6 +148,18 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return ActivitiWorkflowLoader.class;
     }
 
+    private void throwException(final ActivitiException e, final String defaultMessage) {
+        if (e.getCause() != null) {
+            if (e.getCause().getCause() instanceof SyncopeClientException) {
+                throw (SyncopeClientException) e.getCause().getCause();
+            } else if (e.getCause().getCause() instanceof ParsingValidationException) {
+                throw (ParsingValidationException) e.getCause().getCause();
+            }
+        }
+
+        throw new WorkflowException(defaultMessage, e);
+    }
+
     private void updateStatus(final SyncopeUser user) {
         List<Task> tasks = taskService.createTaskQuery().processInstanceId(user.getWorkflowId()).list();
         if (tasks.isEmpty() || tasks.size() > 1) {
@@ -185,17 +200,25 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return result;
     }
 
-    private String encrypt(final String clear) {
-        byte[] encryptedBytes = EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(clear.getBytes());
+    /**
+     * Saves resources to be propagated and password for later - after form submission - propagation.
+     */
+    private void saveForFormSubmit(final SyncopeUser user, final String password,
+            final PropagationByResource propByRes) {
 
-        return new String(Base64.encode(encryptedBytes));
-    }
+        String formTaskId = getFormTask(user);
+        if (formTaskId != null) {
+            // SYNCOPE-238: This is needed to simplify the task query in this.getForms()
+            taskService.setVariableLocal(formTaskId, TASK_IS_FORM, Boolean.TRUE);
+            runtimeService.setVariable(user.getWorkflowId(), PROP_BY_RESOURCE, propByRes);
+            if (propByRes != null) {
+                propByRes.clear();
+            }
 
-    private String decrypt(final String crypted) {
-        byte[] decryptedBytes =
-                EncryptorFactory.getInstance().getDefaultEncryptor().decrypt(Base64.decode(crypted.getBytes()));
-
-        return new String(decryptedBytes);
+            if (StringUtils.isNotBlank(password)) {
+                runtimeService.setVariable(user.getWorkflowId(), ENCRYPTED_PWD, encrypt(password));
+            }
+        }
     }
 
     @Override
@@ -211,20 +234,22 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             throws WorkflowException {
 
         final Map<String, Object> variables = new HashMap<String, Object>();
+        variables.put(WF_EXECUTOR, EntitlementUtil.getAuthenticatedUsername());
         variables.put(USER_TO, userTO);
         variables.put(ENABLED, enabled);
 
-        final ProcessInstance processInstance;
+        ProcessInstance processInstance = null;
         try {
             processInstance = runtimeService.startProcessInstanceByKey(WF_PROCESS_ID, variables);
         } catch (ActivitiException e) {
-            throw new WorkflowException("While starting " + WF_PROCESS_ID + " instance", e);
+            throwException(e, "While starting " + WF_PROCESS_ID + " instance");
         }
 
-        SyncopeUser user = (SyncopeUser) runtimeService.getVariable(processInstance.getProcessInstanceId(),
-                SYNCOPE_USER);
+        SyncopeUser user = (SyncopeUser) runtimeService.getVariable(
+                processInstance.getProcessInstanceId(), SYNCOPE_USER);
 
-        Boolean updatedEnabled = (Boolean) runtimeService.getVariable(processInstance.getProcessInstanceId(), ENABLED);
+        Boolean updatedEnabled = (Boolean) runtimeService.getVariable(
+                processInstance.getProcessInstanceId(), ENABLED);
         if (updatedEnabled != null) {
             user.setSuspended(!updatedEnabled);
         }
@@ -237,28 +262,16 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         updateStatus(user);
         user = userDAO.save(user);
 
-        Boolean propagateEnable = (Boolean) runtimeService.getVariable(processInstance.getProcessInstanceId(),
-                PROPAGATE_ENABLE);
+        Boolean propagateEnable = (Boolean) runtimeService.getVariable(
+                processInstance.getProcessInstanceId(), PROPAGATE_ENABLE);
         if (propagateEnable == null) {
             propagateEnable = enabled;
         }
 
-        // save resources to be propagated and password for later - after form submission - propagation
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(ResourceOperation.CREATE, user.getResourceNames());
 
-        String formTaskId = getFormTask(user);
-        if (formTaskId != null) {
-            // SYNCOPE-238: This is needed to simplify the task query in this.getForms()
-            taskService.setVariableLocal(formTaskId, TASK_IS_FORM, Boolean.TRUE);
-            runtimeService.setVariable(processInstance.getProcessInstanceId(), PROP_BY_RESOURCE, propByRes);
-            propByRes = null;
-
-            if (StringUtils.isNotBlank(userTO.getPassword())) {
-                runtimeService.setVariable(
-                        processInstance.getProcessInstanceId(), ENCRYPTED_PWD, encrypt(userTO.getPassword()));
-            }
-        }
+        saveForFormSubmit(user, userTO.getPassword(), propByRes);
 
         return new WorkflowResult<Map.Entry<Long, Boolean>>(
                 new SimpleEntry<Long, Boolean>(user.getId(), propagateEnable), propByRes, getPerformedTasks(user));
@@ -270,8 +283,13 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Set<String> preTasks = getPerformedTasks(user);
 
         final Map<String, Object> variables = new HashMap<String, Object>();
-        variables.put(SYNCOPE_USER, user);
+        variables.put(WF_EXECUTOR, EntitlementUtil.getAuthenticatedUsername());
         variables.put(TASK, task);
+
+        // using BeanUtils to access all user's properties and trigger lazy loading - we are about to
+        // serialize a SyncopeUser instance for availability within workflow tasks, and this breaks transactions
+        BeanUtils.copyProperties(user, new SyncopeUser());
+        variables.put(SYNCOPE_USER, user);
 
         if (moreVariables != null && !moreVariables.isEmpty()) {
             variables.putAll(moreVariables);
@@ -286,7 +304,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             try {
                 taskService.complete(tasks.get(0).getId(), variables);
             } catch (ActivitiException e) {
-                throw new WorkflowException("While completing task '" + tasks.get(0).getName() + "' for " + user, e);
+                throwException(e, "While completing task '" + tasks.get(0).getName() + "' for " + user);
             }
         } else {
             LOG.warn("Expected a single task, found {}", tasks.size());
@@ -302,43 +320,36 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected WorkflowResult<Long> doActivate(final SyncopeUser user, final String token)
             throws WorkflowException {
 
-        Set<String> performedTasks = doExecuteTask(user, "activate", Collections.singletonMap(TOKEN, (Object) token));
+        Set<String> tasks = doExecuteTask(user, "activate", Collections.singletonMap(TOKEN, (Object) token));
+
         updateStatus(user);
         SyncopeUser updated = userDAO.save(user);
 
-        return new WorkflowResult<Long>(updated.getId(), null, performedTasks);
+        return new WorkflowResult<Long>(updated.getId(), null, tasks);
     }
 
     @Override
-    protected WorkflowResult<Map.Entry<Long, Boolean>> doUpdate(final SyncopeUser user, final UserMod userMod)
+    protected WorkflowResult<Map.Entry<UserMod, Boolean>> doUpdate(final SyncopeUser user, final UserMod userMod)
             throws WorkflowException {
 
-        Set<String> task = doExecuteTask(user, "update", Collections.singletonMap(USER_MOD, (Object) userMod));
+        Set<String> tasks = doExecuteTask(user, "update", Collections.singletonMap(USER_MOD, (Object) userMod));
 
         updateStatus(user);
         SyncopeUser updated = userDAO.save(user);
 
-        PropagationByResource propByRes = (PropagationByResource) runtimeService.getVariable(user.getWorkflowId(),
-                PROP_BY_RESOURCE);
+        PropagationByResource propByRes = (PropagationByResource) runtimeService.getVariable(
+                user.getWorkflowId(), PROP_BY_RESOURCE);
 
-        // save resources to be propagated and password for later - after form submission - propagation
-        String formTaskId = getFormTask(user);
-        if (formTaskId != null) {
-            // SYNCOPE-238: This is needed to simplify the task query in this.getForms()
-            taskService.setVariableLocal(formTaskId, TASK_IS_FORM, Boolean.TRUE);
-            if (StringUtils.isNotBlank(userMod.getPassword())) {
-                runtimeService.setVariable(user.getWorkflowId(), ENCRYPTED_PWD, encrypt(userMod.getPassword()));
-            }
-        }
+        saveForFormSubmit(updated, userMod.getPassword(), propByRes);
 
         Boolean propagateEnable = (Boolean) runtimeService.getVariable(user.getWorkflowId(), PROPAGATE_ENABLE);
 
-        return new WorkflowResult<Map.Entry<Long, Boolean>>(new SimpleEntry<Long, Boolean>(
-                updated.getId(), propagateEnable), propByRes, task);
+        return new WorkflowResult<Map.Entry<UserMod, Boolean>>(
+                new SimpleEntry<UserMod, Boolean>(userMod, propagateEnable), propByRes, tasks);
     }
 
     @Override
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     protected WorkflowResult<Long> doSuspend(final SyncopeUser user)
             throws WorkflowException {
 
@@ -366,12 +377,25 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             throws WorkflowException {
 
         doExecuteTask(user, "delete", null);
-        userDAO.delete(user);
 
-        if (!historyService.createHistoricProcessInstanceQuery().
-                processInstanceId(user.getWorkflowId()).list().isEmpty()) {
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.set(ResourceOperation.DELETE, user.getResourceNames());
 
-            historyService.deleteHistoricProcessInstance(user.getWorkflowId());
+        saveForFormSubmit(user, null, propByRes);
+
+        if (runtimeService.createProcessInstanceQuery().
+                processInstanceId(user.getWorkflowId()).active().list().isEmpty()) {
+
+            userDAO.delete(user.getId());
+
+            if (!historyService.createHistoricProcessInstanceQuery().
+                    processInstanceId(user.getWorkflowId()).list().isEmpty()) {
+
+                historyService.deleteHistoricProcessInstance(user.getWorkflowId());
+            }
+        } else {
+            updateStatus(user);
+            userDAO.save(user);
         }
     }
 
@@ -522,7 +546,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             }
         }
 
-        final WorkflowFormTO formTO = getHFormTO(task.getProcessInstanceId(), task.getId(), task.getFormKey(), props);
+        final WorkflowFormTO formTO = getHistoricFormTO(
+                task.getProcessInstanceId(), task.getId(), task.getFormKey(), props);
         BeanUtils.copyProperties(task, formTO);
 
         final HistoricActivityInstance historicActivityInstance = historyService.createHistoricActivityInstanceQuery().
@@ -536,8 +561,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return formTO;
     }
 
-    @SuppressWarnings("unchecked")
-    private WorkflowFormTO getHFormTO(
+    private WorkflowFormTO getHistoricFormTO(
             final String processInstanceId,
             final String taskId,
             final String formKey,
@@ -717,7 +741,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Map.Entry<Long, String>> submitForm(final WorkflowFormTO form, final String username)
+    public WorkflowResult<UserMod> submitForm(final WorkflowFormTO form, final String username)
             throws WorkflowException {
 
         Map.Entry<Task, TaskFormData> checked = checkTask(form.getTaskId(), username);
@@ -736,7 +760,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         try {
             formService.submitTaskFormData(form.getTaskId(), form.getPropertiesForSubmit());
         } catch (ActivitiException e) {
-            throw new WorkflowException("While submitting form for task " + form.getTaskId(), e);
+            throwException(e, "While submitting form for task " + form.getTaskId());
         }
 
         Set<String> postTasks = getPerformedTasks(user);
@@ -750,14 +774,20 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         PropagationByResource propByRes =
                 (PropagationByResource) runtimeService.getVariable(user.getWorkflowId(), PROP_BY_RESOURCE);
 
-        // fetch - if available - the encrpted password
+        // fetch - if available - the encrypted password
         String clearPassword = null;
         String encryptedPwd = (String) runtimeService.getVariable(user.getWorkflowId(), ENCRYPTED_PWD);
         if (StringUtils.isNotBlank(encryptedPwd)) {
             clearPassword = decrypt(encryptedPwd);
         }
 
-        return new WorkflowResult<Map.Entry<Long, String>>(new SimpleEntry<Long, String>(updated.getId(),
-                clearPassword), propByRes, postTasks);
+        UserMod userMod = (UserMod) runtimeService.getVariable(user.getWorkflowId(), USER_MOD);
+        if (userMod == null) {
+            userMod = new UserMod();
+            userMod.setId(updated.getId());
+            userMod.setPassword(clearPassword);
+        }
+
+        return new WorkflowResult<UserMod>(userMod, propByRes, postTasks);
     }
 }

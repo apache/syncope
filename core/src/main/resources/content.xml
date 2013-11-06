@@ -28,7 +28,7 @@ under the License.
   <SyncopeConf confKey="notificationjob.cronExpression" confValue=""/>
   <SyncopeConf confKey="token.length" confValue="256"/>
   <SyncopeConf confKey="token.expireTime" confValue="60"/>
-  <SyncopeConf confKey="createRequest.allowed" confValue="true"/>
+  <SyncopeConf confKey="selfRegistration.allowed" confValue="true"/>
   <SyncopeConf confKey="notification.maxRetries" confValue="0"/>
     
   <!-- Authentication and authorization -->
@@ -88,11 +88,6 @@ under the License.
   <Entitlement name="NOTIFICATION_READ"/>
   <Entitlement name="NOTIFICATION_UPDATE"/>
   <Entitlement name="NOTIFICATION_DELETE"/>
-  <Entitlement name="USER_REQUEST_LIST"/>
-  <Entitlement name="USER_REQUEST_READ"/>
-  <Entitlement name="USER_REQUEST_DELETE"/>
-  <Entitlement name="USER_REQUEST_EXECUTE"/>
-  <Entitlement name="USER_REQUEST_CLAIM"/>
   <Entitlement name="REPORT_LIST"/>
   <Entitlement name="REPORT_READ"/>
   <Entitlement name="REPORT_CREATE"/>

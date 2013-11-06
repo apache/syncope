@@ -503,7 +503,7 @@ public class RoleTestITCase extends AbstractTest {
 
     @Test
     public void anonymous() {
-        RoleService unauthenticated = clientFactory.create(null, null).getService(RoleService.class);
+        RoleService unauthenticated = clientFactory.createAnonymous().getService(RoleService.class);
         try {
             unauthenticated.list();
             fail();

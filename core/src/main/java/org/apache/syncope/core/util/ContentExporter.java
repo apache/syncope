@@ -52,8 +52,6 @@ import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.core.persistence.dao.impl.AbstractContentDealer;
 import org.apache.syncope.core.util.multiparent.MultiParentNode;
 import org.apache.syncope.core.util.multiparent.MultiParentNodeOp;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.stereotype.Component;
@@ -67,9 +65,11 @@ import org.xml.sax.helpers.AttributesImpl;
 public class ContentExporter extends AbstractContentDealer {
 
     protected final static Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED =
-            new HashSet<String>(Arrays.asList(new String[] {"QRTZ_", "LOGGING", "REPORTEXEC", "TASKEXEC",
-        "SYNCOPEUSER", "UATTR", "UATTRVALUE", "UATTRUNIQUEVALUE", "UDERATTR", "UVIRATTR",
-        "MEMBERSHIP", "MATTR", "MATTRVALUE", "MATTRUNIQUEVALUE", "MDERATTR", "MVIRATTR", "USERREQUEST"}));
+            new HashSet<String>(Arrays.asList(new String[] {
+                "QRTZ_", "LOGGING", "REPORTEXEC", "TASKEXEC",
+                "SYNCOPEUSER", "UATTR", "UATTRVALUE", "UATTRUNIQUEVALUE", "UDERATTR", "UVIRATTR",
+                "MEMBERSHIP", "MATTR", "MATTRVALUE", "MATTRUNIQUEVALUE", "MDERATTR", "MVIRATTR"
+            }));
 
     protected static final Map<String, String> TABLES_TO_BE_FILTERED =
             Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask'");
@@ -325,7 +325,7 @@ public class ContentExporter extends AbstractContentDealer {
 
             final String schema = dbSchema;
 
-            rs = meta.getTables(null, schema, null, new String[] {"TABLE"});
+            rs = meta.getTables(null, schema, null, new String[] { "TABLE" });
 
             final Set<String> tableNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 

@@ -26,6 +26,7 @@ import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
+import org.apache.syncope.console.rest.UserSelfRestClient;
 import org.apache.syncope.markup.head.MetaHeaderItem;
 import org.apache.wicket.markup.head.HeaderItem;
 import org.apache.wicket.markup.html.WebPage;
@@ -63,6 +64,9 @@ public class AbstractBasePage extends WebPage {
 
     @SpringBean
     protected UserRestClient userRestClient;
+
+    @SpringBean
+    protected UserSelfRestClient userSelfRestClient;
 
     @SpringBean
     protected RoleRestClient roleRestClient;

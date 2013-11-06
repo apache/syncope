@@ -532,7 +532,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void anonymous() {
-        ResourceService unauthenticated = clientFactory.create(null, null).getService(ResourceService.class);
+        ResourceService unauthenticated = clientFactory.createAnonymous().getService(ResourceService.class);
         try {
             unauthenticated.list();
             fail();

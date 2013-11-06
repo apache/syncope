@@ -18,24 +18,38 @@
  */
 package org.apache.syncope.core.workflow.user.activiti.task;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationByResource;
+import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.workflow.user.activiti.ActivitiUserWorkflowAdapter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class Update extends AbstractActivitiDelegate {
+@Component
+public class Update extends AbstractActivitiServiceTask {
+
+    @Autowired
+    private UserDataBinder dataBinder;
 
     @Override
-    protected void doExecute(final DelegateExecution execution) throws Exception {
-        SyncopeUser user = (SyncopeUser) execution.getVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER);
-        UserMod userMod = (UserMod) execution.getVariable(ActivitiUserWorkflowAdapter.USER_MOD);
+    protected void doExecute(final String executionId) {
+        SyncopeUser user =
+                (SyncopeUser) runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER);
+        UserMod userMod =
+                (UserMod) runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER_MOD);
 
+        // update password internally only if required
+        UserMod actualMod = SerializationUtils.clone(userMod);
+        if (actualMod.getPwdPropRequest() != null && !actualMod.getPwdPropRequest().isOnSyncope()) {
+            actualMod.setPassword(null);
+        }
         // update SyncopeUser
-        PropagationByResource propByRes = dataBinder.update(user, userMod);
+        PropagationByResource propByRes = dataBinder.update(user, actualMod);
 
         // report updated user and propagation by resource as result
-        execution.setVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
-        execution.setVariable(ActivitiUserWorkflowAdapter.PROP_BY_RESOURCE, propByRes);
+        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
+        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.PROP_BY_RESOURCE, propByRes);
     }
 }

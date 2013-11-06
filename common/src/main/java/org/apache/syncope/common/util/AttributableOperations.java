@@ -230,10 +230,14 @@ public final class AttributableOperations {
             membMod.setRole(entry.getValue().getRoleId());
 
             if (originalMembs.containsKey(entry.getKey())) {
-                diff(entry.getValue(), originalMembs.get(entry.getKey()), membMod, false);
+                // if memberships are actually same, just make the isEmpty() call below succeed
+                if (entry.getValue().equals(originalMembs.get(entry.getKey()))) {
+                    membMod.setRole(0);
+                } else {
+                    diff(entry.getValue(), originalMembs.get(entry.getKey()), membMod, false);
+                }
             } else {
                 for (AttributeTO attr : entry.getValue().getAttrs()) {
-
                     AttributeMod attrMod = new AttributeMod();
                     attrMod.setSchema(attr.getSchema());
                     attrMod.getValuesToBeAdded().addAll(attr.getValues());

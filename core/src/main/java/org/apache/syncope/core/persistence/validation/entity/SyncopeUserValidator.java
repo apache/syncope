@@ -128,8 +128,8 @@ public class SyncopeUserValidator extends AbstractValidator<SyncopeUserCheck, Sy
             LOG.debug("Invalid username");
 
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidUsername, e.getMessage()))
-                    .addNode("username").addConstraintViolation();
+                    getTemplate(EntityViolationType.InvalidUsername, e.getMessage())).
+                    addNode("username").addConstraintViolation();
 
             return false;
         }

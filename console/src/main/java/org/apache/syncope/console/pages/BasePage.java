@@ -81,7 +81,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
             }
         }
 
-        ((SyncopeApplication) getApplication()).setupEditProfileModal(this, userRestClient);
+        ((SyncopeApplication) getApplication()).setupEditProfileModal(this, userSelfRestClient);
     }
 
     @Override

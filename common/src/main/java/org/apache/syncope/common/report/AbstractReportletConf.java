@@ -18,11 +18,13 @@
  */
 package org.apache.syncope.common.report;
 
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.syncope.common.AbstractBaseBean;
 
 @XmlType
+@XmlSeeAlso({ StaticReportletConf.class, UserReportletConf.class, RoleReportletConf.class })
 public abstract class AbstractReportletConf extends AbstractBaseBean implements ReportletConf {
 
     private static final long serialVersionUID = -6130008602014516608L;

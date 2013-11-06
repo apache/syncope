@@ -31,7 +31,7 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.rest.UserRequestRestClient;
+import org.apache.syncope.console.rest.UserSelfRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
 import org.apache.wicket.Page;
@@ -83,7 +83,7 @@ public class Login extends WebPage {
     private String anonymousKey;
 
     @SpringBean
-    private UserRequestRestClient userReqRestClient;
+    private UserSelfRestClient userSelfRestClient;
 
     private Form<Void> form;
 
@@ -145,7 +145,7 @@ public class Login extends WebPage {
         add(editProfileModalWin);
 
         Fragment selfRegFrag;
-        if (userReqRestClient.isSelfRegistrationAllowed()) {
+        if (userSelfRestClient.isSelfRegistrationAllowed()) {
             selfRegFrag = new Fragment("selfRegistration", "selfRegAllowed", this);
 
             final AjaxLink<Void> selfRegLink = new ClearIndicatingAjaxLink<Void>("link", getPageReference()) {
@@ -163,8 +163,8 @@ public class Login extends WebPage {
                             // anonymous authentication needed for self-registration
                             authenticate(anonymousUser, anonymousKey);
 
-                            return new UserRequestModalPage(Login.this.getPageReference(), editProfileModalWin,
-                                    new UserTO(), UserModalPage.Mode.SELF);
+                            return new UserSelfModalPage(
+                                    Login.this.getPageReference(), editProfileModalWin, new UserTO());
                         }
                     });
 

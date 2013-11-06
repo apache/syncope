@@ -30,20 +30,20 @@ import org.junit.Test;
 
 public class WorkflowTestITCase extends AbstractTest {
 
-    @Test //TODO TestCase needs to be extended
-    public void testGetUserDefinition() {
+    @Test
+    public void getUserDefinition() {
         WorkflowDefinitionTO definition = workflowService.getDefinition(AttributableType.USER);
         assertNotNull(definition);
     }
 
-    @Test //TODO TestCase needs to be extended
-    public void testGetRoleDefinition() {
+    @Test
+    public void getRoleDefinition() {
         WorkflowDefinitionTO definition = workflowService.getDefinition(AttributableType.ROLE);
         assertNotNull(definition);
     }
 
-    @Test//TODO TestCase needs to be extended
-    public void testUpdateUserDefinition() {
+    @Test
+    public void updateUserDefinition() {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
 
         WorkflowDefinitionTO definition = workflowService.getDefinition(AttributableType.USER);
@@ -54,8 +54,8 @@ public class WorkflowTestITCase extends AbstractTest {
         assertNotNull(newDefinition);
     }
 
-    @Test//TODO TestCase needs to be extended
-    public void testUpdateRoleDefinition() {
+    @Test
+    public void updateRoleDefinition() {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForRoles());
 
         WorkflowDefinitionTO definition = workflowService.getDefinition(AttributableType.ROLE);
@@ -67,14 +67,14 @@ public class WorkflowTestITCase extends AbstractTest {
     }
 
     @Test
-    public void testGetUserTasks() {
+    public void getUserTasks() {
         WorkflowTasks tasks = workflowService.getDefinedTasks(AttributableType.USER);
         assertNotNull(tasks.getTasks());
         assertFalse(tasks.getTasks().isEmpty());
     }
 
     @Test
-    public void testGetRoleTasks() {
+    public void getRoleTasks() {
         WorkflowTasks tasks = workflowService.getDefinedTasks(AttributableType.ROLE);
         assertNotNull(tasks.getTasks());
         assertFalse(tasks.getTasks().isEmpty());

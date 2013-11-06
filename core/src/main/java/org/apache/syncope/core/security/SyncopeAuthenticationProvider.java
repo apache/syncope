@@ -94,7 +94,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    @Transactional(noRollbackFor = {BadCredentialsException.class, DisabledException.class})
+    @Transactional(noRollbackFor = { BadCredentialsException.class, DisabledException.class })
     public Authentication authenticate(final Authentication authentication)
             throws AuthenticationException {
 

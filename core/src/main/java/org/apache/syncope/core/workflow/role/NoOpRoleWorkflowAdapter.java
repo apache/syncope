@@ -21,7 +21,6 @@ package org.apache.syncope.core.workflow.role;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.RoleTO;
@@ -39,10 +38,10 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Simple implementation basically not involving any workflow engine.
  */
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = { Throwable.class })
 public class NoOpRoleWorkflowAdapter extends AbstractRoleWorkflowAdapter {
 
-    private static final List<String> TASKS = Arrays.asList(new String[] {"create", "update", "delete"});
+    private static final List<String> TASKS = Arrays.asList(new String[] { "create", "update", "delete" });
 
     @Override
     public WorkflowResult<Long> create(final RoleTO roleTO)
@@ -129,9 +128,10 @@ public class NoOpRoleWorkflowAdapter extends AbstractRoleWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Map.Entry<Long, String>> submitForm(final WorkflowFormTO form, final String username)
+    public WorkflowResult<RoleMod> submitForm(final WorkflowFormTO form, final String username)
             throws NotFoundException, WorkflowException {
 
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
+
 }

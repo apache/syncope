@@ -111,6 +111,10 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
             role = binder.getRoleFromId(roleId);
         }
 
+        if (role == null) {
+            throw new NotFoundException("Role " + roleId);
+        }
+
         auditManager.audit(Category.role, RoleSubCategory.read, Result.success,
                 "Successfully read role: " + role.getId());
 
@@ -338,7 +342,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     public RoleTO delete(final Long roleId) {
         LOG.debug("Role delete called for {}", roleId);
 
-        List<SyncopeRole> ownedRoles = roleDAO.findOwned(binder.getRoleFromId(roleId));
+        List<SyncopeRole> ownedRoles = roleDAO.findOwnedByRole(roleId);
         if (!ownedRoles.isEmpty()) {
             List<String> owned = new ArrayList<String>(ownedRoles.size());
             for (SyncopeRole role : ownedRoles) {

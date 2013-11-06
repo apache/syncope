@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.notification;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Date;
 import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +31,7 @@ import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
+import org.apache.syncope.core.util.ExceptionUtil;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -205,12 +204,8 @@ public class NotificationJob implements Job {
                     LOG.error("Could not send e-mail", e);
 
                     execution.setStatus(Status.NOT_SENT.name());
-                    StringWriter exceptionWriter = new StringWriter();
-                    exceptionWriter.write(e.getMessage() + "\n\n");
-                    e.printStackTrace(new PrintWriter(exceptionWriter));
-
                     if (task.getTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal()) {
-                        execution.setMessage(exceptionWriter.toString());
+                        execution.setMessage(ExceptionUtil.getFullStackTrace(e));
                     }
 
                     auditManager.audit(Category.notification, NotificationSubCategory.send, Result.failure,

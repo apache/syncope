@@ -368,7 +368,6 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             final ConnectorObject connObj, final List<String> altSearchSchemas, final AttributableUtil attrUtil) {
 
         // search for external attribute's name/value of each specified name
-
         final Map<String, Attribute> extValues = new HashMap<String, Attribute>();
 
         for (AbstractMappingItem item
@@ -467,7 +466,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         final List<ConnectorObject> found = connector.search(objectClass,
                 new EqualsFilter(new Name(name)), connector.getOperationOptions(
-                attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
+                        attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", objectClass, syncTask.getResource(), name);
@@ -605,7 +604,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         UserMod actual = attrTransformer.transform(userMod);
         LOG.debug("Transformed: {}", actual);
 
-        WorkflowResult<Map.Entry<Long, Boolean>> updated;
+        WorkflowResult<Map.Entry<UserMod, Boolean>> updated;
         try {
             updated = uwfAdapter.update(actual);
         } catch (Exception e) {
@@ -614,8 +613,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             result.setStatus(SyncResult.Status.FAILURE);
             result.setMessage("Update failed, trying to sync status anyway (if configured)\n" + e.getMessage());
 
-            updated = new WorkflowResult<Map.Entry<Long, Boolean>>(
-                    new AbstractMap.SimpleEntry<Long, Boolean>(id, false), new PropagationByResource(),
+            updated = new WorkflowResult<Map.Entry<UserMod, Boolean>>(
+                    new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, false), new PropagationByResource(),
                     new HashSet<String>());
         }
 
@@ -641,17 +640,14 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             }
         }
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated,
-                actual.getPassword(),
-                actual.getVirAttrsToRemove(),
-                actual.getVirAttrsToUpdate(),
-                Collections.singleton(syncTask.getResource().getName()));
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
+                updated, Collections.singleton(syncTask.getResource().getName()));
 
         taskExecutor.execute(tasks);
 
-        notificationManager.createTasks(updated.getResult().getKey(), updated.getPerformedTasks());
+        notificationManager.createTasks(updated.getResult().getKey().getId(), updated.getPerformedTasks());
 
-        userTO = userDataBinder.getUserTO(updated.getResult().getKey());
+        userTO = userDataBinder.getUserTO(updated.getResult().getKey().getId());
 
         actions.after(this, delta, userTO, result);
 

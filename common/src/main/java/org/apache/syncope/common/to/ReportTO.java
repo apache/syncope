@@ -26,17 +26,13 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.report.AbstractReportletConf;
-import org.apache.syncope.common.report.StaticReportletConf;
-import org.apache.syncope.common.report.UserReportletConf;
 
 @XmlRootElement(name = "report")
 @XmlType
-@XmlSeeAlso({UserReportletConf.class, StaticReportletConf.class})
 public class ReportTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 5274568072084814410L;
@@ -73,7 +69,7 @@ public class ReportTO extends AbstractBaseBean {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -88,7 +84,7 @@ public class ReportTO extends AbstractBaseBean {
         return cronExpression;
     }
 
-    public void setCronExpression(String cronExpression) {
+    public void setCronExpression(final String cronExpression) {
         this.cronExpression = cronExpression;
     }
 
@@ -103,7 +99,7 @@ public class ReportTO extends AbstractBaseBean {
         return latestExecStatus;
     }
 
-    public void setLatestExecStatus(String latestExecStatus) {
+    public void setLatestExecStatus(final String latestExecStatus) {
         this.latestExecStatus = latestExecStatus;
     }
 
@@ -113,7 +109,7 @@ public class ReportTO extends AbstractBaseBean {
                 : new Date(lastExec.getTime());
     }
 
-    public void setLastExec(Date lastExec) {
+    public void setLastExec(final Date lastExec) {
         if (lastExec != null) {
             this.lastExec = new Date(lastExec.getTime());
         }
@@ -125,7 +121,7 @@ public class ReportTO extends AbstractBaseBean {
                 : new Date(nextExec.getTime());
     }
 
-    public void setNextExec(Date nextExec) {
+    public void setNextExec(final Date nextExec) {
         if (nextExec != null) {
             this.nextExec = new Date(nextExec.getTime());
         }
@@ -137,7 +133,7 @@ public class ReportTO extends AbstractBaseBean {
                 : new Date(startDate.getTime());
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(final Date startDate) {
         if (startDate != null) {
             this.startDate = new Date(startDate.getTime());
         }
@@ -149,7 +145,7 @@ public class ReportTO extends AbstractBaseBean {
                 : new Date(endDate.getTime());
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(final Date endDate) {
         if (endDate != null) {
             this.endDate = new Date(endDate.getTime());
         }

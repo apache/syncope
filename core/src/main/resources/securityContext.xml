@@ -42,6 +42,7 @@ under the License.
 
   <security:http security-context-repository-ref="securityContextRepository" realm="Apache Syncope authentication">
     <security:http-basic/>
+    <security:anonymous username="${anonymousUser}"/>
     <security:intercept-url pattern="/**"/>
   </security:http>
 

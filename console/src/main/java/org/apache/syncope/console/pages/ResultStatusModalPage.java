@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.console.pages;
 
-import static org.apache.syncope.common.types.PropagationTaskExecStatus.CREATED;
-import static org.apache.syncope.common.types.PropagationTaskExecStatus.SUBMITTED;
-import static org.apache.syncope.common.types.PropagationTaskExecStatus.SUCCESS;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -122,7 +118,7 @@ public class ResultStatusModalPage extends BaseModalPage {
         add(container);
 
         final Fragment fragment = new Fragment("resultFrag", mode == UserModalPage.Mode.SELF
-                ? "userRequestResultFrag"
+                ? "userSelfResultFrag"
                 : "propagationResultFrag", this);
         fragment.setOutputMarkupId(true);
         container.add(fragment);
@@ -147,97 +143,97 @@ public class ResultStatusModalPage extends BaseModalPage {
             final ListView<PropagationStatusTO> propRes = new ListView<PropagationStatusTO>("resources",
                     propagations) {
 
-                private static final long serialVersionUID = -1020475259727720708L;
-
-                @Override
-                protected void populateItem(final ListItem<PropagationStatusTO> item) {
-                    final PropagationStatusTO propTO = (PropagationStatusTO) item.getDefaultModelObject();
-
-                    final ListView attributes = getConnObjectView(propTO);
-
-                    final Fragment attrhead;
-                    if (attributes.getModelObject() == null || attributes.getModelObject().isEmpty()) {
-                        attrhead = new Fragment("attrhead", "emptyAttrHeadFrag", page);
-                    } else {
-                        attrhead = new Fragment("attrhead", "attrHeadFrag", page);
-                    }
-
-                    item.add(attrhead);
-                    item.add(attributes);
-
-                    attrhead.add(new Label("resource", propTO.getResource()));
-
-                    attrhead.add(new Label("propagation", propTO.getStatus() == null
-                            ? "UNDEFINED" : propTO.getStatus().toString()));
-
-                    final Image image;
-                    final String alt, title;
-                    final ModalWindow failureWindow = new ModalWindow("failureWindow");
-                    final AjaxLink<?> failureWindowLink = new AjaxLink<Void>("showFailureWindow") {
-
-                        private static final long serialVersionUID = -7978723352517770644L;
+                        private static final long serialVersionUID = -1020475259727720708L;
 
                         @Override
-                        public void onClick(AjaxRequestTarget target) {
-                            failureWindow.show(target);
+                        protected void populateItem(final ListItem<PropagationStatusTO> item) {
+                            final PropagationStatusTO propTO = (PropagationStatusTO) item.getDefaultModelObject();
+
+                            final ListView attributes = getConnObjectView(propTO);
+
+                            final Fragment attrhead;
+                            if (attributes.getModelObject() == null || attributes.getModelObject().isEmpty()) {
+                                attrhead = new Fragment("attrhead", "emptyAttrHeadFrag", page);
+                            } else {
+                                attrhead = new Fragment("attrhead", "attrHeadFrag", page);
+                            }
+
+                            item.add(attrhead);
+                            item.add(attributes);
+
+                            attrhead.add(new Label("resource", propTO.getResource()));
+
+                            attrhead.add(new Label("propagation", propTO.getStatus() == null
+                                            ? "UNDEFINED" : propTO.getStatus().toString()));
+
+                            final Image image;
+                            final String alt, title;
+                            final ModalWindow failureWindow = new ModalWindow("failureWindow");
+                            final AjaxLink<?> failureWindowLink = new AjaxLink<Void>("showFailureWindow") {
+
+                                private static final long serialVersionUID = -7978723352517770644L;
+
+                                @Override
+                                public void onClick(AjaxRequestTarget target) {
+                                    failureWindow.show(target);
+                                }
+                            };
+
+                            switch (propTO.getStatus()) {
+
+                                case SUCCESS:
+                                case SUBMITTED:
+                                case CREATED:
+                                    image = new Image("icon", IMG_STATUSES + Status.ACTIVE.toString()
+                                            + Constants.PNG_EXT);
+                                    alt = "success icon";
+                                    title = "success";
+                                    failureWindow.setVisible(false);
+                                    failureWindowLink.setEnabled(false);
+                                    break;
+
+                                default:
+                                    image = new Image("icon", IMG_STATUSES + Status.SUSPENDED.toString()
+                                            + Constants.PNG_EXT);
+                                    alt = "failure icon";
+                                    title = "failure";
+                            }
+
+                            image.add(new Behavior() {
+
+                                private static final long serialVersionUID = 1469628524240283489L;
+
+                                @Override
+                                public void onComponentTag(final Component component, final ComponentTag tag) {
+                                    tag.put("alt", alt);
+                                    tag.put("title", title);
+                                }
+                            });
+                            final FailureMessageModalPage executionFailureMessagePage;
+                            if (propTO.getFailureReason() == null) {
+                                executionFailureMessagePage =
+                                new FailureMessageModalPage(failureWindow.getContentId(), StringUtils.EMPTY);
+                            } else {
+                                executionFailureMessagePage =
+                                new FailureMessageModalPage(failureWindow.getContentId(), propTO.getFailureReason());
+                            }
+
+                            failureWindow.setPageCreator(new ModalWindow.PageCreator() {
+
+                                private static final long serialVersionUID = -7834632442532690940L;
+
+                                @Override
+                                public Page createPage() {
+                                    return executionFailureMessagePage;
+                                }
+                            });
+                            failureWindow.setCookieName("failureWindow");
+                            failureWindow.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+                            failureWindowLink.add(image);
+                            attrhead.add(failureWindowLink);
+                            attrhead.add(failureWindow);
                         }
                     };
-
-                    switch (propTO.getStatus()) {
-
-                        case SUCCESS:
-                        case SUBMITTED:
-                        case CREATED:
-                            image = new Image("icon", IMG_STATUSES + Status.ACTIVE.toString()
-                                    + Constants.PNG_EXT);
-                            alt = "success icon";
-                            title = "success";
-                            failureWindow.setVisible(false);
-                            failureWindowLink.setEnabled(false);
-                            break;
-
-                        default:
-                            image = new Image("icon", IMG_STATUSES + Status.SUSPENDED.toString()
-                                    + Constants.PNG_EXT);
-                            alt = "failure icon";
-                            title = "failure";
-                    }
-
-                    image.add(new Behavior() {
-
-                        private static final long serialVersionUID = 1469628524240283489L;
-
-                        @Override
-                        public void onComponentTag(final Component component, final ComponentTag tag) {
-                            tag.put("alt", alt);
-                            tag.put("title", title);
-                        }
-                    });
-                    final FailureMessageModalPage executionFailureMessagePage;
-                    if (propTO.getFailureReason() == null) {
-                        executionFailureMessagePage =
-                                new FailureMessageModalPage(failureWindow.getContentId(), StringUtils.EMPTY);
-                    } else {
-                        executionFailureMessagePage =
-                                new FailureMessageModalPage(failureWindow.getContentId(), propTO.getFailureReason());
-                    }
-
-                    failureWindow.setPageCreator(new ModalWindow.PageCreator() {
-
-                        private static final long serialVersionUID = -7834632442532690940L;
-
-                        @Override
-                        public Page createPage() {
-                            return executionFailureMessagePage;
-                        }
-                    });
-                    failureWindow.setCookieName("failureWindow");
-                    failureWindow.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-                    failureWindowLink.add(image);
-                    attrhead.add(failureWindowLink);
-                    attrhead.add(failureWindow);
-                }
-            };
             fragment.add(propRes);
         }
 

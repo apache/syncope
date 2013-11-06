@@ -45,7 +45,7 @@ public class EditUserModalPage extends UserModalPage {
 
     protected Form form;
 
-    private UserTO initialUserTO = null;
+    private final UserTO initialUserTO;
 
     private StatusPanel statusPanel;
 

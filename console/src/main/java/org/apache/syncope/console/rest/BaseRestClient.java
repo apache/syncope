@@ -33,6 +33,10 @@ public abstract class BaseRestClient implements Serializable {
 
     private static final long serialVersionUID = 1523999867826481989L;
 
+    protected <T> T getAnonymousService(final Class<T> serviceClass) {
+        return SyncopeSession.get().getAnonymousService(serviceClass);
+    }
+
     protected <T> T getService(final Class<T> serviceClass) {
         return SyncopeSession.get().getService(serviceClass);
     }

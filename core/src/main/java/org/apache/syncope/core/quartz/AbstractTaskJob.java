@@ -18,14 +18,13 @@
  */
 package org.apache.syncope.core.quartz;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Date;
 
 import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.TaskExecDAO;
+import org.apache.syncope.core.util.ExceptionUtil;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -111,11 +110,7 @@ public abstract class AbstractTaskJob implements TaskJob {
         } catch (JobExecutionException e) {
             LOG.error("While executing task " + taskId, e);
 
-            StringWriter exceptionWriter = new StringWriter();
-            exceptionWriter.write(e.getMessage() + "\n\n");
-            e.printStackTrace(new PrintWriter(exceptionWriter));
-            execution.setMessage(exceptionWriter.toString());
-
+            execution.setMessage(ExceptionUtil.getFullStackTrace(e));
             execution.setStatus(Status.FAILURE.name());
         }
         execution.setEndDate(new Date());

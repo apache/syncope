@@ -196,18 +196,6 @@ under the License.
     </action>
   </page>
     
-  <page id="UserRequest">
-    <action id="list">
-      <entitlement>USER_REQUEST_LIST</entitlement>
-    </action>
-    <action id="read">
-      <entitlement>USER_REQUEST_READ</entitlement>
-    </action>
-    <action id="delete">
-      <entitlement>USER_REQUEST_DELETE</entitlement>
-    </action>
-  </page>
-    
   <page id="Configuration">
     <action id="list">
       <entitlement>CONFIGURATION_LIST</entitlement>

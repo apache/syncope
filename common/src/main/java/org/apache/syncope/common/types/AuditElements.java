@@ -41,7 +41,6 @@ public final class AuditElements {
         schema(SchemaSubCategory.class),
         task(TaskSubCategory.class),
         user(UserSubCategory.class),
-        userRequest(UserRequestSubCategory.class),
         workflow(WorkflowSubCategory.class);
 
         private Class<? extends Enum<?>> subCategory;
@@ -217,6 +216,7 @@ public final class AuditElements {
     @XmlEnum
     public enum UserSubCategory {
 
+        selfRegistrationAllowed,
         list,
         create,
         read,
@@ -230,20 +230,6 @@ public final class AuditElements {
         getFormForUser,
         claimForm,
         submitForm
-
-    }
-
-    @XmlEnum
-    public enum UserRequestSubCategory {
-
-        list,
-        create,
-        read,
-        update,
-        delete,
-        isCreateAllowed,
-        execute,
-        claim
 
     }
 

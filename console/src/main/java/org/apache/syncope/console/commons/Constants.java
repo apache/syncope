@@ -80,9 +80,7 @@ public final class Constants {
 
     public static final String PREF_SYNC_TASKS_PAGINATOR_ROWS = "synctasks.paginator.rows";
 
-    public static final String PREF_APPROVAL_PAGINATOR_ROWS = "approval.paginator.rows";
-
-    public static final String PREF_USER_REQUEST_PAGINATOR_ROWS = "userRequest.paginator.rows";
+    public static final String PREF_TODO_PAGINATOR_ROWS = "todo.paginator.rows";
 
     public static final String PREF_REPORT_PAGINATOR_ROWS = "report.paginator.rows";
 

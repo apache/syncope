@@ -77,6 +77,5 @@ public class ReportTestITCase extends AbstractTest {
         selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[11]/a");
         selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[12]/a");
         selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[13]/a");
-        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[14]/a");
     }
 }

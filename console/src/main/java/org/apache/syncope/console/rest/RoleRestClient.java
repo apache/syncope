@@ -84,7 +84,7 @@ public class RoleRestClient extends AbstractAttributableRestClient {
     }
 
     public RoleTO read(final Long id) {
-        return getService(RoleService.class).read(id);
+        return getAnonymousService(RoleService.class).read(id);
     }
 
     public RoleTO update(final RoleMod roleMod) {

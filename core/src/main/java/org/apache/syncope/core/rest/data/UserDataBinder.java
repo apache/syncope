@@ -88,7 +88,11 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             throw new NotFoundException("User " + userId);
         }
 
-        if (!user.getUsername().equals(EntitlementUtil.getAuthenticatedUsername())) {
+        // Allows anonymous (during self-registration) and self (during self-update) to read own SyncopeUser,
+        // otherwise goes thorugh security checks to see if needed role entitlements are owned
+        if (!EntitlementUtil.getAuthenticatedUsername().equals(anonymousUser)
+                && !EntitlementUtil.getAuthenticatedUsername().equals(user.getUsername())) {
+
             Set<Long> roleIds = user.getRoleIds();
             Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
             roleIds.removeAll(adminRoleIds);
@@ -98,6 +102,11 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
 
         return user;
+    }
+
+    @Transactional(readOnly = true)
+    public Set<String> getResourceNamesForUserId(final Long userId) {
+        return getUserFromId(userId).getResourceNames();
     }
 
     @Transactional(readOnly = true)
@@ -180,8 +189,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         try {
             user.setPassword(password, getPredefinedCipherAlgoritm(), passwordHistorySize);
         } catch (NotFoundException e) {
-            final SyncopeClientException invalidCiperAlgorithm = SyncopeClientException.build(
-                    ClientExceptionType.NotFound);
+            final SyncopeClientException invalidCiperAlgorithm =
+                    SyncopeClientException.build(ClientExceptionType.NotFound);
             invalidCiperAlgorithm.getElements().add(e.getMessage());
             scce.addException(invalidCiperAlgorithm);
 
@@ -237,12 +246,15 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     /**
      * Update user, given UserMod.
      *
-     * @param user to be updated
+     * @param toBeUpdated user to be updated
      * @param userMod bean containing update request
      * @return updated user + propagation by resource
      * @see PropagationByResource
      */
-    public PropagationByResource update(final SyncopeUser user, final UserMod userMod) {
+    public PropagationByResource update(final SyncopeUser toBeUpdated, final UserMod userMod) {
+        // Re-merge any pending change from workflow tasks
+        SyncopeUser user = userDAO.save(toBeUpdated);
+
         PropagationByResource propByRes = new PropagationByResource();
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();

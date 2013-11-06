@@ -32,7 +32,6 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.core.Response;
 import org.apache.http.HttpStatus;
@@ -43,8 +42,7 @@ import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.PolicyService;
 import org.apache.syncope.common.services.ResourceService;
-import org.apache.syncope.common.services.UserService;
-import org.apache.syncope.common.services.UserWorkflowService;
+import org.apache.syncope.common.services.UserSelfService;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
@@ -52,7 +50,6 @@ import org.apache.syncope.common.to.BulkActionRes.Status;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.MappingItemTO;
-import org.apache.syncope.common.to.MappingTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PropagationStatusTO;
@@ -61,8 +58,6 @@ import org.apache.syncope.common.to.ResourceNameTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.to.WorkflowFormPropertyTO;
-import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.common.types.IntMappingType;
@@ -89,16 +84,6 @@ import org.springframework.util.StringUtils;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class UserTestITCase extends AbstractTest {
-
-    private static final String RESOURCE_NAME_LDAP = "resource-ldap";
-
-    private static final String RESOURCE_NAME_TESTDB = "resource-testdb";
-
-    private static final String RESOURCE_NAME_CSV = "resource-csv";
-
-    private ConnObjectTO readConnectorObject(final String resourceName, final Long userId) {
-        return resourceService.getConnectorObject(resourceName, AttributableType.USER, userId);
-    }
 
     private String getStringAttribute(final ConnObjectTO connObjectTO, final String attrName) {
         return connObjectTO.getAttrMap().get(attrName).getValues().get(0);
@@ -139,24 +124,6 @@ public class UserTestITCase extends AbstractTest {
         userTO.getDerAttrs().add(attributeTO("cn", null));
         userTO.getVirAttrs().add(attributeTO("virtualdata", "virtualvalue"));
         return userTO;
-    }
-
-    @Test
-    public void selfRead() {
-        UserService userService2 = clientFactory.create("rossini", ADMIN_PWD).getService(UserService.class);
-
-        try {
-            userService2.read(1L);
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_UNAUTHORIZED, e.getType().getResponseStatus().getStatusCode());
-        } catch (AccessControlException e) {
-            // Will be thrown by cxf service
-            assertNotNull(e);
-        }
-
-        UserTO userTO = userService2.readSelf();
-        assertEquals("rossini", userTO.getUsername());
     }
 
     @Test
@@ -466,19 +433,19 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
 
         // 3. verify password
-        UserService userService1 = clientFactory.create(
-                newUserTO.getUsername(), "password123").getService(UserService.class);
+        UserSelfService userSelfService1 = clientFactory.create(
+                newUserTO.getUsername(), "password123").getService(UserSelfService.class);
         try {
-            UserTO user = userService1.readSelf();
+            UserTO user = userSelfService1.read();
             assertNotNull(user);
         } catch (AccessControlException e) {
             fail("Credentials should be valid and not cause AccessControlException");
         }
 
-        UserService userService2 = clientFactory.create(
-                newUserTO.getUsername(), "passwordXX").getService(UserService.class);
+        UserSelfService userSelfService2 = clientFactory.create(
+                newUserTO.getUsername(), "passwordXX").getService(UserSelfService.class);
         try {
-            userService2.readSelf();
+            userSelfService2.read();
             fail("Credentials are invalid, thus request should raise AccessControlException");
         } catch (AccessControlException e) {
             assertNotNull(e);
@@ -538,151 +505,6 @@ public class UserTestITCase extends AbstractTest {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
-    }
-
-    @Test
-    public void createWithReject() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
-
-        UserTO userTO = getUniqueSampleTO("createWithReject@syncope.apache.org");
-        userTO.getResources().add(RESOURCE_NAME_TESTDB);
-
-        // User with role 9 are defined in workflow as subject to approval
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(9L);
-        userTO.getMemberships().add(membershipTO);
-
-        // 1. create user with role 9
-        userTO = createUser(userTO);
-        assertNotNull(userTO);
-        assertEquals(1, userTO.getMemberships().size());
-        assertEquals(9, userTO.getMemberships().get(0).getRoleId());
-        assertEquals("createApproval", userTO.getStatus());
-
-        // 2. request if there is any pending task for user just created
-        WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getId());
-        assertNotNull(form);
-        assertNotNull(form.getUserId());
-        assertEquals(userTO.getId(), form.getUserId());
-        assertNotNull(form.getTaskId());
-        assertNull(form.getOwner());
-
-        // 3. claim task from rossini, not in role 7 (designated for approval in workflow definition): fail
-        UserWorkflowService userService2 = clientFactory.create(
-                "rossini", ADMIN_PWD).getService(UserWorkflowService.class);
-
-        try {
-            userService2.claimForm(form.getTaskId());
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.Workflow, e.getType());
-        }
-
-        // 4. claim task from bellini, in role 7
-        UserWorkflowService userService3 = clientFactory.create(
-                "bellini", ADMIN_PWD).getService(UserWorkflowService.class);
-
-        form = userService3.claimForm(form.getTaskId());
-        assertNotNull(form);
-        assertNotNull(form.getTaskId());
-        assertNotNull(form.getOwner());
-
-        // 5. reject user
-        Map<String, WorkflowFormPropertyTO> props = form.getPropertyMap();
-        props.get("approve").setValue(Boolean.FALSE.toString());
-        props.get("rejectReason").setValue("I don't like him.");
-        form.setProperties(props.values());
-        userTO = userService3.submitForm(form);
-        assertNotNull(userTO);
-        assertEquals("rejected", userTO.getStatus());
-
-        // 6. check that rejected user was not propagated to external resource (SYNCOPE-364)
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-        Exception exception = null;
-        try {
-            jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
-                    new String[] { userTO.getUsername() }, Integer.class);
-        } catch (EmptyResultDataAccessException e) {
-            exception = e;
-        }
-        assertNotNull(exception);
-    }
-
-    @Test
-    public void createWithApproval() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
-
-        UserTO userTO = getUniqueSampleTO("createWithApproval@syncope.apache.org");
-        userTO.getResources().add(RESOURCE_NAME_TESTDB);
-
-        // User with role 9 are defined in workflow as subject to approval
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(9L);
-        userTO.getMemberships().add(membershipTO);
-
-        // 1. create user with role 9 (and verify that no propagation occurred)
-        userTO = createUser(userTO);
-        assertNotNull(userTO);
-        assertEquals(1, userTO.getMemberships().size());
-        assertEquals(9, userTO.getMemberships().get(0).getRoleId());
-        assertEquals("createApproval", userTO.getStatus());
-        assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());
-
-        assertTrue(userTO.getPropagationStatusTOs().isEmpty());
-
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-
-        Exception exception = null;
-        try {
-            jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
-                    new String[] { userTO.getUsername() }, Integer.class);
-        } catch (EmptyResultDataAccessException e) {
-            exception = e;
-        }
-        assertNotNull(exception);
-
-        // 2. request if there is any pending form for user just created
-        List<WorkflowFormTO> forms = userWorkflowService.getForms();
-        assertNotNull(forms);
-        assertEquals(1, forms.size());
-
-        WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getId());
-        assertNotNull(form);
-        assertNotNull(form.getTaskId());
-        assertNull(form.getOwner());
-
-        // 4. claim task (from admin)
-        form = userWorkflowService.claimForm(form.getTaskId());
-        assertNotNull(form);
-        assertNotNull(form.getTaskId());
-        assertNotNull(form.getOwner());
-
-        // 5. approve user (and verify that propagation occurred)
-        Map<String, WorkflowFormPropertyTO> props = form.getPropertyMap();
-        props.get("approve").setValue(Boolean.TRUE.toString());
-        form.setProperties(props.values());
-        userTO = userWorkflowService.submitForm(form);
-        assertNotNull(userTO);
-        assertEquals("active", userTO.getStatus());
-        assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());
-
-        exception = null;
-        try {
-            final String username = jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class,
-                    userTO.getUsername());
-            assertEquals(userTO.getUsername(), username);
-        } catch (EmptyResultDataAccessException e) {
-            exception = e;
-        }
-        assertNull(exception);
-
-        // 6. update user
-        UserMod userMod = new UserMod();
-        userMod.setId(userTO.getId());
-        userMod.setPassword("anotherPassword123");
-
-        userTO = updateUser(userMod);
-        assertNotNull(userTO);
     }
 
     @Test
@@ -1114,10 +936,11 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_TESTDB, userId);
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, AttributableType.USER, userId);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_LDAP, userId);
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.USER, userId);
         assertNotNull(connObjectTO);
 
         // Suspend and reactivate only on ldap => db and syncope should still show suspended
@@ -1131,7 +954,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_TESTDB, userId);
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, AttributableType.USER, userId);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
         // Reactivate on syncope and db => syncope and db should show the user as active
@@ -1144,7 +967,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_TESTDB, userId);
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, AttributableType.USER, userId);
         assertTrue(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
     }
 
@@ -1343,7 +1166,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertNotNull(actual.getDerAttrMap().get("csvuserid"));
 
-        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
         assertEquals("sx-dx", connObjectTO.getAttrMap().get("ROLE").getValues().get(0));
     }
@@ -1370,7 +1194,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertNotNull(actual.getDerAttrMap().get("csvuserid"));
 
-        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
         assertEquals("sx-dx", connObjectTO.getAttrMap().get("MEMBERSHIP").getValues().get(0));
     }
@@ -1433,7 +1258,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(2, actual.getMemberships().size());
         assertEquals(1, actual.getResources().size());
 
-        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
 
         // -----------------------------------
@@ -1448,7 +1274,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals(1, actual.getMemberships().size());
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+        connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1465,7 +1292,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, actual.getMemberships().size());
         assertFalse(actual.getResources().isEmpty());
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+        connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1483,7 +1311,7 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+            resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
             fail("Read should not succeeed");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -1514,7 +1342,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals(2, actual.getMemberships().size());
 
-        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_LDAP, actual.getId());
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
 
         AttributeTO postalAddress = connObjectTO.getAttrMap().get("postalAddress");
@@ -1543,7 +1372,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals(1, actual.getMemberships().size());
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_LDAP, actual.getId());
+        connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
 
         postalAddress = connObjectTO.getAttrMap().get("postalAddress");
@@ -1575,7 +1405,7 @@ public class UserTestITCase extends AbstractTest {
 
         // 3. try (and fail) to find this user on the external LDAP resource
         try {
-            readConnectorObject(RESOURCE_NAME_LDAP, userTO.getId());
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.USER, userTO.getId());
             fail("This entry should not be present on this resource");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -1626,7 +1456,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        ConnObjectTO connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject("ws-target-resource-2", AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
         // ----------------------------------
@@ -1650,7 +1481,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
+        connObjectTO =
+                resourceService.getConnectorObject("ws-target-resource-2", AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
         // ----------------------------------
@@ -1663,7 +1495,8 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.status(userTO.getId(), statusMod).readEntity(UserTO.class);
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
+        connObjectTO =
+                resourceService.getConnectorObject("ws-target-resource-2", AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertFalse(connObjectTO.getAttrMap().get("NAME").getValues().isEmpty());
         assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
@@ -1673,7 +1506,8 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.status(userTO.getId(), statusMod).readEntity(UserTO.class);
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
+        connObjectTO =
+                resourceService.getConnectorObject("ws-target-resource-2", AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertFalse(connObjectTO.getAttrMap().get("NAME").getValues().isEmpty());
         assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
@@ -1698,7 +1532,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
+        connObjectTO =
+                resourceService.getConnectorObject("ws-target-resource-2", AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("Surname2", connObjectTO.getAttrMap().get("SURNAME").getValues().get(0));
 
@@ -1721,7 +1556,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        connObjectTO = readConnectorObject("ws-target-resource-2", userTO.getId());
+        connObjectTO =
+                resourceService.getConnectorObject("ws-target-resource-2", AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
 
         // attribute "name" mapped on virtual attribute "virtualdata" should be reset
@@ -1745,7 +1581,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("resource-db-virattr", userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        ConnObjectTO connObjectTO = readConnectorObject("resource-db-virattr", userTO.getId());
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject("resource-db-virattr", AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue", connObjectTO.getAttrMap().get("USERNAME").getValues().get(0));
         // ----------------------------------
@@ -1998,7 +1835,8 @@ public class UserTestITCase extends AbstractTest {
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
 
-        final ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+        final ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNull(connObjectTO.getAttrMap().get("email"));
     }
 
@@ -2152,12 +1990,6 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE373() {
-        UserTO userTO = userService.readSelf();
-        assertEquals(ADMIN_UNAME, userTO.getUsername());
-    }
-
-    @Test
     public void issueSYNCOPE383() {
         // 1. create user on testdb and testdb2
         UserTO userTO = getUniqueSampleTO("syncope383@apache.org");
@@ -2191,8 +2023,6 @@ public class UserTestITCase extends AbstractTest {
     public void issueSYNCOPE397() {
         ResourceTO csv = resourceService.read(RESOURCE_NAME_CSV);
         // change mapping of resource-csv
-        MappingTO mappingTO = csv.getUmapping();
-
         for (MappingItemTO item : csv.getUmapping().getItems()) {
             if ("email".equals(item.getIntAttrName())) {
                 // unset internal attribute mail and set virtual attribute virtualdata as mapped to external email
@@ -2289,97 +2119,6 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE15() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
-
-        UserTO userTO = getUniqueSampleTO("issueSYNCOPE15@syncope.apache.org");
-        userTO.getResources().clear();
-        userTO.getVirAttrs().clear();
-        userTO.getDerAttrs().clear();
-        userTO.getMemberships().clear();
-
-        // User with role 9 are defined in workflow as subject to approval
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(9L);
-        userTO.getMemberships().add(membershipTO);
-
-        // 1. create user with role 9 (and verify that no propagation occurred)
-        userTO = createUser(userTO);
-        assertNotNull(userTO);
-        assertNotEquals(0L, userTO.getId());
-        assertNotNull(userTO.getCreationDate());
-        assertNotNull(userTO.getCreator());
-        assertNotNull(userTO.getLastChangeDate());
-        assertNotNull(userTO.getLastModifier());
-        assertEquals(userTO.getCreationDate(), userTO.getLastChangeDate());
-
-        // 2. request if there is any pending form for user just created
-        List<WorkflowFormTO> forms = userWorkflowService.getForms();
-        assertEquals(1, forms.size());
-
-        WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getId());
-        assertNotNull(form);
-
-        // 3. first claim ny bellini ....
-        UserWorkflowService userService3 = clientFactory.create(
-                "bellini", ADMIN_PWD).getService(UserWorkflowService.class);
-
-        form = userService3.claimForm(form.getTaskId());
-        assertNotNull(form);
-        assertNotNull(form.getTaskId());
-        assertNotNull(form.getOwner());
-
-        // 4. second claim task by admin
-        form = userWorkflowService.claimForm(form.getTaskId());
-        assertNotNull(form);
-
-        // 5. approve user
-        final Map<String, WorkflowFormPropertyTO> props = form.getPropertyMap();
-        props.get("approve").setValue(Boolean.TRUE.toString());
-        form.setProperties(props.values());
-
-        // 6. submit approve
-        userTO = userWorkflowService.submitForm(form);
-        assertNotNull(userTO);
-        assertEquals(0, userWorkflowService.getForms().size());
-        assertNull(userWorkflowService.getFormForUser(userTO.getId()));
-
-        // 7. search approval into the history as well
-        forms = userWorkflowService.getFormsByName(userTO.getId(), "Create approval");
-        assertFalse(forms.isEmpty());
-
-        int count = 0;
-        for (WorkflowFormTO hform : forms) {
-            if (form.getTaskId().equals(hform.getTaskId())) {
-                count++;
-
-                assertEquals("createApproval", hform.getKey());
-                assertNotNull(hform.getCreateTime());
-                assertNotNull(hform.getDueDate());
-                assertTrue(Boolean.parseBoolean(hform.getPropertyMap().get("approve").getValue()));
-                assertNull(hform.getPropertyMap().get("rejectReason").getValue());
-            }
-        }
-        assertEquals(1, count);
-
-        userService.delete(userTO.getId());
-
-        try {
-            userService.read(userTO.getId());
-            fail();
-        } catch (Exception ignore) {
-            assertNotNull(ignore);
-        }
-
-        try {
-            userWorkflowService.getFormsByName(userTO.getId(), "Create approval");
-            fail();
-        } catch (Exception ignore) {
-            assertNotNull(ignore);
-        }
-    }
-
-    @Test
     public void unlink() {
         UserTO userTO = getUniqueSampleTO("unlink@syncope.apache.org");
         userTO.getResources().clear();
@@ -2392,7 +2131,8 @@ public class UserTestITCase extends AbstractTest {
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
 
-        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
 
         actual = userService.associate(actual.getId(),
@@ -2407,7 +2147,8 @@ public class UserTestITCase extends AbstractTest {
 
         assertTrue(actual.getResources().isEmpty());
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+        connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
     }
 
@@ -2424,7 +2165,8 @@ public class UserTestITCase extends AbstractTest {
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
 
-        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
 
         actual = userService.associate(actual.getId(),
@@ -2439,7 +2181,7 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+            resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -2459,7 +2201,8 @@ public class UserTestITCase extends AbstractTest {
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
 
-        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
 
         actual = userService.associate(actual.getId(),
@@ -2474,7 +2217,7 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(actual.getResources().isEmpty());
 
         try {
-            readConnectorObject(RESOURCE_NAME_CSV, actual.getId());
+            resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
             fail();
         } catch (Exception e) {
             assertNotNull(e);

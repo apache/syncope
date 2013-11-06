@@ -24,6 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.core.MediaType;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.rest.RestClientFactoryBean;
+import org.apache.syncope.common.services.UserSelfService;
+import org.apache.syncope.common.types.RESTHeaders;
 
 /**
  * Entry point for client access to all REST services exposed by Syncope core; obtain instances via
@@ -66,5 +68,10 @@ public class SyncopeClient {
         webClient.accept(mediaType).to(location.toASCIIString(), false);
 
         return webClient.get(resultClass);
+    }
+
+    public boolean isSelfRegistrationAllowed() {
+        return Boolean.valueOf(restClientFactory.createServiceInstance(UserSelfService.class, mediaType, null, null).
+                getOptions().getHeaderString(RESTHeaders.SELFREGISTRATION_ALLOWED.toString()));
     }
 }
