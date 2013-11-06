@@ -183,7 +183,7 @@ public abstract class LoggerCategoryPanel extends Panel {
 
             @Override
             protected void onEventAction(final IEvent<?> event) {
-                onEventAction(event);
+                LoggerCategoryPanel.this.onEventAction(event);
             }
         });
     }
