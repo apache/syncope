@@ -46,7 +46,6 @@ import org.apache.syncope.core.persistence.beans.user.UVirAttr;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
-import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
@@ -69,7 +68,7 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
  *
  * @see NotificationTask
  */
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = { Throwable.class })
 public class NotificationManager {
 
     /**
@@ -136,12 +135,14 @@ public class NotificationManager {
      *
      * @param notification notification to take as model
      * @param attributable the user this task is about
+     * @param model Velocity model
      * @return notification task, fully populated
      */
     private NotificationTask getNotificationTask(
             final Notification notification,
             final AbstractAttributable attributable,
             final Map<String, Object> model) {
+
         if (attributable != null) {
             connObjectUtil.retrieveVirAttrValues(attributable, AttributableUtil.getInstance(AttributableType.USER));
         }
@@ -203,10 +204,6 @@ public class NotificationManager {
 
     /**
      * Create notification tasks for each notification matching the given user id and (some of) tasks performed.
-     *
-     * @param userId user id
-     * @param performedTasks set of actions performed on given user id
-     * @throws NotFoundException if user contained in the workflow result cannot be found
      */
     public void createTasks(
             final AuditElements.EventCategoryType type,
@@ -217,6 +214,7 @@ public class NotificationManager {
             final Object before,
             final Object output,
             final Object... input) {
+
         AttributableType attributableType = null;
         AbstractAttributable attributable = null;
 
@@ -249,20 +247,22 @@ public class NotificationManager {
 
             if (events.isEmpty()) {
                 LOG.debug("No events found about {}", attributable);
-            } else {
-                if (attributableType == null || attributable == null || notification.getAbout() == null
-                        || searchDAO.matches(
-                        attributable, notification.getAbout(), AttributableUtil.getInstance(attributableType))) {
+            } else if (attributableType == null || attributable == null || notification.getAbout() == null
+                    || searchDAO.matches(attributable, notification.getAbout(),
+                            AttributableUtil.getInstance(attributableType))) {
 
-                    LOG.debug("Creating notification task for events {} about {}", events, attributable);
+                LOG.debug("Creating notification task for events {} about {}", events, attributable);
 
-                    final Map<String, Object> model = new HashMap<String, Object>();
-                    model.put("before", before);
-                    model.put("output", output);
-                    model.put("input", input);
+                final Map<String, Object> model = new HashMap<String, Object>();
+                model.put("before", before);
+                model.put("output", output);
+                model.put("input", input);
 
-                    taskDAO.save(getNotificationTask(notification, attributable, model));
+                if (attributable instanceof SyncopeUser) {
+                    model.put("user", userDataBinder.getUserTO((SyncopeUser) attributable));
                 }
+
+                taskDAO.save(getNotificationTask(notification, attributable, model));
             }
         }
     }
