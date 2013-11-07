@@ -109,7 +109,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         // 2. take into account administrative roles
         queryString.insert(0, "SELECT u.subject_id FROM (");
         queryString.append(") u WHERE subject_id NOT IN (");
-        queryString.append(getAdminRolesFilter(adminRoles, attrUtil)).append(")");
+        queryString.append(getAdminRolesFilter(adminRoles, attrUtil)).append(')');
 
         // 3. prepare the COUNT query
         queryString.insert(0, "SELECT COUNT(subject_id) FROM (");
@@ -165,18 +165,26 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         // 1. get the query string from the search condition
         StringBuilder queryString = getQuery(searchCondition, parameters, attrUtil);
 
-        // 2. take into account the passed user
-        queryString.insert(0, "SELECT u.subject_id FROM (");
-        queryString.append(") u WHERE subject_id=?").append(setParameter(parameters, user.getId()));
+        boolean matches;
+        if (queryString.length() == 0) {
+            // Could be empty: got into a role search with a single membership condition ...
+            matches = false;
+        } else {
+            // 2. take into account the passed user
+            queryString.insert(0, "SELECT u.subject_id FROM (");
+            queryString.append(") u WHERE subject_id=?").append(setParameter(parameters, user.getId()));
 
-        // 3. prepare the search query
-        Query query = entityManager.createNativeQuery(queryString.toString());
+            // 3. prepare the search query
+            Query query = entityManager.createNativeQuery(queryString.toString());
 
-        // 4. populate the search query with parameter values
-        fillWithParameters(query, parameters);
+            // 4. populate the search query with parameter values
+            fillWithParameters(query, parameters);
 
-        // 5. executes query
-        return !query.getResultList().isEmpty();
+            // 5. executes query
+            matches = !query.getResultList().isEmpty();
+        }
+
+        return matches;
     }
 
     private int setParameter(final List<Object> parameters, final Object parameter) {
@@ -308,15 +316,13 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
                 query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, attrUtil)).
                         append(" AND subject_id IN ( ").
                         append(getQuery(nodeCond.getRightNodeCond(), parameters, attrUtil).
-                        append(")"));
+                                append(")"));
                 break;
 
             case OR:
-                query.append("(").
-                        append(getQuery(nodeCond.getLeftNodeCond(), parameters, attrUtil)).
+                query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, attrUtil)).
                         append(" UNION ").
-                        append(getQuery(nodeCond.getRightNodeCond(), parameters, attrUtil).
-                        append(")"));
+                        append(getQuery(nodeCond.getRightNodeCond(), parameters, attrUtil));
                 break;
 
             default:
@@ -390,7 +396,8 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     }
 
     private void fillAttributeQuery(final StringBuilder query, final AbstractAttrValue attrValue,
-            final AbstractNormalSchema schema, final AttributeCond cond, final boolean not, final List<Object> parameters) {
+            final AbstractNormalSchema schema, final AttributeCond cond, final boolean not,
+            final List<Object> parameters) {
 
         String column = (cond instanceof AttributableCond)
                 ? cond.getSchema()
