@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import java.security.AccessControlException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.core.Response;
@@ -35,6 +36,7 @@ import org.apache.syncope.common.mod.StatusMod;
 
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.common.services.EntitlementService;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.services.UserService;
@@ -44,12 +46,16 @@ import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.to.WorkflowFormPropertyTO;
+import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.core.workflow.ActivitiDetector;
+import org.junit.Assume;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -355,5 +361,43 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(response);
         role1User = response.readEntity(UserTO.class);
         assertNotNull(role1User);
+    }
+
+    @Test
+    public void issueSYNCOPE434() {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+
+        // 1. create user with role 9 (users with role 9 are defined in workflow as subject to approval)
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("createWithReject@syncope.apache.org");
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(9L);
+        userTO.getMemberships().add(membershipTO);
+
+        userTO = createUser(userTO);
+        assertNotNull(userTO);
+        assertEquals("createApproval", userTO.getStatus());
+
+        // 2. try to authenticate: fail
+        EntitlementService myEntitlementService = clientFactory.create(userTO.getUsername(), "password123").
+                getService(EntitlementService.class);
+        try {
+            myEntitlementService.getOwnEntitlements();
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
+
+        // 3. approve user
+        WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getId());
+        form = userWorkflowService.claimForm(form.getTaskId());
+        Map<String, WorkflowFormPropertyTO> props = form.getPropertyMap();
+        props.get("approve").setValue(Boolean.TRUE.toString());
+        form.setProperties(props.values());
+        userTO = userWorkflowService.submitForm(form);
+        assertNotNull(userTO);
+        assertEquals("active", userTO.getStatus());
+
+        // 4. try to authenticate again: success
+        assertNotNull(myEntitlementService.getOwnEntitlements());
     }
 }

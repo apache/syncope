@@ -30,6 +30,8 @@ under the License.
   <SyncopeConf confKey="token.expireTime" confValue="60"/>
   <SyncopeConf confKey="selfRegistration.allowed" confValue="true"/>
   <SyncopeConf confKey="notification.maxRetries" confValue="0"/>
+  <!-- when needing to provide more values, use '|' as separator and no spaces -->
+  <SyncopeConf confKey="authentication.statuses" confValue="active"/>
     
   <!-- Authentication and authorization -->
   <Entitlement name="SCHEMA_LIST"/>
