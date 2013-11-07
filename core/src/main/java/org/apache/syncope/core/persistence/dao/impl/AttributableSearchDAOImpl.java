@@ -109,7 +109,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         // 2. take into account administrative roles
         queryString.insert(0, "SELECT u.subject_id FROM (");
         queryString.append(") u WHERE subject_id NOT IN (");
-        queryString.append(getAdminRolesFilter(adminRoles, attrUtil)).append(")");
+        queryString.append(getAdminRolesFilter(adminRoles, attrUtil)).append(')');
 
         // 3. prepare the COUNT query
         queryString.insert(0, "SELECT COUNT(subject_id) FROM (");
@@ -165,10 +165,10 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         // 1. get the query string from the search condition
         StringBuilder queryString = getQuery(searchCondition, parameters, attrUtil);
 
-        final boolean res;
+        boolean matches;
         if (queryString.length() == 0) {
             // Could be empty: got into a role search with a single membership condition ...
-            res = false;
+            matches = false;
         } else {
             // 2. take into account the passed user
             queryString.insert(0, "SELECT u.subject_id FROM (");
@@ -181,10 +181,10 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
             fillWithParameters(query, parameters);
 
             // 5. executes query
-            res = !query.getResultList().isEmpty();
+            matches = !query.getResultList().isEmpty();
         }
 
-        return res;
+        return matches;
     }
 
     private int setParameter(final List<Object> parameters, final Object parameter) {
@@ -316,15 +316,13 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
                 query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, attrUtil)).
                         append(" AND subject_id IN ( ").
                         append(getQuery(nodeCond.getRightNodeCond(), parameters, attrUtil).
-                        append(")"));
+                                append(")"));
                 break;
 
             case OR:
-                query.append("(").
-                        append(getQuery(nodeCond.getLeftNodeCond(), parameters, attrUtil)).
+                query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, attrUtil)).
                         append(" UNION ").
-                        append(getQuery(nodeCond.getRightNodeCond(), parameters, attrUtil).
-                        append(")"));
+                        append(getQuery(nodeCond.getRightNodeCond(), parameters, attrUtil));
                 break;
 
             default:

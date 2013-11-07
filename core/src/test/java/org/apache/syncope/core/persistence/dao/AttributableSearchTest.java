@@ -45,7 +45,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:persistenceTestEnv.xml"})
+@ContextConfiguration(locations = { "classpath:persistenceTestEnv.xml" })
 @Transactional
 public class AttributableSearchTest {
 
@@ -314,7 +314,7 @@ public class AttributableSearchTest {
 
         final List<SyncopeUser> matchingUsers =
                 searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCondition,
-                AttributableUtil.getInstance(AttributableType.USER));
+                        AttributableUtil.getInstance(AttributableType.USER));
 
         assertNotNull(matchingUsers);
         assertEquals(2, matchingUsers.size());
@@ -331,7 +331,7 @@ public class AttributableSearchTest {
 
         List<SyncopeUser> users =
                 searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCondition,
-                AttributableUtil.getInstance(AttributableType.USER));
+                        AttributableUtil.getInstance(AttributableType.USER));
 
         assertNotNull(users);
         assertEquals(1, users.size());
@@ -400,16 +400,33 @@ public class AttributableSearchTest {
 
     @Test
     public void issueSYNCOPE46() {
-        final AttributableCond cond = new AttributableCond(AttributeCond.Type.LIKE);
+        AttributableCond cond = new AttributableCond(AttributeCond.Type.LIKE);
         cond.setSchema("username");
         cond.setExpression("%ossin%");
 
-        final NodeCond searchCondition = NodeCond.getLeafCond(cond);
+        NodeCond searchCondition = NodeCond.getLeafCond(cond);
         assertTrue(searchCondition.isValid());
 
-        final List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+        List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
                 searchCondition, AttributableUtil.getInstance(AttributableType.USER));
         assertNotNull(users);
         assertEquals(1, users.size());
+    }
+
+    @Test
+    public void issueSYNCOPE433() {
+        AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNULL);
+        isNullCond.setSchema("loginDate");
+
+        AttributableCond likeCond = new AttributableCond(AttributeCond.Type.LIKE);
+        likeCond.setSchema("username");
+        likeCond.setExpression("%ossin%");
+
+        NodeCond searchCond = NodeCond.getOrCond(NodeCond.getLeafCond(isNullCond), NodeCond.getLeafCond(likeCond));
+
+        Integer count = searchDAO.count(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCond,
+                AttributableUtil.getInstance(AttributableType.USER));
+        assertNotNull(count);
+        assertTrue(count > 0);
     }
 }
