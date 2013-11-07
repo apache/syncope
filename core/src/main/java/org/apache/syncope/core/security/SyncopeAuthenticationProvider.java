@@ -20,11 +20,14 @@ package org.apache.syncope.core.security;
 
 import java.util.Date;
 import javax.annotation.Resource;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.core.audit.AuditManager;
+import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.util.PasswordEncoder;
 import org.slf4j.Logger;
@@ -49,6 +52,9 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
     private AuditManager auditManager;
+
+    @Autowired
+    private ConfDAO confDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -81,7 +87,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    @Transactional(noRollbackFor = {BadCredentialsException.class, DisabledException.class})
+    @Transactional(noRollbackFor = { BadCredentialsException.class, DisabledException.class })
     public Authentication authenticate(final Authentication authentication)
             throws AuthenticationException {
 
@@ -97,10 +103,19 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         } else {
             user = userDAO.find(username);
 
-            if (user != null && user.isSuspended() != null) {
-                if (user.isSuspended()) {
+            if (user != null) {
+                if (user.isSuspended() != null && user.isSuspended()) {
                     throw new DisabledException("User " + user.getUsername() + " is suspended");
                 }
+
+                SyncopeConf authStatuses = confDAO.find("authentication.statuses", null);
+                if (authStatuses != null) {
+                    String[] statuses = authStatuses.getValue().split("\\|");
+                    if (!ArrayUtils.contains(statuses, user.getStatus())) {
+                        throw new DisabledException("User " + user.getUsername() + " not allowed to authenticate");
+                    }
+                }
+
                 authenticated = authenticate(
                         authentication.getCredentials().toString(),
                         user.getCipherAlgorithm(),
