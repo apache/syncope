@@ -99,7 +99,7 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
                 Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
 
                 Set<String> groups = new HashSet<String>(roleAccountLinks);
-                Attribute ldapGroups = AttributeUtil.find("ldapGroups", attributes);
+                Attribute ldapGroups = AttributeUtil.find(getGroupMembershipAttrName(), attributes);
 
                 if (ldapGroups != null) {
                     for (Object obj : ldapGroups.getValue()) {
