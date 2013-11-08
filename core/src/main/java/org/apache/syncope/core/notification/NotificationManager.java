@@ -50,8 +50,6 @@ import org.apache.syncope.core.persistence.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.rest.controller.RoleController;
-import org.apache.syncope.core.rest.controller.UserController;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
@@ -68,7 +66,7 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
  *
  * @see NotificationTask
  */
-@Transactional(rollbackFor = { Throwable.class })
+@Transactional(rollbackFor = {Throwable.class})
 public class NotificationManager {
 
     /**
@@ -218,22 +216,18 @@ public class NotificationManager {
         AttributableType attributableType = null;
         AbstractAttributable attributable = null;
 
-        if (UserController.class.getSimpleName().equals(category)) {
+        if (before instanceof UserTO) {
             attributableType = AttributableType.USER;
-
-            if (before instanceof UserTO) {
-                attributable = userDAO.find(((UserTO) before).getId());
-            } else if (output instanceof UserTO) {
-                attributable = userDAO.find(((UserTO) output).getId());
-            }
-        } else if (RoleController.class.getSimpleName().equals(category)) {
+            attributable = userDAO.find(((UserTO) before).getId());
+        } else if (output instanceof UserTO) {
+            attributableType = AttributableType.USER;
+            attributable = userDAO.find(((UserTO) output).getId());
+        } else if (before instanceof RoleTO) {
             attributableType = AttributableType.ROLE;
-
-            if (before instanceof RoleTO) {
-                attributable = roleDAO.find(((RoleTO) before).getId());
-            } else if (output instanceof RoleTO) {
-                attributable = roleDAO.find(((RoleTO) output).getId());
-            }
+            attributable = roleDAO.find(((RoleTO) before).getId());
+        } else if (output instanceof RoleTO) {
+            attributableType = AttributableType.ROLE;
+            attributable = roleDAO.find(((RoleTO) output).getId());
         }
 
         LOG.debug("Search notification for [{}]{}", attributableType, attributable);
@@ -249,7 +243,7 @@ public class NotificationManager {
                 LOG.debug("No events found about {}", attributable);
             } else if (attributableType == null || attributable == null || notification.getAbout() == null
                     || searchDAO.matches(attributable, notification.getAbout(),
-                            AttributableUtil.getInstance(attributableType))) {
+                    AttributableUtil.getInstance(attributableType))) {
 
                 LOG.debug("Creating notification task for events {} about {}", events, attributable);
 
