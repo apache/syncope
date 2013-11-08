@@ -583,7 +583,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     result.setName(((RoleTO) actual).getName());
                 }
 
-                output = subjectTO;
+                output = actual;
                 resultStatus = Result.SUCCESS;
 
             } catch (PropagationException e) {
