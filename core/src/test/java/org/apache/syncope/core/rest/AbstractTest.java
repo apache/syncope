@@ -29,7 +29,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import org.apache.http.HttpStatus;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.client.SyncopeClientFactoryBean;
 import org.apache.syncope.common.mod.AttributeMod;
@@ -199,7 +198,7 @@ public abstract class AbstractTest {
 
     protected UserTO createUser(final UserTO userTO) {
         Response response = userService.create(userTO);
-        if (response.getStatus() != HttpStatus.SC_CREATED) {
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
@@ -226,7 +225,7 @@ public abstract class AbstractTest {
             final SchemaType type, final T schemaTO) {
 
         Response response = schemaService.create(kind, type, schemaTO);
-        if (response.getStatus() != HttpStatus.SC_CREATED) {
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
@@ -238,7 +237,7 @@ public abstract class AbstractTest {
 
     protected RoleTO createRole(final RoleTO newRoleTO) {
         Response response = roleService.create(newRoleTO);
-        if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
@@ -258,7 +257,7 @@ public abstract class AbstractTest {
     @SuppressWarnings("unchecked")
     protected <T extends AbstractPolicyTO> T createPolicy(final T policy) {
         Response response = policyService.create(policy);
-        if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
@@ -269,7 +268,7 @@ public abstract class AbstractTest {
 
     protected ResourceTO createResource(final ResourceTO resourceTO) {
         Response response = resourceService.create(resourceTO);
-        if (response.getStatus() != org.apache.http.HttpStatus.SC_CREATED) {
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;

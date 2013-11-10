@@ -36,7 +36,6 @@ import java.util.Properties;
 import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
 import org.apache.syncope.common.services.ConnectorService;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.to.BulkAction;
@@ -90,7 +89,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
 
         Response response = connectorService.create(connectorTO);
-        if (response.getStatus() != HttpStatus.SC_CREATED) {
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
         }
     }
@@ -145,7 +144,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.getCapabilities().add(ConnectorCapability.TWO_PHASES_UPDATE);
 
         Response response = connectorService.create(connectorTO);
-        if (response.getStatus() != HttpStatus.SC_CREATED) {
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
         }
 
@@ -193,7 +192,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         try {
             connectorService.read(actual.getId());
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
     }
 
@@ -283,7 +282,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         // Create a new connector instance.
         // ----------------------------------
         Response response = connectorService.create(connInstanceTO);
-        if (response.getStatus() != HttpStatus.SC_CREATED) {
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
         }
 
@@ -342,7 +341,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         try {
             connectorService.delete(0L);
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
     }
 
@@ -616,7 +615,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
             assertFalse(connectorService.check(connectorTO));
 
             Response response = connectorService.create(connectorTO);
-            if (response.getStatus() != HttpStatus.SC_CREATED) {
+            if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
                 throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
             }
 

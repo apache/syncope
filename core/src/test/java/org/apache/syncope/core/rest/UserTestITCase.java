@@ -34,7 +34,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
-import org.apache.http.HttpStatus;
 
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
@@ -512,7 +511,7 @@ public class UserTestITCase extends AbstractTest {
         try {
             userService.delete(0L);
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
 
         UserTO userTO = getSampleTO("qqgf.z@nn.com");
@@ -537,7 +536,7 @@ public class UserTestITCase extends AbstractTest {
         try {
             userService.delete(userTO.getId());
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
     }
 
@@ -565,7 +564,7 @@ public class UserTestITCase extends AbstractTest {
         try {
             userService.read(userTO.getId());
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
     }
 

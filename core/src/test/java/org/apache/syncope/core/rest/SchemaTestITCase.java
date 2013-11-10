@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
 import java.util.List;
-import org.apache.http.HttpStatus;
+import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.SchemaService;
@@ -129,7 +129,7 @@ public class SchemaTestITCase extends AbstractTest {
         try {
             firstname = schemaService.read(AttributableType.USER, SchemaType.NORMAL, schemaTO.getName());
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
         assertNull(firstname);
     }
@@ -252,7 +252,7 @@ public class SchemaTestITCase extends AbstractTest {
             createSchema(AttributableType.ROLE, SchemaType.NORMAL, actual);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_CONFLICT, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.CONFLICT, e.getType().getResponseStatus());
             assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
 
@@ -261,7 +261,7 @@ public class SchemaTestITCase extends AbstractTest {
             createSchema(AttributableType.ROLE, SchemaType.NORMAL, actual);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_BAD_REQUEST, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.BAD_REQUEST, e.getType().getResponseStatus());
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
     }

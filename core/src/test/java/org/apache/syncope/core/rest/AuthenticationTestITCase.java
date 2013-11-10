@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.core.Response;
-import org.apache.http.HttpStatus;
 import org.apache.syncope.common.mod.StatusMod;
 
 import org.apache.syncope.common.search.AttributeCond;
@@ -146,7 +145,7 @@ public class AuthenticationTestITCase extends AbstractTest {
             fail("Schemaupdate as user schould not work");
         } catch (SyncopeClientException e) {
             assertNotNull(e);
-            assertEquals(HttpStatus.SC_UNAUTHORIZED, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.UNAUTHORIZED, e.getType().getResponseStatus());
         } catch (AccessControlException e) {
             // CXF Service will throw this exception
             assertNotNull(e);

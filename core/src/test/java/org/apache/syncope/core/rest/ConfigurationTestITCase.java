@@ -33,7 +33,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.ConfigurationTO;
@@ -56,7 +55,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         Response response = configurationService.create(configurationTO);
         assertNotNull(response);
-        assertEquals(HttpStatus.SC_CREATED, response.getStatus());
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
         ConfigurationTO newConfigurationTO = adminClient.getObject(response.getLocation(), ConfigurationService.class,
                 ConfigurationTO.class);
         assertEquals(configurationTO, newConfigurationTO);
@@ -67,7 +66,7 @@ public class ConfigurationTestITCase extends AbstractTest {
         try {
             configurationService.delete("nonExistent");
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
 
         ConfigurationTO tokenLengthTO = configurationService.read("token.length");
@@ -76,12 +75,12 @@ public class ConfigurationTestITCase extends AbstractTest {
         try {
             configurationService.read("token.length");
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
 
         Response response = configurationService.create(tokenLengthTO);
         assertNotNull(response);
-        assertEquals(HttpStatus.SC_CREATED, response.getStatus());
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
         ConfigurationTO newConfigurationTO = adminClient.getObject(response.getLocation(), ConfigurationService.class,
                 ConfigurationTO.class);
         assertEquals(tokenLengthTO, newConfigurationTO);
@@ -122,7 +121,7 @@ public class ConfigurationTestITCase extends AbstractTest {
     public void dbExport() throws IOException {
         Response response = configurationService.export();
         assertNotNull(response);
-        assertEquals(HttpStatus.SC_OK, response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
         String contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
         assertTrue(contentType.contains("xml"));
         String contentDisposition = response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION.toString());

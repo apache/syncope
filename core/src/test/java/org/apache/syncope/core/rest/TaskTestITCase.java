@@ -28,7 +28,6 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.http.HttpStatus;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.AttributableCond;
 import org.apache.syncope.common.search.AttributeCond;
@@ -216,7 +215,7 @@ public class TaskTestITCase extends AbstractTest {
         try {
             taskService.delete(0L);
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
         TaskExecTO exec = taskService.execute(1L, false);
         assertEquals(PropagationTaskExecStatus.SUBMITTED.name(), exec.getStatus());
@@ -233,7 +232,7 @@ public class TaskTestITCase extends AbstractTest {
         try {
             taskService.readExecution(exec.getId());
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
     }
 

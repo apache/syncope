@@ -306,8 +306,6 @@ under the License.
 
     <commons-jexl.version>2.1.1</commons-jexl.version>
     <commons-lang.version>3.1</commons-lang.version>
-        
-    <hc.client.version>4.2.6</hc.client.version>
 
     <activiti.version>5.14</activiti.version>
 
@@ -418,12 +416,6 @@ under the License.
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
         <version>${commons-lang.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
-        <version>${hc.client.version}</version>
       </dependency>
 
       <dependency>

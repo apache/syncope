@@ -25,7 +25,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.resource.AbstractResourceStream;
@@ -43,8 +42,12 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
     private String filename;
 
     public HttpResourceStream(final Response response) {
+        super();
+        
         Object entity = response.getEntity();
-        if (response.getStatus() == HttpStatus.SC_OK && (entity instanceof InputStream)) {
+        if (response.getStatusInfo().getStatusCode() == Response.Status.OK.getStatusCode() 
+                && (entity instanceof InputStream)) {
+
             this.inputStream = (InputStream) entity;
             this.contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
             String contentDisposition = response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION.toString());

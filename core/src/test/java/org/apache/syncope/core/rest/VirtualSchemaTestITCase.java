@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
-import org.apache.http.HttpStatus;
+import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.to.VirSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -92,7 +92,7 @@ public class VirtualSchemaTestITCase extends AbstractTest {
             createSchema(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, actual);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_CONFLICT, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.CONFLICT, e.getType().getResponseStatus());
             assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
 
@@ -101,7 +101,7 @@ public class VirtualSchemaTestITCase extends AbstractTest {
             createSchema(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, actual);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_BAD_REQUEST, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.BAD_REQUEST, e.getType().getResponseStatus());
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
     }

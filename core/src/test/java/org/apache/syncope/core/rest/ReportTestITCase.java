@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.report.UserReportletConf;
 import org.apache.syncope.common.services.ReportService;
@@ -49,7 +48,7 @@ public class ReportTestITCase extends AbstractTest {
 
     public ReportTO createReport(final ReportTO report) {
         Response response = reportService.create(report);
-        assertEquals(HttpStatus.SC_CREATED, response.getStatus());
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
         return adminClient.getObject(response.getLocation(), ReportService.class, ReportTO.class);
     }
 
@@ -143,14 +142,14 @@ public class ReportTestITCase extends AbstractTest {
             reportService.read(report.getId());
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
     }
 
     private void checkExport(final Long execId, final ReportExecExportFormat fmt) throws IOException {
         final Response response = reportService.exportExecutionResult(execId, fmt);
         assertNotNull(response);
-        assertEquals(HttpStatus.SC_OK, response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
         assertNotNull(response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION.toString()));
         assertTrue(response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION.toString()).
                 endsWith("." + fmt.name().toLowerCase()));

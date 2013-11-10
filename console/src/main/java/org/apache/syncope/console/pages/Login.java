@@ -18,13 +18,12 @@
  */
 package org.apache.syncope.console.pages;
 
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.security.AccessControlException;
 import java.util.List;
 import java.util.Locale;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 import org.apache.syncope.common.services.EntitlementService;
 import org.apache.syncope.common.to.EntitlementTO;
 import org.apache.syncope.common.to.UserTO;
@@ -54,6 +53,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -204,11 +204,11 @@ public class Login extends WebPage {
 
     private String getSyncopeVersion() {
         String version = "";
+        URLConnection conn = null;
         try {
-            HttpGet get = new HttpGet(baseURL + "../version.jsp");
-            HttpResponse response = new DefaultHttpClient().execute(get);
-            version = EntityUtils.toString(response.getEntity()).trim();
-        } catch (Exception e) {
+            conn = new URL(baseURL + "../version.jsp").openConnection();
+            version = IOUtils.toString(conn.getInputStream());
+        } catch (IOException e) {
             LOG.error("While fetching version from core", e);
             getSession().error(e.getMessage());
         }

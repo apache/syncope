@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.core.Response;
-import org.apache.http.HttpStatus;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.to.BulkAction;
 
@@ -299,7 +298,7 @@ public class ResourceTestITCase extends AbstractTest {
 
             resourceService.update(resourceTO.getName(), resourceTO);
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
     }
 
@@ -355,7 +354,7 @@ public class ResourceTestITCase extends AbstractTest {
         try {
             resourceService.delete("resourcenotfound");
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
     }
 
@@ -388,7 +387,7 @@ public class ResourceTestITCase extends AbstractTest {
         try {
             resourceService.read(resourceName);
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
     }
 
@@ -428,7 +427,7 @@ public class ResourceTestITCase extends AbstractTest {
             createResource(actual);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_CONFLICT, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.CONFLICT, e.getType().getResponseStatus());
             assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
 
@@ -437,7 +436,7 @@ public class ResourceTestITCase extends AbstractTest {
             createResource(actual);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_BAD_REQUEST, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.BAD_REQUEST, e.getType().getResponseStatus());
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
     }

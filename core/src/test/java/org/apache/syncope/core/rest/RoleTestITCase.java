@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
 import java.util.List;
-import org.apache.http.HttpStatus;
+import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.services.RoleService;
@@ -141,7 +141,7 @@ public class RoleTestITCase extends AbstractTest {
         try {
             roleService.delete(0L);
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
 
         RoleTO roleTO = new RoleTO();
@@ -159,7 +159,7 @@ public class RoleTestITCase extends AbstractTest {
         try {
             roleService.read(deletedRole.getId());
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
     }
 
@@ -312,7 +312,7 @@ public class RoleTestITCase extends AbstractTest {
             roleService2.update(roleMod.getId(), roleMod);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(HttpStatus.SC_UNAUTHORIZED, e.getType().getResponseStatus().getStatusCode());
+            assertEquals(Response.Status.UNAUTHORIZED, e.getType().getResponseStatus());
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
