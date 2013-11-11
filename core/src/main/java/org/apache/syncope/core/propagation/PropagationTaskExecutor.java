@@ -31,6 +31,18 @@ import org.apache.syncope.core.persistence.beans.TaskExec;
 public interface PropagationTaskExecutor {
 
     /**
+     * Name for special propagation attribute used to indicate whether there are attributes, marked as mandatory in the
+     * mapping but not to be propagated.
+     */
+    String MANDATORY_MISSING_ATTR_NAME = "__MANDATORY_MISSING__";
+
+    /**
+     * Name for special propagation attribute used to indicate whether there are attributes, marked as mandatory in the
+     * mapping but about to be propagated as null or empty.
+     */
+    String MANDATORY_NULL_OR_EMPTY_ATTR_NAME = "__MANDATORY_NULL_OR_EMPTY__";
+
+    /**
      * Execute the given PropagationTask and returns the generated TaskExec.
      *
      * @param task to be executed

@@ -69,7 +69,7 @@ public class SyncopeUser extends AbstractAttributable {
     @Id
     private Long id;
 
-    @NotNull
+    @NotNull(message = "Blank password")
     private String password;
 
     @Transient
@@ -119,7 +119,7 @@ public class SyncopeUser extends AbstractAttributable {
      * Username/Login.
      */
     @Column(unique = true)
-    @NotNull
+    @NotNull(message = "Blank username")
     private String username;
 
     /**
@@ -507,8 +507,8 @@ public class SyncopeUser extends AbstractAttributable {
                 res = passwordHistory.subList(size >= passwordHistory.size()
                         ? 0
                         : passwordHistory.size() - size, passwordHistory.size()).contains(cipherAlgorithm == null
-                        ? password
-                        : PasswordEncoder.encode(password, cipherAlgorithm));
+                                ? password
+                                : PasswordEncoder.encode(password, cipherAlgorithm));
             } catch (Exception e) {
                 LOG.error("Error evaluating password history", e);
             }

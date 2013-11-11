@@ -26,15 +26,11 @@ import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 import org.apache.syncope.core.util.JexlUtil;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DerivedSchemaDataBinder {
-
-    @Autowired
-    private JexlUtil jexlUtil;
 
     private AbstractDerSchema populate(final AbstractDerSchema derSchema, final DerivedSchemaTO derSchemaTO) {
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
@@ -45,7 +41,7 @@ public class DerivedSchemaDataBinder {
             requiredValuesMissing.addElement("expression");
 
             scce.addException(requiredValuesMissing);
-        } else if (!jexlUtil.isExpressionValid(derSchemaTO.getExpression())) {
+        } else if (!JexlUtil.isExpressionValid(derSchemaTO.getExpression())) {
             SyncopeClientException invalidMandatoryCondition = new SyncopeClientException(
                     SyncopeClientExceptionType.InvalidValues);
             invalidMandatoryCondition.addElement(derSchemaTO.getExpression());

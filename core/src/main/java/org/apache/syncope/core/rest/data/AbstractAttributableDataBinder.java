@@ -117,9 +117,6 @@ public abstract class AbstractAttributableDataBinder {
     @Autowired
     protected PolicyDAO policyDAO;
 
-    @Autowired
-    private JexlUtil jexlUtil;
-
     private <T extends AbstractSchema> T getSchema(final String schemaName, final Class<T> reference) {
         T schema = null;
         if (StringUtils.isNotBlank(schemaName)) {
@@ -205,17 +202,6 @@ public abstract class AbstractAttributableDataBinder {
         }
     }
 
-    private boolean evaluateMandatoryCondition(final String mandatoryCondition,
-            final AbstractAttributable attributable) {
-
-        JexlContext jexlContext = new MapContext();
-        jexlUtil.addAttrsToContext(attributable.getAttributes(), jexlContext);
-        jexlUtil.addDerAttrsToContext(attributable.getDerivedAttributes(), attributable.getAttributes(), jexlContext);
-        jexlUtil.addVirAttrsToContext(attributable.getVirtualAttributes(), jexlContext);
-
-        return Boolean.parseBoolean(jexlUtil.evaluate(mandatoryCondition, jexlContext));
-    }
-
     private boolean evaluateMandatoryCondition(final AttributableUtil attrUtil, final ExternalResource resource,
             final AbstractAttributable attributable, final String intAttrName, final IntMappingType intMappingType) {
 
@@ -225,7 +211,7 @@ public abstract class AbstractAttributableDataBinder {
                 attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION), intAttrName, intMappingType);
         for (Iterator<AbstractMappingItem> itor = mappings.iterator(); itor.hasNext() && !result;) {
             final AbstractMappingItem mapping = itor.next();
-            result |= evaluateMandatoryCondition(mapping.getMandatoryCondition(), attributable);
+            result |= JexlUtil.evaluateMandatoryCondition(mapping.getMandatoryCondition(), attributable);
         }
 
         return result;
@@ -258,7 +244,7 @@ public abstract class AbstractAttributableDataBinder {
         for (AbstractSchema schema : schemaDAO.findAll(attrUtil.schemaClass())) {
             if (attributable.getAttribute(schema.getName()) == null
                     && !schema.isReadonly()
-                    && (evaluateMandatoryCondition(schema.getMandatoryCondition(), attributable)
+                    && (JexlUtil.evaluateMandatoryCondition(schema.getMandatoryCondition(), attributable)
                     || evaluateMandatoryCondition(attrUtil, attributable, schema.getName(),
                     attrUtil.intMappingType()))) {
 

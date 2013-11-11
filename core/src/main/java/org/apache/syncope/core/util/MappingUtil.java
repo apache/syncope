@@ -30,7 +30,6 @@ import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.AttributeMod;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.connid.PasswordGenerator;
@@ -60,6 +59,7 @@ import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -125,7 +125,6 @@ public final class MappingUtil {
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
      * @return account link + prepared attribute
-     * @throws ClassNotFoundException if schema type for given mapping does not exists in current class loader
      */
     @SuppressWarnings("unchecked")
     public static <T extends AbstractAttributable> Map.Entry<String, Attribute> prepareAttribute(
@@ -267,14 +266,11 @@ public final class MappingUtil {
         // Evaluate AccountLink expression
         String evalAccountLink = null;
         if (StringUtils.isNotBlank(attrUtil.getAccountLink(resource))) {
-            final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
-            final JexlUtil jexlUtil = context.getBean(JexlUtil.class);
-
             final JexlContext jexlContext = new MapContext();
-            jexlUtil.addFieldsToContext(subject, jexlContext);
-            jexlUtil.addAttrsToContext(subject.getAttributes(), jexlContext);
-            jexlUtil.addDerAttrsToContext(subject.getDerivedAttributes(), subject.getAttributes(), jexlContext);
-            evalAccountLink = jexlUtil.evaluate(attrUtil.getAccountLink(resource), jexlContext);
+            JexlUtil.addFieldsToContext(subject, jexlContext);
+            JexlUtil.addAttrsToContext(subject.getAttributes(), jexlContext);
+            JexlUtil.addDerAttrsToContext(subject.getDerivedAttributes(), subject.getAttributes(), jexlContext);
+            evalAccountLink = JexlUtil.evaluate(attrUtil.getAccountLink(resource), jexlContext);
         }
 
         // If AccountLink evaluates to an empty string, just use the provided AccountId as Name(),

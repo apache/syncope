@@ -2199,7 +2199,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE383() {
-        // 1. create user on testdb and testdb2
+        // 1. create user without resources
         UserTO userTO = getUniqueSampleTO("syncope383@apache.org");
         userTO.getResources().clear();
         userTO = createUser(userTO);
@@ -2281,19 +2281,17 @@ public class UserTestITCase extends AbstractTest {
         //modify virtual attribute
         userMod.addVirtualAttributeToBeRemoved("virtualdata");
         userMod.addVirtualAttributeToBeUpdated(attributeMod("virtualdata", "test@testoneone.com"));
+        
         // check Syncope change password
-
         PropagationRequestTO pwdPropRequest = new PropagationRequestTO();
-        //change pwd on Syncope
-        pwdPropRequest.addResource("ws-target-resource-2");
-        //change pwd on Syncope
         pwdPropRequest.setOnSyncope(true);
+        pwdPropRequest.addResource("ws-target-resource-2");
         userMod.setPwdPropRequest(pwdPropRequest);
+        
         toBeUpdated = userService.update(userMod.getId(), userMod);
         assertNotNull(toBeUpdated);
         assertEquals("test@testoneone.com", toBeUpdated.getVirtualAttributes().get(0).getValues().get(0));
         // check if propagates correctly with assertEquals on size of tasks list
-
         assertEquals(2, toBeUpdated.getPropagationStatusTOs().size());
     }
 
@@ -2355,15 +2353,44 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
     }
 
-    private boolean getBooleanAttribute(ConnObjectTO connObjectTO, String attrName) {
+    @Test
+    public void issueSYNCOPE435() {
+        // 1. try to create user without password - fail
+        UserTO userTO = getUniqueSampleTO("syncope435@syncope.apache.org");
+        userTO.setPassword(null);
+        userTO.getMemberships().clear();
+
+        try {
+            createUser(userTO);
+            fail();
+        } catch (SyncopeClientCompositeErrorException e) {
+            assertNotNull(e.getException(SyncopeClientExceptionType.InvalidSyncopeUser));
+        }
+
+        userTO.setPassword("password123");
+        userTO = createUser(userTO);
+        assertNotNull(userTO);
+
+        // 2. try to update user by subscribing a resource - works but propagation is not even attempted
+        UserMod userMod = new UserMod();
+        userMod.getResourcesToBeAdded().add("ws-target-resource-1");
+
+        userTO = userService.update(userTO.getId(), userMod);
+        assertEquals(Collections.singleton("ws-target-resource-1"), userTO.getResources());
+        assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+        assertTrue(userTO.getPropagationStatusTOs().get(0).getFailureReason().
+                startsWith("Not attempted because there are mandatory attributes without value(s): [__PASSWORD__]"));
+    }
+
+    private boolean getBooleanAttribute(final ConnObjectTO connObjectTO, final String attrName) {
         return Boolean.parseBoolean(getStringAttribute(connObjectTO, attrName));
     }
 
-    private String getStringAttribute(ConnObjectTO connObjectTO, String attrName) {
+    private String getStringAttribute(final ConnObjectTO connObjectTO, final String attrName) {
         return connObjectTO.getAttributeMap().get(attrName).getValues().get(0);
     }
 
-    private long getMaxTaskId(List<PropagationTaskTO> tasks) {
+    private long getMaxTaskId(final List<PropagationTaskTO> tasks) {
         long newMaxId = Long.MIN_VALUE;
         for (PropagationTaskTO task : tasks) {
             if (task.getId() > newMaxId) {

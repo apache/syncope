@@ -232,6 +232,7 @@ public class AttributableUtil {
                     }
                 }
                 break;
+
             case PROPAGATION:
                 for (T item : items) {
                     if (MappingPurpose.SYNCHRONIZATION != item.getPurpose()) {
@@ -239,7 +240,9 @@ public class AttributableUtil {
                     }
                 }
                 break;
+
             case BOTH:
+            default:
                 result.addAll(items);
         }
 

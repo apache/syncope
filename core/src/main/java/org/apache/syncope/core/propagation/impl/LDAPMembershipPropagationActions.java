@@ -55,9 +55,6 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
     @Autowired
     protected UserDAO userDAO;
 
-    @Autowired
-    protected JexlUtil jexlUtil;
-
     /**
      * Allows easy subclassing for the ConnId AD connector bundle.
      *
@@ -83,11 +80,11 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
                         LOG.debug("Evaluating accountLink for {}", role);
 
                         final JexlContext jexlContext = new MapContext();
-                        jexlUtil.addFieldsToContext(role, jexlContext);
-                        jexlUtil.addAttrsToContext(role.getAttributes(), jexlContext);
-                        jexlUtil.addDerAttrsToContext(role.getDerivedAttributes(), role.getAttributes(), jexlContext);
+                        JexlUtil.addFieldsToContext(role, jexlContext);
+                        JexlUtil.addAttrsToContext(role.getAttributes(), jexlContext);
+                        JexlUtil.addDerAttrsToContext(role.getDerivedAttributes(), role.getAttributes(), jexlContext);
                         final String roleAccountLink =
-                                jexlUtil.evaluate(task.getResource().getRmapping().getAccountLink(), jexlContext);
+                                JexlUtil.evaluate(task.getResource().getRmapping().getAccountLink(), jexlContext);
                         LOG.debug("AccountLink for {} is '{}'", role, roleAccountLink);
                         if (StringUtils.isNotBlank(roleAccountLink)) {
                             roleAccountLinks.add(roleAccountLink);

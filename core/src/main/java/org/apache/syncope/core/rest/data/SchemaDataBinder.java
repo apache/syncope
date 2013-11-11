@@ -40,11 +40,8 @@ public class SchemaDataBinder {
     @Autowired
     private SchemaDAO schemaDAO;
 
-    @Autowired
-    private JexlUtil jexlUtil;
-
     private <T extends AbstractDerSchema> void populate(final AbstractSchema schema, final SchemaTO schemaTO) {
-        if (!jexlUtil.isExpressionValid(schemaTO.getMandatoryCondition())) {
+        if (!JexlUtil.isExpressionValid(schemaTO.getMandatoryCondition())) {
             SyncopeClientCompositeErrorException scce =
                     new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 

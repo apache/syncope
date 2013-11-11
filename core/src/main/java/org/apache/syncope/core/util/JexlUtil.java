@@ -33,11 +33,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
+import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @see http://commons.apache.org/jexl/reference/index.html
@@ -50,15 +50,24 @@ public class JexlUtil {
      */
     private static final Logger LOG = LoggerFactory.getLogger(JexlUtil.class);
 
-    private static final String[] IGNORE_FIELDS = {"password", "clearPassword", "serialVersionUID"};
+    private static final String[] IGNORE_FIELDS = { "password", "clearPassword", "serialVersionUID" };
 
-    @Autowired
-    private JexlEngine jexlEngine;
+    private static JexlEngine jexlEngine;
 
-    public boolean isExpressionValid(final String expression) {
+    private static JexlEngine getEngine() {
+        synchronized (LOG) {
+            if (jexlEngine == null) {
+                jexlEngine = ApplicationContextProvider.getApplicationContext().getBean(JexlEngine.class);
+            }
+        }
+
+        return jexlEngine;
+    }
+
+    public static boolean isExpressionValid(final String expression) {
         boolean result;
         try {
-            jexlEngine.createExpression(expression);
+            getEngine().createExpression(expression);
             result = true;
         } catch (JexlException e) {
             LOG.error("Invalid jexl expression: " + expression, e);
@@ -68,12 +77,12 @@ public class JexlUtil {
         return result;
     }
 
-    public String evaluate(final String expression, final JexlContext jexlContext) {
-        String result = "";
+    public static String evaluate(final String expression, final JexlContext jexlContext) {
+        String result = StringUtils.EMPTY;
 
         if (StringUtils.isNotBlank(expression) && jexlContext != null) {
             try {
-                Expression jexlExpression = jexlEngine.createExpression(expression);
+                Expression jexlExpression = getEngine().createExpression(expression);
                 Object evaluated = jexlExpression.evaluate(jexlContext);
                 if (evaluated != null) {
                     result = evaluated.toString();
@@ -88,15 +97,10 @@ public class JexlUtil {
         return result;
     }
 
-    public JexlContext addFieldsToContext(final Object attributable, final JexlContext jexlContext) {
-        JexlContext context = jexlContext == null
-                ? new MapContext()
-                : jexlContext;
-
+    public static void addFieldsToContext(final Object attributable, final JexlContext jexlContext) {
         final Field[] fields = attributable.getClass().getDeclaredFields();
-        for (int i = 0; i < fields.length; i++) {
+        for (Field field : fields) {
             try {
-                Field field = fields[i];
                 field.setAccessible(true);
                 final String fieldName = field.getName();
                 if ((!field.isSynthetic()) && (!fieldName.startsWith("pc"))
@@ -106,8 +110,8 @@ public class JexlUtil {
 
                     final Object fieldValue = field.get(attributable);
 
-                    context.set(fieldName, fieldValue == null
-                            ? ""
+                    jexlContext.set(fieldName, fieldValue == null
+                            ? StringUtils.EMPTY
                             : (field.getType().equals(Date.class)
                             ? DataFormat.format((Date) fieldValue, false)
                             : fieldValue));
@@ -118,74 +122,65 @@ public class JexlUtil {
                 LOG.error("Reading class attributes error", e);
             }
         }
-
-        return context;
     }
 
-    public JexlContext addAttrsToContext(final Collection<? extends AbstractAttr> attributes,
+    public static void addAttrsToContext(final Collection<? extends AbstractAttr> attributes,
             final JexlContext jexlContext) {
-
-        JexlContext context = jexlContext == null
-                ? new MapContext()
-                : jexlContext;
 
         for (AbstractAttr attr : attributes) {
             List<String> attributeValues = attr.getValuesAsStrings();
             String expressionValue = attributeValues.isEmpty()
-                    ? ""
+                    ? StringUtils.EMPTY
                     : attributeValues.get(0);
 
             LOG.debug("Add attribute {} with value {}", attr.getSchema().getName(), expressionValue);
 
-            context.set(attr.getSchema().getName(), expressionValue);
+            jexlContext.set(attr.getSchema().getName(), expressionValue);
         }
-
-        return context;
     }
 
-    public JexlContext addDerAttrsToContext(final Collection<? extends AbstractDerAttr> derAttrs,
+    public static void addDerAttrsToContext(final Collection<? extends AbstractDerAttr> derAttrs,
             final Collection<? extends AbstractAttr> attrs, final JexlContext jexlContext) {
-
-        JexlContext context = jexlContext == null
-                ? new MapContext()
-                : jexlContext;
 
         for (AbstractDerAttr derAttr : derAttrs) {
             String expressionValue = derAttr.getValue(attrs);
             if (expressionValue == null) {
-                expressionValue = "";
+                expressionValue = StringUtils.EMPTY;
             }
 
             LOG.debug("Add derived attribute {} with value {}", derAttr.getDerivedSchema().getName(), expressionValue);
 
-            context.set(derAttr.getDerivedSchema().getName(), expressionValue);
+            jexlContext.set(derAttr.getDerivedSchema().getName(), expressionValue);
         }
-
-        return context;
     }
 
-    public JexlContext addVirAttrsToContext(final Collection<? extends AbstractVirAttr> virAttrs,
+    public static void addVirAttrsToContext(final Collection<? extends AbstractVirAttr> virAttrs,
             final JexlContext jexlContext) {
-
-        JexlContext context = jexlContext == null
-                ? new MapContext()
-                : jexlContext;
 
         for (AbstractVirAttr virAttr : virAttrs) {
             List<String> attributeValues = virAttr.getValues();
             String expressionValue = attributeValues.isEmpty()
-                    ? ""
+                    ? StringUtils.EMPTY
                     : attributeValues.get(0);
 
             LOG.debug("Add virtual attribute {} with value {}", virAttr.getVirtualSchema().getName(), expressionValue);
 
-            context.set(virAttr.getVirtualSchema().getName(), expressionValue);
+            jexlContext.set(virAttr.getVirtualSchema().getName(), expressionValue);
         }
-
-        return context;
     }
 
-    public String evaluate(final String expression, final AbstractAttributableTO attributableTO) {
+    public static boolean evaluateMandatoryCondition(final String mandatoryCondition,
+            final AbstractAttributable attributable) {
+
+        JexlContext jexlContext = new MapContext();
+        addAttrsToContext(attributable.getAttributes(), jexlContext);
+        addDerAttrsToContext(attributable.getDerivedAttributes(), attributable.getAttributes(), jexlContext);
+        addVirAttrsToContext(attributable.getVirtualAttributes(), jexlContext);
+
+        return Boolean.parseBoolean(evaluate(mandatoryCondition, jexlContext));
+    }
+
+    public static String evaluate(final String expression, final AbstractAttributableTO attributableTO) {
         final JexlContext context = new MapContext();
 
         addFieldsToContext(attributableTO, context);
@@ -193,7 +188,7 @@ public class JexlUtil {
         for (AttributeTO attr : attributableTO.getAttributes()) {
             List<String> values = attr.getValues();
             String expressionValue = values.isEmpty()
-                    ? ""
+                    ? StringUtils.EMPTY
                     : values.get(0);
 
             LOG.debug("Add attribute {} with value {}", attr.getSchema(), expressionValue);
@@ -203,7 +198,7 @@ public class JexlUtil {
         for (AttributeTO derAttr : attributableTO.getDerivedAttributes()) {
             List<String> values = derAttr.getValues();
             String expressionValue = values.isEmpty()
-                    ? ""
+                    ? StringUtils.EMPTY
                     : values.get(0);
 
             LOG.debug("Add derived attribute {} with value {}", derAttr.getSchema(), expressionValue);
@@ -213,7 +208,7 @@ public class JexlUtil {
         for (AttributeTO virAttr : attributableTO.getVirtualAttributes()) {
             List<String> values = virAttr.getValues();
             String expressionValue = values.isEmpty()
-                    ? ""
+                    ? StringUtils.EMPTY
                     : values.get(0);
 
             LOG.debug("Add virtual attribute {} with value {}", virAttr.getSchema(), expressionValue);
@@ -223,5 +218,11 @@ public class JexlUtil {
 
         // Evaluate expression using the context prepared before
         return evaluate(expression, context);
+    }
+
+    /**
+     * Private default constructor, for static-only classes.
+     */
+    private JexlUtil() {
     }
 }

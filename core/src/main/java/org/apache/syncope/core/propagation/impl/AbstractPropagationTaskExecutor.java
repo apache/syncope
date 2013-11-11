@@ -20,10 +20,12 @@ package org.apache.syncope.core.propagation.impl;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
@@ -33,6 +35,7 @@ import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TraceLevel;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.notification.NotificationManager;
@@ -66,7 +69,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = { Throwable.class })
 public abstract class AbstractPropagationTaskExecutor implements PropagationTaskExecutor {
 
     /**
@@ -137,10 +140,31 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     protected void createOrUpdate(final PropagationTask task, final ConnectorObject beforeObj,
-            final Connector connector, final Set<String> propagationAttempted) {
+            final Connector connector, final Set<String> propagationAttempted) throws SyncopeClientException {
 
         // set of attributes to be propagated
         final Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
+
+        // check if there is any missing or null / empty mandatory attribute
+        List<Object> mandatoryAttrNames = new ArrayList<Object>();
+        Attribute mandatoryMissing = AttributeUtil.find(MANDATORY_MISSING_ATTR_NAME, task.getAttributes());
+        if (mandatoryMissing != null) {
+            attributes.remove(mandatoryMissing);
+
+            if (beforeObj == null) {
+                mandatoryAttrNames.addAll(mandatoryMissing.getValue());
+            }
+        }
+        Attribute mandatoryNullOrEmpty = AttributeUtil.find(MANDATORY_NULL_OR_EMPTY_ATTR_NAME, task.getAttributes());
+        if (mandatoryNullOrEmpty != null) {
+            attributes.remove(mandatoryNullOrEmpty);
+
+            mandatoryAttrNames.addAll(mandatoryNullOrEmpty.getValue());
+        }
+        if (!mandatoryAttrNames.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Not attempted because there are mandatory attributes without value(s): " + mandatoryAttrNames);
+        }
 
         if (beforeObj == null) {
             // 1. get accountId
@@ -245,7 +269,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     protected void delete(final PropagationTask task, final ConnectorObject beforeObj,
-            final Connector connector, final Set<String> propagationAttempted) {
+            final Connector connector, final Set<String> propagationAttempted) throws SyncopeClientException {
 
         if (beforeObj == null) {
             LOG.debug("{} not found on external resource: ignoring delete", task.getAccountId());
@@ -408,7 +432,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 task.getPropagationOperation().name().toLowerCase(),
                 result,
                 beforeObj, // searching for before object is too much expensive ... 
-                new Object[] {execution, afterObj},
+                new Object[] { execution, afterObj },
                 task);
 
         auditManager.audit(
@@ -418,7 +442,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 task.getPropagationOperation().name().toLowerCase(),
                 result,
                 beforeObj, // searching for before object is too much expensive ... 
-                new Object[] {execution, afterObj},
+                new Object[] { execution, afterObj },
                 task);
 
         return execution;
@@ -490,7 +514,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     new ObjectClass(task.getObjectClassName()),
                     new Uid(accountId),
                     connector.getOperationOptions(AttributableUtil.getInstance(task.getSubjectType()).
-                    getMappingItems(task.getResource(), MappingPurpose.PROPAGATION)));
+                            getMappingItems(task.getResource(), MappingPurpose.PROPAGATION)));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;
