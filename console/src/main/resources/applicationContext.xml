@@ -44,8 +44,8 @@ under the License.
     </property>
   </bean>
 
-  <bean id="baseURL" class="java.lang.String">
-    <constructor-arg value="${scheme}://${host}:${port}${rootPath}"/>
+  <bean id="version" class="java.lang.String">
+    <constructor-arg value="${project.parent.version}"/>
   </bean>
 
   <bean id="site" class="java.lang.String">

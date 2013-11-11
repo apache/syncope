@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.console.pages;
 
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.security.AccessControlException;
 import java.util.List;
 import java.util.Locale;
@@ -53,19 +50,11 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.util.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Syncope Login page.
  */
 public class Login extends WebPage {
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(Login.class);
 
     private static final long serialVersionUID = -3744389270366566218L;
 
@@ -73,8 +62,8 @@ public class Login extends WebPage {
 
     private final static int SELF_REG_WIN_WIDTH = 800;
 
-    @SpringBean(name = "baseURL")
-    private String baseURL;
+    @SpringBean(name = "version")
+    private String version;
 
     @SpringBean(name = "anonymousUser")
     private String anonymousUser;
@@ -199,21 +188,7 @@ public class Login extends WebPage {
         SyncopeSession.get().setUsername(username);
         SyncopeSession.get().setPassword(password);
         SyncopeSession.get().setEntitlements(CollectionWrapper.unwrap(entitlements).toArray(new String[0]));
-        SyncopeSession.get().setVersion(getSyncopeVersion());
-    }
-
-    private String getSyncopeVersion() {
-        String version = "";
-        URLConnection conn = null;
-        try {
-            conn = new URL(baseURL + "../version.jsp").openConnection();
-            version = IOUtils.toString(conn.getInputStream());
-        } catch (IOException e) {
-            LOG.error("While fetching version from core", e);
-            getSession().error(e.getMessage());
-        }
-
-        return version;
+        SyncopeSession.get().setVersion(version);
     }
 
     /**

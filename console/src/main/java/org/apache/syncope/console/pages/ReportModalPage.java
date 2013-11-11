@@ -68,7 +68,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.springframework.util.StringUtils;
 
@@ -94,12 +93,9 @@ public class ReportModalPage extends BaseModalPage {
 
     private static final int REPORTLET_CONF_WIN_WIDTH = 800;
 
-    @SpringBean(name = "baseURL")
-    protected String baseURL;
-
     private final ReportTO reportTO;
 
-    private Form<ReportTO> form;
+    private final Form<ReportTO> form;
 
     private ReportExecExportFormat exportFormat;
 
@@ -128,37 +124,37 @@ public class ReportModalPage extends BaseModalPage {
         final AjaxButton submit =
                 new ClearIndicatingAjaxButton(APPLY, new ResourceModel(APPLY), getPageReference()) {
 
-            private static final long serialVersionUID = -958724007591692537L;
+                    private static final long serialVersionUID = -958724007591692537L;
 
-            @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                ReportTO reportTO = (ReportTO) form.getModelObject();
-                reportTO.setCronExpression(StringUtils.hasText(reportTO.getCronExpression())
-                        ? crontab.getCronExpression()
-                        : null);
+                    @Override
+                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                        ReportTO reportTO = (ReportTO) form.getModelObject();
+                        reportTO.setCronExpression(StringUtils.hasText(reportTO.getCronExpression())
+                                ? crontab.getCronExpression()
+                                : null);
 
-                try {
-                    if (reportTO.getId() > 0) {
-                        reportRestClient.update(reportTO);
-                    } else {
-                        reportRestClient.create(reportTO);
+                        try {
+                            if (reportTO.getId() > 0) {
+                                reportRestClient.update(reportTO);
+                            } else {
+                                reportRestClient.create(reportTO);
+                            }
+
+                            ((BasePage) callerPageRef.getPage()).setModalResult(true);
+
+                            window.close(target);
+                        } catch (SyncopeClientException e) {
+                            LOG.error("While creating or updating report", e);
+                            error(getString(Constants.ERROR) + ": " + e.getMessage());
+                            target.add(feedbackPanel);
+                        }
                     }
 
-                    ((BasePage) callerPageRef.getPage()).setModalResult(true);
-
-                    window.close(target);
-                } catch (SyncopeClientException e) {
-                    LOG.error("While creating or updating report", e);
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    target.add(feedbackPanel);
-                }
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(feedbackPanel);
-            }
-        };
+                    @Override
+                    protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                        target.add(feedbackPanel);
+                    }
+                };
 
         if (reportTO.getId() > 0) {
             MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getAllAllowedRoles("Reports",
@@ -173,13 +169,13 @@ public class ReportModalPage extends BaseModalPage {
         final AjaxButton cancel =
                 new ClearIndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL), getPageReference()) {
 
-            private static final long serialVersionUID = -958724007591692537L;
+                    private static final long serialVersionUID = -958724007591692537L;
 
-            @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                window.close(target);
-            }
-        };
+                    @Override
+                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                        window.close(target);
+                    }
+                };
 
         cancel.setDefaultFormProcessing(false);
         form.add(cancel);
@@ -250,26 +246,26 @@ public class ReportModalPage extends BaseModalPage {
         reportlets = new ListChoice<AbstractReportletConf>("reportletConfs", new Model(), reportTO.getReportletConfs(),
                 new IChoiceRenderer<ReportletConf>() {
 
-            private static final long serialVersionUID = 1048000918946220007L;
+                    private static final long serialVersionUID = 1048000918946220007L;
 
-            @Override
-            public Object getDisplayValue(final ReportletConf object) {
-                return object.getName();
-            }
+                    @Override
+                    public Object getDisplayValue(final ReportletConf object) {
+                        return object.getName();
+                    }
 
-            @Override
-            public String getIdValue(final ReportletConf object, int index) {
-                return object.getName();
-            }
-        }) {
+                    @Override
+                    public String getIdValue(final ReportletConf object, int index) {
+                        return object.getName();
+                    }
+                }) {
 
-            private static final long serialVersionUID = 4022366881854379834L;
+                    private static final long serialVersionUID = 4022366881854379834L;
 
-            @Override
-            protected CharSequence getDefaultChoice(String selectedValue) {
-                return null;
-            }
-        };
+                    @Override
+                    protected CharSequence getDefaultChoice(String selectedValue) {
+                        return null;
+                    }
+                };
 
         reportlets.setNullValid(true);
         profile.add(reportlets);
@@ -537,7 +533,7 @@ public class ReportModalPage extends BaseModalPage {
                             reportTO.getExecutions().addAll(currentReportTO.getExecutions());
                             final AjaxFallbackDefaultDataTable currentTable =
                                     new AjaxFallbackDefaultDataTable("executionsTable", columns,
-                                    new ReportExecutionsProvider(reportTO), 10);
+                                            new ReportExecutionsProvider(reportTO), 10);
                             currentTable.setOutputMarkupId(true);
                             target.add(currentTable);
                             executions.addOrReplace(currentTable);

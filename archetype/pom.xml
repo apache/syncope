@@ -148,9 +148,6 @@ under the License.
       <resource>
         <directory>../core/src/main/webapp</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/webapp</targetPath>
-        <excludes>
-          <exclude>version.jsp</exclude>
-        </excludes>
       </resource>
       <resource>
         <directory>../core/src/test/resources</directory>

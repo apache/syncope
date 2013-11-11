@@ -492,7 +492,7 @@ under the License.
             </deployable>
             <deployable>
               <location>${cargo.run.dir}</location>
-              <pingURL>http://localhost:${cargo.servlet.port}/syncope/version.jsp</pingURL>
+              <pingURL>http://localhost:${cargo.servlet.port}/syncope/cacheStats.jsp</pingURL>
               <pingTimeout>60000</pingTimeout>
               <properties>
                 <context>syncope</context>
@@ -1198,7 +1198,7 @@ under the License.
               <deployables>
                 <deployable>
                   <location>${cargo.run.dir}</location>
-                  <pingURL>http://localhost:${cargo.servlet.port}/syncope/version.jsp</pingURL>
+                  <pingURL>http://localhost:${cargo.servlet.port}/syncope/cacheStats.jsp</pingURL>
                   <pingTimeout>1200000</pingTimeout>
                   <properties>
                     <context>syncope</context>
@@ -1339,7 +1339,7 @@ under the License.
                 </deployable>
                 <deployable>
                   <location>${cargo.run.dir}</location>
-                  <pingURL>http://localhost:${cargo.servlet.port}/syncope/version.jsp</pingURL>
+                  <pingURL>http://localhost:${cargo.servlet.port}/syncope/cacheStats.jsp</pingURL>
                   <pingTimeout>1200000</pingTimeout>
                   <properties>
                     <context>syncope</context>
