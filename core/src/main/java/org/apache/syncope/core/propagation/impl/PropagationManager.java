@@ -46,11 +46,13 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
+import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.AbstractAttributableDataBinder;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
+import org.apache.syncope.core.util.JexlUtil;
 import org.apache.syncope.core.util.MappingUtil;
 import org.apache.syncope.core.util.VirAttrCache;
 import org.apache.syncope.core.workflow.WorkflowResult;
@@ -488,6 +490,7 @@ public class PropagationManager {
      * Prepare attributes for sending to a connector instance.
      *
      * @param <T> user / role
+     * @param attrUtil user / role
      * @param subject given user / role
      * @param password clear-text password
      * @param vAttrsToBeRemoved virtual attributes to be removed
@@ -496,9 +499,10 @@ public class PropagationManager {
      * @param resource target resource
      * @return account link + prepared attributes
      */
-    protected <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> prepareAttributes(final T subject,
-            final String password, final Set<String> vAttrsToBeRemoved,
-            final Map<String, AttributeMod> vAttrsToBeUpdated, final Boolean enable, final ExternalResource resource) {
+    protected <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> prepareAttributes(
+            final AttributableUtil attrUtil, final T subject, final String password,
+            final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated,
+            final Boolean enable, final ExternalResource resource) {
 
         LOG.debug("Preparing resource attributes for {} on resource {} with attributes {}",
                 subject, resource, subject.getAttrs());
@@ -506,7 +510,6 @@ public class PropagationManager {
         Set<Attribute> attributes = new HashSet<Attribute>();
         String accountId = null;
 
-        final AttributableUtil attrUtil = AttributableUtil.getInstance(subject);
         for (AbstractMappingItem mapping : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
             LOG.debug("Processing schema {}", mapping.getIntAttrName());
 
@@ -515,6 +518,7 @@ public class PropagationManager {
                         && mapping.getIntMappingType() == IntMappingType.UserVirtualSchema)
                         || (attrUtil.getType() == AttributableType.ROLE
                         && mapping.getIntMappingType() == IntMappingType.RoleVirtualSchema)) {
+
                     LOG.debug("Expire entry cache {}-{}", subject.getId(), mapping.getIntAttrName());
                     virAttrCache.expire(attrUtil.getType(), subject.getId(), mapping.getIntAttrName());
                 }
@@ -527,8 +531,7 @@ public class PropagationManager {
                 }
 
                 if (preparedAttribute.getValue() != null) {
-                    final Attribute alreadyAdded = AttributeUtil.find(preparedAttribute.getValue().getName(),
-                            attributes);
+                    Attribute alreadyAdded = AttributeUtil.find(preparedAttribute.getValue().getName(), attributes);
 
                     if (alreadyAdded == null) {
                         attributes.add(preparedAttribute.getValue());
@@ -620,9 +623,35 @@ public class PropagationManager {
                     task.setPropagationMode(resource.getPropagationMode());
                     task.setOldAccountId(propByRes.getOldAccountId(resource.getName()));
 
-                    Map.Entry<String, Set<Attribute>> preparedAttrs = prepareAttributes(subject, password,
+                    Map.Entry<String, Set<Attribute>> preparedAttrs = prepareAttributes(attrUtil, subject, password,
                             vAttrsToBeRemoved, vAttrsToBeUpdated, enable, resource);
                     task.setAccountId(preparedAttrs.getKey());
+
+                    // Check if any of mandatory attributes (in the mapping) is missing or not received any value: 
+                    // if so, add special attributes that will be evaluated by PropagationTaskExecutor
+                    List<String> mandatoryMissing = new ArrayList<String>();
+                    List<String> mandatoryNullOrEmpty = new ArrayList<String>();
+                    for (AbstractMappingItem item : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
+                        if (!item.isAccountid()
+                                && JexlUtil.evaluateMandatoryCondition(item.getMandatoryCondition(), subject)) {
+
+                            Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.getValue());
+                            if (attr == null) {
+                                mandatoryMissing.add(item.getExtAttrName());
+                            } else if (attr.getValue() == null || attr.getValue().isEmpty()) {
+                                mandatoryNullOrEmpty.add(item.getExtAttrName());
+                            }
+                        }
+                    }
+                    if (!mandatoryMissing.isEmpty()) {
+                        preparedAttrs.getValue().add(AttributeBuilder.build(
+                                PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME, mandatoryMissing));
+                    }
+                    if (!mandatoryNullOrEmpty.isEmpty()) {
+                        preparedAttrs.getValue().add(AttributeBuilder.build(
+                                PropagationTaskExecutor.MANDATORY_NULL_OR_EMPTY_ATTR_NAME, mandatoryNullOrEmpty));
+                    }
+
                     task.setAttributes(preparedAttrs.getValue());
 
                     tasks.add(task);

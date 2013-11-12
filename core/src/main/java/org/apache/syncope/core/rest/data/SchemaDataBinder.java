@@ -43,12 +43,9 @@ public class SchemaDataBinder {
     @Autowired
     private SchemaDAO schemaDAO;
 
-    @Autowired
-    private JexlUtil jexlUtil;
-
     // --------------- NORMAL -----------------
     private <T extends AbstractNormalSchema> void fill(final T schema, final SchemaTO schemaTO) {
-        if (!jexlUtil.isExpressionValid(schemaTO.getMandatoryCondition())) {
+        if (!JexlUtil.isExpressionValid(schemaTO.getMandatoryCondition())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidValues);
             sce.getElements().add(schemaTO.getMandatoryCondition());
             throw sce;
@@ -108,7 +105,7 @@ public class SchemaDataBinder {
             requiredValuesMissing.getElements().add("expression");
 
             scce.addException(requiredValuesMissing);
-        } else if (!jexlUtil.isExpressionValid(derSchemaTO.getExpression())) {
+        } else if (!JexlUtil.isExpressionValid(derSchemaTO.getExpression())) {
             SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
                     ClientExceptionType.InvalidValues);
             invalidMandatoryCondition.getElements().add(derSchemaTO.getExpression());

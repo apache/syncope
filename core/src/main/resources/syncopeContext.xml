@@ -96,8 +96,6 @@ under the License.
     <property name="silent" value="false"/>
   </bean>
   
-  <bean id="jexlUtil" class="org.apache.syncope.core.util.JexlUtil"/>
-  
   <bean id="virAttrCache" class="org.apache.syncope.core.util.VirAttrCache" scope="singleton">
     <constructor-arg value="60"/>
     <constructor-arg value="5000"/>

@@ -18,16 +18,10 @@
  */
 package org.apache.syncope.common.types;
 
-import javax.xml.bind.annotation.XmlEnum;
-
-@XmlEnum
 public enum ResourceOperation {
 
     CREATE,
     UPDATE,
-    DELETE;
+    DELETE
 
-    public static ResourceOperation fromString(final String value) {
-        return ResourceOperation.valueOf(value.toUpperCase());
-    }
 }

@@ -304,7 +304,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             if (membership == null) {
                 LOG.debug("Invalid membership id specified to be removed: {}", membershipId);
             } else {
-
                 if (!membershipToBeAddedRoleIds.contains(membership.getSyncopeRole().getId())) {
                     toBeDeprovisioned.addAll(membership.getSyncopeRole().getResourceNames());
                 }
@@ -315,7 +314,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 // some modifications compared to the one stored in the DB
                 membership = user.getMembership(membership.getSyncopeRole().getId());
                 if (membershipToBeAddedRoleIds.contains(membership.getSyncopeRole().getId())) {
-
                     Set<Long> attributeIds = new HashSet<Long>(membership.getAttrs().size());
                     for (AbstractAttr attribute : membership.getAttrs()) {
                         attributeIds.add(attribute.getId());
@@ -327,7 +325,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
                     // remove derived attributes
                     for (AbstractDerAttr derAttr : membership.getDerAttrs()) {
-
                         attributeIds.add(derAttr.getId());
                     }
                     for (Long derAttrId : attributeIds) {

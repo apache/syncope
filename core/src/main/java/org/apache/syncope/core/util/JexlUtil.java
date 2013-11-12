@@ -37,16 +37,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
+import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @see http://commons.apache.org/jexl/reference/index.html
  */
-public class JexlUtil {
+public final class JexlUtil {
 
     /**
      * Logger.
@@ -54,15 +54,24 @@ public class JexlUtil {
      */
     private static final Logger LOG = LoggerFactory.getLogger(JexlUtil.class);
 
-    private static final String[] IGNORE_FIELDS = {"password", "clearPassword", "serialVersionUID", "class"};
+    private static final String[] IGNORE_FIELDS = { "password", "clearPassword", "serialVersionUID", "class" };
 
-    @Autowired
-    private JexlEngine jexlEngine;
+    private static JexlEngine jexlEngine;
 
-    public boolean isExpressionValid(final String expression) {
+    private static JexlEngine getEngine() {
+        synchronized (LOG) {
+            if (jexlEngine == null) {
+                jexlEngine = ApplicationContextProvider.getApplicationContext().getBean(JexlEngine.class);
+            }
+        }
+
+        return jexlEngine;
+    }
+
+    public static boolean isExpressionValid(final String expression) {
         boolean result;
         try {
-            jexlEngine.createExpression(expression);
+            getEngine().createExpression(expression);
             result = true;
         } catch (JexlException e) {
             LOG.error("Invalid jexl expression: " + expression, e);
@@ -72,12 +81,12 @@ public class JexlUtil {
         return result;
     }
 
-    public String evaluate(final String expression, final JexlContext jexlContext) {
+    public static String evaluate(final String expression, final JexlContext jexlContext) {
         String result = "";
 
         if (StringUtils.isNotBlank(expression) && jexlContext != null) {
             try {
-                Expression jexlExpression = jexlEngine.createExpression(expression);
+                Expression jexlExpression = getEngine().createExpression(expression);
                 Object evaluated = jexlExpression.evaluate(jexlContext);
                 if (evaluated != null) {
                     result = evaluated.toString();
@@ -92,7 +101,7 @@ public class JexlUtil {
         return result;
     }
 
-    public JexlContext addFieldsToContext(final Object attributable, final JexlContext jexlContext) {
+    public static JexlContext addFieldsToContext(final Object attributable, final JexlContext jexlContext) {
         JexlContext context = jexlContext == null ? new MapContext() : jexlContext;
 
         try {
@@ -137,7 +146,7 @@ public class JexlUtil {
         return context;
     }
 
-    public JexlContext addAttrsToContext(final Collection<? extends AbstractAttr> attrs,
+    public static JexlContext addAttrsToContext(final Collection<? extends AbstractAttr> attrs,
             final JexlContext jexlContext) {
 
         JexlContext context = jexlContext == null
@@ -160,7 +169,7 @@ public class JexlUtil {
         return context;
     }
 
-    public JexlContext addDerAttrsToContext(final Collection<? extends AbstractDerAttr> derAttrs,
+    public static JexlContext addDerAttrsToContext(final Collection<? extends AbstractDerAttr> derAttrs,
             final Collection<? extends AbstractAttr> attrs, final JexlContext jexlContext) {
 
         JexlContext context = jexlContext == null
@@ -183,7 +192,7 @@ public class JexlUtil {
         return context;
     }
 
-    public JexlContext addVirAttrsToContext(final Collection<? extends AbstractVirAttr> virAttrs,
+    public static JexlContext addVirAttrsToContext(final Collection<? extends AbstractVirAttr> virAttrs,
             final JexlContext jexlContext) {
 
         JexlContext context = jexlContext == null
@@ -206,7 +215,7 @@ public class JexlUtil {
         return context;
     }
 
-    public String evaluate(final String expression, final AbstractAttributableTO attributableTO) {
+    public static String evaluate(final String expression, final AbstractAttributableTO attributableTO) {
         final JexlContext context = new MapContext();
 
         addFieldsToContext(attributableTO, context);
@@ -245,4 +254,22 @@ public class JexlUtil {
         // Evaluate expression using the context prepared before
         return evaluate(expression, context);
     }
+
+    public static boolean evaluateMandatoryCondition(final String mandatoryCondition,
+            final AbstractAttributable attributable) {
+
+        JexlContext jexlContext = new MapContext();
+        addAttrsToContext(attributable.getAttrs(), jexlContext);
+        addDerAttrsToContext(attributable.getDerAttrs(), attributable.getAttrs(), jexlContext);
+        addVirAttrsToContext(attributable.getVirAttrs(), jexlContext);
+
+        return Boolean.parseBoolean(evaluate(mandatoryCondition, jexlContext));
+    }
+
+    /**
+     * Private default constructor, for static-only classes.
+     */
+    private JexlUtil() {
+    }
+
 }

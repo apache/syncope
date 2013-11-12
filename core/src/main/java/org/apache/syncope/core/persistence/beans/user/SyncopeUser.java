@@ -72,7 +72,7 @@ public class SyncopeUser extends AbstractAttributable {
     @Id
     private Long id;
 
-    @NotNull
+    @NotNull(message = "Blank password")
     private String password;
 
     @Transient
@@ -122,7 +122,7 @@ public class SyncopeUser extends AbstractAttributable {
      * Username/Login.
      */
     @Column(unique = true)
-    @NotNull
+    @NotNull(message = "Blank username")
     private String username;
 
     /**

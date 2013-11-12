@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.core.propagation.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -124,6 +126,27 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         // set of attributes to be propagated
         final Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
+
+        // check if there is any missing or null / empty mandatory attribute
+        List<Object> mandatoryAttrNames = new ArrayList<Object>();
+        Attribute mandatoryMissing = AttributeUtil.find(MANDATORY_MISSING_ATTR_NAME, task.getAttributes());
+        if (mandatoryMissing != null) {
+            attributes.remove(mandatoryMissing);
+
+            if (beforeObj == null) {
+                mandatoryAttrNames.addAll(mandatoryMissing.getValue());
+            }
+        }
+        Attribute mandatoryNullOrEmpty = AttributeUtil.find(MANDATORY_NULL_OR_EMPTY_ATTR_NAME, task.getAttributes());
+        if (mandatoryNullOrEmpty != null) {
+            attributes.remove(mandatoryNullOrEmpty);
+
+            mandatoryAttrNames.addAll(mandatoryNullOrEmpty.getValue());
+        }
+        if (!mandatoryAttrNames.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Not attempted because there are mandatory attributes without value(s): " + mandatoryAttrNames);
+        }
 
         if (beforeObj == null) {
             // 1. get accountId

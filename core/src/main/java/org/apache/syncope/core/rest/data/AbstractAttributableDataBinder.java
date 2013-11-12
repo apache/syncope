@@ -25,8 +25,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.mod.AttributeMod;
@@ -138,9 +136,6 @@ public abstract class AbstractAttributableDataBinder {
     @Autowired
     protected PolicyDAO policyDAO;
 
-    @Autowired
-    private JexlUtil jexlUtil;
-
     @SuppressWarnings("unchecked")
     protected <T extends AbstractSchema> T getSchema(final String schemaName, final Class<T> reference) {
         T result = null;
@@ -239,17 +234,6 @@ public abstract class AbstractAttributableDataBinder {
         }
     }
 
-    private boolean evaluateMandatoryCondition(final String mandatoryCondition,
-            final AbstractAttributable attributable) {
-
-        JexlContext jexlContext = new MapContext();
-        jexlUtil.addAttrsToContext(attributable.getAttrs(), jexlContext);
-        jexlUtil.addDerAttrsToContext(attributable.getDerAttrs(), attributable.getAttrs(), jexlContext);
-        jexlUtil.addVirAttrsToContext(attributable.getVirAttrs(), jexlContext);
-
-        return Boolean.parseBoolean(jexlUtil.evaluate(mandatoryCondition, jexlContext));
-    }
-
     private boolean evaluateMandatoryCondition(final AttributableUtil attrUtil, final ExternalResource resource,
             final AbstractAttributable attributable, final String intAttrName, final IntMappingType intMappingType) {
 
@@ -259,7 +243,7 @@ public abstract class AbstractAttributableDataBinder {
                 attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION), intAttrName, intMappingType);
         for (Iterator<AbstractMappingItem> itor = mappings.iterator(); itor.hasNext() && !result;) {
             final AbstractMappingItem mapping = itor.next();
-            result |= evaluateMandatoryCondition(mapping.getMandatoryCondition(), attributable);
+            result |= JexlUtil.evaluateMandatoryCondition(mapping.getMandatoryCondition(), attributable);
         }
 
         return result;
@@ -307,9 +291,9 @@ public abstract class AbstractAttributableDataBinder {
         for (AbstractNormalSchema schema : normalSchemas) {
             if (attributable.getAttr(schema.getName()) == null
                     && !schema.isReadonly()
-                    && (evaluateMandatoryCondition(schema.getMandatoryCondition(), attributable)
+                    && (JexlUtil.evaluateMandatoryCondition(schema.getMandatoryCondition(), attributable)
                     || evaluateMandatoryCondition(attrUtil, attributable, schema.getName(),
-                    attrUtil.intMappingType()))) {
+                            attrUtil.intMappingType()))) {
 
                 LOG.error("Mandatory schema " + schema.getName() + " not provided with values");
 
@@ -335,7 +319,7 @@ public abstract class AbstractAttributableDataBinder {
         for (AbstractDerSchema derSchema : derSchemas) {
             if (attributable.getDerAttr(derSchema.getName()) == null
                     && evaluateMandatoryCondition(attrUtil, attributable, derSchema.getName(),
-                    attrUtil.derIntMappingType())) {
+                            attrUtil.derIntMappingType())) {
 
                 LOG.error("Mandatory derived schema " + derSchema.getName() + " does not evaluate to any value");
 
@@ -362,7 +346,7 @@ public abstract class AbstractAttributableDataBinder {
             if (attributable.getVirAttr(virSchema.getName()) == null
                     && !virSchema.isReadonly()
                     && evaluateMandatoryCondition(attrUtil, attributable, virSchema.getName(),
-                    attrUtil.virIntMappingType())) {
+                            attrUtil.virIntMappingType())) {
 
                 LOG.error("Mandatory virtual schema " + virSchema.getName() + " not provided with values");
 
@@ -621,7 +605,6 @@ public abstract class AbstractAttributableDataBinder {
                         }
                     }
                 }
-
 
                 // 1.1 remove values
                 Set<Long> valuesToBeRemoved = new HashSet<Long>();

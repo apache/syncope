@@ -33,7 +33,7 @@ import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Store;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.search.MembershipCond;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.MembershipTO;

@@ -63,13 +63,10 @@ public class ResourceDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(ResourceDataBinder.class);
 
-    private static final String[] MAPPINGITEM_IGNORE_PROPERTIES = {"id", "mapping"};
+    private static final String[] MAPPINGITEM_IGNORE_PROPERTIES = { "id", "mapping" };
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
-
-    @Autowired
-    private JexlUtil jexlUtil;
 
     @Autowired
     private PolicyDAO policyDAO;
@@ -203,7 +200,7 @@ public class ResourceDataBinder {
         }
 
         // no mandatory condition implies mandatory condition false
-        if (!jexlUtil.isExpressionValid(itemTO.getMandatoryCondition() == null
+        if (!JexlUtil.isExpressionValid(itemTO.getMandatoryCondition() == null
                 ? "false" : itemTO.getMandatoryCondition())) {
 
             SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(

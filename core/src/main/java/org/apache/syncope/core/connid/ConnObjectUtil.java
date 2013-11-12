@@ -86,12 +86,6 @@ public class ConnObjectUtil {
     private static final Logger LOG = LoggerFactory.getLogger(ConnObjectUtil.class);
 
     /**
-     * JEXL engine for evaluating connector's account link.
-     */
-    @Autowired
-    private JexlUtil jexlUtil;
-
-    /**
      * User data binder.
      */
     @Autowired
@@ -350,14 +344,14 @@ public class ConnObjectUtil {
         if (template != null) {
             if (template instanceof UserTO) {
                 if (StringUtils.isNotBlank(((UserTO) template).getUsername())) {
-                    String evaluated = jexlUtil.evaluate(((UserTO) template).getUsername(), attributableTO);
+                    String evaluated = JexlUtil.evaluate(((UserTO) template).getUsername(), attributableTO);
                     if (StringUtils.isNotBlank(evaluated)) {
                         ((UserTO) attributableTO).setUsername(evaluated);
                     }
                 }
 
                 if (StringUtils.isNotBlank(((UserTO) template).getPassword())) {
-                    String evaluated = jexlUtil.evaluate(((UserTO) template).getPassword(), attributableTO);
+                    String evaluated = JexlUtil.evaluate(((UserTO) template).getPassword(), attributableTO);
                     if (StringUtils.isNotBlank(evaluated)) {
                         ((UserTO) attributableTO).setPassword(evaluated);
                     }
@@ -378,7 +372,7 @@ public class ConnObjectUtil {
             }
             if (template instanceof RoleTO) {
                 if (StringUtils.isNotBlank(((RoleTO) template).getName())) {
-                    String evaluated = jexlUtil.evaluate(((RoleTO) template).getName(), attributableTO);
+                    String evaluated = JexlUtil.evaluate(((RoleTO) template).getName(), attributableTO);
                     if (StringUtils.isNotBlank(evaluated)) {
                         ((RoleTO) attributableTO).setName(evaluated);
                     }
@@ -543,7 +537,7 @@ public class ConnObjectUtil {
                         final String accountId = attrUtil.getAccountIdItem(resource) == null
                                 ? null
                                 : MappingUtil.getAccountIdValue(
-                                owner, resource, attrUtil.getAccountIdItem(resource));
+                                        owner, resource, attrUtil.getAccountIdItem(resource));
 
                         if (StringUtils.isBlank(accountId)) {
                             throw new IllegalArgumentException("No AccountId found for " + resource.getName());
@@ -643,7 +637,7 @@ public class ConnObjectUtil {
 
         if (template.getValues() != null && !template.getValues().isEmpty()) {
             for (String value : template.getValues()) {
-                String evaluated = jexlUtil.evaluate(value, attributableTO);
+                String evaluated = JexlUtil.evaluate(value, attributableTO);
                 if (StringUtils.isNotBlank(evaluated)) {
                     result.getValues().add(evaluated);
                 }

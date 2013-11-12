@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.SerializationUtils;
 
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
@@ -49,6 +50,7 @@ import org.apache.syncope.common.to.BulkActionRes.Status;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.MappingItemTO;
+import org.apache.syncope.common.to.MappingTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PropagationStatusTO;
@@ -1990,7 +1992,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE383() {
-        // 1. create user on testdb and testdb2
+        // 1. create user without resources
         UserTO userTO = getUniqueSampleTO("syncope383@apache.org");
         userTO.getResources().clear();
         userTO = createUser(userTO);
@@ -2022,6 +2024,8 @@ public class UserTestITCase extends AbstractTest {
     public void issueSYNCOPE397() {
         ResourceTO csv = resourceService.read(RESOURCE_NAME_CSV);
         // change mapping of resource-csv
+        MappingTO origMapping = SerializationUtils.clone(csv.getUmapping());
+        assertNotNull(origMapping);
         for (MappingItemTO item : csv.getUmapping().getItems()) {
             if ("email".equals(item.getIntAttrName())) {
                 // unset internal attribute mail and set virtual attribute virtualdata as mapped to external email
@@ -2072,20 +2076,22 @@ public class UserTestITCase extends AbstractTest {
         //modify virtual attribute
         userMod.getVirAttrsToRemove().add("virtualdata");
         userMod.getVirAttrsToUpdate().add(attributeMod("virtualdata", "test@testoneone.com"));
-        // check Syncope change password
 
+        // check Syncope change password
         StatusMod pwdPropRequest = new StatusMod();
-        //change pwd on external resource
-        pwdPropRequest.getResourceNames().add("ws-target-resource-2");
-        //change pwd on Syncope
         pwdPropRequest.setOnSyncope(true);
+        pwdPropRequest.getResourceNames().add("ws-target-resource-2");
         userMod.setPwdPropRequest(pwdPropRequest);
+
         toBeUpdated = updateUser(userMod);
         assertNotNull(toBeUpdated);
         assertEquals("test@testoneone.com", toBeUpdated.getVirAttrs().get(0).getValues().get(0));
         // check if propagates correctly with assertEquals on size of tasks list
-
         assertEquals(2, toBeUpdated.getPropagationStatusTOs().size());
+
+        // restore mapping of resource-csv
+        csv.setUmapping(origMapping);
+        resourceService.update(csv.getName(), csv);
     }
 
     @Test
@@ -2250,6 +2256,34 @@ public class UserTestITCase extends AbstractTest {
         userMod.setPassword("anotherPassword123");
         userTO = userService.update(userTO.getId(), userMod).readEntity(UserTO.class);
         assertNotNull(userTO);
+    }
+
+    @Test
+    public void issueSYNCOPE435() {
+        // 1. try to create user without password - fail
+        UserTO userTO = getUniqueSampleTO("syncope435@syncope.apache.org");
+        userTO.setPassword(null);
+
+        try {
+            createUser(userTO);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSyncopeUser, e.getType());
+        }
+
+        userTO.setPassword("password123");
+        userTO = createUser(userTO);
+        assertNotNull(userTO);
+
+        // 2. try to update user by subscribing a resource - works but propagation is not even attempted
+        UserMod userMod = new UserMod();
+        userMod.getResourcesToAdd().add("ws-target-resource-1");
+
+        userTO = userService.update(userTO.getId(), userMod).readEntity(UserTO.class);
+        assertEquals(Collections.singleton("ws-target-resource-1"), userTO.getResources());
+        assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+        assertTrue(userTO.getPropagationStatusTOs().get(0).getFailureReason().
+                startsWith("Not attempted because there are mandatory attributes without value(s): [__PASSWORD__]"));
     }
 
 }

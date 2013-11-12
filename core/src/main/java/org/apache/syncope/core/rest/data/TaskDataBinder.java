@@ -64,9 +64,9 @@ public class TaskDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
-    private static final String[] IGNORE_TASK_PROPERTIES = {"executions", "resource",};
+    private static final String[] IGNORE_TASK_PROPERTIES = { "executions", "resource", };
 
-    private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {"id", "task"};
+    private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = { "id", "task" };
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -77,17 +77,14 @@ public class TaskDataBinder {
     @Autowired
     private SchedulerFactoryBean scheduler;
 
-    @Autowired
-    private JexlUtil jexlUtil;
-
     private void checkJexl(final AbstractAttributableTO attributableTO, final SyncopeClientException sce) {
         for (AttributeTO attrTO : attributableTO.getAttrs()) {
-            if (!attrTO.getValues().isEmpty() && !jexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
+            if (!attrTO.getValues().isEmpty() && !JexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
                 sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
             }
         }
         for (AttributeTO attrTO : attributableTO.getVirAttrs()) {
-            if (!attrTO.getValues().isEmpty() && !jexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
+            if (!attrTO.getValues().isEmpty() && !JexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
                 sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
             }
         }
@@ -100,10 +97,10 @@ public class TaskDataBinder {
         if (taskTO.getUserTemplate() != null) {
             UserTO template = taskTO.getUserTemplate();
 
-            if (StringUtils.isNotBlank(template.getUsername()) && !jexlUtil.isExpressionValid(template.getUsername())) {
+            if (StringUtils.isNotBlank(template.getUsername()) && !JexlUtil.isExpressionValid(template.getUsername())) {
                 sce.getElements().add("Invalid JEXL: " + template.getUsername());
             }
-            if (StringUtils.isNotBlank(template.getPassword()) && !jexlUtil.isExpressionValid(template.getPassword())) {
+            if (StringUtils.isNotBlank(template.getPassword()) && !JexlUtil.isExpressionValid(template.getPassword())) {
                 sce.getElements().add("Invalid JEXL: " + template.getPassword());
             }
 
@@ -116,7 +113,7 @@ public class TaskDataBinder {
         if (taskTO.getRoleTemplate() != null) {
             RoleTO template = taskTO.getRoleTemplate();
 
-            if (StringUtils.isNotBlank(template.getName()) && !jexlUtil.isExpressionValid(template.getName())) {
+            if (StringUtils.isNotBlank(template.getName()) && !JexlUtil.isExpressionValid(template.getName())) {
                 sce.getElements().add("Invalid JEXL: " + template.getName());
             }
 
