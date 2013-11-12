@@ -35,7 +35,6 @@ import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TraceLevel;
-import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.notification.NotificationManager;
@@ -140,7 +139,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     protected void createOrUpdate(final PropagationTask task, final ConnectorObject beforeObj,
-            final Connector connector, final Set<String> propagationAttempted) throws SyncopeClientException {
+            final Connector connector, final Set<String> propagationAttempted) {
 
         // set of attributes to be propagated
         final Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
@@ -269,7 +268,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     protected void delete(final PropagationTask task, final ConnectorObject beforeObj,
-            final Connector connector, final Set<String> propagationAttempted) throws SyncopeClientException {
+            final Connector connector, final Set<String> propagationAttempted) {
 
         if (beforeObj == null) {
             LOG.debug("{} not found on external resource: ignoring delete", task.getAccountId());
