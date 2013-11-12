@@ -248,6 +248,11 @@ public class NotificationManager {
                 LOG.debug("Creating notification task for events {} about {}", events, attributable);
 
                 final Map<String, Object> model = new HashMap<String, Object>();
+                model.put("type", type);
+                model.put("category", category);
+                model.put("subcategory", subcategory);
+                model.put("event", event);
+                model.put("condition", condition);
                 model.put("before", before);
                 model.put("output", output);
                 model.put("input", input);
