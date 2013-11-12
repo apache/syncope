@@ -625,17 +625,18 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         return Collections.singletonList(result);
     }
 
-    protected UserTO updateUser(final Long id, SyncDelta delta, final boolean dryRun, final SyncResult result)
+    protected Map.Entry<UserTO, UserTO> updateUser(final Long id, SyncDelta delta, final boolean dryRun,
+            final SyncResult result)
             throws Exception {
 
-        UserTO userTO = userDataBinder.getUserTO(id);
+        final UserTO before = userDataBinder.getUserTO(id);
         UserMod userMod = connObjectUtil.getAttributableMod(
-                id, delta.getObject(), userTO, syncTask, AttributableUtil.getInstance(AttributableType.USER));
+                id, delta.getObject(), before, syncTask, AttributableUtil.getInstance(AttributableType.USER));
 
-        delta = actions.beforeUpdate(this, delta, userTO, userMod);
+        delta = actions.beforeUpdate(this, delta, before, userMod);
 
         if (dryRun) {
-            return userTO;
+            return new AbstractMap.SimpleEntry<UserTO, UserTO>(before, before);
         }
 
         // Attribute value transformation (if configured)
@@ -686,24 +687,25 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         taskExecutor.execute(tasks);
 
-        userTO = userDataBinder.getUserTO(updated.getResult().getKey());
+        final UserTO after = userDataBinder.getUserTO(updated.getResult().getKey());
 
-        actions.after(this, delta, userTO, result);
+        actions.after(this, delta, after, result);
 
-        return userTO;
+        return new AbstractMap.SimpleEntry<UserTO, UserTO>(before, after);
     }
 
-    protected RoleTO updateRole(final Long id, SyncDelta delta, final boolean dryRun, final SyncResult result)
+    protected Map.Entry<RoleTO, RoleTO> updateRole(
+            final Long id, SyncDelta delta, final boolean dryRun, final SyncResult result)
             throws Exception {
 
-        RoleTO roleTO = roleDataBinder.getRoleTO(id);
+        final RoleTO before = roleDataBinder.getRoleTO(id);
         RoleMod roleMod = connObjectUtil.getAttributableMod(
-                id, delta.getObject(), roleTO, syncTask, AttributableUtil.getInstance(AttributableType.ROLE));
+                id, delta.getObject(), before, syncTask, AttributableUtil.getInstance(AttributableType.ROLE));
 
-        delta = actions.beforeUpdate(this, delta, roleTO, roleMod);
+        delta = actions.beforeUpdate(this, delta, before, roleMod);
 
         if (dryRun) {
-            return roleTO;
+            return new AbstractMap.SimpleEntry<RoleTO, RoleTO>(before, before);
         }
 
         // Attribute value transformation (if configured)
@@ -728,11 +730,11 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         taskExecutor.execute(tasks);
 
-        roleTO = roleDataBinder.getRoleTO(updated.getResult());
+        final RoleTO after = roleDataBinder.getRoleTO(updated.getResult());
 
-        actions.after(this, delta, roleTO, result);
+        actions.after(this, delta, after, result);
 
-        return roleTO;
+        return new AbstractMap.SimpleEntry<RoleTO, RoleTO>(before, after);
     }
 
     protected List<SyncResult> update(SyncDelta delta, final List<Long> subjects, final AttributableUtil attrUtil,
@@ -752,6 +754,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             LOG.debug("About to update {}", id);
 
             Object output = null;
+            AbstractAttributableTO before = null;
             Result resultStatus;
 
             final SyncResult result = new SyncResult();
@@ -763,10 +766,14 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             try {
                 final AbstractAttributableTO updated;
                 if (AttributableType.USER == attrUtil.getType()) {
-                    updated = updateUser(id, delta, dryRun, result);
+                    final Map.Entry<UserTO, UserTO> res = updateUser(id, delta, dryRun, result);
+                    before = res.getKey();
+                    updated = res.getValue();
                     result.setName(((UserTO) updated).getUsername());
                 } else if (AttributableType.ROLE == attrUtil.getType()) {
-                    updated = updateRole(id, delta, dryRun, result);
+                    final Map.Entry<RoleTO, RoleTO> res = updateRole(id, delta, dryRun, result);
+                    before = res.getKey();
+                    updated = res.getValue();
                     result.setName(((RoleTO) updated).getName());
                 } else {
                     updated = null;
@@ -795,7 +802,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                         syncTask.getResource().getName(),
                         "update",
                         resultStatus,
-                        null, // searching for before object is too much expensive ... 
+                        before,
                         output,
                         delta);
 
@@ -805,7 +812,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                         syncTask.getResource().getName(),
                         "update",
                         resultStatus,
-                        null, // searching for before object is too much expensive ... 
+                        before,
                         output,
                         delta);
             }
