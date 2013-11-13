@@ -28,8 +28,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.validation.constraints.Max;
@@ -49,7 +47,6 @@ public class Notification extends AbstractBaseBean {
     private static final long serialVersionUID = 3112582296912757537L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @ElementCollection(fetch = FetchType.EAGER)

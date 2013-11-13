@@ -46,7 +46,7 @@ public class NotificationTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        NotificationTO notificationTO = notificationService.read(100L);
+        NotificationTO notificationTO = notificationService.read(1L);
         assertNotNull(notificationTO);
     }
 
@@ -80,7 +80,7 @@ public class NotificationTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        NotificationTO notificationTO = notificationService.read(100L);
+        NotificationTO notificationTO = notificationService.read(1L);
         assertNotNull(notificationTO);
 
         notificationTO.setRecipients(NodeCond.getLeafCond(new MembershipCond()));

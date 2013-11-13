@@ -47,7 +47,7 @@ public class NotificationTest extends AbstractDAOTest {
 
     @Test
     public void find() {
-        Notification notification = notificationDAO.find(100L);
+        Notification notification = notificationDAO.find(1L);
         assertNotNull(notification);
         assertNotNull(notification.getEvents());
         assertFalse(notification.getEvents().isEmpty());
@@ -134,7 +134,7 @@ public class NotificationTest extends AbstractDAOTest {
 
     @Test
     public void delete() {
-        notificationDAO.delete(100L);
-        assertNull(notificationDAO.find(100L));
+        notificationDAO.delete(1L);
+        assertNull(notificationDAO.find(1L));
     }
 }
