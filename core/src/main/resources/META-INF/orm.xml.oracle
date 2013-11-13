@@ -256,4 +256,12 @@ under the License.
       </id>
     </attributes>
   </entity>
+  <entity class="org.apache.syncope.core.persistence.beans.Notification">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_Notification" strategy="TABLE"/>
+        <table-generator name="SEQ_Notification" pk-column-value="SEQ_Notification" initial-value="100"/>
+      </id>
+    </attributes>
+  </entity>
 </entity-mappings>
