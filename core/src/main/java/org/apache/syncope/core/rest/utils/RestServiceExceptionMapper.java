@@ -121,7 +121,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
     private Response getSyncopeClientExceptionResponse(final SyncopeClientException ex) {
         ResponseBuilder responseBuilder = Response.status(ex.getType().getResponseStatus());
-        responseBuilder.header(RESTHeaders.EXCEPTION_TYPE.toString(), ex.getType().getHeaderValue());
+        responseBuilder.header(RESTHeaders.EXCEPTION_TYPE, ex.getType().getHeaderValue());
 
         for (Object element : ex.getElements()) {
             responseBuilder.header(ex.getType().getElementHeaderName(), element);
@@ -137,7 +137,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
         ResponseBuilder responseBuilder = Response.status(Response.Status.BAD_REQUEST);
         for (SyncopeClientException sce : ex.getExceptions()) {
-            responseBuilder.header(RESTHeaders.EXCEPTION_TYPE.toString(), sce.getType().getHeaderValue());
+            responseBuilder.header(RESTHeaders.EXCEPTION_TYPE, sce.getType().getHeaderValue());
 
             for (Object element : sce.getElements()) {
                 responseBuilder.header(sce.getType().getElementHeaderName(), element);
@@ -176,7 +176,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
             ClientExceptionType exType = ClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
 
-            builder.header(RESTHeaders.EXCEPTION_TYPE.toString(), exType.getHeaderValue());
+            builder.header(RESTHeaders.EXCEPTION_TYPE, exType.getHeaderValue());
 
             for (Map.Entry<Class<?>, Set<EntityViolationType>> violation : iee.getViolations().entrySet()) {
                 for (EntityViolationType violationType : violation.getValue()) {
@@ -223,7 +223,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
     private Response buildResponse(final ResponseBuilder responseBuilder, final ClientExceptionType hType,
             final String msg) {
 
-        return responseBuilder.header(RESTHeaders.EXCEPTION_TYPE.toString(), hType.getHeaderValue()).
+        return responseBuilder.header(RESTHeaders.EXCEPTION_TYPE, hType.getHeaderValue()).
                 header(hType.getElementHeaderName(), msg).
                 build();
     }

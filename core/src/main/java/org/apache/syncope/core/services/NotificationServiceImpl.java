@@ -41,7 +41,7 @@ public class NotificationServiceImpl extends AbstractServiceImpl implements Noti
         NotificationTO createdNotificationTO = controller.create(notificationTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(createdNotificationTO.getId())).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID.toString(), createdNotificationTO.getId()).
+                header(RESTHeaders.RESOURCE_ID, createdNotificationTO.getId()).
                 build();
     }
 

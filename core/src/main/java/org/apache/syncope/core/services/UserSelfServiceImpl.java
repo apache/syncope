@@ -37,7 +37,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     @Override
     public Response getOptions() {
         return Response.ok().header("Allow", "GET,POST,OPTIONS,HEAD").
-                header(RESTHeaders.SELFREGISTRATION_ALLOWED.toString(), controller.isSelfRegistrationAllowed()).
+                header(RESTHeaders.SELFREGISTRATION_ALLOWED, controller.isSelfRegistrationAllowed()).
                 build();
     }
 
@@ -46,7 +46,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
         UserTO created = controller.createSelf(userTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getId())).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID.toString(), created.getId()).
+                header(RESTHeaders.RESOURCE_ID, created.getId()).
                 entity(created).
                 build();
     }

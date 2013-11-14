@@ -18,12 +18,19 @@
  */
 package org.apache.syncope.core.services;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.types.WorkflowTasks;
-import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.core.rest.controller.WorkflowController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,32 +38,83 @@ import org.springframework.stereotype.Service;
 @Service
 public class WorkflowServiceImpl extends AbstractServiceImpl implements WorkflowService, ContextAware {
 
+    @Context
+    private MessageContext context;
+
     @Autowired
     private WorkflowController controller;
 
     @Override
-    public WorkflowDefinitionTO getDefinition(final AttributableType kind) {
-        switch (kind) {
-            case USER:
-                return controller.getUserDefinition();
+    public Response exportDefinition(final AttributableType kind) {
+        final MediaType accept =
+                context.getHttpHeaders().getAcceptableMediaTypes().contains(MediaType.APPLICATION_JSON_TYPE)
+                ? MediaType.APPLICATION_JSON_TYPE
+                : MediaType.APPLICATION_XML_TYPE;
 
-            case ROLE:
-                return controller.getRoleDefinition();
+        StreamingOutput sout = new StreamingOutput() {
 
-            default:
-                throw new BadRequestException();
-        }
+            @Override
+            public void write(final OutputStream os) throws IOException {
+                switch (kind) {
+                    case USER:
+                        controller.exportUserDefinition(accept, os);
+                        break;
+
+                    case ROLE:
+                        controller.exportRoleDefinition(accept, os);
+                        break;
+
+                    default:
+                        throw new BadRequestException();
+                }
+            }
+        };
+
+        return Response.ok(sout).
+                type(accept).
+                build();
     }
 
     @Override
-    public void updateDefinition(final AttributableType kind, final WorkflowDefinitionTO definition) {
+    public Response exportDiagram(final AttributableType kind) {
+        StreamingOutput sout = new StreamingOutput() {
+
+            @Override
+            public void write(final OutputStream os) throws IOException {
+                switch (kind) {
+                    case USER:
+                        controller.exportUserDiagram(os);
+                        break;
+
+                    case ROLE:
+                        controller.exportRoleDiagram(os);
+                        break;
+
+                    default:
+                        throw new BadRequestException();
+                }
+            }
+        };
+
+        return Response.ok(sout).
+                type(RESTHeaders.MEDIATYPE_IMAGE_PNG).
+                build();
+    }
+
+    @Override
+    public void importDefinition(final AttributableType kind, final String definition) {
+        final MediaType contentType =
+                context.getHttpHeaders().getMediaType().equals(MediaType.APPLICATION_JSON_TYPE)
+                ? MediaType.APPLICATION_JSON_TYPE
+                : MediaType.APPLICATION_XML_TYPE;
+
         switch (kind) {
             case USER:
-                controller.updateUserDefinition(definition);
+                controller.importUserDefinition(contentType, definition);
                 break;
 
             case ROLE:
-                controller.updateRoleDefinition(definition);
+                controller.importRoleDefinition(contentType, definition);
                 break;
 
             default:

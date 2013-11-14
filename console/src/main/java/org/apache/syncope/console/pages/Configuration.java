@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import javax.ws.rs.core.MediaType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -31,7 +32,6 @@ import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.to.NotificationTO;
-import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.LoggerLevel;
 import org.apache.syncope.common.validation.SyncopeClientException;
@@ -71,7 +71,6 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.PropertyListView;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -143,14 +142,12 @@ public class Configuration extends BasePage {
         setupNotification();
 
         // Workflow definition stuff
-        final WorkflowDefinitionTO workflowDef = wfRestClient.getDefinition();
-
         WebMarkupContainer workflowDefContainer = new WebMarkupContainer("workflowDefContainer");
 
-        Form wfForm = new Form("workflowDefForm", new CompoundPropertyModel(workflowDef));
+        Form wfForm = new Form("workflowDefForm");
 
-        TextArea<WorkflowDefinitionTO> workflowDefArea = new TextArea<WorkflowDefinitionTO>("workflowDefArea",
-                new PropertyModel<WorkflowDefinitionTO>(workflowDef, "xmlDefinition"));
+        final TextArea<String> workflowDefArea = new TextArea<String>("workflowDefArea",
+                new Model<String>(wfRestClient.getDefinition(MediaType.APPLICATION_XML_TYPE)));
         wfForm.add(workflowDefArea);
 
         AjaxButton submit =
@@ -161,7 +158,8 @@ public class Configuration extends BasePage {
                     @Override
                     protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                         try {
-                            wfRestClient.updateDefinition(workflowDef);
+                            wfRestClient.updateDefinition(
+                                    MediaType.APPLICATION_XML_TYPE, workflowDefArea.getModelObject());
                             info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientException scee) {
                             error(getString(Constants.ERROR) + ": " + scee.getMessage());

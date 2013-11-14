@@ -50,7 +50,7 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
 
             this.inputStream = (InputStream) entity;
             this.contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
-            String contentDisposition = response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION.toString());
+            String contentDisposition = response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION);
             if (StringUtils.isNotBlank(contentDisposition)) {
                 String[] splitted = contentDisposition.split("=");
                 if (splitted != null && splitted.length > 1) {

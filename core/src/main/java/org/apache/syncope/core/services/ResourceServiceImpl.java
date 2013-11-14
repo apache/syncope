@@ -61,7 +61,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
         ResourceTO created = controller.create(resourceTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getName()).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID.toString(), created.getName()).
+                header(RESTHeaders.RESOURCE_ID, created.getName()).
                 build();
     }
 

@@ -46,14 +46,14 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
     @Override
     public Response getUsername(final Long userId) {
         return Response.ok().header("Allow", "GET,POST,OPTIONS,HEAD").
-                header(RESTHeaders.USERNAME.toString(), controller.getUsername(userId)).
+                header(RESTHeaders.USERNAME, controller.getUsername(userId)).
                 build();
     }
 
     @Override
     public Response getUserId(final String username) {
         return Response.ok().header("Allow", "GET,POST,OPTIONS,HEAD").
-                header(RESTHeaders.USER_ID.toString(), controller.getUserId(username)).
+                header(RESTHeaders.USER_ID, controller.getUserId(username)).
                 build();
     }
 
@@ -67,7 +67,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
         UserTO created = controller.create(userTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getId())).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID.toString(), created.getId()).
+                header(RESTHeaders.RESOURCE_ID, created.getId()).
                 entity(created).
                 build();
     }

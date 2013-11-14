@@ -72,7 +72,7 @@ under the License.
   <bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService"/>
   <bean id="formService" factory-bean="processEngine" factory-method="getFormService"/>
 
-  <context:component-scan base-package="org.apache.syncope.core.workflow.user.activiti.task"/>
+  <context:component-scan base-package="org.apache.syncope.core.workflow.user.activiti"/>
   
   <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
     <property name="velocityProperties">

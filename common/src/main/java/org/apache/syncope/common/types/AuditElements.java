@@ -236,8 +236,9 @@ public final class AuditElements {
     @XmlEnum
     public enum WorkflowSubCategory {
 
-        getDefinition,
-        updateDefinition,
+        exportDefinition,
+        exportDiagram,
+        importDefinition,
         getDefinedTasks
 
     }

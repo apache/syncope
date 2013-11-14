@@ -19,20 +19,19 @@
 package org.apache.syncope.common.services;
 
 import javax.ws.rs.Consumes;
-import org.apache.syncope.common.types.WorkflowTasks;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.RESTHeaders;
+import org.apache.syncope.common.types.WorkflowTasks;
 
 @Path("workflows/{kind}")
-@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface WorkflowService {
 
     /**
@@ -40,14 +39,21 @@ public interface WorkflowService {
      * @return Returns workflow definition for matching kind.
      */
     @GET
-    WorkflowDefinitionTO getDefinition(@PathParam("kind") AttributableType kind);
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    Response exportDefinition(@PathParam("kind") AttributableType kind);
+
+    @GET
+    @Path("diagram.png")
+    @Produces({ RESTHeaders.MEDIATYPE_IMAGE_PNG })
+    Response exportDiagram(@PathParam("kind") AttributableType kind);
 
     /**
      * @param kind Kind can be USER or ROLE only!
-     * @param definition New workflow definition to be stored for matching kind.
+     * @param definition workflow definition for matching kind
      */
     @PUT
-    void updateDefinition(@PathParam("kind") AttributableType kind, WorkflowDefinitionTO definition);
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    void importDefinition(@PathParam("kind") AttributableType kind, String definition);
 
     /**
      * @param kind Kind can be USER or ROLE only!
@@ -55,5 +61,6 @@ public interface WorkflowService {
      */
     @GET
     @Path("tasks")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     WorkflowTasks getDefinedTasks(@PathParam("kind") AttributableType kind);
 }

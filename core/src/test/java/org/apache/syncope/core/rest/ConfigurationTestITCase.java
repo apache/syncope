@@ -29,7 +29,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.IOUtils;
@@ -122,9 +122,8 @@ public class ConfigurationTestITCase extends AbstractTest {
         Response response = configurationService.export();
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
-        String contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
-        assertTrue(contentType.contains("xml"));
-        String contentDisposition = response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION.toString());
+        assertTrue(response.getMediaType().toString().startsWith(MediaType.TEXT_XML));
+        String contentDisposition = response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION);
         assertNotNull(contentDisposition);
 
         Object entity = response.getEntity();

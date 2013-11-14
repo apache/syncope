@@ -46,7 +46,7 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
         ConnInstanceTO connInstance = controller.create(connInstanceTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(connInstance.getId())).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID.toString(), connInstance.getId()).
+                header(RESTHeaders.RESOURCE_ID, connInstance.getId()).
                 build();
     }
 

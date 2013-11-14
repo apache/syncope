@@ -34,8 +34,6 @@ import org.apache.syncope.common.to.MailTemplateTO;
 import org.apache.syncope.common.to.ValidatorTO;
 
 @Path("configurations")
-@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface ConfigurationService {
 
     /**
@@ -45,10 +43,12 @@ public interface ConfigurationService {
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created configuration
      */
     @POST
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response create(ConfigurationTO configurationTO);
 
     /**
-     * @return Returns configuration as an downloadable content.xml database export file.
+     * @return internal storage content as downloadable XML file
      */
     @GET
     @Path("stream")
@@ -59,6 +59,7 @@ public interface ConfigurationService {
      */
     @DELETE
     @Path("{key}")
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     void delete(@PathParam("key") String key);
 
     /**
@@ -66,6 +67,7 @@ public interface ConfigurationService {
      */
     @GET
     @Path("mailTemplates")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<MailTemplateTO> getMailTemplates();
 
     /**
@@ -73,20 +75,23 @@ public interface ConfigurationService {
      */
     @GET
     @Path("validators")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<ValidatorTO> getValidators();
 
     /**
-     * @return Returns a list of all configuration elements.
+     * @return list of all configuration elements.
      */
     @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<ConfigurationTO> list();
 
     /**
      * @param key Identifier of configuration to be read.
-     * @return Returns configuration element with matching key.
+     * @return configuration element with matching key.
      */
     @GET
     @Path("{key}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     ConfigurationTO read(@PathParam("key") String key);
 
     /**
@@ -95,5 +100,6 @@ public interface ConfigurationService {
      */
     @PUT
     @Path("{key}")
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     void update(@PathParam("key") String key, ConfigurationTO configurationTO);
 }

@@ -58,7 +58,7 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService,
         RoleTO created = controller.create(roleTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getId())).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID.toString(), created.getId()).
+                header(RESTHeaders.RESOURCE_ID, created.getId()).
                 entity(created).
                 build();
     }

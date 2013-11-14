@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.workflow.user;
 
+import java.io.OutputStream;
 import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
@@ -26,13 +27,13 @@ import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
+import org.apache.syncope.core.workflow.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -154,14 +155,19 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowDefinitionTO getDefinition()
+    public void exportDefinition(final WorkflowDefinitionFormat format, final OutputStream os)
             throws WorkflowException {
 
-        return new WorkflowDefinitionTO();
+        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
     @Override
-    public void updateDefinition(final WorkflowDefinitionTO definition)
+    public void exportDiagram(final OutputStream os) throws WorkflowException {
+        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
+    }
+
+    @Override
+    public void importDefinition(final WorkflowDefinitionFormat format, final String definition)
             throws NotFoundException, WorkflowException {
 
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));

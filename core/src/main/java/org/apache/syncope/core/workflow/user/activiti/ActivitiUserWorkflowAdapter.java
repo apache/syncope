@@ -18,14 +18,9 @@
  */
 package org.apache.syncope.core.workflow.user.activiti;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.OutputStream;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +35,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
+import org.activiti.bpmn.converter.BpmnXMLConverter;
+import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.editor.constants.ModelDataJsonConstants;
+import org.activiti.editor.language.json.converter.BpmnJsonConverter;
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.FormService;
 import org.activiti.engine.HistoryService;
@@ -54,6 +53,7 @@ import org.activiti.engine.history.HistoricDetail;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.impl.persistence.entity.HistoricFormPropertyEntity;
 import org.activiti.engine.query.Query;
+import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -61,7 +61,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.ResourceOperation;
@@ -74,10 +73,14 @@ import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidatio
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.EntitlementUtil;
+import org.apache.syncope.core.workflow.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.WorkflowInstanceLoader;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.user.AbstractUserWorkflowAdapter;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,6 +103,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public static final String WF_PROCESS_ID = "userWorkflow";
 
     public static final String WF_PROCESS_RESOURCE = "userWorkflow.bpmn20.xml";
+
+    public static final String WF_DGRM_RESOURCE = "userWorkflow.userWorkflow.png";
 
     public static final String SYNCOPE_USER = "syncopeUser";
 
@@ -125,6 +130,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     public static final String TASK_IS_FORM = "taskIsForm";
 
+    public static final String MODEL_DATA_JSON_MODEL = "model";
+
     @Resource(name = "adminUser")
     private String adminUser;
 
@@ -142,6 +149,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Autowired
     private RepositoryService repositoryService;
+
+    @Autowired
+    private ActivitiImportUtils importUtils;
 
     @Override
     public Class<? extends WorkflowInstanceLoader> getLoaderClass() {
@@ -422,52 +432,103 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         } catch (ActivitiException e) {
             throw new WorkflowException("While accessing process " + ActivitiUserWorkflowAdapter.WF_PROCESS_ID, e);
         }
+
     }
 
-    @Override
-    public WorkflowDefinitionTO getDefinition()
-            throws WorkflowException {
+    protected Model getModel(final ProcessDefinition procDef) {
+        try {
+            Model model = repositoryService.createModelQuery().deploymentId(procDef.getDeploymentId()).singleResult();
+            if (model == null) {
+                throw new NotFoundException("Could not find Model for deployment " + procDef.getDeploymentId());
+            }
+            return model;
+        } catch (Exception e) {
+            throw new WorkflowException("While accessing process " + ActivitiUserWorkflowAdapter.WF_PROCESS_ID, e);
+        }
+    }
 
+    protected void exportProcessResource(final String resourceName, final OutputStream os) {
         ProcessDefinition procDef = getProcessDefinition();
 
-        InputStream procDefIS = repositoryService.getResourceAsStream(procDef.getDeploymentId(), WF_PROCESS_RESOURCE);
-        Reader reader = null;
-        Writer writer = new StringWriter();
+        InputStream procDefIS = repositoryService.getResourceAsStream(procDef.getDeploymentId(), resourceName);
         try {
-            reader = new BufferedReader(new InputStreamReader(procDefIS));
-
-            int n;
-            char[] buffer = new char[1024];
-            while ((n = reader.read(buffer)) != -1) {
-                writer.write(buffer, 0, n);
-            }
+            IOUtils.copy(procDefIS, os);
         } catch (IOException e) {
-            LOG.error("While reading workflow definition {}", procDef.getKey(), e);
+            LOG.error("While exporting workflow definition {}", procDef.getKey(), e);
         } finally {
-            IOUtils.closeQuietly(reader);
             IOUtils.closeQuietly(procDefIS);
         }
+    }
 
-        WorkflowDefinitionTO definitionTO = new WorkflowDefinitionTO();
-        definitionTO.setId(ActivitiUserWorkflowAdapter.WF_PROCESS_ID);
-        definitionTO.setXmlDefinition(writer.toString());
+    protected void exportProcessModel(final OutputStream os) {
+        Model model = getModel(getProcessDefinition());
 
-        return definitionTO;
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            ObjectNode modelNode = (ObjectNode) objectMapper.readTree(model.getMetaInfo());
+            modelNode.put(ModelDataJsonConstants.MODEL_ID, model.getId());
+            modelNode.put(MODEL_DATA_JSON_MODEL,
+                    objectMapper.readTree(repositoryService.getModelEditorSource(model.getId())));
+
+            os.write(modelNode.toString().getBytes());
+        } catch (IOException e) {
+            LOG.error("While exporting workflow definition {}", model.getKey(), e);
+        }
     }
 
     @Override
-    public void updateDefinition(final WorkflowDefinitionTO definition)
+    public void exportDefinition(final WorkflowDefinitionFormat format, final OutputStream os)
             throws WorkflowException {
 
-        if (!ActivitiUserWorkflowAdapter.WF_PROCESS_ID.equals(definition.getId())) {
-            throw new NotFoundException("Workflow process id " + definition.getId());
-        }
+        switch (format) {
+            case JSON:
+                exportProcessModel(os);
+                break;
 
-        try {
-            repositoryService.createDeployment().addInputStream(ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE,
-                    new ByteArrayInputStream(definition.getXmlDefinition().getBytes())).deploy();
-        } catch (ActivitiException e) {
-            throw new WorkflowException("While updating process " + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
+            case XML:
+            default:
+                exportProcessResource(WF_PROCESS_RESOURCE, os);
+        }
+    }
+
+    @Override
+    public void exportDiagram(final OutputStream os) throws WorkflowException {
+        exportProcessResource(WF_DGRM_RESOURCE, os);
+    }
+
+    @Override
+    public void importDefinition(final WorkflowDefinitionFormat format, final String definition)
+            throws WorkflowException {
+
+        Model model = getModel(getProcessDefinition());
+        switch (format) {
+            case JSON:
+                JsonNode definitionNode;
+                try {
+                    definitionNode = new ObjectMapper().readTree(definition);
+                    if (definitionNode.has(MODEL_DATA_JSON_MODEL)) {
+                        definitionNode = definitionNode.get(MODEL_DATA_JSON_MODEL);
+                    }
+                    if (!definitionNode.has(BpmnJsonConverter.EDITOR_CHILD_SHAPES)) {
+                        throw new IllegalArgumentException(
+                                "Could not find JSON node " + BpmnJsonConverter.EDITOR_CHILD_SHAPES);
+                    }
+
+                    BpmnModel bpmnModel = new BpmnJsonConverter().convertToBpmnModel(definitionNode);
+                    importUtils.fromXML(new BpmnXMLConverter().convertToXML(bpmnModel));
+                } catch (Exception e) {
+                    throw new WorkflowException("While updating process "
+                            + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
+                }
+
+                importUtils.fromJSON(definitionNode.toString().getBytes(), getProcessDefinition(), model);
+                break;
+
+            case XML:
+            default:
+                importUtils.fromXML(definition.getBytes());
+
+                importUtils.fromJSON(getProcessDefinition(), model);
         }
     }
 
@@ -479,7 +540,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         ProcessDefinition procDef = getProcessDefinition();
 
-        InputStream procDefIS = repositoryService.getResourceAsStream(procDef.getDeploymentId(), WF_PROCESS_RESOURCE);
+        InputStream procDefIS = repositoryService.
+                getResourceAsStream(procDef.getDeploymentId(), WF_PROCESS_RESOURCE);
 
         DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
         try {

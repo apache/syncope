@@ -49,7 +49,7 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
         ConfigurationTO created = controller.create(configurationTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID.toString(), created.getKey()).
+                header(RESTHeaders.RESOURCE_ID, created.getKey()).
                 build();
     }
 
@@ -64,7 +64,7 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
         };
         return Response.ok(sout).
                 type(MediaType.TEXT_XML).
-                header(RESTHeaders.CONTENT_DISPOSITION.toString(), "attachment; filename=" + ContentLoader.CONTENT_XML).
+                header(RESTHeaders.CONTENT_DISPOSITION, "attachment; filename=" + ContentLoader.CONTENT_XML).
                 build();
     }
 

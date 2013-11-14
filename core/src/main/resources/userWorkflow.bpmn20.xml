@@ -17,234 +17,506 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<definitions id="definitions"
-             targetNamespace="http://activiti.org/bpmn20" 
-             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xmlns:activiti="http://activiti.org/bpmn"
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+             xmlns:activiti="http://activiti.org/bpmn" 
              xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
              xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" 
              xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" 
-             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL 
-                                 http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
+             typeLanguage="http://www.w3.org/2001/XMLSchema" 
+             expressionLanguage="http://www.w3.org/1999/XPath" 
+             targetNamespace="http://activiti.org/bpmn20">
   
   <process id="userWorkflow" name="User Workflow" isExecutable="true">
-  
-    <startEvent id="theStart"/>
-    
-    <!-- Create an user -->
-    <sequenceFlow id="flow1" sourceRef="theStart" targetRef="create"/>
-      
-    <serviceTask id="create" name="Create" activiti:expression="#{create.execute(execution.processInstanceId)}"/>
-
-    <sequenceFlow id="flow2" sourceRef="create" targetRef="createGW"/>
-        
-    <exclusiveGateway id="createGW"/>
+    <startEvent id="theStart"></startEvent>
+    <sequenceFlow id="flow1" sourceRef="theStart" targetRef="create"></sequenceFlow>
+    <serviceTask id="create" name="Create" activiti:expression="#{create.execute(execution.processInstanceId)}"></serviceTask>
+    <sequenceFlow id="flow2" sourceRef="create" targetRef="createGW"></sequenceFlow>
+    <exclusiveGateway id="createGW"></exclusiveGateway>
     <sequenceFlow id="createAsAnonymous2Approval" sourceRef="createGW" targetRef="createApproval">
-      <conditionExpression xsi:type="tFormalExpression">${wfExecutor == 'anonymous' || syncopeUser.getRoleIds().contains(9)}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wfExecutor == 'anonymous' || syncopeUser.getRoleIds().contains(9)}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="create2Activate" sourceRef="createGW" targetRef="enableGW">
-      <conditionExpression xsi:type="tFormalExpression">${!syncopeUser.getRoleIds().contains(9)}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!syncopeUser.getRoleIds().contains(9)}]]></conditionExpression>
     </sequenceFlow>
-        
-    <userTask id="createApproval" activiti:formKey="createApproval" name="Create approval" activiti:candidateGroups="7">
+    <userTask id="createApproval" name="Create approval" activiti:candidateGroups="7" activiti:formKey="createApproval">
       <extensionElements>
-        <activiti:formProperty id="username" name="Username" type="string" writable="false" expression="${syncopeUser.username}"/>
-        <activiti:formProperty id="approve" variable="approve" name="Approve?" type="boolean" required="true"/>
-        <activiti:formProperty id="rejectReason" variable="rejectReason" name="Reason for rejecting" type="string"/>
+        <activiti:formProperty id="username" name="Username" type="string" expression="${syncopeUser.username}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"></activiti:formProperty>
+        <activiti:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"></activiti:formProperty>
       </extensionElements>
     </userTask>
-
-    <sequenceFlow id="flow3" sourceRef="createApproval" targetRef="createApprovalGW"/>
-        
-    <exclusiveGateway id="createApprovalGW"/>
+    <sequenceFlow id="flow3" sourceRef="createApproval" targetRef="createApprovalGW"></sequenceFlow>
+    <exclusiveGateway id="createApprovalGW"></exclusiveGateway>
     <sequenceFlow id="createApprovalGW2EnableGW" sourceRef="createApprovalGW" targetRef="enableGW">
-      <conditionExpression xsi:type="tFormalExpression">${approve}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approve}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="createApproval2Reject" sourceRef="createApprovalGW" targetRef="reject">
-      <conditionExpression xsi:type="tFormalExpression">${!approve}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approve}]]></conditionExpression>
     </sequenceFlow>
-    
-    <exclusiveGateway id="enableGW"/>
-    <!-- opt-in required -->
+    <exclusiveGateway id="enableGW"></exclusiveGateway>
     <sequenceFlow id="createApprovalGW2OptIn" sourceRef="enableGW" targetRef="generateToken">
-      <conditionExpression xsi:type="tFormalExpression">${syncopeUser.getRoleIds().contains(11)}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${syncopeUser.getRoleIds().contains(11)}]]></conditionExpression>
     </sequenceFlow>
-    <!-- activate user if suspension is not required -->
     <sequenceFlow id="createApprovalGW2Activate" sourceRef="enableGW" targetRef="activate">
-      <conditionExpression xsi:type="tFormalExpression">${enabled == null}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${enabled == null}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="createApprovalGW2Active" sourceRef="enableGW" targetRef="active">
-      <conditionExpression xsi:type="tFormalExpression">${enabled}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${enabled}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="createApprovalGW2Suspended" sourceRef="enableGW" targetRef="suspend">
-      <conditionExpression xsi:type="tFormalExpression">${!enabled}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!enabled}]]></conditionExpression>
     </sequenceFlow>
-    
-    <serviceTask id="activate" name="Activate" 
-                 activiti:expression="#{autoActivate.execute(execution.processInstanceId)}"/>
-    <sequenceFlow id="flow4" sourceRef="activate" targetRef="active"/>
-
-    <!-- Double opt-in required -->
-    <serviceTask id="generateToken" name="Generate token" 
-                 activiti:expression="#{generateToken.execute(execution.processInstanceId)}"/>
-        
-    <sequenceFlow id="flow5" sourceRef="generateToken" targetRef="created"/>
-
-    <userTask id="created" name="Created"/>
-
-    <sequenceFlow id="flow6" sourceRef="created" targetRef="optinGW"/>
-
-    <exclusiveGateway id="optinGW"/>
+    <serviceTask id="activate" name="Activate" activiti:expression="#{autoActivate.execute(execution.processInstanceId)}"></serviceTask>
+    <sequenceFlow id="flow4" sourceRef="activate" targetRef="active"></sequenceFlow>
+    <serviceTask id="generateToken" name="Generate token" activiti:expression="#{generateToken.execute(execution.processInstanceId)}"></serviceTask>
+    <sequenceFlow id="flow5" sourceRef="generateToken" targetRef="created"></sequenceFlow>
+    <userTask id="created" name="Created"></userTask>
+    <sequenceFlow id="flow6" sourceRef="created" targetRef="optinGW"></sequenceFlow>
+    <exclusiveGateway id="optinGW"></exclusiveGateway>
     <sequenceFlow id="created2Activate" sourceRef="optinGW" targetRef="removeToken">
-      <conditionExpression xsi:type="tFormalExpression">${syncopeUser.checkToken(token)}</conditionExpression>
-    </sequenceFlow>  
-    <sequenceFlow id="created2Created" sourceRef="optinGW" targetRef="created">
-      <conditionExpression xsi:type="tFormalExpression">${!syncopeUser.checkToken(token)}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${syncopeUser.checkToken(token)}]]></conditionExpression>
     </sequenceFlow>
-        
-    <scriptTask id="removeToken" name="Remove Token and Activate" scriptFormat="groovy">
+    <sequenceFlow id="created2Created" sourceRef="optinGW" targetRef="created">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!syncopeUser.checkToken(token)}]]></conditionExpression>
+    </sequenceFlow>
+    <scriptTask id="removeToken" name="Remove Token and Activate" scriptFormat="groovy" activiti:autoStoreVariables="true">
       <script>
         syncopeUser.removeToken()    
       </script>
     </scriptTask>
-
-    <sequenceFlow id="flow7" sourceRef="removeToken" targetRef="active"/>
-    
-    <userTask id="active" name="Active"/>
-        
-    <sequenceFlow id="flow8" sourceRef="active" targetRef="activeGw"/>
-
-    <exclusiveGateway id="activeGw"/>
+    <sequenceFlow id="flow7" sourceRef="removeToken" targetRef="active"></sequenceFlow>
+    <userTask id="active" name="Active"></userTask>
+    <sequenceFlow id="flow8" sourceRef="active" targetRef="activeGw"></sequenceFlow>
+    <exclusiveGateway id="activeGw"></exclusiveGateway>
     <sequenceFlow id="active2UpdateApproval" sourceRef="activeGw" targetRef="updateApproval">
-      <conditionExpression xsi:type="tFormalExpression">
-        ${wfExecutor == syncopeUser.getUsername() and task == 'update' 
-        and (!userMod.getMembershipsToAdd().isEmpty() or !userMod.getMembershipsToRemove().isEmpty())}
-      </conditionExpression>
-    </sequenceFlow>  
-    <sequenceFlow id="active2DeleteApproval" sourceRef="activeGw" targetRef="deleteApproval">
-      <conditionExpression xsi:type="tFormalExpression">${wfExecutor == syncopeUser.getUsername() and task == 'delete'}</conditionExpression>
-    </sequenceFlow>  
-    <sequenceFlow id="active2Update" sourceRef="activeGw" targetRef="update">
-      <conditionExpression xsi:type="tFormalExpression">${task == 'update'}</conditionExpression>
-    </sequenceFlow>  
-    <sequenceFlow id="active2Suspend" sourceRef="activeGw" targetRef="suspend">
-      <conditionExpression xsi:type="tFormalExpression">${task == 'suspend'}</conditionExpression>
-    </sequenceFlow> 
-    <sequenceFlow id="active2Delete" sourceRef="activeGw" targetRef="delete">
-      <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wfExecutor == syncopeUser.getUsername() and task == 'update' 
+        and (!userMod.getMembershipsToAdd().isEmpty() or !userMod.getMembershipsToRemove().isEmpty())}]]></conditionExpression>
     </sequenceFlow>
-
-    <userTask id="updateApproval" activiti:formKey="updateApproval" name="Update approval" activiti:candidateGroups="7">
+    <sequenceFlow id="active2DeleteApproval" sourceRef="activeGw" targetRef="deleteApproval">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wfExecutor == syncopeUser.getUsername() and task == 'delete'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="active2Update" sourceRef="activeGw" targetRef="update">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'update'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="active2Suspend" sourceRef="activeGw" targetRef="suspend">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'suspend'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="active2Delete" sourceRef="activeGw" targetRef="delete">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'delete'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="updateApproval" name="Update approval" activiti:candidateGroups="7" activiti:formKey="updateApproval">
       <extensionElements>
-        <activiti:formProperty id="username" name="Username" type="string" writable="false" expression="${syncopeUser.username}"/>
-        <activiti:formProperty id="approve" variable="approve" name="Approve?" type="boolean" required="true"/>
-        <activiti:formProperty id="rejectReason" variable="rejectReason" name="Reason for rejecting" type="string"/>
+        <activiti:formProperty id="username" name="Username" type="string" expression="${syncopeUser.username}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"></activiti:formProperty>
+        <activiti:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"></activiti:formProperty>
       </extensionElements>
     </userTask>
-
-    <sequenceFlow id="flow8bis" sourceRef="updateApproval" targetRef="updateApprovalGW"/>
-        
-    <exclusiveGateway id="updateApprovalGW"/>
+    <sequenceFlow id="flow8bis" sourceRef="updateApproval" targetRef="updateApprovalGW"></sequenceFlow>
+    <exclusiveGateway id="updateApprovalGW"></exclusiveGateway>
     <sequenceFlow id="updateApprovalGW2Update" sourceRef="updateApprovalGW" targetRef="update">
-      <conditionExpression xsi:type="tFormalExpression">${approve}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approve}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="updateApprovalGW2Reject" sourceRef="updateApprovalGW" targetRef="rejectUpdate">
-      <conditionExpression xsi:type="tFormalExpression">${!approve}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approve}]]></conditionExpression>
     </sequenceFlow>
-
-    <scriptTask id="rejectUpdate" name="Reject update" scriptFormat="groovy">
+    <scriptTask id="rejectUpdate" name="Reject update" scriptFormat="groovy" activiti:autoStoreVariables="true">
       <script>
         execution.setVariable("propByResource", null);
       </script>
     </scriptTask>
-        
-    <sequenceFlow id="flow8ter" sourceRef="rejectUpdate" targetRef="active"/>
-
-    <!-- Update an active user -->
-    <serviceTask id="update" name="Update" activiti:expression="#{update.execute(execution.processInstanceId)}"/>
-
-    <sequenceFlow id="flow9" sourceRef="update" targetRef="active"/>
-
-    <!-- Suspend an active user -->
-    <serviceTask id="suspend" name="Suspend" activiti:expression="#{suspend.execute(execution.processInstanceId)}"/>
-
-    <sequenceFlow id="flow10" sourceRef="suspend" targetRef="suspended"/>
-
-    <userTask id="suspended" name="Suspended"/>
-        
-    <sequenceFlow id="flow11" sourceRef="suspended" targetRef="suspendedGw"/>
-
-    <exclusiveGateway id="suspendedGw"/>
+    <sequenceFlow id="flow8ter" sourceRef="rejectUpdate" targetRef="active"></sequenceFlow>
+    <serviceTask id="update" name="Update" activiti:expression="#{update.execute(execution.processInstanceId)}"></serviceTask>
+    <sequenceFlow id="flow9" sourceRef="update" targetRef="active"></sequenceFlow>
+    <serviceTask id="suspend" name="Suspend" activiti:expression="#{suspend.execute(execution.processInstanceId)}"></serviceTask>
+    <sequenceFlow id="flow10" sourceRef="suspend" targetRef="suspended"></sequenceFlow>
+    <userTask id="suspended" name="Suspended"></userTask>
+    <sequenceFlow id="flow11" sourceRef="suspended" targetRef="suspendedGw"></sequenceFlow>
+    <exclusiveGateway id="suspendedGw"></exclusiveGateway>
     <sequenceFlow id="suspended2Reactivate" sourceRef="suspendedGw" targetRef="reactivate">
-      <conditionExpression xsi:type="tFormalExpression">${task == 'reactivate'}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'reactivate'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="suspended2Delete" sourceRef="suspendedGw" targetRef="delete">
-      <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'delete'}]]></conditionExpression>
     </sequenceFlow>
-
-    <!-- Reactivate a suspended user -->
-    <serviceTask id="reactivate" name ="Reactivate" 
-                 activiti:expression="#{reactivate.execute(execution.processInstanceId)}"/>
-
-    <sequenceFlow id="flow12" sourceRef="reactivate" targetRef="active"/>
-        
-    <!-- Reject an user -->
-    <scriptTask id="reject" name="Reject" scriptFormat="groovy">
-      <!-- Do something with rejectReason -->
+    <serviceTask id="reactivate" name="Reactivate" activiti:expression="#{reactivate.execute(execution.processInstanceId)}"></serviceTask>
+    <sequenceFlow id="flow12" sourceRef="reactivate" targetRef="active"></sequenceFlow>
+    <scriptTask id="reject" name="Reject" scriptFormat="groovy" activiti:autoStoreVariables="true">
       <script>
         def scriptVar = rejectReason
         execution.setVariable("propByResource", null);
       </script>
     </scriptTask>
-        
-    <sequenceFlow id="flow13" sourceRef="reject" targetRef="rejected"/>
-
-    <userTask id="rejected" name="Rejected"/>
-        
-    <sequenceFlow id="flow14" sourceRef="rejected" targetRef="rejectedGw"/>
-
-    <exclusiveGateway id="rejectedGw"/>
+    <sequenceFlow id="flow13" sourceRef="reject" targetRef="rejected"></sequenceFlow>
+    <userTask id="rejected" name="Rejected"></userTask>
+    <sequenceFlow id="flow14" sourceRef="rejected" targetRef="rejectedGw"></sequenceFlow>
+    <exclusiveGateway id="rejectedGw"></exclusiveGateway>
     <sequenceFlow id="rejected2Delete" sourceRef="rejectedGw" targetRef="delete">
-      <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'delete'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="rejected2Rejected" sourceRef="rejectedGw" targetRef="rejected">
-      <conditionExpression xsi:type="tFormalExpression">${empty task}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${empty task}]]></conditionExpression>
     </sequenceFlow>
-    
-    <userTask id="deleteApproval" activiti:formKey="deleteApproval" name="Delete approval" activiti:candidateGroups="7">
+    <userTask id="deleteApproval" name="Delete approval" activiti:candidateGroups="7" activiti:formKey="deleteApproval">
       <extensionElements>
-        <activiti:formProperty id="username" name="Username" type="string" writable="false" expression="${syncopeUser.username}"/>
-        <activiti:formProperty id="approve" variable="approve" name="Approve?" type="boolean" required="true"/>
-        <activiti:formProperty id="rejectReason" variable="rejectReason" name="Reason for rejecting" type="string"/>
+        <activiti:formProperty id="username" name="Username" type="string" expression="${syncopeUser.username}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"></activiti:formProperty>
+        <activiti:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"></activiti:formProperty>
       </extensionElements>
     </userTask>
-
-    <sequenceFlow id="flow14bis" sourceRef="deleteApproval" targetRef="deleteApprovalGW"/>
-        
-    <exclusiveGateway id="deleteApprovalGW"/>
+    <sequenceFlow id="flow14bis" sourceRef="deleteApproval" targetRef="deleteApprovalGW"></sequenceFlow>
+    <exclusiveGateway id="deleteApprovalGW"></exclusiveGateway>
     <sequenceFlow id="deleteApprovalGW2Delete" sourceRef="deleteApprovalGW" targetRef="delete">
-      <conditionExpression xsi:type="tFormalExpression">${approve}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approve}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="deleteApprovalGW2Reject" sourceRef="deleteApprovalGW" targetRef="rejectDelete">
-      <conditionExpression xsi:type="tFormalExpression">${!approve}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approve}]]></conditionExpression>
     </sequenceFlow>
-    
-    <scriptTask id="rejectDelete" name="Reject delete" scriptFormat="groovy">
+    <scriptTask id="rejectDelete" name="Reject delete" scriptFormat="groovy" activiti:autoStoreVariables="true">
       <script>
         execution.setVariable("propByResource", null);
       </script>
     </scriptTask>
-        
-    <sequenceFlow id="flow14ter" sourceRef="rejectDelete" targetRef="active"/>
-    
-    <!-- Delete an user (created, active or suspended) -->
-    <serviceTask id="delete" name="Delete" activiti:expression="#{delete.execute(execution.processInstanceId)}"/>
-
-    <sequenceFlow id="flow99" sourceRef="delete" targetRef="theEnd"/>
-
-    <endEvent id="theEnd"/>
-      
+    <sequenceFlow id="flow14ter" sourceRef="rejectDelete" targetRef="active"></sequenceFlow>
+    <serviceTask id="delete" name="Delete" activiti:expression="#{delete.execute(execution.processInstanceId)}"></serviceTask>
+    <sequenceFlow id="flow99" sourceRef="delete" targetRef="theEnd"></sequenceFlow>
+    <endEvent id="theEnd"></endEvent>
   </process>
-  
+  <bpmndi:BPMNDiagram id="BPMNDiagram_userWorkflow">
+    <bpmndi:BPMNPlane bpmnElement="userWorkflow" id="BPMNPlane_userWorkflow">
+      <bpmndi:BPMNShape bpmnElement="update" id="BPMNShape_update">
+        <omgdc:Bounds height="60.0" width="100.0" x="1790.0" y="580.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="suspend" id="BPMNShape_suspend">
+        <omgdc:Bounds height="60.0" width="100.0" x="1490.0" y="100.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reject" id="BPMNShape_reject">
+        <omgdc:Bounds height="60.0" width="100.0" x="560.0" y="659.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="rejectedGw" id="BPMNShape_rejectedGw">
+        <omgdc:Bounds height="40.0" width="40.0" x="890.0" y="775.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="activeGw" id="BPMNShape_activeGw">
+        <omgdc:Bounds height="40.0" width="40.0" x="1400.0" y="520.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="updateApprovalGW" id="BPMNShape_updateApprovalGW">
+        <omgdc:Bounds height="40.0" width="40.0" x="1670.0" y="620.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="theStart" id="BPMNShape_theStart">
+        <omgdc:Bounds height="35.0" width="35.0" x="0.0" y="512.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="createApprovalGW" id="BPMNShape_createApprovalGW">
+        <omgdc:Bounds height="40.0" width="40.0" x="470.0" y="556.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="activate" id="BPMNShape_activate">
+        <omgdc:Bounds height="60.0" width="100.0" x="710.0" y="610.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="created" id="BPMNShape_created">
+        <omgdc:Bounds height="60.0" width="100.0" x="852.0" y="213.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="rejected" id="BPMNShape_rejected">
+        <omgdc:Bounds height="60.0" width="100.0" x="710.0" y="770.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="delete" id="BPMNShape_delete">
+        <omgdc:Bounds height="60.0" width="100.0" x="1940.0" y="438.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="rejectDelete" id="BPMNShape_rejectDelete">
+        <omgdc:Bounds height="60.0" width="100.0" x="1790.0" y="320.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="createGW" id="BPMNShape_createGW">
+        <omgdc:Bounds height="40.0" width="40.0" x="230.0" y="506.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="deleteApproval" id="BPMNShape_deleteApproval">
+        <omgdc:Bounds height="60.0" width="100.0" x="1490.0" y="360.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="createApproval" id="BPMNShape_createApproval">
+        <omgdc:Bounds height="60.0" width="100.0" x="320.0" y="560.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="deleteApprovalGW" id="BPMNShape_deleteApprovalGW">
+        <omgdc:Bounds height="40.0" width="40.0" x="1670.0" y="380.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="removeToken" id="BPMNShape_removeToken">
+        <omgdc:Bounds height="60.0" width="100.0" x="1092.0" y="248.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="updateApproval" id="BPMNShape_updateApproval">
+        <omgdc:Bounds height="60.0" width="100.0" x="1490.0" y="620.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="enableGW" id="BPMNShape_enableGW">
+        <omgdc:Bounds height="40.0" width="40.0" x="590.0" y="429.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="generateToken" id="BPMNShape_generateToken">
+        <omgdc:Bounds height="60.0" width="100.0" x="702.0" y="188.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="rejectUpdate" id="BPMNShape_rejectUpdate">
+        <omgdc:Bounds height="60.0" width="100.0" x="1790.0" y="840.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="create" id="BPMNShape_create">
+        <omgdc:Bounds height="60.0" width="100.0" x="80.0" y="497.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reactivate" id="BPMNShape_reactivate">
+        <omgdc:Bounds height="60.0" width="100.0" x="1940.0" y="110.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="suspended" id="BPMNShape_suspended">
+        <omgdc:Bounds height="60.0" width="100.0" x="1640.0" y="120.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="suspendedGw" id="BPMNShape_suspendedGw">
+        <omgdc:Bounds height="40.0" width="40.0" x="1820.0" y="180.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="theEnd" id="BPMNShape_theEnd">
+        <omgdc:Bounds height="35.0" width="35.0" x="2080.0" y="451.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="active" id="BPMNShape_active">
+        <omgdc:Bounds height="60.0" width="100.0" x="1030.0" y="511.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="optinGW" id="BPMNShape_optinGW">
+        <omgdc:Bounds height="40.0" width="40.0" x="1002.0" y="240.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="1940.0" y="140.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1928.0" y="127.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1378.0" y="40.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1080.0" y="511.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="active2DeleteApproval" id="BPMNEdge_active2DeleteApproval">
+        <omgdi:waypoint x="1440.0" y="540.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1454.0" y="540.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1454.0" y="390.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1490.0" y="390.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="1740.0" y="150.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1752.0" y="150.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1752.0" y="200.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1820.0" y="200.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="1590.0" y="130.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1602.0" y="130.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1602.0" y="150.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1640.0" y="150.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14bis" id="BPMNEdge_flow14bis">
+        <omgdi:waypoint x="1590.0" y="390.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1602.0" y="390.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1602.0" y="400.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1670.0" y="400.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="createApproval2Reject" id="BPMNEdge_createApproval2Reject">
+        <omgdi:waypoint x="510.0" y="576.0"></omgdi:waypoint>
+        <omgdi:waypoint x="522.0" y="576.0"></omgdi:waypoint>
+        <omgdi:waypoint x="522.0" y="689.0"></omgdi:waypoint>
+        <omgdi:waypoint x="560.0" y="689.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="deleteApprovalGW2Delete" id="BPMNEdge_deleteApprovalGW2Delete">
+        <omgdi:waypoint x="1710.0" y="400.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1752.0" y="400.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1752.0" y="468.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1940.0" y="468.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="active2Delete" id="BPMNEdge_active2Delete">
+        <omgdi:waypoint x="1440.0" y="540.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1452.0" y="540.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1452.0" y="610.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1990.0" y="498.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="updateApprovalGW2Update" id="BPMNEdge_updateApprovalGW2Update">
+        <omgdi:waypoint x="1710.0" y="640.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1752.0" y="640.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1752.0" y="610.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1790.0" y="610.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="active2UpdateApproval" id="BPMNEdge_active2UpdateApproval">
+        <omgdi:waypoint x="1440.0" y="540.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1454.0" y="540.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1454.0" y="650.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1490.0" y="650.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="rejected2Delete" id="BPMNEdge_rejected2Delete">
+        <omgdi:waypoint x="930.0" y="795.0"></omgdi:waypoint>
+        <omgdi:waypoint x="972.0" y="795.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1470.0" y="911.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1989.0" y="911.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1990.0" y="498.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="updateApprovalGW2Reject" id="BPMNEdge_updateApprovalGW2Reject">
+        <omgdi:waypoint x="1710.0" y="640.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1752.0" y="640.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1752.0" y="870.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1790.0" y="870.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="createApprovalGW2Active" id="BPMNEdge_createApprovalGW2Active">
+        <omgdi:waypoint x="630.0" y="449.0"></omgdi:waypoint>
+        <omgdi:waypoint x="674.0" y="449.0"></omgdi:waypoint>
+        <omgdi:waypoint x="674.0" y="540.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1030.0" y="541.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8ter" id="BPMNEdge_flow8ter">
+        <omgdi:waypoint x="1790.0" y="870.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1778.0" y="882.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1225.0" y="787.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1080.0" y="726.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1080.0" y="571.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="suspended2Reactivate" id="BPMNEdge_suspended2Reactivate">
+        <omgdi:waypoint x="1860.0" y="200.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1902.0" y="200.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1902.0" y="140.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1940.0" y="140.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="660.0" y="689.0"></omgdi:waypoint>
+        <omgdi:waypoint x="672.0" y="689.0"></omgdi:waypoint>
+        <omgdi:waypoint x="672.0" y="800.0"></omgdi:waypoint>
+        <omgdi:waypoint x="710.0" y="800.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="810.0" y="800.0"></omgdi:waypoint>
+        <omgdi:waypoint x="822.0" y="787.0"></omgdi:waypoint>
+        <omgdi:waypoint x="822.0" y="795.0"></omgdi:waypoint>
+        <omgdi:waypoint x="890.0" y="795.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="createApprovalGW2EnableGW" id="BPMNEdge_createApprovalGW2EnableGW">
+        <omgdi:waypoint x="510.0" y="576.0"></omgdi:waypoint>
+        <omgdi:waypoint x="522.0" y="576.0"></omgdi:waypoint>
+        <omgdi:waypoint x="522.0" y="449.0"></omgdi:waypoint>
+        <omgdi:waypoint x="590.0" y="449.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="active2Update" id="BPMNEdge_active2Update">
+        <omgdi:waypoint x="1440.0" y="540.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1456.0" y="540.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1456.0" y="610.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1790.0" y="610.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="create2Activate" id="BPMNEdge_create2Activate">
+        <omgdi:waypoint x="270.0" y="526.0"></omgdi:waypoint>
+        <omgdi:waypoint x="282.0" y="526.0"></omgdi:waypoint>
+        <omgdi:waypoint x="282.0" y="449.0"></omgdi:waypoint>
+        <omgdi:waypoint x="590.0" y="449.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="active2Suspend" id="BPMNEdge_active2Suspend">
+        <omgdi:waypoint x="1440.0" y="540.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1452.0" y="540.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1452.0" y="130.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1490.0" y="130.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="suspended2Delete" id="BPMNEdge_suspended2Delete">
+        <omgdi:waypoint x="1860.0" y="200.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1902.0" y="200.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1980.0" y="388.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1990.0" y="438.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="created2Activate" id="BPMNEdge_created2Activate">
+        <omgdi:waypoint x="1042.0" y="260.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1054.0" y="260.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1054.0" y="278.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1092.0" y="278.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="createAsAnonymous2Approval" id="BPMNEdge_createAsAnonymous2Approval">
+        <omgdi:waypoint x="270.0" y="526.0"></omgdi:waypoint>
+        <omgdi:waypoint x="282.0" y="526.0"></omgdi:waypoint>
+        <omgdi:waypoint x="282.0" y="590.0"></omgdi:waypoint>
+        <omgdi:waypoint x="320.0" y="590.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="420.0" y="590.0"></omgdi:waypoint>
+        <omgdi:waypoint x="432.0" y="590.0"></omgdi:waypoint>
+        <omgdi:waypoint x="432.0" y="576.0"></omgdi:waypoint>
+        <omgdi:waypoint x="470.0" y="576.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="180.0" y="527.0"></omgdi:waypoint>
+        <omgdi:waypoint x="192.0" y="527.0"></omgdi:waypoint>
+        <omgdi:waypoint x="192.0" y="526.0"></omgdi:waypoint>
+        <omgdi:waypoint x="230.0" y="526.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="802.0" y="218.0"></omgdi:waypoint>
+        <omgdi:waypoint x="814.0" y="218.0"></omgdi:waypoint>
+        <omgdi:waypoint x="814.0" y="243.0"></omgdi:waypoint>
+        <omgdi:waypoint x="852.0" y="243.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="rejected2Rejected" id="BPMNEdge_rejected2Rejected">
+        <omgdi:waypoint x="890.0" y="795.0"></omgdi:waypoint>
+        <omgdi:waypoint x="848.0" y="795.0"></omgdi:waypoint>
+        <omgdi:waypoint x="848.0" y="800.0"></omgdi:waypoint>
+        <omgdi:waypoint x="810.0" y="800.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="createApprovalGW2Suspended" id="BPMNEdge_createApprovalGW2Suspended">
+        <omgdi:waypoint x="630.0" y="449.0"></omgdi:waypoint>
+        <omgdi:waypoint x="672.0" y="449.0"></omgdi:waypoint>
+        <omgdi:waypoint x="672.0" y="130.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1490.0" y="130.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="810.0" y="640.0"></omgdi:waypoint>
+        <omgdi:waypoint x="822.0" y="640.0"></omgdi:waypoint>
+        <omgdi:waypoint x="959.0" y="640.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1080.0" y="571.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="createApprovalGW2OptIn" id="BPMNEdge_createApprovalGW2OptIn">
+        <omgdi:waypoint x="630.0" y="449.0"></omgdi:waypoint>
+        <omgdi:waypoint x="674.0" y="449.0"></omgdi:waypoint>
+        <omgdi:waypoint x="700.0" y="449.0"></omgdi:waypoint>
+        <omgdi:waypoint x="752.0" y="248.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14ter" id="BPMNEdge_flow14ter">
+        <omgdi:waypoint x="1790.0" y="350.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1778.0" y="337.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1362.0" y="306.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1080.0" y="511.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="35.0" y="529.0"></omgdi:waypoint>
+        <omgdi:waypoint x="80.0" y="527.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="created2Created" id="BPMNEdge_created2Created">
+        <omgdi:waypoint x="1002.0" y="260.0"></omgdi:waypoint>
+        <omgdi:waypoint x="990.0" y="260.0"></omgdi:waypoint>
+        <omgdi:waypoint x="990.0" y="243.0"></omgdi:waypoint>
+        <omgdi:waypoint x="952.0" y="243.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="createApprovalGW2Activate" id="BPMNEdge_createApprovalGW2Activate">
+        <omgdi:waypoint x="630.0" y="449.0"></omgdi:waypoint>
+        <omgdi:waypoint x="672.0" y="449.0"></omgdi:waypoint>
+        <omgdi:waypoint x="672.0" y="640.0"></omgdi:waypoint>
+        <omgdi:waypoint x="710.0" y="640.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="1142.0" y="308.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1080.0" y="511.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="952.0" y="243.0"></omgdi:waypoint>
+        <omgdi:waypoint x="964.0" y="255.0"></omgdi:waypoint>
+        <omgdi:waypoint x="964.0" y="260.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1002.0" y="260.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8bis" id="BPMNEdge_flow8bis">
+        <omgdi:waypoint x="1590.0" y="650.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1602.0" y="650.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1602.0" y="640.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1670.0" y="640.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="1840.0" y="640.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1797.0" y="775.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1465.0" y="775.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1080.0" y="571.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="deleteApprovalGW2Reject" id="BPMNEdge_deleteApprovalGW2Reject">
+        <omgdi:waypoint x="1710.0" y="400.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1752.0" y="400.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1752.0" y="350.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1790.0" y="350.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="1130.0" y="541.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1400.0" y="540.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow99" id="BPMNEdge_flow99">
+        <omgdi:waypoint x="2040.0" y="468.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2080.0" y="468.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
 </definitions>

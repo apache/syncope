@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.workflow;
 
+import java.io.OutputStream;
 import java.util.List;
 import org.apache.syncope.common.mod.AbstractAttributableMod;
-import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 
@@ -36,21 +36,30 @@ public interface WorkflowAdapter {
     Class<? extends WorkflowInstanceLoader> getLoaderClass();
 
     /**
-     * Get workflow definition.
+     * Export workflow definition.
      *
-     * @return workflow definition as XML
+     * @param format export format
+     * @param os export stream
      * @throws WorkflowException workflow exception
      */
-    WorkflowDefinitionTO getDefinition() throws WorkflowException;
+    void exportDefinition(WorkflowDefinitionFormat format, OutputStream os) throws WorkflowException;
+
+    /**
+     * Export workflow graphical representation (if available).
+     *
+     * @param os export stream
+     * @throws WorkflowException workflow exception
+     */
+    void exportDiagram(OutputStream os) throws WorkflowException;
 
     /**
      * Update workflow definition.
      *
-     * @param definition definition as XML
-     * @throws NotFoundException definition not found exception
+     * @param format import format
+     * @param definition definition
      * @throws WorkflowException workflow exception
      */
-    void updateDefinition(WorkflowDefinitionTO definition) throws NotFoundException, WorkflowException;
+    void importDefinition(WorkflowDefinitionFormat format, String definition) throws WorkflowException;
 
     /**
      * Get list of defined tasks in workflow.

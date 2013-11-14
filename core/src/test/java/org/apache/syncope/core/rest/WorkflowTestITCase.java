@@ -20,9 +20,13 @@ package org.apache.syncope.core.rest;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.io.InputStream;
+import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.types.WorkflowTasks;
-import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.junit.Assume;
@@ -30,40 +34,47 @@ import org.junit.Test;
 
 public class WorkflowTestITCase extends AbstractTest {
 
-    @Test
-    public void getUserDefinition() {
-        WorkflowDefinitionTO definition = workflowService.getDefinition(AttributableType.USER);
+    private void exportDefinition(final AttributableType type) throws IOException {
+        Response response = workflowService.exportDefinition(type);
+        assertTrue(response.getMediaType().toString().
+                startsWith(clientFactory.getContentType().getMediaType().toString()));
+        assertTrue(response.getEntity() instanceof InputStream);
+        String definition = IOUtils.toString((InputStream) response.getEntity());
         assertNotNull(definition);
+        assertFalse(definition.isEmpty());
     }
 
     @Test
-    public void getRoleDefinition() {
-        WorkflowDefinitionTO definition = workflowService.getDefinition(AttributableType.ROLE);
-        assertNotNull(definition);
+    public void exportUserDefinition() throws IOException {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+        exportDefinition(AttributableType.USER);
     }
 
     @Test
-    public void updateUserDefinition() {
+    public void getRoleDefinition() throws IOException {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForRoles());
+        exportDefinition(AttributableType.ROLE);
+    }
+
+    private void importDefinition(final AttributableType type) throws IOException {
+        Response response = workflowService.exportDefinition(type);
+        String definition = IOUtils.toString((InputStream) response.getEntity());
+
+        workflowService.importDefinition(type, definition);
+    }
+
+    @Test
+    public void updateUserDefinition() throws IOException {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
 
-        WorkflowDefinitionTO definition = workflowService.getDefinition(AttributableType.USER);
-        assertNotNull(definition);
-
-        workflowService.updateDefinition(AttributableType.USER, definition);
-        WorkflowDefinitionTO newDefinition = workflowService.getDefinition(AttributableType.USER);
-        assertNotNull(newDefinition);
+        importDefinition(AttributableType.USER);
     }
 
     @Test
-    public void updateRoleDefinition() {
+    public void updateRoleDefinition() throws IOException {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForRoles());
 
-        WorkflowDefinitionTO definition = workflowService.getDefinition(AttributableType.ROLE);
-        assertNotNull(definition);
-
-        workflowService.updateDefinition(AttributableType.ROLE, definition);
-        WorkflowDefinitionTO newDefinition = workflowService.getDefinition(AttributableType.ROLE);
-        assertNotNull(newDefinition);
+        importDefinition(AttributableType.ROLE);
     }
 
     @Test

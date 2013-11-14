@@ -26,7 +26,6 @@ import java.util.Locale;
 import java.util.Map;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.client.SyncopeClientFactoryBean;
 import org.apache.wicket.Session;
@@ -73,7 +72,8 @@ public class SyncopeSession extends WebSession {
         final ApplicationContext applicationContext = WebApplicationContextUtils.
                 getWebApplicationContext(WebApplication.get().getServletContext());
 
-        clientFactory = applicationContext.getBean(SyncopeClientFactoryBean.class);
+        clientFactory = applicationContext.getBean(SyncopeClientFactoryBean.class).
+                setContentType(SyncopeClientFactoryBean.ContentType.JSON);
         anonymousUser = applicationContext.getBean("anonymousUser", String.class);
         anonymousKey = applicationContext.getBean("anonymousKey", String.class);
     }
@@ -89,8 +89,18 @@ public class SyncopeSession extends WebSession {
         return getService(service, this.username, this.password);
     }
 
-    public <T> T getAnonymousService(final Class<T> service) {
-        return getService(service, this.anonymousUser, this.anonymousKey);
+    public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
+        SyncopeClientFactoryBean.ContentType preType = clientFactory.getContentType();
+        
+        clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
+        T service = clientFactory.create(username, password).getService(serviceClass);
+        clientFactory.setContentType(preType);
+
+        return service;
+    }
+
+    public <T> T getAnonymousService(final Class<T> serviceClass) {
+        return getService(serviceClass, this.anonymousUser, this.anonymousKey);
     }
 
     public <T> T getService(final Class<T> serviceClass, final String username, final String password) {
@@ -101,10 +111,6 @@ public class SyncopeSession extends WebSession {
 
         if (!clients.containsKey(clientKey)) {
             clients.put(clientKey, clientFactory.create(username, password));
-
-            // force JSON
-            WebClient.client(clients.get(clientKey).getService(serviceClass)).
-                    accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON);
         }
 
         return clients.get(clientKey).getService(serviceClass);

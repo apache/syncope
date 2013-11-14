@@ -18,9 +18,15 @@
  */
 package org.apache.syncope.core.workflow.user.activiti;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import org.activiti.editor.constants.ModelDataJsonConstants;
 import org.activiti.engine.RepositoryService;
+import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.apache.commons.io.IOUtils;
@@ -37,7 +43,10 @@ public class ActivitiWorkflowLoader implements WorkflowInstanceLoader {
     private RepositoryService repositoryService;
 
     @Autowired
-    private SpringProcessEngineConfiguration springProcessEngineConfiguration;
+    private SpringProcessEngineConfiguration conf;
+
+    @Autowired
+    private ActivitiImportUtils activitiJSONUtils;
 
     @Override
     public String getTablePrefix() {
@@ -47,8 +56,8 @@ public class ActivitiWorkflowLoader implements WorkflowInstanceLoader {
     @Override
     public void init() {
         // jump to the next ID block
-        for (int i = 0; i < springProcessEngineConfiguration.getIdBlockSize(); i++) {
-            springProcessEngineConfiguration.getIdGenerator().getNextId();
+        for (int i = 0; i < conf.getIdBlockSize(); i++) {
+            conf.getIdGenerator().getNextId();
         }
     }
 
@@ -60,15 +69,30 @@ public class ActivitiWorkflowLoader implements WorkflowInstanceLoader {
 
         // Only loads process definition from file if not found in repository
         if (processes.isEmpty()) {
-            InputStream wfDefinitionStream = null;
+            InputStream wfIn = null;
             try {
-                wfDefinitionStream =
-                        getClass().getResourceAsStream("/" + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE);
+                wfIn = getClass().getResourceAsStream("/" + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE);
+                repositoryService.createDeployment().addInputStream(ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE,
+                        new ByteArrayInputStream(IOUtils.toByteArray(wfIn))).deploy();
 
-                repositoryService.createDeployment().addInputStream(
-                        ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, wfDefinitionStream).deploy();
+                ProcessDefinition procDef = repositoryService.createProcessDefinitionQuery().processDefinitionKey(
+                        ActivitiUserWorkflowAdapter.WF_PROCESS_ID).latestVersion().singleResult();
+
+                Model model = repositoryService.newModel();
+                ObjectNode modelObjectNode = new ObjectMapper().createObjectNode();
+                modelObjectNode.put(ModelDataJsonConstants.MODEL_NAME, procDef.getName());
+                modelObjectNode.put(ModelDataJsonConstants.MODEL_REVISION, 1);
+                modelObjectNode.put(ModelDataJsonConstants.MODEL_DESCRIPTION, procDef.getDescription());
+                model.setMetaInfo(modelObjectNode.toString());
+                model.setName(procDef.getName());
+                model.setDeploymentId(procDef.getDeploymentId());
+                activitiJSONUtils.fromJSON(procDef, model);
+
+                LOG.debug("Activiti Workflow definition loaded");
+            } catch (IOException e) {
+                LOG.error("While loading " + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
             } finally {
-                IOUtils.closeQuietly(wfDefinitionStream);;
+                IOUtils.closeQuietly(wfIn);
             }
         }
     }

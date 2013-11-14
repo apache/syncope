@@ -18,19 +18,20 @@
  */
 package org.apache.syncope.core.workflow.role;
 
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
+import org.apache.syncope.core.workflow.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,18 +80,23 @@ public class NoOpRoleWorkflowAdapter extends AbstractRoleWorkflowAdapter {
     public WorkflowResult<Long> execute(RoleTO roleTO, String taskId) throws UnauthorizedRoleException,
             NotFoundException, WorkflowException {
 
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
     @Override
-    public WorkflowDefinitionTO getDefinition()
+    public void exportDefinition(final WorkflowDefinitionFormat format, final OutputStream os)
             throws WorkflowException {
 
-        return new WorkflowDefinitionTO();
+        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
     @Override
-    public void updateDefinition(final WorkflowDefinitionTO definition)
+    public void exportDiagram(final OutputStream os) throws WorkflowException {
+        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
+    }
+
+    @Override
+    public void importDefinition(final WorkflowDefinitionFormat format, final String definition)
             throws NotFoundException, WorkflowException {
 
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));

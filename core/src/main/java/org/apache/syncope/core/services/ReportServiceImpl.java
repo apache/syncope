@@ -103,7 +103,7 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
         String disposition = "attachment; filename=" + reportExec.getReport().getName() + "." + format.name().
                 toLowerCase();
         return Response.ok(sout).
-                header(RESTHeaders.CONTENT_DISPOSITION.toString(), disposition).
+                header(RESTHeaders.CONTENT_DISPOSITION, disposition).
                 build();
     }
 

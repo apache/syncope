@@ -21,44 +21,48 @@ package org.apache.syncope.common.types;
 /**
  * Custom HTTP headers in use with REST services.
  */
-public enum RESTHeaders {
+public final class RESTHeaders {
 
     /**
      * UserId option key.
      */
-    USER_ID("Syncope.UserId"),
+    public static final String USER_ID = "Syncope.UserId";
+
     /**
      * Username option key.
      */
-    USERNAME("Syncope.Username"),
+    public static final String USERNAME = "Syncope.Username";
+
     /**
      * Option key stating if user request create is allowed or not.
      */
-    SELFREGISTRATION_ALLOWED("Syncope.SelfRegistration.Allowed"),
+    public static final String SELFREGISTRATION_ALLOWED = "Syncope.SelfRegistration.Allowed";
+
     /**
      * HTTP header key for object ID assigned to an object after its creation.
      */
-    RESOURCE_ID("Syncope.Id"),
+    public static final String RESOURCE_ID = "Syncope.Id";
+
     /**
      * Declares the type of exception being raised.
      */
-    EXCEPTION_TYPE("Syncope.ExceptionType"),
+    public static final String EXCEPTION_TYPE = "Syncope.ExceptionType";
+
     /**
      * Not (yet) defined in <tt>javax.ws.rs.core.HttpHeaders</tt>.
      *
      * @see javax.ws.rs.core.HttpHeaders
      */
-    CONTENT_DISPOSITION("Content-Disposition");
+    public static final String CONTENT_DISPOSITION = "Content-Disposition";
 
-    private final String name;
+    /**
+     * Mediatype for PNG images, not defined in <tt>javax.ws.rs.core.MediaType</tt>.
+     *
+     * @see javax.ws.rs.core.MediaType
+     */
+    public static final String MEDIATYPE_IMAGE_PNG = "image/png";
 
-    private RESTHeaders(final String name) {
-        this.name = name;
+    private RESTHeaders() {
+        // Empty constructor for static utility class.
     }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-
 }
