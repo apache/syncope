@@ -47,8 +47,8 @@ under the License.
         $("#membership").tabs();
       });
 
-      /** Add rollover effect to tables supporting Ajax events (live)*/
-      $('table.ui-widget.ui-widget-content.table-hover tbody tr').live('mouseover mouseout',
+      /** Add rollover effect to tables supporting Ajax events */
+      $(document).on('mouseover mouseout', 'table.ui-widget.ui-widget-content.table-hover tbody tr',
               function(event) {
                 if (event.type == 'mouseover') {
                   $(this).addClass('selectedRow');
