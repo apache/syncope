@@ -2281,13 +2281,13 @@ public class UserTestITCase extends AbstractTest {
         //modify virtual attribute
         userMod.addVirtualAttributeToBeRemoved("virtualdata");
         userMod.addVirtualAttributeToBeUpdated(attributeMod("virtualdata", "test@testoneone.com"));
-        
+
         // check Syncope change password
         PropagationRequestTO pwdPropRequest = new PropagationRequestTO();
         pwdPropRequest.setOnSyncope(true);
         pwdPropRequest.addResource("ws-target-resource-2");
         userMod.setPwdPropRequest(pwdPropRequest);
-        
+
         toBeUpdated = userService.update(userMod.getId(), userMod);
         assertNotNull(toBeUpdated);
         assertEquals("test@testoneone.com", toBeUpdated.getVirtualAttributes().get(0).getValues().get(0));
@@ -2380,6 +2380,18 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
         assertTrue(userTO.getPropagationStatusTOs().get(0).getFailureReason().
                 startsWith("Not attempted because there are mandatory attributes without value(s): [__PASSWORD__]"));
+    }
+
+    @Test
+    public void issueSYNCOPE436() {
+        UserTO userTO = getUniqueSampleTO("syncope436@syncope.apache.org");
+        userTO.getMemberships().clear();
+        userTO.getResources().clear();
+        userTO.addResource(RESOURCE_NAME_LDAP);
+        userTO.addVirtualAttribute(attributeTO("virtualReadOnly", "readOnly"));
+        userTO = createUser(userTO);
+        //Finding no values because the virtual attribute is readonly 
+        assertTrue(userTO.getVirtualAttributeMap().get("virtualReadOnly").getValues().isEmpty());
     }
 
     private boolean getBooleanAttribute(final ConnObjectTO connObjectTO, final String attrName) {

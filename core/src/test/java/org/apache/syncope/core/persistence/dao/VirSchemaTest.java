@@ -43,7 +43,7 @@ public class VirSchemaTest extends AbstractDAOTest {
     @Test
     public void findAll() {
         List<UVirSchema> list = virSchemaDAO.findAll(UVirSchema.class);
-        assertEquals(1, list.size());
+        assertEquals(2, list.size());
     }
 
     @Test

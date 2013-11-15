@@ -26,8 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.validation.ValidationException;
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.mod.AttributeMod;
@@ -155,13 +153,9 @@ public abstract class AbstractAttributableDataBinder {
 
             if (virtualSchema == null) {
                 LOG.debug("Ignoring invalid virtual schema {}", virSchemaName);
-            } else if (virtualSchema.isReadonly()) {
-                virtualSchema = null;
-
-                LOG.debug("Ignoring readonly virtual schema {}", virtualSchema);
             }
         }
-
+        
         return virtualSchema;
     }
 

@@ -32,6 +32,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.AttributeSchemaType;
+import static org.apache.syncope.common.types.IntMappingType.RoleVirtualSchema;
+import static org.apache.syncope.common.types.IntMappingType.UserVirtualSchema;
 import org.apache.syncope.core.connid.PasswordGenerator;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
@@ -40,6 +42,7 @@ import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
+import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
 import org.apache.syncope.core.persistence.beans.membership.MSchema;
@@ -55,6 +58,7 @@ import org.apache.syncope.core.persistence.beans.user.UDerSchema;
 import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
+import org.apache.syncope.core.persistence.dao.VirSchemaDAO;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -163,17 +167,27 @@ public final class MappingUtil {
 
         AbstractSchema schema = null;
         AttributeSchemaType schemaType;
+        Map.Entry<String, Attribute> result = null;
+        final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
         switch (mapItem.getIntMappingType()) {
             case UserSchema:
             case RoleSchema:
             case MembershipSchema:
-                final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
                 final SchemaDAO schemaDAO = context.getBean(SchemaDAO.class);
                 schema = schemaDAO.find(mapItem.getIntAttrName(),
                         MappingUtil.getIntMappingTypeClass(mapItem.getIntMappingType()));
                 schemaType = schema == null ? AttributeSchemaType.String : schema.getType();
                 break;
-
+            case UserVirtualSchema:
+            case RoleVirtualSchema:
+                final VirSchemaDAO virSchemaDAO = context.getBean(VirSchemaDAO.class);
+                final AbstractVirSchema virSchema = virSchemaDAO.find(mapItem.getIntAttrName(),
+                        MappingUtil.getIntMappingTypeClass(mapItem.getIntMappingType()));
+                if (virSchema.isReadonly()) {
+                    return result;
+                }
+                schemaType = AttributeSchemaType.String;
+                break;
             default:
                 schemaType = AttributeSchemaType.String;
         }
@@ -199,8 +213,6 @@ public final class MappingUtil {
                 objValues.add(value.getValueAsString());
             }
         }
-
-        Map.Entry<String, Attribute> result;
 
         if (mapItem.isAccountid()) {
             result = new AbstractMap.SimpleEntry<String, Attribute>(objValues.iterator().next().toString(), null);
