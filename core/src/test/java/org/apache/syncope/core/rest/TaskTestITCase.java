@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.UserMod;
@@ -57,6 +58,7 @@ import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.common.validation.SyncopeClientException;
+import static org.apache.syncope.core.rest.AbstractTest.attributeTO;
 import org.apache.syncope.core.sync.TestSyncActions;
 import org.apache.syncope.core.sync.TestSyncRule;
 import org.apache.syncope.core.sync.impl.SyncJob;
@@ -391,21 +393,28 @@ public class TaskTestITCase extends AbstractTest {
         // Update sync task
         SyncTaskTO task = taskService.read(11L);
         assertNotNull(task);
+        
+        //  add role template
+        final UserTO userTemplate = task.getUserTemplate();
+        userTemplate.getResources().add("resource-ldap");
+        userTemplate.getVirAttrs().add(attributeTO("virtualReadOnly", ""));
+
+        task.setUserTemplate(userTemplate);
 
         //  add user template
-        RoleTO template = new RoleTO();
-        template.setParent(8L);
-        template.getRAttrTemplates().add("show");
-        template.getAttrs().add(attributeTO("show", "'true'"));
+        RoleTO roleTemplate = new RoleTO();
+        roleTemplate.setParent(8L);
+        roleTemplate.getRAttrTemplates().add("show");
+        roleTemplate.getAttrs().add(attributeTO("show", "'true'"));
 
-        task.setRoleTemplate(template);
+        task.setRoleTemplate(roleTemplate);
 
         taskService.update(task.getId(), task);
         SyncTaskTO actual = taskService.read(task.getId());
         assertNotNull(actual);
         assertEquals(task.getId(), actual.getId());
-        assertEquals(template, actual.getRoleTemplate());
-        assertEquals(new UserTO(), actual.getUserTemplate());
+        assertEquals(roleTemplate, actual.getRoleTemplate());
+        assertEquals(userTemplate, actual.getUserTemplate());
 
         TaskExecTO execution = execSyncTask(actual.getId(), 20, false);
 
@@ -921,5 +930,36 @@ public class TaskTestITCase extends AbstractTest {
         taskService.bulk(bulkAction);
 
         assertFalse(taskService.list(TaskType.PROPAGATION).containsAll(after));
+    }
+
+    @Test
+    public void issueSYNCOPE436() throws InvalidSearchConditionException {
+
+        SyncTaskTO task = taskService.read(11L);
+        assertNotNull(task);
+
+        final UserTO template = task.getUserTemplate();
+        template.getResources().add("resource-ldap");
+        template.getVirAttrs().add(attributeTO("virtualReadOnly", ""));
+        task.setUserTemplate(template);
+
+        taskService.update(task.getId(), task);
+        TaskExecTO execution = execSyncTask(11L, 50, false);
+
+        final String status = execution.getStatus();
+        assertNotNull(status);
+        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+
+        final AttributableCond usernameLeafCond = new AttributableCond(AttributeCond.Type.EQ);
+        usernameLeafCond.setSchema("username");
+        usernameLeafCond.setExpression("syncFromLDAP");
+
+        final List<UserTO> matchingUsers = userService.search(NodeCond.getLeafCond(usernameLeafCond));
+        assertNotNull(matchingUsers);
+        assertEquals(1, matchingUsers.size());
+
+        final UserTO syncUser = matchingUsers.iterator().next();
+        final AttributeTO virAttributeTO = syncUser.getVirAttrMap().get("virtualReadOnly");
+        assertEquals("syncFromLDAP", virAttributeTO.getValues().get(0));
     }
 }

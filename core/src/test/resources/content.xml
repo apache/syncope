@@ -282,6 +282,8 @@ under the License.
     
   <UVirAttr id="1000" virSchema_name="virtualdata" owner_id="3"/>
 
+  <UVirSchema name="virtualReadOnly" READONLY="1"/>
+  
   <UDerAttr id="100" derSchema_name="cn" owner_id="3"/>
   <UDerAttr id="101" derSchema_name="cn" owner_id="1"/>
 
@@ -747,6 +749,9 @@ under the License.
   <UMappingItem id="318" accountid="0" password="0" mapping_id="11"
                 extAttrName="mail" intAttrName="userId" intMappingType="UserSchema"
                 mandatoryCondition="false" purpose="BOTH"/>
+  <UMappingItem id="319" accountid="0" password="0" mapping_id="11"
+                  extAttrName="givenname" intAttrName="virtualReadOnly" intMappingType="UserVirtualSchema"
+                  mandatoryCondition="false" purpose="BOTH"/>
   <RMapping id="1" resource_name="resource-ldap"
             accountlink="&apos;cn=&apos; + name + &apos;,ou=groups,o=isp&apos;"/>
   <RMappingItem id="1" accountid="1" password="0" mapping_id="1"

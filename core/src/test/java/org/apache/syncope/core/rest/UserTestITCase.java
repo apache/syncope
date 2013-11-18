@@ -73,8 +73,10 @@ import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
+import static org.apache.syncope.core.rest.AbstractTest.attributeTO;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
+import static org.junit.Assert.assertTrue;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -2284,6 +2286,18 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
         assertTrue(userTO.getPropagationStatusTOs().get(0).getFailureReason().
                 startsWith("Not attempted because there are mandatory attributes without value(s): [__PASSWORD__]"));
+    }
+    
+    @Test
+    public void issueSYNCOPE436() {
+        UserTO userTO = getUniqueSampleTO("syncope436@syncope.apache.org");
+        userTO.getMemberships().clear();
+        userTO.getResources().clear();
+        userTO.getResources().add(RESOURCE_NAME_LDAP);
+        userTO.getVirAttrs().add(attributeTO("virtualReadOnly", "readOnly"));
+        userTO = createUser(userTO);
+        //Finding no values because the virtual attribute is readonly 
+        assertTrue(userTO.getVirAttrMap().get("virtualReadOnly").getValues().isEmpty());
     }
 
 }

@@ -189,10 +189,6 @@ public abstract class AbstractAttributableDataBinder {
 
             if (virtualSchema == null) {
                 LOG.debug("Ignoring invalid virtual schema {}", virSchemaName);
-            } else if (virtualSchema.isReadonly()) {
-                virtualSchema = null;
-
-                LOG.debug("Ignoring readonly virtual schema {}", virtualSchema);
             }
         }
 

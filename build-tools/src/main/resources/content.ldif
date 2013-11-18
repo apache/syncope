@@ -43,3 +43,4 @@ mail: syncFromLDAP@syncope.apache.org
 sn: Surname
 uid: syncFromLDAP
 userpassword:: cGFzc3dvcmQxMjM=
+givenname: syncFromLDAP
