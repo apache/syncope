@@ -394,7 +394,7 @@ public class TaskTestITCase extends AbstractTest {
         SyncTaskTO task = taskService.read(11L);
         assertNotNull(task);
         
-        //  add role template
+        //  add user template
         final UserTO userTemplate = task.getUserTemplate();
         userTemplate.getResources().add("resource-ldap");
         userTemplate.getVirAttrs().add(attributeTO("virtualReadOnly", ""));
@@ -437,6 +437,8 @@ public class TaskTestITCase extends AbstractTest {
         final List<UserTO> matchingUsers = userService.search(NodeCond.getLeafCond(usernameLeafCond));
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.size());
+        // Check for SYNCOPE-436
+        assertEquals("syncFromLDAP", matchingUsers.get(0).getVirAttrMap().get("virtualReadOnly").getValues().get(0));
 
         final RoleTO roleTO = matchingRoles.iterator().next();
         assertNotNull(roleTO);
@@ -930,36 +932,5 @@ public class TaskTestITCase extends AbstractTest {
         taskService.bulk(bulkAction);
 
         assertFalse(taskService.list(TaskType.PROPAGATION).containsAll(after));
-    }
-
-    @Test
-    public void issueSYNCOPE436() throws InvalidSearchConditionException {
-
-        SyncTaskTO task = taskService.read(11L);
-        assertNotNull(task);
-
-        final UserTO template = task.getUserTemplate();
-        template.getResources().add("resource-ldap");
-        template.getVirAttrs().add(attributeTO("virtualReadOnly", ""));
-        task.setUserTemplate(template);
-
-        taskService.update(task.getId(), task);
-        TaskExecTO execution = execSyncTask(11L, 50, false);
-
-        final String status = execution.getStatus();
-        assertNotNull(status);
-        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
-
-        final AttributableCond usernameLeafCond = new AttributableCond(AttributeCond.Type.EQ);
-        usernameLeafCond.setSchema("username");
-        usernameLeafCond.setExpression("syncFromLDAP");
-
-        final List<UserTO> matchingUsers = userService.search(NodeCond.getLeafCond(usernameLeafCond));
-        assertNotNull(matchingUsers);
-        assertEquals(1, matchingUsers.size());
-
-        final UserTO syncUser = matchingUsers.iterator().next();
-        final AttributeTO virAttributeTO = syncUser.getVirAttrMap().get("virtualReadOnly");
-        assertEquals("syncFromLDAP", virAttributeTO.getValues().get(0));
     }
 }
