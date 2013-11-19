@@ -66,15 +66,11 @@ public class AuditLoggerName extends AbstractBaseBean {
             @JsonProperty("result") final Result result)
             throws IllegalArgumentException {
 
-        if (type == null || result == null) {
-            throw new IllegalArgumentException("Null values not permitted");
-        }
-
-        this.type = type;
+        this.type = type == null ? AuditElements.EventCategoryType.CUSTOM : type;
         this.category = category;
         this.subcategory = subcategory;
         this.event = event;
-        this.result = result;
+        this.result = result == null ? Result.SUCCESS : result;
     }
 
     public AuditElements.EventCategoryType getType() {
@@ -124,7 +120,8 @@ public class AuditLoggerName extends AbstractBaseBean {
                 eventCategory.getKey().getType(),
                 eventCategory.getKey().getCategory(),
                 eventCategory.getKey().getSubcategory(),
-                eventCategory.getKey().getEvents().iterator().next(),
+                eventCategory.getKey().getEvents().isEmpty()
+                ? StringUtils.EMPTY : eventCategory.getKey().getEvents().iterator().next(),
                 eventCategory.getValue());
     }
 }

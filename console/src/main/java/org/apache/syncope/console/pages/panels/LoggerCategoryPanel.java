@@ -32,8 +32,13 @@ import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.util.LoggerEventUtils;
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.pages.panels.SelectedEventsPanel.EventSelectionChanged;
 import org.apache.syncope.console.pages.panels.SelectedEventsPanel.InspectSelectedEvent;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -44,6 +49,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.slf4j.Logger;
@@ -74,12 +80,18 @@ public abstract class LoggerCategoryPanel extends Panel {
 
     private final AjaxDropDownChoicePanel<String> subcategory;
 
+    private final AjaxTextFieldPanel custom;
+
+    private final ActionLinksPanel actionPanel;
+
     private final IModel<List<String>> model;
 
     public LoggerCategoryPanel(
             final String id,
             final List<EventCategoryTO> eventCategoryTOs,
-            final IModel<List<String>> model) {
+            final IModel<List<String>> model,
+            final PageReference pageReference,
+            final String pageId) {
         super(id);
 
         this.model = model;
@@ -176,6 +188,77 @@ public abstract class LoggerCategoryPanel extends Panel {
             }
         });
 
+        categoryContainer.add(new Label("customLabel", new ResourceModel("custom", "custom")).setVisible(false));
+
+        custom = new AjaxTextFieldPanel("custom", "custom", new Model<String>(null));
+        custom.setStyleSheet("ui-widget-content ui-corner-all short_fixedsize");
+        custom.setVisible(false);
+        custom.setEnabled(false);
+
+        categoryContainer.add(custom);
+
+        actionPanel = new ActionLinksPanel("customActions", new Model(), pageReference);
+        categoryContainer.add(actionPanel);
+
+        actionPanel.add(new ActionLink() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                if (StringUtils.isNotBlank(custom.getModelObject())) {
+                    final Map.Entry<EventCategoryTO, AuditElements.Result> parsed =
+                            LoggerEventUtils.parseEventCategory(custom.getModelObject());
+
+                    final String eventString = LoggerEventUtils.buildEvent(
+                            parsed.getKey().getType(),
+                            null,
+                            null,
+                            parsed.getKey().getEvents().isEmpty()
+                            ? StringUtils.EMPTY : parsed.getKey().getEvents().iterator().next(),
+                            parsed.getValue());
+
+                    custom.setModelObject(StringUtils.EMPTY);
+                    send(LoggerCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
+                            target,
+                            Collections.<String>singleton(eventString),
+                            Collections.<String>emptySet()));
+                    target.add(categoryContainer);
+                }
+            }
+        }, ActionLink.ActionType.CREATE, pageId, true);
+
+        actionPanel.add(new ActionLink() {
+
+            private static final long serialVersionUID = -3722207913631435502L;
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                if (StringUtils.isNotBlank(custom.getModelObject())) {
+                    final Map.Entry<EventCategoryTO, AuditElements.Result> parsed =
+                            LoggerEventUtils.parseEventCategory(custom.getModelObject());
+
+                    final String eventString = LoggerEventUtils.buildEvent(
+                            parsed.getKey().getType(),
+                            null,
+                            null,
+                            parsed.getKey().getEvents().isEmpty()
+                            ? StringUtils.EMPTY : parsed.getKey().getEvents().iterator().next(),
+                            parsed.getValue());
+
+                    custom.setModelObject(StringUtils.EMPTY);
+                    send(LoggerCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
+                            target,
+                            Collections.<String>emptySet(),
+                            Collections.<String>singleton(eventString)));
+                    target.add(categoryContainer);
+                }
+            }
+        }, ActionLink.ActionType.DELETE, pageId, true);
+
+        actionPanel.setVisible(false);
+        actionPanel.setEnabled(false);
+
         eventsContainer.add(new EventSelectionPanel("eventsPanel", eventCategoryTO, model) {
 
             private static final long serialVersionUID = 3513194801190026082L;
@@ -229,11 +312,30 @@ public abstract class LoggerCategoryPanel extends Panel {
 
             final Panel changedPanel = change.getChangedPanel();
             if ("type".equals(changedPanel.getId())) {
-                category.setChoices(filter(eventCategoryTOs, type.getModelObject()));
-                subcategory.setChoices(Collections.<String>emptyList());
                 eventCategoryTO.setType(type.getModelObject());
                 eventCategoryTO.setCategory(null);
                 eventCategoryTO.setSubcategory(null);
+
+                if (type.getModelObject() == EventCategoryType.CUSTOM) {
+                    category.setChoices(Collections.<String>emptyList());
+                    subcategory.setChoices(Collections.<String>emptyList());
+                    category.setEnabled(false);
+                    subcategory.setEnabled(false);
+                    custom.setVisible(true);
+                    custom.setEnabled(true);
+                    actionPanel.setVisible(true);
+                    actionPanel.setEnabled(true);
+
+                } else {
+                    category.setChoices(filter(eventCategoryTOs, type.getModelObject()));
+                    subcategory.setChoices(Collections.<String>emptyList());
+                    category.setEnabled(true);
+                    subcategory.setEnabled(true);
+                    custom.setVisible(false);
+                    custom.setEnabled(false);
+                    actionPanel.setVisible(false);
+                    actionPanel.setEnabled(false);
+                }
                 change.getTarget().add(categoryContainer);
             } else if ("category".equals(changedPanel.getId())) {
                 subcategory.setChoices(filter(eventCategoryTOs, type.getModelObject(), category.getModelObject()));
@@ -262,7 +364,29 @@ public abstract class LoggerCategoryPanel extends Panel {
 
             eventCategoryTO.setSubcategory(categoryEvent.getKey().getSubcategory());
 
-
+            if (categoryEvent.getKey().getType() == EventCategoryType.CUSTOM) {
+                custom.setModelObject(LoggerEventUtils.buildEvent(
+                        categoryEvent.getKey().getType(),
+                        categoryEvent.getKey().getCategory(),
+                        categoryEvent.getKey().getSubcategory(),
+                        categoryEvent.getKey().getEvents().isEmpty()
+                        ? StringUtils.EMPTY : categoryEvent.getKey().getEvents().iterator().next(),
+                        categoryEvent.getValue()));
+                
+                category.setEnabled(false);
+                subcategory.setEnabled(false);
+                custom.setVisible(true);
+                custom.setEnabled(true);
+                actionPanel.setVisible(true);
+                actionPanel.setEnabled(true);
+            } else {
+                category.setEnabled(true);
+                subcategory.setEnabled(true);
+                custom.setVisible(false);
+                custom.setEnabled(false);
+                actionPanel.setVisible(false);
+                actionPanel.setEnabled(false);
+            }
 
             inspectSelectedEvent.getTarget().add(categoryContainer);
             updateEventsContainer(inspectSelectedEvent.getTarget());

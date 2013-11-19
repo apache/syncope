@@ -20,7 +20,6 @@ package org.apache.syncope.core.workflow.user;
 
 import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -42,9 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(rollbackFor = {Throwable.class})
 public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
-
-    private static final List<String> TASKS =
-            Arrays.asList(new String[] {"create", "activate", "update", "suspend", "reactivate", "delete"});
 
     public static final String ENABLED = "enabled";
 
@@ -164,13 +160,6 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             throws NotFoundException, WorkflowException {
 
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
-    }
-
-    @Override
-    public List<String> getDefinedTasks()
-            throws WorkflowException {
-
-        return TASKS;
     }
 
     @Override

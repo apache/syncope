@@ -150,7 +150,9 @@ class NotificationModalPage extends BaseModalPage {
         form.add(new LoggerCategoryPanel(
                 "eventSelection",
                 loggerRestClient.listEvents(),
-                new PropertyModel<List<String>>(notificationTO, "events")) {
+                new PropertyModel<List<String>>(notificationTO, "events"),
+                getPageReference(),
+                "Notification") {
 
             private static final long serialVersionUID = 6429053774964787735L;
 

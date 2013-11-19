@@ -297,7 +297,8 @@ public class Reports extends BasePage {
 
         final ListModel<String> model = new ListModel<String>(new ArrayList<String>(events));
 
-        form.add(new LoggerCategoryPanel("events", loggerRestClient.listEvents(), model) {
+        form.add(new LoggerCategoryPanel(
+                "events", loggerRestClient.listEvents(), model, getPageReference(), "Reports") {
 
             private static final long serialVersionUID = 6113164334533550277L;
 

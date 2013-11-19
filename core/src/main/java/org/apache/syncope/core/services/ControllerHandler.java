@@ -30,12 +30,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Aspect
-public class ServiceHandler {
+public class ControllerHandler {
 
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(ServiceHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ControllerHandler.class);
 
     @Autowired
     private NotificationManager notificationManager;

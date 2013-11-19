@@ -44,30 +44,44 @@ public class LoggerEventUtils {
 
             LOG.debug("Found {} elements", elements.length);
 
-            LOG.debug("Type {}", elements[0]);
-
-            if (EventCategoryType.PROPAGATION.toString().equals(elements[0])) {
-                eventCategoryTO.setType(EventCategoryType.PROPAGATION);
-            } else if (EventCategoryType.SYNCHRONIZATION.toString().equals(elements[0])) {
-                eventCategoryTO.setType(EventCategoryType.SYNCHRONIZATION);
+            if (elements.length == 1) {
+                eventCategoryTO.setType(EventCategoryType.CUSTOM);
+                condition = Result.SUCCESS;
+                eventCategoryTO.getEvents().add(event);
             } else {
-                eventCategoryTO.setType(EventCategoryType.valueOf(elements[0]));
-            }
+                LOG.debug("Type {}", elements[0]);
 
-            LOG.debug("Category {}", elements[1]);
-            eventCategoryTO.setCategory(StringUtils.isNotEmpty(elements[1]) ? elements[1] : null);
+                EventCategoryType type;
 
-            LOG.debug("Sub-category {}", elements[2]);
-            eventCategoryTO.setSubcategory(StringUtils.isNotEmpty(elements[2]) ? elements[2] : null);
+                if (EventCategoryType.PROPAGATION.toString().equals(elements[0])) {
+                    type = EventCategoryType.PROPAGATION;
+                } else if (EventCategoryType.SYNCHRONIZATION.toString().equals(elements[0])) {
+                    type = EventCategoryType.SYNCHRONIZATION;
+                } else {
+                    try {
+                        type = EventCategoryType.valueOf(elements[0]);
+                    } catch (Exception e) {
+                        type = EventCategoryType.CUSTOM;
+                    }
+                }
 
-            if (elements.length > 3 && StringUtils.isNotEmpty(elements[3])) {
-                LOG.debug("Event {}", elements[3]);
-                eventCategoryTO.getEvents().add(elements[3]);
-            }
+                eventCategoryTO.setType(type);
 
-            if (elements.length > 4) {
-                LOG.debug("Result condition {}", elements[4]);
-                condition = Result.valueOf(elements[4].toUpperCase());
+                LOG.debug("Category {}", elements[1]);
+                eventCategoryTO.setCategory(StringUtils.isNotEmpty(elements[1]) ? elements[1] : null);
+
+                LOG.debug("Sub-category {}", elements[2]);
+                eventCategoryTO.setSubcategory(StringUtils.isNotEmpty(elements[2]) ? elements[2] : null);
+
+                if (elements.length > 3 && StringUtils.isNotEmpty(elements[3])) {
+                    LOG.debug("Event {}", elements[3]);
+                    eventCategoryTO.getEvents().add(elements[3]);
+                }
+
+                if (elements.length > 4) {
+                    LOG.debug("Result condition {}", elements[4]);
+                    condition = Result.valueOf(elements[4].toUpperCase());
+                }
             }
         }
 

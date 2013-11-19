@@ -35,11 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.FormService;
 import org.activiti.engine.HistoryService;
@@ -77,8 +72,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
 /**
  * Activiti (http://www.activiti.org/) based implementation.
@@ -442,37 +435,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         } catch (ActivitiException e) {
             throw new WorkflowException("While updating process " + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
         }
-    }
-
-    @Override
-    public List<String> getDefinedTasks()
-            throws WorkflowException {
-
-        List<String> result = new ArrayList<String>();
-
-        ProcessDefinition procDef = getProcessDefinition();
-
-        InputStream procDefIS = repositoryService.getResourceAsStream(procDef.getDeploymentId(), WF_PROCESS_RESOURCE);
-
-        DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-        try {
-            DocumentBuilder builder = domFactory.newDocumentBuilder();
-            Document doc = builder.parse(procDefIS);
-
-            XPath xpath = XPathFactory.newInstance().newXPath();
-
-            NodeList nodeList = (NodeList) xpath.evaluate("//userTask | //serviceTask | //scriptTask", doc,
-                    XPathConstants.NODESET);
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                result.add(nodeList.item(i).getAttributes().getNamedItem("id").getNodeValue());
-            }
-        } catch (Exception e) {
-            throw new WorkflowException("While reading defined tasks", e);
-        } finally {
-            IOUtils.closeQuietly(procDefIS);
-        }
-
-        return result;
     }
 
     private WorkflowFormPropertyType fromActivitiFormType(final FormType activitiFormType) {

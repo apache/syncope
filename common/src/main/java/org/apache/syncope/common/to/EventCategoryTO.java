@@ -55,7 +55,7 @@ public class EventCategoryTO extends AbstractBaseBean {
     }
 
     public void setType(final AuditElements.EventCategoryType type) {
-        this.type = type;
+        this.type = type == null ? AuditElements.EventCategoryType.CUSTOM : type;
     }
 
     public String getCategory() {

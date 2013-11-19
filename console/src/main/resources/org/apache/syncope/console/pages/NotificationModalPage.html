@@ -23,6 +23,27 @@ under the License.
         min-width: 970px;
         overflow: hidden;
       }
+
+      div#userFilter {
+        border: 1px solid #DDDDDD;
+      }
+
+      div#userFilter div#title {
+        margin: 10px 0px 0px 8px;
+      }
+
+      div#userFilter div#warning {
+        margin: 1px 0px 5px 8px;
+      }
+
+      div#userFilter div#title label {
+        font-weight: bold;
+      }
+
+      div#userFilter div#warning label {
+        color: #E00000;
+        font-size: 8px;
+      }
     </style>
   </wicket:head>
   <wicket:extend>
@@ -32,8 +53,8 @@ under the License.
         <div id="tabs">
           <ul>
             <li  class="tabs-selected"><a href="#notification"><span><wicket:message key="notification"/></span></a></li>
-            <li><a href="#about"><span><wicket:message key="about"/></span></a></li>
             <li><a href="#events"><span><wicket:message key="events"/></span></a></li>
+            <li><a href="#about"><span><wicket:message key="about"/></span></a></li>
             <li><a href="#recipients"><span><wicket:message key="recipients"/></span></a></li>
           </ul>
 
@@ -95,6 +116,10 @@ under the License.
             </div>
           </div>
 
+          <div id="events">
+            <span wicket:id="eventSelection"/>
+          </div>
+
           <div id="about">
             <span wicket:id="aboutContainer">
               <div class="tablerow" style="width: auto;">
@@ -105,12 +130,18 @@ under the License.
                   <label for="checkAbout"><wicket:message key="checkAbout"/></label>
                 </div>
               </div>
-              <span wicket:id="about"/>
+              <div id="userFilter">
+                <div id="title">
+                  <label for="userFilter"><wicket:message key="userFilter"/></label>
+                </div>
+                <div id="warning">
+                  <label for="userFilter"><wicket:message key="userFilterWarning"/></label>
+                </div>
+                <div id="condition">
+                  <span wicket:id="about"/>
+                </div>
+              </div>
             </span>
-          </div>  
-
-          <div id="events">
-            <span wicket:id="eventSelection"/>
           </div>
 
           <div id="recipients">

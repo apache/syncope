@@ -18,10 +18,8 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.List;
 
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -65,19 +63,5 @@ public class WorkflowTestITCase extends AbstractTest {
         workflowService.updateDefinition(AttributableType.ROLE, definition);
         WorkflowDefinitionTO newDefinition = workflowService.getDefinition(AttributableType.ROLE);
         assertNotNull(newDefinition);
-    }
-
-    @Test
-    public void testGetUserTasks() {
-        List<String> tasks = workflowService.getDefinedTasks(AttributableType.USER);
-        assertNotNull(tasks);
-        assertFalse(tasks.isEmpty());
-    }
-
-    @Test
-    public void testGetRoleTasks() {
-        List<String> tasks = workflowService.getDefinedTasks(AttributableType.ROLE);
-        assertNotNull(tasks);
-        assertFalse(tasks.isEmpty());
     }
 }

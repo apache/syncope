@@ -42,7 +42,7 @@ under the License.
   <!-- CXF Configuration - BEGIN -->
   <context:component-scan base-package="org.apache.syncope.core.services"/>
   
-  <bean id="serviceHandler" name="serviceHandler" class="org.apache.syncope.core.services.ServiceHandler" />
+  <bean id="controllerHandler" name="controllerHandler" class="org.apache.syncope.core.services.ControllerHandler" />
 
   <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.JAXBElementProvider">
     <property name="depthProperties">

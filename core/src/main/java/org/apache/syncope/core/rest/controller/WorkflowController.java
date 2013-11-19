@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.controller;
 
 import java.lang.reflect.Method;
-import java.util.List;
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.core.workflow.WorkflowAdapter;
 import org.apache.syncope.core.workflow.WorkflowException;
@@ -32,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/workflow")
@@ -77,22 +75,6 @@ public class WorkflowController extends AbstractTransactionalController<Workflow
     @RequestMapping(method = RequestMethod.PUT, value = "/definition/role")
     public void updateRoleDefinition(@RequestBody final WorkflowDefinitionTO definition) {
         updateDefinition(rwfAdapter, definition);
-    }
-
-    private List<String> getDefinedTasks(final WorkflowAdapter adapter) {
-        return adapter.getDefinedTasks();
-    }
-
-    @PreAuthorize("hasRole('WORKFLOW_TASK_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/tasks/user")
-    public ModelAndView getDefinedUserTasks() {
-        return new ModelAndView().addObject(getDefinedTasks(uwfAdapter));
-    }
-
-    @PreAuthorize("hasRole('WORKFLOW_TASK_LIST')")
-    @RequestMapping(method = RequestMethod.GET, value = "/tasks/role")
-    public ModelAndView getDefinedRoleTasks() {
-        return new ModelAndView().addObject(getDefinedTasks(rwfAdapter));
     }
 
     /**

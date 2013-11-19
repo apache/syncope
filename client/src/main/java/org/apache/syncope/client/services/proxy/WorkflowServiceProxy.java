@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.services.proxy;
 
-import java.util.Arrays;
-import java.util.List;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -40,11 +38,5 @@ public class WorkflowServiceProxy extends SpringServiceProxy implements Workflow
     @Override
     public void updateDefinition(final AttributableType type, final WorkflowDefinitionTO definition) {
         getRestTemplate().put(baseUrl + "workflow/definition/" + type.name().toLowerCase(), definition);
-    }
-
-    @Override
-    public List<String> getDefinedTasks(final AttributableType type) {
-        return Arrays.asList(getRestTemplate().getForObject(baseUrl + "workflow/tasks/{type}", String[].class,
-                type.name().toLowerCase()));
     }
 }

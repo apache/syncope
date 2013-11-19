@@ -53,14 +53,6 @@ public interface WorkflowAdapter {
     void updateDefinition(WorkflowDefinitionTO definition) throws NotFoundException, WorkflowException;
 
     /**
-     * Get list of defined tasks in workflow.
-     *
-     * @return list of defined tasks in workflow
-     * @throws WorkflowException workflow exception
-     */
-    List<String> getDefinedTasks() throws WorkflowException;
-
-    /**
      * Get all defined forms for current workflow process instances.
      *
      * @return list of defined forms
