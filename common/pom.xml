@@ -48,8 +48,8 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
 
     <dependency>
@@ -92,7 +92,7 @@ under the License.
               org.apache.syncope.common*;version=${project.version};-split-package:=merge-first
             </Export-Package>
             <Import-Package>
-              org.apache.commons.lang*;version="[2.6,3)",
+              org.apache.commons.lang3;version="[3,4)",
               org.codehaus.jackson.annotate;version="[1.9,2)",
               org.springframework*;version="[3,4)",
               ch.qos.logback.classic;resolution:=optional,

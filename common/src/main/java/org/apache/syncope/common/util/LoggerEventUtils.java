@@ -17,7 +17,7 @@ package org.apache.syncope.common.util;
 
 import java.util.AbstractMap;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.EventCategoryTO;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.EventCategoryType;

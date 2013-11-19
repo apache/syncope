@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.core.report;
 
-import static org.apache.syncope.core.report.ReportXMLConst.ATTR_CLASS;
-import static org.apache.syncope.core.report.ReportXMLConst.ATTR_NAME;
-import static org.apache.syncope.core.report.ReportXMLConst.ELEMENT_REPORTLET;
-import static org.apache.syncope.core.report.ReportXMLConst.XSD_STRING;
-
 import org.apache.syncope.common.report.AbstractReportletConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,12 +55,12 @@ public abstract class AbstractReportlet<T extends AbstractReportletConf> impleme
         }
 
         AttributesImpl atts = new AttributesImpl();
-        atts.addAttribute("", "", ATTR_NAME, XSD_STRING, conf.getName());
-        atts.addAttribute("", "", ATTR_CLASS, XSD_STRING, getClass().getName());
-        handler.startElement("", "", ELEMENT_REPORTLET, atts);
+        atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, conf.getName());
+        atts.addAttribute("", "", ReportXMLConst.ATTR_CLASS, ReportXMLConst.XSD_STRING, getClass().getName());
+        handler.startElement("", "", ReportXMLConst.ELEMENT_REPORTLET, atts);
 
         doExtract(handler);
 
-        handler.endElement("", "", ELEMENT_REPORTLET);
+        handler.endElement("", "", ReportXMLConst.ELEMENT_REPORTLET);
     }
 }

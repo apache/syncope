@@ -304,7 +304,7 @@ under the License.
     <connid.ad.version>1.1.1</connid.ad.version>
 
     <commons-jexl.version>2.1.1</commons-jexl.version>
-    <commons-lang.version>2.6</commons-lang.version>
+    <commons-lang.version>3.1</commons-lang.version>
         
     <hc.client.version>4.2.6</hc.client.version>
 
@@ -412,8 +412,8 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
         <version>${commons-lang.version}</version>
       </dependency>
 

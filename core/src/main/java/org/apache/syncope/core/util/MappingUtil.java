@@ -32,8 +32,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.AttributeSchemaType;
-import static org.apache.syncope.common.types.IntMappingType.RoleVirtualSchema;
-import static org.apache.syncope.common.types.IntMappingType.UserVirtualSchema;
 import org.apache.syncope.core.connid.PasswordGenerator;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
@@ -162,32 +160,33 @@ public final class MappingUtil {
             default:
         }
 
-        final List<AbstractAttrValue> values = MappingUtil.getIntValues(resource, mapItem, attributables,
+        List<AbstractAttrValue> values = MappingUtil.getIntValues(resource, mapItem, attributables,
                 vAttrsToBeRemoved, vAttrsToBeUpdated);
 
         AbstractSchema schema = null;
+        boolean readOnlyVirSchema = false;
         AttributeSchemaType schemaType;
-        Map.Entry<String, Attribute> result = null;
-        final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
+        ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
         switch (mapItem.getIntMappingType()) {
             case UserSchema:
             case RoleSchema:
             case MembershipSchema:
-                final SchemaDAO schemaDAO = context.getBean(SchemaDAO.class);
+                SchemaDAO schemaDAO = context.getBean(SchemaDAO.class);
                 schema = schemaDAO.find(mapItem.getIntAttrName(),
                         MappingUtil.getIntMappingTypeClass(mapItem.getIntMappingType()));
                 schemaType = schema == null ? AttributeSchemaType.String : schema.getType();
                 break;
+
             case UserVirtualSchema:
             case RoleVirtualSchema:
-                final VirSchemaDAO virSchemaDAO = context.getBean(VirSchemaDAO.class);
-                final AbstractVirSchema virSchema = virSchemaDAO.find(mapItem.getIntAttrName(),
+            case MembershipVirtualSchema:
+                VirSchemaDAO virSchemaDAO = context.getBean(VirSchemaDAO.class);
+                AbstractVirSchema virSchema = virSchemaDAO.find(mapItem.getIntAttrName(),
                         MappingUtil.getIntMappingTypeClass(mapItem.getIntMappingType()));
-                if (virSchema.isReadonly()) {
-                    return result;
-                }
+                readOnlyVirSchema = (virSchema != null && virSchema.isReadonly());
                 schemaType = AttributeSchemaType.String;
                 break;
+
             default:
                 schemaType = AttributeSchemaType.String;
         }
@@ -214,7 +213,10 @@ public final class MappingUtil {
             }
         }
 
-        if (mapItem.isAccountid()) {
+        Map.Entry<String, Attribute> result;
+        if (readOnlyVirSchema) {
+            result = null;
+        } else if (mapItem.isAccountid()) {
             result = new AbstractMap.SimpleEntry<String, Attribute>(objValues.iterator().next().toString(), null);
         } else if (mapItem.isPassword() && subject instanceof SyncopeUser) {
             String passwordAttrValue = password;

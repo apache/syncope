@@ -18,11 +18,10 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
-import static javax.persistence.EnumType.STRING;
-
 import java.lang.reflect.Constructor;
 import javax.persistence.Basic;
 import javax.persistence.Column;
+import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Lob;
@@ -49,7 +48,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     private String name;
 
     @Column(nullable = false)
-    @Enumerated(STRING)
+    @Enumerated(EnumType.STRING)
     private AttributeSchemaType type;
 
     @Column(nullable = false)
@@ -153,7 +152,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         if (getValidatorClass() != null && getValidatorClass().length() > 0) {
             try {
                 Constructor validatorConstructor = Class.forName(getValidatorClass()).getConstructor(
-                        new Class[] {getClass().getSuperclass()});
+                        new Class[] { getClass().getSuperclass() });
                 validator = (AbstractValidator) validatorConstructor.newInstance(this);
             } catch (Exception e) {
                 LOG.error("Could not instantiate validator of type " + getValidatorClass()

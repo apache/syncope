@@ -24,7 +24,7 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.to.EventCategoryTO;
 import org.apache.syncope.common.types.AuditElements.Result;

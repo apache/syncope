@@ -24,7 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.Authenticator;
 import java.security.AccessControlException;
 import java.util.HashSet;
 import java.util.List;
@@ -33,7 +32,6 @@ import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.cxf.transport.http.CXFAuthenticator;
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.EntitlementService;
@@ -54,7 +52,6 @@ import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import org.apache.syncope.core.rest.jaxrs.CXFPatchedAuthenticator;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
@@ -231,9 +228,6 @@ public class AuthenticationTestITCase extends AbstractTest {
 
     @Test
     public void checkFailedLogins() {
-        // Workaround for CXF issue.. remove after upgrade to 2.7.3
-        CXFAuthenticator.addAuthenticator();
-        Authenticator.setDefault(new CXFPatchedAuthenticator());
         UserTO userTO = UserTestITCase.getUniqueSampleTO("checkFailedLogin@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();

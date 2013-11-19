@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.core.report;
 
-import static org.apache.syncope.core.report.ReportXMLConst.ATTR_NAME;
-import static org.apache.syncope.core.report.ReportXMLConst.ELEMENT_REPORT;
-import static org.apache.syncope.core.report.ReportXMLConst.XSD_STRING;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -148,8 +144,8 @@ public class ReportJob implements Job {
             // report header
             handler.startDocument();
             AttributesImpl atts = new AttributesImpl();
-            atts.addAttribute("", "", ATTR_NAME, XSD_STRING, report.getName());
-            handler.startElement("", "", ELEMENT_REPORT, atts);
+            atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, report.getName());
+            handler.startElement("", "", ReportXMLConst.ELEMENT_REPORT, atts);
 
             // iterate over reportlet instances defined for this report
             for (ReportletConf reportletConf : report.getReportletConfs()) {
@@ -177,7 +173,7 @@ public class ReportJob implements Job {
             }
 
             // report footer
-            handler.endElement("", "", ELEMENT_REPORT);
+            handler.endElement("", "", ReportXMLConst.ELEMENT_REPORT);
             handler.endDocument();
 
             if (!ReportExecStatus.FAILURE.name().equals(execution.getStatus())) {

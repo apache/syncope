@@ -19,8 +19,8 @@
 package org.apache.syncope.console.commons;
 
 import java.io.Serializable;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.search.AttributeCond;
 import org.apache.syncope.common.search.AttributeCond.Type;
 

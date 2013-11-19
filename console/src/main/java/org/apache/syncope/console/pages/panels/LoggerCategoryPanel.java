@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console.pages.panels;
 
-import static org.apache.wicket.Component.RENDER;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,7 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.EventCategoryTO;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.EventCategoryType;

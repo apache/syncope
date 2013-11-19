@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.console.pages;
 
-import static org.apache.syncope.common.types.PropagationTaskExecStatus.CREATED;
-import static org.apache.syncope.common.types.PropagationTaskExecStatus.SUBMITTED;
-import static org.apache.syncope.common.types.PropagationTaskExecStatus.SUCCESS;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConnObjectTO;

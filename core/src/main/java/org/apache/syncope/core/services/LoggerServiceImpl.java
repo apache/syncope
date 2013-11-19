@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.services;
 
-import static org.apache.syncope.common.types.LoggerType.AUDIT;
-import static org.apache.syncope.common.types.LoggerType.NORMAL;
 import java.text.ParseException;
 import java.util.List;
 

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.apache.syncope.common.types.PolicyType.GLOBAL_SYNC;
-import static org.apache.syncope.common.types.PolicyType.SYNC;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 

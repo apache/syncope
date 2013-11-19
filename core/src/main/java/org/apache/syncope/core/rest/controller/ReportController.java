@@ -46,7 +46,6 @@ import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
-import static org.apache.syncope.common.types.ReportExecExportFormat.RTF;
 import org.apache.syncope.common.types.ReportExecStatus;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;

@@ -20,7 +20,7 @@ package org.apache.syncope.common.types;
 
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlEnum;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public final class AuditElements implements Serializable {
 

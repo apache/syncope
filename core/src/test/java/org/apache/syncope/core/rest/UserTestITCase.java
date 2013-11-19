@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.apache.syncope.core.rest.AbstractTest.ADMIN_PWD;
-import static org.apache.syncope.core.rest.AbstractTest.attributeMod;
-import static org.apache.syncope.core.rest.AbstractTest.attributeTO;
-import static org.apache.syncope.core.rest.AbstractTest.getUUIDString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;

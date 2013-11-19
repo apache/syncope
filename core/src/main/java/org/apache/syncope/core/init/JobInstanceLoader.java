@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.core.init;
 
-import static org.apache.syncope.core.init.JobInstanceLoader.getJobName;
-import static org.apache.syncope.core.init.JobInstanceLoader.getTriggerName;
-
 import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;

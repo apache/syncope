@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest.controller;
 
-import static org.apache.syncope.core.rest.controller.AbstractController.LOG;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
