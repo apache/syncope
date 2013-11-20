@@ -53,7 +53,9 @@ under the License.
   <context:component-scan base-package="org.apache.syncope.core.audit"/>
   <context:component-scan base-package="org.apache.syncope.core.connid"/>
   <context:component-scan base-package="org.apache.syncope.core.rest.data"/>
-  <context:component-scan base-package="org.apache.syncope.core.workflow"/>
+  <context:component-scan base-package="org.apache.syncope.core.workflow">
+    <context:exclude-filter type="regex" expression=".*\.activiti\..*"/>
+  </context:component-scan>
 
   <bean id="nonJPAdbInitializer" class="org.springframework.jdbc.datasource.init.DataSourceInitializer">
     <property name="dataSource" ref="dataSource"/>

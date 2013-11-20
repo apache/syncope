@@ -40,6 +40,8 @@ import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.core.workflow.ActivitiDetector;
+import org.junit.Assume;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -54,6 +56,8 @@ public class UserSelfTestITCase extends AbstractTest {
 
     @Test
     public void create() {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+        
         // 1. self-registration as admin: failure
         try {
             userSelfService.create(UserTestITCase.getUniqueSampleTO("anonymous@syncope.apache.org"));
@@ -73,6 +77,8 @@ public class UserSelfTestITCase extends AbstractTest {
 
     @Test
     public void createAndApprove() {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+
         // self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserTO userTO = UserTestITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
         MembershipTO membership = new MembershipTO();
@@ -139,12 +145,14 @@ public class UserSelfTestITCase extends AbstractTest {
         UserTO updated = authClient.getService(UserSelfService.class).update(created.getId(), userMod).
                 readEntity(UserTO.class);
         assertNotNull(updated);
-        assertEquals("active", updated.getStatus());
+        assertEquals(ActivitiDetector.isActivitiEnabledForUsers()? "active": "created", updated.getStatus());
         assertTrue(updated.getUsername().endsWith("XX"));
     }
 
     @Test
     public void updateWitApproval() {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+
         // 1. create user as admin
         UserTO created = createUser(UserTestITCase.getUniqueSampleTO("anonymous@syncope.apache.org"));
         assertNotNull(created);
@@ -210,7 +218,7 @@ public class UserSelfTestITCase extends AbstractTest {
         SyncopeClient authClient = clientFactory.create(created.getUsername(), "password123");
         UserTO deleted = authClient.getService(UserSelfService.class).delete().readEntity(UserTO.class);
         assertNotNull(deleted);
-        assertEquals("deleteApproval", deleted.getStatus());
+        assertEquals(ActivitiDetector.isActivitiEnabledForUsers()? "deleteApproval": null, deleted.getStatus());
     }
 
     @Test

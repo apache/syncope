@@ -1628,7 +1628,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void issueSYNCOPE122() {
         // 1. create user on testdb and testdb2
-        UserTO userTO = getUniqueSampleTO("syncope123@apache.org");
+        UserTO userTO = getUniqueSampleTO("syncope122@apache.org");
         userTO.getResources().clear();
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
         userTO.getResources().add("resource-testdb2");

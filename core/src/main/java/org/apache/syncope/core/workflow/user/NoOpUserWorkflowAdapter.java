@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
@@ -111,7 +112,13 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected WorkflowResult<Map.Entry<UserMod, Boolean>> doUpdate(final SyncopeUser user, final UserMod userMod)
             throws WorkflowException {
 
-        PropagationByResource propByRes = dataBinder.update(user, userMod);
+        // update password internally only if required
+        UserMod actualMod = SerializationUtils.clone(userMod);
+        if (actualMod.getPwdPropRequest() != null && !actualMod.getPwdPropRequest().isOnSyncope()) {
+            actualMod.setPassword(null);
+        }
+        // update SyncopeUser
+        PropagationByResource propByRes = dataBinder.update(user, actualMod);
 
         SyncopeUser updated = userDAO.save(user);
 
