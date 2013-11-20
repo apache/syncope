@@ -53,6 +53,11 @@ under the License.
     <!-- TEST -->
     <dependency>
       <groupId>org.apache.syncope</groupId>
+      <artifactId>syncope-client</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope</groupId>
       <artifactId>syncope-build-tools</artifactId>
       <type>war</type>
       <scope>test</scope>
