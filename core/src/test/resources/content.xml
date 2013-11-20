@@ -31,7 +31,7 @@ under the License.
   <SyncopeConf confKey="createRequest.allowed" confValue="true"/>
   <SyncopeConf confKey="notification.maxRetries" confValue="3"/>
   <!-- when needing to provide more values, use '|' as separator and no spaces -->
-  <SyncopeConf confKey="authentication.statuses" confValue="active"/>
+  <SyncopeConf confKey="authentication.statuses" confValue="created|active"/>
 
   <!-- sample policies -->
   <Policy DTYPE="SyncPolicy" id="1" description="sync policy 1" type="GLOBAL_SYNC" specification="%3Corg.apache.syncope.common.types.SyncPolicySpec%2F%3E"/>

@@ -818,7 +818,7 @@ under the License.
         <defaultGoal>clean verify</defaultGoal>
         
         <plugins>
-          <!-- Strip Activiti-related entries from content.xml -->
+          <!-- Strip Activiti-related entries from content.xml and indexes.xml -->
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>xml-maven-plugin</artifactId>
@@ -838,6 +838,7 @@ under the License.
                   <dir>${project.build.directory}/test-classes</dir>
                   <includes>
                     <include>content.xml</include>
+                    <include>indexes.xml</include>
                   </includes>
                   <outputDir>${project.build.directory}/test-classes/</outputDir>
                   <stylesheet>${basedir}/src/test/resources/noopworkflow/stripActivitiFromContent.xsl</stylesheet>
@@ -853,24 +854,24 @@ under the License.
           </plugin>
         </plugins>
         
-        <testResources>
-          <testResource>
-            <directory>src/test/resources</directory>
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
             <filtering>true</filtering>
             <excludes>
               <exclude>workflowContext.xml</exclude>
               <exclude>workflow.properties</exclude>
             </excludes>
-          </testResource>
-          <testResource>
+          </resource>
+          <resource>
             <directory>src/test/resources/noopworkflow</directory>
             <filtering>true</filtering>
             <includes>
               <include>workflowContext.xml</include>
               <include>workflow.properties</include>
             </includes>
-          </testResource>
-        </testResources>
+          </resource>
+        </resources>
       </build>
     </profile>
 
