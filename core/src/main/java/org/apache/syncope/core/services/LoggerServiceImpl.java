@@ -25,6 +25,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 
 import org.apache.syncope.common.services.LoggerService;
+import org.apache.syncope.common.to.EventCategoryTO;
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.types.AuditLoggerName;
 import org.apache.syncope.common.types.LoggerType;
@@ -108,5 +109,10 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
             default:
                 throw new BadRequestException();
         }
+    }
+
+    @Override
+    public List<EventCategoryTO> events() {
+        return controller.listAuditEvents();
     }
 }

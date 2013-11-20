@@ -18,20 +18,20 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityExistsException;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.to.DerSchemaTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.VirSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.AuditElements;
-import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.ClientExceptionType;
+import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
@@ -46,10 +46,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SchemaController extends AbstractController {
-
-    @Autowired
-    private AuditManager auditManager;
+public class SchemaController extends AbstractTransactionalController<SchemaTO> {
 
     @Autowired
     private SchemaDAO schemaDAO;
@@ -109,10 +106,8 @@ public class SchemaController extends AbstractController {
                 AbstractVirSchema virSchema = attrUtil.newVirSchema();
                 binder.create((VirSchemaTO) schemaTO, virSchema);
                 virSchema = virSchemaDAO.save(virSchema);
-
                 created = (T) binder.getVirSchemaTO(virSchema);
                 break;
-
             case DERIVED:
                 AbstractDerSchema derSchema = attrUtil.newDerSchema();
                 binder.create((DerSchemaTO) schemaTO, derSchema);
@@ -129,11 +124,6 @@ public class SchemaController extends AbstractController {
 
                 created = (T) binder.getSchemaTO(normalSchema, attrUtil);
         }
-
-        auditManager.audit(AuditElements.Category.schema, AuditElements.SchemaSubCategory.create,
-                AuditElements.Result.success,
-                "Successfully created schema: " + schemaType + "/" + attrType + "/" + created.getName());
-
         return created;
     }
 
@@ -158,10 +148,6 @@ public class SchemaController extends AbstractController {
             default:
                 schemaDAO.delete(schemaName, attrUtil);
         }
-
-        auditManager.audit(AuditElements.Category.schema, AuditElements.SchemaSubCategory.delete,
-                AuditElements.Result.success,
-                "Successfully deleted schema: " + schemaType + "/" + attrType + "/" + schemaName);
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -196,17 +182,13 @@ public class SchemaController extends AbstractController {
                 }
         }
 
-        auditManager.audit(AuditElements.Category.schema, AuditElements.SchemaSubCategory.list,
-                AuditElements.Result.success,
-                "Successfully listed schemas: " + schemaType + "/" + attrType + " " + result.size());
-
         return result;
     }
 
     @PreAuthorize("hasRole('SCHEMA_READ')")
     @SuppressWarnings("unchecked")
-    public <T extends AbstractSchemaTO> T read(final AttributableType attrType, final SchemaType schemaType,
-            final String schemaName) {
+    public <T extends AbstractSchemaTO> T read(
+            final AttributableType attrType, final SchemaType schemaType, final String schemaName) {
 
         final AttributableUtil attrUtil = AttributableUtil.getInstance(attrType);
 
@@ -239,10 +221,6 @@ public class SchemaController extends AbstractController {
 
                 read = (T) binder.getSchemaTO(schema, attrUtil);
         }
-
-        auditManager.audit(AuditElements.Category.schema, AuditElements.SchemaSubCategory.read,
-                AuditElements.Result.success,
-                "Successfully read schema: " + schemaType + "/" + attrType + "/" + schemaName);
 
         return read;
     }
@@ -288,9 +266,40 @@ public class SchemaController extends AbstractController {
                 binder.update((SchemaTO) schemaTO, schema, attrUtil);
                 schemaDAO.save(schema);
         }
+    }
 
-        auditManager.audit(AuditElements.Category.schema, AuditElements.SchemaSubCategory.update,
-                AuditElements.Result.success,
-                "Successfully updated schema: " + schemaType + "/" + attrType + "/" + schemaName);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected SchemaTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+        String kind = null;
+        String name = null;
+        if (ArrayUtils.isNotEmpty(args)) {
+            for (int i = 0; (name == null || kind == null) && i < args.length; i++) {
+                if (args[i] instanceof String) {
+                    if (kind == null) {
+                        kind = (String) args[i];
+                    } else {
+                        name = (String) args[i];
+                    }
+                } else if (args[i] instanceof SchemaTO) {
+                    name = ((SchemaTO) args[i]).getName();
+                }
+            }
+        }
+
+        if (name != null) {
+            try {
+                final AttributableUtil attrUtil = AttributableUtil.valueOf(kind);
+                return binder.getSchemaTO(schemaDAO.find(name, attrUtil.schemaClass()), attrUtil);
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
+        throw new UnresolvedReferenceException();
     }
 }

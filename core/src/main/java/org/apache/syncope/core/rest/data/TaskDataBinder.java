@@ -64,9 +64,9 @@ public class TaskDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
-    private static final String[] IGNORE_TASK_PROPERTIES = { "executions", "resource", };
+    private static final String[] IGNORE_TASK_PROPERTIES = {"executions", "resource",};
 
-    private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = { "id", "task" };
+    private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {"id", "task"};
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -83,6 +83,7 @@ public class TaskDataBinder {
                 sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
             }
         }
+
         for (AttributeTO attrTO : attributableTO.getVirAttrs()) {
             if (!attrTO.getValues().isEmpty() && !JexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
                 sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));

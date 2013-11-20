@@ -19,13 +19,9 @@
 package org.apache.syncope.core.rest.controller;
 
 import java.io.OutputStream;
-import java.util.List;
+import java.lang.reflect.Method;
 import javax.ws.rs.core.MediaType;
-
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.Result;
-import org.apache.syncope.common.types.AuditElements.WorkflowSubCategory;
-import org.apache.syncope.core.audit.AuditManager;
+import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.core.workflow.WorkflowAdapter;
 import org.apache.syncope.core.workflow.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.WorkflowException;
@@ -37,10 +33,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class WorkflowController extends AbstractController {
-
-    @Autowired
-    private AuditManager auditManager;
+public class WorkflowController extends AbstractTransactionalController<AbstractBaseBean> {
 
     @Autowired
     private UserWorkflowAdapter uwfAdapter;
@@ -53,9 +46,6 @@ public class WorkflowController extends AbstractController {
             throws WorkflowException {
 
         adapter.exportDefinition(format, os);
-
-        auditManager.audit(Category.workflow, WorkflowSubCategory.exportDefinition, Result.success,
-                "Successfully exported workflow definition");
     }
 
     private WorkflowDefinitionFormat getFormat(final MediaType format) {
@@ -82,11 +72,7 @@ public class WorkflowController extends AbstractController {
 
     private void exportDiagram(final WorkflowAdapter adapter, final OutputStream os)
             throws WorkflowException {
-
         adapter.exportDiagram(os);
-
-        auditManager.audit(Category.workflow, WorkflowSubCategory.exportDiagram, Result.success,
-                "Successfully export workflow diagram");
     }
 
     @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
@@ -107,11 +93,7 @@ public class WorkflowController extends AbstractController {
 
     private void importDefinition(
             final WorkflowAdapter adapter, final WorkflowDefinitionFormat format, final String definition) {
-
         adapter.importDefinition(format, definition);
-
-        auditManager.audit(Category.workflow, WorkflowSubCategory.importDefinition, Result.success,
-                "Successfully imported workflow definition");
     }
 
     @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
@@ -124,22 +106,12 @@ public class WorkflowController extends AbstractController {
         importDefinition(rwfAdapter, getFormat(format), definition);
     }
 
-    private List<String> getDefinedTasks(final WorkflowAdapter adapter) {
-        List<String> definedTasks = adapter.getDefinedTasks();
-
-        auditManager.audit(Category.workflow, WorkflowSubCategory.getDefinedTasks, Result.success,
-                "Successfully got the list of defined workflow tasks: " + definedTasks.size());
-
-        return definedTasks;
-    }
-
-    @PreAuthorize("hasRole('WORKFLOW_TASK_LIST')")
-    public List<String> getDefinedUserTasks() {
-        return getDefinedTasks(uwfAdapter);
-    }
-
-    @PreAuthorize("hasRole('WORKFLOW_TASK_LIST')")
-    public List<String> getDefinedRoleTasks() {
-        return getDefinedTasks(rwfAdapter);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected AbstractBaseBean resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+        throw new UnresolvedReferenceException();
     }
 }

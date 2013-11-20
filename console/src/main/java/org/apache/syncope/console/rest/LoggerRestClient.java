@@ -18,16 +18,16 @@
  */
 package org.apache.syncope.console.rest;
 
-import java.util.EnumMap;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.syncope.common.services.LoggerService;
+import org.apache.syncope.common.to.EventCategoryTO;
 import org.apache.syncope.common.to.LoggerTO;
-import org.apache.syncope.common.types.AuditElements;
-import org.apache.syncope.common.types.AuditElements.Category;
 import org.apache.syncope.common.types.AuditLoggerName;
 import org.apache.syncope.common.types.LoggerType;
 import org.apache.syncope.common.types.LoggerLevel;
@@ -44,13 +44,11 @@ public class LoggerRestClient extends BaseRestClient {
     }
 
     public List<AuditLoggerName> listAudits() {
-        List<LoggerTO> logger = getService(LoggerService.class).list(LoggerType.AUDIT);
-
-        return CollectionWrapper.wrapLogger(logger);
+        return CollectionWrapper.wrapLogger(getService(LoggerService.class).list(LoggerType.AUDIT));
     }
 
-    public Map<AuditElements.Category, Set<AuditLoggerName>> listAuditsByCategory() {
-        Map<Category, Set<AuditLoggerName>> result = new EnumMap<Category, Set<AuditLoggerName>>(Category.class);
+    public Map<String, Set<AuditLoggerName>> listAuditsByCategory() {
+        Map<String, Set<AuditLoggerName>> result = new HashMap<String, Set<AuditLoggerName>>();
         for (AuditLoggerName auditLoggerName : listAudits()) {
             if (!result.containsKey(auditLoggerName.getCategory())) {
                 result.put(auditLoggerName.getCategory(), new HashSet<AuditLoggerName>());
@@ -83,5 +81,13 @@ public class LoggerRestClient extends BaseRestClient {
 
     public void disableAudit(final AuditLoggerName auditLoggerName) {
         getService(LoggerService.class).delete(LoggerType.AUDIT, auditLoggerName.toLoggerName());
+    }
+
+    public List<EventCategoryTO> listEvents() {
+        try {
+            return getService(LoggerService.class).events();
+        } catch (Exception e) {
+            return Collections.<EventCategoryTO>emptyList();
+        }
     }
 }

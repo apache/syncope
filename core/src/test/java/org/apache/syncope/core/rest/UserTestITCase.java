@@ -23,7 +23,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
@@ -2090,7 +2089,6 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("test@testoneone.com", toBeUpdated.getVirAttrs().get(0).getValues().get(0));
         // check if propagates correctly with assertEquals on size of tasks list
         assertEquals(2, toBeUpdated.getPropagationStatusTOs().size());
-
         // restore mapping of resource-csv
         csv.setUmapping(origMapping);
         resourceService.update(csv.getName(), csv);
@@ -2287,7 +2285,7 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(userTO.getPropagationStatusTOs().get(0).getFailureReason().
                 startsWith("Not attempted because there are mandatory attributes without value(s): [__PASSWORD__]"));
     }
-    
+
     @Test
     public void issueSYNCOPE436() {
         UserTO userTO = getUniqueSampleTO("syncope436@syncope.apache.org");
@@ -2299,5 +2297,4 @@ public class UserTestITCase extends AbstractTest {
         //Finding no values because the virtual attribute is readonly 
         assertTrue(userTO.getVirAttrMap().get("virtualReadOnly").getValues().isEmpty());
     }
-
 }

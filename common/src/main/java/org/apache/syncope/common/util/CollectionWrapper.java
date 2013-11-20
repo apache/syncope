@@ -62,8 +62,8 @@ public final class CollectionWrapper {
         for (LoggerTO l : logger) {
             try {
                 respons.add(AuditLoggerName.fromLoggerName(l.getName()));
-            } catch (Exception e) {
-                //TODO log event
+            } catch (Exception ignore) {
+                // ignore
             }
         }
         return respons;

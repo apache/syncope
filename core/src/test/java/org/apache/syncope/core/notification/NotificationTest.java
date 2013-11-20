@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.notification;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
@@ -192,6 +192,7 @@ public class NotificationTest {
                 messages[i].setFlag(Flag.DELETED, true);
             }
         }
+
         inbox.close(true);
         store.close();
         return found;
@@ -201,7 +202,7 @@ public class NotificationTest {
     public void notifyByMail() throws Exception {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
-        notification.addEvent("create");
+        notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
 
         MembershipCond membCond = new MembershipCond();
         membCond.setRoleId(7L);
@@ -257,7 +258,7 @@ public class NotificationTest {
     public void issueSYNCOPE192() throws Exception {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
-        notification.addEvent("create");
+        notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
 
         MembershipCond membCond = new MembershipCond();
         membCond.setRoleId(7L);
@@ -315,7 +316,7 @@ public class NotificationTest {
     public void notifyByMailEmptyAbout() throws Exception {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
-        notification.addEvent("create");
+        notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
 
         notification.setAbout(null);
 
@@ -369,7 +370,7 @@ public class NotificationTest {
     public void notifyByMailWithRetry() throws Exception {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
-        notification.addEvent("create");
+        notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
 
         notification.setAbout(null);
 

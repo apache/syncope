@@ -162,12 +162,13 @@ public final class MappingUtil {
             default:
         }
 
-        final List<AbstractAttrValue> values = MappingUtil.getIntValues(resource, mapItem, attributables,
+        List<AbstractAttrValue> values = MappingUtil.getIntValues(resource, mapItem, attributables,
                 vAttrsToBeRemoved, vAttrsToBeUpdated);
 
         AbstractNormalSchema schema = null;
+        boolean readOnlyVirSchema = false;
         AttributeSchemaType schemaType;
-        Map.Entry<String, Attribute> result = null;
+        final Map.Entry<String, Attribute> result;
         final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
         switch (mapItem.getIntMappingType()) {
             case UserSchema:
@@ -178,14 +179,14 @@ public final class MappingUtil {
                         MappingUtil.getIntMappingTypeClass(mapItem.getIntMappingType()));
                 schemaType = schema == null ? AttributeSchemaType.String : schema.getType();
                 break;
+
             case UserVirtualSchema:
             case RoleVirtualSchema:
-                final VirSchemaDAO virSchemaDAO = context.getBean(VirSchemaDAO.class);
-                final AbstractVirSchema virSchema = virSchemaDAO.find(mapItem.getIntAttrName(),
+            case MembershipVirtualSchema:
+                VirSchemaDAO virSchemaDAO = context.getBean(VirSchemaDAO.class);
+                AbstractVirSchema virSchema = virSchemaDAO.find(mapItem.getIntAttrName(),
                         MappingUtil.getIntMappingTypeClass(mapItem.getIntMappingType()));
-                if (virSchema.isReadonly()) {
-                    return result;
-                }
+                readOnlyVirSchema = (virSchema != null && virSchema.isReadonly());
                 schemaType = AttributeSchemaType.String;
                 break;
 
@@ -205,50 +206,54 @@ public final class MappingUtil {
                 + "\n* ClassType " + schemaType.getType().getName()
                 + "\n* Values " + values);
 
-        List<Object> objValues = new ArrayList<Object>();
+        if (readOnlyVirSchema) {
+            result = null;
+        } else {
+            final List<Object> objValues = new ArrayList<Object>();
 
-        for (AbstractAttrValue value : values) {
-            if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
-                objValues.add(value.getValue());
-            } else {
-                objValues.add(value.getValueAsString());
-            }
-        }
-
-        if (mapItem.isAccountid()) {
-            result = new AbstractMap.SimpleEntry<String, Attribute>(objValues.iterator().next().toString(), null);
-        } else if (mapItem.isPassword() && subject instanceof SyncopeUser) {
-            String passwordAttrValue = password;
-            if (StringUtils.isBlank(passwordAttrValue)) {
-                SyncopeUser user = (SyncopeUser) subject;
-                if (user.canDecodePassword()) {
-                    try {
-                        passwordAttrValue = PasswordEncoder.decode(user.getPassword(), user.getCipherAlgorithm());
-                    } catch (Exception e) {
-                        LOG.error("Could not decode password for {}", user, e);
-                    }
-                } else if (resource.isRandomPwdIfNotProvided()) {
-                    try {
-                        passwordAttrValue = passwordGenerator.generate(user);
-                    } catch (InvalidPasswordPolicySpecException e) {
-                        LOG.error("Could not generate policy-compliant random password for {}", user, e);
-
-                        passwordAttrValue = SecureRandomUtil.generateRandomPassword(16);
-                    }
+            for (AbstractAttrValue value : values) {
+                if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
+                    objValues.add(value.getValue());
+                } else {
+                    objValues.add(value.getValueAsString());
                 }
             }
 
-            result = new AbstractMap.SimpleEntry<String, Attribute>(null,
-                    AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
-        } else {
-            if ((schema != null && schema.isMultivalue()) || AttributableUtil.getInstance(subject).getType()
-                    != mapItem.getIntMappingType().getAttributableType()) {
-                result = new AbstractMap.SimpleEntry<String, Attribute>(null, AttributeBuilder.build(extAttrName,
-                        objValues));
+            if (mapItem.isAccountid()) {
+                result = new AbstractMap.SimpleEntry<String, Attribute>(objValues.iterator().next().toString(), null);
+            } else if (mapItem.isPassword() && subject instanceof SyncopeUser) {
+                String passwordAttrValue = password;
+                if (StringUtils.isBlank(passwordAttrValue)) {
+                    SyncopeUser user = (SyncopeUser) subject;
+                    if (user.canDecodePassword()) {
+                        try {
+                            passwordAttrValue = PasswordEncoder.decode(user.getPassword(), user.getCipherAlgorithm());
+                        } catch (Exception e) {
+                            LOG.error("Could not decode password for {}", user, e);
+                        }
+                    } else if (resource.isRandomPwdIfNotProvided()) {
+                        try {
+                            passwordAttrValue = passwordGenerator.generate(user);
+                        } catch (InvalidPasswordPolicySpecException e) {
+                            LOG.error("Could not generate policy-compliant random password for {}", user, e);
+
+                            passwordAttrValue = SecureRandomUtil.generateRandomPassword(16);
+                        }
+                    }
+                }
+
+                result = new AbstractMap.SimpleEntry<String, Attribute>(null,
+                        AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
             } else {
-                result = new AbstractMap.SimpleEntry<String, Attribute>(null, objValues.isEmpty()
-                        ? AttributeBuilder.build(extAttrName)
-                        : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
+                if ((schema != null && schema.isMultivalue()) || AttributableUtil.getInstance(subject).getType()
+                        != mapItem.getIntMappingType().getAttributableType()) {
+                    result = new AbstractMap.SimpleEntry<String, Attribute>(null, AttributeBuilder.build(extAttrName,
+                            objValues));
+                } else {
+                    result = new AbstractMap.SimpleEntry<String, Attribute>(null, objValues.isEmpty()
+                            ? AttributeBuilder.build(extAttrName)
+                            : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
+                }
             }
         }
 

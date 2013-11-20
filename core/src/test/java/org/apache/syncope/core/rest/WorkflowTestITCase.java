@@ -18,15 +18,14 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 import java.io.InputStream;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.common.types.WorkflowTasks;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.junit.Assume;
@@ -75,19 +74,5 @@ public class WorkflowTestITCase extends AbstractTest {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForRoles());
 
         importDefinition(AttributableType.ROLE);
-    }
-
-    @Test
-    public void getUserTasks() {
-        WorkflowTasks tasks = workflowService.getDefinedTasks(AttributableType.USER);
-        assertNotNull(tasks.getTasks());
-        assertFalse(tasks.getTasks().isEmpty());
-    }
-
-    @Test
-    public void getRoleTasks() {
-        WorkflowTasks tasks = workflowService.getDefinedTasks(AttributableType.ROLE);
-        assertNotNull(tasks.getTasks());
-        assertFalse(tasks.getTasks().isEmpty());
     }
 }

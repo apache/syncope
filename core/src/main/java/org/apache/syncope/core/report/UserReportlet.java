@@ -85,7 +85,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
         return conf.getMatchingCond() == null
                 ? userDAO.count(adminRoleIds)
                 : searchDAO.count(adminRoleIds, conf.getMatchingCond(),
-                AttributableUtil.getInstance(AttributableType.USER));
+                        AttributableUtil.getInstance(AttributableType.USER));
     }
 
     private void doExtractResources(final ContentHandler handler, final AbstractAttributableTO attributableTO)

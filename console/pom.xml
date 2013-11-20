@@ -319,7 +319,7 @@ under the License.
                   javax.servlet,
                   javax.xml*,
                   org.w3c.dom,
-                  org.apache.commons.lang*;version="[2.6,3)",
+                  org.apache.commons.lang3;version="[3,4)",
                   org.apache.http*;version="[4,5)",
                   org.apache.syncope.client*;version=${project.version},
                   org.apache.syncope.common*;version=${project.version},

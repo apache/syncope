@@ -67,7 +67,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Manage the data propagation to external resources.
  */
-@Transactional(rollbackFor = { Throwable.class })
+@Transactional(rollbackFor = {Throwable.class})
 public class PropagationManager {
 
     /**
@@ -182,6 +182,7 @@ public class PropagationManager {
         if (vAttrs != null && !vAttrs.isEmpty()) {
             roleDataBinder.fillVirtual(role, vAttrs, AttributableUtil.getInstance(AttributableType.ROLE));
         }
+        
         return getCreateTaskIds(role, null, vAttrs, null, wfResult.getPropByRes(), noPropResourceNames);
     }
 
@@ -653,7 +654,6 @@ public class PropagationManager {
                     }
 
                     task.setAttributes(preparedAttrs.getValue());
-
                     tasks.add(task);
 
                     LOG.debug("PropagationTask created: {}", task);

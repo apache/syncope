@@ -88,7 +88,8 @@ public class SchemaDataBinder {
         fill(schema, schemaTO);
     }
 
-    public <T extends AbstractNormalSchema> SchemaTO getSchemaTO(final T schema, final AttributableUtil attributableUtil) {
+    public <T extends AbstractNormalSchema> SchemaTO getSchemaTO(
+            final T schema, final AttributableUtil attributableUtil) {
         SchemaTO schemaTO = new SchemaTO();
         BeanUtils.copyProperties(schema, schemaTO);
 

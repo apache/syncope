@@ -23,7 +23,7 @@ package org.apache.syncope.core.persistence.dao;
  */
 public class NotFoundException extends RuntimeException {
 
-    private static final long serialVersionUID = 4810651769126663580L;
+    private static final long serialVersionUID = 4810651769126663581L;
 
     public NotFoundException(final String msg) {
         super(msg);

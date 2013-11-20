@@ -18,16 +18,36 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.lang.reflect.Method;
+import org.apache.syncope.common.AbstractBaseBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(rollbackFor = {Throwable.class})
-abstract class AbstractController {
+public abstract class AbstractController<T extends AbstractBaseBean> {
 
     /**
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractController.class);
 
+    /**
+     * Resolves stored bean (if existing) referred by the given CUD method.
+     * <br />
+     * Read-only methods will be unresolved for performance reasons.
+     *
+     * @param method method.
+     * @param args method arguments.
+     * @return referred stored bean.
+     * @throws UnresolvedReferenceException in case of failures, read-only methods and unresolved bean.
+     */
+    public T resolveBeanReference(final Method method, final Object... args) throws UnresolvedReferenceException {
+        final Transactional transactional = method.getAnnotation(Transactional.class);
+        if (transactional != null && transactional.readOnly()) {
+            throw new UnresolvedReferenceException();
+        }
+        return resolveReference(method, args);
+    }
+
+    protected abstract T resolveReference(Method method, Object... args) throws UnresolvedReferenceException;
 }

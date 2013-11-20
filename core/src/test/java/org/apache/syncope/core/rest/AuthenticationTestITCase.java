@@ -325,7 +325,6 @@ public class AuthenticationTestITCase extends AbstractTest {
         parentRole.getEntitlements().add("USER_CREATE");
         parentRole.getEntitlements().add("ROLE_1");
         parentRole.setParent(1L);
-
         parentRole = createRole(parentRole);
         assertNotNull(parentRole);
 

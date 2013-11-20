@@ -174,13 +174,6 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public List<String> getDefinedTasks()
-            throws WorkflowException {
-
-        return TASKS;
-    }
-
-    @Override
     public List<WorkflowFormTO> getForms() {
         return Collections.emptyList();
     }

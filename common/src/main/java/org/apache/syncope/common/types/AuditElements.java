@@ -18,228 +18,43 @@
  */
 package org.apache.syncope.common.types;
 
-import java.util.EnumSet;
+import java.io.Serializable;
 import javax.xml.bind.annotation.XmlEnum;
+import org.apache.commons.lang3.StringUtils;
 
-public final class AuditElements {
+public final class AuditElements implements Serializable {
+
+    private static final long serialVersionUID = -4385059255522273254L;
 
     private AuditElements() {
     }
 
     @XmlEnum
-    public enum Category {
+    public enum EventCategoryType {
 
-        authentication(AuthenticationSubCategory.class),
-        configuration(ConfigurationSubCategory.class),
-        connector(ConnectorSubCategory.class),
-        logger(LoggerSubCategory.class),
-        notification(NotificationSubCategory.class),
-        policy(PolicySubCategory.class),
-        report(ReportSubCategory.class),
-        resource(ResourceSubCategory.class),
-        role(RoleSubCategory.class),
-        schema(SchemaSubCategory.class),
-        task(TaskSubCategory.class),
-        user(UserSubCategory.class),
-        workflow(WorkflowSubCategory.class);
+        REST(StringUtils.EMPTY),
+        TASK(StringUtils.EMPTY),
+        PROPAGATION("PropagationTask"),
+        SYNCHRONIZATION("SyncTask"),
+        CUSTOM(StringUtils.EMPTY);
 
-        private Class<? extends Enum<?>> subCategory;
+        private final String value;
 
-        Category(final Class<? extends Enum<?>> subCategory) {
-            this.subCategory = subCategory;
+        EventCategoryType(final String value) {
+            this.value = value;
         }
 
-        public Class<? extends Enum> getSubCategory() {
-            return subCategory;
-        }
-
-        @SuppressWarnings("unchecked")
-        public EnumSet<? extends Enum<?>> getSubCategoryElements() {
-            return EnumSet.allOf(getSubCategory());
+        @Override
+        public String toString() {
+            return value;
         }
     }
 
     @XmlEnum
     public enum Result {
 
-        success,
-        failure
-
-    }
-
-    @XmlEnum
-    public enum AuthenticationSubCategory {
-
-        login,
-        getEntitlements
-
-    }
-
-    @XmlEnum
-    public enum ConfigurationSubCategory {
-
-        list,
-        create,
-        read,
-        update,
-        delete,
-        getMailTemplates,
-        getValidators,
-        dbExport
-
-    }
-
-    @XmlEnum
-    public enum ConnectorSubCategory {
-
-        list,
-        create,
-        read,
-        update,
-        delete,
-        getBundles,
-        getSchemaNames,
-        getSupportedObjectClasses,
-        getConfigurationProperties,
-        check,
-        readConnectorBean,
-        reload
-
-    }
-
-    @XmlEnum
-    public enum LoggerSubCategory {
-
-        list,
-        setLevel,
-        delete
-
-    }
-
-    @XmlEnum
-    public enum NotificationSubCategory {
-
-        list,
-        create,
-        read,
-        update,
-        delete,
-        send,
-        retry
-
-    }
-
-    @XmlEnum
-    public enum PolicySubCategory {
-
-        list,
-        create,
-        read,
-        update,
-        delete,
-        getCorrelationRuleClasses
-
-    }
-
-    @XmlEnum
-    public enum ReportSubCategory {
-
-        list,
-        create,
-        read,
-        readExecution,
-        update,
-        delete,
-        deleteExecution,
-        getReportletConfClasses,
-        execute,
-        exportExecutionResult
-
-    }
-
-    @XmlEnum
-    public enum ResourceSubCategory {
-
-        list,
-        create,
-        read,
-        update,
-        delete,
-        getObject,
-        getRoleResourcesMapping,
-        getPropagationActionsClasses
-
-    }
-
-    @XmlEnum
-    public enum RoleSubCategory {
-
-        list,
-        create,
-        read,
-        selfRead,
-        update,
-        delete,
-        parent,
-        children
-
-    }
-
-    @XmlEnum
-    public enum SchemaSubCategory {
-
-        list,
-        create,
-        read,
-        update,
-        delete
-
-    }
-
-    @XmlEnum
-    public enum TaskSubCategory {
-
-        list,
-        create,
-        read,
-        update,
-        delete,
-        getJobClasses,
-        getSyncActionsClasses,
-        readExecution,
-        execute,
-        report,
-        deleteExecution
-
-    }
-
-    @XmlEnum
-    public enum UserSubCategory {
-
-        selfRegistrationAllowed,
-        list,
-        create,
-        read,
-        update,
-        delete,
-        verifyPassword,
-        search,
-        setStatus,
-        executeWorkflow,
-        getForms,
-        getFormForUser,
-        claimForm,
-        submitForm
-
-    }
-
-    @XmlEnum
-    public enum WorkflowSubCategory {
-
-        exportDefinition,
-        exportDiagram,
-        importDefinition,
-        getDefinedTasks
+        SUCCESS,
+        FAILURE
 
     }
 }

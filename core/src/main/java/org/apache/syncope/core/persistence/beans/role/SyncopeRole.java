@@ -62,8 +62,7 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.validation.entity.SyncopeRoleCheck;
 
 @Entity
-@Table(uniqueConstraints =
-        @UniqueConstraint(columnNames = { "name", "parent_id" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name", "parent_id"}))
 @Cacheable
 @SyncopeRoleCheck
 public class SyncopeRole extends AbstractAttributable {
@@ -284,7 +283,7 @@ public class SyncopeRole extends AbstractAttributable {
         this.inheritTemplates = getBooleanAsInteger(inheritAttrTemplates);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public <T extends AbstractAttrTemplate> List<T> getAttrTemplates(final Class<T> reference) {
         List<T> result = null;
 
@@ -322,7 +321,7 @@ public class SyncopeRole extends AbstractAttributable {
     public <T extends AbstractAttrTemplate<K>, K extends AbstractSchema> List<K> getAttrTemplateSchemas(
             final Class<T> reference) {
 
-        List<K> result = new ArrayList<K>();
+        final List<K> result = new ArrayList<K>();
 
         for (T template : findInheritedTemplates(reference)) {
             result.add(template.getSchema());
@@ -335,7 +334,7 @@ public class SyncopeRole extends AbstractAttributable {
     public <T extends AbstractAttrTemplate<K>, K extends AbstractSchema> List<T> findInheritedTemplates(
             final Class<T> reference) {
 
-        List<T> result = new ArrayList<T>(getAttrTemplates(reference));
+        final List<T> result = new ArrayList<T>(getAttrTemplates(reference));
 
         if (isInheritTemplates() && getParent() != null) {
             result.addAll(getParent().findInheritedTemplates(reference));

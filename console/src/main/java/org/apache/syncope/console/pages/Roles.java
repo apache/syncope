@@ -101,7 +101,7 @@ public class Roles extends BasePage {
         final Form searchForm = new Form("searchForm");
         add(searchForm);
 
-        final RoleSearchPanel searchPanel = new RoleSearchPanel("searchPanel");
+        final RoleSearchPanel searchPanel = new RoleSearchPanel.Builder("searchPanel").build();
         searchForm.add(searchPanel);
 
         searchForm.add(new ClearIndicatingAjaxButton("search", new ResourceModel("search"), getPageReference()) {

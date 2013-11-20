@@ -54,7 +54,7 @@ public final class JexlUtil {
      */
     private static final Logger LOG = LoggerFactory.getLogger(JexlUtil.class);
 
-    private static final String[] IGNORE_FIELDS = { "password", "clearPassword", "serialVersionUID", "class" };
+    private static final String[] IGNORE_FIELDS = {"password", "clearPassword", "serialVersionUID", "class"};
 
     private static JexlEngine jexlEngine;
 
@@ -82,7 +82,7 @@ public final class JexlUtil {
     }
 
     public static String evaluate(final String expression, final JexlContext jexlContext) {
-        String result = "";
+        String result = StringUtils.EMPTY;
 
         if (StringUtils.isNotBlank(expression) && jexlContext != null) {
             try {
@@ -271,5 +271,4 @@ public final class JexlUtil {
      */
     private JexlUtil() {
     }
-
 }

@@ -18,23 +18,20 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityExistsException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.AuditElements;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.ResourceSubCategory;
-import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
@@ -63,10 +60,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class ResourceController extends AbstractController {
-
-    @Autowired
-    private AuditManager auditManager;
+public class ResourceController extends AbstractTransactionalController<ResourceTO> {
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -111,9 +105,6 @@ public class ResourceController extends AbstractController {
 
         ExternalResource resource = resourceDAO.save(binder.create(resourceTO));
 
-        auditManager.audit(Category.resource, ResourceSubCategory.create, Result.success,
-                "Successfully created resource: " + resource.getName());
-
         return binder.getResourceTO(resource);
     }
 
@@ -129,9 +120,6 @@ public class ResourceController extends AbstractController {
         resource = binder.update(resource, resourceTO);
         resource = resourceDAO.save(resource);
 
-        auditManager.audit(Category.resource, ResourceSubCategory.update, Result.success,
-                "Successfully updated resource: " + resource.getName());
-
         return binder.getResourceTO(resource);
     }
 
@@ -143,9 +131,6 @@ public class ResourceController extends AbstractController {
         }
 
         ResourceTO resourceToDelete = binder.getResourceTO(resource);
-
-        auditManager.audit(Category.resource, ResourceSubCategory.delete, Result.success,
-                "Successfully deleted resource: " + resource.getName());
 
         resourceDAO.delete(resourceName);
 
@@ -160,9 +145,6 @@ public class ResourceController extends AbstractController {
             throw new NotFoundException("Resource '" + resourceName + "'");
         }
 
-        auditManager.audit(Category.resource, ResourceSubCategory.read, Result.success,
-                "Successfully read resource: " + resource.getName());
-
         return binder.getResourceTO(resource);
     }
 
@@ -170,9 +152,6 @@ public class ResourceController extends AbstractController {
     public Set<String> getPropagationActionsClasses() {
         Set<String> actionsClasses = classNamesLoader.getClassNames(
                 ImplementationClassNamesLoader.Type.PROPAGATION_ACTIONS);
-
-        auditManager.audit(Category.resource, AuditElements.ResourceSubCategory.getPropagationActionsClasses,
-                Result.success, "Successfully listed all PropagationActions classes: " + actionsClasses.size());
 
         return actionsClasses;
     }
@@ -190,11 +169,6 @@ public class ResourceController extends AbstractController {
         }
 
         List<ResourceTO> result = binder.getResourceTOs(resources);
-
-        auditManager.audit(Category.resource, ResourceSubCategory.list, Result.success,
-                connInstanceId == null
-                ? "Successfully listed all resources: " + result.size()
-                : "Successfully listed resources for connector " + connInstanceId + ": " + result.size());
 
         return result;
     }
@@ -253,10 +227,6 @@ public class ResourceController extends AbstractController {
             attributes.add(connectorObject.getName());
         }
 
-        auditManager.audit(Category.resource, ResourceSubCategory.getObject, Result.success,
-                "Successfully read object " + accountIdValue + " with class " + objectClass
-                + " from resource " + resourceName);
-
         return connObjectUtil.getConnObjectTO(connectorObject);
     }
 
@@ -271,13 +241,7 @@ public class ResourceController extends AbstractController {
         try {
             connector.test();
             result = true;
-
-            auditManager.audit(Category.connector, AuditElements.ConnectorSubCategory.check, Result.success,
-                    "Successfully checked connector: " + resourceTO);
         } catch (Exception e) {
-            auditManager.audit(Category.connector, AuditElements.ConnectorSubCategory.check, Result.failure,
-                    "Unsuccessful check for connector: " + resourceTO, e);
-
             LOG.error("Test connection failure {}", e);
             result = false;
         }
@@ -303,5 +267,35 @@ public class ResourceController extends AbstractController {
         }
 
         return res;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected ResourceTO resolveReference(final Method method, final Object... args) throws
+            UnresolvedReferenceException {
+        String name = null;
+
+        if (ArrayUtils.isNotEmpty(args)) {
+            for (int i = 0; name == null && i < args.length; i++) {
+                if (args[i] instanceof String) {
+                    name = (String) args[i];
+                } else if (args[i] instanceof ResourceTO) {
+                    name = ((ResourceTO) args[i]).getName();
+                }
+            }
+        }
+
+        if (name != null) {
+            try {
+                return binder.getResourceTO(resourceDAO.find(name));
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
+        throw new UnresolvedReferenceException();
     }
 }

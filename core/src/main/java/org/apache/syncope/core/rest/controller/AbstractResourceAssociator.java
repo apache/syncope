@@ -21,7 +21,7 @@ package org.apache.syncope.core.rest.controller;
 import java.util.Collection;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 
-public abstract class AbstractResourceAssociator<T extends AbstractAttributableTO> {
+public abstract class AbstractResourceAssociator<T extends AbstractAttributableTO> extends AbstractController<T> {
 
     public abstract T unlink(Long id, Collection<String> resources);
 

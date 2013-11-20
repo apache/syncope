@@ -18,15 +18,11 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
-
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.to.NotificationTO;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.NotificationSubCategory;
-import org.apache.syncope.common.types.AuditElements.Result;
-import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.Notification;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.NotificationDAO;
@@ -36,10 +32,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class NotificationController extends AbstractController {
-
-    @Autowired
-    private AuditManager auditManager;
+public class NotificationController extends AbstractTransactionalController<NotificationTO> {
 
     @Autowired
     private NotificationDAO notificationDAO;
@@ -68,22 +61,13 @@ public class NotificationController extends AbstractController {
             notificationTOs.add(binder.getNotificationTO(notification));
         }
 
-        auditManager.audit(Category.notification, NotificationSubCategory.list, Result.success,
-                "Successfully listed all notifications: " + notificationTOs.size());
-
         return notificationTOs;
     }
 
     @PreAuthorize("hasRole('NOTIFICATION_CREATE')")
     public NotificationTO create(final NotificationTO notificationTO) {
         LOG.debug("Notification create called with parameter {}", notificationTO);
-
-        Notification notification = notificationDAO.save(binder.createNotification(notificationTO));
-
-        auditManager.audit(Category.notification, NotificationSubCategory.create, Result.success,
-                "Successfully created notification: " + notification.getId());
-
-        return binder.getNotificationTO(notification);
+        return binder.getNotificationTO(notificationDAO.save(binder.createNotification(notificationTO)));
     }
 
     @PreAuthorize("hasRole('NOTIFICATION_UPDATE')")
@@ -93,15 +77,11 @@ public class NotificationController extends AbstractController {
         Notification notification = notificationDAO.find(notificationTO.getId());
         if (notification == null) {
             LOG.error("Could not find notification '" + notificationTO.getId() + "'");
-
             throw new NotFoundException(String.valueOf(notificationTO.getId()));
         }
 
         binder.updateNotification(notification, notificationTO);
         notification = notificationDAO.save(notification);
-
-        auditManager.audit(Category.notification, NotificationSubCategory.update, Result.success,
-                "Successfully updated notification: " + notification.getId());
 
         return binder.getNotificationTO(notification);
     }
@@ -116,12 +96,37 @@ public class NotificationController extends AbstractController {
         }
 
         NotificationTO notificationToDelete = binder.getNotificationTO(notification);
-
-        auditManager.audit(Category.notification, NotificationSubCategory.delete, Result.success,
-                "Successfully deleted notification: " + notification.getId());
-
         notificationDAO.delete(notificationId);
-
         return notificationToDelete;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected NotificationTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+        Long id = null;
+
+        if (ArrayUtils.isNotEmpty(args)) {
+            for (int i = 0; id == null && i < args.length; i++) {
+                if (args[i] instanceof Long) {
+                    id = (Long) args[i];
+                } else if (args[i] instanceof NotificationTO) {
+                    id = ((NotificationTO) args[i]).getId();
+                }
+            }
+        }
+
+        if (id != null) {
+            try {
+                return binder.getNotificationTO(notificationDAO.find(id));
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
+        throw new UnresolvedReferenceException();
     }
 }

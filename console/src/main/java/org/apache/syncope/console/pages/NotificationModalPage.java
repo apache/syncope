@@ -23,17 +23,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import org.apache.syncope.common.to.EventCategoryTO;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.pages.panels.LoggerCategoryPanel;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
+import org.apache.syncope.console.rest.LoggerRestClient;
 import org.apache.syncope.console.rest.NotificationRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -48,7 +50,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 
@@ -59,11 +60,14 @@ class NotificationModalPage extends BaseModalPage {
     @SpringBean
     private NotificationRestClient restClient;
 
+    @SpringBean
+    private LoggerRestClient loggerRestClient;
+
     public NotificationModalPage(final PageReference pageRef, final ModalWindow window,
             final NotificationTO notificationTO, final boolean createFlag) {
 
-        Form form = new Form(FORM, new CompoundPropertyModel(notificationTO));
-        form.setModel(new CompoundPropertyModel(notificationTO));
+        final Form<NotificationTO> form =
+                new Form<NotificationTO>(FORM, new CompoundPropertyModel<NotificationTO>(notificationTO));
 
         final AjaxTextFieldPanel sender = new AjaxTextFieldPanel("sender", getString("sender"),
                 new PropertyModel<String>(notificationTO, "sender"));
@@ -94,16 +98,16 @@ class NotificationModalPage extends BaseModalPage {
         aboutContainer.setOutputMarkupId(true);
 
         form.add(aboutContainer);
-        
+
         final AjaxCheckBoxPanel checkAbout =
                 new AjaxCheckBoxPanel("checkAbout", "checkAbout",
                 new Model<Boolean>(notificationTO.getAbout() == null));
         aboutContainer.add(checkAbout);
-        
+
         final UserSearchPanel about = new UserSearchPanel.Builder("about").nodeCond(notificationTO.getAbout()).build();
         aboutContainer.add(about);
         about.setEnabled(!checkAbout.getModelObject());
-        
+
         checkAbout.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
@@ -143,9 +147,25 @@ class NotificationModalPage extends BaseModalPage {
             }
         });
 
-        final AjaxPalettePanel events = new AjaxPalettePanel("events", new PropertyModel(notificationTO, "events"),
-                new ListModel<String>(restClient.getEvents()));
-        form.add(events);
+        form.add(new LoggerCategoryPanel(
+                "eventSelection",
+                loggerRestClient.listEvents(),
+                new PropertyModel<List<String>>(notificationTO, "events"),
+                getPageReference(),
+                "Notification") {
+
+            private static final long serialVersionUID = 6429053774964787735L;
+
+            @Override
+            protected String[] getListRoles() {
+                return new String[] {};
+            }
+
+            @Override
+            protected String[] getChangeRoles() {
+                return new String[] {};
+            }
+        });
 
         final WebMarkupContainer recipientsContainer = new WebMarkupContainer("recipientsContainer");
         recipientsContainer.setOutputMarkupId(true);
@@ -153,7 +173,7 @@ class NotificationModalPage extends BaseModalPage {
         form.add(recipientsContainer);
 
         final AjaxCheckBoxPanel selfAsRecipient = new AjaxCheckBoxPanel("selfAsRecipient",
-                getString("selfAsRecipient"), new PropertyModel(notificationTO, "selfAsRecipient"));
+                getString("selfAsRecipient"), new PropertyModel<Boolean>(notificationTO, "selfAsRecipient"));
         form.add(selfAsRecipient);
 
         if (createFlag) {
@@ -291,5 +311,11 @@ class NotificationModalPage extends BaseModalPage {
         }
 
         return result;
+    }
+
+    private EventCategoryTO getEventCategoryTO(final List<String> events) {
+        final EventCategoryTO res = new EventCategoryTO();
+
+        return res;
     }
 }

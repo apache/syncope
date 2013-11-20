@@ -18,14 +18,11 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.syncope.common.types.AuditElements.AuthenticationSubCategory;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.Result;
-import org.apache.syncope.core.audit.AuditManager;
+import org.apache.syncope.common.to.EntitlementTO;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.util.EntitlementUtil;
@@ -33,10 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EntitlementController extends AbstractController {
-
-    @Autowired
-    private AuditManager auditManager;
+public class EntitlementController extends AbstractTransactionalController<EntitlementTO> {
 
     @Autowired
     private EntitlementDAO entitlementDAO;
@@ -52,11 +46,11 @@ public class EntitlementController extends AbstractController {
     }
 
     public Set<String> getOwn() {
-        Set<String> result = EntitlementUtil.getOwnedEntitlementNames();
+        return EntitlementUtil.getOwnedEntitlementNames();
+    }
 
-        auditManager.audit(Category.authentication, AuthenticationSubCategory.getEntitlements, Result.success,
-                "Owned entitlements: " + result.toString());
-
-        return result;
+    @Override
+    protected EntitlementTO resolveReference(Method method, Object... args) throws UnresolvedReferenceException {
+        throw new UnresolvedReferenceException();
     }
 }

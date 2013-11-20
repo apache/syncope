@@ -29,7 +29,6 @@ import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.RESTHeaders;
-import org.apache.syncope.common.types.WorkflowTasks;
 
 @Path("workflows/{kind}")
 public interface WorkflowService {
@@ -54,13 +53,4 @@ public interface WorkflowService {
     @PUT
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     void importDefinition(@PathParam("kind") AttributableType kind, String definition);
-
-    /**
-     * @param kind Kind can be USER or ROLE only!
-     * @return Returns existing tasks for matching kind.
-     */
-    @GET
-    @Path("tasks")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    WorkflowTasks getDefinedTasks(@PathParam("kind") AttributableType kind);
 }

@@ -18,19 +18,16 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
-import org.apache.syncope.common.types.AuditElements;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.PolicySubCategory;
-import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.PolicyType;
-import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
@@ -44,13 +41,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PolicyController extends AbstractController {
+public class PolicyController extends AbstractTransactionalController<AbstractPolicyTO> {
 
     @Autowired
     private ImplementationClassNamesLoader classNamesLoader;
-
-    @Autowired
-    private AuditManager auditManager;
 
     @Autowired
     private PolicyDAO policyDAO;
@@ -61,24 +55,13 @@ public class PolicyController extends AbstractController {
     @PreAuthorize("hasRole('POLICY_CREATE')")
     public <T extends AbstractPolicyTO> T create(final T policyTO) {
         LOG.debug("Creating policy " + policyTO);
-
-        final Policy policy = binder.getPolicy(null, policyTO);
-
-        auditManager.audit(Category.policy, PolicySubCategory.create, Result.success,
-                "Successfully created " + policy.getType().toString() + " policy: " + policy.getId());
-
-        return binder.getPolicyTO(policyDAO.save(policy));
+        return binder.getPolicyTO(policyDAO.save(binder.getPolicy(null, policyTO)));
     }
 
     private <T extends AbstractPolicyTO, K extends Policy> T update(final T policyTO, final K policy) {
         LOG.debug("Updating policy " + policyTO);
-
         binder.getPolicy(policy, policyTO);
         K savedPolicy = policyDAO.save(policy);
-
-        auditManager.audit(Category.policy, PolicySubCategory.update, Result.success,
-                "Successfully updated policy (" + savedPolicy.getType() + "): " + savedPolicy.getId());
-
         return binder.getPolicyTO(savedPolicy);
     }
 
@@ -124,9 +107,6 @@ public class PolicyController extends AbstractController {
             policyTOs.add((T) binder.getPolicyTO(policy));
         }
 
-        auditManager.audit(Category.policy, PolicySubCategory.list, Result.success,
-                "Successfully listed all policies (" + type + "): " + policyTOs.size());
-
         return policyTOs;
     }
 
@@ -138,9 +118,6 @@ public class PolicyController extends AbstractController {
         if (policy == null) {
             throw new NotFoundException("No password policy found");
         }
-
-        auditManager.audit(Category.policy, PolicySubCategory.read, Result.success,
-                "Successfully read global password policy: " + policy.getId());
 
         return (PasswordPolicyTO) binder.getPolicyTO(policy);
     }
@@ -154,9 +131,6 @@ public class PolicyController extends AbstractController {
             throw new NotFoundException("No account policy found");
         }
 
-        auditManager.audit(Category.policy, PolicySubCategory.read, Result.success,
-                "Successfully read global account policy: " + policy.getId());
-
         return (AccountPolicyTO) binder.getPolicyTO(policy);
     }
 
@@ -169,9 +143,6 @@ public class PolicyController extends AbstractController {
             throw new NotFoundException("No sync policy found");
         }
 
-        auditManager.audit(Category.policy, PolicySubCategory.read, Result.success,
-                "Successfully read global sync policy: " + policy.getId());
-
         return (SyncPolicyTO) binder.getPolicyTO(policy);
     }
 
@@ -183,9 +154,6 @@ public class PolicyController extends AbstractController {
         if (policy == null) {
             throw new NotFoundException("Policy " + id + " not found");
         }
-
-        auditManager.audit(Category.policy, PolicySubCategory.read, Result.success,
-                "Successfully read policy (" + policy.getType() + "): " + policy.getId());
 
         return binder.getPolicyTO(policy);
     }
@@ -200,20 +168,41 @@ public class PolicyController extends AbstractController {
         T policyToDelete = binder.getPolicyTO(policy);
         policyDAO.delete(policy);
 
-        auditManager.audit(Category.policy, PolicySubCategory.delete, Result.success,
-                "Successfully deleted policy: " + id);
-
         return policyToDelete;
     }
 
     @PreAuthorize("hasRole('POLICY_LIST')")
     public Set<String> getSyncCorrelationRuleClasses() {
-        final Set<String> correlationRules =
-                classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.SYNC_CORRELATION_RULES);
+        return classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.SYNC_CORRELATION_RULES);
+    }
 
-        auditManager.audit(Category.policy, AuditElements.PolicySubCategory.getCorrelationRuleClasses,
-                Result.success, "Successfully listed all correlation rule classes: " + correlationRules.size());
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected AbstractPolicyTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+        Long id = null;
 
-        return correlationRules;
+        if (ArrayUtils.isNotEmpty(args)) {
+            for (int i = 0; id == null && i < args.length; i++) {
+                if (args[i] instanceof Long) {
+                    id = (Long) args[i];
+                } else if (args[i] instanceof AbstractPolicyTO) {
+                    id = ((AbstractPolicyTO) args[i]).getId();
+                }
+            }
+        }
+
+        if (id != null) {
+            try {
+                return binder.getPolicyTO(policyDAO.find(id));
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
+        throw new UnresolvedReferenceException();
     }
 }

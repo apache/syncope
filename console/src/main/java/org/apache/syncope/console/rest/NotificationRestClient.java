@@ -23,10 +23,8 @@ import java.util.List;
 
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.services.NotificationService;
-import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.to.MailTemplateTO;
 import org.apache.syncope.common.to.NotificationTO;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.springframework.stereotype.Component;
 
@@ -58,9 +56,5 @@ public class NotificationRestClient extends BaseRestClient {
     public List<String> getMailTemplates() {
         return CollectionWrapper.unwrap(
                 new ArrayList<MailTemplateTO>(getService(ConfigurationService.class).getMailTemplates()));
-    }
-
-    public List<String> getEvents() {
-        return getService(WorkflowService.class).getDefinedTasks(AttributableType.USER).getTasks();
     }
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.lang.reflect.Method;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
@@ -25,9 +26,6 @@ import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
-import org.apache.syncope.common.types.AuditElements;
-import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
@@ -42,10 +40,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class UserWorkflowController extends AbstractController {
-
-    @Autowired
-    protected AuditManager auditManager;
+public class UserWorkflowController extends AbstractTransactionalController<WorkflowFormTO> {
 
     @Autowired
     protected UserWorkflowAdapter uwfAdapter;
@@ -57,22 +52,13 @@ public class UserWorkflowController extends AbstractController {
     protected PropagationTaskExecutor taskExecutor;
 
     @Autowired
-    protected NotificationManager notificationManager;
-
-    @Autowired
     protected UserDataBinder binder;
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_CLAIM')")
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     public WorkflowFormTO claimForm(final String taskId) {
-        WorkflowFormTO result = uwfAdapter.claimForm(taskId,
+        return uwfAdapter.claimForm(taskId,
                 SecurityContextHolder.getContext().getAuthentication().getName());
-
-        auditManager.audit(AuditElements.Category.user, AuditElements.UserSubCategory.claimForm,
-                AuditElements.Result.success,
-                "Successfully claimed workflow form: " + taskId);
-
-        return result;
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
@@ -86,64 +72,40 @@ public class UserWorkflowController extends AbstractController {
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                 new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                        new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, null),
-                        updated.getPropByRes(), updated.getPerformedTasks()));
+                new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, null),
+                updated.getPropByRes(), updated.getPerformedTasks()));
 
         taskExecutor.execute(tasks);
-
-        notificationManager.createTasks(updated.getResult(), updated.getPerformedTasks());
 
         final UserTO savedTO = binder.getUserTO(updated.getResult());
 
         LOG.debug("About to return updated user\n{}", savedTO);
 
-        auditManager.audit(AuditElements.Category.user, AuditElements.UserSubCategory.executeWorkflow,
-                AuditElements.Result.success,
-                "Successfully executed workflow action " + taskId + " on user: " + userTO.getUsername());
-
         return savedTO;
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     public WorkflowFormTO getFormForUser(final Long userId) {
         SyncopeUser user = binder.getUserFromId(userId);
-        WorkflowFormTO result = uwfAdapter.getForm(user.getWorkflowId());
-
-        auditManager.audit(AuditElements.Category.user, AuditElements.UserSubCategory.getFormForUser,
-                AuditElements.Result.success,
-                "Successfully read workflow form for user: " + user.getUsername());
-
-        return result;
+        return uwfAdapter.getForm(user.getWorkflowId());
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_LIST')")
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     public List<WorkflowFormTO> getForms() {
-        List<WorkflowFormTO> forms = uwfAdapter.getForms();
-
-        auditManager.audit(AuditElements.Category.user, AuditElements.UserSubCategory.getForms,
-                AuditElements.Result.success,
-                "Successfully list workflow forms: " + forms.size());
-
-        return forms;
+        return uwfAdapter.getForms();
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     public List<WorkflowFormTO> getForms(final Long userId, final String formName) {
         SyncopeUser user = binder.getUserFromId(userId);
-        final List<WorkflowFormTO> result = uwfAdapter.getForms(user.getWorkflowId(), formName);
-
-        auditManager.audit(AuditElements.Category.user, AuditElements.UserSubCategory.getFormForUser,
-                AuditElements.Result.success,
-                "Successfully read workflow form for user: " + user.getUsername());
-
-        return result;
+        return uwfAdapter.getForms(user.getWorkflowId(), formName);
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_SUBMIT')")
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     public UserTO submitForm(final WorkflowFormTO form) {
         LOG.debug("About to process form {}", form);
 
@@ -157,21 +119,23 @@ public class UserWorkflowController extends AbstractController {
 
             List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                     new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                            new AbstractMap.SimpleEntry<UserMod, Boolean>((UserMod) updated.getResult(), Boolean.TRUE),
-                            updated.getPropByRes(),
-                            updated.getPerformedTasks()));
+                    new AbstractMap.SimpleEntry<UserMod, Boolean>((UserMod) updated.getResult(), Boolean.TRUE),
+                    updated.getPropByRes(),
+                    updated.getPerformedTasks()));
 
             taskExecutor.execute(tasks);
         }
 
-        UserTO savedTO = binder.getUserTO(updated.getResult().getId());
-
-        auditManager.audit(AuditElements.Category.user, AuditElements.UserSubCategory.submitForm,
-                AuditElements.Result.success,
-                "Successfully submitted workflow form for : " + savedTO.getUsername());
+        final UserTO savedTO = binder.getUserTO(updated.getResult().getId());
 
         LOG.debug("About to return user after form processing\n{}", savedTO);
 
         return savedTO;
+    }
+
+    @Override
+    protected WorkflowFormTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+        throw new UnresolvedReferenceException();
     }
 }

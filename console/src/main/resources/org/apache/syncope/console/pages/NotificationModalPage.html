@@ -17,6 +17,35 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:head>
+    <style>
+      div#tabs div#events{
+        min-width: 970px;
+        overflow: hidden;
+      }
+
+      div#userFilter {
+        border: 1px solid #DDDDDD;
+      }
+
+      div#userFilter div#title {
+        margin: 10px 0px 0px 8px;
+      }
+
+      div#userFilter div#warning {
+        margin: 1px 0px 5px 8px;
+      }
+
+      div#userFilter div#title label {
+        font-weight: bold;
+      }
+
+      div#userFilter div#warning label {
+        color: #E00000;
+        font-size: 8px;
+      }
+    </style>
+  </wicket:head>
   <wicket:extend>
     <div style="margin:10px">
       <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
@@ -24,8 +53,8 @@ under the License.
         <div id="tabs">
           <ul>
             <li  class="tabs-selected"><a href="#notification"><span><wicket:message key="notification"/></span></a></li>
-            <li><a href="#about"><span><wicket:message key="about"/></span></a></li>
             <li><a href="#events"><span><wicket:message key="events"/></span></a></li>
+            <li><a href="#about"><span><wicket:message key="about"/></span></a></li>
             <li><a href="#recipients"><span><wicket:message key="recipients"/></span></a></li>
           </ul>
 
@@ -87,22 +116,32 @@ under the License.
             </div>
           </div>
 
+          <div id="events">
+            <span wicket:id="eventSelection"/>
+          </div>
+
           <div id="about">
             <span wicket:id="aboutContainer">
-           	<div class="tablerow" style="width: auto;">
-           	  <div class="tablecolumn_field" style="width: auto; padding-right: 5px;">
-           	    <span wicket:id="checkAbout">[checkAbout]</span>
-           	  </div>
-           	  <div class="tablecolumn_label" style="width: auto;">
-           	    <label for="checkAbout"><wicket:message key="checkAbout"/></label>
-           	  </div>
-           	</div>
-               <span wicket:id="about"/>
-             </span>
-          </div>  
-
-          <div id="events">
-            <span wicket:id="events"/>
+              <div class="tablerow" style="width: auto;">
+                <div class="tablecolumn_field" style="width: auto; padding-right: 5px;">
+                  <span wicket:id="checkAbout">[checkAbout]</span>
+                </div>
+                <div class="tablecolumn_label" style="width: auto;">
+                  <label for="checkAbout"><wicket:message key="checkAbout"/></label>
+                </div>
+              </div>
+              <div id="userFilter">
+                <div id="title">
+                  <label for="userFilter"><wicket:message key="userFilter"/></label>
+                </div>
+                <div id="warning">
+                  <label for="userFilter"><wicket:message key="userFilterWarning"/></label>
+                </div>
+                <div id="condition">
+                  <span wicket:id="about"/>
+                </div>
+              </div>
+            </span>
           </div>
 
           <div id="recipients">
@@ -115,11 +154,11 @@ under the License.
               </div>
             </div>
             <span wicket:id="recipientsContainer">
-           	<div class="tablerow" style="width: auto;">
-           	  <div class="tablecolumn_field" style="width: auto; padding-right: 5px;">
+              <div class="tablerow" style="width: auto;">
+                <div class="tablecolumn_field" style="width: auto; padding-right: 5px;">
                   <span wicket:id="checkRecipients">[checkRecipients]</span>
                 </div>
-           	  <div class="tablecolumn_label" style="width: auto;">
+                <div class="tablecolumn_label" style="width: auto;">
                   <label for="checkRecipients"><wicket:message key="checkRecipients"/></label>
                 </div>
               </div>

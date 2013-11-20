@@ -28,13 +28,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.apache.syncope.common.to.EventCategoryTO;
 
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.types.LoggerType;
 
-@Path("logger/{type}")
-@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+@Path("logger")
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface LoggerService {
 
     /**
@@ -42,7 +43,7 @@ public interface LoggerService {
      * @param name Logger name to be deleted.
      */
     @DELETE
-    @Path("{name}")
+    @Path("{type}/{name}")
     void delete(@PathParam("type") LoggerType type, @PathParam("name") String name);
 
     /**
@@ -50,6 +51,7 @@ public interface LoggerService {
      * @return List of logger with matching type.
      */
     @GET
+    @Path("{type}")
     List<LoggerTO> list(@PathParam("type") LoggerType type);
 
     /**
@@ -58,7 +60,7 @@ public interface LoggerService {
      * @return Returns logger with matching type and name.
      */
     @GET
-    @Path("{name}")
+    @Path("{type}/{name}")
     LoggerTO read(@PathParam("type") LoggerType type, @PathParam("name") final String name);
 
     /**
@@ -67,7 +69,10 @@ public interface LoggerService {
      * @param logger Logger to be created or updated.
      */
     @PUT
-    @Path("{name}/level")
+    @Path("{type}/{name}/level")
     void update(@PathParam("type") LoggerType type, @PathParam("name") String name, LoggerTO logger);
 
+    @GET
+    @Path("events")
+    List<EventCategoryTO> events();
 }

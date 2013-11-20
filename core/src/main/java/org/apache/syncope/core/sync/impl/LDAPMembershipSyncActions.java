@@ -29,7 +29,10 @@ import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.types.AuditElements;
+import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.ConnConfProperty;
+import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -81,6 +84,9 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
 
     @Autowired
     private NotificationManager notificationManager;
+
+    @Autowired
+    private AuditManager auditManager;
 
     protected Map<Long, Long> membersBeforeRoleUpdate = Collections.<Long, Long>emptyMap();
 
@@ -197,20 +203,47 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
             return;
         }
 
+        Result result;
+
+        WorkflowResult<Map.Entry<UserMod, Boolean>> updated = null;
+
         try {
-            WorkflowResult<Map.Entry<UserMod, Boolean>> updated = uwfAdapter.update(userMod);
+            updated = uwfAdapter.update(userMod);
 
             List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                     updated, Collections.singleton(resourceName));
 
             taskExecutor.execute(tasks);
-
-            notificationManager.createTasks(updated.getResult().getKey().getId(), updated.getPerformedTasks());
+            result = Result.SUCCESS;
         } catch (PropagationException e) {
+            result = Result.FAILURE;
             LOG.error("Could not propagate {}", userMod, e);
         } catch (Exception e) {
+            result = Result.FAILURE;
             LOG.error("Could not perform update {}", userMod, e);
         }
+
+        notificationManager.createTasks(
+                AuditElements.EventCategoryType.SYNCHRONIZATION,
+                this.getClass().getSimpleName(),
+                null,
+                "update",
+                result,
+                null, // searching for before object is too much expensive ... 
+                updated == null ? null : updated.getResult().getKey(),
+                userMod,
+                resourceName);
+
+        auditManager.audit(
+                AuditElements.EventCategoryType.SYNCHRONIZATION,
+                this.getClass().getSimpleName(),
+                null,
+                "update",
+                result,
+                null, // searching for before object is too much expensive ... 
+                updated == null ? null : updated.getResult().getKey(),
+                userMod,
+                resourceName);
     }
 
     /**

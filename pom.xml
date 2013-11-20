@@ -308,6 +308,8 @@ under the License.
     <commons-lang.version>3.1</commons-lang.version>
 
     <activiti.version>5.14</activiti.version>
+    
+    <aspectj.version>1.7.4</aspectj.version>
 
     <cxf.version>2.7.8-SNAPSHOT</cxf.version>	
     <spring.version>3.2.5.RELEASE</spring.version>
@@ -577,6 +579,12 @@ under the License.
       <!-- /Spring -->
 
       <dependency>
+        <groupId>org.aspectj</groupId>
+        <artifactId>aspectjweaver</artifactId>
+        <version>${aspectj.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>javax.ws.rs</groupId>
         <artifactId>javax.ws.rs-api</artifactId>
         <version>${jax-rs.version}</version>
@@ -602,12 +610,6 @@ under the License.
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-frontend-jaxws</artifactId>
         <version>${cxf.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <!-- /CXF -->
 

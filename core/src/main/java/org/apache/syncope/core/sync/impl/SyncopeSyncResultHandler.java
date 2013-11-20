@@ -39,10 +39,13 @@ import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.AuditElements;
+import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.ConflictResolutionAction;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.SyncPolicySpec;
+import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
@@ -184,6 +187,12 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
      */
     @Autowired
     protected NotificationManager notificationManager;
+
+    /**
+     * Audit Manager.
+     */
+    @Autowired
+    protected AuditManager auditManager;
 
     @Autowired
     protected AttributableTransformer attrTransformer;
@@ -466,7 +475,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         final List<ConnectorObject> found = connector.search(objectClass,
                 new EqualsFilter(new Name(name)), connector.getOperationOptions(
-                        attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
+                attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", objectClass, syncTask.getResource(), name);
@@ -534,6 +543,9 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 result.setName(((RoleTO) actual).getName());
             }
         } else {
+            Object output = null;
+            Result resultStatus;
+
             try {
                 if (AttributableType.USER == attrUtil.getType()) {
                     Boolean enabled = readEnabled(delta.getObject());
@@ -546,14 +558,11 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
                     taskExecutor.execute(tasks);
 
-                    notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
-
                     actual = userDataBinder.getUserTO(created.getResult().getKey());
 
                     result.setId(created.getResult().getKey());
                     result.setName(((UserTO) actual).getUsername());
-                }
-                if (AttributableType.ROLE == attrUtil.getType()) {
+                } else if (AttributableType.ROLE == attrUtil.getType()) {
                     WorkflowResult<Long> created = rwfAdapter.create((RoleTO) actual);
                     AttributeTO roleOwner = actual.getAttrMap().get(StringUtils.EMPTY);
                     if (roleOwner != null) {
@@ -572,32 +581,60 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     result.setId(created.getResult());
                     result.setName(((RoleTO) actual).getName());
                 }
+                output = actual;
+                resultStatus = Result.SUCCESS;
+
             } catch (PropagationException e) {
                 // A propagation failure doesn't imply a synchronization failure.
                 // The propagation exception status will be reported into the propagation task execution.
                 LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
+                output = e;
+                resultStatus = Result.FAILURE;
             } catch (Exception e) {
                 result.setStatus(SyncResult.Status.FAILURE);
                 result.setMessage(e.getMessage());
                 LOG.error("Could not create {} {} ", attrUtil.getType(), delta.getUid().getUidValue(), e);
+                output = e;
+                resultStatus = Result.FAILURE;
             }
+
+            notificationManager.createTasks(
+                    AuditElements.EventCategoryType.SYNCHRONIZATION,
+                    AttributableType.USER.name().toLowerCase(),
+                    syncTask.getResource().getName(),
+                    "create",
+                    resultStatus,
+                    null, // searching for before object is too much expensive ... 
+                    output,
+                    delta);
+
+            auditManager.audit(
+                    AuditElements.EventCategoryType.SYNCHRONIZATION,
+                    AttributableType.USER.name().toLowerCase(),
+                    syncTask.getResource().getName(),
+                    "create",
+                    resultStatus,
+                    null, // searching for before object is too much expensive ... 
+                    output,
+                    delta);
         }
 
         actions.after(this, delta, actual, result);
         return Collections.singletonList(result);
     }
 
-    protected UserTO updateUser(final Long id, SyncDelta delta, final boolean dryRun, final SyncResult result)
+    protected Map.Entry<UserTO, UserTO> updateUser(final Long id, SyncDelta delta, final boolean dryRun,
+            final SyncResult result)
             throws Exception {
 
-        UserTO userTO = userDataBinder.getUserTO(id);
+        final UserTO before = userDataBinder.getUserTO(id);
         UserMod userMod = connObjectUtil.getAttributableMod(
-                id, delta.getObject(), userTO, syncTask, AttributableUtil.getInstance(AttributableType.USER));
+                id, delta.getObject(), before, syncTask, AttributableUtil.getInstance(AttributableType.USER));
 
-        delta = actions.beforeUpdate(this, delta, userTO, userMod);
+        delta = actions.beforeUpdate(this, delta, before, userMod);
 
         if (dryRun) {
-            return userTO;
+            return new AbstractMap.SimpleEntry<UserTO, UserTO>(before, before);
         }
 
         // Attribute value transformation (if configured)
@@ -645,26 +682,24 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         taskExecutor.execute(tasks);
 
-        notificationManager.createTasks(updated.getResult().getKey().getId(), updated.getPerformedTasks());
+        final UserTO after = userDataBinder.getUserTO(updated.getResult().getKey().getId());
+        actions.after(this, delta, after, result);
 
-        userTO = userDataBinder.getUserTO(updated.getResult().getKey().getId());
-
-        actions.after(this, delta, userTO, result);
-
-        return userTO;
+        return new AbstractMap.SimpleEntry<UserTO, UserTO>(before, after);
     }
 
-    protected RoleTO updateRole(final Long id, SyncDelta delta, final boolean dryRun, final SyncResult result)
+    protected Map.Entry<RoleTO, RoleTO> updateRole(
+            final Long id, SyncDelta delta, final boolean dryRun, final SyncResult result)
             throws Exception {
 
-        RoleTO roleTO = roleDataBinder.getRoleTO(id);
+        final RoleTO before = roleDataBinder.getRoleTO(id);
         RoleMod roleMod = connObjectUtil.getAttributableMod(
-                id, delta.getObject(), roleTO, syncTask, AttributableUtil.getInstance(AttributableType.ROLE));
+                id, delta.getObject(), before, syncTask, AttributableUtil.getInstance(AttributableType.ROLE));
 
-        delta = actions.beforeUpdate(this, delta, roleTO, roleMod);
+        delta = actions.beforeUpdate(this, delta, before, roleMod);
 
         if (dryRun) {
-            return roleTO;
+            return new AbstractMap.SimpleEntry<RoleTO, RoleTO>(before, before);
         }
 
         // Attribute value transformation (if configured)
@@ -689,11 +724,11 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         taskExecutor.execute(tasks);
 
-        roleTO = roleDataBinder.getRoleTO(updated.getResult());
+        final RoleTO after = roleDataBinder.getRoleTO(updated.getResult());
 
-        actions.after(this, delta, roleTO, result);
+        actions.after(this, delta, after, result);
 
-        return roleTO;
+        return new AbstractMap.SimpleEntry<RoleTO, RoleTO>(before, after);
     }
 
     protected List<SyncResult> update(SyncDelta delta, final List<Long> subjects, final AttributableUtil attrUtil,
@@ -712,6 +747,10 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         for (Long id : subjects) {
             LOG.debug("About to update {}", id);
 
+            Object output = null;
+            AbstractAttributableTO before = null;
+            Result resultStatus;
+
             final SyncResult result = new SyncResult();
             result.setOperation(ResourceOperation.UPDATE);
             result.setSubjectType(attrUtil.getType());
@@ -719,26 +758,58 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             result.setId(id);
 
             try {
+                final AbstractAttributableTO updated;
                 if (AttributableType.USER == attrUtil.getType()) {
-                    UserTO updated = updateUser(id, delta, dryRun, result);
-                    result.setName(updated.getUsername());
+                    final Map.Entry<UserTO, UserTO> res = updateUser(id, delta, dryRun, result);
+                    before = res.getKey();
+                    updated = res.getValue();
+                    result.setName(((UserTO) updated).getUsername());
+                } else if (AttributableType.ROLE == attrUtil.getType()) {
+                    final Map.Entry<RoleTO, RoleTO> res = updateRole(id, delta, dryRun, result);
+                    before = res.getKey();
+                    updated = res.getValue();
+                    result.setName(((RoleTO) updated).getName());
+                } else {
+                    updated = null;
                 }
-
-                if (AttributableType.ROLE == attrUtil.getType()) {
-                    RoleTO updated = updateRole(id, delta, dryRun, result);
-                    result.setName(updated.getName());
-                }
+                output = updated;
+                resultStatus = Result.SUCCESS;
             } catch (PropagationException e) {
                 // A propagation failure doesn't imply a synchronization failure.
                 // The propagation exception status will be reported into the propagation task execution.
                 LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
+                output = e;
+                resultStatus = Result.FAILURE;
             } catch (Exception e) {
                 result.setStatus(SyncResult.Status.FAILURE);
                 result.setMessage(e.getMessage());
-
                 LOG.error("Could not update {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
+                output = e;
+                resultStatus = Result.FAILURE;
             }
             updResults.add(result);
+
+            if (!dryRun) {
+                notificationManager.createTasks(
+                        AuditElements.EventCategoryType.SYNCHRONIZATION,
+                        attrUtil.getType().name().toLowerCase(),
+                        syncTask.getResource().getName(),
+                        "update",
+                        resultStatus,
+                        before,
+                        output,
+                        delta);
+
+                auditManager.audit(
+                        AuditElements.EventCategoryType.SYNCHRONIZATION,
+                        attrUtil.getType().name().toLowerCase(),
+                        syncTask.getResource().getName(),
+                        "update",
+                        resultStatus,
+                        before,
+                        output,
+                        delta);
+            }
 
             LOG.debug("{} {} successfully updated", attrUtil.getType(), id);
         }
@@ -760,6 +831,9 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         List<SyncResult> delResults = new ArrayList<SyncResult>();
 
         for (Long id : subjects) {
+            Object output = null;
+            Result resultStatus = Result.FAILURE;
+
             try {
                 AbstractAttributableTO subjectTO = AttributableType.USER == attrUtil.getType()
                         ? userDataBinder.getUserTO(id)
@@ -783,9 +857,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                         List<PropagationTask> tasks = Collections.<PropagationTask>emptyList();
                         if (AttributableType.USER == attrUtil.getType()) {
                             tasks = propagationManager.getUserDeleteTaskIds(id, syncTask.getResource().getName());
-                            notificationManager.createTasks(id, Collections.<String>singleton("delete"));
-                        }
-                        if (AttributableType.ROLE == attrUtil.getType()) {
+                        } else if (AttributableType.ROLE == attrUtil.getType()) {
                             tasks = propagationManager.getRoleDeleteTaskIds(id, syncTask.getResource().getName());
                         }
                         taskExecutor.execute(tasks);
@@ -798,23 +870,48 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     try {
                         if (AttributableType.USER == attrUtil.getType()) {
                             uwfAdapter.delete(id);
-                        }
-                        if (AttributableType.ROLE == attrUtil.getType()) {
+                        } else if (AttributableType.ROLE == attrUtil.getType()) {
                             rwfAdapter.delete(id);
                         }
+                        output = null;
+                        resultStatus = Result.SUCCESS;
                     } catch (Exception e) {
                         result.setStatus(SyncResult.Status.FAILURE);
                         result.setMessage(e.getMessage());
                         LOG.error("Could not delete {} {}", attrUtil.getType(), id, e);
+                        output = e;
                     }
                 }
 
                 actions.after(this, delta, subjectTO, result);
                 delResults.add(result);
+
             } catch (NotFoundException e) {
                 LOG.error("Could not find {} {}", attrUtil.getType(), id, e);
             } catch (UnauthorizedRoleException e) {
                 LOG.error("Not allowed to read {} {}", attrUtil.getType(), id, e);
+            }
+
+            if (!dryRun) {
+                notificationManager.createTasks(
+                        AuditElements.EventCategoryType.SYNCHRONIZATION,
+                        attrUtil.getType().name().toLowerCase(),
+                        syncTask.getResource().getName(),
+                        "delete",
+                        resultStatus,
+                        null, // searching for before object is too much expensive ... 
+                        output,
+                        delta);
+
+                auditManager.audit(
+                        AuditElements.EventCategoryType.SYNCHRONIZATION,
+                        attrUtil.getType().name().toLowerCase(),
+                        syncTask.getResource().getName(),
+                        "delete",
+                        resultStatus,
+                        null, // searching for before object is too much expensive ... 
+                        output,
+                        delta);
             }
         }
 
@@ -871,9 +968,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     default:
                 }
             }
-        }
-
-        if (SyncDeltaType.DELETE == delta.getDeltaType()) {
+        } else if (SyncDeltaType.DELETE == delta.getDeltaType()) {
             if (subjectIds.isEmpty()) {
                 LOG.debug("No match found for deletion");
             } else if (subjectIds.size() == 1) {

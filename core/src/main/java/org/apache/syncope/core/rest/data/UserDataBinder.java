@@ -61,7 +61,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@Transactional(rollbackFor = { Throwable.class })
+@Transactional(rollbackFor = {Throwable.class})
 public class UserDataBinder extends AbstractAttributableDataBinder {
 
     private static final String[] IGNORE_USER_PROPERTIES = {

@@ -62,14 +62,6 @@ public interface WorkflowAdapter {
     void importDefinition(WorkflowDefinitionFormat format, String definition) throws WorkflowException;
 
     /**
-     * Get list of defined tasks in workflow.
-     *
-     * @return list of defined tasks in workflow
-     * @throws WorkflowException workflow exception
-     */
-    List<String> getDefinedTasks() throws WorkflowException;
-
-    /**
      * Get all defined forms for current workflow process instances.
      *
      * @return list of defined forms

@@ -21,6 +21,9 @@ package org.apache.syncope.core.services;
 import java.io.IOException;
 import java.io.OutputStream;
 import javax.ws.rs.BadRequestException;
+import org.apache.syncope.common.types.RESTHeaders;
+import org.apache.syncope.core.rest.controller.WorkflowController;
+import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -28,11 +31,7 @@ import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.syncope.common.services.WorkflowService;
-import org.apache.syncope.common.types.WorkflowTasks;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.RESTHeaders;
-import org.apache.syncope.core.rest.controller.WorkflowController;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -116,21 +115,6 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
             case ROLE:
                 controller.importRoleDefinition(contentType, definition);
                 break;
-
-            default:
-                throw new BadRequestException();
-        }
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public WorkflowTasks getDefinedTasks(final AttributableType kind) {
-        switch (kind) {
-            case USER:
-                return new WorkflowTasks(controller.getDefinedUserTasks());
-
-            case ROLE:
-                return new WorkflowTasks(controller.getDefinedRoleTasks());
 
             default:
                 throw new BadRequestException();

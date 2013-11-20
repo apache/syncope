@@ -20,6 +20,7 @@ package org.apache.syncope.core.rest.controller;
 
 import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
-import javax.ws.rs.core.Response;
 import org.apache.cocoon.optional.pipeline.components.sax.fop.FopSerializer;
 import org.apache.cocoon.pipeline.NonCachingPipeline;
 import org.apache.cocoon.pipeline.Pipeline;
@@ -37,19 +37,14 @@ import org.apache.cocoon.sax.component.XMLGenerator;
 import org.apache.cocoon.sax.component.XMLSerializer;
 import org.apache.cocoon.sax.component.XSLTTransformer;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.ReportSubCategory;
-import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.ReportExecExportFormat;
-import static org.apache.syncope.common.types.ReportExecExportFormat.RTF;
 import org.apache.syncope.common.types.ReportExecStatus;
 import org.apache.syncope.common.types.ClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.init.JobInstanceLoader;
 import org.apache.syncope.core.persistence.beans.Report;
 import org.apache.syncope.core.persistence.beans.ReportExec;
@@ -69,10 +64,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class ReportController extends AbstractController {
-
-    @Autowired
-    private AuditManager auditManager;
+public class ReportController extends AbstractTransactionalController<ReportTO> {
 
     @Autowired
     private ReportDAO reportDAO;
@@ -107,9 +99,6 @@ public class ReportController extends AbstractController {
             throw sce;
         }
 
-        auditManager.audit(Category.report, ReportSubCategory.create, Result.success,
-                "Successfully created report: " + report.getId());
-
         return binder.getReportTO(report);
     }
 
@@ -135,9 +124,6 @@ public class ReportController extends AbstractController {
             throw sce;
         }
 
-        auditManager.audit(Category.report, ReportSubCategory.update, Result.success,
-                "Successfully updated report: " + report.getId());
-
         return binder.getReportTO(report);
     }
 
@@ -153,10 +139,6 @@ public class ReportController extends AbstractController {
         for (Report report : reports) {
             result.add(binder.getReportTO(report));
         }
-
-        auditManager.audit(Category.report, ReportSubCategory.list, Result.success,
-                "Successfully listed all reports: " + result.size());
-
         return result;
     }
 
@@ -167,10 +149,6 @@ public class ReportController extends AbstractController {
         for (Report report : reports) {
             result.add(binder.getReportTO(report));
         }
-
-        auditManager.audit(Category.report, ReportSubCategory.list, Result.success,
-                "Successfully listed reports (page=" + page + ", size=" + size + "): " + result.size());
-
         return result;
     }
 
@@ -186,9 +164,6 @@ public class ReportController extends AbstractController {
             }
         }
 
-        auditManager.audit(Category.report, ReportSubCategory.getReportletConfClasses, Result.success,
-                "Successfully listed all ReportletConf classes: " + reportletConfClasses.size());
-
         return reportletConfClasses;
     }
 
@@ -198,10 +173,6 @@ public class ReportController extends AbstractController {
         if (report == null) {
             throw new NotFoundException("Report " + reportId);
         }
-
-        auditManager.audit(Category.report, ReportSubCategory.read, Result.success,
-                "Successfully read report: " + report.getId());
-
         return binder.getReportTO(report);
     }
 
@@ -212,10 +183,6 @@ public class ReportController extends AbstractController {
         if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionId);
         }
-
-        auditManager.audit(Category.report, ReportSubCategory.readExecution, Result.success,
-                "Successfully read report execution: " + reportExec.getId());
-
         return binder.getReportExecTO(reportExec);
     }
 
@@ -234,7 +201,7 @@ public class ReportController extends AbstractController {
 
             Pipeline<SAXPipelineComponent> pipeline = new NonCachingPipeline<SAXPipelineComponent>();
             pipeline.addComponent(new XMLGenerator(zis));
-            
+
             Map<String, Object> parameters = new HashMap<String, Object>();
             parameters.put("status", reportExec.getStatus());
             parameters.put("message", reportExec.getMessage());
@@ -285,9 +252,6 @@ public class ReportController extends AbstractController {
             IOUtils.closeQuietly(zis);
             IOUtils.closeQuietly(bais);
         }
-
-        auditManager.audit(Category.report, ReportSubCategory.exportExecutionResult, Result.success,
-                "Successfully exported report execution: " + reportExec.getId());
     }
 
     @PreAuthorize("hasRole('REPORT_READ')")
@@ -322,14 +286,8 @@ public class ReportController extends AbstractController {
 
             scheduler.getScheduler().triggerJob(
                     new JobKey(JobInstanceLoader.getJobName(report), Scheduler.DEFAULT_GROUP));
-
-            auditManager.audit(Category.report, ReportSubCategory.execute, Result.success,
-                    "Successfully started execution for report: " + report.getId());
         } catch (Exception e) {
             LOG.error("While executing report {}", report, e);
-
-            auditManager.audit(Category.report, ReportSubCategory.execute, Result.failure,
-                    "Could not start execution for report: " + report.getId(), e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add(e.getMessage());
@@ -353,14 +311,8 @@ public class ReportController extends AbstractController {
         }
 
         ReportTO deletedReport = binder.getReportTO(report);
-
         jobInstanceLoader.unregisterJob(report);
-
         reportDAO.delete(report);
-
-        auditManager.audit(Category.report, ReportSubCategory.delete, Result.success,
-                "Successfully deleted report: " + report.getId());
-
         return deletedReport;
     }
 
@@ -372,12 +324,39 @@ public class ReportController extends AbstractController {
         }
 
         ReportExecTO reportExecToDelete = binder.getReportExecTO(reportExec);
-
         reportExecDAO.delete(reportExec);
-
-        auditManager.audit(Category.report, ReportSubCategory.deleteExecution, Result.success,
-                "Successfully deleted report execution: " + reportExec.getId());
-
         return reportExecToDelete;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected ReportTO resolveReference(final Method method, final Object... args) throws
+            UnresolvedReferenceException {
+        Long id = null;
+
+        if (ArrayUtils.isNotEmpty(args) && ("create".equals(method.getName())
+                || "update".equals(method.getName())
+                || "delete".equals(method.getName()))) {
+            for (int i = 0; id == null && i < args.length; i++) {
+                if (args[i] instanceof Long) {
+                    id = (Long) args[i];
+                } else if (args[i] instanceof ReportTO) {
+                    id = ((ReportTO) args[i]).getId();
+                }
+            }
+        }
+
+        if (id != null) {
+            try {
+                return binder.getReportTO(reportDAO.find(id));
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
+        throw new UnresolvedReferenceException();
     }
 }

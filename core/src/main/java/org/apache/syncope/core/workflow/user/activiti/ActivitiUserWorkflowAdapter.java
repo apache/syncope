@@ -532,38 +532,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
     }
 
-    @Override
-    public List<String> getDefinedTasks()
-            throws WorkflowException {
-
-        List<String> result = new ArrayList<String>();
-
-        ProcessDefinition procDef = getProcessDefinition();
-
-        InputStream procDefIS = repositoryService.
-                getResourceAsStream(procDef.getDeploymentId(), WF_PROCESS_RESOURCE);
-
-        DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-        try {
-            DocumentBuilder builder = domFactory.newDocumentBuilder();
-            Document doc = builder.parse(procDefIS);
-
-            XPath xpath = XPathFactory.newInstance().newXPath();
-
-            NodeList nodeList = (NodeList) xpath.evaluate("//userTask | //serviceTask | //scriptTask", doc,
-                    XPathConstants.NODESET);
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                result.add(nodeList.item(i).getAttributes().getNamedItem("id").getNodeValue());
-            }
-        } catch (Exception e) {
-            throw new WorkflowException("While reading defined tasks", e);
-        } finally {
-            IOUtils.closeQuietly(procDefIS);
-        }
-
-        return result;
-    }
-
     private WorkflowFormPropertyType fromActivitiFormType(final FormType activitiFormType) {
         WorkflowFormPropertyType result = WorkflowFormPropertyType.String;
 

@@ -18,24 +18,21 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Resource;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.AuditElements;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.Result;
-import org.apache.syncope.common.types.AuditElements.RoleSubCategory;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -69,9 +66,6 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(RoleController.class);
-
-    @Autowired
-    protected AuditManager auditManager;
 
     @Autowired
     protected RoleDAO roleDAO;
@@ -115,9 +109,6 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
             throw new NotFoundException("Role " + roleId);
         }
 
-        auditManager.audit(Category.role, RoleSubCategory.read, Result.success,
-                "Successfully read role: " + role.getId());
-
         return binder.getRoleTO(role);
     }
 
@@ -145,9 +136,6 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
             throw new UnauthorizedRoleException(role.getId());
         }
 
-        auditManager.audit(Category.role, RoleSubCategory.selfRead, Result.success,
-                "Successfully read own role: " + role.getId());
-
         return binder.getRoleTO(role);
     }
 
@@ -164,11 +152,6 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
         RoleTO result = role.getParent() == null
                 ? null
                 : binder.getRoleTO(role.getParent());
-
-        auditManager.audit(Category.role, RoleSubCategory.parent, Result.success,
-                result == null
-                ? "Role " + role.getId() + " is a root role"
-                : "Found parent for role " + role.getId() + ": " + result.getId());
 
         return result;
     }
@@ -188,14 +171,11 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
             }
         }
 
-        auditManager.audit(Category.role, RoleSubCategory.children, Result.success,
-                "Found " + childrenTOs.size() + " children of role " + roleId);
-
         return childrenTOs;
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public List<RoleTO> search(final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -203,7 +183,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public List<RoleTO> search(final NodeCond searchCondition, final int page, final int size)
             throws InvalidSearchConditionException {
 
@@ -223,14 +203,11 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
             result.add(binder.getRoleTO(role));
         }
 
-        auditManager.audit(Category.role, AuditElements.RoleSubCategory.read, Result.success,
-                "Successfully searched for roles (page=" + page + ", size=" + size + "): " + result.size());
-
         return result;
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public int searchCount(final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -252,9 +229,6 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
         for (SyncopeRole role : roles) {
             roleTOs.add(binder.getRoleTO(role));
         }
-
-        auditManager.audit(Category.role, RoleSubCategory.list, Result.success,
-                "Successfully listed all roles: " + roleTOs.size());
 
         return roleTOs;
     }
@@ -295,9 +269,6 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
 
         LOG.debug("About to return created role\n{}", savedTO);
 
-        auditManager.audit(Category.role, RoleSubCategory.create, Result.success,
-                "Successfully created role: " + savedTO.getId());
-
         return savedTO;
     }
 
@@ -330,9 +301,6 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
         final RoleTO updatedTO = binder.getRoleTO(updated.getResult());
         updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
 
-        auditManager.audit(Category.role, RoleSubCategory.update, Result.success,
-                "Successfully updated role: " + role.getId());
-
         LOG.debug("About to return updated role\n{}", updatedTO);
 
         return updatedTO;
@@ -348,9 +316,6 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
             for (SyncopeRole role : ownedRoles) {
                 owned.add(role.getId() + " " + role.getName());
             }
-
-            auditManager.audit(Category.role, AuditElements.UserSubCategory.delete, Result.failure,
-                    "Could not delete role: " + roleId + " because of role(s) ownership " + owned);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RoleOwnership);
             sce.getElements().addAll(owned);
@@ -382,16 +347,13 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
 
         rwfAdapter.delete(roleId);
 
-        auditManager.audit(Category.role, RoleSubCategory.delete, Result.success,
-                "Successfully deleted role: " + roleId);
-
         LOG.debug("Role successfully deleted: {}", roleId);
 
         return roleTO;
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     @Override
     public RoleTO unlink(final Long roleId, final Collection<String> resources) {
         LOG.debug("About to unlink role({}) and resources {}", roleId, resources);
@@ -405,16 +367,13 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
 
         final RoleTO updatedTO = binder.getRoleTO(updated.getResult());
 
-        auditManager.audit(Category.user, AuditElements.RoleSubCategory.update, Result.success,
-                "Successfully updated role: " + updatedTO.getName());
-
         LOG.debug("About to return updated role\n{}", updatedTO);
 
         return updatedTO;
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     @Override
     public RoleTO unassign(final Long roleId, final Collection<String> resources) {
         LOG.debug("About to unassign role({}) and resources {}", roleId, resources);
@@ -427,7 +386,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     @Override
     public RoleTO deprovision(final Long roleId, final Collection<String> resources) {
         LOG.debug("About to deprovision role({}) from resources {}", roleId, resources);
@@ -450,11 +409,39 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
         final RoleTO updatedTO = binder.getRoleTO(role);
         updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
 
-        auditManager.audit(Category.user, AuditElements.RoleSubCategory.update, Result.success,
-                "Successfully deprovisioned role: " + updatedTO.getName());
-
         LOG.debug("About to return updated role\n{}", updatedTO);
 
         return updatedTO;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected RoleTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
+        Long id = null;
+
+        if (ArrayUtils.isNotEmpty(args)) {
+            for (int i = 0; id == null && i < args.length; i++) {
+                if (args[i] instanceof Long) {
+                    id = (Long) args[i];
+                } else if (args[i] instanceof RoleTO) {
+                    id = ((RoleTO) args[i]).getId();
+                } else if (args[i] instanceof RoleMod) {
+                    id = ((RoleMod) args[i]).getId();
+                }
+            }
+        }
+
+        if (id != null) {
+            try {
+                return binder.getRoleTO(id);
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
+        throw new UnresolvedReferenceException();
     }
 }

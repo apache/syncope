@@ -18,26 +18,23 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.Result;
-import org.apache.syncope.common.types.AuditElements.TaskSubCategory;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.TaskType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.init.JobInstanceLoader;
 import org.apache.syncope.core.notification.NotificationJob;
@@ -62,10 +59,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TaskController extends AbstractController {
-
-    @Autowired
-    private AuditManager auditManager;
+public class TaskController extends AbstractTransactionalController<AbstractTaskTO> {
 
     @Autowired
     private TaskDAO taskDAO;
@@ -110,9 +104,6 @@ public class TaskController extends AbstractController {
             throw sce;
         }
 
-        auditManager.audit(Category.task, TaskSubCategory.create, Result.success,
-                "Successfully created task: " + task.getId() + "/" + taskUtil);
-
         return binder.getTaskTO(task, taskUtil);
     }
 
@@ -145,9 +136,6 @@ public class TaskController extends AbstractController {
             throw sce;
         }
 
-        auditManager.audit(Category.task, TaskSubCategory.update, Result.success,
-                "Successfully udpated task: " + task.getId() + "/" + taskUtil);
-
         return binder.getTaskTO(task, taskUtil);
     }
 
@@ -167,9 +155,6 @@ public class TaskController extends AbstractController {
             taskTOs.add((T) binder.getTaskTO(task, taskUtil));
         }
 
-        auditManager.audit(Category.task, TaskSubCategory.list, Result.success,
-                "Successfully listed all tasks: " + taskTOs.size() + "/" + taskUtil);
-
         return taskTOs;
     }
 
@@ -184,31 +169,17 @@ public class TaskController extends AbstractController {
             taskTOs.add((T) binder.getTaskTO(task, taskUtil));
         }
 
-        auditManager.audit(Category.task, TaskSubCategory.list, Result.success,
-                "Successfully listed all tasks (page=" + page + ", size=" + size + "): "
-                + taskTOs.size() + "/" + taskUtil);
-
         return taskTOs;
     }
 
     @PreAuthorize("hasRole('TASK_LIST')")
     public Set<String> getJobClasses() {
-        Set<String> jobClasses = classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.TASKJOB);
-
-        auditManager.audit(Category.task, TaskSubCategory.getJobClasses, Result.success,
-                "Successfully listed all Job classes: " + jobClasses.size());
-
-        return jobClasses;
-    }
+        return classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.TASKJOB);
+        }
 
     @PreAuthorize("hasRole('TASK_LIST')")
     public Set<String> getSyncActionsClasses() {
-        Set<String> actionsClasses = classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.SYNC_ACTIONS);
-
-        auditManager.audit(Category.task, TaskSubCategory.getSyncActionsClasses, Result.success,
-                "Successfully listed all SyncActions classes: " + actionsClasses.size());
-
-        return actionsClasses;
+        return classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.SYNC_ACTIONS);
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
@@ -217,13 +188,8 @@ public class TaskController extends AbstractController {
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
         }
-        TaskUtil taskUtil = TaskUtil.getInstance(task);
-
-        auditManager.audit(Category.task, TaskSubCategory.read, Result.success,
-                "Successfully read task: " + task.getId() + "/" + taskUtil);
-
-        return binder.getTaskTO(task, taskUtil);
-    }
+        return binder.getTaskTO(task, TaskUtil.getInstance(task));
+}
 
     @PreAuthorize("hasRole('TASK_READ')")
     public TaskExecTO readExecution(final Long executionId) {
@@ -231,10 +197,6 @@ public class TaskController extends AbstractController {
         if (taskExec == null) {
             throw new NotFoundException("Task execution " + executionId);
         }
-
-        auditManager.audit(Category.task, TaskSubCategory.readExecution, Result.success,
-                "Successfully read task execution: " + taskExec.getId());
-
         return binder.getTaskExecTO(taskExec);
     }
 
@@ -274,9 +236,6 @@ public class TaskController extends AbstractController {
                 } catch (Exception e) {
                     LOG.error("While executing task {}", task, e);
 
-                    auditManager.audit(Category.task, TaskSubCategory.execute, Result.failure,
-                            "Could not start execution for task: " + task.getId() + "/" + taskUtil, e);
-
                     SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
                     sce.getElements().add(e.getMessage());
                     throw sce;
@@ -292,10 +251,6 @@ public class TaskController extends AbstractController {
             default:
         }
         LOG.debug("Execution finished for {}, {}", task, result);
-
-        auditManager.audit(Category.task, TaskSubCategory.execute, Result.success,
-                "Successfully started execution for task: " + task.getId() + "/" + taskUtil);
-
         return result;
     }
 
@@ -334,19 +289,12 @@ public class TaskController extends AbstractController {
         }
 
         if (!sce.isEmpty()) {
-            auditManager.audit(Category.task, TaskSubCategory.report, Result.failure,
-                    "Could not reported execution status: " + exec.getId() + "/" + taskUtil, sce);
             throw sce;
         }
 
         exec.setStatus(status.toString());
         exec.setMessage(message);
-        exec = taskExecDAO.save(exec);
-
-        auditManager.audit(Category.task, TaskSubCategory.report, Result.success,
-                "Successfully reported execution status: " + exec.getId() + "/" + taskUtil);
-
-        return binder.getTaskExecTO(exec);
+        return binder.getTaskExecTO(taskExecDAO.save(exec));
     }
 
     @PreAuthorize("hasRole('TASK_DELETE')")
@@ -364,10 +312,6 @@ public class TaskController extends AbstractController {
         }
 
         taskDAO.delete(task);
-
-        auditManager.audit(Category.task, TaskSubCategory.delete, Result.success,
-                "Successfully deleted task: " + task.getId() + "/" + taskUtil);
-
         return taskToDelete;
     }
 
@@ -379,11 +323,7 @@ public class TaskController extends AbstractController {
         }
 
         TaskExecTO taskExecutionToDelete = binder.getTaskExecTO(taskExec);
-
         taskExecDAO.delete(taskExec);
-
-        auditManager.audit(Category.task, TaskSubCategory.deleteExecution, Result.success,
-                "Successfully deleted task execution: " + taskExec.getId());
         return taskExecutionToDelete;
     }
 
@@ -436,5 +376,37 @@ public class TaskController extends AbstractController {
         }
 
         return res;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected AbstractTaskTO resolveReference(final Method method, final Object... args) throws
+            UnresolvedReferenceException {
+        Long id = null;
+
+        if (ArrayUtils.isNotEmpty(args)
+                && !"deleteExecution".equals(method.getName()) && !"readExecution".equals(method.getName())) {
+            for (int i = 0; id == null && i < args.length; i++) {
+                if (args[i] instanceof Long) {
+                    id = (Long) args[i];
+                } else if (args[i] instanceof AbstractTaskTO) {
+                    id = ((AbstractTaskTO) args[i]).getId();
+                }
+            }
+        }
+
+        if (id != null) {
+            try {
+                final Task task = taskDAO.find(id);
+                return binder.getTaskTO(task, TaskUtil.getInstance(task));
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
+        throw new UnresolvedReferenceException();
     }
 }

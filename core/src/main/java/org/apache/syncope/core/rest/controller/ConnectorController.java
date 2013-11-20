@@ -18,26 +18,22 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.ConnectorSubCategory;
-import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
@@ -60,10 +56,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class ConnectorController extends AbstractController {
-
-    @Autowired
-    private AuditManager auditManager;
+public class ConnectorController extends AbstractTransactionalController<ConnInstanceTO> {
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -84,12 +77,7 @@ public class ConnectorController extends AbstractController {
         ConnInstance connInstance = binder.getConnInstance(connInstanceTO);
         try {
             connInstance = connInstanceDAO.save(connInstance);
-            auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.success,
-                    "Successfully created connector instance: " + connInstance.getDisplayName());
         } catch (InvalidEntityException e) {
-            auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.failure,
-                    "Could not create connector instance: " + connInstanceTO.getDisplayName(), e);
-
             SyncopeClientException invalidConnInstance = SyncopeClientException.build(
                     ClientExceptionType.InvalidConnInstance);
             invalidConnInstance.getElements().add(e.getMessage());
@@ -106,12 +94,7 @@ public class ConnectorController extends AbstractController {
         ConnInstance connInstance = binder.updateConnInstance(connInstanceTO.getId(), connInstanceTO);
         try {
             connInstance = connInstanceDAO.save(connInstance);
-            auditManager.audit(Category.connector, ConnectorSubCategory.update, Result.success,
-                    "Successfully update connector instance: " + connInstance.getDisplayName());
         } catch (InvalidEntityException e) {
-            auditManager.audit(Category.connector, ConnectorSubCategory.create, Result.failure,
-                    "Could not update connector instance: " + connInstanceTO.getDisplayName(), e);
-
             SyncopeClientException invalidConnInstance = SyncopeClientException.build(
                     ClientExceptionType.InvalidConnInstance);
             invalidConnInstance.getElements().add(e.getMessage());
@@ -140,8 +123,6 @@ public class ConnectorController extends AbstractController {
         ConnInstanceTO connToDelete = binder.getConnInstanceTO(connInstance);
 
         connInstanceDAO.delete(connInstanceId);
-        auditManager.audit(Category.connector, ConnectorSubCategory.delete, Result.success,
-                "Successfully deleted connector instance: " + connInstanceId);
 
         return connToDelete;
     }
@@ -167,9 +148,6 @@ public class ConnectorController extends AbstractController {
             }
         }
 
-        auditManager.audit(Category.connector, ConnectorSubCategory.list, Result.success,
-                "Successfully listed all connectors: " + connInstanceTOs.size());
-
         return connInstanceTOs;
     }
 
@@ -180,9 +158,6 @@ public class ConnectorController extends AbstractController {
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connInstanceId + "'");
         }
-
-        auditManager.audit(Category.connector, ConnectorSubCategory.read, Result.success,
-                "Successfully read connector: " + connInstance.getDisplayName());
 
         return binder.getConnInstanceTO(connInstance);
     }
@@ -234,9 +209,6 @@ public class ConnectorController extends AbstractController {
             }
         }
 
-        auditManager.audit(Category.connector, ConnectorSubCategory.getBundles, Result.success,
-                "Successfully listed all bundles: " + connectorBundleTOs.size());
-
         return connectorBundleTOs;
     }
 
@@ -257,10 +229,6 @@ public class ConnectorController extends AbstractController {
         // This is the reason why we should take a "not mature" connector facade proxy to ask for schema names.
         final List<String> result = new ArrayList<String>(connFactory.createConnector(connInstance, conf).
                 getSchemaNames(includeSpecial));
-
-        auditManager.audit(Category.connector, ConnectorSubCategory.getSchemaNames, Result.success,
-                "Successfully listed " + (includeSpecial ? "all " : "") + "schema names (" + result.size() + ") "
-                + "for connector " + connInstance.getDisplayName());
 
         return result;
     }
@@ -287,10 +255,6 @@ public class ConnectorController extends AbstractController {
             result.add(objectClass.getObjectClassValue());
         }
 
-        auditManager.audit(Category.connector, ConnectorSubCategory.getSupportedObjectClasses, Result.success,
-                "Successfully listed supported object classes (" + result.size() + ") "
-                + "for connector " + connInstance.getDisplayName());
-
         return result;
     }
 
@@ -303,13 +267,7 @@ public class ConnectorController extends AbstractController {
             throw new NotFoundException("Connector '" + connInstanceId + "'");
         }
 
-        List<ConnConfProperty> result = new ArrayList<ConnConfProperty>(connInstance.getConfiguration());
-
-        auditManager.audit(Category.connector, ConnectorSubCategory.getConfigurationProperties, Result.success,
-                "Successfully listed all conf properties (" + result.size() + ") for connector "
-                + connInstance.getDisplayName());
-
-        return result;
+        return new ArrayList<ConnConfProperty>(connInstance.getConfiguration());
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
@@ -322,13 +280,7 @@ public class ConnectorController extends AbstractController {
         try {
             connector.test();
             result = true;
-
-            auditManager.audit(Category.connector, ConnectorSubCategory.check, Result.success,
-                    "Successfully checked connector: " + connInstanceTO);
         } catch (Exception ex) {
-            auditManager.audit(Category.connector, ConnectorSubCategory.check, Result.failure,
-                    "Unsuccessful check for connector: " + connInstanceTO, ex);
-
             LOG.error("Test connection failure {}", ex);
             result = false;
         }
@@ -343,13 +295,7 @@ public class ConnectorController extends AbstractController {
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceName + "'");
         }
-
-        final Connector connector = connFactory.getConnector(resource);
-
-        auditManager.audit(Category.connector, ConnectorSubCategory.readConnectorBean, Result.success,
-                "Successfully read connector for resource: " + resourceName);
-
-        return binder.getConnInstanceTO(connector.getActiveConnInstance());
+        return binder.getConnInstanceTO(connFactory.getConnector(resource).getActiveConnInstance());
     }
 
     @PreAuthorize("hasRole('CONNECTOR_RELOAD')")
@@ -357,9 +303,6 @@ public class ConnectorController extends AbstractController {
     public void reload() {
         connFactory.unload();
         connFactory.load();
-
-        auditManager.audit(Category.connector, ConnectorSubCategory.reload, Result.success,
-                "Successfully reloaded all connector bundles and instances");
     }
 
     @PreAuthorize("hasRole('CONNECTOR_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE")
@@ -380,5 +323,35 @@ public class ConnectorController extends AbstractController {
         }
 
         return res;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected ConnInstanceTO resolveReference(final Method method, final Object... args) throws
+            UnresolvedReferenceException {
+        Long id = null;
+
+        if (ArrayUtils.isNotEmpty(args)) {
+            for (int i = 0; id == null && i < args.length; i++) {
+                if (args[i] instanceof Long) {
+                    id = (Long) args[i];
+                } else if (args[i] instanceof ConnInstanceTO) {
+                    id = ((ConnInstanceTO) args[i]).getId();
+                }
+            }
+        }
+
+        if (id != null) {
+            try {
+                return binder.getConnInstanceTO(connInstanceDAO.find(id));
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
+        throw new UnresolvedReferenceException();
     }
 }

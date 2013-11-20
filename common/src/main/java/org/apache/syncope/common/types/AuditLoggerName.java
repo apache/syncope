@@ -18,40 +18,57 @@
  */
 package org.apache.syncope.common.types;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.text.ParseException;
-
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.AbstractBaseBean;
-import org.apache.syncope.common.types.AuditElements.Category;
+import org.apache.syncope.common.to.EventCategoryTO;
 import org.apache.syncope.common.types.AuditElements.Result;
+import org.apache.syncope.common.util.LoggerEventUtils;
 
 public class AuditLoggerName extends AbstractBaseBean {
 
     private static final long serialVersionUID = -647989486671786839L;
 
-    private final Category category;
+    private final AuditElements.EventCategoryType type;
 
-    private final Enum<?> subcategory;
+    private final String category;
+
+    private final String subcategory;
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+    private final String event;
 
     private final Result result;
 
-    public AuditLoggerName(final Category category, final Enum<?> subcategory, final Result result)
+    @JsonCreator
+    public AuditLoggerName(
+            @JsonProperty("type") final AuditElements.EventCategoryType type,
+            @JsonProperty("category") final String category,
+            @JsonProperty("subcategory") final String subcategory,
+            @JsonProperty("event") final String event,
+            @JsonProperty("result") final Result result)
             throws IllegalArgumentException {
 
-        if (category == null || subcategory == null || result == null) {
-            throw new IllegalArgumentException("Null values not permitted");
-        }
-
-        if (!category.getSubCategoryElements().contains(subcategory)) {
-            throw new IllegalArgumentException(category.name() + " does not contain " + subcategory.name());
-        }
-
+        this.type = type == null ? AuditElements.EventCategoryType.CUSTOM : type;
         this.category = category;
         this.subcategory = subcategory;
-        this.result = result;
+        this.event = event;
+        this.result = result == null ? Result.SUCCESS : result;
     }
 
-    public Category getCategory() {
+    public AuditElements.EventCategoryType getType() {
+        return type;
+    }
+
+    public String getEvent() {
+        return event;
+    }
+
+    public String getCategory() {
         return category;
     }
 
@@ -59,15 +76,14 @@ public class AuditLoggerName extends AbstractBaseBean {
         return result;
     }
 
-    public Enum<?> getSubcategory() {
+    public String getSubcategory() {
         return subcategory;
     }
 
     public String toLoggerName() {
-        return new StringBuilder().append(LoggerType.AUDIT.getPrefix()).append('.').
-                append(category.name()).append('.').
-                append(subcategory.name()).append('.').
-                append(result.name()).toString();
+        return new StringBuilder().append(
+                LoggerType.AUDIT.getPrefix()).append('.').append(
+                LoggerEventUtils.buildEvent(type, category, subcategory, event, result)).toString();
     }
 
     @SuppressWarnings("unchecked")
@@ -82,15 +98,15 @@ public class AuditLoggerName extends AbstractBaseBean {
             throw new ParseException("Audit logger name must start with " + LoggerType.AUDIT.getPrefix(), 0);
         }
 
-        String[] splitted = loggerName.split("\\.");
-        if (splitted == null || splitted.length < 5) {
-            throw new ParseException("Unparsable logger name", 0);
-        }
+        final Map.Entry<EventCategoryTO, Result> eventCategory = LoggerEventUtils.parseEventCategory(
+                loggerName.replaceAll(LoggerType.AUDIT.getPrefix() + ".", ""));
 
-        Category category = Category.valueOf(splitted[2]);
-        Enum<?> subcategory = Enum.valueOf(category.getSubCategory(), splitted[3]);
-        Result result = Result.valueOf(splitted[4]);
-
-        return new AuditLoggerName(category, subcategory, result);
+        return new AuditLoggerName(
+                eventCategory.getKey().getType(),
+                eventCategory.getKey().getCategory(),
+                eventCategory.getKey().getSubcategory(),
+                eventCategory.getKey().getEvents().isEmpty()
+                ? StringUtils.EMPTY : eventCategory.getKey().getEvents().iterator().next(),
+                eventCategory.getValue());
     }
 }

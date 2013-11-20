@@ -18,15 +18,16 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.lang.reflect.Method;
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.mod.StatusMod;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.InvalidSearchConditionException;
@@ -36,16 +37,9 @@ import org.apache.syncope.common.to.BulkActionRes.Status;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.AuditElements;
-import org.apache.syncope.common.types.AuditElements.Category;
-import org.apache.syncope.common.types.AuditElements.Result;
-import org.apache.syncope.common.types.AuditElements.UserSubCategory;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
-import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
@@ -85,9 +79,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     protected static final Logger LOG = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
-    protected AuditManager auditManager;
-
-    @Autowired
     protected UserDAO userDAO;
 
     @Autowired
@@ -114,16 +105,8 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     @Autowired
     protected AttributableTransformer attrTransformer;
 
-    @Autowired
-    protected NotificationManager notificationManager;
-
     public boolean isSelfRegistrationAllowed() {
-        final SyncopeConf selfRegistrationAllowed = confDAO.find("selfRegistration.allowed", "false");
-
-        auditManager.audit(Category.user, AuditElements.UserSubCategory.selfRegistrationAllowed, Result.success,
-                "Successfully checked whether self registration is allowed");
-
-        return Boolean.valueOf(selfRegistrationAllowed.getValue());
+        return Boolean.valueOf(confDAO.find("selfRegistration.allowed", "false").getValue());
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -137,13 +120,13 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public int count() {
         return userDAO.count(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()));
     }
 
     @PreAuthorize("hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public int searchCount(final NodeCond searchCondition) throws InvalidSearchConditionException {
         if (!searchCondition.isValid()) {
             LOG.error("Invalid search condition: {}", searchCondition);
@@ -155,7 +138,7 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public List<UserTO> list() {
         List<SyncopeUser> users = userDAO.findAll(
                 EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()));
@@ -165,14 +148,11 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
             userTOs.add(binder.getUserTO(user));
         }
 
-        auditManager.audit(Category.user, UserSubCategory.list, Result.success,
-                "Successfully listed all users: " + userTOs.size());
-
         return userTOs;
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public List<UserTO> list(final int page, final int size) {
         Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
 
@@ -182,9 +162,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
             userTOs.add(binder.getUserTO(user));
         }
 
-        auditManager.audit(Category.user, UserSubCategory.list, Result.success,
-                "Successfully listed all users (page=" + page + ", size=" + size + "): " + userTOs.size());
-
         return userTOs;
     }
 
@@ -192,27 +169,17 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
             + "and not(hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT))")
     @Transactional(readOnly = true)
     public UserTO readSelf() {
-        UserTO userTO = binder.getAuthenticatedUserTO();
-
-        auditManager.audit(Category.user, UserSubCategory.read, Result.success,
-                "Successfully read own data: " + userTO.getUsername());
-
-        return userTO;
+        return binder.getAuthenticatedUserTO();
     }
 
     @PreAuthorize("hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public UserTO read(final Long userId) {
-        UserTO result = binder.getUserTO(userId);
-
-        auditManager.audit(Category.user, UserSubCategory.read, Result.success,
-                "Successfully read user: " + userId);
-
-        return result;
+        return binder.getUserTO(userId);
     }
 
     @PreAuthorize("hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public List<UserTO> search(final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -220,7 +187,7 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public List<UserTO> search(final NodeCond searchCondition, final int page, final int size)
             throws InvalidSearchConditionException {
 
@@ -239,9 +206,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
         for (SyncopeUser user : matchingUsers) {
             result.add(binder.getUserTO(user));
         }
-
-        auditManager.audit(Category.user, UserSubCategory.read, Result.success,
-                "Successfully searched for users (page=" + page + ", size=" + size + "): " + result.size());
 
         return result;
     }
@@ -294,15 +258,10 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        notificationManager.createTasks(created.getResult().getKey(), created.getPerformedTasks());
-
         final UserTO savedTO = binder.getUserTO(created.getResult().getKey());
         savedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
 
         LOG.debug("About to return created user\n{}", savedTO);
-
-        auditManager.audit(Category.user, UserSubCategory.create, Result.success,
-                "Successfully created user: " + savedTO.getUsername());
 
         return savedTO;
     }
@@ -342,13 +301,8 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        notificationManager.createTasks(updated.getResult().getKey().getId(), updated.getPerformedTasks());
-
         final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey().getId());
         updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
-
-        auditManager.audit(Category.user, UserSubCategory.update, Result.success,
-                "Successfully updated user: " + updatedTO.getUsername());
 
         LOG.debug("About to return updated user\n{}", updatedTO);
 
@@ -378,7 +332,7 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     public UserTO status(final StatusMod statusMod) {
         LOG.debug("About to mod status {}", statusMod);
 
@@ -397,14 +351,17 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                 user, statusMod.getType() != StatusMod.ModType.SUSPEND, resourcesToBeExcluded);
-        taskExecutor.execute(tasks);
-
-        notificationManager.createTasks(updated.getResult(), updated.getPerformedTasks());
+        PropagationReporter propReporter =
+                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+        try {
+            taskExecutor.execute(tasks, propReporter);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propReporter.onPrimaryResourceFailure(tasks);
+        }
 
         final UserTO savedTO = binder.getUserTO(updated.getResult());
-
-        auditManager.audit(Category.user, UserSubCategory.setStatus, Result.success,
-                "Successfully changed status to " + savedTO.getStatus() + " for user: " + savedTO.getUsername());
+        savedTO.getPropagationStatusTOs().addAll(propReporter.getStatuses());
 
         LOG.debug("About to return updated user\n{}", savedTO);
 
@@ -430,9 +387,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
                 owned.add(role.getId() + " " + role.getName());
             }
 
-            auditManager.audit(Category.user, UserSubCategory.delete, Result.failure,
-                    "Could not delete user: " + userId + " because of role(s) ownership " + owned);
-
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RoleOwnership);
             sce.getElements().addAll(owned);
             throw sce;
@@ -443,7 +397,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
         // information could only be available after uwfAdapter.delete(), which
         // will also effectively remove user from db, thus making virtually
         // impossible by NotificationManager to fetch required user information
-        notificationManager.createTasks(userId, Collections.singleton("delete"));
 
         List<PropagationTask> tasks = propagationManager.getUserDeleteTaskIds(userId);
 
@@ -467,9 +420,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
             deletedTO = binder.getUserTO(userId);
         }
         deletedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
-
-        auditManager.audit(Category.user, UserSubCategory.delete, Result.success,
-                "Successfully deleted user: " + userId);
 
         LOG.debug("User successfully deleted: {}", userId);
 
@@ -532,7 +482,7 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     @Override
     public UserTO unlink(final Long userId, final Collection<String> resources) {
         LOG.debug("About to unlink user({}) and resources {}", userId, resources);
@@ -546,16 +496,13 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
         final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey().getId());
 
-        auditManager.audit(Category.user, UserSubCategory.update, Result.success,
-                "Successfully updated user: " + updatedTO.getUsername());
-
         LOG.debug("About to return updated user\n{}", updatedTO);
 
         return updatedTO;
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     @Override
     public UserTO unassign(final Long userId, final Collection<String> resources) {
         LOG.debug("About to unassign user({}) and resources {}", userId, resources);
@@ -568,7 +515,7 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = {Throwable.class})
     @Override
     public UserTO deprovision(final Long userId, final Collection<String> resources) {
         LOG.debug("About to deprovision user({}) from resources {}", userId, resources);
@@ -591,11 +538,41 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
         final UserTO updatedUserTO = binder.getUserTO(user);
         updatedUserTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
 
-        auditManager.audit(Category.user, UserSubCategory.update, Result.success,
-                "Successfully deprovisioned user: " + updatedUserTO.getUsername());
-
         LOG.debug("About to return updated user\n{}", updatedUserTO);
 
         return updatedUserTO;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected UserTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
+        Object id = null;
+
+        if (ArrayUtils.isNotEmpty(args)) {
+            for (int i = 0; id == null && i < args.length; i++) {
+                if (args[i] instanceof Long) {
+                    id = (Long) args[i];
+                } else if (args[i] instanceof String) {
+                    id = (String) args[i];
+                } else if (args[i] instanceof UserTO) {
+                    id = ((UserTO) args[i]).getId();
+                } else if (args[i] instanceof UserMod) {
+                    id = ((UserMod) args[i]).getId();
+                }
+            }
+        }
+
+        if (id != null) {
+            try {
+                return id instanceof Long ? binder.getUserTO((Long) id) : binder.getUserTO((String) id);
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
+        throw new UnresolvedReferenceException();
     }
 }

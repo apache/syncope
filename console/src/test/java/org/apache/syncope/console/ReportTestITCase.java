@@ -65,17 +65,33 @@ public class ReportTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
-        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[2]/a");
-        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[3]/a");
-        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[4]/a");
-        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[5]/a");
-        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[6]/a");
-        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[7]/a");
-        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[8]/a");
-        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[9]/a");
-        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[10]/a");
-        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[11]/a");
-        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[12]/a");
-        selenium.click("//div[3]/div[2]/span/form/div[2]/div/span/ul/li[13]/a");
+
+        selenium.waitForCondition(
+                "selenium.isTextPresent(\"[REST]:[EntitlementController]:[]:[getOwn]:[SUCCESS]\");",
+                "30000");
+
+        selenium.select(
+                "//select[@name='events:categoryContainer:type:dropDownChoiceField']",
+                "label=PROPAGATION");
+
+        selenium.waitForCondition("selenium.isElementPresent(\""
+                + "//select[@name='events:categoryContainer:category:dropDownChoiceField']/option[text()='user']\");",
+                "30000");
+
+        selenium.select(
+                "//select[@name='events:categoryContainer:category:dropDownChoiceField']",
+                "label=user");
+
+        selenium.waitForCondition("selenium.isElementPresent(\""
+                + "//select[@name='events:categoryContainer:subcategory:dropDownChoiceField']/option[text()='resource-csv']\");",
+                "30000");
+
+        selenium.select(
+                "//select[@name='events:categoryContainer:subcategory:dropDownChoiceField']",
+                "label=resource-csv");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//input[@name='events:eventsContainer:eventsPanel:successGroup']\");",
+                "30000");
     }
 }

@@ -21,8 +21,7 @@ package org.apache.syncope.core.security;
 import java.util.Date;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.syncope.common.types.AuditElements.AuthenticationSubCategory;
-import org.apache.syncope.common.types.AuditElements.Category;
+import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.core.audit.AuditManager;
@@ -148,7 +147,15 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
             token.setDetails(authentication.getDetails());
 
-            auditManager.audit(Category.authentication, AuthenticationSubCategory.login, Result.success,
+            auditManager.audit(
+                    AuditElements.EventCategoryType.REST,
+                    "AuthenticationController",
+                    null,
+                    "login",
+                    Result.SUCCESS,
+                    null,
+                    authenticated,
+                    authentication,
                     "Successfully authenticated, with roles: " + token.getAuthorities());
 
             LOG.debug("User {} successfully authenticated, with roles {}",
@@ -165,7 +172,15 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                 userDAO.save(user);
             }
 
-            auditManager.audit(Category.authentication, AuthenticationSubCategory.login, Result.failure,
+            auditManager.audit(
+                    AuditElements.EventCategoryType.REST,
+                    "AuthenticationController",
+                    null,
+                    "login",
+                    Result.FAILURE,
+                    null,
+                    authenticated,
+                    authentication,
                     "User " + authentication.getPrincipal() + " not authenticated");
 
             LOG.debug("User {} not authenticated", authentication.getPrincipal());

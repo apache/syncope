@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.console.pages.panels;
 
-import static org.apache.wicket.Component.RENDER;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;

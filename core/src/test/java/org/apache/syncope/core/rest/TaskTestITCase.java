@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.UserMod;
@@ -58,7 +57,6 @@ import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.common.validation.SyncopeClientException;
-import static org.apache.syncope.core.rest.AbstractTest.attributeTO;
 import org.apache.syncope.core.sync.TestSyncActions;
 import org.apache.syncope.core.sync.TestSyncRule;
 import org.apache.syncope.core.sync.impl.SyncJob;
@@ -393,7 +391,7 @@ public class TaskTestITCase extends AbstractTest {
         // Update sync task
         SyncTaskTO task = taskService.read(11L);
         assertNotNull(task);
-        
+
         //  add user template
         final UserTO userTemplate = task.getUserTemplate();
         userTemplate.getResources().add("resource-ldap");
@@ -401,7 +399,7 @@ public class TaskTestITCase extends AbstractTest {
 
         task.setUserTemplate(userTemplate);
 
-        //  add user template
+        //  add role template
         RoleTO roleTemplate = new RoleTO();
         roleTemplate.setParent(8L);
         roleTemplate.getRAttrTemplates().add("show");
@@ -437,6 +435,7 @@ public class TaskTestITCase extends AbstractTest {
         final List<UserTO> matchingUsers = userService.search(NodeCond.getLeafCond(usernameLeafCond));
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.size());
+
         // Check for SYNCOPE-436
         assertEquals("syncFromLDAP", matchingUsers.get(0).getVirAttrMap().get("virtualReadOnly").getValues().get(0));
 
@@ -538,7 +537,6 @@ public class TaskTestITCase extends AbstractTest {
         List<NotificationTaskTO> tasks = taskService.list(TaskType.NOTIFICATION);
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
-
         NotificationTaskTO taskTO = null;
         for (NotificationTaskTO task : tasks) {
             if (sender.equals(task.getSender())) {
@@ -552,7 +550,7 @@ public class TaskTestITCase extends AbstractTest {
         // 1. Create notification
         NotificationTO notification = new NotificationTO();
         notification.setTraceLevel(TraceLevel.FAILURES);
-        notification.getEvents().add("create");
+        notification.getEvents().add("[REST]:[UserController]:[]:[create]:[SUCCESS]");
 
         MembershipCond membCond = new MembershipCond();
         membCond.setRoleId(7L);
