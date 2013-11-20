@@ -222,6 +222,7 @@ public class LoggerController extends AbstractTransactionalController<LoggerTO> 
         }
     }
 
+    @PreAuthorize("hasRole('AUDIT_LIST') or hasRole('NOTIFICATION_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/events")
     public List<EventCategoryTO> listAuditEvents() {
         // use set to avoi duplications or null elements
