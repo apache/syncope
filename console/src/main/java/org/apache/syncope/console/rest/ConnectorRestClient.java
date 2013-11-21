@@ -57,8 +57,9 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public void create(final ConnInstanceTO connectorTO) {
+        Set<ConnConfProperty> filteredConf = filterProperties(connectorTO.getConfiguration());
         connectorTO.getConfiguration().clear();
-        connectorTO.getConfiguration().addAll(filterProperties(connectorTO.getConfiguration()));
+        connectorTO.getConfiguration().addAll(filteredConf);
         getService(ConnectorService.class).create(connectorTO);
     }
 
@@ -81,8 +82,9 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public void update(final ConnInstanceTO connectorTO) {
+        Set<ConnConfProperty> filteredConf = filterProperties(connectorTO.getConfiguration());
         connectorTO.getConfiguration().clear();
-        connectorTO.getConfiguration().addAll(filterProperties(connectorTO.getConfiguration()));
+        connectorTO.getConfiguration().addAll(filteredConf);
         getService(ConnectorService.class).update(connectorTO.getId(), connectorTO);
     }
 
@@ -152,7 +154,7 @@ public class ConnectorRestClient extends BaseRestClient {
      */
     public boolean check(final ConnInstanceTO connectorTO) {
         ConnInstanceTO toBeChecked = new ConnInstanceTO();
-        BeanUtils.copyProperties(connectorTO, toBeChecked, new String[] {"configuration", "configurationMap"});
+        BeanUtils.copyProperties(connectorTO, toBeChecked, new String[] { "configuration", "configurationMap" });
         toBeChecked.getConfiguration().addAll(filterProperties(connectorTO.getConfiguration()));
 
         boolean check = false;
