@@ -46,6 +46,7 @@ import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.SyncToken;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -386,7 +387,7 @@ public class SyncJob extends AbstractTaskJob {
         final SyncopeSyncResultHandler handler =
                 (SyncopeSyncResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
                 getApplicationContext().getBeanFactory()).createBean(
-                SyncopeSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                        SyncopeSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         handler.setConnector(connector);
         handler.setActions(actions);
         handler.setDryRun(dryRun);
@@ -396,6 +397,15 @@ public class SyncJob extends AbstractTaskJob {
 
         actions.beforeAll(handler);
         try {
+            SyncToken latestUSyncToken = null;
+            if (uMapping != null && !syncTask.isFullReconciliation()) {
+                latestUSyncToken = connector.getLatestSyncToken(ObjectClass.ACCOUNT);
+            }
+            SyncToken latestRSyncToken = null;
+            if (rMapping != null && !syncTask.isFullReconciliation()) {
+                latestRSyncToken = connector.getLatestSyncToken(ObjectClass.GROUP);
+            }
+
             if (syncTask.isFullReconciliation()) {
                 if (uMapping != null) {
                     connector.getAllObjects(ObjectClass.ACCOUNT, handler,
@@ -420,10 +430,10 @@ public class SyncJob extends AbstractTaskJob {
                 try {
                     ExternalResource resource = resourceDAO.find(syncTask.getResource().getName());
                     if (uMapping != null) {
-                        resource.setUsyncToken(connector.getLatestSyncToken(ObjectClass.ACCOUNT));
+                        resource.setUsyncToken(latestUSyncToken);
                     }
                     if (rMapping != null) {
-                        resource.setRsyncToken(connector.getLatestSyncToken(ObjectClass.GROUP));
+                        resource.setRsyncToken(latestRSyncToken);
                     }
                     resourceDAO.save(resource);
                 } catch (Exception e) {
