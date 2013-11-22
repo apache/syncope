@@ -47,17 +47,11 @@ public class ConnObjectTO extends AbstractSysInfoTO {
 
     @JsonIgnore
     public Map<String, AttributeTO> getAttrMap() {
-        Map<String, AttributeTO> result;
-
-        if (attrs == null) {
-            result = Collections.<String, AttributeTO>emptyMap();
-        } else {
-            result = new HashMap<String, AttributeTO>(attrs.size());
-            for (AttributeTO attributeTO : attrs) {
-                result.put(attributeTO.getSchema(), attributeTO);
-            }
-            result = Collections.<String, AttributeTO>unmodifiableMap(result);
+        Map<String, AttributeTO> result = new HashMap<String, AttributeTO>(attrs.size());
+        for (AttributeTO attributeTO : attrs) {
+            result.put(attributeTO.getSchema(), attributeTO);
         }
+        result = Collections.<String, AttributeTO>unmodifiableMap(result);
 
         return result;
     }

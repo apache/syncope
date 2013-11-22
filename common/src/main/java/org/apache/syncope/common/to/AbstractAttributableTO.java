@@ -65,34 +65,22 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     @JsonIgnore
     public Map<String, AttributeTO> getDerAttrMap() {
-        Map<String, AttributeTO> result;
-
-        if (derAttrs == null) {
-            result = Collections.emptyMap();
-        } else {
-            result = new HashMap<String, AttributeTO>(derAttrs.size());
-            for (AttributeTO attributeTO : derAttrs) {
-                result.put(attributeTO.getSchema(), attributeTO);
-            }
-            result = Collections.unmodifiableMap(result);
+        Map<String, AttributeTO> result = new HashMap<String, AttributeTO>(derAttrs.size());
+        for (AttributeTO attributeTO : derAttrs) {
+            result.put(attributeTO.getSchema(), attributeTO);
         }
+        result = Collections.unmodifiableMap(result);
 
         return result;
     }
 
     @JsonIgnore
     public Map<String, AttributeTO> getVirAttrMap() {
-        Map<String, AttributeTO> result;
-
-        if (derAttrs == null) {
-            result = Collections.emptyMap();
-        } else {
-            result = new HashMap<String, AttributeTO>(virAttrs.size());
-            for (AttributeTO attributeTO : virAttrs) {
-                result.put(attributeTO.getSchema(), attributeTO);
-            }
-            result = Collections.unmodifiableMap(result);
+        Map<String, AttributeTO> result = new HashMap<String, AttributeTO>(virAttrs.size());
+        for (AttributeTO attributeTO : virAttrs) {
+            result.put(attributeTO.getSchema(), attributeTO);
         }
+        result = Collections.unmodifiableMap(result);
 
         return result;
     }

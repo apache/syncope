@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.common.mod;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
@@ -95,6 +98,9 @@ public class StatusMod extends AbstractBaseBean {
         this.onSyncope = onSyncope;
     }
 
+    @XmlElementWrapper(name = "resources")
+    @XmlElement(name = "resource")
+    @JsonProperty("resources")
     public List<String> getResourceNames() {
         return resourceNames;
     }

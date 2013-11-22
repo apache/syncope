@@ -43,7 +43,7 @@ public class AttributeTO extends AbstractBaseBean {
     /**
      * Set of (string) values of this attribute.
      */
-    private List<String> values;
+    private final List<String> values;
 
     /**
      * Whether this attribute is read-only or not.
