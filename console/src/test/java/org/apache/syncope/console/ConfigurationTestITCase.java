@@ -96,7 +96,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.click("//div[@id='tabs']/ul/li[6]/a/span");
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//*[@id='workflowDefArea']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='workflow']/div/span/img\");", "30000");
     }
 
     @Test

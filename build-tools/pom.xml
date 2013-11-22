@@ -42,9 +42,10 @@ under the License.
   </distributionManagement>
   
   <dependencies>
+    
     <dependency>
-      <artifactId>servlet-api</artifactId>
       <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
       <scope>provided</scope>
     </dependency>
 
