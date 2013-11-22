@@ -75,8 +75,6 @@ public class UserRequestController extends AbstractController<UserRequestTO> {
             throw new UnauthorizedRoleException(-1L);
         }
 
-        LOG.debug("Request user create called with {}", userTO);
-
         try {
             binder.testCreate(userTO);
         } catch (RollbackException e) {
@@ -91,8 +89,6 @@ public class UserRequestController extends AbstractController<UserRequestTO> {
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(method = RequestMethod.POST, value = "/update")
     public UserRequestTO update(@RequestBody final UserMod userMod) {
-        LOG.debug("Request user update called with {}", userMod);
-
         try {
             binder.testUpdate(userMod);
         } catch (RollbackException e) {
@@ -129,8 +125,6 @@ public class UserRequestController extends AbstractController<UserRequestTO> {
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{userId}")
     public UserRequestTO delete(@PathVariable("userId") final Long userId) {
-        LOG.debug("Request user delete called with {}", userId);
-
         try {
             binder.testDelete(userId);
         } catch (RollbackException e) {
@@ -164,7 +158,8 @@ public class UserRequestController extends AbstractController<UserRequestTO> {
 
         if (ArrayUtils.isNotEmpty(obj) && obj[0] instanceof Long
                 && ("deleteRequest".equals(method.getName()) || "read".equals(method.getName()))) {
-            final UserRequest request = userRequestDAO.find((Long) obj[0]);
+
+            UserRequest request = userRequestDAO.find((Long) obj[0]);
             result = request == null ? null : binder.getUserRequestTO(request);
         } else {
             result = null;

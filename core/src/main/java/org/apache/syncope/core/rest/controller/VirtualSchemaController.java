@@ -139,8 +139,9 @@ public class VirtualSchemaController extends AbstractTransactionalController<Vir
      * {@inheritDoc}
      */
     @Override
-    protected VirtualSchemaTO resolveReference(final Method method, final Object... args) throws
-            UnresolvedReferenceException {
+    protected VirtualSchemaTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+
         String kind = null;
         String name = null;
 

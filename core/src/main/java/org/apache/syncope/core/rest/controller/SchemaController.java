@@ -144,8 +144,9 @@ public class SchemaController extends AbstractTransactionalController<SchemaTO> 
      * {@inheritDoc}
      */
     @Override
-    protected SchemaTO resolveReference(final Method method, final Object... args) throws
-            UnresolvedReferenceException {
+    protected SchemaTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+
         String kind = null;
         String name = null;
 

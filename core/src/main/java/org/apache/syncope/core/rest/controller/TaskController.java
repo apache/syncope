@@ -107,8 +107,6 @@ public class TaskController extends AbstractTransactionalController<TaskTO> {
 
     @PreAuthorize("hasRole('TASK_CREATE')")
     public TaskTO createSchedTaskInternal(final SchedTaskTO taskTO) {
-        LOG.debug("Creating task " + taskTO);
-
         TaskUtil taskUtil = getTaskUtil(taskTO);
 
         SchedTask task = binder.createSchedTask(taskTO, taskUtil);
@@ -139,8 +137,6 @@ public class TaskController extends AbstractTransactionalController<TaskTO> {
     @PreAuthorize("hasRole('TASK_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/update/sched")
     public TaskTO updateSched(@RequestBody final SchedTaskTO taskTO) {
-        LOG.debug("Task update called with parameter {}", taskTO);
-
         SchedTask task = taskDAO.find(taskTO.getId());
         if (task == null) {
             throw new NotFoundException("Task " + taskTO.getId());
@@ -253,7 +249,6 @@ public class TaskController extends AbstractTransactionalController<TaskTO> {
         TaskUtil taskUtil = getTaskUtil(task);
 
         TaskExecTO result = null;
-        LOG.debug("Execution started for {}", task);
         switch (taskUtil) {
             case PROPAGATION:
                 final TaskExec propExec = taskExecutor.execute((PropagationTask) task);
@@ -297,7 +292,7 @@ public class TaskController extends AbstractTransactionalController<TaskTO> {
 
             default:
         }
-        LOG.debug("Execution finished for {}, {}", task, result);
+
         return result;
     }
 
@@ -389,8 +384,6 @@ public class TaskController extends AbstractTransactionalController<TaskTO> {
             + "#bulkAction.operation == #bulkAction.operation.DRYRUN))")
     @RequestMapping(method = RequestMethod.POST, value = "/bulk")
     public BulkActionRes bulkAction(@RequestBody final BulkAction bulkAction) {
-        LOG.debug("Bulk action '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
-
         BulkActionRes res = new BulkActionRes();
 
         switch (bulkAction.getOperation()) {

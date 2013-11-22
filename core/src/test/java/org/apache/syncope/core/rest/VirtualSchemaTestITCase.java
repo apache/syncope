@@ -73,12 +73,10 @@ public class VirtualSchemaTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        VirtualSchemaTO schema = schemaService.read(AttributableType.ROLE, SchemaType.VIRTUAL,
-                "rvirtualdata");
+        VirtualSchemaTO schema = schemaService.read(AttributableType.ROLE, SchemaType.VIRTUAL, "rvirtualdata");
         assertNotNull(schema);
 
-        schemaService.delete(AttributableType.ROLE, SchemaType.VIRTUAL,
-                schema.getName());
+        schemaService.delete(AttributableType.ROLE, SchemaType.VIRTUAL, schema.getName());
 
         Throwable t = null;
         try {

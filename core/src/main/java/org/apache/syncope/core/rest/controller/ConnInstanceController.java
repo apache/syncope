@@ -82,8 +82,6 @@ public class ConnInstanceController extends AbstractTransactionalController<Conn
     @PreAuthorize("hasRole('CONNECTOR_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
     public ConnInstanceTO create(final HttpServletResponse response, @RequestBody final ConnInstanceTO connInstanceTO) {
-        LOG.debug("ConnInstance create called with configuration {}", connInstanceTO);
-
         ConnInstance connInstance = binder.getConnInstance(connInstanceTO);
         try {
             connInstance = connInstanceDAO.save(connInstance);
@@ -106,8 +104,6 @@ public class ConnInstanceController extends AbstractTransactionalController<Conn
     @PreAuthorize("hasRole('CONNECTOR_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/update")
     public ConnInstanceTO update(@RequestBody final ConnInstanceTO connInstanceTO) {
-        LOG.debug("Connector update called with configuration {}", connInstanceTO);
-
         ConnInstance connInstance = binder.updateConnInstance(connInstanceTO.getId(), connInstanceTO);
         try {
             connInstance = connInstanceDAO.save(connInstance);
@@ -348,8 +344,6 @@ public class ConnInstanceController extends AbstractTransactionalController<Conn
     @PreAuthorize("hasRole('CONNECTOR_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE")
     @RequestMapping(method = RequestMethod.POST, value = "/bulk")
     public BulkActionRes bulkAction(@RequestBody final BulkAction bulkAction) {
-        LOG.debug("Bulk action '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
-
         BulkActionRes res = new BulkActionRes();
 
         switch (bulkAction.getOperation()) {

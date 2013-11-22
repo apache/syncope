@@ -71,8 +71,8 @@ public class ReportletConfModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = 3910027601200382958L;
 
-    private static final String[] EXCLUDE_PROPERTIES = new String[]{"serialVersionUID", "class", "name",
-        "reportletClassName"};
+    private static final String[] EXCLUDE_PROPERTIES = new String[] { "serialVersionUID", "class", "name",
+        "reportletClassName" };
 
     private AbstractReportletConf reportletConf;
 
@@ -104,30 +104,31 @@ public class ReportletConfModalPage extends BaseModalPage {
         final AjaxDropDownChoicePanel<String> reportletClass = new AjaxDropDownChoicePanel<String>("reportletClass",
                 "reportletClass", new IModel<String>() {
 
-            private static final long serialVersionUID = -2316468110411802130L;
+                    private static final long serialVersionUID = -2316468110411802130L;
 
-            @Override
-            public String getObject() {
-                return ReportletConfModalPage.this.reportletConf == null
+                    @Override
+                    public String getObject() {
+                        return ReportletConfModalPage.this.reportletConf == null
                         ? null
                         : ReportletConfModalPage.this.reportletConf.getClass().getName();
-            }
+                    }
 
-            @Override
-            public void setObject(final String object) {
-                try {
-                    Class<?> reportletClass = Class.forName(object);
-                    ReportletConfModalPage.this.reportletConf = (AbstractReportletConf) reportletClass.newInstance();
-                    propertiesContainer.replace(buildPropView());
-                } catch (Exception e) {
-                    LOG.error("Cannot find or initialize {}", object, e);
-                }
-            }
+                    @Override
+                    public void setObject(final String object) {
+                        try {
+                            Class<?> reportletClass = Class.forName(object);
+                            ReportletConfModalPage.this.reportletConf = (AbstractReportletConf) reportletClass.
+                            newInstance();
+                            propertiesContainer.replace(buildPropView());
+                        } catch (Exception e) {
+                            LOG.error("Cannot find or initialize {}", object, e);
+                        }
+                    }
 
-            @Override
-            public void detach() {
-            }
-        });
+                    @Override
+                    public void detach() {
+                    }
+                });
         reportletClass.setStyleSheet("long_dynamicsize");
         reportletClass.setChoices(reportRestClient.getReportletConfClasses());
         ((DropDownChoice) reportletClass.getField()).setNullValid(true);
@@ -254,15 +255,15 @@ public class ReportletConfModalPage extends BaseModalPage {
                 try {
                     field = ReportletConfModalPage.this.reportletConf.getClass().getDeclaredField(fieldName);
                 } catch (Exception e) {
-                    LOG.error("Could not find field {} in class {}", new Object[]{fieldName,
-                        ReportletConfModalPage.this.reportletConf.getClass(), e});
+                    LOG.error("Could not find field {} in class {}",
+                            fieldName, ReportletConfModalPage.this.reportletConf.getClass(), e);
                 }
                 if (field == null) {
                     return;
                 }
 
-                BeanWrapper wrapper = PropertyAccessorFactory
-                        .forBeanPropertyAccess(ReportletConfModalPage.this.reportletConf);
+                BeanWrapper wrapper = PropertyAccessorFactory.
+                        forBeanPropertyAccess(ReportletConfModalPage.this.reportletConf);
 
                 Panel panel;
 
@@ -333,7 +334,7 @@ public class ReportletConfModalPage extends BaseModalPage {
                     } else if (listItemType.isEnum()) {
                         panel = new CheckBoxMultipleChoiceFieldPanel("value", new PropertyModel(
                                 ReportletConfModalPage.this.reportletConf, fieldName), new ListModel(Arrays
-                                .asList(listItemType.getEnumConstants())));
+                                        .asList(listItemType.getEnumConstants())));
                     } else {
                         if (((List) wrapper.getPropertyValue(fieldName)).isEmpty()) {
                             ((List) wrapper.getPropertyValue(fieldName)).add(null);
@@ -341,7 +342,7 @@ public class ReportletConfModalPage extends BaseModalPage {
 
                         panel = new MultiValueSelectorPanel("value", new PropertyModel<List>(
                                 ReportletConfModalPage.this.reportletConf, fieldName), buildSinglePanel(
-                                field.getType(), fieldName, "panel"));
+                                        field.getType(), fieldName, "panel"));
                     }
                 } else {
                     panel = buildSinglePanel(field.getType(), fieldName, "value");

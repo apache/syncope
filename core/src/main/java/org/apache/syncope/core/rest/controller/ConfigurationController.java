@@ -78,7 +78,6 @@ public class ConfigurationController extends AbstractTransactionalController<Con
     @RequestMapping(method = RequestMethod.POST, value = "/create")
     public ConfigurationTO create(final HttpServletResponse response,
             @RequestBody final ConfigurationTO configurationTO) {
-        LOG.debug("Configuration create called with parameters {}", configurationTO);
 
         SyncopeConf conf = binder.create(configurationTO);
         conf = confDAO.save(conf);

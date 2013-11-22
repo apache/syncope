@@ -59,6 +59,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+/**
+ * Note that this controller does not extend AbstractTransactionalController, hence does not provide any
+ * Spring's Transactional logic at class level.
+ *
+ * @see AbstractTransactionalController
+ */
 @Controller
 @RequestMapping("/role")
 public class RoleController extends AbstractController<RoleTO> {
@@ -167,7 +173,7 @@ public class RoleController extends AbstractController<RoleTO> {
 
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.POST, value = "/search")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<RoleTO> search(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -176,12 +182,10 @@ public class RoleController extends AbstractController<RoleTO> {
 
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.POST, value = "/search/{page}/{size}")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<RoleTO> search(@RequestBody final NodeCond searchCondition, @PathVariable("page") final int page,
             @PathVariable("size") final int size)
             throws InvalidSearchConditionException {
-
-        LOG.debug("Role search called with condition {}", searchCondition);
 
         if (!searchCondition.isValid()) {
             LOG.error("Invalid search condition: {}", searchCondition);
@@ -202,7 +206,7 @@ public class RoleController extends AbstractController<RoleTO> {
 
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.POST, value = "/search/count")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public ModelAndView searchCount(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -232,8 +236,6 @@ public class RoleController extends AbstractController<RoleTO> {
     @PreAuthorize("hasRole('ROLE_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/create")
     public RoleTO create(final HttpServletResponse response, @RequestBody final RoleTO roleTO) {
-        LOG.debug("Role create called with parameters {}", roleTO);
-
         // Check that this operation is allowed to be performed by caller
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
         if (roleTO.getParent() != 0 && !allowedRoleIds.contains(roleTO.getParent())) {
@@ -247,7 +249,6 @@ public class RoleController extends AbstractController<RoleTO> {
         /*
          * Actual operations: workflow, propagation
          */
-
         WorkflowResult<Long> created = rwfAdapter.create(actual);
 
         EntitlementUtil.extendAuthContext(created.getResult());
@@ -262,22 +263,18 @@ public class RoleController extends AbstractController<RoleTO> {
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
+        response.setStatus(HttpServletResponse.SC_CREATED);
+
         final RoleTO savedTO = binder.getRoleTO(created.getResult());
         savedTO.setPropagationStatusTOs(propagationReporter.getStatuses());
-
-        LOG.debug("About to return created role\n{}", savedTO);
-
-        response.setStatus(HttpServletResponse.SC_CREATED);
         return savedTO;
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/update")
     public RoleTO update(@RequestBody final RoleMod roleMod) {
-        LOG.debug("Role update called with {}", roleMod);
-
         // Check that this operation is allowed to be performed by caller
-        SyncopeRole role = binder.getRoleFromId(roleMod.getId());
+        binder.getRoleFromId(roleMod.getId());
 
         // Attribute value transformation (if configured)
         RoleMod actual = attrTransformer.transform(roleMod);
@@ -286,7 +283,6 @@ public class RoleController extends AbstractController<RoleTO> {
         /*
          * Actual operations: workflow, propagation
          */
-
         WorkflowResult<Long> updated = rwfAdapter.update(actual);
 
         List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
@@ -301,17 +297,12 @@ public class RoleController extends AbstractController<RoleTO> {
         }
         final RoleTO updatedTO = binder.getRoleTO(updated.getResult());
         updatedTO.setPropagationStatusTOs(propagationReporter.getStatuses());
-
-        LOG.debug("About to return updated role\n{}", updatedTO);
-
         return updatedTO;
     }
 
     @PreAuthorize("hasRole('ROLE_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{roleId}")
     public RoleTO delete(@PathVariable("roleId") final Long roleId) {
-        LOG.debug("Role delete called for {}", roleId);
-
         // Generate propagation tasks for deleting users from role resources, if they are on those resources only
         // because of the reason being deleted (see SYNCOPE-357)
         List<PropagationTask> tasks = new ArrayList<PropagationTask>();
@@ -336,8 +327,6 @@ public class RoleController extends AbstractController<RoleTO> {
         roleTO.setPropagationStatusTOs(propagationReporter.getStatuses());
 
         rwfAdapter.delete(roleId);
-
-        LOG.debug("Role successfully deleted: {}", roleId);
 
         return roleTO;
     }

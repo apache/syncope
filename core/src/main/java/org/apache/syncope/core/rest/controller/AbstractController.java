@@ -36,6 +36,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Superclass for all controllers.
+ *
+ * @param <T> transfer object used for input / output
+ */
 public abstract class AbstractController<T extends AbstractBaseBean> {
 
     /**

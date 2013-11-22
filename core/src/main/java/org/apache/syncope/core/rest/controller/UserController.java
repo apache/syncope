@@ -74,10 +74,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * Note that this controller does not extend AbstractController, hence does not provide any Spring's Transactional logic
- * at class level.
+ * Note that this controller does not extend AbstractTransactionalController, hence does not provide any
+ * Spring's Transactional logic at class level.
  *
- * @see AbstractController
+ * @see AbstractTransactionalController
  */
 @Controller
 @RequestMapping("/user")
@@ -126,7 +126,7 @@ public class UserController extends AbstractController<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public int countInternal() {
         return userDAO.count(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()));
     }
@@ -139,7 +139,7 @@ public class UserController extends AbstractController<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public int searchCountInternal(final NodeCond searchCondition) throws InvalidSearchConditionException {
         if (!searchCondition.isValid()) {
             LOG.error("Invalid search condition: {}", searchCondition);
@@ -152,7 +152,7 @@ public class UserController extends AbstractController<UserTO> {
 
     @PreAuthorize("hasRole('USER_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/list")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<UserTO> list() {
         List<SyncopeUser> users =
                 userDAO.findAll(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()));
@@ -167,7 +167,7 @@ public class UserController extends AbstractController<UserTO> {
 
     @PreAuthorize("hasRole('USER_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/list/{page}/{size}")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<UserTO> list(@PathVariable("page") final int page, @PathVariable("size") final int size) {
         Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
 
@@ -182,14 +182,14 @@ public class UserController extends AbstractController<UserTO> {
 
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{userId}")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public UserTO read(@PathVariable("userId") final Long userId) {
         return binder.getUserTO(userId);
     }
 
     @PreAuthorize("#username == authentication.name or hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/readByUsername/{username}")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public UserTO read(@PathVariable final String username) {
         return binder.getUserTO(username);
     }
@@ -203,7 +203,7 @@ public class UserController extends AbstractController<UserTO> {
 
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.POST, value = "/search")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<UserTO> search(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -212,12 +212,10 @@ public class UserController extends AbstractController<UserTO> {
 
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.POST, value = "/search/{page}/{size}")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<UserTO> search(@RequestBody final NodeCond searchCondition, @PathVariable("page") final int page,
             @PathVariable("size") final int size)
             throws InvalidSearchConditionException {
-
-        LOG.debug("User search called with condition {}", searchCondition);
 
         if (!searchCondition.isValid()) {
             LOG.error("Invalid search condition: {}", searchCondition);
@@ -245,8 +243,6 @@ public class UserController extends AbstractController<UserTO> {
 
     @PreAuthorize("hasRole('USER_CREATE')")
     public UserTO createInternal(final UserTO userTO) {
-        LOG.debug("User create called with {}", userTO);
-
         // Check that this operation is allowed to be performed by caller
         Set<Long> requestRoleIds = new HashSet<Long>(userTO.getMemberships().size());
         for (MembershipTO membership : userTO.getMemberships()) {
@@ -265,7 +261,6 @@ public class UserController extends AbstractController<UserTO> {
         /*
          * Actual operations: workflow, propagation, notification
          */
-
         WorkflowResult<Map.Entry<Long, Boolean>> created = uwfAdapter.create(actual);
 
         List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(
@@ -281,17 +276,12 @@ public class UserController extends AbstractController<UserTO> {
 
         final UserTO savedTO = binder.getUserTO(created.getResult().getKey());
         savedTO.setPropagationStatusTOs(propagationReporter.getStatuses());
-
-        LOG.debug("About to return created user\n{}", savedTO);
-
         return savedTO;
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/update")
     public UserTO update(@RequestBody final UserMod userMod) {
-        LOG.debug("User update called with {}", userMod);
-
         // AttributableMod transformation (if configured)
         UserMod actual = attrTransformer.transform(userMod);
         LOG.debug("Transformed: {}", actual);
@@ -365,15 +355,12 @@ public class UserController extends AbstractController<UserTO> {
         // 4. prepare result, including propagation status on external resources
         final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey());
         updatedTO.setPropagationStatusTOs(propagationReporter.getStatuses());
-
-        LOG.debug("About to return updated user\n{}", updatedTO);
-
         return updatedTO;
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.GET, value = "/activate/{userId}")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public UserTO activate(@PathVariable("userId") final Long userId,
             @RequestParam(required = true) final String token) {
 
@@ -382,21 +369,17 @@ public class UserController extends AbstractController<UserTO> {
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/activate/{userId}")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public UserTO activate(@PathVariable("userId") final Long userId,
             @RequestParam(required = true) final String token,
             @RequestBody final PropagationRequestTO propagationRequestTO) {
 
-        LOG.debug("About to activate " + userId);
-
-        SyncopeUser user = binder.getUserFromId(userId);
-
-        return setStatus(user, token, propagationRequestTO, true, "activate");
+        return setStatus(binder.getUserFromId(userId), token, propagationRequestTO, true, "activate");
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.GET, value = "/activateByUsername/{username}")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public UserTO activate(@PathVariable("username") final String username,
             @RequestParam(required = true) final String token) {
 
@@ -405,21 +388,17 @@ public class UserController extends AbstractController<UserTO> {
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/activateByUsername/{username}")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public UserTO activate(@PathVariable("username") final String username,
             @RequestParam(required = true) final String token,
             @RequestBody final PropagationRequestTO propagationRequestTO) {
 
-        LOG.debug("About to activate " + username);
-
-        SyncopeUser user = binder.getUserFromUsername(username);
-
-        return setStatus(user, token, propagationRequestTO, true, "activate");
+        return setStatus(binder.getUserFromUsername(username), token, propagationRequestTO, true, "activate");
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.GET, value = "/suspend/{userId}")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public UserTO suspend(@PathVariable("userId") final Long userId) {
 
         return suspend(userId, null);
@@ -427,20 +406,16 @@ public class UserController extends AbstractController<UserTO> {
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/suspend/{userId}")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public UserTO suspend(@PathVariable("userId") final Long userId,
             @RequestBody final PropagationRequestTO propagationRequestTO) {
 
-        LOG.debug("About to suspend " + userId);
-
-        SyncopeUser user = binder.getUserFromId(userId);
-
-        return setStatus(user, null, propagationRequestTO, false, "suspend");
+        return setStatus(binder.getUserFromId(userId), null, propagationRequestTO, false, "suspend");
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.GET, value = "/suspendByUsername/{username}")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public UserTO suspend(@PathVariable("username") final String username) {
 
         return suspend(username, null);
@@ -448,20 +423,16 @@ public class UserController extends AbstractController<UserTO> {
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/suspendByUsername/{username}")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public UserTO suspend(@PathVariable("username") final String username,
             @RequestBody final PropagationRequestTO propagationRequestTO) {
 
-        LOG.debug("About to suspend " + username);
-
-        SyncopeUser user = binder.getUserFromUsername(username);
-
-        return setStatus(user, null, propagationRequestTO, false, "suspend");
+        return setStatus(binder.getUserFromUsername(username), null, propagationRequestTO, false, "suspend");
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.GET, value = "/reactivate/{userId}")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public UserTO reactivate(@PathVariable("userId") final Long userId) {
 
         return reactivate(userId, null);
@@ -469,49 +440,37 @@ public class UserController extends AbstractController<UserTO> {
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/reactivate/{userId}")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public UserTO reactivate(@PathVariable("userId") final Long userId,
             @RequestBody final PropagationRequestTO propagationRequestTO) {
 
-        LOG.debug("About to reactivate " + userId);
-
-        SyncopeUser user = binder.getUserFromId(userId);
-
-        return setStatus(user, null, propagationRequestTO, true, "reactivate");
+        return setStatus(binder.getUserFromId(userId), null, propagationRequestTO, true, "reactivate");
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/reactivateByUsername/{username}")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public UserTO reactivate(@PathVariable("username") final String username) {
         return reactivate(username, null);
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/reactivateByUsername/{username}")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public UserTO reactivate(@PathVariable("username") final String username,
             @RequestBody final PropagationRequestTO propagationRequestTO) {
 
-        LOG.debug("About to reactivate " + username);
-
-        SyncopeUser user = binder.getUserFromUsername(username);
-
-        return setStatus(user, null, propagationRequestTO, true, "reactivate");
+        return setStatus(binder.getUserFromUsername(username), null, propagationRequestTO, true, "reactivate");
     }
 
     @PreAuthorize("hasRole('USER_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/delete/{userId}")
     public UserTO delete(@PathVariable("userId") final Long userId) {
-        LOG.debug("User delete called with {}", userId);
-
         return doDelete(userId);
     }
 
     @PreAuthorize("hasRole('USER_DELETE')")
     @RequestMapping(method = RequestMethod.GET, value = "/deleteByUsername/{username}")
     public UserTO delete(@PathVariable final String username) {
-        LOG.debug("User delete called with {}", username);
-
         UserTO result = binder.getUserTO(username);
         long userId = result.getId();
 
@@ -521,33 +480,27 @@ public class UserController extends AbstractController<UserTO> {
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/execute/workflow/{taskId}")
     public UserTO executeWorkflow(@RequestBody final UserTO userTO, @PathVariable("taskId") final String taskId) {
-        LOG.debug("About to execute {} on {}", taskId, userTO.getId());
-
         WorkflowResult<Long> updated = uwfAdapter.execute(userTO, taskId);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                 new WorkflowResult<Map.Entry<Long, Boolean>>(new SimpleEntry<Long, Boolean>(updated.getResult(), null),
-                updated.getPropByRes(), updated.getPerformedTasks()));
+                        updated.getPropByRes(), updated.getPerformedTasks()));
 
         taskExecutor.execute(tasks);
 
-        final UserTO savedTO = binder.getUserTO(updated.getResult());
-
-        LOG.debug("About to return updated user\n{}", savedTO);
-
-        return savedTO;
+        return binder.getUserTO(updated.getResult());
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/workflow/form/list")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public List<WorkflowFormTO> getForms() {
         return uwfAdapter.getForms();
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/workflow/form/{userId}")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public WorkflowFormTO getFormForUser(@PathVariable("userId") final Long userId) {
         SyncopeUser user = binder.getUserFromId(userId);
         return uwfAdapter.getForm(user.getWorkflowId());
@@ -555,17 +508,15 @@ public class UserController extends AbstractController<UserTO> {
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_CLAIM')")
     @RequestMapping(method = RequestMethod.GET, value = "/workflow/form/claim/{taskId}")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public WorkflowFormTO claimForm(@PathVariable("taskId") final String taskId) {
         return uwfAdapter.claimForm(taskId, SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_SUBMIT')")
     @RequestMapping(method = RequestMethod.POST, value = "/workflow/form/submit")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public UserTO submitForm(@RequestBody final WorkflowFormTO form) {
-        LOG.debug("About to process form {}", form);
-
         WorkflowResult<Map.Entry<Long, String>> updated = uwfAdapter.submitForm(form,
                 SecurityContextHolder.getContext().getAuthentication().getName());
 
@@ -574,9 +525,9 @@ public class UserController extends AbstractController<UserTO> {
         if (updated.getPropByRes() != null && !updated.getPropByRes().isEmpty()) {
             List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                     new WorkflowResult<Map.Entry<Long, Boolean>>(
-                    new SimpleEntry<Long, Boolean>(updated.getResult().getKey(), Boolean.TRUE),
-                    updated.getPropByRes(),
-                    updated.getPerformedTasks()),
+                            new SimpleEntry<Long, Boolean>(updated.getResult().getKey(), Boolean.TRUE),
+                            updated.getPropByRes(),
+                            updated.getPerformedTasks()),
                     updated.getResult().getValue(),
                     null,
                     null,
@@ -584,17 +535,11 @@ public class UserController extends AbstractController<UserTO> {
             taskExecutor.execute(tasks);
         }
 
-        final UserTO savedTO = binder.getUserTO(updated.getResult().getKey());
-
-        LOG.debug("About to return user after form processing\n{}", savedTO);
-
-        return savedTO;
+        return binder.getUserTO(updated.getResult().getKey());
     }
 
     protected UserTO setStatus(final SyncopeUser user, final String token,
             final PropagationRequestTO propagationRequestTO, final boolean status, final String task) {
-
-        LOG.debug("About to set status of {}" + user);
 
         WorkflowResult<Long> updated;
         if (propagationRequestTO == null || propagationRequestTO.isOnSyncope()) {
@@ -621,9 +566,6 @@ public class UserController extends AbstractController<UserTO> {
 
         final UserTO savedTO = binder.getUserTO(updated.getResult());
         savedTO.setPropagationStatusTOs(propReporter.getStatuses());
-
-        LOG.debug("About to return updated user\n{}", savedTO);
-
         return savedTO;
     }
 
@@ -662,7 +604,6 @@ public class UserController extends AbstractController<UserTO> {
         // information could only be available after uwfAdapter.delete(), which
         // will also effectively remove user from db, thus making virtually
         // impossible by NotificationManager to fetch required user information
-
         List<PropagationTask> tasks = propagationManager.getUserDeleteTaskIds(userId);
 
         final UserTO userTO = new UserTO();
@@ -681,8 +622,6 @@ public class UserController extends AbstractController<UserTO> {
 
         uwfAdapter.delete(userId);
 
-        LOG.debug("User successfully deleted: {}", userId);
-
         return userTO;
     }
 
@@ -692,8 +631,6 @@ public class UserController extends AbstractController<UserTO> {
             + "#bulkAction.operation == #bulkAction.operation.SUSPEND))")
     @RequestMapping(method = RequestMethod.POST, value = "/bulk")
     public BulkActionRes bulkAction(@RequestBody final BulkAction bulkAction) {
-        LOG.debug("Bulk action '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
-
         BulkActionRes res = new BulkActionRes();
 
         switch (bulkAction.getOperation()) {

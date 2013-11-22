@@ -76,12 +76,10 @@ public class PolicyController extends AbstractTransactionalController<PolicyTO> 
 
     @PreAuthorize("hasRole('POLICY_CREATE')")
     public <T extends PolicyTO> T createInternal(final T policyTO) {
-        LOG.debug("Creating policy " + policyTO);
         return binder.getPolicyTO(policyDAO.save(binder.getPolicy(null, policyTO)));
     }
 
     private <T extends PolicyTO, K extends Policy> T update(final T policyTO, final K policy) {
-        LOG.debug("Updating policy " + policyTO);
         binder.getPolicy(policy, policyTO);
         K savedPolicy = policyDAO.save(policy);
         return binder.getPolicyTO(savedPolicy);
@@ -123,7 +121,6 @@ public class PolicyController extends AbstractTransactionalController<PolicyTO> 
     @PreAuthorize("hasRole('POLICY_LIST')")
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
     public List<PolicyTO> list(@PathVariable("kind") final String kind) {
-        LOG.debug("Listing policies");
         List<? extends Policy> policies = policyDAO.find(PolicyType.valueOf(kind.toUpperCase(Locale.ENGLISH)));
 
         final List<PolicyTO> policyTOs = new ArrayList<PolicyTO>();
@@ -137,8 +134,6 @@ public class PolicyController extends AbstractTransactionalController<PolicyTO> 
     @PreAuthorize("hasRole('POLICY_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/password/global/read")
     public PasswordPolicyTO getGlobalPasswordPolicy() {
-        LOG.debug("Reading global password policy");
-
         PasswordPolicy policy = policyDAO.getGlobalPasswordPolicy();
         if (policy == null) {
             throw new NotFoundException("No password policy found");
@@ -150,8 +145,6 @@ public class PolicyController extends AbstractTransactionalController<PolicyTO> 
     @PreAuthorize("hasRole('POLICY_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/account/global/read")
     public AccountPolicyTO getGlobalAccountPolicy() {
-        LOG.debug("Reading global account policy");
-
         AccountPolicy policy = policyDAO.getGlobalAccountPolicy();
         if (policy == null) {
             throw new NotFoundException("No account policy found");
@@ -163,8 +156,6 @@ public class PolicyController extends AbstractTransactionalController<PolicyTO> 
     @PreAuthorize("hasRole('POLICY_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/sync/global/read")
     public SyncPolicyTO getGlobalSyncPolicy() {
-        LOG.debug("Reading global sync policy");
-
         SyncPolicy policy = policyDAO.getGlobalSyncPolicy();
         if (policy == null) {
             throw new NotFoundException("No sync policy found");
@@ -176,8 +167,6 @@ public class PolicyController extends AbstractTransactionalController<PolicyTO> 
     @PreAuthorize("hasRole('POLICY_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{id}")
     public <T extends PolicyTO> T read(@PathVariable("id") final Long id) {
-        LOG.debug("Reading policy with id {}", id);
-
         Policy policy = policyDAO.find(id);
         if (policy == null) {
             throw new NotFoundException("Policy " + id + " not found");
@@ -211,8 +200,9 @@ public class PolicyController extends AbstractTransactionalController<PolicyTO> 
      * {@inheritDoc}
      */
     @Override
-    protected PolicyTO resolveReference(final Method method, final Object... args) throws
-            UnresolvedReferenceException {
+    protected PolicyTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+
         Long id = null;
 
         if (ArrayUtils.isNotEmpty(args)) {
