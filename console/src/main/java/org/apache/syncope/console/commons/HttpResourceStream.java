@@ -39,17 +39,20 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
 
     private String contentType;
 
+    private String location;
+
     private String filename;
 
     public HttpResourceStream(final Response response) {
         super();
-        
+
         Object entity = response.getEntity();
-        if (response.getStatusInfo().getStatusCode() == Response.Status.OK.getStatusCode() 
+        if (response.getStatusInfo().getStatusCode() == Response.Status.OK.getStatusCode()
                 && (entity instanceof InputStream)) {
 
             this.inputStream = (InputStream) entity;
             this.contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
+            this.location = response.getLocation().toASCIIString();
             String contentDisposition = response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION);
             if (StringUtils.isNotBlank(contentDisposition)) {
                 String[] splitted = contentDisposition.split("=");
@@ -83,7 +86,7 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
 
     @Override
     public String locationAsString() {
-        return null;
+        return location;
     }
 
     @Override

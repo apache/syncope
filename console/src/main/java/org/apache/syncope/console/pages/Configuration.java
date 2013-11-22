@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.console.pages;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import javax.ws.rs.core.MediaType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -44,15 +44,14 @@ import org.apache.syncope.console.rest.ConfigurationRestClient;
 import org.apache.syncope.console.rest.LoggerRestClient;
 import org.apache.syncope.console.rest.NotificationRestClient;
 import org.apache.syncope.console.rest.WorkflowRestClient;
-import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.console.wicket.markup.html.link.VeilPopupSettings;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
@@ -66,7 +65,8 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextArea;
+import org.apache.wicket.markup.html.image.Image;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.PropertyListView;
@@ -76,10 +76,14 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ContentDisposition;
+import org.apache.wicket.request.resource.DynamicImageResource;
+import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * Configurations WebPage.
@@ -143,45 +147,68 @@ public class Configuration extends BasePage {
         setupNotification();
 
         // Workflow definition stuff
+        WebMarkupContainer noActivitiEnabledForUsers = new WebMarkupContainer("noActivitiEnabledForUsers");
+        noActivitiEnabledForUsers.setOutputMarkupPlaceholderTag(true);
+        add(noActivitiEnabledForUsers);
+
         WebMarkupContainer workflowDefContainer = new WebMarkupContainer("workflowDefContainer");
+        workflowDefContainer.setOutputMarkupPlaceholderTag(true);
 
-        Form wfForm = new Form("workflowDefForm");
+        if (wfRestClient.isActivitiEnabledForUsers()) {
+            noActivitiEnabledForUsers.setVisible(false);
+        } else {
+            workflowDefContainer.setVisible(false);
+        }
 
-        final TextArea<String> workflowDefArea = new TextArea<String>("workflowDefArea",
-                new Model<String>(wfRestClient.getDefinition(MediaType.APPLICATION_XML_TYPE)));
-        wfForm.add(workflowDefArea);
+        BookmarkablePageLink<Void> activitiModeler =
+                new BookmarkablePageLink<Void>("activitiModeler", ActivitiModelerPopupPage.class);
+        activitiModeler.setPopupSettings(new VeilPopupSettings().setHeight(600).setWidth(800));
+        MetaDataRoleAuthorizationStrategy.authorize(activitiModeler, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Configuration", "workflowDefRead"));
+        workflowDefContainer.add(activitiModeler);
+        // Check if Activiti Modeler directory is found
+        boolean activitiModelerEnabled = false;
+        try {
+            String activitiModelerDirectory = WebApplicationContextUtils.getWebApplicationContext(
+                    WebApplication.get().getServletContext()).getBean("activitiModelerDirectory", String.class);
+            File baseDir = new File(activitiModelerDirectory);
+            activitiModelerEnabled = baseDir.exists() && baseDir.canRead() && baseDir.isDirectory();
+        } catch (Exception e) {
+            LOG.error("Could not check for Activiti Modeler directory", e);
+        }
+        activitiModeler.setEnabled(activitiModelerEnabled);
 
-        AjaxButton submit =
-                new ClearIndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT)), getPageReference()) {
+        BookmarkablePageLink<Void> xmlEditor =
+                new BookmarkablePageLink<Void>("xmlEditor", XMLEditorPopupPage.class);
+        xmlEditor.setPopupSettings(new VeilPopupSettings().setHeight(350).setWidth(800));
+        MetaDataRoleAuthorizationStrategy.authorize(xmlEditor, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Configuration", "workflowDefRead"));
+        workflowDefContainer.add(xmlEditor);
 
-                    private static final long serialVersionUID = -958724007591692537L;
+        Image workflowDefDiagram = new Image("workflowDefDiagram", new Model()) {
+
+            private static final long serialVersionUID = -8457850449086490660L;
+
+            @Override
+            protected IResource getImageResource() {
+                return new DynamicImageResource() {
+
+                    private static final long serialVersionUID = 923201517955737928L;
 
                     @Override
-                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                        try {
-                            wfRestClient.updateDefinition(
-                                    MediaType.APPLICATION_XML_TYPE, workflowDefArea.getModelObject());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (SyncopeClientException scee) {
-                            error(getString(Constants.ERROR) + ": " + scee.getMessage());
-                        }
-                        target.add(feedbackPanel);
-                    }
-
-                    @Override
-                    protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                        target.add(feedbackPanel);
+                    protected byte[] getImageData(final IResource.Attributes attributes) {
+                        return wfRestClient.isActivitiEnabledForUsers()
+                                ? wfRestClient.getDiagram()
+                                : new byte[0];
                     }
                 };
+            }
 
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Configuration",
-                "workflowDefUpdate"));
-        wfForm.add(submit);
+        };
+        workflowDefContainer.add(workflowDefDiagram);
 
-        workflowDefContainer.add(wfForm);
-
-        MetaDataRoleAuthorizationStrategy.authorize(workflowDefContainer, ENABLE, xmlRolesReader.getAllAllowedRoles(
-                "Configuration", "workflowDefRead"));
+        MetaDataRoleAuthorizationStrategy.authorize(workflowDefContainer, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Configuration", "workflowDefRead"));
         add(workflowDefContainer);
 
         // Logger stuff
@@ -280,7 +307,7 @@ public class Configuration extends BasePage {
 
         final AjaxFallbackDefaultDataTable<ConfigurationTO, String> confTable =
                 new AjaxFallbackDefaultDataTable<ConfigurationTO, String>(
-                "syncopeconf", confColumns, new SyncopeConfProvider(), confPaginatorRows);
+                        "syncopeconf", confColumns, new SyncopeConfProvider(), confPaginatorRows);
 
         confContainer = new WebMarkupContainer("confContainer");
         confContainer.add(confTable);
@@ -455,7 +482,7 @@ public class Configuration extends BasePage {
 
         final AjaxFallbackDefaultDataTable<NotificationTO, String> notificationTable =
                 new AjaxFallbackDefaultDataTable<NotificationTO, String>(
-                "notificationTable", notificationCols, new NotificationProvider(), notificationPaginatorRows);
+                        "notificationTable", notificationCols, new NotificationProvider(), notificationPaginatorRows);
 
         notificationContainer = new WebMarkupContainer("notificationContainer");
         notificationContainer.add(notificationTable);

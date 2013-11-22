@@ -63,6 +63,10 @@ under the License.
     <constructor-arg value="${anonymousKey}"/>
   </bean>
 
+  <bean id="activitiModelerDirectory" class="java.lang.String">
+    <constructor-arg value="${activiti-modeler.directory}"/>
+  </bean>
+
   <bean id="syncopeApplication" class="org.apache.syncope.console.SyncopeApplication"/>
 
   <bean id="preferenceManager" class="org.apache.syncope.console.commons.PreferenceManager"/>

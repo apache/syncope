@@ -32,8 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.AttributeSchemaType;
-import static org.apache.syncope.common.types.IntMappingType.RoleVirtualSchema;
-import static org.apache.syncope.common.types.IntMappingType.UserVirtualSchema;
 import org.apache.syncope.core.connid.PasswordGenerator;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;

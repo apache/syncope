@@ -17,42 +17,22 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:head>
-    <link rel="stylesheet" type="text/css" href="css/codemirror.css" />
-    <link rel="stylesheet" type="text/css" href="css/codemirror_default_theme.css" />
-
-    <script type="text/javascript" src="scripts/codemirror.js"></script>
-    <script type="text/javascript" src="scripts/xmlpure.js"></script>
-    <script type="text/javascript">
-      function updateTextArea(editor) {
-        document.getElementById("workflowDefArea").value = editor.getValue();
-      }
-    </script>
-
-    <style>
-      td#level {
-        width: 100px;
-        text-align: center;
-      }
-    </style>
-  </wicket:head>
-
   <wicket:extend>
 
     <div id="tabs">
       <ul>
         <li class="tabs-selected">
-          <a href="#tabs-1"><span><wicket:message key="tab1"/></span></a>
+          <a href="#parameters"><span><wicket:message key="parameters"/></span></a>
         </li>
-        <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
-        <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
-        <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
-        <li><a href="#tabs-5"><span><wicket:message key="tab5"/></span></a></li>
-        <li><a href="#tabs-6"><span><wicket:message key="tab6"/></span></a></li>
-        <li><a href="#tabs-7"><span><wicket:message key="tab7"/></span></a></li>
-        <li><a href="#tabs-8"><span><wicket:message key="tab8"/></span></a></li>
+        <li><a href="#passwordPolicies"><span><wicket:message key="passwordPolicies"/></span></a></li>
+        <li><a href="#accountPolicies"><span><wicket:message key="accountPolicies"/></span></a></li>
+        <li><a href="#syncPolicies"><span><wicket:message key="syncPolicies"/></span></a></li>
+        <li><a href="#notifications"><span><wicket:message key="notifications"/></span></a></li>
+        <li><a href="#workflow"><span><wicket:message key="workflow"/></span></a></li>
+        <li><a href="#coreLog"><span><wicket:message key="coreLog"/></span></a></li>
+        <li><a href="#consoleLog"><span><wicket:message key="consoleLog"/></span></a></li>
       </ul>
-      <div id="tabs-1">
+      <div id="parameters">
 
         <div id="users-contain" class="ui-widget" style="width:inherit">
           <span wicket:id="confContainer">
@@ -77,16 +57,16 @@ under the License.
           <wicket:message key="create_configuration"/>
         </a>
       </div>
-      <div id="tabs-2">
+      <div id="passwordPolicies">
         <span wicket:id="passwordPoliciesPanel">[password policies]</span>
       </div>
-      <div id="tabs-3">
+      <div id="accountPolicies">
         <span wicket:id="accountPoliciesPanel">[account policies]</span>
       </div>
-      <div id="tabs-4">
+      <div id="syncPolicies">
         <span wicket:id="syncPoliciesPanel">[sync policies]</span>
       </div>
-      <div id="tabs-5">
+      <div id="notifications">
         <div id="users-contain" class="ui-widget" style="width:inherit">
           <span wicket:id="notificationContainer">
             <table class="ui-widget ui-widget-content table-hover"
@@ -110,26 +90,39 @@ under the License.
           <wicket:message key="create_notification"/>
         </a>
       </div>
-      <div id="tabs-6">
+      <div id="workflow">
         <div id="users-contain" class="ui-widget" style="width:inherit">
+          <span wicket:id="noActivitiEnabledForUsers"><i><wicket:message key="noActivitiEnabledForUsers"/></i></span>
           <span wicket:id="workflowDefContainer">
-            <form wicket:id="workflowDefForm">
-              <textarea wicket:id="workflowDefArea" id="workflowDefArea" style="width:100%;height:350px;">
-              </textarea>
-              <div style="margin: 10px 0px 0">
-                <input type="submit"
-                       class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                       wicket:id="apply"/>
-              </div>
-            </form>
-            <script>
-              var editor = CodeMirror.fromTextArea(document.getElementById("workflowDefArea"),
-                      {mode: {name: "xmlpure"}, lineNumbers: true, onChange: updateTextArea});
-            </script>
+            <div style="float: left;">
+              <button wicket:id="activitiModeler">
+                <div style="display: table-row;">
+                  <div style="display: table-cell">
+                    <img src="img/modeler.png" alt="Activiti Modeler" title="Activiti Modeler"/>
+                  </div>
+                  <div style="display: table-cell;vertical-align:middle;font-size:62.5%;">
+                    Activiti Modeler
+                  </div>
+                </div>
+              </button>
+            </div>
+            <div>
+              <button wicket:id="xmlEditor">
+                <div style="display: table-row;">
+                  <div style="display: table-cell">
+                    <img src="img/xml.png" alt="XML editor" title="XML editor"/>
+                  </div>
+                  <div style="display: table-cell;vertical-align:middle;font-size:62.5%;">                  
+                    XML editor
+                  </div>
+                </div>
+              </button>
+            </div>
+            <img wicket:id="workflowDefDiagram" style="width: 100%;"/>
           </span>
         </div>
       </div>
-      <div id="tabs-7">
+      <div id="coreLog">
         <div id="users-contain" class="ui-widget" style="width:inherit">
           <span wicket:id="coreLoggerContainer">
             <table class="ui-widget ui-widget-content table-hover">
@@ -149,7 +142,7 @@ under the License.
           </span>
         </div>
       </div>
-      <div id="tabs-8">
+      <div id="consoleLog">
         <div id="users-contain" class="ui-widget" style="width:inherit">
           <span wicket:id="consoleLoggerContainer">
             <table class="ui-widget ui-widget-content table-hover">

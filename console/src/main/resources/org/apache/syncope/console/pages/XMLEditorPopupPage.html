@@ -1,0 +1,57 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:head>
+    <link rel="stylesheet" type="text/css" href="css/codemirror.css" />
+    <link rel="stylesheet" type="text/css" href="css/codemirror_default_theme.css" />
+
+    <script type="text/javascript" src="scripts/codemirror.js"></script>
+    <script type="text/javascript" src="scripts/xmlpure.js"></script>
+    <script type="text/javascript">
+      function updateTextArea(editor) {
+        document.getElementById("workflowDefArea").value = editor.getValue();
+      }
+    </script>
+    <script>
+      window.onunload = refreshParent;
+      function refreshParent() {
+        if (window.opener.location.toString().indexOf('#workflow') === -1) {
+          window.opener.location = window.opener.location + "#workflow";
+        }
+        window.opener.location.reload();
+      }
+    </script>
+  </wicket:head>
+  <wicket:extend>
+    <form wicket:id="workflowDefForm">
+      <textarea wicket:id="workflowDefArea" id="workflowDefArea" style="width: 100%; height: 350px;">
+      </textarea>
+      <div style="margin: 10px">
+        <input type="submit"
+               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+               wicket:id="apply"
+               onclick="window.close();"/>
+      </div>
+    </form>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("workflowDefArea"),
+              {mode: {name: "xmlpure"}, lineNumbers: true, onChange: updateTextArea});
+    </script>
+  </wicket:extend>
+</html>

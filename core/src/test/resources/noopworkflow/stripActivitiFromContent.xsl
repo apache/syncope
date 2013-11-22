@@ -20,6 +20,14 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
   
+  <xsl:template match="entry">
+    <xsl:if test="not(starts-with(@key, 'ACT_'))">
+      <entry>
+        <xsl:apply-templates select="node()|@*|comment()"/>
+      </entry>
+    </xsl:if>
+  </xsl:template>
+  
   <xsl:template match="node()|@*|comment()">
     <xsl:if test="not(starts-with(local-name(), 'ACT_'))">
       <xsl:copy>

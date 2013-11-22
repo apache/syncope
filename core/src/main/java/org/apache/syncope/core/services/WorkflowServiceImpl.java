@@ -25,6 +25,7 @@ import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.core.rest.controller.WorkflowController;
 import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -32,6 +33,10 @@ import javax.ws.rs.core.StreamingOutput;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.RESTHeaders;
+import org.apache.syncope.core.rest.controller.WorkflowController;
+import org.apache.syncope.core.workflow.ActivitiDetector;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -42,6 +47,32 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
 
     @Autowired
     private WorkflowController controller;
+
+    @Override
+    public Response getOptions(final AttributableType kind) {
+        String key = null;
+        String value = null;
+        switch (kind) {
+            case USER:
+                key = RESTHeaders.ACTIVITI_USER_ENABLED;
+                value = Boolean.toString(ActivitiDetector.isActivitiEnabledForUsers());
+                break;
+
+            case ROLE:
+                key = RESTHeaders.ACTIVITI_ROLE_ENABLED;
+                value = Boolean.toString(ActivitiDetector.isActivitiEnabledForRoles());
+                break;
+
+            case MEMBERSHIP:
+            default:
+        }
+
+        Response.ResponseBuilder builder = Response.ok().header(HttpHeaders.ALLOW, "GET,POST,OPTIONS,HEAD");
+        if (key != null && value != null) {
+            builder.header(key, value);
+        }
+        return builder.build();
+    }
 
     @Override
     public Response exportDefinition(final AttributableType kind) {

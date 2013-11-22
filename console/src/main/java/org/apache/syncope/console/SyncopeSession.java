@@ -28,6 +28,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.client.SyncopeClientFactoryBean;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -85,13 +86,20 @@ public class SyncopeSession extends WebSession {
         return client.isSelfRegistrationAllowed();
     }
 
+    public boolean isActivitiEnabledFor(final AttributableType type) {
+        SyncopeClient client = clients.isEmpty()
+                ? clientFactory.createAnonymous()
+                : clients.values().iterator().next();
+        return client.isActivitiEnabledFor(type);
+    }
+
     public <T> T getService(final Class<T> service) {
         return getService(service, this.username, this.password);
     }
 
     public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
         SyncopeClientFactoryBean.ContentType preType = clientFactory.getContentType();
-        
+
         clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
         T service = clientFactory.create(username, password).getService(serviceClass);
         clientFactory.setContentType(preType);

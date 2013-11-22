@@ -39,6 +39,16 @@ public final class RESTHeaders {
     public static final String SELFREGISTRATION_ALLOWED = "Syncope.SelfRegistration.Allowed";
 
     /**
+     * Option key stating if Activiti workflow adapter is in use for users.
+     */
+    public static final String ACTIVITI_USER_ENABLED = "Syncope.Activiti.User.Enabled";
+
+    /**
+     * Option key stating if Activiti workflow adapter is in use for roles.
+     */
+    public static final String ACTIVITI_ROLE_ENABLED = "Syncope.Activiti.Role.Enabled";
+
+    /**
      * HTTP header key for object ID assigned to an object after its creation.
      */
     public static final String RESOURCE_ID = "Syncope.Id";

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console.pages;
 
-import static org.apache.syncope.console.pages.AbstractBasePage.LOG;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.to.AbstractAttributableTO;

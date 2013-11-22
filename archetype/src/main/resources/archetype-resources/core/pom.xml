@@ -111,8 +111,9 @@ under the License.
         <artifactId>maven-failsafe-plugin</artifactId>
         <inherited>true</inherited>
         <configuration>
-          <redirectTestOutputToFile>true</redirectTestOutputToFile>
-          <encoding>utf-8</encoding>
+          <systemPropertyVariables>
+            <jaxrsContentType>${jaxrs.content.type}</jaxrsContentType>
+          </systemPropertyVariables>
         </configuration>
         <executions>
           <execution>
@@ -136,8 +137,10 @@ under the License.
               <target>
                 <unzip src="${project.build.directory}/${project.build.finalName}.war" dest="${cargo.run.dir}"/>
                 <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}"/>
-                <copy todir="${cargo.run.dir}/WEB-INF/classes" includeEmptyDirs="false">
-                  <fileset dir="${project.build.directory}/test-classes"/>
+                <copy todir="${cargo.run.dir}/WEB-INF/classes" includeEmptyDirs="false" overwrite="true">
+                  <fileset dir="${project.build.directory}/test-classes">
+                    <exclude name="**/*.class" />
+                  </fileset>
                 </copy>
               </target>
             </configuration>
@@ -177,7 +180,7 @@ under the License.
             <type>standalone</type>
             <properties>
               <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
-              <!--<cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=9009,server=y,suspend=n</cargo.jvmargs>-->
+              <cargo.jvmargs>-noverify -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
             </properties>
           </configuration>
           <deployables>
@@ -275,4 +278,44 @@ under the License.
       </testResource>
     </testResources>
   </build>
+  
+  <profiles>
+    <profile>
+      <id>debug</id>
+      
+      <properties>
+        <skipTests>true</skipTests>
+      </properties>
+      
+      <build>
+        <defaultGoal>clean verify cargo:run</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <configuration>
+                <properties>
+                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
+                    -noverify -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
+                </properties>
+              </configuration>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>none</phase>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

@@ -126,6 +126,12 @@ under the License.
 
     <!-- TEST -->
     <dependency>
+      <groupId>org.activiti</groupId>
+      <artifactId>activiti-webapp-explorer2</artifactId>            
+      <type>war</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.syncope</groupId>
       <artifactId>syncope-build-tools</artifactId>
       <version>${project.version}</version>
@@ -186,6 +192,51 @@ under the License.
         <artifactId>maven-antrun-plugin</artifactId>
         <inherited>true</inherited>
         <executions>
+          <execution>
+            <id>setupActivitiModeler</id>
+            <phase>process-test-resources</phase>
+            <configuration>
+              <target>
+                <unzip src="${settings.localRepository}/org/activiti/activiti-webapp-explorer2/${activiti.version}/activiti-webapp-explorer2-${activiti.version}.war"
+                       dest="${project.build.directory}/activiti-webapp-explorer2"/>
+                
+                <mkdir dir="${activiti-modeler.directory}"/>
+                
+                <mkdir dir="${activiti-modeler.directory}/editor"/>
+                <copy todir="${activiti-modeler.directory}/editor">
+                  <fileset dir="${project.build.directory}/activiti-webapp-explorer2/editor">
+                    <exclude name="oryx.js"/>
+                  </fileset>
+                </copy>
+                <copy file="${project.build.directory}/activiti-webapp-explorer2/WEB-INF/classes/plugins.xml"
+                      todir="${activiti-modeler.directory}/editor"/>
+                <copy file="${project.build.directory}/activiti-webapp-explorer2/WEB-INF/classes/stencilset.json"
+                      todir="${activiti-modeler.directory}/editor"/>
+                
+                <mkdir dir="${activiti-modeler.directory}/explorer"/>
+                <copy todir="${activiti-modeler.directory}/explorer">
+                  <fileset dir="${project.build.directory}/activiti-webapp-explorer2/explorer"/>
+                </copy>
+                
+                <mkdir dir="${activiti-modeler.directory}/libs"/>
+                <copy todir="${activiti-modeler.directory}/libs">
+                  <fileset dir="${project.build.directory}/activiti-webapp-explorer2/libs"/>
+                </copy>
+                
+                <fixcrlf srcdir="${project.build.directory}/activiti-webapp-explorer2/editor/" 
+                         includes="oryx.debug.js"
+                         eol="unix"/>
+                <patch patchfile="${basedir}/src/main/resources/oryx.debug.js.patch"
+                       originalfile="${project.build.directory}/activiti-webapp-explorer2/editor/oryx.debug.js"
+                       destfile="${activiti-modeler.directory}/editor/oryx.debug.js"/>
+                
+                <delete dir="${project.build.directory}/activiti-webapp-explorer2"/>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
           <execution>
             <id>explodeSyncopeWAR</id>
             <phase>pre-integration-test</phase>
@@ -320,7 +371,6 @@ under the License.
                   javax.xml*,
                   org.w3c.dom,
                   org.apache.commons.lang3;version="[3,4)",
-                  org.apache.http*;version="[4,5)",
                   org.apache.syncope.client*;version=${project.version},
                   org.apache.syncope.common*;version=${project.version},
                   org.apache.wicket*;version="[6,7)",

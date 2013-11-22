@@ -20,6 +20,7 @@ package org.apache.syncope.common.services;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -32,6 +33,14 @@ import org.apache.syncope.common.types.RESTHeaders;
 
 @Path("workflows/{kind}")
 public interface WorkflowService {
+
+    /**
+     * @return Response contains special syncope HTTP header indicating if Activiti is enabled for users / roles
+     * @see org.apache.syncope.common.types.RESTHeaders#ACTIVITI_USER_ENABLED
+     * @see org.apache.syncope.common.types.RESTHeaders#ACTIVITI_ROLE_ENABLED
+     */
+    @OPTIONS
+    Response getOptions(@PathParam("kind") AttributableType kind);
 
     /**
      * @param kind Kind can be USER or ROLE only!

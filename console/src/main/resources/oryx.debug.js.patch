@@ -1,0 +1,101 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+1866c1866,1867
+< ORYX.CONFIG.ROOT_PATH =					"../editor/"; //TODO: Remove last slash!!
+---
+> /*
+> ORYX.CONFIG.ROOT_PATH =					"../editor/";
+1868a1870,1875
+> */                  
+> BASE_PATH =                                     window.location.toString().substr(0, window.location.toString().indexOf('/wicket'));
+> 
+> ORYX.CONFIG.ROOT_PATH =				BASE_PATH + "/activiti-modeler/editor/"
+> ORYX.CONFIG.EXPLORER_PATH =			BASE_PATH + "/activiti-modeler/explorer"
+> ORYX.CONFIG.LIBS_PATH =				BASE_PATH + "/activiti-modeler/libs"
+1879c1886
+< ORYX.CONFIG.PLUGINS_CONFIG =			ORYX.CONFIG.SERVER_HANDLER_ROOT + "/editor/plugins";
+---
+> ORYX.CONFIG.PLUGINS_CONFIG =			ORYX.CONFIG.ROOT_PATH + "plugins.xml";
+2417c2424
+< 						ORYX.Log.error("A plugin is not providing a name. Ingnoring this plugin.");
+---
+> 						ORYX.Log.error("A plugin is not providing a name. Ignoring this plugin.");
+8472,8474c8479,8481
+< 			this._baseUrl = "../editor/stencilsets/bpmn2.0/";
+< 			this._source = "../stencilsets/bpmn2.0/bpmn2.0.json";
+< 			new Ajax.Request("../service/editor/stencilset", {
+---
+> 			this._baseUrl = ORYX.CONFIG.ROOT_PATH + "stencilsets/bpmn2.0/";
+> 			this._source = ORYX.CONFIG.ROOT_PATH + "stencilsets/bpmn2.0/bpmn2.0.json";
+> 			new Ajax.Request(ORYX.CONFIG.ROOT_PATH + "stencilset.json", {
+11200a11208
+>         modelUrl = BASE_PATH + "/workflowDefGET";
+11568c11576
+<                     "<img src='../explorer/src/img/signavio/smoky/logo2.png' border=\"0\" usemap=\"#kisbpmmap\"/>" + 
+---
+>                     "<img src='"+ORYX.CONFIG.EXPLORER_PATH+"/src/img/signavio/smoky/logo2.png' border=\"0\" usemap=\"#kisbpmmap\"/>" + 
+11576,11577c11584,11585
+<                   "<a href=\""+ORYX.CONFIG.WEB_URL+"\" target=\"_self\" title=\"close modeler\">" +
+<                     "<img src='../editor/images/close_button.png' border=\"0\" />" + 
+---
+>                   "<a href=\"#\" title=\"close modeler\" onclick=\"window.close();\">" +
+>                     "<img src='"+ORYX.CONFIG.ROOT_PATH+"images/close_button.png' border=\"0\" />" + 
+18332c18339
+< 		var sloading 	= "height:16px;width:16px;margin-bottom:-4px;background: transparent url(../libs/ext-2.0.2/resources/images/default/tree/loading.gif) no-repeat center;"
+---
+> 		var sloading 	= "height:16px;width:16px;margin-bottom:-4px;background: transparent url("+ORYX.CONFIG.LIBS_PATH+"/ext-2.0.2/resources/images/default/tree/loading.gif) no-repeat center;"
+21911c21918
+< 				icon: '../editor/images/add.png',
+---
+> 				icon: ORYX.CONFIG.ROOT_PATH + 'images/add.png',
+21924c21931
+< 				icon: '../editor/images/delete.png',
+---
+> 				icon: ORYX.CONFIG.ROOT_PATH + 'images/delete.png',
+22451c22458
+< 				icon: '../editor/images/add.png',
+---
+> 				icon: ORYX.CONFIG.ROOT_PATH + 'images/add.png',
+22464c22471
+< 				icon: '../editor/images/delete.png',
+---
+> 				icon: ORYX.CONFIG.ROOT_PATH + 'images/delete.png',
+22524c22531
+< 				icon: '../editor/images/add.png',
+---
+> 				icon: ORYX.CONFIG.ROOT_PATH + 'images/add.png',
+22537c22544
+< 				icon: '../editor/images/delete.png',
+---
+> 				icon: ORYX.CONFIG.ROOT_PATH + 'images/delete.png',
+24531,24532c24537,24538
+< 							'<p><label for="edit_model_title">' + ORYX.I18N.Save.dialogLabelTitle + '</label><input type="text" class="text" name="title" value="{title}" id="edit_model_title" onfocus="this.className = \'text activated\'" onblur="this.className = \'text\'"/></p>',
+< 							'<p><label for="edit_model_summary">' + ORYX.I18N.Save.dialogLabelDesc + '</label><textarea rows="5" name="summary" id="edit_model_summary" onfocus="this.className = \'activated\'" onblur="this.className = \'\'">{summary}</textarea></p>',
+---
+> 							'<p><label for="edit_model_title">' + ORYX.I18N.Save.dialogLabelTitle + '</label><input type="text" class="text" name="title" value="{title}" id="edit_model_title" onfocus="this.className = \'text activated\'" onblur="this.className = \'text\'" readonly=\"readonly\"/></p>',
+> 							'<p><label for="edit_model_summary">' + ORYX.I18N.Save.dialogLabelDesc + '</label><textarea rows="5" name="summary" id="edit_model_summary" onfocus="this.className = \'activated\'" onblur="this.className = \'\'" readonly=\"readonly\">{summary}</textarea></p>',
+24813,24814c24819
+< 		
+< 		new Ajax.Request("../service/model/" + modelMeta.modelId + "/json", {
+---
+> 		new Ajax.Request(BASE_PATH + "/workflowDefGET", {
+24876a24882
+> 	        saveUri = BASE_PATH + "/workflowDefPUT";
+24884c24890
+< 			headers			: {'Accept':"application/json", 'Content-Type':'charset=UTF-8'},
+---
+> 			headers			: {'Accept':"application/json", 'Content-Type':'application/json'},

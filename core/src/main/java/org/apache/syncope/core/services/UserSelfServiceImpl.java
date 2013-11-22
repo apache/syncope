@@ -19,6 +19,7 @@
 package org.apache.syncope.core.services;
 
 import java.net.URI;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.UserSelfService;
@@ -36,7 +37,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
 
     @Override
     public Response getOptions() {
-        return Response.ok().header("Allow", "GET,POST,OPTIONS,HEAD").
+        return Response.ok().header(HttpHeaders.ALLOW, "GET,POST,OPTIONS,HEAD").
                 header(RESTHeaders.SELFREGISTRATION_ALLOWED, controller.isSelfRegistrationAllowed()).
                 build();
     }

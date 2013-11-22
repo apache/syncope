@@ -22,9 +22,12 @@ import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.rest.RestClientFactoryBean;
 import org.apache.syncope.common.services.UserSelfService;
+import org.apache.syncope.common.services.WorkflowService;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.RESTHeaders;
 
 /**
@@ -72,6 +75,27 @@ public class SyncopeClient {
 
     public boolean isSelfRegistrationAllowed() {
         return Boolean.valueOf(restClientFactory.createServiceInstance(UserSelfService.class, mediaType, null, null).
-                getOptions().getHeaderString(RESTHeaders.SELFREGISTRATION_ALLOWED.toString()));
+                getOptions().getHeaderString(RESTHeaders.SELFREGISTRATION_ALLOWED));
+    }
+
+    public boolean isActivitiEnabledFor(final AttributableType attributableType) {
+        Response options = getService(WorkflowService.class).getOptions(attributableType);
+
+        boolean result;
+        switch (attributableType) {
+            case USER:
+                result = Boolean.valueOf(options.getHeaderString(RESTHeaders.ACTIVITI_USER_ENABLED));
+                break;
+
+            case ROLE:
+                result = Boolean.valueOf(options.getHeaderString(RESTHeaders.ACTIVITI_ROLE_ENABLED));
+                break;
+
+            case MEMBERSHIP:
+            default:
+                result = false;
+        }
+
+        return result;
     }
 }

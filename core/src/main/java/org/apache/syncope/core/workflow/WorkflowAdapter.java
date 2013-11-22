@@ -74,8 +74,6 @@ public interface WorkflowAdapter {
      * @param workflowId workflow id.
      * @param name form name.
      * @return forms (if present), otherwise an empty list.
-     * @throws NotFoundException definition not found exception
-     * @throws WorkflowException workflow exception
      */
     List<WorkflowFormTO> getForms(String workflowId, String name);
 

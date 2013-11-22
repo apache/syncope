@@ -21,10 +21,12 @@ package org.apache.syncope.console.rest;
 import java.io.InputStream;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.RESTHeaders;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.console.SyncopeSession;
 import org.springframework.stereotype.Component;
 
@@ -37,17 +39,38 @@ public class WorkflowRestClient extends BaseRestClient {
         return SyncopeSession.get().getService(mediaType, WorkflowService.class);
     }
 
-    public String getDefinition(final MediaType mediaType) {
+    public InputStream getDefinition(final MediaType mediaType) {
         Response response = getService(mediaType).exportDefinition(AttributableType.USER);
 
-        String definition;
+        return (InputStream) response.getEntity();
+    }
+
+    public byte[] getDiagram() {
+        WorkflowService service = getService(WorkflowService.class);
+        WebClient.client(service).accept(RESTHeaders.MEDIATYPE_IMAGE_PNG);
+        Response response = service.exportDiagram(AttributableType.USER);
+
+        byte[] diagram;
         try {
-            definition = IOUtils.toString((InputStream) response.getEntity());
+            diagram = IOUtils.readBytesFromStream((InputStream) response.getEntity());
         } catch (Exception e) {
-            LOG.error("Could not get workflow definition as {}", mediaType, e);
-            definition = StringUtils.EMPTY;
+            LOG.error("Could not get workflow diagram", e);
+            diagram = new byte[0];
         }
-        return definition;
+        return diagram;
+    }
+
+    public boolean isActivitiEnabledForUsers() {
+        Boolean result = null;
+        try {
+            result = SyncopeSession.get().isActivitiEnabledFor(AttributableType.USER);
+        } catch (SyncopeClientException e) {
+            LOG.error("While seeking if Activiti is enabled for users", e);
+        }
+
+        return result == null
+                ? false
+                : result.booleanValue();
     }
 
     public void updateDefinition(final MediaType mediaType, final String definition) {

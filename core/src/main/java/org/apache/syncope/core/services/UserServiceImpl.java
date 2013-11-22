@@ -20,6 +20,7 @@ package org.apache.syncope.core.services;
 
 import java.net.URI;
 import java.util.List;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -45,14 +46,14 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
 
     @Override
     public Response getUsername(final Long userId) {
-        return Response.ok().header("Allow", "GET,POST,OPTIONS,HEAD").
+        return Response.ok().header(HttpHeaders.ALLOW, "GET,POST,OPTIONS,HEAD").
                 header(RESTHeaders.USERNAME, controller.getUsername(userId)).
                 build();
     }
 
     @Override
     public Response getUserId(final String username) {
-        return Response.ok().header("Allow", "GET,POST,OPTIONS,HEAD").
+        return Response.ok().header(HttpHeaders.ALLOW, "GET,POST,OPTIONS,HEAD").
                 header(RESTHeaders.USER_ID, controller.getUserId(username)).
                 build();
     }
@@ -93,7 +94,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
     public UserTO read(final Long userId) {
         return controller.read(userId);
     }
-    
+
     @Override
     public List<UserTO> search(final NodeCond searchCondition) throws InvalidSearchConditionException {
         return controller.search(searchCondition);

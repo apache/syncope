@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -32,6 +33,16 @@ import org.junit.Assume;
 import org.junit.Test;
 
 public class WorkflowTestITCase extends AbstractTest {
+
+    @Test
+    public void isActivitiEnabled() {
+        assertEquals(ActivitiDetector.isActivitiEnabledForUsers(),
+                adminClient.isActivitiEnabledFor(AttributableType.USER));
+        assertEquals(ActivitiDetector.isActivitiEnabledForRoles(),
+                adminClient.isActivitiEnabledFor(AttributableType.ROLE));
+        assertEquals(false,
+                adminClient.isActivitiEnabledFor(AttributableType.MEMBERSHIP));
+    }
 
     private void exportDefinition(final AttributableType type) throws IOException {
         Response response = workflowService.exportDefinition(type);

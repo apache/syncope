@@ -35,6 +35,9 @@ import org.apache.syncope.console.pages.Todo;
 import org.apache.syncope.console.pages.UserSelfModalPage;
 import org.apache.syncope.console.pages.Users;
 import org.apache.syncope.console.pages.WelcomePage;
+import org.apache.syncope.console.resources.FilesystemResource;
+import org.apache.syncope.console.resources.WorkflowDefGETResource;
+import org.apache.syncope.console.resources.WorkflowDefPUTResource;
 import org.apache.syncope.console.rest.UserSelfRestClient;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -56,7 +59,10 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.request.resource.ContextRelativeResource;
+import org.apache.wicket.request.resource.IResource;
+import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * SyncopeApplication class.
@@ -71,9 +77,11 @@ public class SyncopeApplication
 
     public static final String IMG_NOTSEL = "notsel/";
 
-    private final static int EDIT_PROFILE_WIN_HEIGHT = 550;
+    private static final String ACTIVITI_MODELER_CONTEXT = "activiti-modeler";
 
-    private final static int EDIT_PROFILE_WIN_WIDTH = 800;
+    private static final int EDIT_PROFILE_WIN_HEIGHT = 550;
+
+    private static final int EDIT_PROFILE_WIN_WIDTH = 800;
 
     @Override
     protected void init() {
@@ -89,7 +97,38 @@ public class SyncopeApplication
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
 
+        final String activitiModelerDirectory = WebApplicationContextUtils.getWebApplicationContext(
+                WebApplication.get().getServletContext()).getBean("activitiModelerDirectory", String.class);
         getRequestCycleListeners().add(new SyncopeRequestCycleListener());
+
+        mountResource("/" + ACTIVITI_MODELER_CONTEXT, new ResourceReference(ACTIVITI_MODELER_CONTEXT) {
+
+            private static final long serialVersionUID = -128426276529456602L;
+
+            @Override
+            public IResource getResource() {
+                return new FilesystemResource(ACTIVITI_MODELER_CONTEXT, activitiModelerDirectory);
+            }
+
+        });
+        mountResource("/workflowDefGET", new ResourceReference("workflowDefGET") {
+
+            private static final long serialVersionUID = -128426276529456602L;
+
+            @Override
+            public IResource getResource() {
+                return new WorkflowDefGETResource();
+            }
+        });
+        mountResource("/workflowDefPUT", new ResourceReference("workflowDefPUT") {
+
+            private static final long serialVersionUID = -128426276529456602L;
+
+            @Override
+            public IResource getResource() {
+                return new WorkflowDefPUTResource();
+            }
+        });
     }
 
     public void setupNavigationPanel(final WebPage page, final XMLRolesReader xmlRolesReader, final boolean notsel) {

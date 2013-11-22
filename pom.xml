@@ -346,6 +346,7 @@ under the License.
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
     <connid.location>file:${bundles.directory}/</connid.location>
     <log.directory>${project.build.directory}/log</log.directory>
+    <activiti-modeler.directory>${project.build.directory}/activiti-modeler</activiti-modeler.directory>
                 
     <cargo.servlet.port>9080</cargo.servlet.port>
     <cargo.tomcat.ajp.port>9889</cargo.tomcat.ajp.port>
@@ -468,6 +469,12 @@ under the License.
         <groupId>org.activiti</groupId>
         <artifactId>activiti-json-converter</artifactId>            
         <version>${activiti.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.activiti</groupId>
+        <artifactId>activiti-webapp-explorer2</artifactId>            
+        <version>${activiti.version}</version>
+        <type>war</type>
       </dependency>
 
       <dependency>
