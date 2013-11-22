@@ -39,11 +39,10 @@ under the License.
   <aop:aspectj-autoproxy/>
   
   <context:component-scan base-package="org.apache.syncope.core.rest.controller"/>
+  <bean class="org.apache.syncope.core.rest.controller.ControllerHandler"/>
 
   <!-- CXF Configuration - BEGIN -->
-  <context:component-scan base-package="org.apache.syncope.core.services"/>
-  
-  <bean id="controllerHandler" name="controllerHandler" class="org.apache.syncope.core.services.ControllerHandler" />
+  <context:component-scan base-package="org.apache.syncope.core.services"/>  
 
   <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.JAXBElementProvider">
     <property name="namespacePrefixes">

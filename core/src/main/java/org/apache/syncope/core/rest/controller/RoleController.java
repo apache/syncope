@@ -51,21 +51,20 @@ import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Note that this controller does not extend AbstractTransactionalController, hence does not provide any
+ * Spring's Transactional logic at class level.
+ *
+ * @see AbstractTransactionalController
+ */
 @Component
 public class RoleController extends AbstractResourceAssociator<RoleTO> {
-
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(RoleController.class);
 
     @Autowired
     protected RoleDAO roleDAO;
@@ -175,7 +174,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<RoleTO> search(final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -183,11 +182,9 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<RoleTO> search(final NodeCond searchCondition, final int page, final int size)
             throws InvalidSearchConditionException {
-
-        LOG.debug("Role search called with condition {}", searchCondition);
 
         if (!searchCondition.isValid()) {
             LOG.error("Invalid search condition: {}", searchCondition);
@@ -207,7 +204,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public int searchCount(final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -235,8 +232,6 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
 
     @PreAuthorize("hasRole('ROLE_CREATE')")
     public RoleTO create(final RoleTO roleTO) {
-        LOG.debug("Role create called with parameters {}", roleTO);
-
         // Check that this operation is allowed to be performed by caller
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
         if (roleTO.getParent() != 0 && !allowedRoleIds.contains(roleTO.getParent())) {
@@ -266,18 +261,13 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
 
         final RoleTO savedTO = binder.getRoleTO(created.getResult());
         savedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
-
-        LOG.debug("About to return created role\n{}", savedTO);
-
         return savedTO;
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
     public RoleTO update(final RoleMod roleMod) {
-        LOG.debug("Role update called with {}", roleMod);
-
         // Check that this operation is allowed to be performed by caller
-        SyncopeRole role = binder.getRoleFromId(roleMod.getId());
+        binder.getRoleFromId(roleMod.getId());
 
         // Attribute value transformation (if configured)
         RoleMod actual = attrTransformer.transform(roleMod);
@@ -300,16 +290,11 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
         }
         final RoleTO updatedTO = binder.getRoleTO(updated.getResult());
         updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
-
-        LOG.debug("About to return updated role\n{}", updatedTO);
-
         return updatedTO;
     }
 
     @PreAuthorize("hasRole('ROLE_DELETE')")
     public RoleTO delete(final Long roleId) {
-        LOG.debug("Role delete called for {}", roleId);
-
         List<SyncopeRole> ownedRoles = roleDAO.findOwnedByRole(roleId);
         if (!ownedRoles.isEmpty()) {
             List<String> owned = new ArrayList<String>(ownedRoles.size());
@@ -347,17 +332,13 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
 
         rwfAdapter.delete(roleId);
 
-        LOG.debug("Role successfully deleted: {}", roleId);
-
         return roleTO;
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public RoleTO unlink(final Long roleId, final Collection<String> resources) {
-        LOG.debug("About to unlink role({}) and resources {}", roleId, resources);
-
         final RoleMod roleMod = new RoleMod();
         roleMod.setId(roleId);
 
@@ -365,19 +346,13 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
 
         final WorkflowResult<Long> updated = rwfAdapter.update(roleMod);
 
-        final RoleTO updatedTO = binder.getRoleTO(updated.getResult());
-
-        LOG.debug("About to return updated role\n{}", updatedTO);
-
-        return updatedTO;
+        return binder.getRoleTO(updated.getResult());
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public RoleTO unassign(final Long roleId, final Collection<String> resources) {
-        LOG.debug("About to unassign role({}) and resources {}", roleId, resources);
-
         final RoleMod roleMod = new RoleMod();
         roleMod.setId(roleId);
         roleMod.getResourcesToRemove().addAll(resources);
@@ -386,11 +361,9 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public RoleTO deprovision(final Long roleId, final Collection<String> resources) {
-        LOG.debug("About to deprovision role({}) from resources {}", roleId, resources);
-
         final SyncopeRole role = binder.getRoleFromId(roleId);
 
         final Set<String> noPropResourceName = role.getResourceNames();
@@ -408,9 +381,6 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
 
         final RoleTO updatedTO = binder.getRoleTO(role);
         updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
-
-        LOG.debug("About to return updated role\n{}", updatedTO);
-
         return updatedTO;
     }
 

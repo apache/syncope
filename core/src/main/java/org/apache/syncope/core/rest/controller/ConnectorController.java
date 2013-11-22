@@ -72,8 +72,6 @@ public class ConnectorController extends AbstractTransactionalController<ConnIns
 
     @PreAuthorize("hasRole('CONNECTOR_CREATE')")
     public ConnInstanceTO create(final ConnInstanceTO connInstanceTO) {
-        LOG.debug("ConnInstance create called with configuration {}", connInstanceTO);
-
         ConnInstance connInstance = binder.getConnInstance(connInstanceTO);
         try {
             connInstance = connInstanceDAO.save(connInstance);
@@ -89,8 +87,6 @@ public class ConnectorController extends AbstractTransactionalController<ConnIns
 
     @PreAuthorize("hasRole('CONNECTOR_UPDATE')")
     public ConnInstanceTO update(final ConnInstanceTO connInstanceTO) {
-        LOG.debug("Connector update called with configuration {}", connInstanceTO);
-
         ConnInstance connInstance = binder.updateConnInstance(connInstanceTO.getId(), connInstanceTO);
         try {
             connInstance = connInstanceDAO.save(connInstance);
@@ -273,8 +269,8 @@ public class ConnectorController extends AbstractTransactionalController<ConnIns
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @Transactional(readOnly = true)
     public boolean check(final ConnInstanceTO connInstanceTO) {
-        final Connector connector = connFactory.createConnector(binder.getConnInstance(connInstanceTO), connInstanceTO.
-                getConfiguration());
+        final Connector connector = connFactory.createConnector(
+                binder.getConnInstance(connInstanceTO), connInstanceTO.getConfiguration());
 
         boolean result;
         try {
@@ -307,8 +303,6 @@ public class ConnectorController extends AbstractTransactionalController<ConnIns
 
     @PreAuthorize("hasRole('CONNECTOR_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE")
     public BulkActionRes bulk(final BulkAction bulkAction) {
-        LOG.debug("Bulk '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
-
         BulkActionRes res = new BulkActionRes();
 
         if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
@@ -329,8 +323,9 @@ public class ConnectorController extends AbstractTransactionalController<ConnIns
      * {@inheritDoc}
      */
     @Override
-    protected ConnInstanceTO resolveReference(final Method method, final Object... args) throws
-            UnresolvedReferenceException {
+    protected ConnInstanceTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+
         Long id = null;
 
         if (ArrayUtils.isNotEmpty(args)) {

@@ -91,8 +91,6 @@ public class ResourceController extends AbstractTransactionalController<Resource
 
     @PreAuthorize("hasRole('RESOURCE_CREATE')")
     public ResourceTO create(final ResourceTO resourceTO) {
-        LOG.debug("Resource creation: {}", resourceTO);
-
         if (StringUtils.isBlank(resourceTO.getName())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
             sce.getElements().add("Resource name");
@@ -110,8 +108,6 @@ public class ResourceController extends AbstractTransactionalController<Resource
 
     @PreAuthorize("hasRole('RESOURCE_UPDATE')")
     public ResourceTO update(final ResourceTO resourceTO) {
-        LOG.debug("Role update request: {}", resourceTO);
-
         ExternalResource resource = resourceDAO.find(resourceTO.getName());
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceTO.getName() + "'");
@@ -251,8 +247,6 @@ public class ResourceController extends AbstractTransactionalController<Resource
 
     @PreAuthorize("hasRole('RESOURCE_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE")
     public BulkActionRes bulk(final BulkAction bulkAction) {
-        LOG.debug("Bulk '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
-
         BulkActionRes res = new BulkActionRes();
 
         if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
@@ -273,8 +267,9 @@ public class ResourceController extends AbstractTransactionalController<Resource
      * {@inheritDoc}
      */
     @Override
-    protected ResourceTO resolveReference(final Method method, final Object... args) throws
-            UnresolvedReferenceException {
+    protected ResourceTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+
         String name = null;
 
         if (ArrayUtils.isNotEmpty(args)) {

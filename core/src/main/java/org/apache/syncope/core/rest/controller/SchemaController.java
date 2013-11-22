@@ -274,6 +274,7 @@ public class SchemaController extends AbstractTransactionalController<SchemaTO> 
     @Override
     protected SchemaTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
+
         String kind = null;
         String name = null;
         if (ArrayUtils.isNotEmpty(args)) {

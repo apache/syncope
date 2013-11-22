@@ -54,12 +54,10 @@ public class PolicyController extends AbstractTransactionalController<AbstractPo
 
     @PreAuthorize("hasRole('POLICY_CREATE')")
     public <T extends AbstractPolicyTO> T create(final T policyTO) {
-        LOG.debug("Creating policy " + policyTO);
         return binder.getPolicyTO(policyDAO.save(binder.getPolicy(null, policyTO)));
     }
 
     private <T extends AbstractPolicyTO, K extends Policy> T update(final T policyTO, final K policy) {
-        LOG.debug("Updating policy " + policyTO);
         binder.getPolicy(policy, policyTO);
         K savedPolicy = policyDAO.save(policy);
         return binder.getPolicyTO(savedPolicy);
@@ -98,7 +96,6 @@ public class PolicyController extends AbstractTransactionalController<AbstractPo
     @PreAuthorize("hasRole('POLICY_LIST')")
     @SuppressWarnings("unchecked")
     public <T extends AbstractPolicyTO> List<T> list(final PolicyType type) {
-        LOG.debug("Listing policies");
 
         List<? extends Policy> policies = policyDAO.find(type);
 
@@ -112,8 +109,6 @@ public class PolicyController extends AbstractTransactionalController<AbstractPo
 
     @PreAuthorize("hasRole('POLICY_READ')")
     public PasswordPolicyTO getGlobalPasswordPolicy() {
-        LOG.debug("Reading global password policy");
-
         PasswordPolicy policy = policyDAO.getGlobalPasswordPolicy();
         if (policy == null) {
             throw new NotFoundException("No password policy found");
@@ -124,8 +119,6 @@ public class PolicyController extends AbstractTransactionalController<AbstractPo
 
     @PreAuthorize("hasRole('POLICY_READ')")
     public AccountPolicyTO getGlobalAccountPolicy() {
-        LOG.debug("Reading global account policy");
-
         AccountPolicy policy = policyDAO.getGlobalAccountPolicy();
         if (policy == null) {
             throw new NotFoundException("No account policy found");
@@ -136,8 +129,6 @@ public class PolicyController extends AbstractTransactionalController<AbstractPo
 
     @PreAuthorize("hasRole('POLICY_READ')")
     public SyncPolicyTO getGlobalSyncPolicy() {
-        LOG.debug("Reading global sync policy");
-
         SyncPolicy policy = policyDAO.getGlobalSyncPolicy();
         if (policy == null) {
             throw new NotFoundException("No sync policy found");
@@ -148,8 +139,6 @@ public class PolicyController extends AbstractTransactionalController<AbstractPo
 
     @PreAuthorize("hasRole('POLICY_READ')")
     public <T extends AbstractPolicyTO> T read(final Long id) {
-        LOG.debug("Reading policy with id {}", id);
-
         Policy policy = policyDAO.find(id);
         if (policy == null) {
             throw new NotFoundException("Policy " + id + " not found");

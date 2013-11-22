@@ -66,14 +66,11 @@ public class NotificationController extends AbstractTransactionalController<Noti
 
     @PreAuthorize("hasRole('NOTIFICATION_CREATE')")
     public NotificationTO create(final NotificationTO notificationTO) {
-        LOG.debug("Notification create called with parameter {}", notificationTO);
         return binder.getNotificationTO(notificationDAO.save(binder.createNotification(notificationTO)));
     }
 
     @PreAuthorize("hasRole('NOTIFICATION_UPDATE')")
     public NotificationTO update(final NotificationTO notificationTO) {
-        LOG.debug("ConnNotificationtor update called with parameter {}", notificationTO);
-
         Notification notification = notificationDAO.find(notificationTO.getId());
         if (notification == null) {
             LOG.error("Could not find notification '" + notificationTO.getId() + "'");
@@ -106,6 +103,7 @@ public class NotificationController extends AbstractTransactionalController<Noti
     @Override
     protected NotificationTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
+
         Long id = null;
 
         if (ArrayUtils.isNotEmpty(args)) {

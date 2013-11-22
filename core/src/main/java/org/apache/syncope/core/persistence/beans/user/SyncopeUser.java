@@ -193,7 +193,6 @@ public class SyncopeUser extends AbstractAttributable {
 
             membership = itor.next();
             if (membership.getSyncopeRole() != null && syncopeRoleId.equals(membership.getSyncopeRole().getId())) {
-
                 result = membership;
             }
         }

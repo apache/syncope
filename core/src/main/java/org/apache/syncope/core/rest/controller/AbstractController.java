@@ -24,7 +24,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractController<T extends AbstractBaseBean> {
+/**
+ * Superclass for all controllers.
+ *
+ * @param <T> transfer object used for input / output
+ */
+abstract class AbstractController<T extends AbstractBaseBean> {
 
     /**
      * Logger.

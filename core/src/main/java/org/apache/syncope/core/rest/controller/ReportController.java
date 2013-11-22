@@ -83,8 +83,6 @@ public class ReportController extends AbstractTransactionalController<ReportTO> 
 
     @PreAuthorize("hasRole('REPORT_CREATE')")
     public ReportTO create(final ReportTO reportTO) {
-        LOG.debug("Creating report " + reportTO);
-
         Report report = new Report();
         binder.getReport(report, reportTO);
         report = reportDAO.save(report);
@@ -104,8 +102,6 @@ public class ReportController extends AbstractTransactionalController<ReportTO> 
 
     @PreAuthorize("hasRole('REPORT_UPDATE')")
     public ReportTO update(final ReportTO reportTO) {
-        LOG.debug("Report update called with parameter {}", reportTO);
-
         Report report = reportDAO.find(reportTO.getId());
         if (report == null) {
             throw new NotFoundException("Report " + reportTO.getId());
@@ -189,8 +185,6 @@ public class ReportController extends AbstractTransactionalController<ReportTO> 
     @PreAuthorize("hasRole('REPORT_READ')")
     public void exportExecutionResult(final OutputStream os, final ReportExec reportExec,
             final ReportExecExportFormat format) {
-
-        LOG.debug("Exporting result of {} as {}", reportExec, format);
 
         // streaming SAX handler from a compressed byte array stream
         ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());
@@ -277,10 +271,6 @@ public class ReportController extends AbstractTransactionalController<ReportTO> 
             throw new NotFoundException("Report " + reportId);
         }
 
-        ReportExecTO result;
-
-        LOG.debug("Triggering new execution of report {}", report);
-
         try {
             jobInstanceLoader.registerJob(report);
 
@@ -294,7 +284,7 @@ public class ReportController extends AbstractTransactionalController<ReportTO> 
             throw sce;
         }
 
-        result = new ReportExecTO();
+        ReportExecTO result = new ReportExecTO();
         result.setReport(reportId);
         result.setStartDate(new Date());
         result.setStatus(ReportExecStatus.STARTED.name());
@@ -332,8 +322,9 @@ public class ReportController extends AbstractTransactionalController<ReportTO> 
      * {@inheritDoc}
      */
     @Override
-    protected ReportTO resolveReference(final Method method, final Object... args) throws
-            UnresolvedReferenceException {
+    protected ReportTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+
         Long id = null;
 
         if (ArrayUtils.isNotEmpty(args) && ("create".equals(method.getName())

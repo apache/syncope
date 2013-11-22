@@ -57,26 +57,19 @@ import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Note that this controller does not extend AbstractController, hence does not provide any Spring's Transactional logic
- * at class level.
+ * Note that this controller does not extend AbstractTransactionalController, hence does not provide any
+ * Spring's Transactional logic at class level.
  *
- * @see AbstractController
+ * @see AbstractTransactionalController
  */
 @Component
 public class UserController extends AbstractResourceAssociator<UserTO> {
-
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     protected UserDAO userDAO;
@@ -120,13 +113,13 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public int count() {
         return userDAO.count(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()));
     }
 
     @PreAuthorize("hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public int searchCount(final NodeCond searchCondition) throws InvalidSearchConditionException {
         if (!searchCondition.isValid()) {
             LOG.error("Invalid search condition: {}", searchCondition);
@@ -138,7 +131,7 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<UserTO> list() {
         List<SyncopeUser> users = userDAO.findAll(
                 EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()));
@@ -152,7 +145,7 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<UserTO> list(final int page, final int size) {
         Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
 
@@ -173,13 +166,13 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public UserTO read(final Long userId) {
         return binder.getUserTO(userId);
     }
 
     @PreAuthorize("hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<UserTO> search(final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -187,11 +180,9 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<UserTO> search(final NodeCond searchCondition, final int page, final int size)
             throws InvalidSearchConditionException {
-
-        LOG.debug("User search called with condition {}", searchCondition);
 
         if (!searchCondition.isValid()) {
             LOG.error("Invalid search condition: {}", searchCondition);
@@ -222,8 +213,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
     @PreAuthorize("hasRole('USER_CREATE')")
     public UserTO create(final UserTO userTO) {
-        LOG.debug("User create called with {}", userTO);
-
         Set<Long> requestRoleIds = new HashSet<Long>(userTO.getMemberships().size());
         for (MembershipTO membership : userTO.getMemberships()) {
             requestRoleIds.add(membership.getRoleId());
@@ -260,9 +249,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
         final UserTO savedTO = binder.getUserTO(created.getResult().getKey());
         savedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
-
-        LOG.debug("About to return created user\n{}", savedTO);
-
         return savedTO;
     }
 
@@ -280,8 +266,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     public UserTO update(final UserMod userMod) {
-        LOG.debug("User update called with {}", userMod);
-
         // AttributableMod transformation (if configured)
         UserMod actual = attrTransformer.transform(userMod);
         LOG.debug("Transformed: {}", actual);
@@ -303,9 +287,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
         final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey().getId());
         updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
-
-        LOG.debug("About to return updated user\n{}", updatedTO);
-
         return updatedTO;
     }
 
@@ -332,10 +313,8 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public UserTO status(final StatusMod statusMod) {
-        LOG.debug("About to mod status {}", statusMod);
-
         SyncopeUser user = binder.getUserFromId(statusMod.getId());
 
         WorkflowResult<Long> updated;
@@ -362,9 +341,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
         final UserTO savedTO = binder.getUserTO(updated.getResult());
         savedTO.getPropagationStatusTOs().addAll(propReporter.getStatuses());
-
-        LOG.debug("About to return updated user\n{}", savedTO);
-
         return savedTO;
     }
 
@@ -378,8 +354,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
     @PreAuthorize("hasRole('USER_DELETE')")
     public UserTO delete(final Long userId) {
-        LOG.debug("User delete called for {}", userId);
-
         List<SyncopeRole> ownedRoles = roleDAO.findOwnedByUser(userId);
         if (!ownedRoles.isEmpty()) {
             List<String> owned = new ArrayList<String>(ownedRoles.size());
@@ -397,7 +371,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
         // information could only be available after uwfAdapter.delete(), which
         // will also effectively remove user from db, thus making virtually
         // impossible by NotificationManager to fetch required user information
-
         List<PropagationTask> tasks = propagationManager.getUserDeleteTaskIds(userId);
 
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
@@ -421,8 +394,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
         }
         deletedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
 
-        LOG.debug("User successfully deleted: {}", userId);
-
         return deletedTO;
     }
 
@@ -431,8 +402,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
             + "(#bulkAction.operation == #bulkAction.operation.REACTIVATE or "
             + "#bulkAction.operation == #bulkAction.operation.SUSPEND))")
     public BulkActionRes bulk(final BulkAction bulkAction) {
-        LOG.debug("Bulk '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
-
         BulkActionRes res = new BulkActionRes();
 
         switch (bulkAction.getOperation()) {
@@ -482,11 +451,9 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO unlink(final Long userId, final Collection<String> resources) {
-        LOG.debug("About to unlink user({}) and resources {}", userId, resources);
-
         final UserMod userMod = new UserMod();
         userMod.setId(userId);
 
@@ -494,19 +461,13 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
         WorkflowResult<Map.Entry<UserMod, Boolean>> updated = uwfAdapter.update(userMod);
 
-        final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey().getId());
-
-        LOG.debug("About to return updated user\n{}", updatedTO);
-
-        return updatedTO;
+        return binder.getUserTO(updated.getResult().getKey().getId());
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO unassign(final Long userId, final Collection<String> resources) {
-        LOG.debug("About to unassign user({}) and resources {}", userId, resources);
-
         final UserMod userMod = new UserMod();
         userMod.setId(userId);
         userMod.getResourcesToRemove().addAll(resources);
@@ -515,11 +476,9 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO deprovision(final Long userId, final Collection<String> resources) {
-        LOG.debug("About to deprovision user({}) from resources {}", userId, resources);
-
         final SyncopeUser user = binder.getUserFromId(userId);
 
         final Set<String> noPropResourceName = user.getResourceNames();
@@ -537,9 +496,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
         final UserTO updatedUserTO = binder.getUserTO(user);
         updatedUserTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
-
-        LOG.debug("About to return updated user\n{}", updatedUserTO);
-
         return updatedUserTO;
     }
 

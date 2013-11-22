@@ -87,8 +87,6 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
 
     @PreAuthorize("hasRole('TASK_CREATE')")
     public <T extends SchedTaskTO> T createSchedTask(final T taskTO) {
-        LOG.debug("Creating task " + taskTO);
-
         TaskUtil taskUtil = TaskUtil.getInstance(taskTO);
 
         SchedTask task = binder.createSchedTask(taskTO, taskUtil);
@@ -114,8 +112,6 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
 
     @PreAuthorize("hasRole('TASK_UPDATE')")
     public <T extends SchedTaskTO> T updateSched(final SchedTaskTO taskTO) {
-        LOG.debug("Task update called with parameter {}", taskTO);
-
         SchedTask task = taskDAO.find(taskTO.getId());
         if (task == null) {
             throw new NotFoundException("Task " + taskTO.getId());
@@ -175,7 +171,7 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
     @PreAuthorize("hasRole('TASK_LIST')")
     public Set<String> getJobClasses() {
         return classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.TASKJOB);
-        }
+    }
 
     @PreAuthorize("hasRole('TASK_LIST')")
     public Set<String> getSyncActionsClasses() {
@@ -189,7 +185,7 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
             throw new NotFoundException("Task " + taskId);
         }
         return binder.getTaskTO(task, TaskUtil.getInstance(task));
-}
+    }
 
     @PreAuthorize("hasRole('TASK_READ')")
     public TaskExecTO readExecution(final Long executionId) {
@@ -209,7 +205,6 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
         TaskUtil taskUtil = TaskUtil.getInstance(task);
 
         TaskExecTO result = null;
-        LOG.debug("Execution started for {}", task);
         switch (taskUtil.getType()) {
             case PROPAGATION:
                 final TaskExec propExec = taskExecutor.execute((PropagationTask) task);
@@ -250,7 +245,7 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
 
             default:
         }
-        LOG.debug("Execution finished for {}, {}", task, result);
+
         return result;
     }
 
@@ -332,8 +327,6 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
             + "(#bulkAction.operation == #bulkAction.operation.EXECUTE or "
             + "#bulkAction.operation == #bulkAction.operation.DRYRUN))")
     public BulkActionRes bulk(final BulkAction bulkAction) {
-        LOG.debug("Bulk '{}' called on '{}'", bulkAction.getOperation(), bulkAction.getTargets());
-
         BulkActionRes res = new BulkActionRes();
 
         switch (bulkAction.getOperation()) {
@@ -382,12 +375,14 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
      * {@inheritDoc}
      */
     @Override
-    protected AbstractTaskTO resolveReference(final Method method, final Object... args) throws
-            UnresolvedReferenceException {
+    protected AbstractTaskTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+
         Long id = null;
 
         if (ArrayUtils.isNotEmpty(args)
                 && !"deleteExecution".equals(method.getName()) && !"readExecution".equals(method.getName())) {
+
             for (int i = 0; id == null && i < args.length; i++) {
                 if (args[i] instanceof Long) {
                     id = (Long) args[i];

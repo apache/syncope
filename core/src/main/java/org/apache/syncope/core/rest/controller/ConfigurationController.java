@@ -65,7 +65,6 @@ public class ConfigurationController extends AbstractTransactionalController<Con
 
     @PreAuthorize("hasRole('CONFIGURATION_CREATE')")
     public ConfigurationTO create(final ConfigurationTO configurationTO) {
-        LOG.debug("Configuration create called with parameters {}", configurationTO);
 
         SyncopeConf conf = binder.create(configurationTO);
         conf = confDAO.save(conf);

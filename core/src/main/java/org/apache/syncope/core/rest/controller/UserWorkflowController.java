@@ -55,16 +55,13 @@ public class UserWorkflowController extends AbstractTransactionalController<Work
     protected UserDataBinder binder;
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_CLAIM')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public WorkflowFormTO claimForm(final String taskId) {
-        return uwfAdapter.claimForm(taskId,
-                SecurityContextHolder.getContext().getAuthentication().getName());
+        return uwfAdapter.claimForm(taskId, SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     public UserTO executeWorkflow(final UserTO userTO, final String taskId) {
-        LOG.debug("About to execute {} on {}", taskId, userTO.getId());
-
         WorkflowResult<Long> updated = uwfAdapter.execute(userTO, taskId);
 
         UserMod userMod = new UserMod();
@@ -72,43 +69,37 @@ public class UserWorkflowController extends AbstractTransactionalController<Work
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                 new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, null),
-                updated.getPropByRes(), updated.getPerformedTasks()));
+                        new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, null),
+                        updated.getPropByRes(), updated.getPerformedTasks()));
 
         taskExecutor.execute(tasks);
 
-        final UserTO savedTO = binder.getUserTO(updated.getResult());
-
-        LOG.debug("About to return updated user\n{}", savedTO);
-
-        return savedTO;
+        return binder.getUserTO(updated.getResult());
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public WorkflowFormTO getFormForUser(final Long userId) {
         SyncopeUser user = binder.getUserFromId(userId);
         return uwfAdapter.getForm(user.getWorkflowId());
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_LIST')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public List<WorkflowFormTO> getForms() {
         return uwfAdapter.getForms();
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public List<WorkflowFormTO> getForms(final Long userId, final String formName) {
         SyncopeUser user = binder.getUserFromId(userId);
         return uwfAdapter.getForms(user.getWorkflowId(), formName);
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_SUBMIT')")
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public UserTO submitForm(final WorkflowFormTO form) {
-        LOG.debug("About to process form {}", form);
-
         WorkflowResult<? extends AbstractAttributableMod> updated =
                 uwfAdapter.submitForm(form, SecurityContextHolder.getContext().getAuthentication().getName());
 
@@ -119,18 +110,14 @@ public class UserWorkflowController extends AbstractTransactionalController<Work
 
             List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                     new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                    new AbstractMap.SimpleEntry<UserMod, Boolean>((UserMod) updated.getResult(), Boolean.TRUE),
-                    updated.getPropByRes(),
-                    updated.getPerformedTasks()));
+                            new AbstractMap.SimpleEntry<UserMod, Boolean>((UserMod) updated.getResult(), Boolean.TRUE),
+                            updated.getPropByRes(),
+                            updated.getPerformedTasks()));
 
             taskExecutor.execute(tasks);
         }
 
-        final UserTO savedTO = binder.getUserTO(updated.getResult().getId());
-
-        LOG.debug("About to return user after form processing\n{}", savedTO);
-
-        return savedTO;
+        return binder.getUserTO(updated.getResult().getId());
     }
 
     @Override

@@ -178,15 +178,13 @@ public class PoliciesPanel extends Panel {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-
                             policyRestClient.delete(accountPolicyTO.getId(), accountPolicyTO.getClass());
                             info(getString(Constants.OPERATION_SUCCEEDED));
-
                         } catch (SyncopeClientException e) {
                             error(getString(Constants.OPERATION_ERROR));
 
-                            LOG.error("While deleting resource {}({})", new Object[]{accountPolicyTO.getId(),
-                                accountPolicyTO.getDescription()}, e);
+                            LOG.error("While deleting resource {}({})",
+                                    accountPolicyTO.getId(), accountPolicyTO.getDescription(), e);
                         }
 
                         target.add(container);
