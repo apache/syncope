@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+
+  <properties>
+    <title>Source Repository</title>
+    <author email="dev@syncope.apache.org">Apache Syncope Documentation Team</author>
+  </properties>
+
+  <body>    
+    <section name="Using Subversion">
+
+      <subsection name="Web Browsing">    
+        <p>To browse via the web use the ViewVC interface:<br/>
+
+          <a href="http://svn.apache.org/viewvc/syncope/trunk/">http://svn.apache.org/viewvc/syncope/trunk/</a>
+        </p>
+        <p>
+          Or to browse the source tree directly:<br/>
+
+          <a href="http://svn.apache.org/repos/asf/syncope/trunk/">http://svn.apache.org/repos/asf/syncope/trunk/</a> 
+        </p> 
+      </subsection>
+      
+      <subsection name="Checking out">      
+        <p>The source code can be checked out anonymously over HTTP by doing:
+          <source>svn co http://svn.apache.org/repos/asf/syncope/trunk syncope</source>
+        </p>
+        <p>Committers can check out the code over HTTPS:
+          <source>svn co https://svn.apache.org/repos/asf/syncope/trunk syncope</source>
+        </p>
+        <p>Committers needing to check out a <a href="http://svn.apache.org/viewvc/syncope/branches/">specific branch</a> 
+          can do so as follows:
+          <source>svn co https://svn.apache.org/repos/asf/syncope/branches/{branch name} syncope</source>
+        </p>
+      </subsection>
+    </section>
+    
+    <section name="Using GIT">
+      <p>Apache also maintains a git mirror of the svn repository. You can clone the git repository via:
+        <source>git clone git://git.apache.org/syncope.git</source>
+        or
+        <source>git clone http://git.apache.org/syncope.git</source>
+      </p>
+      <p>For committers/developers interested in using git for Syncope trunk development, Apache has some documentation:
+        <ul>
+          <li><a href="http://www.apache.org/dev/git.html">http://www.apache.org/dev/git.html</a></li>
+          <li><a href="http://wiki.apache.org/general/GitAtApache">http://wiki.apache.org/general/GitAtApache</a></li>
+          <li>List of mirrored repositories: <a href="http://git.apache.org/">http://git.apache.org/</a></li>
+        </ul>
+      </p>
+    </section>
+  </body>
+</document>

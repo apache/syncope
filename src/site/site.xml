@@ -76,10 +76,11 @@ under the License.
     </menu>
       
     <menu name="Development">
+      <item name="How to contribute?" href="contributing.html"/>
       <item name="Source Repository" href="source-repository.html"/>
       <item name="Continuous Integration" href="integration.html"/>
       <item name="Issue Tracking" href="issue-tracking.html"/>
-      <item name="How to contribute?" href="contributing.html"/>
+      <item name="Building" href="building.html"/>
       <item name="Release Process" href="release-process.html"/>
     </menu>
 

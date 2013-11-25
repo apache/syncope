@@ -242,12 +242,12 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <unzip src="${basedir}/../core/target/syncope.war" dest="${cargo.run.dir}" />
-                <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}" />
+                <unzip src="${basedir}/../core/target/syncope.war" dest="${cargo.run.dir}"/>
+                <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}"/>
                 <copy todir="${cargo.run.dir}/WEB-INF/classes" includeEmptyDirs="false">
                   <fileset dir="${project.build.directory}/test-classes">
-                    <exclude name="**/*.class" />
-                    <exclude name="restClientContext.xml" />
+                    <exclude name="**/*.class"/>
+                    <exclude name="restClientContext.xml"/>
                   </fileset>
                 </copy>
               </target>
@@ -261,7 +261,7 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true" />
+                <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true"/>
               </target>
             </configuration>
             <goals>
@@ -293,8 +293,6 @@ under the License.
               <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
               <cargo.tomcat.ajp.port>${cargo.tomcat.ajp.port}</cargo.tomcat.ajp.port>
               <cargo.rmi.port>${cargo.rmi.port}</cargo.rmi.port>
-
-              <!--<cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>-->
               <cargo.jvmargs>-noverify ${javaagent} -Drebel.spring_plugin=true -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
             </properties>
             <configfiles>
@@ -429,7 +427,7 @@ under the License.
     <profile>
       <id>skipTests</id>
       <properties>
-        <javaagent />
+        <javaagent/>
       </properties>
       
       <build>
@@ -499,14 +497,15 @@ under the License.
     </profile>
 
     <profile>
-      <id>dev</id>
+      <id>debug</id>
+      
       <properties>
         <skipTests>true</skipTests>
-        <javaagent />
       </properties>
+      
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
-        
+
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -515,16 +514,42 @@ under the License.
               <webXml>${project.build.directory}/test-classes/web.xml</webXml>
             </configuration>
           </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <configuration>
+                <properties>
+                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
+                    -noverify -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
+                </properties>
+              </configuration>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>none</phase>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
       </build>
     </profile>
 
     <profile>
       <id>jrebel</id>
+      
       <properties>
         <skipTests>true</skipTests>
         <javaagent>-javaagent:${env.REBEL_HOME}/jrebel.jar</javaagent>
       </properties>
+      
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
@@ -557,9 +582,11 @@ under the License.
 
     <profile>
       <id>selenium</id>
+      
       <properties>
-        <javaagent />
+        <javaagent/>
       </properties>
+      
       <build>
         <defaultGoal>clean verify</defaultGoal>
         <plugins>

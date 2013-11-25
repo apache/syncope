@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+
+  <properties>
+    <title>Building</title>
+    <author email="dev@syncope.apache.org">Apache Syncope Documentation Team</author>
+  </properties>
+
+  <body>    
+    <div class="toc_container">
+      <macro name="toc">
+        <param name="class" value="toc"/>
+      </macro>
+    </div>
+
+    <section name="Prerequisites">
+      <p>
+        <ul>
+          <li>Java 1.6.23 or higher</li>
+          <li>
+            <a href="http://maven.apache.org/download.html">Apache Maven</a> 3.0.3 or higher</li>
+          <li>
+            <a href="source-repository.html">Latest source code</a>
+          </li>
+        </ul>
+      </p>
+    </section>   
+
+    <section name="Building Syncope">
+      <p>
+        Before building Syncope, you need to setup an environment variable to give Maven more memory.<br/>
+        On Unix
+        <source>export MAVEN_OPTS="-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m"</source>
+        On Windows
+        <source>set MAVEN_OPTS=-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m</source>
+      </p>
+      <p>
+        To build Syncope simply execute (from within the check-out directory):
+        <source>$ mvn install</source>
+        or
+        <source>$ mvn clean install</source>
+        for subsequent runs.<br/>
+        To build Syncope without running any test do:
+        <source>$ mvn -PskipTests</source>
+        <b>Important</b>: For subsequent builds (e.g., after code changes are made), 
+        run <code>mvn clean</code> first to build from scratch, before using one of the <code>mvn install</code>
+        commands above.
+        (You may also wish to run <code>svn update</code> after running <code>mvn clean</code> but before running 
+        <code>mvn install</code>.)
+      </p>
+    </section>
+    
+    <section name="More build profiles">
+      <p>
+        Besides default, other Maven 
+        <a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html">build profiles</a> are
+        provided, for developer convenience.<br/>
+        Such profiles are limited to a specific module, hence Maven needs to be invoked from the corresponding 
+        subdirectory, not from top-level.
+      </p>
+      <subsection name="core">
+        <h4>Debug</h4>
+        Starts the full environment used by integration tests (with same components available when running new project
+        in <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Run+Syncope+in+embedded+mode#RunSyncopeinembeddedmode-Componentsavailable">embedded mode</a>
+        but console) and enables remote JPDA debugging on port 8000 in the running JEE container (Tomcat).
+        <source>$ mvn -Pdebug</source>
+
+        <h4>Dev</h4>              
+        Run all / some / single integration tests (but no unit tests) by empowering 
+        <a href="http://maven.apache.org/surefire/maven-failsafe-plugin/examples/single-test.html">Maven Failsafe plugin</a>'s
+        selection features:
+        <source>$ mvn -Pdev
+$ mvn -Pdev -Dit.test=UserTestITCase
+$ mvn -Pdev -Dit.test=UserTestITCase#create</source>
+
+        <h4>NoOpWorkflow</h4>
+        Run the whole test suite by selecting the <em>NoOp</em> workflow adapter implementation;
+        by default, <a href="http://www.activiti.org">Activiti</a> is configured instead.
+        <source>$ mvn -Pnoopworkflow</source>
+
+        <h4>DBMSes</h4>
+
+        <h5>PostgreSQL</h5>
+        After providing connection information in <code>src/test/resources/postgres/persistence.properties</code>,
+        perform the full test suite against a real <a href="http://www.postgresql.org/">PostgreSQL</a> database via
+        <source>$ mvn -Ppostgres-it</source>
+
+        <h5>MySQL</h5>
+        After providing connection information in <code>src/test/resources/mysql/persistence.properties</code>,
+        perform the full test suite against a real <a href="http://www.mysql.com/">MySQL</a> or 
+        <a href="https://mariadb.org/">MariaDB</a> database via
+        <source>$ mvn -Pmysql-it</source>
+
+        <h5>Oracle database</h5>
+        After providing connection information in <code>src/test/resources/oracle/persistence.properties</code>
+        and having <a href="http://www.mkyong.com/maven/how-to-add-oracle-jdbc-driver-in-your-maven-local-repository/">
+          set up the appropriate JDBC driver in your local Maven repository</a>, perform the full test suite
+        against a real <a href="http://www.oracle.com/products/database/">Oracle</a> database via
+        <source>$ mvn -Poracle-it</source>
+
+        <h5>MS SQL Server</h5>
+        After providing connection information in <code>src/test/resources/sqlserver/persistence.properties</code>
+        and having <a href="http://claude.betancourt.us/add-microsoft-sql-jdbc-driver-to-maven/">
+          set up the appropriate JDBC driver in your local Maven repository</a>, perform the full test suite
+        against a real <a href="http://www.microsoft.com/sqlserver/en/us/default.aspx">MS SQL Server</a> database via
+        <source>$ mvn -Psqlserver-it</source>
+
+        <h4>JEE containers</h4>
+
+        <h5>Glassfish</h5>
+        Perform the full test suite by deploying Syncope core in 
+        <a href="https://glassfish.java.net/">Glassfish</a> via
+        <source>$ mvn -Pglassfish-it</source>
+
+        <h5>JBoss AS</h5>
+        Perform the full test suite by deploying Syncope core in 
+        <a href="http://www.jboss.org/jbossas">JBoss AS</a> via
+        <source>$ mvn -Pjboss-it</source>
+
+        <h5>Oracle WebLogic</h5>
+        Either put local WebLogic installation under <code>/opt/weblogic-12.1.1</code> or 
+        pass <code>-Dweblogic.home=...</code>, then perform the full test suite by deploying Syncope core in
+        <a href="http://www.oracle.com/technetwork/middleware/weblogic/overview/index.html">Oracle WebLogic</a> via
+        <source>$ mvn -Pweblogic-it</source>
+      </subsection>
+      
+      <subsection name="console">
+        <h4>Debug</h4>
+        Starts the full environment used by core's integration tests (with same components available when running new project
+        in <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Run+Syncope+in+embedded+mode#RunSyncopeinembeddedmode-Componentsavailable">embedded mode</a>,
+        including console) and enables remote JPDA debugging on port 8000 in the running JEE container (Tomcat).
+        <source>$ mvn -Pdebug</source>
+
+        <h4>JRebel</h4>
+        Starts the full environment used by core's integration tests (with same components available when running new project
+        in <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Run+Syncope+in+embedded+mode#RunSyncopeinembeddedmode-Componentsavailable">embedded mode</a>,
+        including console) and enables <a href="http://zeroturnaround.com/software/jrebel/">JRebel</a>.
+        <source>export REBEL_HOME=/opt/jrebel
+$ mvn -Pjrebel</source>
+
+        <h4>Selenium</h4>
+        Perform the integration test suite based on <a href="http://www.seleniumhq.org/">Selenium</a>; also supports
+        test selection.
+        <source>$ mvn -Pselenium
+$ mvn -Pselenium -Dit.test=UserTestITCase</source>
+      </subsection>
+    </section>
+  </body>
+</document>
