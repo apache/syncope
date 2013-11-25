@@ -78,7 +78,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.request.resource.DynamicImageResource;
 import org.apache.wicket.request.resource.IResource;
@@ -131,8 +130,8 @@ public class Configuration extends BasePage {
 
     private int notificationPaginatorRows;
 
-    public Configuration(final PageParameters parameters) {
-        super(parameters);
+    public Configuration() {
+        super();
 
         add(createConfigWin = new ModalWindow("createConfigurationWin"));
         add(editConfigWin = new ModalWindow("editConfigurationWin"));

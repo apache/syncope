@@ -18,11 +18,10 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:head>
-    <link rel="stylesheet" type="text/css" href="css/codemirror.css" />
-    <link rel="stylesheet" type="text/css" href="css/codemirror_default_theme.css" />
+    <link rel="stylesheet" type="text/css" href="webjars/codemirror/${codemirror.version}/lib/codemirror.css"/>
 
-    <script type="text/javascript" src="scripts/codemirror.js"></script>
-    <script type="text/javascript" src="scripts/xmlpure.js"></script>
+    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/lib/codemirror.js"></script>
+    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/mode/xml/xml.js"></script>
     <script type="text/javascript">
       function updateTextArea(editor) {
         document.getElementById("workflowDefArea").value = editor.getValue();
@@ -51,7 +50,7 @@ under the License.
     </form>
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("workflowDefArea"),
-              {mode: {name: "xmlpure"}, lineNumbers: true, onChange: updateTextArea});
+              {lineNumbers: true, onChange: updateTextArea});
     </script>
   </wicket:extend>
 </html>

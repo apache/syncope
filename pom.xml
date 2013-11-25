@@ -343,6 +343,11 @@ under the License.
 
     <jasypt.version>1.9.1</jasypt.version>
  
+    <jquery.version>1.10.2</jquery.version>
+    <jquery-ui.version>1.10.3</jquery-ui.version>
+    <highlightjs.version>7.3</highlightjs.version>
+    <codemirror.version>3.20</codemirror.version>
+ 
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
     <connid.location>file:${bundles.directory}/</connid.location>
     <log.directory>${project.build.directory}/log</log.directory>
@@ -792,6 +797,27 @@ under the License.
         <version>${slf4j.version}</version>
       </dependency>
       
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>jquery</artifactId>
+        <version>${jquery.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>jquery-ui</artifactId>
+        <version>${jquery-ui.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>highlightjs</artifactId>
+        <version>${highlightjs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>codemirror</artifactId>
+        <version>${codemirror.version}</version>
+      </dependency>
+      
       <!-- TEST -->
       <dependency>
         <groupId>junit</groupId>
@@ -1165,8 +1191,6 @@ under the License.
             <exclude>**/META-INF/cxf/**</exclude>
             <exclude>**/META-INF/services/**</exclude>
             <exclude>**/META-INF/MANIFEST.MF</exclude>            
-            <exclude>**/*.css</exclude>
-            <exclude>**/*.js</exclude>
             <exclude>**/*.csv</exclude>
             <exclude>**/archetype-resources/**</exclude>
             <exclude>**/goal.txt</exclude>

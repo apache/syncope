@@ -19,8 +19,6 @@
 package org.apache.syncope.console.pages;
 
 import org.apache.syncope.console.commons.CloseOnESCBehavior;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.PriorityHeaderItem;
 
 /**
  * Syncope Modal Window.
@@ -33,11 +31,5 @@ public abstract class BaseModalPage extends AbstractBasePage {
         super();
 
         add(new CloseOnESCBehavior("keyup"));
-    }
-
-    @Override
-    public void renderHead(final IHeaderResponse response) {
-        super.renderHead(response);
-        response.render(new PriorityHeaderItem(meta));
     }
 }

@@ -46,12 +46,12 @@
           <xsl:value-of select="wadl:doc/@title"/>
         </title>
 
-        <link rel="stylesheet" href="{$contextPath}/css/jquery-ui.css"/>
+        <link rel="stylesheet" href="{$contextPath}/webjars/jquery-ui/${jquery-ui.version}/themes/base/minified/jquery-ui.min.css"/>
         <link rel="stylesheet" href="{$contextPath}/css/style.css"/>
 
-        <script src="{$contextPath}/js/jquery.js">          
+        <script src="{$contextPath}/webjars/jquery/${jquery.version}/jquery.min.js">
         </script>
-        <script src="{$contextPath}/js/jquery-ui.js">          
+        <script src="{$contextPath}/webjars/jquery-ui/${jquery-ui.version}/ui/minified/jquery-ui.min.js">          
         </script>
         <script>
           //<![CDATA[

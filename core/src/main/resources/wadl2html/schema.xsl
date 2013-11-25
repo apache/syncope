@@ -37,9 +37,9 @@
           <xsl:value-of select="wadl:doc/@title"/>
         </title>
                   
-        <link rel="stylesheet" href="{$contextPath}/css/highlight.css"/>
+        <link rel="stylesheet" href="{$contextPath}/webjars/highlightjs/${highlightjs.version}/styles/default.min.css"/>
         
-        <script src="{$contextPath}/js/highlight.pack.js">           
+        <script src="{$contextPath}/webjars/highlightjs/${highlightjs.version}/highlight.min.js">           
         </script>
         <script>
           hljs.initHighlightingOnLoad();

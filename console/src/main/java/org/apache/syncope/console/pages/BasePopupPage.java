@@ -18,16 +18,8 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.PriorityHeaderItem;
-
 public class BasePopupPage extends AbstractBasePage {
 
     private static final long serialVersionUID = -2633667311332659505L;
 
-    @Override
-    public void renderHead(final IHeaderResponse response) {
-        super.renderHead(response);
-        response.render(new PriorityHeaderItem(meta));
-    }
 }

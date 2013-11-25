@@ -817,29 +817,16 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For jQuery (http://jquery.com/):
-
-jquery.js
-jquery-ui.js
-jquery-ui.css
-
 This is licensed under the terms of the MIT license, see above.
 
 ==
 
 For CodeMirror (http://codemirror.net/):
-
-codemirror.js
-xmlpure.js
-
 This is licensed under the terms of the MIT license, see above.
 
 ==
 
 For highlight.js (http://highlightjs.org/):
-
-highlight.pack.js
-highlight.css
-
 This is licensed under the BSD license, see above.
 
 ==

@@ -29,6 +29,8 @@ import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.rest.UserSelfRestClient;
 import org.apache.syncope.markup.head.MetaHeaderItem;
 import org.apache.wicket.markup.head.HeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.PriorityHeaderItem;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -91,8 +93,7 @@ public class AbstractBasePage extends WebPage {
     protected boolean modalResult = false;
 
     public AbstractBasePage() {
-        super();
-        setupFeedbackPanel();
+        this(null);
     }
 
     public AbstractBasePage(final PageParameters parameters) {
@@ -117,4 +118,11 @@ public class AbstractBasePage extends WebPage {
     public void setModalResult(final boolean operationResult) {
         this.modalResult = operationResult;
     }
+
+    @Override
+    public void renderHead(final IHeaderResponse response) {
+        super.renderHead(response);
+        response.render(new PriorityHeaderItem(meta));
+    }
+
 }

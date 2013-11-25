@@ -288,6 +288,19 @@ under the License.
       <artifactId>jasypt</artifactId>
     </dependency> 
 
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>jquery</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>jquery-ui</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>highlightjs</artifactId>
+    </dependency>
+
     <!-- TEST -->
     <dependency>
       <groupId>org.apache.syncope</groupId>
