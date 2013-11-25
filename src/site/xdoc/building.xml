@@ -78,6 +78,11 @@ under the License.
         subdirectory, not from top-level.
       </p>
       <subsection name="core">
+        <h4>application/xml</h4>
+        By default, integration tests are run using <code>application/json</code> for both <code>Accept</code> and
+        <code>Content-Type</code> HTTP headers; it is possible, however, to use <code>application/xml</code>.
+        <source>$ mvn clean verify -DjaxrsContentType=application/xml</source>
+        
         <h4>Debug</h4>
         Starts the full environment used by integration tests (with same components available when running new project
         in <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Run+Syncope+in+embedded+mode#RunSyncopeinembeddedmode-Componentsavailable">embedded mode</a>
