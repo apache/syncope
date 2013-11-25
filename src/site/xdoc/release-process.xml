@@ -49,14 +49,14 @@ under the License.
       
       <subsection name="GPG">
         <p>Install/Configure GPG - The artifacts that are deployed to the ASF central repository need to
-        be signed. To do this you will need to have a public and private keypair. There is a very good
-        <a href="http://www.sonatype.com/people/2010/01/how-to-generate-pgp-signatures-with-maven/">guide</a> that 
-        will walk you though this.</p>
+          be signed. To do this you will need to have a public and private keypair. There is a very good
+          <a href="http://www.sonatype.com/people/2010/01/how-to-generate-pgp-signatures-with-maven/">guide</a> that 
+          will walk you though this.</p>
       </subsection>
 
       <subsection name="Apache Maven">
         <p>Install Apache Maven 3.0.3 or higher; we strongly encourage our committers to install 
-          <a href="http://maven.apache.org/download.html">Apache Maven 3.0.5</a>.
+          <a href="http://maven.apache.org/download.html">Apache Maven 3.1.1</a>.
         </p>
       
         <p>Maven allows you to encrypt your servers' passwords. We highly recommend that you follow this
@@ -109,81 +109,13 @@ under the License.
     
     <section name="Release steps">
       
-      <subsection name="Verify DBMS and JEE containers">
+      <subsection name="Verify DBMSes and JEE containers">
         <p>
-        This is an optional step.<br/>
-        These verifications take some time and have quite strong environment requirements. However, it is of fundamental
-        importance to go through these at least once for every major release.
+          This is an optional step.<br/>
+          These verifications take some time and have quite strong environment requirements. However, it is of fundamental
+          importance to go through these at least once for every major release.
         </p>
-        <p>
-          All verifications take place in the <tt>core</tt> submodule.
-        <ol>
-          <li>DBMS
-            <ul>
-              <li>PostgreSQL
-                <ul>
-                  <li>configure <tt>src/test/resources/postgres/persistence.properties</tt></li>
-                  <li>
-<source>$ mvn -P postgres-it</source>
-                  </li>
-                </ul>
-              </li>
-              <li>MySQL
-                <ul>
-                  <li>configure <tt>src/test/resources/mysql/persistence.properties</tt></li>
-                  <li>
-<source>$ mvn -P mysql-it</source>
-                  </li>
-                </ul>
-              </li>                
-              <li>Oracle database
-                <ul>
-                  <li>configure <tt>src/test/resources/oracle/persistence.properties</tt></li>
-                  <li>
-<source>$ mvn -P oracle-it</source>
-                  </li>
-                </ul>
-              </li>               
-              <li>MS SQL Server
-                <ul>
-                  <li>configure <tt>src/test/resources/sqlserver/persistence.properties</tt></li>
-                  <li>
-<source>$ mvn -P sqlserver-it</source>
-                  </li>
-                </ul>
-              </li>                
-            </ul>
-          </li>
-          <li>JEE containers
-            <ul>
-              <li>Glassfish
-                <ul>
-                  <li>
-<source>$ mvn -P glassfish-it</source>
-                  </li>
-                </ul>
-              </li>
-              <li>JBoss AS
-                <ul>
-                  <li>
-<source>$ mvn -P jboss-it</source>
-                  </li>
-                </ul>
-              </li>
-              <li>Oracle WebLogic
-                <ul>
-                  <li>Put local WebLogic installation under <tt>/opt/weblogic-12.1.1</tt> or 
-pass <tt>-Dweblogic.home=...</tt> to Maven
-                  </li>
-                  <li>
-<source>$ mvn -P weblogic-it</source>
-                  </li>
-                </ul>
-              </li>                
-            </ul>
-          </li>
-        </ol>
-        </p>
+        <p>For more information please take a look at <a href="building.html#core">build instructions</a>.</p>
       </subsection>
       
       <subsection name="Prepare the source for release">
@@ -193,8 +125,8 @@ pass <tt>-Dweblogic.home=...</tt> to Maven
             <b>Resolved</b> issues to the <b>Closed</b> state.
           </li>
           <li>
-            Update the <tt>CHANGES</tt> file, in a SVN working copy <u>of the branch under release</u> (currently 1_0_X
-            or 1_1_X), based on the text release reports from JIRA.
+            Update the <code>CHANGES</code> file, in a SVN working copy <u>of the branch under release</u> (currently 
+            1_0_X or 1_1_X), based on the text release reports from JIRA.
           </li>
           <li>
             Commit any changes back to SVN:
@@ -222,7 +154,7 @@ pass <tt>-Dweblogic.home=...</tt> to Maven
       <subsection name="Prepare the release">
         <ol>
           <li>
-            Do a dry run of the <tt>release:prepare</tt> step.
+            Do a dry run of the <code>release:prepare</code> step.
             <source>mvn -P apache-release release:prepare -DdryRun=true</source>
 
             The dry run will not commit any changes back to SVN and gives you the opportunity to verify that the 
@@ -230,8 +162,8 @@ pass <tt>-Dweblogic.home=...</tt> to Maven
           
             <p>
               <em>If you cancel a 
-                <tt>release:prepare</tt> before it updates the pom.xml versions, then use the 
-                <tt>release:clean</tt> goal to just remove the extra files that were created.
+                <code>release:prepare</code> before it updates the pom.xml versions, then use the 
+                <code>release:clean</code> goal to just remove the extra files that were created.
               </em>
             </p>
           </li>
@@ -250,18 +182,18 @@ pass <tt>-Dweblogic.home=...</tt> to Maven
                 Assuming the <code>.tag</code> files look OK you may proceed and do any other validation you feel 
                 necessary. The following list may be helpful:
                 <ol>
-                  <li>Check <tt>release.properties</tt> and make sure that the scm properties have the
+                  <li>Check <code>release.properties</code> and make sure that the scm properties have the
                     right version. Sometimes the scm location can be the previous version not the next version.
                   </li>
                   <li>
                     Verify signatures: On Un*x platforms the following command can be executed:
                     <source>for file in `find . -type f -iname '*.asc'`
-do
-  gpg --verify ${file} 
-done</source>
+                      do
+                      gpg --verify ${file} 
+                      done</source>
                     You'll need to look at the output to ensure it contains only good signatures:
                     <source>gpg: Good signature from ...
-gpg: Signature made ...</source>
+                      gpg: Signature made ...</source>
                   </li>
                 </ol>
               </li>
@@ -272,7 +204,7 @@ gpg: Signature made ...</source>
             </ol>
           </li>
           <li>
-            Run the <tt>release:prepare</tt> step for real this time. You'll be prompted for the same version 
+            Run the <code>release:prepare</code> step for real this time. You'll be prompted for the same version 
             information and optionally your GPG passphrase again.
             <source>mvn -P apache-release release:prepare</source>
           </li>
@@ -280,8 +212,8 @@ gpg: Signature made ...</source>
             Backup (zip or tar) your local release candidate directory in case you need to rollback the release after 
             the next step is performed.
             <source>cd ..
-tar -czf &lt;version&gt;.tar.gz &lt;version&gt;/
-cd &lt;version&gt;</source>
+              tar -czf &lt;version&gt;.tar.gz &lt;version&gt;/
+              cd &lt;version&gt;</source>
           </li>
         </ol>
       </subsection>
@@ -292,41 +224,41 @@ cd &lt;version&gt;</source>
             <b>Staging site</b>
             <ul>
               <li>1_1_X
-<source>svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
-svn checkout https://svn.apache.org/repos/asf/syncope/tags/syncope-&lt;version&gt; syncope-&lt;version&gt;
-cd syncope-&lt;version&gt;
-mvn clean install
-mvn -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
-cd ../site/&lt;version&gt;
-rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-common syncope-standalone project-reports.html apidocs/1.html
-cd ..
-svn add &lt;version&gt;
-svn copy apidocs/1.0 &lt;version&gt;/apidocs/
-svn commit -m "Staging site for release"</source>
+                <source>svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
+                  svn checkout https://svn.apache.org/repos/asf/syncope/tags/syncope-&lt;version&gt; syncope-&lt;version&gt;
+                  cd syncope-&lt;version&gt;
+                  mvn clean install
+                  mvn -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
+                  cd ../site/&lt;version&gt;
+                  rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-common syncope-standalone project-reports.html apidocs/1.html
+                  cd ..
+                  svn add &lt;version&gt;
+                  svn copy apidocs/1.0 &lt;version&gt;/apidocs/
+                  svn commit -m "Staging site for release"</source>
               </li>
               <li>1_0_X
-<source>svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
-svn checkout https://svn.apache.org/repos/asf/syncope/tags/syncope-&lt;version&gt; syncope-&lt;version&gt;
-cd syncope-&lt;version&gt;
-mvn clean install
-mvn -f parent/pom.xml -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
-cd ../site/&lt;version&gt;
-rm -rf images css syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-hibernate-enhancer syncope-quality project-reports.html apidocs/1.html
-cd ../..
-svn checkout https://svn.apache.org/repos/asf/syncope/branches/1_1_X syncope-1_1_X
-cd syncope-1_1_X
-mvn -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
-cd ../site/&lt;version&gt;
-rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-common syncope-standalone project-reports.html apidocs/1.html apidocs/1.1
-cd ..
-svn add &lt;version&gt;
-svn copy apidocs/1.1 &lt;version&gt;/apidocs/
-svn commit -m "Staging site for release"</source>
+                <source>svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
+                  svn checkout https://svn.apache.org/repos/asf/syncope/tags/syncope-&lt;version&gt; syncope-&lt;version&gt;
+                  cd syncope-&lt;version&gt;
+                  mvn clean install
+                  mvn -f parent/pom.xml -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
+                  cd ../site/&lt;version&gt;
+                  rm -rf images css syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-hibernate-enhancer syncope-quality project-reports.html apidocs/1.html
+                  cd ../..
+                  svn checkout https://svn.apache.org/repos/asf/syncope/branches/1_1_X syncope-1_1_X
+                  cd syncope-1_1_X
+                  mvn -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
+                  cd ../site/&lt;version&gt;
+                  rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-common syncope-standalone project-reports.html apidocs/1.html apidocs/1.1
+                  cd ..
+                  svn add &lt;version&gt;
+                  svn copy apidocs/1.1 &lt;version&gt;/apidocs/
+                  svn commit -m "Staging site for release"</source>
               </li>
             </ul>
           </li>
           <li>
-            From the directory where you have launched <tt>release:prepare</tt> execute (this step will create a maven 
+            From the directory where you have launched <code>release:prepare</code> execute (this step will create a maven 
             staging repository):
             <source>mvn -P apache-release release:perform [-Duser.name=&lt;your_apache_uid&gt;]</source>
         
@@ -396,50 +328,50 @@ svn commit -m "Staging site for release"</source>
             <code>VOTE</code> email thread on 
             <a href="mailto:dev@syncope.apache.org">syncope-dev</a> to record votes as replies, e.g.:
             <pre>To: dev@syncope.apache.org
-Subject: [VOTE] Apache Syncope &lt;version&gt;
+              Subject: [VOTE] Apache Syncope &lt;version&gt;
 
-I've created a &lt;version&gt; release, with the following artifacts up for a vote:
+              I've created a &lt;version&gt; release, with the following artifacts up for a vote:
 
-SVN source tag (r9999999):
-https://svn.apache.org/repos/asf/syncope/tags/&lt;version&gt;/
+              SVN source tag (r9999999):
+              https://svn.apache.org/repos/asf/syncope/tags/&lt;version&gt;/
 
-List of changes:
-https://svn.apache.org/repos/asf/syncope/tags/&lt;version&gt;/CHANGES
+              List of changes:
+              https://svn.apache.org/repos/asf/syncope/tags/&lt;version&gt;/CHANGES
 
-Maven staging repo:
-https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
+              Maven staging repo:
+              https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
 
-Source release (checksums and signatures are available at the same location):
-https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip
+              Source release (checksums and signatures are available at the same location):
+              https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip
 
-Staging site:
-http://syncope.apache.org/&lt;version&gt;/
+              Staging site:
+              http://syncope.apache.org/&lt;version&gt;/
 
-PGP release keys (signed using ABCDEFG):
-http://www.apache.org/dist/syncope/KEYS
+              PGP release keys (signed using ABCDEFG):
+              http://www.apache.org/dist/syncope/KEYS
 
-Vote will be open for 72 hours.
+              Vote will be open for 72 hours.
 
-[ ] +1  approve
-[ ] +0  no opinion
-[ ] -1  disapprove (and reason why)</pre>
+              [ ] +1  approve
+              [ ] +0  no opinion
+              [ ] -1  disapprove (and reason why)</pre>
           </li>
           <li>
             Create a <code>DISCUSS</code> email thread on <a href="mailto:dev@syncope.apache.org">syncope-dev</a> for any vote questions, e.g.:
             <pre>
-To: dev@syncope.apache.org
-Subject: [DISCUSS] Apache Syncope &lt;version&gt;
+              To: dev@syncope.apache.org
+              Subject: [DISCUSS] Apache Syncope &lt;version&gt;
 
-Discussion thread for vote on &lt;version&gt; release, with SVN source tag (r9999999).
+              Discussion thread for vote on &lt;version&gt; release, with SVN source tag (r9999999).
 
-For more information on the release process, check out http://www.apache.org/dev/release.html
+              For more information on the release process, check out http://www.apache.org/dev/release.html
 
-Some of the things to check before voting are:
- - does "mvn apache-rat:check" pass on the source
- - can you build the contents of source release zip and SVN tag
- - do all of the staged jars/wars/zips contain the required LICENSE and NOTICE files
- - are all of the staged jars/wars/zips signed and the signature verifiable
- - is the signing key in the project's KEYS file and on a public server (i.e. http://www.apache.org/dist/syncope/)
+              Some of the things to check before voting are:
+              - does "mvn apache-rat:check" pass on the source
+              - can you build the contents of source release zip and SVN tag
+              - do all of the staged jars/wars/zips contain the required LICENSE and NOTICE files
+              - are all of the staged jars/wars/zips signed and the signature verifiable
+              - is the signing key in the project's KEYS file and on a public server (i.e. http://www.apache.org/dist/syncope/)
             </pre>
           </li>
           <li>
@@ -453,31 +385,31 @@ Some of the things to check before voting are:
           <li>After the vote has been open for at least 72 hours, has at least three
             +1 PMC votes and no -1 votes, then post the results to the vote thread:
             <pre>To: dev@syncope.apache.org
-Subject: [RESULT] [VOTE] Apache Syncope &lt;version&gt;
+              Subject: [RESULT] [VOTE] Apache Syncope &lt;version&gt;
 
-Hi all,
-after 72 hours, the vote for Syncope &lt;version&gt; [1] *passes*
-with ... PMC + ... non-PMC votes.
+              Hi all,
+              after 72 hours, the vote for Syncope &lt;version&gt; [1] *passes*
+              with ... PMC + ... non-PMC votes.
 
-+1 (PMC / binding)
-* ...
+              +1 (PMC / binding)
+              * ...
 
-+1 (non binding)
- * ... (or &lt;none&gt;)
+              +1 (non binding)
+              * ... (or &lt;none&gt;)
 
-0
- * ... (or &lt;none&gt;)
+              0
+              * ... (or &lt;none&gt;)
 
--1
- * ... (or &lt;none&gt;)
+              -1
+              * ... (or &lt;none&gt;)
 
-Thanks to everyone participating.
+              Thanks to everyone participating.
 
-I will now copy this release to Syncope' dist directory and promote the artifacts to the central Maven repository.
+              I will now copy this release to Syncope' dist directory and promote the artifacts to the central Maven repository.
 
-Best regards.
+              Best regards.
 
-[1] &lt;link to syncope-dev ML archives for the related [VOTE] thread&gt;</pre>
+              [1] &lt;link to syncope-dev ML archives for the related [VOTE] thread&gt;</pre>
           </li>
         </ol>
       </subsection>
@@ -506,64 +438,64 @@ Best regards.
             <code>people.apache.org</code>)
             <ul>
               <li>1_1_X
-<source>
-svn co https://dist.apache.org/repos/dist/dev/syncope syncope-dist-dev
-cd syncope-dist-dev
+                <source>
+                  svn co https://dist.apache.org/repos/dist/dev/syncope syncope-dist-dev
+                  cd syncope-dist-dev
 
-wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
-https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope/&lt;version&gt;/
-wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
-https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-standalone/&lt;version&gt;/
+                  wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
+                  https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope/&lt;version&gt;/
+                  wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
+                  https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-standalone/&lt;version&gt;/
 
-rm &lt;version&gt;/syncope-*asc.asc
+                  rm &lt;version&gt;/syncope-*asc.asc
 
-svn add &lt;version&gt;
-svn commit -m "Promoting the voted release artifacts to dist-dev area"
+                  svn add &lt;version&gt;
+                  svn commit -m "Promoting the voted release artifacts to dist-dev area"
 
-svn mv -m "Moving the voted release artifacts to dist/release (source)" \
-https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip \
-https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.asc \
-https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.md5 \
-https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.sha1 \
-https://dist.apache.org/repos/dist/release/syncope/&lt;version&gt;
+                  svn mv -m "Moving the voted release artifacts to dist/release (source)" \
+                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip \
+                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.asc \
+                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.md5 \
+                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.sha1 \
+                  https://dist.apache.org/repos/dist/release/syncope/&lt;version&gt;
   
-svn mv -m "Moving the voted release artifacts to dist/release (standalone)" \
-https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-standalone-&lt;version&gt;-distribution.zip \
-https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-standalone-&lt;version&gt;-distribution.zip.asc \
-https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-standalone-&lt;version&gt;-distribution.zip.md5 \
-https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-standalone-&lt;version&gt;-distribution.zip.sha1 \
-https://dist.apache.org/repos/dist/release/syncope/&lt;version&gt;
+                  svn mv -m "Moving the voted release artifacts to dist/release (standalone)" \
+                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-standalone-&lt;version&gt;-distribution.zip \
+                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-standalone-&lt;version&gt;-distribution.zip.asc \
+                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-standalone-&lt;version&gt;-distribution.zip.md5 \
+                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-standalone-&lt;version&gt;-distribution.zip.sha1 \
+                  https://dist.apache.org/repos/dist/release/syncope/&lt;version&gt;
 
-svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
-cd syncope-dist-release
-svn rm &lt;any older release artifact (if present)&gt;
-svn commit -m "Cleaning up older releases"
+                  svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
+                  cd syncope-dist-release
+                  svn rm &lt;any older release artifact (if present)&gt;
+                  svn commit -m "Cleaning up older releases"
 </source>
               </li>
               <li>1_0_X
-<source>
-svn co https://dist.apache.org/repos/dist/dev/syncope syncope-dist-dev
-cd syncope-dist-dev
+                <source>
+                  svn co https://dist.apache.org/repos/dist/dev/syncope syncope-dist-dev
+                  cd syncope-dist-dev
 
-wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
-https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-root/&lt;version&gt;/
+                  wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
+                  https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-root/&lt;version&gt;/
 
-rm &lt;version&gt;/syncope-*asc.asc
+                  rm &lt;version&gt;/syncope-*asc.asc
 
-svn add &lt;version&gt;
-svn commit -m "Promoting the voted release artifacts to dist-dev area"
+                  svn add &lt;version&gt;
+                  svn commit -m "Promoting the voted release artifacts to dist-dev area"
 
-svn mv -m "Moving the voted release artifacts to dist/release" \
-https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip \
-https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.asc \
-https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.md5 \
-https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.sha1 \
-https://dist.apache.org/repos/dist/release/syncope/&lt;version&gt;
+                  svn mv -m "Moving the voted release artifacts to dist/release" \
+                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip \
+                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.asc \
+                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.md5 \
+                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.sha1 \
+                  https://dist.apache.org/repos/dist/release/syncope/&lt;version&gt;
 
-svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
-cd syncope-dist-release
-svn rm &lt;any older release artifact (if present)&gt;
-svn commit -m "Cleaning up older releases"
+                  svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
+                  cd syncope-dist-release
+                  svn rm &lt;any older release artifact (if present)&gt;
+                  svn commit -m "Cleaning up older releases"
 </source>
               </li>
             </ul>
@@ -575,22 +507,22 @@ svn commit -m "Cleaning up older releases"
           </li>
           <li>
             Update the <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Create+a+new+Syncope+project">Create
-            new project</a> wiki page to point to the new release artifacts
+              new project</a> wiki page to point to the new release artifacts
           </li>
           <li>
             Update the <a href="https://issues.apache.org/jira/plugins/servlet/project-config/SYNCOPE/versions">JIRA 
-            versions</a> page to mark the version as <strong>Released</strong>, and set the date to the date that
+              versions</a> page to mark the version as <strong>Released</strong>, and set the date to the date that
             the release was approved. You may also need to make a new release entry for the next release.
           </li>
           <li>
             Promote the staging site
             <source>
-svn co https://svn.apache.org/repos/asf/syncope/site/
-cd site
-svn rm *.html apidocs css images img js
-svn mv &lt;version&gt;/* .
-svn rm &lt;version&gt;
-svn commit -m "Promoting the staging site"</source>
+              svn co https://svn.apache.org/repos/asf/syncope/site/
+              cd site
+              svn rm *.html apidocs css images img js
+              svn mv &lt;version&gt;/* .
+              svn rm &lt;version&gt;
+              svn commit -m "Promoting the staging site"</source>
           </li>
         </ol>
       </subsection>
