@@ -34,13 +34,14 @@ under the License.
                            http://www.springframework.org/schema/aop 
                            http://www.springframework.org/schema/aop/spring-aop.xsd">
 
+  <context:component-scan base-package="org.apache.syncope.core.rest.controller"/>
+  <bean class="${controllerHandler}"/>
+  <bean class="${attributableTransformer}"/>
+
+  <!-- CXF Configuration - BEGIN -->
   <import resource="classpath:META-INF/cxf/cxf.xml"/>
   <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
 
-  <context:component-scan base-package="org.apache.syncope.core.rest.controller"/>
-  <bean class="org.apache.syncope.core.rest.controller.ControllerHandler"/>
-
-  <!-- CXF Configuration - BEGIN -->
   <context:component-scan base-package="org.apache.syncope.core.services"/>  
 
   <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.JAXBElementProvider">
@@ -121,6 +122,7 @@ under the License.
     <constructor-arg ref="xStreamXmlMarshaller"/>
   </bean>
 
+  <!-- Spring MVC Configuration - BEGIN -->
   <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
   <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
     <property name="messageConverters">
@@ -167,7 +169,6 @@ under the License.
 
     <property name="ignoreAcceptHeader" value="false"/>
   </bean>
-  
-  <!-- Attribute transformer for internal storage -->
-  <bean id="attrTransformer" class="org.apache.syncope.core.rest.data.DefaultAttributableTransformer"/>
+  <!-- Spring MVC Configuration - BEGIN -->
+
 </beans>

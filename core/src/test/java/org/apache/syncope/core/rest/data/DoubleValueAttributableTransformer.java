@@ -28,7 +28,7 @@ import org.apache.syncope.common.to.AttributeTO;
 /**
  * Class for integration tests: transform (by making it double) any attribute value for defined schema.
  */
-public class DefaultAttributableTransformer implements AttributableTransformer {
+public class DoubleValueAttributableTransformer implements AttributableTransformer {
 
     private static final String NAME = "makeItDouble";
 
