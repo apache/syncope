@@ -33,15 +33,16 @@ under the License.
                            http://www.springframework.org/schema/aop 
                            http://www.springframework.org/schema/aop/spring-aop.xsd">
 
+  <aop:aspectj-autoproxy/>
+
+  <context:component-scan base-package="org.apache.syncope.core.rest.controller"/>
+  <bean class="${controllerHandler}"/>
+  <bean class="${attributableTransformer}"/>
+
+  <!-- CXF Configuration - BEGIN -->
   <import resource="classpath:META-INF/cxf/cxf.xml"/>
   <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
 
-  <aop:aspectj-autoproxy/>
-  
-  <context:component-scan base-package="org.apache.syncope.core.rest.controller"/>
-  <bean class="org.apache.syncope.core.rest.controller.ControllerHandler"/>
-
-  <!-- CXF Configuration - BEGIN -->
   <context:component-scan base-package="org.apache.syncope.core.services"/>  
 
   <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.JAXBElementProvider">
@@ -125,7 +126,5 @@ under the License.
     </jaxrs:extensionMappings>
   </jaxrs:server>
   <!-- CXF Configuration - END -->
-  
-  <!-- Attribute transformer for internal storage -->
-  <bean id="attrTransformer" class="org.apache.syncope.core.rest.data.DefaultAttributableTransformer"/>
+
 </beans>
