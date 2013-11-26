@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.types.EntityViolationType;
+import org.apache.syncope.core.connid.ConnPoolConfUtil;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.util.URIUtil;
 
@@ -40,6 +41,21 @@ public class ConnInstanceValidator extends AbstractValidator<ConnInstanceCheck, 
                     addNode("location").addConstraintViolation();
 
             isValid = false;
+        }
+
+        if (isValid && connInstance.getPoolConf() != null) {
+            try {
+                ConnPoolConfUtil.getObjectPoolConfiguration(connInstance.getPoolConf()).validate();
+            } catch (Exception e) {
+                LOG.error("Invalid pool configuration", e);
+
+                context.disableDefaultConstraintViolation();
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidConnPoolConf, e.getMessage())).
+                        addNode("poolConf").addConstraintViolation();
+
+                isValid = false;
+            }
         }
 
         return isValid;

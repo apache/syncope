@@ -58,6 +58,8 @@ public class ConnInstanceTO extends AbstractBaseBean {
 
     private Integer connRequestTimeout;
 
+    private ConnPoolConfTO poolConf;
+
     public ConnInstanceTO() {
         super();
 
@@ -161,4 +163,13 @@ public class ConnInstanceTO extends AbstractBaseBean {
     public void setConnRequestTimeout(final Integer connRequestTimeout) {
         this.connRequestTimeout = connRequestTimeout;
     }
+
+    public ConnPoolConfTO getPoolConf() {
+        return poolConf;
+    }
+
+    public void setPoolConf(final ConnPoolConfTO poolConf) {
+        this.poolConf = poolConf;
+    }
+
 }

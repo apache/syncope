@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +43,7 @@ import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
+import org.apache.syncope.common.to.ConnPoolConfTO;
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
 import org.apache.syncope.common.to.ResourceTO;
@@ -59,7 +61,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
-public class ConnInstanceTestITCase extends AbstractTest {
+public class ConnectorTestITCase extends AbstractTest {
 
     private static String connidSoapVersion;
 
@@ -70,7 +72,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         InputStream propStream = null;
         try {
             Properties props = new Properties();
-            propStream = ConnInstanceTestITCase.class.getResourceAsStream(ConnIdBundleManager.CONNID_PROPS);
+            propStream = ConnectorTestITCase.class.getResourceAsStream(ConnIdBundleManager.CONNID_PROPS);
             props.load(propStream);
 
             connidSoapVersion = props.getProperty("connid.soap.version");
@@ -97,20 +99,11 @@ public class ConnInstanceTestITCase extends AbstractTest {
     @Test
     public void create() {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
-
         connectorTO.setLocation(connectorService.read(100L).getLocation());
-
-        // set connector version
         connectorTO.setVersion(connidSoapVersion);
-
-        // set connector name
         connectorTO.setConnectorName("org.connid.bundles.soap.WebServiceConnector");
-
-        // set bundle name
         connectorTO.setBundleName("org.connid.bundles.soap");
-
         connectorTO.setDisplayName("Display name");
-
         connectorTO.setConnRequestTimeout(15);
 
         // set the connector configuration using PropertyTO
@@ -123,6 +116,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         ConnConfProperty endpoint = new ConnConfProperty();
         endpoint.setSchema(endpointSchema);
         endpoint.getValues().add("http://localhost:8888/wssample/services");
+        endpoint.getValues().add("Provisioning");
+        conf.add(endpoint);
 
         ConnConfPropSchema servicenameSchema = new ConnConfPropSchema();
         servicenameSchema.setName("servicename");
@@ -130,9 +125,6 @@ public class ConnInstanceTestITCase extends AbstractTest {
         servicenameSchema.setRequired(true);
         ConnConfProperty servicename = new ConnConfProperty();
         servicename.setSchema(servicenameSchema);
-        endpoint.getValues().add("Provisioning");
-
-        conf.add(endpoint);
         conf.add(servicename);
 
         // set connector configuration
@@ -143,13 +135,18 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.getCapabilities().add(ConnectorCapability.ONE_PHASE_CREATE);
         connectorTO.getCapabilities().add(ConnectorCapability.TWO_PHASES_UPDATE);
 
+        // set connector pool conf
+        ConnPoolConfTO cpc = new ConnPoolConfTO();
+        cpc.setMaxObjects(1534);
+        connectorTO.setPoolConf(cpc);
+
         Response response = connectorService.create(connectorTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
         }
 
-        ConnInstanceTO actual = adminClient.getObject(response.getLocation(), ConnectorService.class,
-                ConnInstanceTO.class);
+        ConnInstanceTO actual = adminClient.getObject(
+                response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
         assertNotNull(actual);
 
         assertEquals(actual.getBundleName(), connectorTO.getBundleName());
@@ -158,17 +155,19 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertEquals("Display name", actual.getDisplayName());
         assertEquals(Integer.valueOf(15), actual.getConnRequestTimeout());
         assertEquals(connectorTO.getCapabilities(), actual.getCapabilities());
+        assertNotNull(actual.getPoolConf());
+        assertEquals(1534, actual.getPoolConf().getMaxObjects().intValue());
+        assertEquals(10, actual.getPoolConf().getMaxIdle().intValue());
 
         Throwable t = null;
 
-        // check for the updating
-        connectorTO.setId(actual.getId());
+        // check update
+        actual.getCapabilities().remove(ConnectorCapability.TWO_PHASES_UPDATE);
+        actual.getPoolConf().setMaxObjects(null);
 
-        connectorTO.getCapabilities().remove(ConnectorCapability.TWO_PHASES_UPDATE);
-        actual = null;
         try {
-            connectorService.update(connectorTO.getId(), connectorTO);
-            actual = connectorService.read(connectorTO.getId());
+            connectorService.update(actual.getId(), actual);
+            actual = connectorService.read(actual.getId());
         } catch (SyncopeClientException e) {
             LOG.error("update failed", e);
             t = e;
@@ -176,7 +175,9 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         assertNull(t);
         assertNotNull(actual);
-        assertEquals(connectorTO.getCapabilities(), actual.getCapabilities());
+        assertEquals(EnumSet.of(ConnectorCapability.ONE_PHASE_CREATE, ConnectorCapability.TWO_PHASES_CREATE),
+                actual.getCapabilities());
+        assertEquals(10, actual.getPoolConf().getMaxObjects().intValue());
 
         // check also for the deletion of the created object
         try {
@@ -697,12 +698,14 @@ public class ConnInstanceTestITCase extends AbstractTest {
             connectorService.read(Long.valueOf(iter.next()));
             fail();
         } catch (SyncopeClientException e) {
+            assertNotNull(e);
         }
 
         try {
             connectorService.read(Long.valueOf(iter.next()));
             fail();
         } catch (SyncopeClientException e) {
+            assertNotNull(e);
         }
     }
 }

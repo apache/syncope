@@ -22,11 +22,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.to.ConnInstanceTO;
+import org.apache.syncope.common.to.ConnPoolConfTO;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.core.connid.ConnPoolConfUtil;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.util.ConnIdBundleManager;
@@ -38,7 +40,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConnInstanceDataBinder {
 
-    private static final String[] IGNORE_PROPERTIES = {"id"};
+    private static final String[] IGNORE_PROPERTIES = { "id", "poolConf" };
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
@@ -106,8 +108,11 @@ public class ConnInstanceDataBinder {
         if (connInstanceTO.getLocation() != null) {
             connInstance.setLocation(connInstanceTO.getLocation().toString());
         }
+        if (connInstanceTO.getPoolConf() != null) {
+            connInstance.setPoolConf(ConnPoolConfUtil.getConnPoolConf(connInstanceTO.getPoolConf()));
+        }
 
-        // Throw composite exception if there is at least one element set
+        // Throw exception if there is at least one element set
         if (!sce.isEmpty()) {
             throw sce;
         }
@@ -123,6 +128,7 @@ public class ConnInstanceDataBinder {
         }
 
         ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
+        connInstance.setCapabilities(connInstanceTO.getCapabilities());
 
         if (connInstanceTO.getLocation() != null) {
             connInstance.setLocation(connInstanceTO.getLocation().toString());
@@ -152,7 +158,11 @@ public class ConnInstanceDataBinder {
             connInstance.setConnRequestTimeout(connInstanceTO.getConnRequestTimeout());
         }
 
-        connInstance.setCapabilities(connInstanceTO.getCapabilities());
+        if (connInstanceTO.getPoolConf() == null) {
+            connInstance.setPoolConf(null);
+        } else {
+            connInstance.setPoolConf(ConnPoolConfUtil.getConnPoolConf(connInstanceTO.getPoolConf()));
+        }
 
         if (!sce.isEmpty()) {
             throw sce;
@@ -168,7 +178,7 @@ public class ConnInstanceDataBinder {
         // retrieve the ConfigurationProperties
         ConfigurationProperties properties = ConnIdBundleManager.getConfigurationProperties(
                 ConnIdBundleManager.getConnectorInfo(connInstance.getLocation(),
-                connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName()));
+                        connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName()));
 
         BeanUtils.copyProperties(connInstance, connInstanceTO, IGNORE_PROPERTIES);
 
@@ -196,6 +206,13 @@ public class ConnInstanceDataBinder {
                 connInstanceTO.getConfiguration().add(property);
             }
         }
+
+        if (connInstance.getPoolConf() != null) {
+            ConnPoolConfTO poolConf = new ConnPoolConfTO();
+            BeanUtils.copyProperties(connInstance.getPoolConf(), poolConf);
+            connInstanceTO.setPoolConf(poolConf);
+        }
+
         return connInstanceTO;
     }
 }

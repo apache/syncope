@@ -35,8 +35,4 @@ public enum ConnectorCapability {
     SEARCH,
     SYNC;
 
-    public static ConnectorCapability fromString(final String value) {
-        return ConnectorCapability.valueOf(value.toUpperCase());
-    }
-
 }

@@ -29,6 +29,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
+import org.apache.syncope.common.to.ConnPoolConfTO;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
@@ -43,6 +44,7 @@ import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.apache.syncope.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -67,6 +69,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.validation.validator.RangeValidator;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -82,8 +85,8 @@ public class ConnectorModalPage extends BaseModalPage {
     // GuardedByteArray is not in classpath
     private static final String GUARDED_BYTE_ARRAY = "org.identityconnectors.common.security.GuardedByteArray";
 
-    private static final Class[] NUMBER = {Integer.class, Double.class, Long.class,
-        Float.class, Number.class, Integer.TYPE, Long.TYPE, Double.TYPE, Float.TYPE};
+    private static final Class[] NUMBER = { Integer.class, Double.class, Long.class,
+        Float.class, Number.class, Integer.TYPE, Long.TYPE, Double.TYPE, Float.TYPE };
 
     @SpringBean
     private ConnectorRestClient restClient;
@@ -104,7 +107,6 @@ public class ConnectorModalPage extends BaseModalPage {
         super();
 
         // general data setup
-
         selectedCapabilities = new ArrayList<ConnectorCapability>(connInstanceTO.getId() == 0
                 ? EnumSet.noneOf(ConnectorCapability.class)
                 : connInstanceTO.getCapabilities());
@@ -133,7 +135,6 @@ public class ConnectorModalPage extends BaseModalPage {
         properties = fillProperties(bundleTO, connInstanceTO);
 
         // form - first tab
-
         final Form<ConnInstanceTO> connectorForm = new Form<ConnInstanceTO>(FORM);
         connectorForm.setModel(new CompoundPropertyModel<ConnInstanceTO>(connInstanceTO));
         connectorForm.setOutputMarkupId(true);
@@ -156,7 +157,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
         final AjaxDropDownChoicePanel<String> location =
                 new AjaxDropDownChoicePanel<String>("location", "location",
-                new Model<String>(bundleTO == null ? null : bundleTO.getLocation()));
+                        new Model<String>(bundleTO == null ? null : bundleTO.getLocation()));
         ((DropDownChoice) location.getField()).setNullValid(true);
         location.setStyleSheet("long_dynamicsize");
         location.setChoices(new ArrayList<String>(mapConnBundleTOs.keySet()));
@@ -169,7 +170,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
         final AjaxDropDownChoicePanel<String> connectorName =
                 new AjaxDropDownChoicePanel<String>("connectorName", "connectorName",
-                new Model<String>(bundleTO == null ? null : bundleTO.getBundleName()));
+                        new Model<String>(bundleTO == null ? null : bundleTO.getBundleName()));
         ((DropDownChoice) connectorName.getField()).setNullValid(true);
         connectorName.setStyleSheet("long_dynamicsize");
         connectorName.setChoices(bundleTO == null
@@ -185,12 +186,12 @@ public class ConnectorModalPage extends BaseModalPage {
 
         final AjaxDropDownChoicePanel<String> version =
                 new AjaxDropDownChoicePanel<String>("version", "version",
-                new Model<String>(bundleTO == null ? null : bundleTO.getVersion()));
+                        new Model<String>(bundleTO == null ? null : bundleTO.getVersion()));
         version.setStyleSheet("long_dynamicsize");
         version.setChoices(bundleTO == null
                 ? new ArrayList<String>()
                 : new ArrayList<String>(mapConnBundleTOs.get(connInstanceTO.getLocation()).
-                get(connInstanceTO.getBundleName()).keySet()));
+                        get(connInstanceTO.getBundleName()).keySet()));
         version.setRequired(true);
         version.addRequiredLabel();
         version.setEnabled(connInstanceTO.getBundleName() != null);
@@ -199,11 +200,41 @@ public class ConnectorModalPage extends BaseModalPage {
         version.getField().setOutputMarkupId(true);
         connectorForm.add(version);
 
-        final AjaxTextFieldPanel connRequestTimeout = new AjaxTextFieldPanel(
-                "connRequestTimeout",
-                "connRequestTimeout",
-                new PropertyModel<String>(connInstanceTO, "connRequestTimeout"));
+        final SpinnerFieldPanel<Integer> connRequestTimeout =
+                new SpinnerFieldPanel<Integer>("connRequestTimeout", "connRequestTimeout",
+                        new PropertyModel<Integer>(connInstanceTO, "connRequestTimeout"), 0, null);
+        connRequestTimeout.getField().add(new RangeValidator<Integer>(0, Integer.MAX_VALUE));
         connectorForm.add(connRequestTimeout);
+
+        if (connInstanceTO.getPoolConf() == null) {
+            connInstanceTO.setPoolConf(new ConnPoolConfTO());
+        }
+        final SpinnerFieldPanel<Integer> poolMaxObjects =
+                new SpinnerFieldPanel<Integer>("poolMaxObjects", "poolMaxObjects",
+                        new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "maxObjects"), 0, null);
+        poolMaxObjects.getField().add(new RangeValidator<Integer>(0, Integer.MAX_VALUE));
+        connectorForm.add(poolMaxObjects);
+        final SpinnerFieldPanel<Integer> poolMinIdle =
+                new SpinnerFieldPanel<Integer>("poolMinIdle", "poolMinIdle",
+                        new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "minIdle"), 0, null);
+        poolMinIdle.getField().add(new RangeValidator<Integer>(0, Integer.MAX_VALUE));
+        connectorForm.add(poolMinIdle);
+        final SpinnerFieldPanel<Integer> poolMaxIdle =
+                new SpinnerFieldPanel<Integer>("poolMaxIdle", "poolMaxIdle",
+                        new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "maxIdle"), 0, null);
+        poolMaxIdle.getField().add(new RangeValidator<Integer>(0, Integer.MAX_VALUE));
+        connectorForm.add(poolMaxIdle);
+        final SpinnerFieldPanel<Long> poolMaxWait =
+                new SpinnerFieldPanel<Long>("poolMaxWait", "poolMaxWait",
+                        new PropertyModel<Long>(connInstanceTO.getPoolConf(), "maxWait"), 0L, null);
+        poolMaxWait.getField().add(new RangeValidator<Long>(0L, Long.MAX_VALUE));
+        connectorForm.add(poolMaxWait);
+        final SpinnerFieldPanel<Long> poolMinEvictableIdleTime =
+                new SpinnerFieldPanel<Long>(
+                        "poolMinEvictableIdleTime", "poolMinEvictableIdleTime",
+                        new PropertyModel<Long>(connInstanceTO.getPoolConf(), "minEvictableIdleTimeMillis"), 0L, null);
+        poolMinEvictableIdleTime.getField().add(new RangeValidator<Long>(0L, Long.MAX_VALUE));
+        connectorForm.add(poolMinEvictableIdleTime);
 
         // form - first tab - onchange()
         location.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -267,92 +298,93 @@ public class ConnectorModalPage extends BaseModalPage {
         });
 
         // form - second tab (properties)
-
         final ListView<ConnConfProperty> connPropView = new AltListView<ConnConfProperty>(
                 "connectorProperties", new PropertyModel<List<ConnConfProperty>>(this, "properties")) {
 
-            private static final long serialVersionUID = 9101744072914090143L;
+                    private static final long serialVersionUID = 9101744072914090143L;
 
-            @Override
-            protected void populateItem(final ListItem<ConnConfProperty> item) {
-                final ConnConfProperty property = item.getModelObject();
+                    @Override
+                    protected void populateItem(final ListItem<ConnConfProperty> item) {
+                        final ConnConfProperty property = item.getModelObject();
 
-                final Label label = new Label("connPropAttrSchema", property.getSchema().getDisplayName() == null
-                        || property.getSchema().getDisplayName().isEmpty()
-                        ? property.getSchema().getName()
-                        : property.getSchema().getDisplayName());
+                        final Label label = new Label("connPropAttrSchema", property.getSchema().getDisplayName()
+                                == null
+                                || property.getSchema().getDisplayName().isEmpty()
+                                ? property.getSchema().getName()
+                                : property.getSchema().getDisplayName());
 
-                item.add(label);
+                        item.add(label);
 
-                final FieldPanel field;
-                boolean required = false;
-                boolean isArray = false;
-                if (property.getSchema().isConfidential()
+                        final FieldPanel field;
+                        boolean required = false;
+                        boolean isArray = false;
+                        if (property.getSchema().isConfidential()
                         || GUARDED_STRING.equalsIgnoreCase(property.getSchema().getType())
                         || GUARDED_BYTE_ARRAY.equalsIgnoreCase(property.getSchema().getType())) {
 
-                    field = new AjaxPasswordFieldPanel("panel",
-                            label.getDefaultModelObjectAsString(), new Model<String>());
+                            field = new AjaxPasswordFieldPanel("panel",
+                                    label.getDefaultModelObjectAsString(), new Model<String>());
 
-                    ((PasswordTextField) field.getField()).setResetPassword(false);
+                            ((PasswordTextField) field.getField()).setResetPassword(false);
 
-                    required = property.getSchema().isRequired();
-                } else {
-                    Class<?> propertySchemaClass;
+                            required = property.getSchema().isRequired();
+                        } else {
+                            Class<?> propertySchemaClass;
 
-                    try {
-                        propertySchemaClass =
+                            try {
+                                propertySchemaClass =
                                 ClassUtils.forName(property.getSchema().getType(), ClassUtils.getDefaultClassLoader());
-                    } catch (Exception e) {
-                        LOG.error("Error parsing attribute type", e);
-                        propertySchemaClass = String.class;
+                            } catch (Exception e) {
+                                LOG.error("Error parsing attribute type", e);
+                                propertySchemaClass = String.class;
+                            }
+                            if (ArrayUtils.contains(NUMBER, propertySchemaClass)) {
+                                field = new AjaxNumberFieldPanel("panel",
+                                        label.getDefaultModelObjectAsString(), new Model<Number>(),
+                                        ClassUtils.resolvePrimitiveIfNecessary(propertySchemaClass));
+
+                                required = property.getSchema().isRequired();
+                            } else if (Boolean.class.equals(propertySchemaClass) || boolean.class.equals(
+                                    propertySchemaClass)) {
+                                field = new AjaxCheckBoxPanel("panel",
+                                        label.getDefaultModelObjectAsString(), new Model<Boolean>());
+                            } else {
+                                field = new AjaxTextFieldPanel("panel",
+                                        label.getDefaultModelObjectAsString(), new Model<String>());
+
+                                required = property.getSchema().isRequired();
+                            }
+
+                            if (String[].class.equals(propertySchemaClass)) {
+                                isArray = true;
+                            }
+                        }
+
+                        field.setTitle(property.getSchema().getHelpMessage());
+
+                        if (required) {
+                            field.addRequiredLabel();
+                        }
+
+                        if (isArray) {
+                            if (property.getValues().isEmpty()) {
+                                property.getValues().add(null);
+                            }
+
+                            item.add(new MultiValueSelectorPanel<String>(
+                                            "panel", new PropertyModel<List<String>>(property, "values"), field));
+                        } else {
+                            field.setNewModel(property.getValues());
+                            item.add(field);
+                        }
+
+                        final AjaxCheckBoxPanel overridable = new AjaxCheckBoxPanel("connPropAttrOverridable",
+                                "connPropAttrOverridable", new PropertyModel<Boolean>(property, "overridable"));
+
+                        item.add(overridable);
+                        connInstanceTO.getConfiguration().add(property);
                     }
-                    if (ArrayUtils.contains(NUMBER, propertySchemaClass)) {
-                        field = new AjaxNumberFieldPanel("panel",
-                                label.getDefaultModelObjectAsString(), new Model<Number>(),
-                                ClassUtils.resolvePrimitiveIfNecessary(propertySchemaClass));
-
-                        required = property.getSchema().isRequired();
-                    } else if (Boolean.class.equals(propertySchemaClass) || boolean.class.equals(propertySchemaClass)) {
-                        field = new AjaxCheckBoxPanel("panel",
-                                label.getDefaultModelObjectAsString(), new Model<Boolean>());
-                    } else {
-                        field = new AjaxTextFieldPanel("panel",
-                                label.getDefaultModelObjectAsString(), new Model<String>());
-
-                        required = property.getSchema().isRequired();
-                    }
-
-                    if (String[].class.equals(propertySchemaClass)) {
-                        isArray = true;
-                    }
-                }
-
-                field.setTitle(property.getSchema().getHelpMessage());
-
-                if (required) {
-                    field.addRequiredLabel();
-                }
-
-                if (isArray) {
-                    if (property.getValues().isEmpty()) {
-                        property.getValues().add(null);
-                    }
-
-                    item.add(new MultiValueSelectorPanel<String>(
-                            "panel", new PropertyModel<List<String>>(property, "values"), field));
-                } else {
-                    field.setNewModel(property.getValues());
-                    item.add(field);
-                }
-
-                final AjaxCheckBoxPanel overridable = new AjaxCheckBoxPanel("connPropAttrOverridable",
-                        "connPropAttrOverridable", new PropertyModel<Boolean>(property, "overridable"));
-
-                item.add(overridable);
-                connInstanceTO.getConfiguration().add(property);
-            }
-        };
+                };
         connPropView.setOutputMarkupId(true);
         connectorPropForm.add(connPropView);
 
@@ -378,24 +410,22 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorPropForm.add(check);
 
         // form - third tab (capabilities)
-
         final IModel<List<ConnectorCapability>> capabilities =
                 new LoadableDetachableModel<List<ConnectorCapability>>() {
 
-            private static final long serialVersionUID = 5275935387613157437L;
+                    private static final long serialVersionUID = 5275935387613157437L;
 
-            @Override
-            protected List<ConnectorCapability> load() {
-                return Arrays.asList(ConnectorCapability.values());
-            }
-        };
+                    @Override
+                    protected List<ConnectorCapability> load() {
+                        return Arrays.asList(ConnectorCapability.values());
+                    }
+                };
         CheckBoxMultipleChoice<ConnectorCapability> capabilitiesPalette =
                 new CheckBoxMultipleChoice<ConnectorCapability>("capabilitiesPalette",
-                new PropertyModel<List<ConnectorCapability>>(this, "selectedCapabilities"), capabilities);
+                        new PropertyModel<List<ConnectorCapability>>(this, "selectedCapabilities"), capabilities);
         connectorForm.add(capabilitiesPalette);
 
         // form - submit / cancel buttons
-
         final AjaxButton submit = new IndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT))) {
 
             private static final long serialVersionUID = -958724007591692537L;
@@ -413,6 +443,17 @@ public class ConnectorModalPage extends BaseModalPage {
                 conn.getCapabilities().addAll(selectedCapabilities.isEmpty()
                         ? EnumSet.noneOf(ConnectorCapability.class)
                         : EnumSet.copyOf(selectedCapabilities));
+
+                // Reset pool configuration if all fields are null
+                if (conn.getPoolConf().getMaxIdle() == null
+                        && conn.getPoolConf().getMaxObjects() == null
+                        && conn.getPoolConf().getMaxWait() == null
+                        && conn.getPoolConf().getMinEvictableIdleTimeMillis() == null
+                        && conn.getPoolConf().getMinIdle() == null) {
+
+                    conn.setPoolConf(null);
+                }
+
                 try {
                     if (connInstanceTO.getId() == 0) {
                         restClient.create(conn);

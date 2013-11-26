@@ -33,14 +33,13 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.validation.IValidator;
 
-public class AjaxTextFieldPanel extends FieldPanel<String> {
+public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable {
 
     private static final long serialVersionUID = 238940918106696068L;
 
     private List<String> choices = Collections.emptyList();
 
     public AjaxTextFieldPanel(final String id, final String name, final IModel<String> model) {
-
         super(id, name, model);
 
         final AutoCompleteSettings settings = new AutoCompleteSettings();
@@ -67,7 +66,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> {
             }
         };
 
-        add(field.setLabel(new Model(name)).setOutputMarkupId(true));
+        add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));
 
         if (!isReadOnly()) {
             field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -93,7 +92,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> {
     }
 
     @Override
-    public FieldPanel clone() {
+    public FieldPanel<String> clone() {
         final AjaxTextFieldPanel panel = (AjaxTextFieldPanel) super.clone();
         panel.setChoices(choices);
         return panel;

@@ -77,6 +77,12 @@ div.tablerow {
   width: 100%;
 }
 
+div.tablerow2 {
+  display: inline-table;
+  padding: 5px 0px 5px 0px;
+  width: 100%;
+}
+
 div.alt {
   background: #eff3ea;
 }
@@ -101,6 +107,22 @@ div.tablecolumn_check{
   margin-right: 5px;
   margin-left: 2px;
   vertical-align: middle;
+}
+
+div.tablecolumn2_label{
+  display: table-cell;
+  font-size: 12px;
+  vertical-align: middle;
+  font-family: Verdana,Tahoma,sans-serif;
+  padding-left: 5px;
+  width: 15%;
+}
+
+div.tablecolumn2_field{
+  display: table-cell;
+  vertical-align: middle;
+  font-family: Verdana,Tahoma,sans-serif;
+  width: 35%;
 }
 
 .ui-tabs .ui-tabs-panel {
@@ -135,11 +157,24 @@ div.tablecolumn_check{
 .ui-button { 
   display: inline-block; 
   position: relative; 
-  padding: 0; 
   margin-right: .1em; 
   cursor: pointer; 
   text-align: center; 
   zoom: 1; 
   overflow: visible; 
   padding: 7px 15px;
+}
+
+.ui-spinner-button {
+  cursor: default;
+  display: block;
+  font-size: 0.5em;
+  height: 50%;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  width: 16px;
 }

@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.beans;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -103,15 +102,16 @@ public class ConnInstance extends AbstractBaseBean {
     /**
      * External resources associated to the connector.
      */
-    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "connector")
+    @OneToMany(cascade = { CascadeType.ALL }, mappedBy = "connector")
     private List<ExternalResource> resources;
 
     /**
      * Connector request timeout. It is not applied in case of sync, full reconciliation and search.
      * DEFAULT_TIMEOUT is the default value to be used in case of unspecified timeout.
      */
-    @Column
     private Integer connRequestTimeout = DEFAULT_TIMEOUT;
+
+    private ConnPoolConf poolConf;
 
     public ConnInstance() {
         super();
@@ -224,4 +224,13 @@ public class ConnInstance extends AbstractBaseBean {
     public void setConnRequestTimeout(final Integer connRequestTimeout) {
         this.connRequestTimeout = connRequestTimeout;
     }
+
+    public ConnPoolConf getPoolConf() {
+        return poolConf;
+    }
+
+    public void setPoolConf(final ConnPoolConf poolConf) {
+        this.poolConf = poolConf;
+    }
+
 }

@@ -31,6 +31,7 @@ import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.ResourceOperation;
+import org.apache.syncope.core.connid.ConnPoolConfUtil;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
@@ -104,17 +105,9 @@ public class ConnectorFacadeProxy implements Connector {
 
         // create default configuration
         APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
-        if (apiConfig == null) {
-            throw new NotFoundException("Default API configuration");
-        }
 
-        // retrieve the ConfigurationProperties
-        final ConfigurationProperties properties = apiConfig.getConfigurationProperties();
-        if (properties == null) {
-            throw new NotFoundException("Configuration properties");
-        }
-
-        // set all of the ConfigurationProperties needed by the connector.
+        // set connector configuration according to conninstance's
+        ConfigurationProperties properties = apiConfig.getConfigurationProperties();
         for (ConnConfProperty property : connInstance.getConfiguration()) {
             if (property.getValues() != null && !property.getValues().isEmpty()) {
                 properties.setPropertyValue(property.getSchema().getName(),
@@ -122,7 +115,17 @@ public class ConnectorFacadeProxy implements Connector {
             }
         }
 
-        // use the ConnectorFacadeFactory's newInstance() method to get a new connector.
+        // set pooling configuration (if supported) according to conninstance's
+        if (connInstance.getPoolConf() != null) {
+            if (apiConfig.isConnectorPoolingSupported()) {
+                ConnPoolConfUtil.updateObjectPoolConfiguration(
+                        apiConfig.getConnectorPoolConfiguration(), connInstance.getPoolConf());
+            } else {
+                LOG.warn("Connector pooling not supported for {}", info);
+            }
+        }
+
+        // gets new connector, with the given configuration
         connector = ConnectorFacadeFactory.getInstance().newInstance(apiConfig);
         if (connector == null) {
             throw new NotFoundException("Connector");

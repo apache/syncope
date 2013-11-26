@@ -17,18 +17,16 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:head></wicket:head>
-  <wicket:panel>
-
-    <wicket:fragment wicket:id="requiredFragment">
-      <span wicket:id="requiredLabel"/>
-    </wicket:fragment>
-
-    <wicket:fragment wicket:id="notRequiredFragment">
-    </wicket:fragment>
-
-    <wicket:child />
-
-    <span wicket:id="required"/>
-  </wicket:panel>
+  <wicket:extend>
+    <div style="display: inline-table;">
+      <div style="display: table-cell;">
+        <input wicket:id="spinnerField"/>
+      </div>
+      <div style="display: table-cell;vertical-align: middle;padding-left: 5px;">
+        <a wicket:id="spinnerFieldDisable">
+          <img src="img/disable.png" alt="Toggle disable/enable" title="Toggle disable/enable"/>
+        </a>
+      </div>
+    </div>
+  </wicket:extend>
 </html>
