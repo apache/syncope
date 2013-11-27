@@ -71,12 +71,8 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.getRAttrTemplates().add("icon");
         roleTO.getAttrs().add(attributeTO("icon", "anIcon"));
 
-        roleTO.getResources().add("resource-ldap");
+        roleTO.getResources().add(RESOURCE_NAME_LDAP);
         return roleTO;
-    }
-
-    private ConnObjectTO readConnectorObject(final String resourceName, final Long roleId) {
-        return resourceService.getConnectorObject(resourceName, AttributableType.ROLE, roleId);
     }
 
     @Test
@@ -113,9 +109,10 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(roleTO.getPasswordPolicy());
         assertEquals(4L, (long) roleTO.getPasswordPolicy());
 
-        assertTrue(roleTO.getResources().contains("resource-ldap"));
+        assertTrue(roleTO.getResources().contains(RESOURCE_NAME_LDAP));
 
-        ConnObjectTO connObjectTO = readConnectorObject("resource-ldap", roleTO.getId());
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, roleTO.getId());
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getAttrMap().get("owner"));
     }
@@ -148,7 +145,7 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.setName("toBeDeleted" + getUUIDString());
         roleTO.setParent(8L);
 
-        roleTO.getResources().add("resource-ldap");
+        roleTO.getResources().add(RESOURCE_NAME_LDAP);
 
         roleTO = createRole(roleTO);
         assertNotNull(roleTO);
@@ -395,7 +392,7 @@ public class RoleTestITCase extends AbstractTest {
         RoleTO actual = createRole(buildRoleTO("unlink"));
         assertNotNull(actual);
 
-        assertNotNull(readConnectorObject("resource-ldap", actual.getId()));
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
 
         actual = roleService.associate(actual.getId(),
                 ResourceAssociationActionType.UNLINK,
@@ -409,7 +406,7 @@ public class RoleTestITCase extends AbstractTest {
 
         assertTrue(actual.getResources().isEmpty());
 
-        assertNotNull(readConnectorObject("resource-ldap", actual.getId()));
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
     }
 
     @Test
@@ -417,7 +414,7 @@ public class RoleTestITCase extends AbstractTest {
         RoleTO actual = createRole(buildRoleTO("unassign"));
         assertNotNull(actual);
 
-        assertNotNull(readConnectorObject("resource-ldap", actual.getId()));
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
 
         actual = roleService.associate(actual.getId(),
                 ResourceAssociationActionType.UNASSIGN,
@@ -431,7 +428,7 @@ public class RoleTestITCase extends AbstractTest {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            readConnectorObject("resource-ldap", actual.getId());
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -443,7 +440,7 @@ public class RoleTestITCase extends AbstractTest {
         RoleTO actual = createRole(buildRoleTO("deprovision"));
         assertNotNull(actual);
 
-        assertNotNull(readConnectorObject("resource-ldap", actual.getId()));
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
 
         actual = roleService.associate(actual.getId(),
                 ResourceAssociationActionType.DEPROVISION,
@@ -457,7 +454,7 @@ public class RoleTestITCase extends AbstractTest {
         assertFalse(actual.getResources().isEmpty());
 
         try {
-            readConnectorObject("resource-ldap", actual.getId());
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());
             fail();
         } catch (Exception e) {
             assertNotNull(e);

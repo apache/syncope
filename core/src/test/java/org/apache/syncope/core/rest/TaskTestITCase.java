@@ -107,17 +107,18 @@ public class TaskTestITCase extends AbstractTest {
     public void create() {
         SyncTaskTO task = new SyncTaskTO();
         task.setName("Test create Sync");
-        task.setResource("ws-target-resource-2");
+        task.setResource(RESOURCE_NAME_WS2);
 
         UserTO userTemplate = new UserTO();
-        userTemplate.getResources().add("ws-target-resource-2");
+        userTemplate.getResources().add(RESOURCE_NAME_WS2);
+
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
         userTemplate.getMemberships().add(membershipTO);
         task.setUserTemplate(userTemplate);
 
         RoleTO roleTemplate = new RoleTO();
-        roleTemplate.getResources().add("resource-ldap");
+        roleTemplate.getResources().add(RESOURCE_NAME_LDAP);
         task.setRoleTemplate(roleTemplate);
 
         Response response = taskService.create(task);
@@ -275,7 +276,7 @@ public class TaskTestITCase extends AbstractTest {
             template.getAttrs().add(attributeTO("type",
                     "email == 'test8@syncope.apache.org'? 'TYPE_8': 'TYPE_OTHER'"));
             template.getDerAttrs().add(attributeTO("cn", null));
-            template.getResources().add("resource-testdb");
+            template.getResources().add(RESOURCE_NAME_TESTDB);
 
             MembershipTO membershipTO = new MembershipTO();
             membershipTO.setRoleId(8L);
@@ -307,8 +308,8 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(userTO);
             assertEquals("TYPE_OTHER", userTO.getAttrMap().get("type").getValues().get(0));
             assertEquals(2, userTO.getResources().size());
-            assertTrue(userTO.getResources().contains("resource-testdb"));
-            assertTrue(userTO.getResources().contains("ws-target-resource-2"));
+            assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));
+            assertTrue(userTO.getResources().contains(RESOURCE_NAME_WS2));
             assertEquals(1, userTO.getMemberships().size());
             assertTrue(userTO.getMemberships().get(0).getAttrMap().containsKey("subscriptionDate"));
 
@@ -394,7 +395,7 @@ public class TaskTestITCase extends AbstractTest {
 
         //  add user template
         final UserTO userTemplate = task.getUserTemplate();
-        userTemplate.getResources().add("resource-ldap");
+        userTemplate.getResources().add(RESOURCE_NAME_LDAP);
         userTemplate.getVirAttrs().add(attributeTO("virtualReadOnly", ""));
 
         task.setUserTemplate(userTemplate);
@@ -601,8 +602,8 @@ public class TaskTestITCase extends AbstractTest {
         userTO.getAttrs().add(attributeTO("userId", "testuser2@syncope.apache.org"));
         userTO.getAttrs().add(attributeTO("email", "testuser2@syncope.apache.org"));
 
-        userTO.getResources().add("ws-target-resource-nopropagation2");
-        userTO.getResources().add("ws-target-resource-nopropagation4");
+        userTO.getResources().add(RESOURCE_NAME_NOPROPAGATION2);
+        userTO.getResources().add(RESOURCE_NAME_NOPROPAGATION4);
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
@@ -627,7 +628,7 @@ public class TaskTestITCase extends AbstractTest {
 
             template.getMemberships().add(membershipTO);
 
-            template.getResources().add("ws-target-resource-nopropagation4");
+            template.getResources().add(RESOURCE_NAME_NOPROPAGATION4);
             //-----------------------------
 
             // Update sync task
@@ -753,7 +754,7 @@ public class TaskTestITCase extends AbstractTest {
 
         // create user with testdb resource
         UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope272@syncope.apache.org");
-        userTO.getResources().add("resource-testdb");
+        userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
         userTO = createUser(userTO);
         try {
@@ -775,7 +776,7 @@ public class TaskTestITCase extends AbstractTest {
             template.getAttrs().add(attributeTO("userId", "'test'"));
             template.getAttrs().add(attributeTO("fullname", "'test'"));
             template.getAttrs().add(attributeTO("surname", "'test'"));
-            template.getResources().add("resource-testdb");
+            template.getResources().add(RESOURCE_NAME_TESTDB);
 
             task.setUserTemplate(template);
 
@@ -812,7 +813,7 @@ public class TaskTestITCase extends AbstractTest {
 
         SyncTaskTO task = new SyncTaskTO();
         task.setName("Test Sync Rule");
-        task.setResource("ws-target-resource-2");
+        task.setResource(RESOURCE_NAME_WS2);
         task.setFullReconciliation(true);
         task.setPerformCreate(true);
         task.setPerformDelete(true);
@@ -824,13 +825,13 @@ public class TaskTestITCase extends AbstractTest {
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("s258_1@apache.org");
         userTO.getResources().clear();
-        userTO.getResources().add("ws-target-resource-2");
+        userTO.getResources().add(RESOURCE_NAME_WS2);
 
-        userTO = createUser(userTO);
+        createUser(userTO);
 
         userTO = UserTestITCase.getUniqueSampleTO("s258_2@apache.org");
         userTO.getResources().clear();
-        userTO.getResources().add("ws-target-resource-2");
+        userTO.getResources().add(RESOURCE_NAME_WS2);
 
         userTO = createUser(userTO);
 
@@ -861,8 +862,8 @@ public class TaskTestITCase extends AbstractTest {
         userTO.getDerAttrs().add(csvuserid);
 
         userTO.getResources().clear();
-        userTO.getResources().add("ws-target-resource-2");
-        userTO.getResources().add("resource-csv");
+        userTO.getResources().add(RESOURCE_NAME_WS2);
+        userTO.getResources().add(RESOURCE_NAME_CSV);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -876,7 +877,7 @@ public class TaskTestITCase extends AbstractTest {
 
         //  add user template
         UserTO template = new UserTO();
-        template.getResources().add("resource-db-virattr");
+        template.getResources().add(RESOURCE_NAME_DBVIRATTR);
 
         AttributeTO userId = attributeTO("userId", "'s307@apache.org'");
         template.getAttrs().add(userId);
@@ -910,7 +911,7 @@ public class TaskTestITCase extends AbstractTest {
 
         // create user with testdb resource
         final UserTO userTO = UserTestITCase.getUniqueSampleTO("taskBulk@apache.org");
-        userTO.getResources().add("resource-testdb");
+        userTO.getResources().add(RESOURCE_NAME_TESTDB);
         createUser(userTO);
 
         final List<PropagationTaskTO> after = new ArrayList<PropagationTaskTO>(

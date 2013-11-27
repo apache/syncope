@@ -19,7 +19,10 @@
 package org.apache.syncope.core.util;
 
 import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Cache entry value.
@@ -29,7 +32,7 @@ public class VirAttrCacheValue {
     /**
      * Virtual attribute values.
      */
-    private final List<String> values;
+    private final Map<String, Set<String>> values;
 
     /**
      * Entry creation date.
@@ -41,10 +44,14 @@ public class VirAttrCacheValue {
      */
     private Date lastAccessDate;
 
-    public VirAttrCacheValue(final List<String> values) {
-        this.values = values;
+    public VirAttrCacheValue() {
         this.creationDate = new Date();
         this.lastAccessDate = new Date();
+        values = new HashMap<String, Set<String>>();
+    }
+
+    public void setResourceValues(final String resourceName, final Set<String> values) {
+        this.values.put(resourceName, values);
     }
 
     public Date getCreationDate() {
@@ -55,8 +62,18 @@ public class VirAttrCacheValue {
         creationDate = new Date(0);
     }
 
-    public List<String> getValues() {
-        return values;
+    public Set<String> getValues(final String resourceName) {
+        return values.get(resourceName);
+    }
+
+    public Set<String> getValues() {
+        final Set<String> res = new HashSet<String>();
+
+        for (Set<String> value : values.values()) {
+            res.addAll(value);
+        }
+
+        return res;
     }
 
     public Date getLastAccessDate() {

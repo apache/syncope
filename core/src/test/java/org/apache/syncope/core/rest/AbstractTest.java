@@ -49,9 +49,10 @@ import org.apache.syncope.common.services.UserSelfService;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.services.UserWorkflowService;
 import org.apache.syncope.common.services.WorkflowService;
+import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.to.AttributeTO;
-import org.apache.syncope.common.to.AbstractPolicyTO;
+import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
@@ -68,7 +69,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:testJDBCContext.xml" })
+@ContextConfiguration(locations = {"classpath:testJDBCContext.xml"})
 public abstract class AbstractTest {
 
     /**
@@ -86,11 +87,47 @@ public abstract class AbstractTest {
 
     protected static final SyncopeClientFactoryBean clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS);
 
+    protected static final String RESOURCE_NAME_WS1 = "ws-target-resource-1";
+
+    protected static final String RESOURCE_NAME_WS2 = "ws-target-resource-2";
+
     protected static final String RESOURCE_NAME_LDAP = "resource-ldap";
 
     protected static final String RESOURCE_NAME_TESTDB = "resource-testdb";
 
+    protected static final String RESOURCE_NAME_TESTDB2 = "resource-testdb2";
+
     protected static final String RESOURCE_NAME_CSV = "resource-csv";
+
+    protected static final String RESOURCE_NAME_DBSYNC = "resource-db-sync";
+
+    protected static final String RESOURCE_NAME_DBVIRATTR = "resource-db-virattr";
+
+    protected static final String RESOURCE_NAME_NOPROPAGATION = "ws-target-resource-nopropagation";
+
+    protected static final String RESOURCE_NAME_NOPROPAGATION2 = "ws-target-resource-nopropagation2";
+
+    protected static final String RESOURCE_NAME_NOPROPAGATION3 = "ws-target-resource-nopropagation3";
+
+    protected static final String RESOURCE_NAME_NOPROPAGATION4 = "ws-target-resource-nopropagation4";
+
+    protected static final String RESOURCE_NAME_RESETSYNCTOKEN = "ws-target-resource-update-resetsynctoken";
+
+    protected static final String RESOURCE_NAME_TIMEOUT = "ws-target-resource-timeout";
+
+    protected static final String RESOURCE_NAME_MAPPINGS1 = "ws-target-resource-list-mappings-1";
+
+    protected static final String RESOURCE_NAME_MAPPINGS2 = "ws-target-resource-list-mappings-2";
+
+    protected static final String RESOURCE_NAME_CREATE = "ws-target-resource-create";
+
+    protected static final String RESOURCE_NAME_CREATE_SINGLE = "ws-target-resource-create-single";
+
+    protected static final String RESOURCE_NAME_CREATE_WRONG = "ws-target-resource-create-wrong";
+
+    protected static final String RESOURCE_NAME_DELETE = "ws-target-resource-delete";
+
+    protected static final String RESOURCE_NAME_UPDATE = "ws-target-resource-update";
 
     protected static String ANONYMOUS_UNAME;
 
@@ -177,6 +214,10 @@ public abstract class AbstractTest {
         notificationService = adminClient.getService(NotificationService.class);
         schemaService = adminClient.getService(SchemaService.class);
     }
+
+//    protected ConnObjectTO readConnectorObject(final String resourceName, final Long userId, AttributableType type) {
+//        return resourceService.getConnectorObject(resourceName, type, userId);
+//    }
 
     protected static String getUUIDString() {
         return UUID.randomUUID().toString().substring(0, 8);

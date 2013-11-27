@@ -135,7 +135,7 @@ public class SearchTestITCase extends AbstractTest {
         ws2.setResourceName("ws-target-resource2");
 
         ResourceCond ws1 = new ResourceCond();
-        ws1.setResourceName("ws-target-resource-list-mappings-2");
+        ws1.setResourceName(RESOURCE_NAME_MAPPINGS2);
 
         NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getNotLeafCond(ws2), NodeCond.getLeafCond(ws1));
 

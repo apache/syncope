@@ -33,7 +33,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang3.SerializationUtils;
 
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
@@ -49,7 +48,6 @@ import org.apache.syncope.common.to.BulkActionRes.Status;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.MappingItemTO;
-import org.apache.syncope.common.to.MappingTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.PropagationStatusTO;
@@ -60,8 +58,6 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.CipherAlgorithm;
-import org.apache.syncope.common.types.IntMappingType;
-import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.ClientExceptionType;
@@ -143,7 +139,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getUniqueSampleTO("xxx@xxx.xxx");
 
         userTO.setPassword("password123");
-        userTO.getResources().add("ws-target-resource-nopropagation");
+        userTO.getResources().add(RESOURCE_NAME_NOPROPAGATION);
 
         createUser(userTO);
 
@@ -203,7 +199,7 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("newPassword");
-        userMod.getResourcesToAdd().add("ws-target-resource-2");
+        userMod.getResourcesToAdd().add(RESOURCE_NAME_WS2);
 
         try {
             userTO = updateUser(userMod);
@@ -217,7 +213,7 @@ public class UserTestITCase extends AbstractTest {
         userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("newPassword");
-        userMod.getResourcesToAdd().add("ws-target-resource-1");
+        userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
 
         userTO = updateUser(userMod);
         assertNotNull(userTO.getPropagationStatusTOs().get(0).getFailureReason());
@@ -240,7 +236,7 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void testEnforceMandatoryCondition() {
         UserTO userTO = getUniqueSampleTO("enforce@apache.org");
-        userTO.getResources().add("ws-target-resource-2");
+        userTO.getResources().add(RESOURCE_NAME_WS2);
         userTO.setPassword("newPassword");
 
         AttributeTO type = null;
@@ -329,9 +325,7 @@ public class UserTestITCase extends AbstractTest {
 
         // configured to be minLength=16
         userTO.setPassword("password1");
-
-        userTO.getResources().add("ws-target-resource-nopropagation");
-
+        userTO.getResources().add(RESOURCE_NAME_NOPROPAGATION);
         createUser(userTO);
     }
 
@@ -1203,38 +1197,6 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE16() {
-        UserTO userTO = getUniqueSampleTO("issue16@apache.org");
-
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(8L);
-        userTO.getMemberships().add(membershipTO);
-
-        // 1. create user
-        UserTO actual = createUser(userTO);
-        assertNotNull(actual);
-
-        // 2. check for virtual attribute value
-        actual = userService.read(actual.getId());
-        assertNotNull(actual);
-        assertEquals("virtualvalue", actual.getVirAttrMap().get("virtualdata").getValues().get(0));
-
-        UserMod userMod = new UserMod();
-        userMod.setId(actual.getId());
-        userMod.getVirAttrsToRemove().add("virtualdata");
-        userMod.getVirAttrsToUpdate().add(attributeMod("virtualdata", "virtualupdated"));
-
-        // 3. update virtual attribute
-        actual = updateUser(userMod);
-        assertNotNull(actual);
-
-        // 4. check for virtual attribute value
-        actual = userService.read(actual.getId());
-        assertNotNull(actual);
-        assertEquals("virtualupdated", actual.getVirAttrMap().get("virtualdata").getValues().get(0));
-    }
-
-    @Test
     public void issueSYNCOPE108() {
         UserTO userTO = getUniqueSampleTO("syncope108@syncope.apache.org");
         userTO.getResources().clear();
@@ -1276,8 +1238,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals(1, actual.getMemberships().size());
 
-        connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1294,8 +1255,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, actual.getMemberships().size());
         assertFalse(actual.getResources().isEmpty());
 
-        connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1374,8 +1334,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals(1, actual.getMemberships().size());
 
-        connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.USER, actual.getId());
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
 
         postalAddress = connObjectTO.getAttrMap().get("postalAddress");
@@ -1445,142 +1404,18 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE260() {
-        // ----------------------------------
-        // create user and check virtual attribute value propagation
-        // ----------------------------------
-        UserTO userTO = getUniqueSampleTO("260@a.com");
-        userTO.getResources().add("ws-target-resource-2");
-
-        userTO = createUser(userTO);
-        assertNotNull(userTO);
-        assertFalse(userTO.getPropagationStatusTOs().isEmpty());
-        assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
-
-        ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject("ws-target-resource-2", AttributableType.USER, userTO.getId());
-        assertNotNull(connObjectTO);
-        assertEquals("virtualvalue", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
-        // ----------------------------------
-
-        // ----------------------------------
-        // update user virtual attribute and check virtual attribute value update propagation
-        // ----------------------------------
-        UserMod userMod = new UserMod();
-        userMod.setId(userTO.getId());
-
-        AttributeMod attrMod = new AttributeMod();
-        attrMod.setSchema("virtualdata");
-        attrMod.getValuesToBeRemoved().add("virtualvalue");
-        attrMod.getValuesToBeAdded().add("virtualvalue2");
-
-        userMod.getVirAttrsToUpdate().add(attrMod);
-
-        userTO = updateUser(userMod);
-        assertNotNull(userTO);
-        assertFalse(userTO.getPropagationStatusTOs().isEmpty());
-        assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
-
-        connObjectTO =
-                resourceService.getConnectorObject("ws-target-resource-2", AttributableType.USER, userTO.getId());
-        assertNotNull(connObjectTO);
-        assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
-        // ----------------------------------
-
-        // ----------------------------------
-        // suspend/reactivate user and check virtual attribute value (unchanged)
-        // ----------------------------------
-        StatusMod statusMod = new StatusMod();
-        statusMod.setType(StatusMod.ModType.SUSPEND);
-        userTO = userService.status(userTO.getId(), statusMod).readEntity(UserTO.class);
-        assertEquals("suspended", userTO.getStatus());
-
-        connObjectTO =
-                resourceService.getConnectorObject("ws-target-resource-2", AttributableType.USER, userTO.getId());
-        assertNotNull(connObjectTO);
-        assertFalse(connObjectTO.getAttrMap().get("NAME").getValues().isEmpty());
-        assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
-
-        statusMod = new StatusMod();
-        statusMod.setType(StatusMod.ModType.REACTIVATE);
-        userTO = userService.status(userTO.getId(), statusMod).readEntity(UserTO.class);
-        assertEquals("active", userTO.getStatus());
-
-        connObjectTO =
-                resourceService.getConnectorObject("ws-target-resource-2", AttributableType.USER, userTO.getId());
-        assertNotNull(connObjectTO);
-        assertFalse(connObjectTO.getAttrMap().get("NAME").getValues().isEmpty());
-        assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
-        // ----------------------------------
-
-        // ----------------------------------
-        // update user attribute and check virtual attribute value (unchanged)
-        // ----------------------------------
-        userMod = new UserMod();
-        userMod.setId(userTO.getId());
-
-        attrMod = new AttributeMod();
-        attrMod.setSchema("surname");
-        attrMod.getValuesToBeRemoved().add("Surname");
-        attrMod.getValuesToBeAdded().add("Surname2");
-
-        userMod.getAttrsToUpdate().add(attrMod);
-
-        userTO = updateUser(userMod);
-        assertNotNull(userTO);
-        assertFalse(userTO.getPropagationStatusTOs().isEmpty());
-        assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
-
-        connObjectTO =
-                resourceService.getConnectorObject("ws-target-resource-2", AttributableType.USER, userTO.getId());
-        assertNotNull(connObjectTO);
-        assertEquals("Surname2", connObjectTO.getAttrMap().get("SURNAME").getValues().get(0));
-
-        // attribute "name" mapped on virtual attribute "virtualdata" shouldn't be changed
-        assertFalse(connObjectTO.getAttrMap().get("NAME").getValues().isEmpty());
-        assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
-        // ----------------------------------
-
-        // ----------------------------------
-        // remove user virtual attribute and check virtual attribute value (reset)
-        // ----------------------------------
-        userMod = new UserMod();
-        userMod.setId(userTO.getId());
-        userMod.getVirAttrsToRemove().add("virtualdata");
-
-        userTO = updateUser(userMod);
-        assertNotNull(userTO);
-        assertTrue(userTO.getVirAttrs().isEmpty());
-        assertFalse(userTO.getPropagationStatusTOs().isEmpty());
-        assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
-
-        connObjectTO =
-                resourceService.getConnectorObject("ws-target-resource-2", AttributableType.USER, userTO.getId());
-        assertNotNull(connObjectTO);
-
-        // attribute "name" mapped on virtual attribute "virtualdata" should be reset
-        assertTrue(connObjectTO.getAttrMap().get("NAME").getValues() == null
-                || connObjectTO.getAttrMap().get("NAME").getValues().isEmpty());
-        // ----------------------------------
-    }
-
-    @Test
     public void issueSYNCOPE267() {
         // ----------------------------------
         // create user and check virtual attribute value propagation
         // ----------------------------------
         UserTO userTO = getUniqueSampleTO("syncope267@apache.org");
         userTO.getResources().clear();
-        userTO.getResources().add("resource-db-virattr");
+        userTO.getResources().add(RESOURCE_NAME_DBVIRATTR);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
         assertFalse(userTO.getPropagationStatusTOs().isEmpty());
-        assertEquals("resource-db-virattr", userTO.getPropagationStatusTOs().get(0).getResource());
+        assertEquals(RESOURCE_NAME_DBVIRATTR, userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         ConnObjectTO connObjectTO =
@@ -1608,7 +1443,7 @@ public class UserTestITCase extends AbstractTest {
         userMod.setId(userTO.getId());
 
         // this resource has not a mapping for Password
-        userMod.getResourcesToAdd().add("ws-target-resource-update");
+        userMod.getResourcesToAdd().add(RESOURCE_NAME_UPDATE);
 
         userTO = updateUser(userMod);
         assertNotNull(userTO);
@@ -1618,9 +1453,9 @@ public class UserTestITCase extends AbstractTest {
     public void issueSYNCOPE279() {
         UserTO userTO = getUniqueSampleTO("syncope279@apache.org");
         userTO.getResources().clear();
-        userTO.getResources().add("ws-target-resource-timeout");
+        userTO.getResources().add(RESOURCE_NAME_TIMEOUT);
         userTO = createUser(userTO);
-        assertEquals("ws-target-resource-timeout", userTO.getPropagationStatusTOs().get(0).getResource());
+        assertEquals(RESOURCE_NAME_TIMEOUT, userTO.getPropagationStatusTOs().get(0).getResource());
         assertNotNull(userTO.getPropagationStatusTOs().get(0).getFailureReason());
         assertEquals(PropagationTaskExecStatus.UNSUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
     }
@@ -1630,13 +1465,14 @@ public class UserTestITCase extends AbstractTest {
         // 1. create user on testdb and testdb2
         UserTO userTO = getUniqueSampleTO("syncope122@apache.org");
         userTO.getResources().clear();
+
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
-        userTO.getResources().add("resource-testdb2");
+        userTO.getResources().add(RESOURCE_NAME_TESTDB2);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));
-        assertTrue(userTO.getResources().contains("resource-testdb2"));
+        assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB2));
 
         final String pwdOnSyncope = userTO.getPassword();
 
@@ -1649,7 +1485,7 @@ public class UserTestITCase extends AbstractTest {
         final String pwdOnTestDb = pwdOnTestDbAttr.getValues().iterator().next();
 
         ConnObjectTO userOnDb2 = resourceService.getConnectorObject(
-                "resource-testdb2", AttributableType.USER, userTO.getId());
+                RESOURCE_NAME_TESTDB2, AttributableType.USER, userTO.getId());
         final AttributeTO pwdOnTestDb2Attr = userOnDb2.getAttrMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDb2Attr);
         assertNotNull(pwdOnTestDb2Attr.getValues());
@@ -1684,7 +1520,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotEquals(pwdOnTestDb, pwdOnTestDbAttrAfter.getValues().iterator().next());
 
         // 3d. verify that password hasn't changed on testdb2
-        userOnDb2 = resourceService.getConnectorObject("resource-testdb2", AttributableType.USER, userTO.getId());
+        userOnDb2 = resourceService.getConnectorObject(RESOURCE_NAME_TESTDB2, AttributableType.USER, userTO.getId());
         final AttributeTO pwdOnTestDb2AttrAfter = userOnDb2.getAttrMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDb2AttrAfter);
         assertNotNull(pwdOnTestDb2AttrAfter.getValues());
@@ -1712,7 +1548,7 @@ public class UserTestITCase extends AbstractTest {
         // 4. update user, assign a propagation primary resource but don't provide any password
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.getResourcesToAdd().add("ws-target-resource-1");
+        userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
 
         userTO = updateUser(userMod);
         assertNotNull(userTO);
@@ -1723,7 +1559,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, props.size());
         PropagationStatusTO prop = props.iterator().next();
         assertNotNull(prop);
-        assertEquals("ws-target-resource-1", prop.getResource());
+        assertEquals(RESOURCE_NAME_WS1, prop.getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, prop.getStatus());
 
         // 6. restore initial cipher algorithm
@@ -1756,71 +1592,6 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(prop);
         assertEquals(RESOURCE_NAME_LDAP, prop.getResource());
         assertEquals(PropagationTaskExecStatus.SUCCESS, prop.getStatus());
-    }
-
-    @Test
-    public void virAttrCache() {
-        UserTO userTO = getUniqueSampleTO("virattrcache@apache.org");
-        userTO.getVirAttrs().clear();
-
-        AttributeTO virAttrTO = new AttributeTO();
-        virAttrTO.setSchema("virtualdata");
-        virAttrTO.getValues().add("virattrcache");
-        userTO.getVirAttrs().add(virAttrTO);
-
-        userTO.getMemberships().clear();
-        userTO.getResources().clear();
-        userTO.getResources().add("resource-db-virattr");
-
-        // 1. create user
-        UserTO actual = createUser(userTO);
-        assertNotNull(actual);
-
-        // 2. check for virtual attribute value
-        actual = userService.read(actual.getId());
-        assertEquals("virattrcache", actual.getVirAttrMap().get("virtualdata").getValues().get(0));
-
-        Exception exception = null;
-        try {
-            final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-
-            String value = jdbcTemplate.queryForObject(
-                    "SELECT USERNAME FROM testsync WHERE ID=?", String.class, actual.getId());
-            assertEquals("virattrcache", value);
-
-            jdbcTemplate.update("UPDATE testsync set USERNAME='virattrcache2' WHERE ID=?", userTO.getId());
-
-            value = jdbcTemplate.queryForObject(
-                    "SELECT USERNAME FROM testsync WHERE ID=?", String.class, userTO.getId());
-            assertEquals("virattrcache2", value);
-
-        } catch (EmptyResultDataAccessException e) {
-            exception = e;
-        }
-        assertNotNull(exception);
-
-        // 2. check for cached attribute value
-        actual = userService.read(actual.getId());
-        assertEquals("virattrcache", actual.getVirAttrMap().get("virtualdata").getValues().get(0));
-
-        UserMod userMod = new UserMod();
-        userMod.setId(actual.getId());
-
-        AttributeMod virtualdata = new AttributeMod();
-        virtualdata.setSchema("virtualdata");
-        virtualdata.getValuesToBeAdded().add("virtualupdated");
-
-        userMod.getVirAttrsToRemove().add("virtualdata");
-        userMod.getVirAttrsToUpdate().add(virtualdata);
-
-        // 3. update virtual attribute
-        actual = updateUser(userMod);
-        assertNotNull(actual);
-
-        // 4. check for virtual attribute value
-        actual = userService.read(actual.getId());
-        assertNotNull(actual);
-        assertEquals("virtualupdated", actual.getVirAttrMap().get("virtualdata").getValues().get(0));
     }
 
     @Test
@@ -2022,79 +1793,6 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE397() {
-        ResourceTO csv = resourceService.read(RESOURCE_NAME_CSV);
-        // change mapping of resource-csv
-        MappingTO origMapping = SerializationUtils.clone(csv.getUmapping());
-        assertNotNull(origMapping);
-        for (MappingItemTO item : csv.getUmapping().getItems()) {
-            if ("email".equals(item.getIntAttrName())) {
-                // unset internal attribute mail and set virtual attribute virtualdata as mapped to external email
-                item.setIntMappingType(IntMappingType.UserVirtualSchema);
-                item.setIntAttrName("virtualdata");
-                item.setPurpose(MappingPurpose.BOTH);
-                item.setExtAttrName("email");
-            }
-        }
-
-        resourceService.update(csv.getName(), csv);
-        csv = resourceService.read(RESOURCE_NAME_CSV);
-        assertNotNull(csv.getUmapping());
-
-        boolean found = false;
-        for (MappingItemTO item : csv.getUmapping().getItems()) {
-            if ("email".equals(item.getExtAttrName()) && "virtualdata".equals(item.getIntAttrName())) {
-                found = true;
-            }
-        }
-
-        assertTrue(found);
-
-        // create a new user
-        UserTO userTO = getUniqueSampleTO("syncope397@syncope.apache.org");
-        userTO.getResources().clear();
-        userTO.getMemberships().clear();
-        userTO.getDerAttrs().clear();
-        userTO.getVirAttrs().clear();
-
-        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
-        userTO.getDerAttrs().add(attributeTO("cn", null));
-        userTO.getVirAttrs().add(attributeTO("virtualdata", "test@testone.org"));
-        // assign resource-csv to user
-        userTO.getResources().add(RESOURCE_NAME_CSV);
-        // save user
-        UserTO created = createUser(userTO);
-        // make std controls about user
-        assertNotNull(created);
-        assertTrue(RESOURCE_NAME_CSV.equals(created.getResources().iterator().next()));
-        // update user
-        UserTO toBeUpdated = userService.read(created.getId());
-        UserMod userMod = new UserMod();
-        userMod.setId(toBeUpdated.getId());
-        userMod.setPassword("password2");
-        // assign new resource to user
-        userMod.getResourcesToAdd().add("ws-target-resource-2");
-        //modify virtual attribute
-        userMod.getVirAttrsToRemove().add("virtualdata");
-        userMod.getVirAttrsToUpdate().add(attributeMod("virtualdata", "test@testoneone.com"));
-
-        // check Syncope change password
-        StatusMod pwdPropRequest = new StatusMod();
-        pwdPropRequest.setOnSyncope(true);
-        pwdPropRequest.getResourceNames().add("ws-target-resource-2");
-        userMod.setPwdPropRequest(pwdPropRequest);
-
-        toBeUpdated = updateUser(userMod);
-        assertNotNull(toBeUpdated);
-        assertEquals("test@testoneone.com", toBeUpdated.getVirAttrs().get(0).getValues().get(0));
-        // check if propagates correctly with assertEquals on size of tasks list
-        assertEquals(2, toBeUpdated.getPropagationStatusTOs().size());
-        // restore mapping of resource-csv
-        csv.setUmapping(origMapping);
-        resourceService.update(csv.getName(), csv);
-    }
-
-    @Test
     public void issueSYNCOPE402() {
         // 1. create an user with strict mandatory attributes only
         UserTO userTO = new UserTO();
@@ -2115,10 +1813,11 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("newPassword");
-        userMod.getResourcesToAdd().add("ws-target-resource-1");
-        userMod.getResourcesToAdd().add("resource-testdb");
+
+        userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
+        userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
         userTO = updateUser(userMod);
-        assertEquals("ws-target-resource-1", userTO.getPropagationStatusTOs().get(1).getResource());
+        assertEquals(RESOURCE_NAME_WS1, userTO.getPropagationStatusTOs().get(1).getResource());
         assertNotNull(userTO.getPropagationStatusTOs().get(1).getFailureReason());
         assertEquals(PropagationTaskExecStatus.UNSUBMITTED, userTO.getPropagationStatusTOs().get(1).getStatus());
     }
@@ -2277,24 +1976,12 @@ public class UserTestITCase extends AbstractTest {
 
         // 2. try to update user by subscribing a resource - works but propagation is not even attempted
         UserMod userMod = new UserMod();
-        userMod.getResourcesToAdd().add("ws-target-resource-1");
+        userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
 
         userTO = userService.update(userTO.getId(), userMod).readEntity(UserTO.class);
-        assertEquals(Collections.singleton("ws-target-resource-1"), userTO.getResources());
+        assertEquals(Collections.singleton(RESOURCE_NAME_WS1), userTO.getResources());
         assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
         assertTrue(userTO.getPropagationStatusTOs().get(0).getFailureReason().
                 startsWith("Not attempted because there are mandatory attributes without value(s): [__PASSWORD__]"));
-    }
-
-    @Test
-    public void issueSYNCOPE436() {
-        UserTO userTO = getUniqueSampleTO("syncope436@syncope.apache.org");
-        userTO.getMemberships().clear();
-        userTO.getResources().clear();
-        userTO.getResources().add(RESOURCE_NAME_LDAP);
-        userTO.getVirAttrs().add(attributeTO("virtualReadOnly", "readOnly"));
-        userTO = createUser(userTO);
-        //Finding no values because the virtual attribute is readonly 
-        assertTrue(userTO.getVirAttrMap().get("virtualReadOnly").getValues().isEmpty());
     }
 }
