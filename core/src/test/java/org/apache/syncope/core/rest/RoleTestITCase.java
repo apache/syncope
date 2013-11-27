@@ -68,12 +68,8 @@ public class RoleTestITCase extends AbstractTest {
 
         roleTO.addAttribute(attributeTO("icon", "anIcon"));
 
-        roleTO.addResource("resource-ldap");
+        roleTO.addResource(RESOURCE_NAME_LDAP);
         return roleTO;
-    }
-
-    private ConnObjectTO readConnectorObject(final String resourceName, final Long roleId) {
-        return resourceService.getConnectorObject(resourceName, AttributableType.ROLE, roleId);
     }
 
     @Test
@@ -109,9 +105,9 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(roleTO.getPasswordPolicy());
         assertEquals(4L, (long) roleTO.getPasswordPolicy());
 
-        assertTrue(roleTO.getResources().contains("resource-ldap"));
+        assertTrue(roleTO.getResources().contains(RESOURCE_NAME_LDAP));
 
-        ConnObjectTO connObjectTO = readConnectorObject("resource-ldap", roleTO.getId());
+        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_LDAP, roleTO.getId(), AttributableType.ROLE);
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getAttributeMap().get("owner"));
     }
@@ -144,7 +140,7 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.setName("toBeDeleted" + getUUIDString());
         roleTO.setParent(8L);
 
-        roleTO.addResource("resource-ldap");
+        roleTO.addResource(RESOURCE_NAME_LDAP);
 
         roleTO = createRole(roleService, roleTO);
         assertNotNull(roleTO);

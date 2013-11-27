@@ -63,6 +63,7 @@ import org.apache.syncope.core.util.JexlUtil;
 import org.apache.syncope.core.util.MappingUtil;
 import org.apache.syncope.core.util.SecureRandomUtil;
 import org.apache.syncope.core.util.VirAttrCache;
+import org.apache.syncope.core.util.VirAttrCacheValue;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -508,15 +509,22 @@ public class ConnObjectUtil {
             final ConnectorFactory connFactory) {
 
         final String schemaName = virAttr.getVirtualSchema().getName();
-        final List<String> values = virAttrCache.get(attrUtil.getType(), owner.getId(), schemaName);
+        final VirAttrCacheValue virAttrCacheValue = virAttrCache.get(attrUtil.getType(), owner.getId(), schemaName);
 
         LOG.debug("Retrieve values for virtual attribute {} ({})", schemaName, type);
 
-        if (values == null) {
-            // non cached ...
+        if (virAttrCache.isValidEntry(virAttrCacheValue)) {
+            // cached ...
+            LOG.debug("Values found in cache {}", virAttrCacheValue);
+            virAttr.setValues(new ArrayList<String>(virAttrCacheValue.getValues()));
+        } else {
+            // not cached ...
             LOG.debug("Need one or more remote connections");
+
+            final VirAttrCacheValue toBeCached = new VirAttrCacheValue();
+
             for (ExternalResource resource : getTargetResource(virAttr, type, attrUtil)) {
-                LOG.debug("Seach values into {}", resource.getName());
+                LOG.debug("Search values into {}", resource.getName());
                 try {
                     final List<AbstractMappingItem> mappings = attrUtil.getMappingItems(resource, MappingPurpose.BOTH);
 
@@ -561,19 +569,28 @@ public class ConnObjectUtil {
                                 }
                             }
                         }
-                    }
 
-                    LOG.debug("Retrieved values {}", virAttr.getValues());
+                        toBeCached.setResourceValues(resource.getName(), new HashSet<String>(virAttr.getValues()));
+
+                        LOG.debug("Retrieved values {}", virAttr.getValues());
+                    }
                 } catch (Exception e) {
                     LOG.error("Error reading connector object from {}", resource.getName(), e);
+
+                    if (virAttrCacheValue != null) {
+                        toBeCached.forceExpiring();
+                        LOG.debug("Search for a cached value (even expired!) ...");
+                        final Set<String> cachedValues = virAttrCacheValue.getValues(resource.getName());
+                        if (cachedValues != null) {
+                            LOG.debug("Use cached value {}", cachedValues);
+                            virAttr.getValues().addAll(cachedValues);
+                            toBeCached.setResourceValues(resource.getName(), new HashSet<String>(cachedValues));
+                        }
+                    }
                 }
             }
 
-            virAttrCache.put(attrUtil.getType(), owner.getId(), schemaName, virAttr.getValues());
-        } else {
-            // cached ...
-            LOG.debug("Values found in cache {}", values);
-            virAttr.setValues(values);
+            virAttrCache.put(attrUtil.getType(), owner.getId(), schemaName, toBeCached);
         }
     }
 

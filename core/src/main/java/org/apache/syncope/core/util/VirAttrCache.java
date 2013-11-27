@@ -21,7 +21,6 @@ package org.apache.syncope.core.util;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.types.AttributableType;
@@ -59,14 +58,18 @@ public final class VirAttrCache {
      * @param schemaName virtual attribute name
      * @param values virtual attribute values
      */
-    public void put(final AttributableType type, final Long id, final String schemaName, final List<String> values) {
+    public void put(
+            final AttributableType type,
+            final Long id,
+            final String schemaName,
+            final VirAttrCacheValue value) {
         synchronized (cache) {
             // this operations (retrieve cache space and put entry on) have to be thread safe.
             if (this.cache.size() >= this.maxCacheSize) {
                 free();
             }
 
-            cache.put(new VirAttrCacheKey(type, id, schemaName), new VirAttrCacheValue(values));
+            cache.put(new VirAttrCacheKey(type, id, schemaName), value);
         }
     }
 
@@ -76,11 +79,10 @@ public final class VirAttrCache {
      * @param type user or role
      * @param id user or role id
      * @param schemaName virtual attribute schema name.
-     * @return cached values or null in case of virtual attribute not found.
+     * @return cached values or null if virtual attribute is not cached.
      */
-    public List<String> get(final AttributableType type, final Long id, final String schemaName) {
-        final VirAttrCacheValue value = cache.get(new VirAttrCacheKey(type, id, schemaName));
-        return isValidEntry(value) ? value.getValues() : null;
+    public VirAttrCacheValue get(final AttributableType type, final Long id, final String schemaName) {
+        return cache.get(new VirAttrCacheKey(type, id, schemaName));
     }
 
     /**
@@ -134,7 +136,7 @@ public final class VirAttrCache {
      * @param value cache entry value.
      * @return TRUE if the value is valid; FALSE otherwise.
      */
-    private boolean isValidEntry(final VirAttrCacheValue value) {
+    public boolean isValidEntry(final VirAttrCacheValue value) {
         final Date expiringDate = new Date(value == null ? 0 : value.getCreationDate().getTime() + ttl * 1000);
         return expiringDate.after(new Date());
     }

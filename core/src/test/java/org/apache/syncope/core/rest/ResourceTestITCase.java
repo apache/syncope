@@ -65,7 +65,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void create() {
-        String resourceName = "ws-target-resource-create";
+        String resourceName = RESOURCE_NAME_CREATE;
         ResourceTO resourceTO = buildResourceTO(resourceName);
 
         Response response = resourceService.create(resourceTO);
@@ -135,7 +135,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void createWithSingleMappingItem() {
-        String resourceName = "ws-target-resource-create-single";
+        String resourceName = RESOURCE_NAME_CREATE_SINGLE;
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(102L);
@@ -174,7 +174,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void createWithInvalidMapping() {
-        String resourceName = "ws-target-resource-create-wrong";
+        String resourceName = RESOURCE_NAME_CREATE_WRONG;
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(102L);
@@ -209,7 +209,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test(expected = SyncopeClientCompositeErrorException.class)
     public void createWithoutExtAttr() {
-        String resourceName = "ws-target-resource-create-wrong";
+        String resourceName = RESOURCE_NAME_CREATE_WRONG;
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(102L);
@@ -278,7 +278,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        String resourceName = "ws-target-resource-update";
+        String resourceName = RESOURCE_NAME_UPDATE;
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(101L);
@@ -335,7 +335,7 @@ public class ResourceTestITCase extends AbstractTest {
     @Test
     public void updateResetSyncToken() {
         // create resource with sync token
-        String resourceName = "ws-target-resource-update-resetsynctoken" + getUUIDString();
+        String resourceName = RESOURCE_NAME_RESETSYNCTOKEN + getUUIDString();
         ResourceTO pre = buildResourceTO(resourceName);
         pre.setUsyncToken("test");
         resourceService.create(pre);
@@ -386,13 +386,13 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        ResourceTO actual = resourceService.read("resource-testdb");
+        ResourceTO actual = resourceService.read(RESOURCE_NAME_TESTDB);
         assertNotNull(actual);
     }
 
     @Test
     public void issueSYNCOPE323() {
-        ResourceTO actual = resourceService.read("resource-testdb");
+        ResourceTO actual = resourceService.read(RESOURCE_NAME_TESTDB);
         assertNotNull(actual);
 
         try {

@@ -170,7 +170,7 @@ public class LoggerTestITCase extends AbstractTest {
         found = false;
         for (EventCategoryTO eventCategoryTO : events) {
             if (AttributableType.USER.name().toLowerCase().equals(eventCategoryTO.getCategory())) {
-                if ("resource-ldap".equals(eventCategoryTO.getSubcategory())
+                if (RESOURCE_NAME_LDAP.equals(eventCategoryTO.getSubcategory())
                         && EventCategoryType.SYNCHRONIZATION == eventCategoryTO.getType()) {
                     assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.CREATE.name().toLowerCase()));
                     assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.UPDATE.name().toLowerCase()));
@@ -184,7 +184,7 @@ public class LoggerTestITCase extends AbstractTest {
         found = false;
         for (EventCategoryTO eventCategoryTO : events) {
             if (AttributableType.USER.name().toLowerCase().equals(eventCategoryTO.getCategory())) {
-                if ("resource-csv".equals(eventCategoryTO.getSubcategory())
+                if (RESOURCE_NAME_CSV.equals(eventCategoryTO.getSubcategory())
                         && EventCategoryType.PROPAGATION == eventCategoryTO.getType()) {
                     assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.CREATE.name().toLowerCase()));
                     assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.UPDATE.name().toLowerCase()));
