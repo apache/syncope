@@ -473,38 +473,37 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE81() {
-        String sender = createNotificationTask();
+        String sender = "syncope81@syncope.apache.org";
+        createNotificationTask(sender);
         NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
         assertNotNull(taskTO);
 
-        int executions = taskTO.getExecutions().size();
+        assertTrue(taskTO.getExecutions().isEmpty());
 
-        if (executions == 0) {
-            // generate an execution in order to verify the deletion of a notification task with one or more executions
+        // generate an execution in order to verify the deletion of a notification task with one or more executions
+        TaskExecTO execution = taskService.execute(taskTO.getId(), false);
+        assertEquals("NOT_SENT", execution.getStatus());
 
-            TaskExecTO execution = taskService.execute(taskTO.getId(), false);
-            assertEquals("NOT_SENT", execution.getStatus());
+        int i = 0;
+        int maxit = 50;
+        int executions = 0;
 
-            int i = 0;
-            int maxit = 50;
+        // wait for task exec completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
 
-            // wait for task exec completion (executions incremented)
-            do {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                }
+            taskTO = taskService.read(taskTO.getId());
 
-                taskTO = taskService.read(taskTO.getId());
+            assertNotNull(taskTO);
+            assertNotNull(taskTO.getExecutions());
 
-                assertNotNull(taskTO);
-                assertNotNull(taskTO.getExecutions());
+            i++;
+        } while (executions == taskTO.getExecutions().size() && i < maxit);
 
-                i++;
-            } while (executions == taskTO.getExecutions().size() && i < maxit);
-
-            assertFalse(taskTO.getExecutions().isEmpty());
-        }
+        assertFalse(taskTO.getExecutions().isEmpty());
 
         taskService.delete(taskTO.getId());
     }
@@ -512,7 +511,8 @@ public class TaskTestITCase extends AbstractTest {
     @Test
     public void issueSYNCOPE86() {
         // 1. create notification task
-        String sender = createNotificationTask();
+        String sender = "syncope86@syncope.apache.org";
+        createNotificationTask(sender);
 
         // 2. get NotificationTaskTO for user just created
         NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
@@ -547,7 +547,7 @@ public class TaskTestITCase extends AbstractTest {
         return taskTO;
     }
 
-    private String createNotificationTask() {
+    private void createNotificationTask(final String sender) {
         // 1. Create notification
         NotificationTO notification = new NotificationTO();
         notification.setTraceLevel(TraceLevel.FAILURES);
@@ -565,9 +565,8 @@ public class TaskTestITCase extends AbstractTest {
         notification.setRecipientAttrName("email");
         notification.setRecipientAttrType(IntMappingType.UserSchema);
 
-        String sender = "syncope86@syncope.apache.org";
         notification.setSender(sender);
-        String subject = "Test notification SYNCOPE-86";
+        String subject = "Test notification";
         notification.setSubject(subject);
         notification.setTemplate("optin");
 
@@ -576,14 +575,13 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(notification);
 
         // 2. create user
-        UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope86@syncope.apache.org");
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope@syncope.apache.org");
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
-        return sender;
     }
 
     @Test
