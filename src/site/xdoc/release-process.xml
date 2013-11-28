@@ -187,13 +187,15 @@ under the License.
                   </li>
                   <li>
                     Verify signatures: On Un*x platforms the following command can be executed:
-                    <source>for file in `find . -type f -iname '*.asc'`
-                      do
-                      gpg --verify ${file} 
-                      done</source>
+                    <source><![CDATA[
+for file in `find . -type f -iname '*.asc'`
+do
+  gpg --verify ${file} 
+done]]></source>
                     You'll need to look at the output to ensure it contains only good signatures:
-                    <source>gpg: Good signature from ...
-                      gpg: Signature made ...</source>
+                    <source><![CDATA[
+gpg: Good signature from ...
+gpg: Signature made ...]]></source>
                   </li>
                 </ol>
               </li>
@@ -211,9 +213,10 @@ under the License.
           <li>
             Backup (zip or tar) your local release candidate directory in case you need to rollback the release after 
             the next step is performed.
-            <source>cd ..
-              tar -czf &lt;version&gt;.tar.gz &lt;version&gt;/
-              cd &lt;version&gt;</source>
+            <source><![CDATA[
+cd ..
+tar -czf <version>.tar.gz <version>/
+cd <version>]]></source>
           </li>
         </ol>
       </subsection>
@@ -224,36 +227,47 @@ under the License.
             <b>Staging site</b>
             <ul>
               <li>1_1_X
-                <source>svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
-                  svn checkout https://svn.apache.org/repos/asf/syncope/tags/syncope-&lt;version&gt; syncope-&lt;version&gt;
-                  cd syncope-&lt;version&gt;
-                  mvn clean install
-                  mvn -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
-                  cd ../site/&lt;version&gt;
-                  rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-common syncope-standalone project-reports.html apidocs/1.html
-                  cd ..
-                  svn add &lt;version&gt;
-                  svn copy apidocs/1.0 &lt;version&gt;/apidocs/
-                  svn commit -m "Staging site for release"</source>
+                <source><![CDATA[
+svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
+svn checkout https://svn.apache.org/repos/asf/syncope/tags/syncope-<version> syncope-<version>
+
+cd syncope-<version>
+mvn clean install
+mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>>
+
+cd ../site/<version>
+rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-common syncope-standalone project-reports.html apidocs/1.html
+
+cd ..
+svn add <version>
+svn copy apidocs/1.0 <version>/apidocs/
+svn commit -m "Staging site for release"]]></source>
               </li>
               <li>1_0_X
-                <source>svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
-                  svn checkout https://svn.apache.org/repos/asf/syncope/tags/syncope-&lt;version&gt; syncope-&lt;version&gt;
-                  cd syncope-&lt;version&gt;
-                  mvn clean install
-                  mvn -f parent/pom.xml -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
-                  cd ../site/&lt;version&gt;
-                  rm -rf images css syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-hibernate-enhancer syncope-quality project-reports.html apidocs/1.html
-                  cd ../..
-                  svn checkout https://svn.apache.org/repos/asf/syncope/branches/1_1_X syncope-1_1_X
-                  cd syncope-1_1_X
-                  mvn -P site -Dsite.deploymentBaseUrl=file:///&lt;absolute path to ../site/&lt;version&gt;&gt;
-                  cd ../site/&lt;version&gt;
-                  rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-common syncope-standalone project-reports.html apidocs/1.html apidocs/1.1
-                  cd ..
-                  svn add &lt;version&gt;
-                  svn copy apidocs/1.1 &lt;version&gt;/apidocs/
-                  svn commit -m "Staging site for release"</source>
+                <source><![CDATA[
+svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
+svn checkout https://svn.apache.org/repos/asf/syncope/tags/syncope-<version> syncope-<version>
+                  
+cd syncope-<version>
+mvn clean install
+mvn -f parent/pom.xml -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>>
+                  
+cd ../site/<version>
+rm -rf images css syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-hibernate-enhancer syncope-quality project-reports.html apidocs/1.html
+
+cd ../..
+svn checkout https://svn.apache.org/repos/asf/syncope/branches/1_1_X syncope-1_1_X
+
+cd syncope-1_1_X
+mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>>
+
+cd ../site/<version>
+rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-common syncope-standalone project-reports.html apidocs/1.html apidocs/1.1
+
+cd ..
+svn add <version>
+svn copy apidocs/1.1 <version>/apidocs/
+svn commit -m "Staging site for release"]]></source>
               </li>
             </ul>
           </li>
@@ -327,51 +341,52 @@ under the License.
             Create a 
             <code>VOTE</code> email thread on 
             <a href="mailto:dev@syncope.apache.org">syncope-dev</a> to record votes as replies, e.g.:
-            <pre>To: dev@syncope.apache.org
-              Subject: [VOTE] Apache Syncope &lt;version&gt;
+            <pre><![CDATA[
+To: dev@syncope.apache.org
+Subject: [VOTE] Apache Syncope <version>
 
-              I've created a &lt;version&gt; release, with the following artifacts up for a vote:
+I've created a <version> release, with the following artifacts up for a vote:
 
-              SVN source tag (r9999999):
-              https://svn.apache.org/repos/asf/syncope/tags/&lt;version&gt;/
+SVN source tag (r9999999):
+https://svn.apache.org/repos/asf/syncope/tags/<version>/
 
-              List of changes:
-              https://svn.apache.org/repos/asf/syncope/tags/&lt;version&gt;/CHANGES
+List of changes:
+https://svn.apache.org/repos/asf/syncope/tags/<version>/CHANGES
 
-              Maven staging repo:
-              https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
+Maven staging repo:
+https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
 
-              Source release (checksums and signatures are available at the same location):
-              https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip
+Source release (checksums and signatures are available at the same location):
+https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope/<version>/syncope-<version>-source-release.zip
 
-              Staging site:
-              http://syncope.apache.org/&lt;version&gt;/
+Staging site:
+http://syncope.apache.org/<version>/
 
-              PGP release keys (signed using ABCDEFG):
-              http://www.apache.org/dist/syncope/KEYS
+PGP release keys (signed using ABCDEFG):
+http://www.apache.org/dist/syncope/KEYS
 
-              Vote will be open for 72 hours.
+Vote will be open for 72 hours.
 
-              [ ] +1  approve
-              [ ] +0  no opinion
-              [ ] -1  disapprove (and reason why)</pre>
+[ ] +1  approve
+[ ] +0  no opinion
+[ ] -1  disapprove (and reason why)]]></pre>
           </li>
           <li>
             Create a <code>DISCUSS</code> email thread on <a href="mailto:dev@syncope.apache.org">syncope-dev</a> for any vote questions, e.g.:
-            <pre>
-              To: dev@syncope.apache.org
-              Subject: [DISCUSS] Apache Syncope &lt;version&gt;
+            <pre><![CDATA[
+To: dev@syncope.apache.org
+Subject: [DISCUSS] Apache Syncope <version>
 
-              Discussion thread for vote on &lt;version&gt; release, with SVN source tag (r9999999).
+Discussion thread for vote on <version> release, with SVN source tag (r9999999).
 
-              For more information on the release process, check out http://www.apache.org/dev/release.html
+For more information on the release process, check out http://www.apache.org/dev/release.html
 
-              Some of the things to check before voting are:
-              - does "mvn apache-rat:check" pass on the source
-              - can you build the contents of source release zip and SVN tag
-              - do all of the staged jars/wars/zips contain the required LICENSE and NOTICE files
-              - are all of the staged jars/wars/zips signed and the signature verifiable
-              - is the signing key in the project's KEYS file and on a public server (i.e. http://www.apache.org/dist/syncope/)
+Some of the things to check before voting are:
+- does "mvn apache-rat:check" pass on the source
+- can you build the contents of source release zip and SVN tag
+- do all of the staged jars/wars/zips contain the required LICENSE and NOTICE files
+- are all of the staged jars/wars/zips signed and the signature verifiable
+- is the signing key in the project's KEYS file and on a public server (i.e. http://www.apache.org/dist/syncope/)]]>
             </pre>
           </li>
           <li>
@@ -384,32 +399,33 @@ under the License.
           </li>
           <li>After the vote has been open for at least 72 hours, has at least three
             +1 PMC votes and no -1 votes, then post the results to the vote thread:
-            <pre>To: dev@syncope.apache.org
-              Subject: [RESULT] [VOTE] Apache Syncope &lt;version&gt;
+            <pre><![CDATA[
+To: dev@syncope.apache.org
+Subject: [RESULT] [VOTE] Apache Syncope <version>
 
-              Hi all,
-              after 72 hours, the vote for Syncope &lt;version&gt; [1] *passes*
-              with ... PMC + ... non-PMC votes.
+Hi all,
+after 72 hours, the vote for Syncope <version> [1] *passes*
+with ... PMC + ... non-PMC votes.
 
-              +1 (PMC / binding)
-              * ...
++1 (PMC / binding)
+* ...
 
-              +1 (non binding)
-              * ... (or &lt;none&gt;)
++1 (non binding)
+* ... (or <none>)
 
-              0
-              * ... (or &lt;none&gt;)
+0
+* ... (or <none>)
 
-              -1
-              * ... (or &lt;none&gt;)
+-1
+* ... (or <none>)
 
-              Thanks to everyone participating.
+Thanks to everyone participating.
 
-              I will now copy this release to Syncope' dist directory and promote the artifacts to the central Maven repository.
+I will now copy this release to Syncope' dist directory and promote the artifacts to the central Maven repository.
 
-              Best regards.
+Best regards.
 
-              [1] &lt;link to syncope-dev ML archives for the related [VOTE] thread&gt;</pre>
+[1] <link to syncope-dev ML archives for the related [VOTE] thread>]]></pre>
           </li>
         </ol>
       </subsection>
@@ -438,65 +454,63 @@ under the License.
             <code>people.apache.org</code>)
             <ul>
               <li>1_1_X
-                <source>
-                  svn co https://dist.apache.org/repos/dist/dev/syncope syncope-dist-dev
-                  cd syncope-dist-dev
+                <source><![CDATA[
+svn co https://dist.apache.org/repos/dist/dev/syncope syncope-dist-dev
+cd syncope-dist-dev
 
-                  wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
-                  https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope/&lt;version&gt;/
-                  wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
-                  https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-standalone/&lt;version&gt;/
+wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
+https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope/<version>/
+wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
+https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-standalone/<version>/
 
-                  rm &lt;version&gt;/syncope-*asc.asc
+rm <version>/syncope-*asc.asc
 
-                  svn add &lt;version&gt;
-                  svn commit -m "Promoting the voted release artifacts to dist-dev area"
+svn add <version>
+svn commit -m "Promoting the voted release artifacts to dist-dev area"
 
-                  svn mv -m "Moving the voted release artifacts to dist/release (source)" \
-                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip \
-                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.asc \
-                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.md5 \
-                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.sha1 \
-                  https://dist.apache.org/repos/dist/release/syncope/&lt;version&gt;
+svn mv -m "Moving the voted release artifacts to dist/release (source)" \
+https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip \
+https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip.asc \
+https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip.md5 \
+https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip.sha1 \
+https://dist.apache.org/repos/dist/release/syncope/<version>
   
-                  svn mv -m "Moving the voted release artifacts to dist/release (standalone)" \
-                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-standalone-&lt;version&gt;-distribution.zip \
-                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-standalone-&lt;version&gt;-distribution.zip.asc \
-                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-standalone-&lt;version&gt;-distribution.zip.md5 \
-                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-standalone-&lt;version&gt;-distribution.zip.sha1 \
-                  https://dist.apache.org/repos/dist/release/syncope/&lt;version&gt;
+svn mv -m "Moving the voted release artifacts to dist/release (standalone)" \
+https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-standalone-<version>-distribution.zip \
+https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-standalone-<version>-distribution.zip.asc \
+https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-standalone-<version>-distribution.zip.md5 \
+https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-standalone-<version>-distribution.zip.sha1 \
+https://dist.apache.org/repos/dist/release/syncope/<version>
 
-                  svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
-                  cd syncope-dist-release
-                  svn rm &lt;any older release artifact (if present)&gt;
-                  svn commit -m "Cleaning up older releases"
-</source>
+svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
+cd syncope-dist-release
+svn rm <any older release artifact (if present)>
+svn commit -m "Cleaning up older releases"]]></source>
               </li>
               <li>1_0_X
-                <source>
-                  svn co https://dist.apache.org/repos/dist/dev/syncope syncope-dist-dev
-                  cd syncope-dist-dev
+                <source><![CDATA[
+svn co https://dist.apache.org/repos/dist/dev/syncope syncope-dist-dev
+cd syncope-dist-dev
 
-                  wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
-                  https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-root/&lt;version&gt;/
+wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
+https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-root/<version>/
 
-                  rm &lt;version&gt;/syncope-*asc.asc
+rm <version>/syncope-*asc.asc
 
-                  svn add &lt;version&gt;
-                  svn commit -m "Promoting the voted release artifacts to dist-dev area"
+svn add <version>
+svn commit -m "Promoting the voted release artifacts to dist-dev area"
 
-                  svn mv -m "Moving the voted release artifacts to dist/release" \
-                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip \
-                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.asc \
-                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.md5 \
-                  https://dist.apache.org/repos/dist/dev/syncope/&lt;version&gt;/syncope-&lt;version&gt;-source-release.zip.sha1 \
-                  https://dist.apache.org/repos/dist/release/syncope/&lt;version&gt;
+svn mv -m "Moving the voted release artifacts to dist/release" \
+https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip \
+https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip.asc \
+https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip.md5 \
+https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip.sha1 \
+https://dist.apache.org/repos/dist/release/syncope/<version>
 
-                  svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
-                  cd syncope-dist-release
-                  svn rm &lt;any older release artifact (if present)&gt;
-                  svn commit -m "Cleaning up older releases"
-</source>
+svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
+cd syncope-dist-release
+svn rm <any older release artifact (if present)>;
+svn commit -m "Cleaning up older releases"]]></source>
               </li>
             </ul>
           </li>
@@ -516,13 +530,13 @@ under the License.
           </li>
           <li>
             Promote the staging site
-            <source>
-              svn co https://svn.apache.org/repos/asf/syncope/site/
-              cd site
-              svn rm *.html apidocs css images img js
-              svn mv &lt;version&gt;/* .
-              svn rm &lt;version&gt;
-              svn commit -m "Promoting the staging site"</source>
+            <source><![CDATA[
+svn co https://svn.apache.org/repos/asf/syncope/site/
+cd site
+svn rm *.html apidocs css images img js
+svn mv <version>/* .
+svn rm <version>
+svn commit -m "Promoting the staging site"]]></source>
           </li>
         </ol>
       </subsection>
