@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>1.1.5-SNAPSHOT</version>
+    <version>1.1.5</version>
   </parent>
 
   <name>Apache Syncope Console</name>
@@ -193,12 +193,12 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <unzip src="${basedir}/../core/target/syncope.war" dest="${cargo.run.dir}"/>
-                <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}"/>
+                <unzip src="${basedir}/../core/target/syncope.war" dest="${cargo.run.dir}" />
+                <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}" />
                 <copy todir="${cargo.run.dir}/WEB-INF/classes" includeEmptyDirs="false">
                   <fileset dir="${project.build.directory}/test-classes">
-                    <exclude name="**/*.class"/>
-                    <exclude name="restClientContext.xml"/>
+                    <exclude name="**/*.class" />
+                    <exclude name="restClientContext.xml" />
                   </fileset>
                 </copy>
               </target>
@@ -212,7 +212,7 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true"/>
+                <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true" />
               </target>
             </configuration>
             <goals>
@@ -380,7 +380,7 @@ under the License.
     <profile>
       <id>skipTests</id>
       <properties>
-        <javaagent/>
+        <javaagent />
       </properties>
       
       <build>
@@ -537,7 +537,7 @@ under the License.
       <id>selenium</id>
       
       <properties>
-        <javaagent/>
+        <javaagent />
       </properties>
       
       <build>
