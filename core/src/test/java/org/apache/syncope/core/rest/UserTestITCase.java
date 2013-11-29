@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
@@ -67,18 +66,26 @@ import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.dao.NotFoundException;
 import static org.apache.syncope.core.rest.AbstractTest.attributeTO;
+import static org.junit.Assert.assertEquals;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.io.InputStream;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.helpers.IOUtils;
+import org.apache.syncope.client.SyncopeClient;
+import org.apache.syncope.common.services.UserService;
+import org.apache.syncope.common.types.Preference;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.util.StringUtils;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class UserTestITCase extends AbstractTest {
@@ -234,7 +241,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void testEnforceMandatoryCondition() {
+    public void enforceMandatoryCondition() {
         UserTO userTO = getUniqueSampleTO("enforce@apache.org");
         userTO.getResources().add(RESOURCE_NAME_WS2);
         userTO.setPassword("newPassword");
@@ -261,7 +268,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void testEnforceMandatoryConditionOnDerived() {
+    public void enforceMandatoryConditionOnDerived() {
         ResourceTO resourceTO = resourceService.read(RESOURCE_NAME_CSV);
         assertNotNull(resourceTO);
         resourceTO.setName("resource-csv-enforcing");
@@ -449,7 +456,7 @@ public class UserTestITCase extends AbstractTest {
 
         // 4. try (and fail) to create another user with same (unique) values
         userTO = getSampleTO(userTO.getUsername());
-        AttributeTO userIdAttr = getManadatoryAttrByName(userTO.getAttrs(), "userId");
+        AttributeTO userIdAttr = userTO.getAttrMap().get("userId");
         userIdAttr.getValues().clear();
         userIdAttr.getValues().add("a.b@c.com");
 
@@ -461,20 +468,11 @@ public class UserTestITCase extends AbstractTest {
         }
     }
 
-    private AttributeTO getManadatoryAttrByName(List<AttributeTO> attributes, String attrName) {
-        for (AttributeTO attr : attributes) {
-            if (attrName.equals(attr.getSchema())) {
-                return attr;
-            }
-        }
-        throw new NotFoundException("Mandatory attribute " + attrName + " not found");
-    }
-
     @Test
     public void createWithRequiredValueMissing() {
         UserTO userTO = getSampleTO("a.b@c.it");
 
-        AttributeTO type = getManadatoryAttrByName(userTO.getAttrs(), "type");
+        AttributeTO type = userTO.getAttrMap().get("type");
         userTO.getAttrs().remove(type);
 
         MembershipTO membershipTO = new MembershipTO();
@@ -491,7 +489,7 @@ public class UserTestITCase extends AbstractTest {
 
         userTO.getAttrs().add(attributeTO("type", "F"));
 
-        AttributeTO surname = getManadatoryAttrByName(userTO.getAttrs(), "surname");
+        AttributeTO surname = userTO.getAttrMap().get("surname");
         userTO.getAttrs().remove(surname);
 
         // 2. create user without surname (mandatory when type == 'F')
@@ -721,10 +719,10 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, userTO.getMemberships().iterator().next().getAttrs().size());
         assertFalse(userTO.getDerAttrs().isEmpty());
 
-        AttributeTO userIdAttr = getManadatoryAttrByName(userTO.getAttrs(), "userId");
+        AttributeTO userIdAttr = userTO.getAttrMap().get("userId");
         assertEquals(Collections.singletonList(newUserId), userIdAttr.getValues());
 
-        AttributeTO fullNameAttr = getManadatoryAttrByName(userTO.getAttrs(), "fullname");
+        AttributeTO fullNameAttr = userTO.getAttrMap().get("fullname");
         assertEquals(Collections.singletonList(newFullName), fullNameAttr.getValues());
     }
 
@@ -1197,6 +1195,35 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
+    public void noContent() throws IOException {
+        SyncopeClient noContentclient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        UserService noContentService = noContentclient.prefer(UserService.class, Preference.RETURN_NO_CONTENT);
+
+        UserTO user = getUniqueSampleTO("nocontent@syncope.apache.org");
+
+        Response response = noContentService.create(user);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+        assertEquals(Preference.RETURN_NO_CONTENT.literal(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
+        assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
+
+        user = noContentclient.getObject(response.getLocation(), UserService.class, UserTO.class);
+        assertNotNull(user);
+
+        UserMod userMod = new UserMod();
+        userMod.setPassword("password321");
+
+        response = noContentService.update(user.getId(), userMod);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertEquals(Preference.RETURN_NO_CONTENT.literal(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
+        assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
+
+        response = noContentService.delete(user.getId());
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertEquals(Preference.RETURN_NO_CONTENT.literal(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
+        assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
+    }
+
+    @Test
     public void issueSYNCOPE108() {
         UserTO userTO = getUniqueSampleTO("syncope108@syncope.apache.org");
         userTO.getResources().clear();
@@ -1339,7 +1366,7 @@ public class UserTestITCase extends AbstractTest {
 
         postalAddress = connObjectTO.getAttrMap().get("postalAddress");
         assertTrue(postalAddress == null || postalAddress.getValues().isEmpty()
-                || StringUtils.hasText(postalAddress.getValues().get(0)));
+                || StringUtils.isNotBlank(postalAddress.getValues().get(0)));
 
         title = connObjectTO.getAttrMap().get("title");
         assertNotNull(title);

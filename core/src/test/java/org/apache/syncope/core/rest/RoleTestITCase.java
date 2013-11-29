@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.apache.syncope.core.rest.AbstractTest.clientFactory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -25,9 +26,14 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.AccessControlException;
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.helpers.IOUtils;
+import org.apache.syncope.client.SyncopeClient;
 
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.services.RoleService;
@@ -39,6 +45,8 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.ClientExceptionType;
+import org.apache.syncope.common.types.Preference;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.validation.SyncopeClientException;
@@ -510,5 +518,34 @@ public class RoleTestITCase extends AbstractTest {
 
         RoleService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(RoleService.class);
         assertFalse(anonymous.list().isEmpty());
+    }
+
+    @Test
+    public void noContent() throws IOException {
+        SyncopeClient noContentclient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        RoleService noContentService = noContentclient.prefer(RoleService.class, Preference.RETURN_NO_CONTENT);
+
+        RoleTO role = buildRoleTO("noContent");
+
+        Response response = noContentService.create(role);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+        assertEquals(Preference.RETURN_NO_CONTENT.literal(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
+        assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
+
+        role = noContentclient.getObject(response.getLocation(), RoleService.class, RoleTO.class);
+        assertNotNull(role);
+
+        RoleMod roleMod = new RoleMod();
+        roleMod.getAttrsToUpdate().add(attributeMod("badge", "xxxxxxxxxx"));
+
+        response = noContentService.update(role.getId(), roleMod);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertEquals(Preference.RETURN_NO_CONTENT.literal(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
+        assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
+
+        response = noContentService.delete(role.getId());
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertEquals(Preference.RETURN_NO_CONTENT.literal(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
+        assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
     }
 }

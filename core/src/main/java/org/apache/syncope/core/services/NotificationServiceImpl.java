@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class NotificationServiceImpl extends AbstractServiceImpl implements NotificationService, ContextAware {
+public class NotificationServiceImpl extends AbstractServiceImpl implements NotificationService {
 
     @Autowired
     private NotificationController controller;

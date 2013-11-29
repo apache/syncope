@@ -21,16 +21,11 @@ package org.apache.syncope.core.services;
 import java.io.IOException;
 import java.io.OutputStream;
 import javax.ws.rs.BadRequestException;
-import org.apache.syncope.common.types.RESTHeaders;
-import org.apache.syncope.core.rest.controller.WorkflowController;
-import org.springframework.beans.factory.annotation.Autowired;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
-import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.RESTHeaders;
@@ -40,10 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class WorkflowServiceImpl extends AbstractServiceImpl implements WorkflowService, ContextAware {
-
-    @Context
-    private MessageContext context;
+public class WorkflowServiceImpl extends AbstractServiceImpl implements WorkflowService {
 
     @Autowired
     private WorkflowController controller;

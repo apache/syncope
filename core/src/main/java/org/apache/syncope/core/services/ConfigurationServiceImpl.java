@@ -39,7 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ConfigurationServiceImpl extends AbstractServiceImpl implements ConfigurationService, ContextAware {
+public class ConfigurationServiceImpl extends AbstractServiceImpl implements ConfigurationService {
 
     @Autowired
     private ConfigurationController controller;

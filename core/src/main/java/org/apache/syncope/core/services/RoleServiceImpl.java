@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.services;
 
-import java.net.URI;
 import java.util.List;
 
 import javax.ws.rs.ServiceUnavailableException;
@@ -30,7 +29,6 @@ import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.to.ResourceNameTO;
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.rest.controller.RoleController;
@@ -38,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RoleServiceImpl extends AbstractServiceImpl implements RoleService, ContextAware {
+public class RoleServiceImpl extends AbstractServiceImpl implements RoleService {
 
     @Autowired
     private RoleController controller;
@@ -56,18 +54,13 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService,
     @Override
     public Response create(final RoleTO roleTO) {
         RoleTO created = controller.create(roleTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getId())).build();
-        return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, created.getId()).
-                entity(created).
-                build();
+        return createResponse(created.getId(), created).build();
     }
 
     @Override
     public Response delete(final Long roleId) {
         RoleTO deleted = controller.delete(roleId);
-        return Response.ok(deleted).
-                build();
+        return updateResponse(deleted).build();
     }
 
     @Override
@@ -114,9 +107,9 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService,
 
     @Override
     public Response update(final Long roleId, final RoleMod roleMod) {
+        roleMod.setId(roleId);
         RoleTO updated = controller.update(roleMod);
-        return Response.ok(updated).
-                build();
+        return updateResponse(updated).build();
     }
 
     @Override
@@ -142,7 +135,6 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService,
                 updated = controller.read(roleId);
         }
 
-        return Response.ok(updated).
-                build();
+        return updateResponse(updated).build();
     }
 }

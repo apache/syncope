@@ -18,14 +18,21 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.apache.syncope.core.rest.AbstractTest.clientFactory;
+import static org.apache.syncope.core.rest.UserTestITCase.getUniqueSampleTO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.AccessControlException;
 import java.util.Map;
+import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
@@ -39,6 +46,8 @@ import org.apache.syncope.common.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ClientExceptionType;
+import org.apache.syncope.common.types.Preference;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.junit.Assume;
@@ -57,7 +66,7 @@ public class UserSelfTestITCase extends AbstractTest {
     @Test
     public void create() {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
-        
+
         // 1. self-registration as admin: failure
         try {
             userSelfService.create(UserTestITCase.getUniqueSampleTO("anonymous@syncope.apache.org"));
@@ -145,7 +154,7 @@ public class UserSelfTestITCase extends AbstractTest {
         UserTO updated = authClient.getService(UserSelfService.class).update(created.getId(), userMod).
                 readEntity(UserTO.class);
         assertNotNull(updated);
-        assertEquals(ActivitiDetector.isActivitiEnabledForUsers()? "active": "created", updated.getStatus());
+        assertEquals(ActivitiDetector.isActivitiEnabledForUsers() ? "active" : "created", updated.getStatus());
         assertTrue(updated.getUsername().endsWith("XX"));
     }
 
@@ -218,7 +227,7 @@ public class UserSelfTestITCase extends AbstractTest {
         SyncopeClient authClient = clientFactory.create(created.getUsername(), "password123");
         UserTO deleted = authClient.getService(UserSelfService.class).delete().readEntity(UserTO.class);
         assertNotNull(deleted);
-        assertEquals(ActivitiDetector.isActivitiEnabledForUsers()? "deleteApproval": null, deleted.getStatus());
+        assertEquals(ActivitiDetector.isActivitiEnabledForUsers() ? "deleteApproval" : null, deleted.getStatus());
     }
 
     @Test
@@ -227,4 +236,18 @@ public class UserSelfTestITCase extends AbstractTest {
         assertEquals(ADMIN_UNAME, userTO.getUsername());
     }
 
+    @Test
+    public void noContent() throws IOException {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+
+        SyncopeClient anonClient = clientFactory.createAnonymous();
+        UserSelfService noContentService = anonClient.prefer(UserSelfService.class, Preference.RETURN_NO_CONTENT);
+
+        UserTO user = getUniqueSampleTO("nocontent-anonymous@syncope.apache.org");
+
+        Response response = noContentService.create(user);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+        assertEquals(Preference.RETURN_NO_CONTENT.literal(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
+        assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
+    }
 }

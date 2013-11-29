@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyService, ContextAware {
+public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyService {
 
     @Autowired
     private PolicyController policyController;

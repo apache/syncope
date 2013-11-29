@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ConnectorServiceImpl extends AbstractServiceImpl implements ConnectorService, ContextAware {
+public class ConnectorServiceImpl extends AbstractServiceImpl implements ConnectorService {
 
     @Autowired
     private ConnectorController controller;

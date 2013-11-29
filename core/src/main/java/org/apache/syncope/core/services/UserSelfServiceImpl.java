@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.services;
 
-import java.net.URI;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.UserMod;
@@ -30,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelfService, ContextAware {
+public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelfService {
 
     @Autowired
     private UserController controller;
@@ -45,11 +44,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     @Override
     public Response create(final UserTO userTO) {
         UserTO created = controller.createSelf(userTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getId())).build();
-        return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, created.getId()).
-                entity(created).
-                build();
+        return createResponse(created.getId(), created).build();
     }
 
     @Override
@@ -61,16 +56,13 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     public Response update(final Long userId, final UserMod userMod) {
         userMod.setId(userId);
         UserTO updated = controller.updateSelf(userMod);
-        return Response.ok(updated).
-                build();
-
+        return updateResponse(updated).build();
     }
 
     @Override
     public Response delete() {
         UserTO deleted = controller.deleteSelf();
-        return Response.ok(deleted).
-                build();
+        return updateResponse(deleted).build();
     }
 
 }

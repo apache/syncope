@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EntitlementServiceImpl extends AbstractServiceImpl implements EntitlementService, ContextAware {
+public class EntitlementServiceImpl extends AbstractServiceImpl implements EntitlementService {
 
     @Autowired
     private EntitlementController controller;

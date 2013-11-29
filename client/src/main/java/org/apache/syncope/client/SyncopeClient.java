@@ -28,6 +28,7 @@ import org.apache.syncope.client.rest.RestClientFactoryBean;
 import org.apache.syncope.common.services.UserSelfService;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.Preference;
 import org.apache.syncope.common.types.RESTHeaders;
 
 /**
@@ -64,6 +65,16 @@ public class SyncopeClient {
                     restClientFactory.createServiceInstance(serviceClass, mediaType, username, password));
         }
         return (T) services.get(serviceClass);
+    }
+
+    public <T> T prefer(final Class<T> serviceClass, final Preference preference) {
+        return header(serviceClass, RESTHeaders.PREFER, preference.literal());
+    }
+
+    public <T> T header(final Class<T> serviceClass, final String key, final Object... values) {
+        T service = getService(serviceClass);
+        WebClient.client(getService(serviceClass)).header(key, values);
+        return service;
     }
 
     public <T> T getObject(final URI location, final Class<?> serviceClass, final Class<T> resultClass) {

@@ -37,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ReportServiceImpl extends AbstractServiceImpl implements ReportService, ContextAware {
+public class ReportServiceImpl extends AbstractServiceImpl implements ReportService {
 
     @Autowired
     private ReportController controller;

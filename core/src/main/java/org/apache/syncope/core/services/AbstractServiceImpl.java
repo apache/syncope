@@ -18,21 +18,94 @@
  */
 package org.apache.syncope.core.services;
 
+import java.net.URI;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import org.apache.cxf.jaxrs.ext.MessageContext;
+import org.apache.syncope.common.types.Preference;
+import org.apache.syncope.common.types.RESTHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class AbstractServiceImpl implements ContextAware {
+abstract class AbstractServiceImpl {
 
     /**
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractServiceImpl.class);
 
+    @Context
     protected UriInfo uriInfo;
 
-    @Override
-    public void setUriInfo(final UriInfo uriInfo) {
-        this.uriInfo = uriInfo;
+    @Context
+    protected MessageContext context;
+
+    /**
+     * Reads <tt>Prefer</tt> header from request and parses into a <tt>Preference</tt> instance.
+     *
+     * @return a <tt>Preference</tt> instance matching the passed <tt>Prefer</tt> header,
+     * or <tt>Preference.NONE</tt> if missing.
+     */
+    protected Preference getPreference() {
+        return Preference.fromLiteral(context.getHttpHeaders().getHeaderString(RESTHeaders.PREFER));
+    }
+
+    /**
+     * Builds response to successful <tt>create</tt> request, taking into account any <tt>Prefer</tt> header.
+     *
+     * @param id identifier of the created entity
+     * @param entity the entity just created
+     * @return response to successful <tt>create</tt> request
+     */
+    protected Response.ResponseBuilder createResponse(final Object id, final Object entity) {
+        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(id)).build();
+
+        Response.ResponseBuilder builder = Response.
+                created(location).
+                header(RESTHeaders.RESOURCE_ID, id);
+
+        switch (getPreference()) {
+            case RETURN_NO_CONTENT:
+                break;
+
+            case RETURN_CONTENT:
+            case NONE:
+            default:
+                builder = builder.entity(entity);
+                break;
+
+        }
+        if (getPreference() == Preference.RETURN_CONTENT || getPreference() == Preference.RETURN_NO_CONTENT) {
+            builder = builder.header(RESTHeaders.PREFERENCE_APPLIED, getPreference().literal());
+        }
+
+        return builder;
+    }
+
+    /**
+     * Builds response to successful modification request, taking into account any <tt>Prefer</tt> header.
+     *
+     * @param entity the entity just modified
+     * @return response to successful modification request
+     */
+    protected Response.ResponseBuilder updateResponse(final Object entity) {
+        Response.ResponseBuilder builder;
+        switch (getPreference()) {
+            case RETURN_NO_CONTENT:
+                builder = Response.noContent();
+                break;
+
+            case RETURN_CONTENT:
+            case NONE:
+            default:
+                builder = Response.ok(entity);
+                break;
+        }
+        if (getPreference() == Preference.RETURN_CONTENT || getPreference() == Preference.RETURN_NO_CONTENT) {
+            builder = builder.header(RESTHeaders.PREFERENCE_APPLIED, getPreference().literal());
+        }
+
+        return builder;
     }
 }

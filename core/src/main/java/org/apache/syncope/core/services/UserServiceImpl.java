@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.services;
 
-import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -39,7 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserServiceImpl extends AbstractServiceImpl implements UserService, ContextAware {
+public class UserServiceImpl extends AbstractServiceImpl implements UserService {
 
     @Autowired
     private UserController controller;
@@ -66,18 +65,13 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
     @Override
     public Response create(final UserTO userTO) {
         UserTO created = controller.create(userTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getId())).build();
-        return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, created.getId()).
-                entity(created).
-                build();
+        return createResponse(created.getId(), created).build();
     }
 
     @Override
     public Response delete(final Long userId) {
         UserTO deleted = controller.delete(userId);
-        return Response.ok(deleted).
-                build();
+        return updateResponse(deleted).build();
     }
 
     @Override
@@ -116,16 +110,14 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
     public Response update(final Long userId, final UserMod userMod) {
         userMod.setId(userId);
         UserTO updated = controller.update(userMod);
-        return Response.ok(updated).
-                build();
+        return updateResponse(updated).build();
     }
 
     @Override
     public Response status(final Long userId, final StatusMod statusMod) {
         statusMod.setId(userId);
         UserTO updated = controller.status(statusMod);
-        return Response.ok(updated).
-                build();
+        return updateResponse(updated).build();
     }
 
     @Override
@@ -156,7 +148,6 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService,
                 updated = controller.read(userId);
         }
 
-        return Response.ok(updated).
-                build();
+        return updateResponse(updated).build();
     }
 }

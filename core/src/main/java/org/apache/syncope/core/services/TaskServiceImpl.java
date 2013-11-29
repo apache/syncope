@@ -41,7 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TaskServiceImpl extends AbstractServiceImpl implements TaskService, ContextAware {
+public class TaskServiceImpl extends AbstractServiceImpl implements TaskService {
 
     @Autowired
     private TaskController controller;

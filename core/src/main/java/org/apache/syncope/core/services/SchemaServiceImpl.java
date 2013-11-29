@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaService, ContextAware {
+public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaService {
 
     @Autowired
     private SchemaController controller;
