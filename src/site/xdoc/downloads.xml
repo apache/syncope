@@ -198,14 +198,14 @@ under the License.
         distribution directory, rather than from a mirror. Then verify the signatures using one of the following sets of
         commands:
       
-        <source>$ pgpk -a KEYS
-          $ pgpv syncope-*.zip.asc</source>
+        <source><![CDATA[$ pgpk -a KEYS
+$ pgpv syncope-*.zip.asc]]></source>
         
-        <source>$ pgp -ka KEYS
-          $ pgp syncope-*.zip.asc</source>
+        <source><![CDATA[$ pgp -ka KEYS
+$ pgp syncope-*.zip.asc]]></source>
       
-        <source>$ gpg --import KEYS
-          $ gpg --verify syncope-*.zip.asc</source>
+        <source><![CDATA[$ gpg --import KEYS
+$ gpg --verify syncope-*.zip.asc]]></source>
       </p>
       <p>Alternatively, you can verify the MD5 signature on the files. A Unix/Linux program called  
         <code>md5</code> or 
