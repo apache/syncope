@@ -101,7 +101,7 @@ public class ResourceTestITCase extends AbstractTest {
         ResourceTO resourceTO = buildResourceTO(resourceName);
 
         Response response = resourceService.create(resourceTO);
-        ResourceTO actual = adminClient.getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
+        ResourceTO actual = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
         assertNotNull(actual);
 
         // check for existence
@@ -156,7 +156,7 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.getConnConfProperties().addAll(connectorConfigurationProperties);
 
         Response response = resourceService.create(resourceTO);
-        ResourceTO actual = adminClient.getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
+        ResourceTO actual = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
         assertNotNull(actual);
 
         // check the existence
@@ -192,7 +192,7 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setRmapping(rmapping);
 
         Response response = resourceService.create(resourceTO);
-        ResourceTO actual = adminClient.getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
+        ResourceTO actual = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
 
         assertNotNull(actual);
         assertNotNull(actual.getUmapping());
@@ -280,7 +280,7 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setUmapping(mapping);
 
         Response response = resourceService.create(resourceTO);
-        ResourceTO actual = adminClient.getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
+        ResourceTO actual = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
         assertNotNull(actual);
 
         // check the existence
@@ -379,7 +379,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         ResourceTO resource = buildResourceTO(resourceName);
         Response response = resourceService.create(resource);
-        ResourceTO actual = adminClient.getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
+        ResourceTO actual = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
         assertNotNull(actual);
 
         resourceService.delete(resourceName);

@@ -94,7 +94,7 @@ public class NotificationTestITCase extends AbstractTest {
         notificationTO.setRecipients(recipients);
 
         Response response = notificationService.create(notificationTO);
-        NotificationTO actual = adminClient.getObject(response.getLocation(), NotificationService.class,
+        NotificationTO actual = getObject(response.getLocation(), NotificationService.class,
                 NotificationTO.class);
 
         assertNotNull(actual);
@@ -135,7 +135,7 @@ public class NotificationTestITCase extends AbstractTest {
         NotificationTO notification = buildNotificationTO();
         notification.setSelfAsRecipient(true);
         Response response = notificationService.create(notification);
-        notification = adminClient.getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
+        notification = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
 
         notificationService.delete(notification.getId());
 
@@ -156,7 +156,7 @@ public class NotificationTestITCase extends AbstractTest {
         SyncopeClientException exception = null;
         try {
             Response response = notificationService.create(notificationTO);
-            actual = adminClient.getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
+            actual = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidNotification, e.getType());
         }

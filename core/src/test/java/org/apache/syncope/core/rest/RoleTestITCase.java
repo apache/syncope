@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.apache.syncope.core.rest.AbstractTest.clientFactory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -529,10 +528,10 @@ public class RoleTestITCase extends AbstractTest {
 
         Response response = noContentService.create(role);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-        assertEquals(Preference.RETURN_NO_CONTENT.literal(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
+        assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
 
-        role = noContentclient.getObject(response.getLocation(), RoleService.class, RoleTO.class);
+        role = getObject(response.getLocation(), RoleService.class, RoleTO.class);
         assertNotNull(role);
 
         RoleMod roleMod = new RoleMod();
@@ -540,12 +539,12 @@ public class RoleTestITCase extends AbstractTest {
 
         response = noContentService.update(role.getId(), roleMod);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        assertEquals(Preference.RETURN_NO_CONTENT.literal(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
+        assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
 
         response = noContentService.delete(role.getId());
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        assertEquals(Preference.RETURN_NO_CONTENT.literal(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
+        assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
     }
 }

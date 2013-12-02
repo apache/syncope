@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
@@ -66,14 +68,13 @@ import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import static org.apache.syncope.core.rest.AbstractTest.attributeTO;
-import static org.junit.Assert.assertEquals;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
+import javax.ws.rs.core.EntityTag;
+import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.SyncopeClient;
@@ -179,7 +180,7 @@ public class UserTestITCase extends AbstractTest {
         } finally {
             for (PasswordPolicyTO policyTO : policies) {
                 Response response = policyService.create(policyTO);
-                PasswordPolicyTO cPolicyTO = adminClient.getObject(
+                PasswordPolicyTO cPolicyTO = getObject(
                         response.getLocation(), PolicyService.class, PasswordPolicyTO.class);
                 assertNotNull(cPolicyTO);
             }
@@ -275,7 +276,7 @@ public class UserTestITCase extends AbstractTest {
         resourceTO.setEnforceMandatoryCondition(true);
 
         Response response = resourceService.create(resourceTO);
-        resourceTO = adminClient.getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
+        resourceTO = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
         assertNotNull(resourceTO);
 
         UserTO userTO = getUniqueSampleTO("syncope222@apache.org");
@@ -1203,10 +1204,10 @@ public class UserTestITCase extends AbstractTest {
 
         Response response = noContentService.create(user);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-        assertEquals(Preference.RETURN_NO_CONTENT.literal(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
+        assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
 
-        user = noContentclient.getObject(response.getLocation(), UserService.class, UserTO.class);
+        user = getObject(response.getLocation(), UserService.class, UserTO.class);
         assertNotNull(user);
 
         UserMod userMod = new UserMod();
@@ -1214,12 +1215,12 @@ public class UserTestITCase extends AbstractTest {
 
         response = noContentService.update(user.getId(), userMod);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        assertEquals(Preference.RETURN_NO_CONTENT.literal(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
+        assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
 
         response = noContentService.delete(user.getId());
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        assertEquals(Preference.RETURN_NO_CONTENT.literal(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
+        assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
     }
 
@@ -2010,5 +2011,36 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
         assertTrue(userTO.getPropagationStatusTOs().get(0).getFailureReason().
                 startsWith("Not attempted because there are mandatory attributes without value(s): [__PASSWORD__]"));
+    }
+
+    @Test
+    public void ifMatch() {
+        UserTO userTO = userService.create(getUniqueSampleTO("ifmatch@syncope.apache.org")).readEntity(UserTO.class);
+        assertNotNull(userTO);
+        assertNotNull(userTO.getId());
+
+        EntityTag etag = adminClient.getLatestEntityTag(userService);
+        assertNotNull(etag);
+        assertTrue(StringUtils.isNotBlank(etag.getValue()));
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setUsername(userTO.getUsername() + "XX");
+        userTO = userService.update(userMod.getId(), userMod).readEntity(UserTO.class);
+        assertTrue(userTO.getUsername().endsWith("XX"));
+        EntityTag etag1 = adminClient.getLatestEntityTag(userService);
+        assertFalse(etag.getValue().equals(etag1.getValue()));
+
+        UserService ifMatchService = adminClient.ifMatch(UserService.class, etag);
+        userMod.setUsername(userTO.getUsername() + "YY");
+        try {
+            ifMatchService.update(userMod.getId(), userMod);
+            fail();
+        } catch (WebServiceException e) {
+            assertTrue(e.getMessage().endsWith(Response.Status.PRECONDITION_FAILED.name()));
+        }
+
+        userTO = userService.read(userTO.getId());
+        assertTrue(userTO.getUsername().endsWith("XX"));
     }
 }

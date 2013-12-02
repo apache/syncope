@@ -56,13 +56,13 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     public Response update(final Long userId, final UserMod userMod) {
         userMod.setId(userId);
         UserTO updated = controller.updateSelf(userMod);
-        return updateResponse(updated).build();
+        return modificationResponse(updated).build();
     }
 
     @Override
     public Response delete() {
         UserTO deleted = controller.deleteSelf();
-        return updateResponse(deleted).build();
+        return modificationResponse(deleted).build();
     }
 
 }

@@ -48,7 +48,7 @@ abstract class AbstractServiceImpl {
      * or <tt>Preference.NONE</tt> if missing.
      */
     protected Preference getPreference() {
-        return Preference.fromLiteral(context.getHttpHeaders().getHeaderString(RESTHeaders.PREFER));
+        return Preference.fromString(context.getHttpHeaders().getHeaderString(RESTHeaders.PREFER));
     }
 
     /**
@@ -77,7 +77,7 @@ abstract class AbstractServiceImpl {
 
         }
         if (getPreference() == Preference.RETURN_CONTENT || getPreference() == Preference.RETURN_NO_CONTENT) {
-            builder = builder.header(RESTHeaders.PREFERENCE_APPLIED, getPreference().literal());
+            builder = builder.header(RESTHeaders.PREFERENCE_APPLIED, getPreference().toString());
         }
 
         return builder;
@@ -89,7 +89,7 @@ abstract class AbstractServiceImpl {
      * @param entity the entity just modified
      * @return response to successful modification request
      */
-    protected Response.ResponseBuilder updateResponse(final Object entity) {
+    protected Response.ResponseBuilder modificationResponse(final Object entity) {
         Response.ResponseBuilder builder;
         switch (getPreference()) {
             case RETURN_NO_CONTENT:
@@ -103,7 +103,7 @@ abstract class AbstractServiceImpl {
                 break;
         }
         if (getPreference() == Preference.RETURN_CONTENT || getPreference() == Preference.RETURN_NO_CONTENT) {
-            builder = builder.header(RESTHeaders.PREFERENCE_APPLIED, getPreference().literal());
+            builder = builder.header(RESTHeaders.PREFERENCE_APPLIED, getPreference().toString());
         }
 
         return builder;

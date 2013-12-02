@@ -145,7 +145,7 @@ public class ConnectorTestITCase extends AbstractTest {
             throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
         }
 
-        ConnInstanceTO actual = adminClient.getObject(
+        ConnInstanceTO actual = getObject(
                 response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
         assertNotNull(actual);
 
@@ -287,7 +287,7 @@ public class ConnectorTestITCase extends AbstractTest {
             throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
         }
 
-        connInstanceTO = adminClient.getObject(response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
+        connInstanceTO = getObject(response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
         assertNotNull(connInstanceTO);
         assertTrue(connInstanceTO.getCapabilities().isEmpty());
 
@@ -301,7 +301,7 @@ public class ConnectorTestITCase extends AbstractTest {
         // Check for connector instance update after resource creation.
         // ----------------------------------
         response = resourceService.create(resourceTO);
-        resourceTO = adminClient.getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
+        resourceTO = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
 
         assertNotNull(resourceTO);
 
@@ -620,7 +620,7 @@ public class ConnectorTestITCase extends AbstractTest {
                 throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
             }
 
-            connectorTO = adminClient.getObject(response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
+            connectorTO = getObject(response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
             assertNotNull(connectorTO);
             // ----------------------------------------
 
@@ -677,12 +677,12 @@ public class ConnectorTestITCase extends AbstractTest {
         conn.setId(0);
         conn.setDisplayName("forBulk1");
 
-        bulkAction.getTargets().add(String.valueOf(adminClient.getObject(
+        bulkAction.getTargets().add(String.valueOf(getObject(
                 connectorService.create(conn).getLocation(), ConnectorService.class, ConnInstanceTO.class).getId()));
 
         conn.setDisplayName("forBulk2");
 
-        bulkAction.getTargets().add(String.valueOf(adminClient.getObject(
+        bulkAction.getTargets().add(String.valueOf(getObject(
                 connectorService.create(conn).getLocation(), ConnectorService.class, ConnInstanceTO.class).getId()));
 
         Iterator<String> iter = bulkAction.getTargets().iterator();

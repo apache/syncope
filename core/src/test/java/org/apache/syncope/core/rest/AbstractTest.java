@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -28,6 +29,7 @@ import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.jaxrs.client.WebClient;
 
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.client.SyncopeClientFactoryBean;
@@ -52,7 +54,6 @@ import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.to.AttributeTO;
-import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
@@ -215,10 +216,6 @@ public abstract class AbstractTest {
         schemaService = adminClient.getService(SchemaService.class);
     }
 
-//    protected ConnObjectTO readConnectorObject(final String resourceName, final Long userId, AttributableType type) {
-//        return resourceService.getConnectorObject(resourceName, type, userId);
-//    }
-
     protected static String getUUIDString() {
         return UUID.randomUUID().toString().substring(0, 8);
     }
@@ -260,7 +257,14 @@ public abstract class AbstractTest {
     protected UserTO deleteUser(final Long id) {
         return userService.delete(id).readEntity(UserTO.class);
     }
+    
+    public <T> T getObject(final URI location, final Class<?> serviceClass, final Class<T> resultClass) {
+        WebClient webClient = WebClient.fromClient(WebClient.client(adminClient.getService(serviceClass)));
+        webClient.accept(clientFactory.getContentType().getMediaType()).to(location.toASCIIString(), false);
 
+        return webClient.get(resultClass);
+    }
+    
     @SuppressWarnings("unchecked")
     protected <T extends AbstractSchemaTO> T createSchema(final AttributableType kind,
             final SchemaType type, final T schemaTO) {
@@ -273,7 +277,7 @@ public abstract class AbstractTest {
             }
         }
 
-        return (T) adminClient.getObject(response.getLocation(), SchemaService.class, schemaTO.getClass());
+        return (T) getObject(response.getLocation(), SchemaService.class, schemaTO.getClass());
     }
 
     protected RoleTO createRole(final RoleTO newRoleTO) {
@@ -284,7 +288,7 @@ public abstract class AbstractTest {
                 throw (RuntimeException) ex;
             }
         }
-        return adminClient.getObject(response.getLocation(), RoleService.class, RoleTO.class);
+        return getObject(response.getLocation(), RoleService.class, RoleTO.class);
     }
 
     protected RoleTO updateRole(final RoleMod roleMod) {
@@ -304,7 +308,7 @@ public abstract class AbstractTest {
                 throw (RuntimeException) ex;
             }
         }
-        return (T) adminClient.getObject(response.getLocation(), PolicyService.class, policy.getClass());
+        return (T) getObject(response.getLocation(), PolicyService.class, policy.getClass());
     }
 
     protected ResourceTO createResource(final ResourceTO resourceTO) {
@@ -315,6 +319,6 @@ public abstract class AbstractTest {
                 throw (RuntimeException) ex;
             }
         }
-        return adminClient.getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
+        return getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
     }
 }

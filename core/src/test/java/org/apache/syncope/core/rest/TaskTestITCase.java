@@ -122,7 +122,7 @@ public class TaskTestITCase extends AbstractTest {
         task.setRoleTemplate(roleTemplate);
 
         Response response = taskService.create(task);
-        SyncTaskTO actual = adminClient.getObject(response.getLocation(), TaskService.class, SyncTaskTO.class);
+        SyncTaskTO actual = getObject(response.getLocation(), TaskService.class, SyncTaskTO.class);
         assertNotNull(actual);
 
         task = taskService.read(actual.getId());
@@ -571,7 +571,7 @@ public class TaskTestITCase extends AbstractTest {
         notification.setTemplate("optin");
 
         Response response = notificationService.create(notification);
-        notification = adminClient.getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
+        notification = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
         assertNotNull(notification);
 
         // 2. create user
@@ -666,7 +666,7 @@ public class TaskTestITCase extends AbstractTest {
         task.setJobClassName(SyncJob.class.getName());
 
         Response response = taskService.create(task);
-        SchedTaskTO actual = adminClient.getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
+        SchedTaskTO actual = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
         assertNotNull(actual);
         assertEquals("issueSYNCOPE144", actual.getName());
         assertEquals("issueSYNCOPE144 Description", actual.getDescription());
@@ -680,7 +680,7 @@ public class TaskTestITCase extends AbstractTest {
         task.setDescription("issueSYNCOPE144 Description_2");
 
         response = taskService.create(task);
-        actual = adminClient.getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
+        actual = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
         assertNotNull(actual);
         assertEquals("issueSYNCOPE144_2", actual.getName());
         assertEquals("issueSYNCOPE144 Description_2", actual.getDescription());
@@ -818,7 +818,7 @@ public class TaskTestITCase extends AbstractTest {
         task.setPerformUpdate(true);
 
         Response response = taskService.create(task);
-        SyncTaskTO actual = adminClient.getObject(response.getLocation(), TaskService.class, SyncTaskTO.class);
+        SyncTaskTO actual = getObject(response.getLocation(), TaskService.class, SyncTaskTO.class);
         assertNotNull(actual);
 
         UserTO userTO = UserTestITCase.getUniqueSampleTO("s258_1@apache.org");

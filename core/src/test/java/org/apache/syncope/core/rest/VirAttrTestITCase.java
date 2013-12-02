@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.apache.syncope.core.rest.AbstractTest.RESOURCE_NAME_DBVIRATTR;
-import static org.apache.syncope.core.rest.AbstractTest.attributeMod;
 import static org.apache.syncope.core.rest.UserTestITCase.getUniqueSampleTO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

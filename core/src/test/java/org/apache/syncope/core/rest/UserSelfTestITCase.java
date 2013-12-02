@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.apache.syncope.core.rest.AbstractTest.clientFactory;
 import static org.apache.syncope.core.rest.UserTestITCase.getUniqueSampleTO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -247,7 +246,7 @@ public class UserSelfTestITCase extends AbstractTest {
 
         Response response = noContentService.create(user);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-        assertEquals(Preference.RETURN_NO_CONTENT.literal(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
+        assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
     }
 }

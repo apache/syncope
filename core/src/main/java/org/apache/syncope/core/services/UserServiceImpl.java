@@ -19,8 +19,10 @@
 package org.apache.syncope.core.services;
 
 import java.util.List;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.search.NodeCond;
@@ -70,8 +72,15 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
     @Override
     public Response delete(final Long userId) {
-        UserTO deleted = controller.delete(userId);
-        return updateResponse(deleted).build();
+        UserTO user = controller.read(userId);
+
+        ResponseBuilder builder = context.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
+        if (builder == null) {
+            UserTO deleted = controller.delete(userId);
+            builder = modificationResponse(deleted);
+        }
+
+        return builder.build();
     }
 
     @Override
@@ -108,16 +117,30 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
     @Override
     public Response update(final Long userId, final UserMod userMod) {
-        userMod.setId(userId);
-        UserTO updated = controller.update(userMod);
-        return updateResponse(updated).build();
+        UserTO user = controller.read(userId);
+
+        ResponseBuilder builder = context.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
+        if (builder == null) {
+            userMod.setId(userId);
+            UserTO updated = controller.update(userMod);
+            builder = modificationResponse(updated);
+        }
+
+        return builder.build();
     }
 
     @Override
     public Response status(final Long userId, final StatusMod statusMod) {
-        statusMod.setId(userId);
-        UserTO updated = controller.status(statusMod);
-        return updateResponse(updated).build();
+        UserTO user = controller.read(userId);
+
+        ResponseBuilder builder = context.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
+        if (builder == null) {
+            statusMod.setId(userId);
+            UserTO updated = controller.status(statusMod);
+            builder = modificationResponse(updated);
+        }
+
+        return builder.build();
     }
 
     @Override
@@ -129,25 +152,32 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     public Response associate(final Long userId, final ResourceAssociationActionType type,
             final List<ResourceNameTO> resourceNames) {
 
-        UserTO updated = null;
+        UserTO user = controller.read(userId);
 
-        switch (type) {
-            case UNLINK:
-                updated = controller.unlink(userId, CollectionWrapper.unwrap(resourceNames));
-                break;
+        ResponseBuilder builder = context.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
+        if (builder == null) {
+            UserTO updated;
 
-            case UNASSIGN:
-                updated = controller.unassign(userId, CollectionWrapper.unwrap(resourceNames));
-                break;
+            switch (type) {
+                case UNLINK:
+                    updated = controller.unlink(userId, CollectionWrapper.unwrap(resourceNames));
+                    break;
 
-            case DEPROVISION:
-                updated = controller.deprovision(userId, CollectionWrapper.unwrap(resourceNames));
-                break;
+                case UNASSIGN:
+                    updated = controller.unassign(userId, CollectionWrapper.unwrap(resourceNames));
+                    break;
 
-            default:
-                updated = controller.read(userId);
+                case DEPROVISION:
+                    updated = controller.deprovision(userId, CollectionWrapper.unwrap(resourceNames));
+                    break;
+
+                default:
+                    updated = controller.read(userId);
+            }
+
+            builder = modificationResponse(updated);
         }
 
-        return updateResponse(updated).build();
+        return builder.build();
     }
 }

@@ -36,15 +36,16 @@ public enum Preference {
         this.literal = literal;
     }
 
-    public String literal() {
+    @Override
+    public String toString() {
         return literal;
     }
 
-    public static Preference fromLiteral(final String literal) {
+    public static Preference fromString(final String literal) {
         Preference result = null;
 
         for (Preference preference : values()) {
-            if (preference.literal().equalsIgnoreCase(literal)) {
+            if (preference.toString().equalsIgnoreCase(literal)) {
                 result = preference;
             }
         }

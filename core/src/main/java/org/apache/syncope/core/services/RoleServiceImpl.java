@@ -21,7 +21,9 @@ package org.apache.syncope.core.services;
 import java.util.List;
 
 import javax.ws.rs.ServiceUnavailableException;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.search.NodeCond;
@@ -59,8 +61,15 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
 
     @Override
     public Response delete(final Long roleId) {
-        RoleTO deleted = controller.delete(roleId);
-        return updateResponse(deleted).build();
+        RoleTO role = controller.read(roleId);
+
+        ResponseBuilder builder = context.getRequest().evaluatePreconditions(new EntityTag(role.getETagValue()));
+        if (builder == null) {
+            RoleTO deleted = controller.delete(roleId);
+            builder = modificationResponse(deleted);
+        }
+
+        return builder.build();
     }
 
     @Override
@@ -107,34 +116,48 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
 
     @Override
     public Response update(final Long roleId, final RoleMod roleMod) {
-        roleMod.setId(roleId);
-        RoleTO updated = controller.update(roleMod);
-        return updateResponse(updated).build();
+        RoleTO role = controller.read(roleId);
+
+        ResponseBuilder builder = context.getRequest().evaluatePreconditions(new EntityTag(role.getETagValue()));
+        if (builder == null) {
+            roleMod.setId(roleId);
+            RoleTO updated = controller.update(roleMod);
+            builder = modificationResponse(updated);
+        }
+
+        return builder.build();
     }
 
     @Override
     public Response associate(final Long roleId, final ResourceAssociationActionType type,
             final List<ResourceNameTO> resourceNames) {
 
-        RoleTO updated = null;
+        RoleTO role = controller.read(roleId);
 
-        switch (type) {
-            case UNLINK:
-                updated = controller.unlink(roleId, CollectionWrapper.unwrap(resourceNames));
-                break;
+        ResponseBuilder builder = context.getRequest().evaluatePreconditions(new EntityTag(role.getETagValue()));
+        if (builder == null) {
+            RoleTO updated;
 
-            case UNASSIGN:
-                updated = controller.unassign(roleId, CollectionWrapper.unwrap(resourceNames));
-                break;
+            switch (type) {
+                case UNLINK:
+                    updated = controller.unlink(roleId, CollectionWrapper.unwrap(resourceNames));
+                    break;
 
-            case DEPROVISION:
-                updated = controller.deprovision(roleId, CollectionWrapper.unwrap(resourceNames));
-                break;
+                case UNASSIGN:
+                    updated = controller.unassign(roleId, CollectionWrapper.unwrap(resourceNames));
+                    break;
 
-            default:
-                updated = controller.read(roleId);
+                case DEPROVISION:
+                    updated = controller.deprovision(roleId, CollectionWrapper.unwrap(resourceNames));
+                    break;
+
+                default:
+                    updated = controller.read(roleId);
+            }
+
+            builder = modificationResponse(updated);
         }
 
-        return updateResponse(updated).build();
+        return builder.build();
     }
 }

@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.AbstractBaseBean;
 
 /**
@@ -90,5 +92,15 @@ public class AbstractSysInfoTO extends AbstractBaseBean {
 
     public void setLastChangeDate(final Date lastChangeDate) {
         this.lastChangeDate = lastChangeDate;
+    }
+
+    @JsonIgnore
+    public String getETagValue() {
+        Date etagDate = getLastChangeDate() == null
+                ? getCreationDate() : getLastChangeDate();
+        return etagDate == null
+                ? StringUtils.EMPTY
+                : String.valueOf(etagDate.getTime());
+
     }
 }

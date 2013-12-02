@@ -93,6 +93,8 @@ under the License.
     <property name="addResourceAndMethodIds" value="true"/>
   </bean>
   
+  <bean id="addETagFilter" class="org.apache.syncope.core.services.AddETagFilter"/>
+  
   <jaxrs:server id="restContainer" address="/" staticSubresourceResolution="true">
     <jaxrs:serviceBeans>
       <ref bean="connectorServiceImpl"/>
@@ -119,6 +121,7 @@ under the License.
       <ref bean="jsonProvider"/>
       <ref bean="exceptionMapper"/>
       <ref bean="wadlGenerator"/>
+      <ref bean="addETagFilter"/>
     </jaxrs:providers>
     <jaxrs:extensionMappings>
       <entry key="json" value="application/json;charset=UTF-8"/>

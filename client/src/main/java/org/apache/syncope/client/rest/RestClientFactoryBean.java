@@ -23,12 +23,33 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 
+/**
+ * Provides shortcuts for creating JAX-RS service instances via CXF's <tt>JAXRSClientFactoryBean</tt>.
+ */
 public class RestClientFactoryBean extends JAXRSClientFactoryBean {
 
+    /**
+     * Creates an anonymous instance of the given service class, for the given content type.
+     *
+     * @param <T> any service class
+     * @param serviceClass service class reference
+     * @param mediaType XML or JSON are suppoorted
+     * @return anonymous service instance of the given reference class
+     */
     public <T> T createServiceInstance(final Class<T> serviceClass, final MediaType mediaType) {
         return createServiceInstance(serviceClass, mediaType, null, null);
     }
 
+    /**
+     * Creates an authenticated instance of the given service class, for the given content type.
+     *
+     * @param <T> any service class
+     * @param serviceClass service class reference
+     * @param mediaType XML or JSON are suppoorted
+     * @param username username for REST authentication
+     * @param password password for REST authentication
+     * @return anonymous service instance of the given reference class
+     */
     public <T> T createServiceInstance(
             final Class<T> serviceClass, final MediaType mediaType, final String username, final String password) {
 
