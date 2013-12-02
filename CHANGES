@@ -2,6 +2,35 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.1.5
+================================================================================
+** Bug
+    * [SYNCOPE-419] - Meaningless error message when attempting to delete user owning role
+    * [SYNCOPE-423] - Improve notifications
+    * [SYNCOPE-426] - UserService#update and RoleService#update require entity id to be specified twice
+    * [SYNCOPE-433] - Counting search results fails with MySQL when OR condition is used
+    * [SYNCOPE-434] - Users can log in the admin console despite of their status
+    * [SYNCOPE-435] - Password not mandatory when subscribing external resource
+    * [SYNCOPE-436] - Read-only virtual attribute values not retrieved from external resource
+    * [SYNCOPE-437] - Wrong ID generation for new Notification instances
+    * [SYNCOPE-440] - Timestamp based synchronization miss events
+
+** Improvement
+    * [SYNCOPE-420] - Provide user / role pre-processing mechanism
+    * [SYNCOPE-422] - Improve audit info
+    * [SYNCOPE-424] - Resolve OpenJPA dependency overlap
+    * [SYNCOPE-427] - Add CSV report format
+    * [SYNCOPE-431] - Provide debug logging for controller methods' input and output
+    * [SYNCOPE-432] - Replace role action labels with icons
+    * [SYNCOPE-441] - Index on Activiti table boosts overall performance
+    * [SYNCOPE-442] - Use cached virtual attribute values with offline resources
+
+** Task
+    * [SYNCOPE-448] - Provide build instructions
+    * [SYNCOPE-449] - Fix support for Eclipse IDE
+
+
+
 Release Notes - Syncope - Version 1.1.4
 ================================================================================
 ** Bug
