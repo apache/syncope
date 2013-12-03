@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import javax.ws.rs.core.HttpHeaders;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -38,7 +39,6 @@ import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.ClientExceptionType;
-import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -123,7 +123,7 @@ public class ConfigurationTestITCase extends AbstractTest {
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
         assertTrue(response.getMediaType().toString().startsWith(MediaType.TEXT_XML));
-        String contentDisposition = response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION);
+        String contentDisposition = response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION);
         assertNotNull(contentDisposition);
 
         Object entity = response.getEntity();

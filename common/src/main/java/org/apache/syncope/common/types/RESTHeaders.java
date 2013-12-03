@@ -59,13 +59,6 @@ public final class RESTHeaders {
     public static final String EXCEPTION_TYPE = "Syncope.ExceptionType";
 
     /**
-     * Not (yet) defined in <tt>javax.ws.rs.core.HttpHeaders</tt>.
-     *
-     * @see javax.ws.rs.core.HttpHeaders
-     */
-    public static final String CONTENT_DISPOSITION = "Content-Disposition";
-
-    /**
      * Mediatype for PNG images, not defined in <tt>javax.ws.rs.core.MediaType</tt>.
      *
      * @see javax.ws.rs.core.MediaType

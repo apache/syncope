@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.SyncopeConstants;
@@ -35,7 +36,6 @@ import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.types.ReportletConfClasses;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
-import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.types.ReportExecStatus;
 import org.apache.syncope.common.validation.SyncopeClientException;
@@ -150,8 +150,8 @@ public class ReportTestITCase extends AbstractTest {
         final Response response = reportService.exportExecutionResult(execId, fmt);
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
-        assertNotNull(response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION));
-        assertTrue(response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION).
+        assertNotNull(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION));
+        assertTrue(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION).
                 endsWith("." + fmt.name().toLowerCase()));
 
         Object entity = response.getEntity();

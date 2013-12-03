@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.List;
+import javax.ws.rs.core.HttpHeaders;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -64,7 +65,7 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
         };
         return Response.ok(sout).
                 type(MediaType.TEXT_XML).
-                header(RESTHeaders.CONTENT_DISPOSITION, "attachment; filename=" + ContentLoader.CONTENT_XML).
+                header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + ContentLoader.CONTENT_XML).
                 build();
     }
 

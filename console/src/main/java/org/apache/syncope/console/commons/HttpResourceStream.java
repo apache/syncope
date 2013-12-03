@@ -25,7 +25,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.resource.AbstractResourceStream;
 import org.apache.wicket.util.resource.IFixedLocationResourceStream;
@@ -53,7 +52,7 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
             this.inputStream = (InputStream) entity;
             this.contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
             this.location = response.getLocation().toASCIIString();
-            String contentDisposition = response.getHeaderString(RESTHeaders.CONTENT_DISPOSITION);
+            String contentDisposition = response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION);
             if (StringUtils.isNotBlank(contentDisposition)) {
                 String[] splitted = contentDisposition.split("=");
                 if (splitted != null && splitted.length > 1) {

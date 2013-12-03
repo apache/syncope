@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.List;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import org.apache.syncope.common.services.ReportService;
@@ -103,7 +104,7 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
         String disposition = "attachment; filename=" + reportExec.getReport().getName() + "." + format.name().
                 toLowerCase();
         return Response.ok(sout).
-                header(RESTHeaders.CONTENT_DISPOSITION, disposition).
+                header(HttpHeaders.CONTENT_DISPOSITION, disposition).
                 build();
     }
 
