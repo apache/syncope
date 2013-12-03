@@ -213,7 +213,10 @@ under the License.
             <type>standalone</type>
             <properties>
               <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
-              <cargo.jvmargs>-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
+              <cargo.tomcat.ajp.port>${cargo.tomcat.ajp.port}</cargo.tomcat.ajp.port>
+              <cargo.rmi.port>${cargo.rmi.port}</cargo.rmi.port>
+
+              <cargo.jvmargs>-noverify -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
             </properties>
           </configuration>
           <deployables>
