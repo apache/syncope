@@ -161,6 +161,9 @@ under the License.
           <include>*.csv</include>
           <include>*.jsp</include>
         </includes>
+        <excludes>
+          <exclude>rest.properties</exclude>
+        </excludes>
       </resource>
 
       <resource>
