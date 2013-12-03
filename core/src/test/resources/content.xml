@@ -19,7 +19,7 @@ under the License.
 -->
 <dataset>
   <SyncopeConf confKey="password.cipher.algorithm" confValue="SHA1"/>
-  <SyncopeConf confKey="smtp.host" confValue="not-existing"/>
+  <SyncopeConf confKey="smtp.host" confValue="not-existing@syncope.apache.org"/>
   <SyncopeConf confKey="smtp.port" confValue="25"/>
   <!-- notificationjob.cronExpression:
   + not existing: NotificationJob runs according to Notification.DEFAULT_CRON_EXP
