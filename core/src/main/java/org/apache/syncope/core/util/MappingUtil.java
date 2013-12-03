@@ -504,6 +504,7 @@ public final class MappingUtil {
      * @param intMappingType source mapping type
      * @return corresponding Class object, if any (can be null)
      */
+    @SuppressWarnings("rawtypes")
     public static Class getIntMappingTypeClass(final IntMappingType intMappingType) {
         Class result;
 

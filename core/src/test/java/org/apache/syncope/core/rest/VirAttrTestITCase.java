@@ -516,7 +516,7 @@ public class VirAttrTestITCase extends AbstractTest {
 
         final Map<String, Object> actuals = jdbcTemplate.queryForMap(
                 "SELECT id, surname, email FROM testsync WHERE id=?",
-                new Object[] {Integer.parseInt(userTO.getAttrMap().get("aLong").getValues().get(0))});
+                new Object[] { Integer.parseInt(userTO.getAttrMap().get("aLong").getValues().get(0)) });
 
         assertEquals(userTO.getAttrMap().get("aLong").getValues().get(0), actuals.get("id").toString());
         assertEquals("ml@role.it", actuals.get("email"));
