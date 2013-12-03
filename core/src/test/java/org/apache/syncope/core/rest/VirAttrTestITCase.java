@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.apache.syncope.core.rest.AbstractTest.RESOURCE_NAME_DBVIRATTR;
+import static org.apache.syncope.core.rest.AbstractTest.RESOURCE_NAME_LDAP;
 import static org.apache.syncope.core.rest.AbstractTest.attributeMod;
+import static org.apache.syncope.core.rest.AbstractTest.attributeTO;
 import static org.apache.syncope.core.rest.UserTestITCase.getUniqueSampleTO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -27,15 +28,18 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
+import java.util.Map;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.MappingItemTO;
+import org.apache.syncope.common.to.MappingTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.PropagationRequestTO;
 import org.apache.syncope.common.to.ResourceTO;
+import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ConnConfProperty;
@@ -421,5 +425,97 @@ public class VirAttrTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         //Finding no values because the virtual attribute is readonly 
         assertTrue(userTO.getVirtualAttributeMap().get("virtualReadOnly").getValues().isEmpty());
+    }
+
+    @Test
+    public void issueSYNCOPE453() {
+        final String resourceName = "issueSYNCOPE453-Res-" + getUUIDString();
+        final String roleName = "issueSYNCOPE453-Role-" + getUUIDString();
+
+        // -------------------------------------------
+        // Create a resource ad-hoc
+        // -------------------------------------------
+        final ResourceTO resourceTO = new ResourceTO();
+
+        resourceTO.setName(resourceName);
+        resourceTO.setConnectorId(107L);
+
+        MappingTO mapping = new MappingTO();
+
+        MappingItemTO item = new MappingItemTO();
+        item.setIntAttrName("aLong");
+        item.setIntMappingType(IntMappingType.UserSchema);
+        item.setPurpose(MappingPurpose.PROPAGATION);
+        item.setAccountid(true);
+        mapping.setAccountIdItem(item);
+
+        item = new MappingItemTO();
+        item.setExtAttrName("USERNAME");
+        item.setIntAttrName("username");
+        item.setIntMappingType(IntMappingType.Username);
+        item.setPurpose(MappingPurpose.PROPAGATION);
+        mapping.getItems().add(item);
+
+        item = new MappingItemTO();
+        item.setExtAttrName("EMAIL");
+        item.setIntAttrName("rvirtualdata");
+        item.setIntMappingType(IntMappingType.RoleVirtualSchema);
+        item.setPurpose(MappingPurpose.PROPAGATION);
+        mapping.getItems().add(item);
+
+        resourceTO.setUmapping(mapping);
+        assertNotNull(getObject(resourceService.create(resourceTO), ResourceTO.class, resourceService));
+        // -------------------------------------------
+
+        // -------------------------------------------
+        // Create a role ad-hoc
+        // -------------------------------------------
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName(roleName);
+        roleTO.setParent(8L);
+        roleTO.addVirtualAttribute(attributeTO("rvirtualdata", "ml@role.it"));
+        roleTO.getResources().add(RESOURCE_NAME_LDAP);
+        roleTO = createRole(roleService, roleTO);
+        assertEquals(1, roleTO.getVirtualAttributes().size());
+        assertEquals("ml@role.it", roleTO.getVirtualAttributes().get(0).getValues().get(0));
+        // -------------------------------------------
+
+        // -------------------------------------------
+        // Create new user
+        // -------------------------------------------
+        UserTO userTO = getUniqueSampleTO("syncope453@syncope.apache.org");
+        userTO.addAttribute(attributeTO("aLong", "123"));
+        userTO.getResources().clear();
+        userTO.getResources().add(resourceName);
+        userTO.getVirtualAttributes().clear();
+        userTO.getDerivedAttributes().clear();
+        userTO.getMemberships().clear();
+
+        final MembershipTO membership = new MembershipTO();
+        membership.setRoleId(roleTO.getId());
+        membership.getVirtualAttributes().add(attributeTO("mvirtualdata", "mvirtualvalue"));
+        userTO.getMemberships().add(membership);
+
+        userTO = createUser(userTO);
+        assertEquals(2, userTO.getPropagationStatusTOs().size());
+        assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+        assertTrue(userTO.getPropagationStatusTOs().get(1).getStatus().isSuccessful());
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
+        final Map<String, Object> actuals = jdbcTemplate.queryForMap(
+                "SELECT id, surname, email FROM testsync WHERE id=?",
+                new Object[] {Integer.parseInt(userTO.getAttributeMap().get("aLong").getValues().get(0))});
+
+        assertEquals(userTO.getAttributeMap().get("aLong").getValues().get(0), actuals.get("id").toString());
+        assertEquals("ml@role.it", actuals.get("email"));
+        // -------------------------------------------
+
+        // -------------------------------------------
+        // Delete resource and role ad-hoc
+        // -------------------------------------------
+        resourceService.delete(resourceName);
+        roleService.delete(roleTO.getId());
+        // -------------------------------------------
     }
 }

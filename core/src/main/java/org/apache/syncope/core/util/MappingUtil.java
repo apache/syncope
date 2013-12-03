@@ -32,6 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.AttributeSchemaType;
+import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.connid.PasswordGenerator;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
@@ -45,6 +46,7 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
 import org.apache.syncope.core.persistence.beans.membership.MSchema;
 import org.apache.syncope.core.persistence.beans.membership.MVirSchema;
+import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.RAttrValue;
 import org.apache.syncope.core.persistence.beans.role.RDerSchema;
 import org.apache.syncope.core.persistence.beans.role.RSchema;
@@ -135,6 +137,9 @@ public final class MappingUtil {
 
         final List<AbstractAttributable> attributables = new ArrayList<AbstractAttributable>();
 
+        final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
+        final ConnObjectUtil connObjectUtil = context.getBean(ConnObjectUtil.class);
+
         switch (mapItem.getIntMappingType().getAttributableType()) {
             case USER:
                 if (subject instanceof SyncopeUser) {
@@ -144,7 +149,10 @@ public final class MappingUtil {
 
             case ROLE:
                 if (subject instanceof SyncopeUser) {
-                    attributables.addAll(((SyncopeUser) subject).getRoles());
+                    for (SyncopeRole role : ((SyncopeUser) subject).getRoles()) {
+                        connObjectUtil.retrieveVirAttrValues(role, AttributableUtil.getInstance(role));
+                        attributables.add(role);
+                    }
                 }
                 if (subject instanceof SyncopeRole) {
                     attributables.add(subject);
@@ -160,13 +168,13 @@ public final class MappingUtil {
             default:
         }
 
-        List<AbstractAttrValue> values = MappingUtil.getIntValues(resource, mapItem, attributables,
-                vAttrsToBeRemoved, vAttrsToBeUpdated);
+        List<AbstractAttrValue> values = getIntValues(
+                resource, mapItem, attributables, vAttrsToBeRemoved, vAttrsToBeUpdated);
 
         AbstractSchema schema = null;
         boolean readOnlyVirSchema = false;
         AttributeSchemaType schemaType;
-        ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
+
         switch (mapItem.getIntMappingType()) {
             case UserSchema:
             case RoleSchema:

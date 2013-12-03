@@ -66,7 +66,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Manage the data propagation to external resources.
  */
-@Transactional(rollbackFor = { Throwable.class })
+@Transactional(rollbackFor = {Throwable.class})
 public class PropagationManager {
 
     /**
@@ -143,7 +143,7 @@ public class PropagationManager {
         if (vAttrs != null && !vAttrs.isEmpty()) {
             userDataBinder.fillVirtual(user, vAttrs, AttributableUtil.getInstance(AttributableType.USER));
         }
-        return getCreateTaskIds(user, password, vAttrs,
+        return getCreateTaskIds(user, password,
                 wfResult.getResult().getValue(), wfResult.getPropByRes(), noPropResourceNames);
     }
 
@@ -181,11 +181,11 @@ public class PropagationManager {
         if (vAttrs != null && !vAttrs.isEmpty()) {
             roleDataBinder.fillVirtual(role, vAttrs, AttributableUtil.getInstance(AttributableType.ROLE));
         }
-        return getCreateTaskIds(role, null, vAttrs, null, wfResult.getPropByRes(), noPropResourceNames);
+        return getCreateTaskIds(role, null, null, wfResult.getPropByRes(), noPropResourceNames);
     }
 
     protected List<PropagationTask> getCreateTaskIds(final AbstractAttributable attributable,
-            final String password, final Collection<AttributeTO> vAttrs, final Boolean enable,
+            final String password, final Boolean enable,
             final PropagationByResource propByRes, final Set<String> noPropResourceNames) {
 
         if (propByRes == null || propByRes.isEmpty()) {
