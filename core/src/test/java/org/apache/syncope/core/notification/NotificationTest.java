@@ -24,16 +24,20 @@ import static org.junit.Assert.assertNotNull;
 
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 import javax.annotation.Resource;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Store;
+
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.search.MembershipCond;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.MembershipTO;
@@ -60,6 +64,8 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -87,17 +93,17 @@ public class NotificationTest {
      */
     private static final Logger LOG = LoggerFactory.getLogger(NotificationTest.class);
 
-    private static String smtpHost = "localhost";
+    private static final String smtpHost = "localhost";
 
-    private static int smtpPort = 2525;
+    private static final int smtpPort = 2525;
 
-    private static String pop3Host = "localhost";
+    private static final String pop3Host = "localhost";
 
-    private static int pop3Port = 1110;
+    private static final int pop3Port = 1110;
 
-    private static String mailAddress = "notificationtest@syncope.apache.org";
+    private static final String mailAddress = "notificationtest@syncope.apache.org";
 
-    private static String mailPassword = "password";
+    private static final String mailPassword = "password";
 
     private static GreenMail greenMail;
 
@@ -127,6 +133,9 @@ public class NotificationTest {
 
     @Autowired
     private NotificationManager notificationManager;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     @BeforeClass
     public static void startGreenMail() {
@@ -159,14 +168,12 @@ public class NotificationTest {
 
     @Before
     public void setupSMTP() throws Exception {
-        SyncopeConf smtpHostConf = confDAO.find("smtp.host");
-        smtpHostConf.setValue(smtpHost);
-        confDAO.save(smtpHostConf);
-
-        SyncopeConf smtpPortConf = confDAO.find("smtp.port");
-        smtpPortConf.setValue(Integer.toString(smtpPort));
-        confDAO.save(smtpPortConf);
-        confDAO.flush();
+        JavaMailSenderImpl sender = (JavaMailSenderImpl) mailSender;
+        sender.setDefaultEncoding(SyncopeConstants.DEFAULT_ENCODING);
+        sender.setHost(smtpHost);
+        sender.setPort(smtpPort);
+        sender.setUsername(mailAddress);
+        sender.setPassword(mailPassword);
     }
 
     private boolean verifyMail(final String sender, final String subject) throws Exception {

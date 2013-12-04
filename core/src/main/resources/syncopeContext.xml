@@ -26,7 +26,7 @@ under the License.
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd
                            http://www.springframework.org/schema/task
-                           http://www.springframework.org/schema/task/spring-task-3.1.xsd">
+                           http://www.springframework.org/schema/task/spring-task.xsd">
 
   <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="locations">
@@ -35,6 +35,7 @@ under the License.
         <value>classpath:rest.properties</value>
         <value>classpath:security.properties</value>
         <value>classpath:workflow.properties</value>
+        <value>classpath:mail.properties</value>
       </list>
     </property>
     <property name="ignoreResourceNotFound" value="true"/>
@@ -87,7 +88,23 @@ under the License.
   
   <bean id="connectorFacadeProxy" class="org.apache.syncope.core.propagation.impl.ConnectorFacadeProxy" scope="prototype"/>
   <bean id="asyncConnFacade" class="org.apache.syncope.core.propagation.impl.AsyncConnectorFacade" scope="singleton"/>
-  
+
+  <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+    <property name="defaultEncoding" value="${smtpEncoding}"/>
+    <property name="host" value="${smtpHost}"/>
+    <property name="port" value="${smtpPort}"/>
+    <property name="username" value="${smtpUser}"/>
+    <property name="password" value="${smtpPassword}"/>
+    <property name="protocol" value="${smtpProtocol}"/>
+
+    <property name="javaMailProperties">
+      <props>
+        <prop key="mail.smtp.connectiontimeout">${smtpConnectionTimeout}</prop>
+        <prop key="mail.debug">${mailDebug}</prop>
+      </props>
+    </property>
+  </bean>
+
   <task:annotation-driven executor="connectorExecutor"/>
   <task:executor id="connectorExecutor" pool-size="10"/>
 

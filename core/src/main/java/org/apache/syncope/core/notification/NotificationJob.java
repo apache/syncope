@@ -19,9 +19,10 @@
 package org.apache.syncope.core.notification;
 
 import java.util.Date;
+
 import javax.mail.internet.MimeMessage;
+
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.TraceLevel;
@@ -38,7 +39,7 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
 /**
@@ -69,6 +70,9 @@ public class NotificationJob implements Job {
     @Autowired
     private NotificationManager notificationManager;
 
+    @Autowired
+    private JavaMailSender mailSender;
+
     /**
      * Task DAO.
      */
@@ -81,29 +85,9 @@ public class NotificationJob implements Job {
     @Autowired
     private ConfDAO confDAO;
 
-    private String smtpHost;
-
-    private int smtpPort;
-
-    private String smtpUsername;
-
-    private String smtpPassword;
-
     private long maxRetries;
 
     private void init() {
-        smtpHost = confDAO.find("smtp.host", "").getValue();
-        smtpPort = 25;
-        try {
-            smtpPort = Integer.valueOf(confDAO.find("smtp.port", "25").getValue());
-        } catch (NumberFormatException e) {
-            LOG.error("Invalid SMTP port, reverting to 25", e);
-        }
-        smtpUsername = confDAO.find("smtp.username", "").getValue();
-        smtpPassword = confDAO.find("smtp.password", "").getValue();
-
-        LOG.debug("SMTP details fetched: {}:{} / {}:[PASSWORD_NOT_SHOWN]", smtpHost, smtpPort, smtpUsername);
-
         try {
             maxRetries = Long.valueOf(confDAO.find("notification.maxRetries", "0").getValue());
         } catch (NumberFormatException e) {
@@ -121,12 +105,10 @@ public class NotificationJob implements Job {
 
         boolean retryPossible = true;
 
-        if (StringUtils.isBlank(smtpHost) || StringUtils.isBlank(task.getSender())
-                || StringUtils.isBlank(task.getSubject()) || task.getRecipients().isEmpty()
-                || StringUtils.isBlank(task.getHtmlBody()) || StringUtils.isBlank(task.getTextBody())) {
+        if (StringUtils.isBlank(task.getSubject()) || task.getRecipients().isEmpty()
+            || StringUtils.isBlank(task.getHtmlBody()) || StringUtils.isBlank(task.getTextBody())) {
 
             String message = "Could not fetch all required information for sending e-mails:\n"
-                    + smtpHost + ":" + smtpPort + "\n"
                     + task.getRecipients() + "\n"
                     + task.getSender() + "\n"
                     + task.getSubject() + "\n"
@@ -143,7 +125,6 @@ public class NotificationJob implements Job {
         } else {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("About to send e-mails:\n"
-                        + smtpHost + ":" + smtpPort + "\n"
                         + task.getRecipients() + "\n"
                         + task.getSender() + "\n"
                         + task.getSubject() + "\n"
@@ -153,25 +134,14 @@ public class NotificationJob implements Job {
 
             for (String to : task.getRecipients()) {
                 try {
-                    JavaMailSenderImpl sender = new JavaMailSenderImpl();
-                    sender.setHost(smtpHost);
-                    sender.setPort(smtpPort);
-                    sender.setDefaultEncoding(SyncopeConstants.DEFAULT_ENCODING);
-                    if (StringUtils.isNotBlank(smtpUsername)) {
-                        sender.setUsername(smtpUsername);
-                    }
-                    if (StringUtils.isNotBlank(smtpPassword)) {
-                        sender.setPassword(smtpPassword);
-                    }
-
-                    MimeMessage message = sender.createMimeMessage();
+                    MimeMessage message = mailSender.createMimeMessage();
                     MimeMessageHelper helper = new MimeMessageHelper(message, true);
                     helper.setTo(to);
                     helper.setFrom(task.getSender());
                     helper.setSubject(task.getSubject());
                     helper.setText(task.getTextBody(), task.getHtmlBody());
 
-                    sender.send(message);
+                    mailSender.send(message);
 
                     execution.setStatus(Status.SENT.name());
 
@@ -179,10 +149,10 @@ public class NotificationJob implements Job {
                     switch (task.getTraceLevel()) {
                         case ALL:
                             report.append("FROM: ").append(task.getSender()).append('\n').
-                                    append("TO: ").append(to).append('\n').
-                                    append("SUBJECT: ").append(task.getSubject()).append('\n').append('\n').
-                                    append(task.getTextBody()).append('\n').append('\n').
-                                    append(task.getHtmlBody()).append('\n');
+                                append("TO: ").append(to).append('\n').
+                                append("SUBJECT: ").append(task.getSubject()).append('\n').append('\n').
+                                append(task.getTextBody()).append('\n').append('\n').
+                                append(task.getHtmlBody()).append('\n');
                             break;
 
                         case SUMMARY:

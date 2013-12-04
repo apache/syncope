@@ -19,17 +19,15 @@ under the License.
 -->
 <dataset>
   <SyncopeConf confKey="password.cipher.algorithm" confValue="SHA1"/>
-  <SyncopeConf confKey="smtp.host" confValue="not-existing@syncope.apache.org"/>
-  <SyncopeConf confKey="smtp.port" confValue="25"/>
   <!-- notificationjob.cronExpression:
   + not existing: NotificationJob runs according to Notification.DEFAULT_CRON_EXP
   + provided as empty string: NotificationJob disabled
   + provided as non-empty string: NotificationJob runs according to the given value -->
   <SyncopeConf confKey="notificationjob.cronExpression" confValue=""/>
+  <SyncopeConf confKey="notification.maxRetries" confValue="3"/>
   <SyncopeConf confKey="token.length" confValue="256"/>
   <SyncopeConf confKey="token.expireTime" confValue="60"/>
   <SyncopeConf confKey="selfRegistration.allowed" confValue="true"/>
-  <SyncopeConf confKey="notification.maxRetries" confValue="3"/>
   <!-- when needing to provide more values, use '|' as separator and no spaces -->
   <SyncopeConf confKey="authentication.statuses" confValue="created|active"/>
 
