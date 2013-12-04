@@ -416,7 +416,7 @@ public class PropagationManager {
     }
 
     /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
+     * Perform delete on each resource associated to the role. It is possible to ask for a mandatory provisioning for
      * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
      * the creation fails onto a mandatory resource.
      *

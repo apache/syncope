@@ -27,17 +27,24 @@ import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+import javax.naming.Context;
+import javax.naming.directory.InitialDirContext;
 
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.to.ConnObjectTO;
+import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
+import org.identityconnectors.framework.common.objects.Name;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -369,5 +376,78 @@ public class RoleTestITCase extends AbstractTest {
         roleTO = roleService.update(roleMod.getId(), roleMod);
         assertNotNull(roleTO);
         assertTrue(roleTO.getEntitlements().isEmpty());
+    }
+
+    @Test
+    public void issueSYNCOPE455() {
+        final String parentName = "issueSYNCOPE455-PRole";
+        final String childName = "issueSYNCOPE455-CRole";
+
+        // 1. create parent role
+        RoleTO parent = buildBasicRoleTO(parentName);
+        parent.getResources().add(RESOURCE_NAME_LDAP);
+
+        parent = createRole(roleService, parent);
+        assertTrue(parent.getResources().contains(RESOURCE_NAME_LDAP));
+
+        final ConnObjectTO parentRemoteObject =
+                readConnectorObject(RESOURCE_NAME_LDAP, parent.getId(), AttributableType.ROLE);
+        assertNotNull(parentRemoteObject);
+        assertNotNull(getLdapRemoteObject(parentRemoteObject.getAttributeMap().get(Name.NAME).getValues().get(0)));
+
+        // 2. create child role
+        RoleTO child = buildBasicRoleTO(childName);
+        child.getResources().add(RESOURCE_NAME_LDAP);
+        child.setParent(parent.getId());
+
+        child = createRole(roleService, child);
+        assertTrue(child.getResources().contains(RESOURCE_NAME_LDAP));
+
+        final ConnObjectTO childRemoteObject =
+                readConnectorObject(RESOURCE_NAME_LDAP, child.getId(), AttributableType.ROLE);
+        assertNotNull(childRemoteObject);
+        assertNotNull(getLdapRemoteObject(childRemoteObject.getAttributeMap().get(Name.NAME).getValues().get(0)));
+
+        // 3. remove parent role
+        roleService.delete(parent.getId());
+
+        // 4. asserts for issue 455
+        try {
+            roleService.read(parent.getId());
+            fail();
+        } catch (SyncopeClientCompositeErrorException scce) {
+            // ignore
+        }
+
+        try {
+            roleService.read(child.getId());
+            fail();
+        } catch (SyncopeClientCompositeErrorException scce) {
+            // ignore
+        }
+
+        assertNull(getLdapRemoteObject(parentRemoteObject.getAttributeMap().get(Name.NAME).getValues().get(0)));
+        assertNull(getLdapRemoteObject(childRemoteObject.getAttributeMap().get(Name.NAME).getValues().get(0)));
+    }
+
+    private Object getLdapRemoteObject(final String name) {
+        ResourceTO ldapRes = resourceService.read(RESOURCE_NAME_LDAP);
+        final Map<String, ConnConfProperty> ldapConnConf =
+                connectorService.read(ldapRes.getConnectorId()).getConfigurationMap();
+
+        Hashtable env = new Hashtable();
+        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+        env.put(Context.PROVIDER_URL, "ldap://" + ldapConnConf.get("host").getValues().get(0)
+                + ":" + ldapConnConf.get("port").getValues().get(0) + "/");
+        env.put(Context.SECURITY_AUTHENTICATION, "simple");
+        env.put(Context.SECURITY_PRINCIPAL, ldapConnConf.get("principal").getValues().get(0));
+        env.put(Context.SECURITY_CREDENTIALS, ldapConnConf.get("credentials").getValues().get(0));
+
+        try {
+            final InitialDirContext ctx = new InitialDirContext(env);
+            return ctx.lookup(name);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
