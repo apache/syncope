@@ -173,7 +173,7 @@ public class RoleController extends AbstractController<RoleTO> {
 
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.POST, value = "/search")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<RoleTO> search(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -182,7 +182,7 @@ public class RoleController extends AbstractController<RoleTO> {
 
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.POST, value = "/search/{page}/{size}")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<RoleTO> search(@RequestBody final NodeCond searchCondition, @PathVariable("page") final int page,
             @PathVariable("size") final int size)
             throws InvalidSearchConditionException {
@@ -206,7 +206,7 @@ public class RoleController extends AbstractController<RoleTO> {
 
     @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.POST, value = "/search/count")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public ModelAndView searchCount(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -306,7 +306,7 @@ public class RoleController extends AbstractController<RoleTO> {
         final List<SyncopeRole> toBeDeprovisioned = new ArrayList<SyncopeRole>();
 
         final SyncopeRole syncopeRole = roleDAO.find(roleId);
-        
+
         if (syncopeRole != null) {
             toBeDeprovisioned.add(syncopeRole);
 

@@ -58,6 +58,7 @@ import org.apache.syncope.core.workflow.WorkflowResult;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Manage the data propagation to external resources.
  */
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = { Throwable.class })
 public class PropagationManager {
 
     /**
@@ -196,7 +197,7 @@ public class PropagationManager {
             propByRes.get(ResourceOperation.CREATE).removeAll(noPropResourceNames);
         }
 
-        return createTasks(attributable, password, null, null, enable, false, propByRes);
+        return createTasks(attributable, password, true, null, null, enable, false, propByRes);
     }
 
     /**
@@ -215,6 +216,7 @@ public class PropagationManager {
         return getUpdateTaskIds(
                 user, // SyncopeUser to be updated on external resources
                 null, // no password
+                false,
                 enable, // status to be propagated
                 Collections.<String>emptySet(), // no virtual attributes to be managed
                 Collections.<AttributeMod>emptySet(), // no virtual attributes to be managed
@@ -234,7 +236,7 @@ public class PropagationManager {
             throws NotFoundException, UnauthorizedRoleException {
 
         return getUserUpdateTaskIds(
-                wfResult, null, Collections.<String>emptySet(), Collections.<AttributeMod>emptySet(), null);
+                wfResult, null, false, Collections.<String>emptySet(), Collections.<AttributeMod>emptySet(), null);
     }
 
     /**
@@ -252,7 +254,7 @@ public class PropagationManager {
             final String password, final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated)
             throws NotFoundException, UnauthorizedRoleException {
 
-        return getUserUpdateTaskIds(wfResult, password, vAttrsToBeRemoved, vAttrsToBeUpdated, null);
+        return getUserUpdateTaskIds(wfResult, password, true, vAttrsToBeRemoved, vAttrsToBeUpdated, null);
     }
 
     /**
@@ -260,6 +262,7 @@ public class PropagationManager {
      *
      * @param wfResult user to be propagated (and info associated), as per result from workflow
      * @param password to be updated
+     * @param changePwd whether password should be included for propagation attributes or not
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
      * @param noPropResourceNames external resources not to be considered for propagation
@@ -268,12 +271,13 @@ public class PropagationManager {
      * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given user
      */
     public List<PropagationTask> getUserUpdateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password, final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
+            final String password, final boolean changePwd,
+            final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
             final Set<String> noPropResourceNames)
             throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeUser user = userDataBinder.getUserFromId(wfResult.getResult().getKey());
-        return getUpdateTaskIds(user, password, wfResult.getResult().getValue(),
+        return getUpdateTaskIds(user, password, changePwd, wfResult.getResult().getValue(),
                 vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.getPropByRes(), noPropResourceNames);
     }
 
@@ -311,12 +315,12 @@ public class PropagationManager {
             throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeRole role = roleDataBinder.getRoleFromId(wfResult.getResult());
-        return getUpdateTaskIds(role, null, null,
+        return getUpdateTaskIds(role, null, false, null,
                 vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.getPropByRes(), noPropResourceNames);
     }
 
     protected List<PropagationTask> getUpdateTaskIds(final AbstractAttributable attributable,
-            final String password, final Boolean enable,
+            final String password, final boolean changePwd, final Boolean enable,
             final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
             final PropagationByResource propByRes, final Set<String> noPropResourceNames)
             throws NotFoundException {
@@ -348,7 +352,7 @@ public class PropagationManager {
             }
         }
 
-        return createTasks(attributable, password,
+        return createTasks(attributable, password, changePwd,
                 vAttrsToBeRemoved, vAttrsToBeUpdatedMap, enable, false, localPropByRes);
     }
 
@@ -396,7 +400,7 @@ public class PropagationManager {
      */
     public List<PropagationTask> getUserDeleteTaskIds(final WorkflowResult<Long> wfResult) {
         SyncopeUser user = userDataBinder.getUserFromId(wfResult.getResult());
-        return createTasks(user, null, null, null, false, true, wfResult.getPropByRes());
+        return createTasks(user, null, false, null, null, false, true, wfResult.getPropByRes());
     }
 
     /**
@@ -441,7 +445,7 @@ public class PropagationManager {
         if (noPropResourceName != null) {
             propByRes.get(ResourceOperation.DELETE).remove(noPropResourceName);
         }
-        return createTasks(attributable, null, null, null, false, true, propByRes);
+        return createTasks(attributable, null, false, null, null, false, true, propByRes);
     }
 
     /**
@@ -451,6 +455,7 @@ public class PropagationManager {
      * @param attrUtil user / role
      * @param subject given user / role
      * @param password clear-text password
+     * @param changePwd whether password should be included for propagation attributes or not
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
      * @param enable whether user must be enabled or not
@@ -458,7 +463,7 @@ public class PropagationManager {
      * @return account link + prepared attributes
      */
     protected <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> prepareAttributes(
-            final AttributableUtil attrUtil, final T subject, final String password,
+            final AttributableUtil attrUtil, final T subject, final String password, final boolean changePwd,
             final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated,
             final Boolean enable, final ExternalResource resource) {
 
@@ -483,11 +488,11 @@ public class PropagationManager {
                 Map.Entry<String, Attribute> preparedAttribute = MappingUtil.prepareAttribute(
                         resource, mapping, subject, password, passwordGenerator, vAttrsToBeRemoved, vAttrsToBeUpdated);
 
-                if (preparedAttribute.getKey() != null) {
+                if (preparedAttribute != null && preparedAttribute.getKey() != null) {
                     accountId = preparedAttribute.getKey();
                 }
 
-                if (preparedAttribute.getValue() != null) {
+                if (preparedAttribute != null && preparedAttribute.getValue() != null) {
                     Attribute alreadyAdded = AttributeUtil.find(preparedAttribute.getValue().getName(), attributes);
                     if (alreadyAdded == null) {
                         attributes.add(preparedAttribute.getValue());
@@ -510,6 +515,12 @@ public class PropagationManager {
         if (enable != null) {
             attributes.add(AttributeBuilder.buildEnabled(enable));
         }
+        if (!changePwd) {
+            Attribute pwdAttr = AttributeUtil.find(OperationalAttributes.PASSWORD_NAME, attributes);
+            if (pwdAttr != null) {
+                attributes.remove(pwdAttr);
+            }
+        }
 
         return new SimpleEntry<String, Set<Attribute>>(accountId, attributes);
     }
@@ -520,6 +531,7 @@ public class PropagationManager {
      * @param <T> user / role
      * @param subject user / role to be provisioned
      * @param password cleartext password to be provisioned
+     * @param changePwd whether password should be included for propagation attributes or not
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
      * @param enable whether user must be enabled or not
@@ -527,7 +539,8 @@ public class PropagationManager {
      * @param propByRes operation to be performed per resource
      * @return list of propagation tasks created
      */
-    protected <T extends AbstractAttributable> List<PropagationTask> createTasks(final T subject, final String password,
+    protected <T extends AbstractAttributable> List<PropagationTask> createTasks(final T subject,
+            final String password, final boolean changePwd,
             final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated,
             final Boolean enable, final boolean deleteOnResource,
             final PropagationByResource propByRes) {
@@ -579,8 +592,8 @@ public class PropagationManager {
                     task.setPropagationMode(resource.getPropagationMode());
                     task.setOldAccountId(propByRes.getOldAccountId(resource.getName()));
 
-                    Map.Entry<String, Set<Attribute>> preparedAttrs = prepareAttributes(attrUtil, subject, password,
-                            vAttrsToBeRemoved, vAttrsToBeUpdated, enable, resource);
+                    Map.Entry<String, Set<Attribute>> preparedAttrs = prepareAttributes(attrUtil, subject,
+                            password, changePwd, vAttrsToBeRemoved, vAttrsToBeUpdated, enable, resource);
                     task.setAccountId(preparedAttrs.getKey());
 
                     // Check if any of mandatory attributes (in the mapping) is missing or not received any value: 

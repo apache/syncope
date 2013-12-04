@@ -74,6 +74,7 @@ public class EditUserModalPage extends UserModalPage {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     protected void submitAction(final AjaxRequestTarget target, final Form form) {
         final UserTO updatedUserTO = (UserTO) form.getModelObject();
@@ -94,6 +95,7 @@ public class EditUserModalPage extends UserModalPage {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     protected void closeAction(final AjaxRequestTarget target, final Form form) {
         setResponsePage(new ResultStatusModalPage.Builder(window, userTO).mode(mode).build());

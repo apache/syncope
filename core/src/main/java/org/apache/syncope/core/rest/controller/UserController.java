@@ -320,6 +320,7 @@ public class UserController extends AbstractController<UserTO> {
                 tasks.addAll(propagationManager.getUserUpdateTaskIds(
                         updated,
                         changedPwd,
+                        true,
                         actual.getVirtualAttributesToBeRemoved(),
                         actual.getVirtualAttributesToBeUpdated(),
                         toBeExcluded));
@@ -335,6 +336,7 @@ public class UserController extends AbstractController<UserTO> {
                 tasks.addAll(propagationManager.getUserUpdateTaskIds(
                         updated,
                         null,
+                        false,
                         actual.getVirtualAttributesToBeRemoved(),
                         actual.getVirtualAttributesToBeUpdated(),
                         pwdResourceNames));
@@ -529,6 +531,7 @@ public class UserController extends AbstractController<UserTO> {
                             updated.getPropByRes(),
                             updated.getPerformedTasks()),
                     updated.getResult().getValue(),
+                    true,
                     null,
                     null,
                     null);

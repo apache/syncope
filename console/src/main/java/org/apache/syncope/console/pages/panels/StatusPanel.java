@@ -266,12 +266,11 @@ public class StatusPanel extends Panel implements IHeaderContributor {
     }
 
     public PropagationRequestTO getPropagationRequestTO() {
-        PropagationRequestTO result = null;
+        PropagationRequestTO result = new PropagationRequestTO();
 
         Collection<StatusBean> statusBeans = checkGroup.getModel().getObject();
         if (statusBeans != null && !statusBeans.isEmpty()) {
             result = StatusUtils.buildPropagationRequestTO(statusBeans);
-
         }
 
         return result;

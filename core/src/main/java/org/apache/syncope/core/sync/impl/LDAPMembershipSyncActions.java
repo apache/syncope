@@ -211,7 +211,9 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
             updated = uwfAdapter.update(userMod);
 
             List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated,
-                    userMod.getPassword(), userMod.getVirtualAttributesToBeRemoved(),
+                    null,
+                    false,
+                    userMod.getVirtualAttributesToBeRemoved(),
                     userMod.getVirtualAttributesToBeUpdated(),
                     Collections.singleton(resourceName));
 

@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.naming.NamingException;
 
 import javax.ws.rs.core.Response;
 
@@ -72,6 +73,7 @@ import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.workflow.ActivitiDetector;
+import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
@@ -577,7 +579,7 @@ public class UserTestITCase extends AbstractTest {
         Exception exception = null;
         try {
             jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
-                    new String[] {userTO.getUsername()}, Integer.class);
+                    new String[] { userTO.getUsername() }, Integer.class);
         } catch (EmptyResultDataAccessException e) {
             exception = e;
         }
@@ -614,7 +616,7 @@ public class UserTestITCase extends AbstractTest {
         Exception exception = null;
         try {
             jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
-                    new String[] {userTO.getUsername()}, Integer.class);
+                    new String[] { userTO.getUsername() }, Integer.class);
         } catch (EmptyResultDataAccessException e) {
             exception = e;
         }
@@ -1134,10 +1136,11 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_TESTDB, userId, AttributableType.USER);
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, AttributableType.USER, userId);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_LDAP, userId, AttributableType.USER);
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.USER, userId);
         assertNotNull(connObjectTO);
 
         // Suspend and reactivate only on ldap => db and syncope should still show suspended
@@ -1149,7 +1152,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_TESTDB, userId, AttributableType.USER);
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, AttributableType.USER, userId);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
         // Reactivate on syncope and db => syncope and db should show the user as active
@@ -1161,7 +1164,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_TESTDB, userId, AttributableType.USER);
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, AttributableType.USER, userId);
         assertTrue(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
     }
 
@@ -1262,11 +1265,9 @@ public class UserTestITCase extends AbstractTest {
 
         // 2. try to update by adding a resource, but no password: must fail
         UserMod userMod = AttributableOperations.diff(toBeUpdated, original);
-
         assertNotNull(userMod);
 
         toBeUpdated = userService.update(userMod.getId(), userMod);
-
         assertNotNull(toBeUpdated);
 
         assertFalse(toBeUpdated.getVirtualAttributes().isEmpty());
@@ -1364,7 +1365,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertNotNull(actual.getDerivedAttributeMap().get("csvuserid"));
 
-        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId(), AttributableType.USER);
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
         assertEquals("sx-dx", connObjectTO.getAttributeMap().get("ROLE").getValues().get(0));
     }
@@ -1391,7 +1393,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertNotNull(actual.getDerivedAttributeMap().get("csvuserid"));
 
-        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId(), AttributableType.USER);
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
         assertEquals("sx-dx", connObjectTO.getAttributeMap().get("MEMBERSHIP").getValues().get(0));
     }
@@ -1422,7 +1425,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(2, actual.getMemberships().size());
         assertEquals(1, actual.getResources().size());
 
-        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId(), AttributableType.USER);
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
 
         // -----------------------------------
@@ -1437,7 +1441,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals(1, actual.getMemberships().size());
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId(), AttributableType.USER);
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1454,7 +1458,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, actual.getMemberships().size());
         assertFalse(actual.getResources().isEmpty());
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId(), AttributableType.USER);
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1472,7 +1476,7 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            readConnectorObject(RESOURCE_NAME_CSV, actual.getId(), AttributableType.USER);
+            resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
             fail("Read should not succeeed");
         } catch (SyncopeClientCompositeErrorException e) {
             assertNotNull(e.getException(SyncopeClientExceptionType.NotFound));
@@ -1503,7 +1507,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals(2, actual.getMemberships().size());
 
-        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_LDAP, actual.getId(), AttributableType.USER);
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
 
         AttributeTO postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
@@ -1532,7 +1537,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals(1, actual.getMemberships().size());
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_LDAP, actual.getId(), AttributableType.USER);
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.USER, actual.getId());
         assertNotNull(connObjectTO);
 
         postalAddress = connObjectTO.getAttributeMap().get("postalAddress");
@@ -1564,7 +1569,7 @@ public class UserTestITCase extends AbstractTest {
 
         // 3. try (and fail) to find this user on the external LDAP resource
         try {
-            readConnectorObject(RESOURCE_NAME_LDAP, userTO.getId(), AttributableType.USER);
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.USER, userTO.getId());
             fail("This entry should not be present on this resource");
         } catch (SyncopeClientCompositeErrorException sccee) {
             SyncopeClientException sce = sccee.getException(SyncopeClientExceptionType.NotFound);
@@ -1617,7 +1622,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(RESOURCE_NAME_DBVIRATTR, userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_DBVIRATTR, userTO.getId(), AttributableType.USER);
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_DBVIRATTR, AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue", connObjectTO.getAttributeMap().get("USERNAME").getValues().get(0));
         // ----------------------------------
@@ -1811,7 +1817,8 @@ public class UserTestITCase extends AbstractTest {
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
 
-        final ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_CSV, actual.getId(), AttributableType.USER);
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNull(connObjectTO.getAttributeMap().get("email"));
     }
 
@@ -2085,6 +2092,39 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
         assertTrue(userTO.getPropagationStatusTOs().get(0).getFailureReason().
                 startsWith("Not attempted because there are mandatory attributes without value(s): [__PASSWORD__]"));
+    }
+
+    @Test
+    public void issueSYNCOPE454() throws NamingException {
+        // 1. create user with LDAP resource (with 'Generate password if missing' enabled)
+        UserTO userTO = getUniqueSampleTO("syncope454@syncope.apache.org");
+        userTO.getResources().add(RESOURCE_NAME_LDAP);
+        userTO = createUser(userTO);
+        assertNotNull(userTO);
+
+        // 2. read resource configuration for LDAP binding
+        ConnObjectTO connObject =
+                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.USER, userTO.getId());
+
+        // 3. try (and succeed) to perform simple LDAP binding with provided password ('password123')
+        assertNotNull(getLdapRemoteObject(
+                connObject.getAttributeMap().get(Name.NAME).getValues().get(0),
+                "password123",
+                connObject.getAttributeMap().get(Name.NAME).getValues().get(0)));
+
+        // 4. update user without any password change request
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPwdPropRequest(new PropagationRequestTO());
+        userMod.getAttributesToBeUpdated().add(attributeMod("surname", "surname2"));
+
+        userService.update(userTO.getId(), userMod);
+
+        // 5. try (and succeed again) to perform simple LDAP binding: password has not changed
+        assertNotNull(getLdapRemoteObject(
+                connObject.getAttributeMap().get(Name.NAME).getValues().get(0),
+                "password123",
+                connObject.getAttributeMap().get(Name.NAME).getValues().get(0)));
     }
 
     private boolean getBooleanAttribute(final ConnObjectTO connObjectTO, final String attrName) {

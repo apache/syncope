@@ -100,7 +100,8 @@ public class VirAttrTestITCase extends AbstractTest {
         assertEquals(RESOURCE_NAME_WS2, userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        ConnObjectTO connObjectTO = readConnectorObject(RESOURCE_NAME_WS2, userTO.getId(), AttributableType.USER);
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_WS2, AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
         // ----------------------------------
@@ -124,7 +125,7 @@ public class VirAttrTestITCase extends AbstractTest {
         assertEquals(RESOURCE_NAME_WS2, userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_WS2, userTO.getId(), AttributableType.USER);
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
         // ----------------------------------
@@ -135,7 +136,7 @@ public class VirAttrTestITCase extends AbstractTest {
         userTO = userService.suspend(userTO.getId());
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_WS2, userTO.getId(), AttributableType.USER);
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertFalse(connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
         assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
@@ -143,7 +144,7 @@ public class VirAttrTestITCase extends AbstractTest {
         userTO = userService.reactivate(userTO.getId());
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_WS2, userTO.getId(), AttributableType.USER);
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertFalse(connObjectTO.getAttributeMap().get("NAME").getValues().isEmpty());
         assertEquals("virtualvalue2", connObjectTO.getAttributeMap().get("NAME").getValues().get(0));
@@ -168,7 +169,7 @@ public class VirAttrTestITCase extends AbstractTest {
         assertEquals(RESOURCE_NAME_WS2, userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_WS2, userTO.getId(), AttributableType.USER);
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("Surname2", connObjectTO.getAttributeMap().get("SURNAME").getValues().get(0));
 
@@ -191,7 +192,7 @@ public class VirAttrTestITCase extends AbstractTest {
         assertEquals(RESOURCE_NAME_WS2, userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        connObjectTO = readConnectorObject(RESOURCE_NAME_WS2, userTO.getId(), AttributableType.USER);
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
 
         // attribute "name" mapped on virtual attribute "virtualdata" should be reset
@@ -505,7 +506,7 @@ public class VirAttrTestITCase extends AbstractTest {
 
         final Map<String, Object> actuals = jdbcTemplate.queryForMap(
                 "SELECT id, surname, email FROM testsync WHERE id=?",
-                new Object[] {Integer.parseInt(userTO.getAttributeMap().get("aLong").getValues().get(0))});
+                new Object[] { Integer.parseInt(userTO.getAttributeMap().get("aLong").getValues().get(0)) });
 
         assertEquals(userTO.getAttributeMap().get("aLong").getValues().get(0), actuals.get("id").toString());
         assertEquals("ml@role.it", actuals.get("email"));

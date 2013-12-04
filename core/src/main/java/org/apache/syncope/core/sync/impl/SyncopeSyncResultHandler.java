@@ -377,7 +377,6 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             final ConnectorObject connObj, final List<String> altSearchSchemas, final AttributableUtil attrUtil) {
 
         // search for external attribute's name/value of each specified name
-
         final Map<String, Attribute> extValues = new HashMap<String, Attribute>();
 
         for (AbstractMappingItem item
@@ -476,7 +475,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         final List<ConnectorObject> found = connector.search(objectClass,
                 new EqualsFilter(new Name(name)), connector.getOperationOptions(
-                attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
+                        attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", objectClass, syncTask.getResource(), name);
@@ -681,6 +680,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated,
                 actual.getPassword(),
+                actual.getPassword() != null,
                 actual.getVirtualAttributesToBeRemoved(),
                 actual.getVirtualAttributesToBeUpdated(),
                 Collections.singleton(syncTask.getResource().getName()));
