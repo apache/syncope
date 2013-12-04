@@ -174,7 +174,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public List<RoleTO> search(final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -182,7 +182,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public List<RoleTO> search(final NodeCond searchCondition, final int page, final int size)
             throws InvalidSearchConditionException {
 
@@ -204,7 +204,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public int searchCount(final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -307,15 +307,31 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
             throw sce;
         }
 
-        // Generate propagation tasks for deleting users from role resources, if they are on those resources only
-        // because of the reason being deleted (see SYNCOPE-357)
-        List<PropagationTask> tasks = new ArrayList<PropagationTask>();
-        for (WorkflowResult<Long> wfResult : binder.getUsersOnResourcesOnlyBecauseOfRole(roleId)) {
-            tasks.addAll(propagationManager.getUserDeleteTaskIds(wfResult));
+        final List<SyncopeRole> toBeDeprovisioned = new ArrayList<SyncopeRole>();
+
+        final SyncopeRole syncopeRole = roleDAO.find(roleId);
+        
+        if (syncopeRole != null) {
+            toBeDeprovisioned.add(syncopeRole);
+
+            final List<SyncopeRole> descendants = roleDAO.findDescendants(toBeDeprovisioned.get(0));
+            if (descendants != null) {
+                toBeDeprovisioned.addAll(descendants);
+            }
         }
 
-        // Generate propagation tasks for deleting this role from resources
-        tasks.addAll(propagationManager.getRoleDeleteTaskIds(roleId));
+        final List<PropagationTask> tasks = new ArrayList<PropagationTask>();
+
+        for (SyncopeRole role : toBeDeprovisioned) {
+            // Generate propagation tasks for deleting users from role resources, if they are on those resources only
+            // because of the reason being deleted (see SYNCOPE-357)
+            for (WorkflowResult<Long> wfResult : binder.getUsersOnResourcesOnlyBecauseOfRole(role.getId())) {
+                tasks.addAll(propagationManager.getUserDeleteTaskIds(wfResult));
+            }
+
+            // Generate propagation tasks for deleting this role from resources
+            tasks.addAll(propagationManager.getRoleDeleteTaskIds(role.getId()));
+        }
 
         RoleTO roleTO = new RoleTO();
         roleTO.setId(roleId);
