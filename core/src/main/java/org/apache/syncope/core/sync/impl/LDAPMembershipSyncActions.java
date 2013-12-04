@@ -211,7 +211,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
             updated = uwfAdapter.update(userMod);
 
             List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
-                    updated, Collections.singleton(resourceName));
+                    updated, false, Collections.singleton(resourceName));
 
             taskExecutor.execute(tasks);
             result = Result.SUCCESS;

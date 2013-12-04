@@ -261,6 +261,7 @@ under the License.
                   <fileset dir="${project.build.directory}/test-classes">
                     <exclude name="**/*.class"/>
                     <exclude name="restClientContext.xml"/>
+                    <exclude name="rest.properties"/>
                   </fileset>
                 </copy>
               </target>

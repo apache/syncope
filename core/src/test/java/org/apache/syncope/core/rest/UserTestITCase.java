@@ -73,6 +73,7 @@ import org.identityconnectors.framework.common.objects.OperationalAttributes;
 
 import java.io.IOException;
 import java.io.InputStream;
+import javax.naming.NamingException;
 import javax.ws.rs.core.EntityTag;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
@@ -81,6 +82,7 @@ import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.types.Preference;
 import org.apache.syncope.common.types.RESTHeaders;
+import org.identityconnectors.framework.common.objects.Name;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -1060,7 +1062,6 @@ public class UserTestITCase extends AbstractTest {
 
         // 2. try to update by adding a resource, but no password: must fail
         UserMod userMod = AttributableOperations.diff(toBeUpdated, original);
-
         assertNotNull(userMod);
 
         toBeUpdated = updateUser(userMod);
@@ -1447,7 +1448,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject("resource-db-virattr", AttributableType.USER, userTO.getId());
+                resourceService.getConnectorObject(RESOURCE_NAME_DBVIRATTR, AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue", connObjectTO.getAttrMap().get("USERNAME").getValues().get(0));
         // ----------------------------------
@@ -1636,7 +1637,7 @@ public class UserTestITCase extends AbstractTest {
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
 
-        final ConnObjectTO connObjectTO =
+        ConnObjectTO connObjectTO =
                 resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
         assertNull(connObjectTO.getAttrMap().get("email"));
     }
@@ -2043,4 +2044,38 @@ public class UserTestITCase extends AbstractTest {
         userTO = userService.read(userTO.getId());
         assertTrue(userTO.getUsername().endsWith("XX"));
     }
+
+    @Test
+    public void issueSYNCOPE454() throws NamingException {
+        // 1. create user with LDAP resource (with 'Generate password if missing' enabled)
+        UserTO userTO = getUniqueSampleTO("syncope454@syncope.apache.org");
+        userTO.getResources().add(RESOURCE_NAME_LDAP);
+        userTO = createUser(userTO);
+        assertNotNull(userTO);
+
+        // 2. read resource configuration for LDAP binding
+        ConnObjectTO connObject =
+                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.USER, userTO.getId());
+
+        // 3. try (and succeed) to perform simple LDAP binding with provided password ('password123')
+        assertNotNull(getLdapRemoteObject(
+                connObject.getAttrMap().get(Name.NAME).getValues().get(0),
+                "password123",
+                connObject.getAttrMap().get(Name.NAME).getValues().get(0)));
+
+        // 4. update user without any password change request
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPwdPropRequest(new StatusMod());
+        userMod.getAttrsToUpdate().add(attributeMod("surname", "surname2"));
+
+        userService.update(userTO.getId(), userMod);
+
+        // 5. try (and succeed again) to perform simple LDAP binding: password has not changed
+        assertNotNull(getLdapRemoteObject(
+                connObject.getAttrMap().get(Name.NAME).getValues().get(0),
+                "password123",
+                connObject.getAttrMap().get(Name.NAME).getValues().get(0)));
+    }
+
 }

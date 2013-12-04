@@ -136,8 +136,7 @@ public class VirAttrTestITCase extends AbstractTest {
         userTO = userService.status(userTO.getId(), statusMod).readEntity(UserTO.class);
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_WS2, AttributableType.USER, userTO.getId());
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertFalse(connObjectTO.getAttrMap().get("NAME").getValues().isEmpty());
         assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
@@ -147,8 +146,7 @@ public class VirAttrTestITCase extends AbstractTest {
         userTO = userService.status(userTO.getId(), statusMod).readEntity(UserTO.class);
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_WS2, AttributableType.USER, userTO.getId());
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, AttributableType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertFalse(connObjectTO.getAttrMap().get("NAME").getValues().isEmpty());
         assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("NAME").getValues().get(0));

@@ -22,9 +22,12 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
-
+import javax.naming.Context;
+import javax.naming.directory.InitialDirContext;
 import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
@@ -58,6 +61,7 @@ import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.core.util.PasswordEncoder;
@@ -70,7 +74,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:testJDBCContext.xml"})
+@ContextConfiguration(locations = { "classpath:testJDBCContext.xml" })
 public abstract class AbstractTest {
 
     /**
@@ -257,14 +261,14 @@ public abstract class AbstractTest {
     protected UserTO deleteUser(final Long id) {
         return userService.delete(id).readEntity(UserTO.class);
     }
-    
+
     public <T> T getObject(final URI location, final Class<?> serviceClass, final Class<T> resultClass) {
         WebClient webClient = WebClient.fromClient(WebClient.client(adminClient.getService(serviceClass)));
         webClient.accept(clientFactory.getContentType().getMediaType()).to(location.toASCIIString(), false);
 
         return webClient.get(resultClass);
     }
-    
+
     @SuppressWarnings("unchecked")
     protected <T extends AbstractSchemaTO> T createSchema(final AttributableType kind,
             final SchemaType type, final T schemaTO) {
@@ -320,5 +324,33 @@ public abstract class AbstractTest {
             }
         }
         return getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
+    }
+
+    protected Object getLdapRemoteObject(final String objectDn) {
+        return getLdapRemoteObject(null, null, objectDn);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes", "UseOfObsoleteCollectionType" })
+    protected Object getLdapRemoteObject(final String bindDn, final String bindPwd, final String objectDn) {
+        ResourceTO ldapRes = resourceService.read(RESOURCE_NAME_LDAP);
+        final Map<String, ConnConfProperty> ldapConnConf =
+                connectorService.read(ldapRes.getConnectorId()).getConfigurationMap();
+
+        Hashtable env = new Hashtable();
+        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+        env.put(Context.PROVIDER_URL, "ldap://" + ldapConnConf.get("host").getValues().get(0)
+                + ":" + ldapConnConf.get("port").getValues().get(0) + "/");
+        env.put(Context.SECURITY_AUTHENTICATION, "simple");
+        env.put(Context.SECURITY_PRINCIPAL,
+                bindDn == null ? ldapConnConf.get("principal").getValues().get(0) : bindDn);
+        env.put(Context.SECURITY_CREDENTIALS,
+                bindPwd == null ? ldapConnConf.get("credentials").getValues().get(0) : bindPwd);
+
+        try {
+            final InitialDirContext ctx = new InitialDirContext(env);
+            return ctx.lookup(objectDn);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

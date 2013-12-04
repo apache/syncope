@@ -228,12 +228,11 @@ public class StatusPanel extends Panel implements IHeaderContributor {
     }
 
     public StatusMod getStatusMod() {
-        StatusMod result = null;
+        StatusMod result = new StatusMod();
 
         Collection<StatusBean> statusBeans = checkGroup.getModel().getObject();
         if (statusBeans != null && !statusBeans.isEmpty()) {
             result = StatusUtils.buildStatusMod(statusBeans);
-
         }
 
         return result;

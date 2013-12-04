@@ -105,7 +105,7 @@ public class Reports extends BasePage {
         setupAudit();
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private void setupReport() {
         reportContainer = new WebMarkupContainer("reportContainer");
         setWindowClosedCallback(window, reportContainer);
@@ -272,6 +272,7 @@ public class Reports extends BasePage {
         add(createLink);
     }
 
+    @SuppressWarnings("rawtypes")
     private void setupAudit() {
         auditContainer = new WebMarkupContainer("auditContainer");
         auditContainer.setOutputMarkupId(true);
@@ -300,77 +301,79 @@ public class Reports extends BasePage {
         form.add(new LoggerCategoryPanel(
                 "events", loggerRestClient.listEvents(), model, getPageReference(), "Reports") {
 
-            private static final long serialVersionUID = 6113164334533550277L;
+                    private static final long serialVersionUID = 6113164334533550277L;
 
-            @Override
-            protected String[] getListRoles() {
-                return new String[] {
-                    xmlRolesReader.getAllAllowedRoles("Audit", "list")
-                };
-            }
+                    @Override
+                    protected String[] getListRoles() {
+                        return new String[] {
+                            xmlRolesReader.getAllAllowedRoles("Audit", "list")
+                        };
+                    }
 
-            @Override
-            protected String[] getChangeRoles() {
-                return new String[] {
-                    xmlRolesReader.getAllAllowedRoles("Audit", "enable"),
-                    xmlRolesReader.getAllAllowedRoles("Audit", "disable")
-                };
-            }
+                    @Override
+                    protected String[] getChangeRoles() {
+                        return new String[] {
+                            xmlRolesReader.getAllAllowedRoles("Audit", "enable"),
+                            xmlRolesReader.getAllAllowedRoles("Audit", "disable")
+                        };
+                    }
 
-            @Override
-            public void onEventAction(final IEvent<?> event) {
-                if (event.getPayload() instanceof SelectedEventsPanel.EventSelectionChanged) {
+                    @Override
+                    public void onEventAction(final IEvent<?> event) {
+                        if (event.getPayload() instanceof SelectedEventsPanel.EventSelectionChanged) {
 
-                    final SelectedEventsPanel.EventSelectionChanged eventSelectionChanged =
+                            final SelectedEventsPanel.EventSelectionChanged eventSelectionChanged =
                             (SelectedEventsPanel.EventSelectionChanged) event.getPayload();
 
-                    for (String toBeRemoved : eventSelectionChanged.getToBeRemoved()) {
-                        if (events.contains(toBeRemoved)) {
-                            final Map.Entry<EventCategoryTO, Result> eventCategory =
+                            for (String toBeRemoved : eventSelectionChanged.getToBeRemoved()) {
+                                if (events.contains(toBeRemoved)) {
+                                    final Map.Entry<EventCategoryTO, Result> eventCategory =
                                     LoggerEventUtils.parseEventCategory(toBeRemoved);
 
-                            final AuditLoggerName auditLoggerName = new AuditLoggerName(
-                                    eventCategory.getKey().getType(),
-                                    eventCategory.getKey().getCategory(),
-                                    eventCategory.getKey().getSubcategory(),
-                                    CollectionUtils.isEmpty(eventCategory.getKey().getEvents())
-                                    ? null : eventCategory.getKey().getEvents().iterator().next(),
-                                    eventCategory.getValue());
+                                    final AuditLoggerName auditLoggerName = new AuditLoggerName(
+                                            eventCategory.getKey().getType(),
+                                            eventCategory.getKey().getCategory(),
+                                            eventCategory.getKey().getSubcategory(),
+                                            CollectionUtils.isEmpty(eventCategory.getKey().getEvents())
+                                            ? null : eventCategory.getKey().getEvents().iterator().next(),
+                                            eventCategory.getValue());
 
-                            loggerRestClient.disableAudit(auditLoggerName);
-                            events.remove(toBeRemoved);
-                        }
-                    }
+                                    loggerRestClient.disableAudit(auditLoggerName);
+                                    events.remove(toBeRemoved);
+                                }
+                            }
 
-                    for (String toBeAdded : eventSelectionChanged.getToBeAdded()) {
-                        if (!events.contains(toBeAdded)) {
-                            final Map.Entry<EventCategoryTO, Result> eventCategory =
+                            for (String toBeAdded : eventSelectionChanged.getToBeAdded()) {
+                                if (!events.contains(toBeAdded)) {
+                                    final Map.Entry<EventCategoryTO, Result> eventCategory =
                                     LoggerEventUtils.parseEventCategory(toBeAdded);
 
-                            final AuditLoggerName auditLoggerName = new AuditLoggerName(
-                                    eventCategory.getKey().getType(),
-                                    eventCategory.getKey().getCategory(),
-                                    eventCategory.getKey().getSubcategory(),
-                                    CollectionUtils.isEmpty(eventCategory.getKey().getEvents())
-                                    ? null : eventCategory.getKey().getEvents().iterator().next(),
-                                    eventCategory.getValue());
+                                    final AuditLoggerName auditLoggerName = new AuditLoggerName(
+                                            eventCategory.getKey().getType(),
+                                            eventCategory.getKey().getCategory(),
+                                            eventCategory.getKey().getSubcategory(),
+                                            CollectionUtils.isEmpty(eventCategory.getKey().getEvents())
+                                            ? null : eventCategory.getKey().getEvents().iterator().next(),
+                                            eventCategory.getValue());
 
-                            loggerRestClient.enableAudit(auditLoggerName);
-                            events.add(toBeAdded);
+                                    loggerRestClient.enableAudit(auditLoggerName);
+                                    events.add(toBeAdded);
+                                }
+                            }
                         }
                     }
-                }
-            }
-        });
+                });
     }
 
     private class ReportProvider extends SortableDataProvider<ReportTO, String> {
 
         private static final long serialVersionUID = -2311716167583335852L;
 
-        private SortableDataProviderComparator<ReportTO> comparator;
+        private final SortableDataProviderComparator<ReportTO> comparator;
 
         public ReportProvider() {
+            super();
+
             //Default sorting
             setSort("id", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<ReportTO>(this);

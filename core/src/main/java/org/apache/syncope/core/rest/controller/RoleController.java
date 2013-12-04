@@ -174,7 +174,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<RoleTO> search(final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -182,7 +182,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<RoleTO> search(final NodeCond searchCondition, final int page, final int size)
             throws InvalidSearchConditionException {
 
@@ -204,7 +204,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public int searchCount(final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -310,7 +310,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
         final List<SyncopeRole> toBeDeprovisioned = new ArrayList<SyncopeRole>();
 
         final SyncopeRole syncopeRole = roleDAO.find(roleId);
-        
+
         if (syncopeRole != null) {
             toBeDeprovisioned.add(syncopeRole);
 

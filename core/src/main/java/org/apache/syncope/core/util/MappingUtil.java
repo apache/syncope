@@ -247,8 +247,12 @@ public final class MappingUtil {
                     }
                 }
 
-                result = new AbstractMap.SimpleEntry<String, Attribute>(null,
-                        AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
+                if (passwordAttrValue == null) {
+                    result = null;
+                } else {
+                    result = new AbstractMap.SimpleEntry<String, Attribute>(null,
+                            AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
+                }
             } else {
                 if ((schema != null && schema.isMultivalue()) || AttributableUtil.getInstance(subject).getType()
                         != mapItem.getIntMappingType().getAttributableType()) {
