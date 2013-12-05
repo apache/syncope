@@ -280,14 +280,29 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
 
     @Override
     public List<SyncopeRole> findAll() {
-        TypedQuery<SyncopeRole> query = entityManager.createQuery("SELECT e FROM SyncopeRole e", SyncopeRole.class);
+        return findAll(-1, -1);
+    }
+
+    @Override
+    public List<SyncopeRole> findAll(final int page, final int itemsPerPage) {
+        TypedQuery<SyncopeRole> query = entityManager.createQuery(
+                "SELECT e FROM " + SyncopeRole.class.getSimpleName() + " e", SyncopeRole.class);
+
+        query.setFirstResult(itemsPerPage * (page <= 0
+                ? 0
+                : page - 1));
+
+        if (itemsPerPage > 0) {
+            query.setMaxResults(itemsPerPage);
+        }
+
         return query.getResultList();
     }
 
     @Override
     public List<Membership> findMemberships(final SyncopeRole role) {
-        TypedQuery<Membership> query = entityManager.createQuery("SELECT e FROM " + Membership.class.getSimpleName()
-                + " e"
+        TypedQuery<Membership> query = entityManager.createQuery(
+                "SELECT e FROM " + Membership.class.getSimpleName() + " e"
                 + " WHERE e.syncopeRole=:role", Membership.class);
         query.setParameter("role", role);
 
@@ -311,6 +326,14 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
         query.setParameter(1, roleId);
 
         return query.getResultList();
+    }
+
+    @Override
+    public final int count() {
+        Query countQuery = entityManager.createNativeQuery(
+                "SELECT COUNT(e) FROM " + SyncopeRole.class.getSimpleName() + " e");
+
+        return ((Number) countQuery.getSingleResult()).intValue();
     }
 
     @Override

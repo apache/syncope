@@ -86,7 +86,8 @@ public interface RoleService {
      * @return Returns paginated list of roles
      */
     @GET
-    List<RoleTO> list(@QueryParam("page") int page, @QueryParam("size") @DefaultValue("25") int size);
+    List<RoleTO> list(@QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("size") @DefaultValue("25") int size);
 
     /**
      * @param roleId Id of role to get parent role from
@@ -122,7 +123,7 @@ public interface RoleService {
      */
     @POST
     @Path("search")
-    List<RoleTO> search(NodeCond searchCondition, @QueryParam("page") int page,
+    List<RoleTO> search(NodeCond searchCondition, @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("25") int size) throws InvalidSearchConditionException;
 
     /**

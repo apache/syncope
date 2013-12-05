@@ -96,7 +96,7 @@ public interface UserService {
     List<UserTO> list();
 
     /**
-     * Returns a paged list of all existing users.
+     * Returns a paged list of existing users.
      *
      * @param page result page number
      * @param size number of entries per page
@@ -104,10 +104,10 @@ public interface UserService {
      */
     @GET
     @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Returns a paged list of all existing users"),
+        @Description(target = DocTarget.METHOD, value = "Returns a list of all existing users"),
         @Description(target = DocTarget.RETURN, value = "A list of all existing users matching page/size conditions")
     })
-    List<UserTO> list(@Description("result page number") @QueryParam("page") int page,
+    List<UserTO> list(@Description("result page number") @QueryParam("page") @DefaultValue("1") int page,
             @Description("number of entries per page") @QueryParam("size") @DefaultValue("25") int size);
 
     /**
@@ -163,7 +163,7 @@ public interface UserService {
                 value = "List of users matching the given search and page/size conditions")
     })
     List<UserTO> search(@Description("search condition") NodeCond searchCondition,
-            @Description("result page number") @QueryParam("page") int page,
+            @Description("result page number") @QueryParam("page") @DefaultValue("1") int page,
             @Description("number of entries per page") @QueryParam("size") @DefaultValue("25") int size)
             throws InvalidSearchConditionException;
 

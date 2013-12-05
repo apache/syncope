@@ -118,7 +118,7 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
         return userDAO.count(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()));
     }
 
-    @PreAuthorize("hasRole('USER_READ')")
+    @PreAuthorize("hasRole('USER_LIST')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public int searchCount(final NodeCond searchCondition) throws InvalidSearchConditionException {
         if (!searchCondition.isValid()) {
@@ -128,20 +128,6 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
         return searchDAO.count(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()),
                 searchCondition, AttributableUtil.getInstance(AttributableType.USER));
-    }
-
-    @PreAuthorize("hasRole('USER_LIST')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
-    public List<UserTO> list() {
-        List<SyncopeUser> users = userDAO.findAll(
-                EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()));
-
-        List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
-        for (SyncopeUser user : users) {
-            userTOs.add(binder.getUserTO(user));
-        }
-
-        return userTOs;
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
@@ -171,15 +157,7 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
         return binder.getUserTO(userId);
     }
 
-    @PreAuthorize("hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
-    public List<UserTO> search(final NodeCond searchCondition)
-            throws InvalidSearchConditionException {
-
-        return search(searchCondition, -1, -1);
-    }
-
-    @PreAuthorize("hasRole('USER_READ')")
+    @PreAuthorize("hasRole('USER_LIST')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     public List<UserTO> search(final NodeCond searchCondition, final int page, final int size)
             throws InvalidSearchConditionException {

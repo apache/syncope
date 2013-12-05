@@ -20,7 +20,6 @@ package org.apache.syncope.core.services;
 
 import java.util.List;
 
-import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -50,7 +49,7 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
 
     @Override
     public int count() {
-        return controller.list().size();
+        return controller.count();
     }
 
     @Override
@@ -74,12 +73,12 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
 
     @Override
     public List<RoleTO> list() {
-        return controller.list();
+        return list(1, 25);
     }
 
     @Override
     public List<RoleTO> list(final int page, final int size) {
-        throw new ServiceUnavailableException();
+        return controller.list(page, size);
     }
 
     @Override
@@ -94,7 +93,7 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
 
     @Override
     public List<RoleTO> search(final NodeCond searchCondition) throws InvalidSearchConditionException {
-        return controller.search(searchCondition);
+        return controller.search(searchCondition, 1, 25);
     }
 
     @Override

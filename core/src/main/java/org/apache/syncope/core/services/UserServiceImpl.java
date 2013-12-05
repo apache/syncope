@@ -85,7 +85,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
     @Override
     public List<UserTO> list() {
-        return controller.list();
+        return list(1, 25);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
     @Override
     public List<UserTO> search(final NodeCond searchCondition) throws InvalidSearchConditionException {
-        return controller.search(searchCondition);
+        return controller.search(searchCondition, 1, 25);
     }
 
     @Override

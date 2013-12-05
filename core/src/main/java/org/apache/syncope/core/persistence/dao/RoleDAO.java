@@ -58,7 +58,11 @@ public interface RoleDAO extends AttributableDAO {
 
     List<SyncopeRole> findAll();
 
+    List<SyncopeRole> findAll(int page, int itemsPerPage);
+
     List<Membership> findMemberships(SyncopeRole role);
+
+    int count();
 
     SyncopeRole save(SyncopeRole syncopeRole) throws InvalidEntityException;
 
