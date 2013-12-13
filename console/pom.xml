@@ -464,10 +464,28 @@ under the License.
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-war-plugin</artifactId>
-            <configuration>
-              <webXml>${project.build.directory}/test-classes/web.xml</webXml>
-            </configuration>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>testWebXML</id>
+                <phase>pre-integration-test</phase>
+                <configuration>
+                  <target>
+                    <touch millis="0" file="${project.build.directory}/test-classes/web.xml"/>
+                    <war destfile="${project.build.directory}/${project.build.finalName}.war" update="true">                      
+                      <mappedresources>
+                        <fileset dir="${project.build.directory}/test-classes" includes="web.xml"/>
+                        <globmapper from="web.xml" to="WEB-INF/web.xml"/>
+                      </mappedresources>                      
+                    </war>
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
 
           <plugin>
@@ -511,10 +529,28 @@ under the License.
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-war-plugin</artifactId>
-            <configuration>
-              <webXml>${project.build.directory}/test-classes/web.xml</webXml>
-            </configuration>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>testWebXML</id>
+                <phase>pre-integration-test</phase>
+                <configuration>
+                  <target>
+                    <touch millis="0" file="${project.build.directory}/test-classes/web.xml"/>
+                    <war destfile="${project.build.directory}/${project.build.finalName}.war" update="true">                      
+                      <mappedresources>
+                        <fileset dir="${project.build.directory}/test-classes" includes="web.xml"/>
+                        <globmapper from="web.xml" to="WEB-INF/web.xml"/>
+                      </mappedresources>                      
+                    </war>
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
           
           <plugin>
@@ -531,6 +567,31 @@ under the License.
               </execution>
             </executions>
           </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <configuration>
+                <properties>
+                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
+                    -noverify ${javaagent} -Drebel.spring_plugin=true 
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
+                </properties>
+              </configuration>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>none</phase>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>        
         </plugins>
       </build>
     </profile>
