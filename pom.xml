@@ -311,7 +311,7 @@ under the License.
     <activiti.version>5.14</activiti.version>
 
     <cxf.version>2.7.8</cxf.version>	
-    <spring.version>3.2.6.RELEASE</spring.version>
+    <spring.version>3.2.5.RELEASE</spring.version>
     <spring-security.version>3.1.4.RELEASE</spring-security.version>
     <aspectj.version>1.7.4</aspectj.version>
     <jackson.version>1.9.13</jackson.version>
@@ -1020,6 +1020,12 @@ under the License.
                 <groupId>org.connid.bundles</groupId>
                 <artifactId>org.connid.bundles.ad</artifactId>
                 <version>${connid.ad.version}</version>
+                <outputDirectory>${bundles.directory}</outputDirectory>
+              </artifactItem>
+              <artifactItem>
+                <groupId>org.connid.bundles.db</groupId>
+                <artifactId>org.connid.bundles.db.table</artifactId>
+                <version>${connid.db.table.version}</version>
                 <outputDirectory>${bundles.directory}</outputDirectory>
               </artifactItem>
             </artifactItems>
