@@ -519,4 +519,32 @@ public class VirAttrTestITCase extends AbstractTest {
         roleService.delete(roleTO.getId());
         // -------------------------------------------
     }
+
+    @Test
+    public void issueSYNCOPE459() {
+        UserTO userTO = getUniqueSampleTO("syncope459@apache.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getVirtualAttributes().clear();
+
+        final AttributeTO virtualReadOnly = attributeTO("virtualReadOnly", "");
+        virtualReadOnly.getValues().clear();
+
+        userTO.addVirtualAttribute(virtualReadOnly);
+
+        userTO = createUser(userTO);
+
+        assertNotNull(userTO.getVirtualAttributeMap().get("virtualReadOnly"));
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+
+        AttributeMod virtualdata = new AttributeMod();
+        virtualdata.setSchema("virtualdata");
+
+        userMod.addVirtualAttributeToBeUpdated(virtualdata);
+
+        userTO = userService.update(userTO.getId(), userMod);
+        assertNotNull(userTO.getVirtualAttributeMap().get("virtualdata"));
+    }
 }

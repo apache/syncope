@@ -302,7 +302,7 @@ public class UserController extends AbstractController<UserTO> {
                     actual.getVirtualAttributesToBeRemoved(), actual.getVirtualAttributesToBeUpdated());
         } else {
             // 2b. generate the propagation task list in two phases: first the ones containing password,
-            // the the rest (with no password)
+            // the rest (with no password)
             final PropagationByResource origPropByRes = new PropagationByResource();
             origPropByRes.merge(updated.getPropByRes());
 
@@ -347,11 +347,21 @@ public class UserController extends AbstractController<UserTO> {
 
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
+
+        if (tasks.isEmpty()) {
+            // SYNCOPE-459: take care of user virtual attributes ...
+            binder.forceVirtualAttributes(
+                    updated.getResult().getKey(),
+                    actual.getVirtualAttributesToBeRemoved(),
+                    actual.getVirtualAttributesToBeUpdated());
+
+        } else {
+            try {
+                taskExecutor.execute(tasks, propagationReporter);
+            } catch (PropagationException e) {
+                LOG.error("Error propagation primary resource", e);
+                propagationReporter.onPrimaryResourceFailure(tasks);
+            }
         }
 
         // 4. prepare result, including propagation status on external resources
@@ -486,7 +496,7 @@ public class UserController extends AbstractController<UserTO> {
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                 new WorkflowResult<Map.Entry<Long, Boolean>>(new SimpleEntry<Long, Boolean>(updated.getResult(), null),
-                        updated.getPropByRes(), updated.getPerformedTasks()));
+                updated.getPropByRes(), updated.getPerformedTasks()));
 
         taskExecutor.execute(tasks);
 
@@ -527,9 +537,9 @@ public class UserController extends AbstractController<UserTO> {
         if (updated.getPropByRes() != null && !updated.getPropByRes().isEmpty()) {
             List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                     new WorkflowResult<Map.Entry<Long, Boolean>>(
-                            new SimpleEntry<Long, Boolean>(updated.getResult().getKey(), Boolean.TRUE),
-                            updated.getPropByRes(),
-                            updated.getPerformedTasks()),
+                    new SimpleEntry<Long, Boolean>(updated.getResult().getKey(), Boolean.TRUE),
+                    updated.getPropByRes(),
+                    updated.getPerformedTasks()),
                     updated.getResult().getValue(),
                     true,
                     null,
