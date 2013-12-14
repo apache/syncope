@@ -256,11 +256,21 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
                 getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
+
+        if (tasks.isEmpty()) {
+            // SYNCOPE-459: take care of user virtual attributes ...
+            binder.forceVirtualAttributes(
+                    updated.getResult().getKey().getId(),
+                    actual.getVirAttrsToRemove(),
+                    actual.getVirAttrsToUpdate());
+
+        } else {
+            try {
+                taskExecutor.execute(tasks, propagationReporter);
+            } catch (PropagationException e) {
+                LOG.error("Error propagation primary resource", e);
+                propagationReporter.onPrimaryResourceFailure(tasks);
+            }
         }
 
         final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey().getId());

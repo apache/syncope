@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.MembershipTO;
@@ -61,7 +62,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = { Throwable.class })
 public class UserDataBinder extends AbstractAttributableDataBinder {
 
     private static final String[] IGNORE_USER_PROPERTIES = {
@@ -429,5 +430,25 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     @Transactional(readOnly = true)
     public UserTO getUserTO(final Long userId) {
         return getUserTO(getUserFromId(userId));
+    }
+
+    /**
+     * SYNCOPE-459: force virtual attribute changes.
+     * <br />
+     * To be used in case of no propagation task defined.
+     *
+     * @param id attributable id
+     * @param vAttrsToBeRemoved virtual attribute to be removed.
+     * @param vAttrsToBeUpdated virtyal attribute to be updated.
+     */
+    public void forceVirtualAttributes(
+            final Long id, final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated) {
+        final SyncopeUser syncopeUser = getUserFromId(id);
+
+        fillVirtual(
+                syncopeUser,
+                vAttrsToBeRemoved,
+                vAttrsToBeUpdated,
+                AttributableUtil.getInstance(syncopeUser));
     }
 }

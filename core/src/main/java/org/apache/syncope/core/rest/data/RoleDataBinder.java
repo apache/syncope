@@ -66,7 +66,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = { Throwable.class })
 public class RoleDataBinder extends AbstractAttributableDataBinder {
 
     @Autowired

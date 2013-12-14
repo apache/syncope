@@ -74,7 +74,18 @@ public final class AttributableOperations {
                     ? new HashSet<String>(originalAttrs.get(entry.getKey()).getValues())
                     : Collections.<String>emptySet();
 
-            if (!updatedValues.equals(originalValues)) {
+            if (!originalAttrs.containsKey(entry.getKey())) {
+                // SYNCOPE-459: take care of user virtual attributes without any value
+                updatedValues.remove("");
+                mod.getValuesToBeAdded().addAll(new ArrayList<String>(updatedValues));
+
+                if (virtuals) {
+                    result.getVirAttrsToUpdate().add(mod);
+                } else {
+                    result.getAttrsToUpdate().add(mod);
+                }
+
+            } else if (!updatedValues.equals(originalValues)) {
                 // avoid unwanted inputs
                 updatedValues.remove("");
                 if (!entry.getValue().isReadonly()) {
