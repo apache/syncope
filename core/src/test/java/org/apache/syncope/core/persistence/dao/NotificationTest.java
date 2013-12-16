@@ -59,10 +59,10 @@ public class NotificationTest extends AbstractDAOTest {
         Notification notification = new Notification();
         notification.addEvent("save");
 
-        notification.setAbout(SyncopeClient.getSearchConditionBuilder().
+        notification.setAbout(SyncopeClient.getUserSearchConditionBuilder().
                 is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query());
 
-        notification.setRecipients(SyncopeClient.getSearchConditionBuilder().hasRoles(7L).query());
+        notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
 
         notification.setRecipientAttrName("email");
         notification.setRecipientAttrType(IntMappingType.UserSchema);

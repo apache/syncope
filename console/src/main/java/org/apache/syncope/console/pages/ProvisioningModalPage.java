@@ -186,7 +186,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
         @SuppressWarnings("unchecked")
         @Override
         public List<StatusBean> getStatusBeans() {
-            final String fiql = SyncopeClient.getSearchConditionBuilder().hasResources(resourceTO.getName()).query();
+            final String fiql = SyncopeClient.getUserSearchConditionBuilder().hasResources(resourceTO.getName()).query();
 
             final List<T> attributables = new ArrayList<T>();
             if (UserTO.class.isAssignableFrom(typeRef)) {

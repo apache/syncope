@@ -42,7 +42,7 @@ public class SearchTestITCase extends AbstractTest {
     public void searchUser() {
         // LIKE
         PagedResult<UserTO> matchedUsers = userService.search(
-                SyncopeClient.getSearchConditionBuilder().
+                SyncopeClient.getUserSearchConditionBuilder().
                 is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query());
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.getResult().isEmpty());
@@ -53,7 +53,7 @@ public class SearchTestITCase extends AbstractTest {
 
         // ISNULL
         matchedUsers = userService.search(
-                SyncopeClient.getSearchConditionBuilder().isNull("loginDate").query());
+                SyncopeClient.getUserSearchConditionBuilder().isNull("loginDate").query());
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.getResult().isEmpty());
 
@@ -68,7 +68,7 @@ public class SearchTestITCase extends AbstractTest {
     @Test
     public void searchByUsernameAndId() {
         final PagedResult<UserTO> matchingUsers = userService.search(
-                SyncopeClient.getSearchConditionBuilder().
+                SyncopeClient.getUserSearchConditionBuilder().
                 is("username").equalTo("rossini").and("id").lessThan(2).query());
 
         assertNotNull(matchingUsers);
@@ -80,8 +80,7 @@ public class SearchTestITCase extends AbstractTest {
     @Test
     public void searchByRolenameAndId() {
         final PagedResult<RoleTO> matchingRoles = roleService.search(
-                SyncopeClient.getSearchConditionBuilder().
-                is("name").equalTo("root").and("id").lessThan(2).query());
+                SyncopeClient.getRoleSearchConditionBuilder().is("name").equalTo("root").and("id").lessThan(2).query());
 
         assertNotNull(matchingRoles);
         assertEquals(1, matchingRoles.getResult().size());
@@ -92,7 +91,7 @@ public class SearchTestITCase extends AbstractTest {
     @Test
     public void searchUserByResourceName() {
         PagedResult<UserTO> matchedUsers = userService.search(
-                SyncopeClient.getSearchConditionBuilder().hasResources(RESOURCE_NAME_MAPPINGS2).query());
+                SyncopeClient.getUserSearchConditionBuilder().hasResources(RESOURCE_NAME_MAPPINGS2).query());
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.getResult().isEmpty());
 
@@ -109,7 +108,7 @@ public class SearchTestITCase extends AbstractTest {
     public void paginatedSearch() {
         // LIKE
         PagedResult<UserTO> matchedUsers = userService.search(
-                SyncopeClient.getSearchConditionBuilder().
+                SyncopeClient.getUserSearchConditionBuilder().
                 is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query(), 1, 2);
         assertNotNull(matchedUsers);
 
@@ -120,7 +119,7 @@ public class SearchTestITCase extends AbstractTest {
 
         // ISNULL
         matchedUsers = userService.search(
-                SyncopeClient.getSearchConditionBuilder().isNull("loginDate").query(), 1, 2);
+                SyncopeClient.getUserSearchConditionBuilder().isNull("loginDate").query(), 1, 2);
 
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.getResult().isEmpty());
@@ -134,7 +133,7 @@ public class SearchTestITCase extends AbstractTest {
     @Test
     public void searchByBooleanAttributableCond() {
         final PagedResult<RoleTO> matchingRoles = roleService.search(
-                SyncopeClient.getSearchConditionBuilder().is("inheritAttrs").equalTo("true").query());
+                SyncopeClient.getRoleSearchConditionBuilder().is("inheritAttrs").equalTo("true").query());
         assertNotNull(matchingRoles);
         assertFalse(matchingRoles.getResult().isEmpty());
     }
@@ -142,14 +141,14 @@ public class SearchTestITCase extends AbstractTest {
     @Test
     public void searchByEntitlement() {
         final PagedResult<RoleTO> matchingRoles = roleService.search(
-                SyncopeClient.getSearchConditionBuilder().hasEntitlements("USER_LIST", "USER_READ").query());
+                SyncopeClient.getRoleSearchConditionBuilder().hasEntitlements("USER_LIST", "USER_READ").query());
         assertNotNull(matchingRoles);
         assertFalse(matchingRoles.getResult().isEmpty());
     }
 
     @Test
     public void searchByRelationshipAttributableCond() {
-        final PagedResult<RoleTO> matchingRoles = roleService.search(SyncopeClient.getSearchConditionBuilder().
+        final PagedResult<RoleTO> matchingRoles = roleService.search(SyncopeClient.getRoleSearchConditionBuilder().
                 isNotNull("passwordPolicy").and("userOwner").equalTo(5).query());
 
         assertNotNull(matchingRoles);

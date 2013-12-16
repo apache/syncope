@@ -194,7 +194,7 @@ public class ExternalResource extends AbstractSysInfo {
         return connector;
     }
 
-    public void setConnector(ConnInstance connector) {
+    public void setConnector(final ConnInstance connector) {
         this.connector = connector;
     }
 

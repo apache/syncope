@@ -21,6 +21,8 @@ package org.apache.syncope.console.pages.panels;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.SyncopeClient;
+import org.apache.syncope.common.search.SyncopeFiqlSearchConditionBuilder;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.rest.RoleRestClient;
@@ -102,4 +104,10 @@ public class UserSearchPanel extends AbstractSearchPanel {
             }
         };
     }
+
+    @Override
+    protected SyncopeFiqlSearchConditionBuilder getSearchConditionBuilder() {
+        return SyncopeClient.getUserSearchConditionBuilder();
+    }
+
 }

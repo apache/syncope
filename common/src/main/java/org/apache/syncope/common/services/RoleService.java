@@ -32,8 +32,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.cxf.jaxrs.model.wadl.Description;
-
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
@@ -106,7 +104,7 @@ public interface RoleService extends JAXRSService {
      */
     @GET
     @Path("search")
-    PagedResult<RoleTO> search(@Description("FIQL search expression") @QueryParam("fiql") String fiql);
+    PagedResult<RoleTO> search(@QueryParam("fiql") String fiql);
 
     /**
      * @param fiql FIQL search expression
@@ -116,7 +114,7 @@ public interface RoleService extends JAXRSService {
      */
     @GET
     @Path("search")
-    PagedResult<RoleTO> search(@Description("FIQL search expression") @QueryParam("fiql") String fiql,
+    PagedResult<RoleTO> search(@QueryParam("fiql") String fiql,
             @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
             @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
 

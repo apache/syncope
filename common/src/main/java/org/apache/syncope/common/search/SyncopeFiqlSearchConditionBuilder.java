@@ -25,10 +25,7 @@ import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.cxf.jaxrs.ext.search.client.FiqlSearchConditionBuilder;
 import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
 
-/**
- * Extends <tt>FiqlSearchConditionBuilder</tt> by providing some additional facilities for searching in Syncope.
- */
-public class SyncopeFiqlSearchConditionBuilder extends FiqlSearchConditionBuilder {
+public abstract class SyncopeFiqlSearchConditionBuilder extends FiqlSearchConditionBuilder {
 
     public static final Map<String, String> CONTEXTUAL_PROPERTIES;
 
@@ -37,11 +34,11 @@ public class SyncopeFiqlSearchConditionBuilder extends FiqlSearchConditionBuilde
         CONTEXTUAL_PROPERTIES.put(SearchUtils.LAX_PROPERTY_MATCH, "true");
     }
 
-    public SyncopeFiqlSearchConditionBuilder() {
+    protected SyncopeFiqlSearchConditionBuilder() {
         super();
     }
 
-    public SyncopeFiqlSearchConditionBuilder(final Map<String, String> properties) {
+    protected SyncopeFiqlSearchConditionBuilder(final Map<String, String> properties) {
         super(properties);
     }
 
@@ -50,7 +47,6 @@ public class SyncopeFiqlSearchConditionBuilder extends FiqlSearchConditionBuilde
         return new Builder(properties);
     }
 
-    @Override
     public SyncopeProperty is(final String property) {
         return newBuilderInstance().is(property);
     }
@@ -63,40 +59,14 @@ public class SyncopeFiqlSearchConditionBuilder extends FiqlSearchConditionBuilde
         return newBuilderInstance().is(property).notNullValue();
     }
 
-    public CompleteCondition hasRoles(final Long role, final Long... moreRoles) {
-        return newBuilderInstance().is(SpecialAttr.ROLES.toString()).hasRoles(role, moreRoles);
-    }
-
-    public CompleteCondition hasNotRoles(final Long role, final Long... moreRoles) {
-        return newBuilderInstance().is(SpecialAttr.ROLES.toString()).hasNotRoles(role, moreRoles);
-    }
-
-    public CompleteCondition hasResources(final String resource, final String... moreResources) {
-        return newBuilderInstance().is(SpecialAttr.RESOURCES.toString()).hasResources(resource, moreResources);
-    }
-
-    public CompleteCondition hasNotResources(final String resource, final String... moreResources) {
-        return newBuilderInstance().is(SpecialAttr.RESOURCES.toString()).hasNotResources(resource, moreResources);
-    }
-
-    public CompleteCondition hasEntitlements(final String entitlement, final String... moreEntitlements) {
-        return newBuilderInstance().is(SpecialAttr.ENTITLEMENTS.toString()).
-                hasEntitlements(entitlement, moreEntitlements);
-    }
-
-    public CompleteCondition hasNotEntitlements(final String entitlement, final String... moreEntitlements) {
-        return newBuilderInstance().is(SpecialAttr.ENTITLEMENTS.toString()).
-                hasNotEntitlements(entitlement, moreEntitlements);
-    }
-
     protected static class Builder extends FiqlSearchConditionBuilder.Builder
             implements SyncopeProperty, CompleteCondition {
 
-        public Builder(final Map<String, String> properties) {
+        protected Builder(final Map<String, String> properties) {
             super(properties);
         }
 
-        public Builder(final Builder parent) {
+        protected Builder(final Builder parent) {
             super(parent);
         }
 
@@ -117,42 +87,5 @@ public class SyncopeFiqlSearchConditionBuilder extends FiqlSearchConditionBuilde
             return condition(FiqlParser.NEQ, SpecialAttr.NULL);
         }
 
-        @Override
-        public CompleteCondition hasRoles(final Long role, final Long... moreRoles) {
-            this.result = SpecialAttr.ROLES.toString();
-            return condition(FiqlParser.EQ, role, (Object[]) moreRoles);
-        }
-
-        @Override
-        public CompleteCondition hasNotRoles(final Long role, final Long... moreRoles) {
-            this.result = SpecialAttr.ROLES.toString();
-            return condition(FiqlParser.NEQ, role, (Object[]) moreRoles);
-        }
-
-        @Override
-        public CompleteCondition hasResources(final String resource, final String... moreResources) {
-            this.result = SpecialAttr.RESOURCES.toString();
-            return condition(FiqlParser.EQ, resource, (Object[]) moreResources);
-        }
-
-        @Override
-        public CompleteCondition hasNotResources(final String resource, final String... moreResources) {
-            this.result = SpecialAttr.RESOURCES.toString();
-            return condition(FiqlParser.NEQ, resource, (Object[]) moreResources);
-        }
-
-        @Override
-        public CompleteCondition hasEntitlements(final String entitlement, final String... moreEntitlements) {
-            this.result = SpecialAttr.ENTITLEMENTS.toString();
-            return condition(FiqlParser.EQ, entitlement, (Object[]) moreEntitlements);
-        }
-
-        @Override
-        public CompleteCondition hasNotEntitlements(final String entitlement, final String... moreEntitlements) {
-            this.result = SpecialAttr.ENTITLEMENTS.toString();
-            return condition(FiqlParser.NEQ, entitlement, (Object[]) moreEntitlements);
-        }
-
     }
-
 }

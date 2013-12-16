@@ -19,15 +19,11 @@
 package org.apache.syncope.common.search;
 
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
-import org.apache.cxf.jaxrs.ext.search.client.Property;
 
-/**
- * Extension of fluent interface, for {@link SyncopeFiqlSearchConditionBuilder}.
- */
-public abstract interface SyncopeProperty extends Property {
+public interface RoleProperty extends SyncopeProperty {
 
-    CompleteCondition nullValue();
+    CompleteCondition hasEntitlements(String entitlement, String... moreEntitlements);
 
-    CompleteCondition notNullValue();
+    CompleteCondition hasNotEntitlements(String entitlement, String... moreEntitlements);
 
 }

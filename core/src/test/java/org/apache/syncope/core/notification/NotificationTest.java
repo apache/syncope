@@ -209,8 +209,8 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
         notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
-        notification.setAbout(SyncopeClient.getSearchConditionBuilder().hasRoles(7L).query());
-        notification.setRecipients(SyncopeClient.getSearchConditionBuilder().hasRoles(8L).query());
+        notification.setAbout(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
+        notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(8L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
@@ -259,8 +259,8 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
         notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
-        notification.setAbout(SyncopeClient.getSearchConditionBuilder().hasRoles(7L).query());
-        notification.setRecipients(SyncopeClient.getSearchConditionBuilder().hasRoles(8L).query());
+        notification.setAbout(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
+        notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(8L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
@@ -312,7 +312,7 @@ public class NotificationTest {
         Notification notification = new Notification();
         notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
         notification.setAbout(null);
-        notification.setRecipients(SyncopeClient.getSearchConditionBuilder().hasRoles(8L).query());
+        notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(8L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
@@ -362,7 +362,7 @@ public class NotificationTest {
         Notification notification = new Notification();
         notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
         notification.setAbout(null);
-        notification.setRecipients(SyncopeClient.getSearchConditionBuilder().hasRoles(8L).query());
+        notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(8L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");

@@ -45,7 +45,7 @@ public class NotificationTestITCase extends AbstractTest {
         notificationTO.setTraceLevel(TraceLevel.SUMMARY);
         notificationTO.getEvents().add("create");
 
-        notificationTO.setAbout(SyncopeClient.getSearchConditionBuilder().
+        notificationTO.setAbout(SyncopeClient.getUserSearchConditionBuilder().
                 is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query());
 
         notificationTO.setRecipientAttrName("email");
@@ -76,7 +76,7 @@ public class NotificationTestITCase extends AbstractTest {
     @Test
     public void create() {
         NotificationTO notificationTO = buildNotificationTO();
-        notificationTO.setRecipients(SyncopeClient.getSearchConditionBuilder().hasRoles(7L).query());
+        notificationTO.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
 
         Response response = notificationService.create(notificationTO);
         NotificationTO actual = getObject(response.getLocation(), NotificationService.class,
@@ -91,7 +91,7 @@ public class NotificationTestITCase extends AbstractTest {
     @Test
     public void update() {
         NotificationTO notificationTO = notificationService.read(1L);
-        notificationTO.setRecipients(SyncopeClient.getSearchConditionBuilder().hasRoles(7L).query());
+        notificationTO.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
 
         notificationService.update(notificationTO.getId(), notificationTO);
         NotificationTO actual = notificationService.read(notificationTO.getId());

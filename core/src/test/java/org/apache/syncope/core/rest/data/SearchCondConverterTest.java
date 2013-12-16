@@ -35,7 +35,7 @@ public class SearchCondConverterTest extends AbstractNonDAOTest {
 
     @Test
     public void eq() {
-        String fiqlExpression = SyncopeClient.getSearchConditionBuilder().is("username").equalTo("rossini").query();
+        String fiqlExpression = SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("rossini").query();
         assertEquals("username==rossini", fiqlExpression);
 
         AttributableCond attrCond = new AttributableCond(AttributeCond.Type.EQ);
@@ -48,7 +48,7 @@ public class SearchCondConverterTest extends AbstractNonDAOTest {
 
     @Test
     public void like() {
-        String fiqlExpression = SyncopeClient.getSearchConditionBuilder().is("username").equalTo("ros*").query();
+        String fiqlExpression = SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("ros*").query();
         assertEquals("username==ros*", fiqlExpression);
 
         AttributeCond attrCond = new AttributableCond(AttributeCond.Type.LIKE);
@@ -61,7 +61,7 @@ public class SearchCondConverterTest extends AbstractNonDAOTest {
 
     @Test
     public void isNull() {
-        String fiqlExpression = SyncopeClient.getSearchConditionBuilder().is("loginDate").nullValue().query();
+        String fiqlExpression = SyncopeClient.getUserSearchConditionBuilder().is("loginDate").nullValue().query();
         assertEquals("loginDate==" + SpecialAttr.NULL, fiqlExpression);
 
         AttributeCond attrCond = new AttributeCond(AttributeCond.Type.ISNULL);
@@ -73,7 +73,7 @@ public class SearchCondConverterTest extends AbstractNonDAOTest {
 
     @Test
     public void isNotNull() {
-        String fiqlExpression = SyncopeClient.getSearchConditionBuilder().is("loginDate").notNullValue().query();
+        String fiqlExpression = SyncopeClient.getUserSearchConditionBuilder().is("loginDate").notNullValue().query();
         assertEquals("loginDate!=" + SpecialAttr.NULL, fiqlExpression);
 
         AttributeCond attrCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
@@ -85,7 +85,7 @@ public class SearchCondConverterTest extends AbstractNonDAOTest {
 
     @Test
     public void roles() {
-        String fiqlExpression = SyncopeClient.getSearchConditionBuilder().hasRoles(1L).query();
+        String fiqlExpression = SyncopeClient.getUserSearchConditionBuilder().hasRoles(1L).query();
         assertEquals(SpecialAttr.ROLES + "==1", fiqlExpression);
 
         MembershipCond membCond = new MembershipCond();
@@ -97,7 +97,7 @@ public class SearchCondConverterTest extends AbstractNonDAOTest {
 
     @Test
     public void resources() {
-        String fiqlExpression = SyncopeClient.getSearchConditionBuilder().hasResources("resource-ldap").query();
+        String fiqlExpression = SyncopeClient.getUserSearchConditionBuilder().hasResources("resource-ldap").query();
         assertEquals(SpecialAttr.RESOURCES + "==resource-ldap", fiqlExpression);
 
         ResourceCond resCond = new ResourceCond();
@@ -109,7 +109,7 @@ public class SearchCondConverterTest extends AbstractNonDAOTest {
 
     @Test
     public void entitlements() {
-        String fiqlExpression = SyncopeClient.getSearchConditionBuilder().hasEntitlements("USER_LIST").query();
+        String fiqlExpression = SyncopeClient.getRoleSearchConditionBuilder().hasEntitlements("USER_LIST").query();
         assertEquals(SpecialAttr.ENTITLEMENTS + "==USER_LIST", fiqlExpression);
 
         EntitlementCond entCond = new EntitlementCond();
@@ -121,7 +121,7 @@ public class SearchCondConverterTest extends AbstractNonDAOTest {
 
     @Test
     public void and() {
-        String fiqlExpression = SyncopeClient.getSearchConditionBuilder().
+        String fiqlExpression = SyncopeClient.getUserSearchConditionBuilder().
                 is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query();
         assertEquals("fullname==*o*;fullname==*i*", fiqlExpression);
 
@@ -140,7 +140,7 @@ public class SearchCondConverterTest extends AbstractNonDAOTest {
 
     @Test
     public void or() {
-        String fiqlExpression = SyncopeClient.getSearchConditionBuilder().
+        String fiqlExpression = SyncopeClient.getUserSearchConditionBuilder().
                 is("fullname").equalTo("*o*", "*i*", "*ini").query();
         assertEquals("fullname==*o*,fullname==*i*,fullname==*ini", fiqlExpression);
 

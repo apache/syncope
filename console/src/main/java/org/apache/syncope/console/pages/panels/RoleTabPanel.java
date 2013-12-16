@@ -182,7 +182,7 @@ public class RoleTabPanel extends Panel {
             protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 userListContainer.replace(new UserSearchResultPanel("userList",
                         true,
-                        SyncopeClient.getSearchConditionBuilder().hasRoles(selectedNode.getId()).query(),
+                        SyncopeClient.getUserSearchConditionBuilder().hasRoles(selectedNode.getId()).query(),
                         pageRef,
                         userRestClient));
 

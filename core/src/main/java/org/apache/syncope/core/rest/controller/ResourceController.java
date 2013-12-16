@@ -164,9 +164,7 @@ public class ResourceController extends AbstractTransactionalController<Resource
             resources = connInstance.getResources();
         }
 
-        List<ResourceTO> result = binder.getResourceTOs(resources);
-
-        return result;
+        return binder.getResourceTOs(resources);
     }
 
     @PreAuthorize("hasRole('RESOURCE_GETCONNECTOROBJECT')")

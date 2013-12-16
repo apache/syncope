@@ -22,6 +22,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.syncope.client.SyncopeClient;
+import org.apache.syncope.common.search.SyncopeFiqlSearchConditionBuilder;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.wicket.model.LoadableDetachableModel;
 
@@ -83,4 +85,10 @@ public class RoleSearchPanel extends AbstractSearchPanel {
             }
         };
     }
+
+    @Override
+    protected SyncopeFiqlSearchConditionBuilder getSearchConditionBuilder() {
+        return SyncopeClient.getRoleSearchConditionBuilder();
+    }
+
 }

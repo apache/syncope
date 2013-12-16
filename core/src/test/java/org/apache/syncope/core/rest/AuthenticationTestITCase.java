@@ -206,7 +206,7 @@ public class AuthenticationTestITCase extends AbstractTest {
                 getService(UserService.class);
 
         PagedResult<UserTO> matchedUsers = userService2.search(
-                SyncopeClient.getSearchConditionBuilder().isNotNull("loginDate").query());
+                SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query());
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.getResult().isEmpty());
         Set<Long> userIds = new HashSet<Long>(matchedUsers.getResult().size());
@@ -218,7 +218,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         UserService userService3 = clientFactory.create("verdi", "password").getService(UserService.class);
 
         matchedUsers = userService3.search(
-                SyncopeClient.getSearchConditionBuilder().isNotNull("loginDate").query());
+                SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query());
         assertNotNull(matchedUsers);
 
         userIds = new HashSet<Long>(matchedUsers.getResult().size());

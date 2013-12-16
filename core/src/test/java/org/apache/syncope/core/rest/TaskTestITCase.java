@@ -412,12 +412,12 @@ public class TaskTestITCase extends AbstractTest {
 
         // 2. verify that synchronized role is found, with expected attributes
         final PagedResult<RoleTO> matchingRoles = roleService.search(
-                SyncopeClient.getSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query());
+                SyncopeClient.getRoleSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query());
         assertNotNull(matchingRoles);
         assertEquals(1, matchingRoles.getResult().size());
 
         final PagedResult<UserTO> matchingUsers = userService.search(
-                SyncopeClient.getSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query());
+                SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
 
@@ -435,7 +435,7 @@ public class TaskTestITCase extends AbstractTest {
 
         // 3. verify that LDAP group membership is propagated as Syncope role membership
         final PagedResult<UserTO> members = userService.search(
-                SyncopeClient.getSearchConditionBuilder().hasRoles(roleTO.getId()).query());
+                SyncopeClient.getUserSearchConditionBuilder().hasRoles(roleTO.getId()).query());
         assertNotNull(members);
         assertEquals(1, members.getResult().size());
     }
@@ -537,9 +537,9 @@ public class TaskTestITCase extends AbstractTest {
         notification.setTraceLevel(TraceLevel.FAILURES);
         notification.getEvents().add("[REST]:[UserController]:[]:[create]:[SUCCESS]");
 
-        notification.setAbout(SyncopeClient.getSearchConditionBuilder().hasRoles(7L).query());
+        notification.setAbout(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
 
-        notification.setRecipients(SyncopeClient.getSearchConditionBuilder().hasRoles(8L).query());
+        notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(8L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");

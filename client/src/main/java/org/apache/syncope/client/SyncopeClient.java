@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.client;
 
-import org.apache.syncope.common.search.SyncopeFiqlSearchConditionBuilder;
-import java.util.Map;
+import org.apache.syncope.common.search.UserFiqlSearchConditionBuilder;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.rest.RestClientFactoryBean;
+import org.apache.syncope.common.search.RoleFiqlSearchConditionBuilder;
 import org.apache.syncope.common.services.UserSelfService;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.types.AttributableType;
@@ -57,22 +57,21 @@ public class SyncopeClient {
     }
 
     /**
-     * Returns a new instance of <tt>SyncopeFiqlSearchConditionBuilder</tt>, for assisted building of FIQL queries.
+     * Returns a new instance of <tt>UserFiqlSearchConditionBuilder</tt>, for assisted building of FIQL queries.
      *
-     * @return default instance of <tt>SyncopeFiqlSearchConditionBuilder</tt>
+     * @return default instance of <tt>UserFiqlSearchConditionBuilder</tt>
      */
-    public static SyncopeFiqlSearchConditionBuilder getSearchConditionBuilder() {
-        return new SyncopeFiqlSearchConditionBuilder();
+    public static UserFiqlSearchConditionBuilder getUserSearchConditionBuilder() {
+        return new UserFiqlSearchConditionBuilder();
     }
 
     /**
-     * Returns a new instance of <tt>SyncopeFiqlSearchConditionBuilder</tt>, for assisted building of FIQL queries.
+     * Returns a new instance of <tt>RoleFiqlSearchConditionBuilder</tt>, for assisted building of FIQL queries.
      *
-     * @param properties additional properties (date format, timezone support, etc.)
-     * @return default instance of <tt>SyncopeFiqlSearchConditionBuilder</tt>
+     * @return default instance of <tt>RoleFiqlSearchConditionBuilder</tt>
      */
-    public static SyncopeFiqlSearchConditionBuilder getSearchConditionBuilder(final Map<String, String> properties) {
-        return new SyncopeFiqlSearchConditionBuilder(properties);
+    public static RoleFiqlSearchConditionBuilder getRoleSearchConditionBuilder() {
+        return new RoleFiqlSearchConditionBuilder();
     }
 
     /**
