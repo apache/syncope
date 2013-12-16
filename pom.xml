@@ -850,10 +850,6 @@ under the License.
   <repositories>
 
     <repository>
-      <id>activiti</id>
-      <url>https://artifacts.alfresco.com/nexus/content/groups/public/</url>
-    </repository>
-    <repository>
       <id>sonatype</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       <releases>
