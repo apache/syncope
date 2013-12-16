@@ -29,16 +29,13 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.core.persistence.validation.entity.NotificationCheck;
-import org.apache.syncope.core.util.XMLSerializer;
 
 @NotificationCheck
 @Entity
@@ -53,11 +50,9 @@ public class Notification extends AbstractBaseBean {
     @Column(name = "events")
     private List<String> events;
 
-    @Lob
-    private String xmlAbout;
+    private String about;
 
-    @Lob
-    private String xmlRecipients;
+    private String recipients;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -95,20 +90,20 @@ public class Notification extends AbstractBaseBean {
         return id;
     }
 
-    public NodeCond getAbout() {
-        return xmlAbout == null ? null : XMLSerializer.<NodeCond>deserialize(xmlAbout);
+    public String getAbout() {
+        return about;
     }
 
-    public void setAbout(NodeCond about) {
-        xmlAbout = about == null ? null : XMLSerializer.serialize(about);
+    public void setAbout(final String about) {
+        this.about = about;
     }
 
-    public NodeCond getRecipients() {
-        return xmlRecipients == null ? null : XMLSerializer.<NodeCond>deserialize(xmlRecipients);
+    public String getRecipients() {
+        return recipients;
     }
 
-    public void setRecipients(NodeCond recipients) {
-        xmlRecipients = recipients == null ? null : XMLSerializer.serialize(recipients);
+    public void setRecipients(String recipients) {
+        this.recipients = recipients;
     }
 
     public String getRecipientAttrName() {

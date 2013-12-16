@@ -39,7 +39,7 @@ import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.ClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;

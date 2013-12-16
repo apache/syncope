@@ -34,7 +34,7 @@ import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.LoggerLevel;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.HttpResourceStream;
 import org.apache.syncope.console.commons.PreferenceManager;

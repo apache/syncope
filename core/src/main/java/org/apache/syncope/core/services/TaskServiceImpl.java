@@ -23,15 +23,16 @@ import java.util.List;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.services.TaskService;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
-import org.apache.syncope.common.to.JobClassTO;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.common.wrap.JobClass;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.SchedTaskTO;
-import org.apache.syncope.common.to.SyncActionClassTO;
+import org.apache.syncope.common.wrap.SyncActionClass;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
+import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
@@ -45,11 +46,6 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
 
     @Autowired
     private TaskController controller;
-
-    @Override
-    public int count(final TaskType taskType) {
-        return controller.count(taskType);
-    }
 
     @Override
     public <T extends SchedTaskTO> Response create(final T taskTO) {
@@ -82,23 +78,26 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public List<JobClassTO> getJobClasses() {
-        return CollectionWrapper.wrap(controller.getJobClasses(), JobClassTO.class);
+    public List<JobClass> getJobClasses() {
+        return CollectionWrapper.wrap(controller.getJobClasses(), JobClass.class);
     }
 
     @Override
-    public List<SyncActionClassTO> getSyncActionsClasses() {
-        return CollectionWrapper.wrap(controller.getSyncActionsClasses(), SyncActionClassTO.class);
+    public List<SyncActionClass> getSyncActionsClasses() {
+        return CollectionWrapper.wrap(controller.getSyncActionsClasses(), SyncActionClass.class);
     }
 
     @Override
-    public <T extends AbstractTaskTO> List<T> list(final TaskType taskType) {
-        return controller.list(taskType);
+    public <T extends AbstractTaskTO> PagedResult<T> list(final TaskType taskType) {
+        return list(taskType, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE);
     }
 
     @Override
-    public <T extends AbstractTaskTO> List<T> list(final TaskType taskType, final int page, final int size) {
-        return controller.list(taskType, page, size);
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractTaskTO> PagedResult<T> list(final TaskType taskType, final int page, final int size) {
+        checkPageSize(page, size);
+        return (PagedResult<T>) buildPagedResult(
+                controller.list(taskType, page, size), page, size, controller.count(taskType));
     }
 
     @Override
@@ -129,7 +128,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public BulkActionRes bulk(final BulkAction bulkAction) {
+    public BulkActionResult bulk(final BulkAction bulkAction) {
         return controller.bulk(bulkAction);
     }
 }

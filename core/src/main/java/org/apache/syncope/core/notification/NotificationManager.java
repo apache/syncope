@@ -50,6 +50,7 @@ import org.apache.syncope.core.persistence.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.rest.data.SearchCondConverter;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
@@ -66,7 +67,7 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
  *
  * @see NotificationTask
  */
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = { Throwable.class })
 public class NotificationManager {
 
     /**
@@ -149,7 +150,8 @@ public class NotificationManager {
 
         if (notification.getRecipients() != null) {
             recipients.addAll(searchDAO.<SyncopeUser>search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
-                    notification.getRecipients(), AttributableUtil.getInstance(AttributableType.USER)));
+                    SearchCondConverter.convert(notification.getRecipients()),
+                    AttributableUtil.getInstance(AttributableType.USER)));
         }
 
         if (notification.isSelfAsRecipient() && attributable instanceof SyncopeUser) {
@@ -242,8 +244,9 @@ public class NotificationManager {
             if (events.isEmpty()) {
                 LOG.debug("No events found about {}", attributable);
             } else if (attributableType == null || attributable == null || notification.getAbout() == null
-                    || searchDAO.matches(attributable, notification.getAbout(),
-                    AttributableUtil.getInstance(attributableType))) {
+                    || searchDAO.matches(attributable,
+                            SearchCondConverter.convert(notification.getAbout()),
+                            AttributableUtil.getInstance(attributableType))) {
 
                 LOG.debug("Creating notification task for events {} about {}", events, attributable);
 

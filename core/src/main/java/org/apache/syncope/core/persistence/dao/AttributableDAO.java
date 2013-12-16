@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.dao;
 
 import java.util.List;
 
-import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -35,7 +34,7 @@ public interface AttributableDAO extends DAO {
             AbstractAttrValue attrUniqueValue, AttributableUtil attrUtil);
 
     <T extends AbstractAttributable> List<T> findByDerAttrValue(String schemaName, String value,
-            AttributableUtil attrUtil) throws InvalidSearchConditionException;
+            AttributableUtil attrUtil);
 
     <T extends AbstractAttributable> List<T> findByResource(ExternalResource resource, Class<T> reference);
 }

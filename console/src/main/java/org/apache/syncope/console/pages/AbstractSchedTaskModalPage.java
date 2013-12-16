@@ -20,7 +20,7 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.DateFormatROModel;
 import org.apache.syncope.console.markup.html.CrontabContainer;

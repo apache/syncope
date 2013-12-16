@@ -43,17 +43,17 @@ import org.apache.syncope.common.services.PolicyService;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.services.UserSelfService;
 import org.apache.syncope.common.to.AttributeTO;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
-import org.apache.syncope.common.to.BulkActionRes.Status;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.common.reqres.BulkActionResult.Status;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
-import org.apache.syncope.common.to.PropagationStatusTO;
+import org.apache.syncope.common.to.PropagationStatus;
 import org.apache.syncope.common.to.PropagationTaskTO;
-import org.apache.syncope.common.to.ResourceNameTO;
+import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
@@ -66,7 +66,7 @@ import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
@@ -80,6 +80,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.services.UserService;
+import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.types.Preference;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.identityconnectors.framework.common.objects.Name;
@@ -138,12 +139,12 @@ public class UserTestITCase extends AbstractTest {
     @SuppressWarnings("unchecked")
     public void createUserWithNoPropagation() {
         // get task list
-        List<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
+        PagedResult<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
-        assertFalse(tasks.isEmpty());
+        assertFalse(tasks.getResult().isEmpty());
 
-        long maxId = getMaxTaskId(tasks);
+        long maxId = getMaxTaskId(tasks.getResult());
 
         // create a new user
         UserTO userTO = getUniqueSampleTO("xxx@xxx.xxx");
@@ -156,9 +157,9 @@ public class UserTestITCase extends AbstractTest {
         // get the new task list
         tasks = taskService.list(TaskType.PROPAGATION);
         assertNotNull(tasks);
-        assertFalse(tasks.isEmpty());
+        assertFalse(tasks.getResult().isEmpty());
 
-        long newMaxId = getMaxTaskId(tasks);
+        long newMaxId = getMaxTaskId(tasks.getResult());
 
         assertTrue(newMaxId > maxId);
 
@@ -365,12 +366,12 @@ public class UserTestITCase extends AbstractTest {
     @SuppressWarnings("unchecked")
     public void create() {
         // get task list
-        List<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
+        PagedResult<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
-        assertFalse(tasks.isEmpty());
+        assertFalse(tasks.getResult().isEmpty());
 
-        long maxId = getMaxTaskId(tasks);
+        long maxId = getMaxTaskId(tasks.getResult());
         PropagationTaskTO taskTO = taskService.read(maxId);
 
         assertNotNull(taskTO);
@@ -423,9 +424,9 @@ public class UserTestITCase extends AbstractTest {
         tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
-        assertFalse(tasks.isEmpty());
+        assertFalse(tasks.getResult().isEmpty());
 
-        long newMaxId = getMaxTaskId(tasks);
+        long newMaxId = getMaxTaskId(tasks.getResult());
 
         // default configuration for ws-target-resource2:
         // only failed executions have to be registered
@@ -567,44 +568,35 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void count() {
-        Integer count = userService.count();
-        assertNotNull(count);
-        assertTrue(count > 0);
-    }
-
-    @Test
     public void list() {
-        List<UserTO> users = userService.list();
+        PagedResult<UserTO> users = userService.list();
         assertNotNull(users);
-        assertFalse(users.isEmpty());
-        for (UserTO user : users) {
+        assertFalse(users.getResult().isEmpty());
+
+        for (UserTO user : users.getResult()) {
             assertNotNull(user);
         }
     }
 
     @Test
     public void paginatedList() {
-        List<UserTO> users = userService.list(1, 2);
-
+        PagedResult<UserTO> users = userService.list(1, 2);
         assertNotNull(users);
-        assertFalse(users.isEmpty());
-        assertEquals(2, users.size());
+        assertFalse(users.getResult().isEmpty());
+        assertEquals(2, users.getResult().size());
 
-        for (UserTO user : users) {
+        for (UserTO user : users.getResult()) {
             assertNotNull(user);
         }
 
         users = userService.list(2, 2);
-
         assertNotNull(users);
-        assertFalse(users.isEmpty());
-        assertEquals(2, users.size());
+        assertFalse(users.getResult().isEmpty());
+        assertEquals(2, users.getResult().size());
 
         users = userService.list(100, 2);
-
         assertNotNull(users);
-        assertTrue(users.isEmpty());
+        assertTrue(users.getResult().isEmpty());
     }
 
     @Test
@@ -730,11 +722,9 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void updatePasswordOnly() {
-        List<PropagationTaskTO> beforeTasks = taskService.list(TaskType.PROPAGATION);
-        assertNotNull(beforeTasks);
-        assertFalse(beforeTasks.isEmpty());
+        int beforeTasks = taskService.list(TaskType.PROPAGATION, 1, 1).getTotalCount();
+        assertFalse(beforeTasks <= 0);
 
         UserTO userTO = getUniqueSampleTO("pwdonly@t.com");
         MembershipTO membershipTO = new MembershipTO();
@@ -753,27 +743,22 @@ public class UserTestITCase extends AbstractTest {
         // check for changePwdDate
         assertNotNull(userTO.getChangePwdDate());
 
-        SyncopeUser passwordTestUser = new SyncopeUser();
-        passwordTestUser.setPassword("newPassword123", CipherAlgorithm.SHA1, 0);
-        assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
+        int afterTasks = taskService.list(TaskType.PROPAGATION, 1, 1).getTotalCount();
+        assertFalse(beforeTasks <= 0);
 
-        List<PropagationTaskTO> afterTasks = taskService.list(TaskType.PROPAGATION);
-        assertNotNull(afterTasks);
-        assertFalse(afterTasks.isEmpty());
-
-        assertTrue(beforeTasks.size() < afterTasks.size());
+        assertTrue(beforeTasks < afterTasks);
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void verifyTaskRegistration() {
         // get task list
-        List<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
+        PagedResult<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
-        assertFalse(tasks.isEmpty());
+        assertFalse(tasks.getResult().isEmpty());
 
-        long maxId = getMaxTaskId(tasks);
+        long maxId = getMaxTaskId(tasks.getResult());
 
         // --------------------------------------
         // Create operation
@@ -793,9 +778,9 @@ public class UserTestITCase extends AbstractTest {
         tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
-        assertFalse(tasks.isEmpty());
+        assertFalse(tasks.getResult().isEmpty());
 
-        long newMaxId = getMaxTaskId(tasks);
+        long newMaxId = getMaxTaskId(tasks.getResult());
 
         // default configuration for ws-target-resource2:
         // only failed executions have to be registered
@@ -818,7 +803,7 @@ public class UserTestITCase extends AbstractTest {
         tasks = taskService.list(TaskType.PROPAGATION);
 
         maxId = newMaxId;
-        newMaxId = getMaxTaskId(tasks);
+        newMaxId = getMaxTaskId(tasks.getResult());
 
         // default configuration for ws-target-resource2:
         // all update executions have to be registered
@@ -838,7 +823,7 @@ public class UserTestITCase extends AbstractTest {
         tasks = taskService.list(TaskType.PROPAGATION);
 
         maxId = newMaxId;
-        newMaxId = getMaxTaskId(tasks);
+        newMaxId = getMaxTaskId(tasks.getResult());
 
         // default configuration for ws-target-resource2: no delete executions have to be registered
         // --> no more tasks/executions should be added
@@ -1091,7 +1076,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = updateUser(userMod);
         assertNotNull(userTO);
 
-        final List<PropagationStatusTO> propagations = userTO.getPropagationStatusTOs();
+        final List<PropagationStatus> propagations = userTO.getPropagationStatusTOs();
 
         assertNotNull(propagations);
         assertEquals(1, propagations.size());
@@ -1115,7 +1100,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        final List<PropagationStatusTO> propagations = userTO.getPropagationStatusTOs();
+        final List<PropagationStatus> propagations = userTO.getPropagationStatusTOs();
 
         assertNotNull(propagations);
         assertEquals(1, propagations.size());
@@ -1583,10 +1568,10 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // 5. verify that propagation was successful
-        List<PropagationStatusTO> props = userTO.getPropagationStatusTOs();
+        List<PropagationStatus> props = userTO.getPropagationStatusTOs();
         assertNotNull(props);
         assertEquals(1, props.size());
-        PropagationStatusTO prop = props.iterator().next();
+        PropagationStatus prop = props.iterator().next();
         assertNotNull(prop);
         assertEquals(RESOURCE_NAME_WS1, prop.getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, prop.getStatus());
@@ -1614,10 +1599,10 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // 3. verify that propagation was successful
-        List<PropagationStatusTO> props = userTO.getPropagationStatusTOs();
+        List<PropagationStatus> props = userTO.getPropagationStatusTOs();
         assertNotNull(props);
         assertEquals(1, props.size());
-        PropagationStatusTO prop = props.iterator().next();
+        PropagationStatus prop = props.iterator().next();
         assertNotNull(prop);
         assertEquals(RESOURCE_NAME_LDAP, prop.getResource());
         assertEquals(PropagationTaskExecStatus.SUCCESS, prop.getStatus());
@@ -1675,7 +1660,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(11, bulkAction.getTargets().size());
 
         bulkAction.setOperation(BulkAction.Type.SUSPEND);
-        BulkActionRes res = userService.bulk(bulkAction);
+        BulkActionResult res = userService.bulk(bulkAction);
         assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
         assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
         assertEquals("suspended", userService.read(
@@ -1870,7 +1855,7 @@ public class UserTestITCase extends AbstractTest {
 
         actual = userService.associate(actual.getId(),
                 ResourceAssociationActionType.UNLINK,
-                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceNameTO.class)).
+                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class)).
                 readEntity(UserTO.class);
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
@@ -1904,7 +1889,7 @@ public class UserTestITCase extends AbstractTest {
 
         actual = userService.associate(actual.getId(),
                 ResourceAssociationActionType.UNASSIGN,
-                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceNameTO.class)).
+                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class)).
                 readEntity(UserTO.class);
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
@@ -1940,7 +1925,7 @@ public class UserTestITCase extends AbstractTest {
 
         actual = userService.associate(actual.getId(),
                 ResourceAssociationActionType.DEPROVISION,
-                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceNameTO.class)).
+                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class)).
                 readEntity(UserTO.class);
         assertNotNull(actual);
         assertFalse(actual.getResources().isEmpty());

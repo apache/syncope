@@ -26,8 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.syncope.common.search.AttributeCond;
-import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.core.persistence.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -70,7 +70,7 @@ public class AttributableSearchTest {
         coolLeafCond.setSchema("cool");
         coolLeafCond.setExpression("true");
 
-        final NodeCond cond = NodeCond.getLeafCond(coolLeafCond);
+        final SearchCond cond = SearchCond.getLeafCond(coolLeafCond);
         assertTrue(cond.isValid());
 
         final List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond,

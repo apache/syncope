@@ -28,11 +28,11 @@ import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.to.AbstractAttributableTO;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
-import org.apache.syncope.common.to.BulkAssociationAction;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.common.reqres.BulkAssociationAction;
 import org.apache.syncope.common.to.ConnObjectTO;
-import org.apache.syncope.common.to.PropagationActionClassTO;
+import org.apache.syncope.common.wrap.PropagationActionClass;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.RESTHeaders;
@@ -81,8 +81,8 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public List<PropagationActionClassTO> getPropagationActionsClasses() {
-        return CollectionWrapper.wrap(controller.getPropagationActionsClasses(), PropagationActionClassTO.class);
+    public List<PropagationActionClass> getPropagationActionsClasses() {
+        return CollectionWrapper.wrap(controller.getPropagationActionsClasses(), PropagationActionClass.class);
     }
 
     @Override
@@ -106,12 +106,12 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public BulkActionRes bulk(final BulkAction bulkAction) {
+    public BulkActionResult bulk(final BulkAction bulkAction) {
         return controller.bulk(bulkAction);
     }
 
     @Override
-    public BulkActionRes bulkAssociation(final String resourceName,
+    public BulkActionResult bulkAssociation(final String resourceName,
             final BulkAssociationAction bulkAssociationAction, final AttributableType type) {
 
         if (bulkAssociationAction.getOperation() == null || type == AttributableType.MEMBERSHIP) {
@@ -122,7 +122,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
                 ? userController
                 : roleController;
 
-        final BulkActionRes res = new BulkActionRes();
+        final BulkActionResult res = new BulkActionResult();
 
         for (Long id : bulkAssociationAction.getTargets()) {
             final Set<String> resources = Collections.singleton(resourceName);
@@ -143,10 +143,10 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
                     default:
                 }
 
-                res.add(id, BulkActionRes.Status.SUCCESS);
+                res.add(id, BulkActionResult.Status.SUCCESS);
             } catch (Exception e) {
                 LOG.warn("While executing {} on {} {}", bulkAssociationAction.getOperation(), type, id, e);
-                res.add(id, BulkActionRes.Status.FAILURE);
+                res.add(id, BulkActionResult.Status.FAILURE);
             }
         }
 

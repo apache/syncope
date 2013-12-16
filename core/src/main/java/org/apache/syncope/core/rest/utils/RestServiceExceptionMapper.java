@@ -30,12 +30,11 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
-import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.RESTHeaders;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientCompositeException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
@@ -202,8 +201,6 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
             }
         } else if (ex instanceof WorkflowException) {
             return buildResponse(responseBuilder, ClientExceptionType.Workflow, getExMessage(ex));
-        } else if (ex instanceof InvalidSearchConditionException) {
-            return buildResponse(responseBuilder, ClientExceptionType.InvalidSearchCondition, getExMessage(ex));
         } else if (ex instanceof PersistenceException) {
             return buildResponse(responseBuilder, ClientExceptionType.GenericPersistence, getExMessage(ex));
         } else if (ex instanceof org.apache.ibatis.exceptions.PersistenceException) {

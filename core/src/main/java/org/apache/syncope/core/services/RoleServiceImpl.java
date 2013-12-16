@@ -25,13 +25,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.syncope.common.mod.RoleMod;
-import org.apache.syncope.common.search.NodeCond;
-import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.RoleService;
-import org.apache.syncope.common.to.ResourceNameTO;
+import org.apache.syncope.common.reqres.PagedResult;
+import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.core.rest.controller.RoleController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,11 +48,6 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     }
 
     @Override
-    public int count() {
-        return controller.count();
-    }
-
-    @Override
     public Response create(final RoleTO roleTO) {
         RoleTO created = controller.create(roleTO);
         return createResponse(created.getId(), created).build();
@@ -62,7 +57,7 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     public Response delete(final Long roleId) {
         RoleTO role = controller.read(roleId);
 
-        ResponseBuilder builder = context.getRequest().evaluatePreconditions(new EntityTag(role.getETagValue()));
+        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(role.getETagValue()));
         if (builder == null) {
             RoleTO deleted = controller.delete(roleId);
             builder = modificationResponse(deleted);
@@ -72,13 +67,14 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     }
 
     @Override
-    public List<RoleTO> list() {
-        return list(1, 25);
+    public PagedResult<RoleTO> list() {
+        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE);
     }
 
     @Override
-    public List<RoleTO> list(final int page, final int size) {
-        return controller.list(page, size);
+    public PagedResult<RoleTO> list(final int page, final int size) {
+        checkPageSize(page, size);
+        return buildPagedResult(controller.list(page, size), page, size, controller.count());
     }
 
     @Override
@@ -92,20 +88,15 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     }
 
     @Override
-    public List<RoleTO> search(final NodeCond searchCondition) throws InvalidSearchConditionException {
-        return controller.search(searchCondition, 1, 25);
+    public PagedResult<RoleTO> search(final String fiql) {
+        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE);
     }
 
     @Override
-    public List<RoleTO> search(final NodeCond searchCondition, final int page, final int size)
-            throws InvalidSearchConditionException {
-
-        return controller.search(searchCondition, page, size);
-    }
-
-    @Override
-    public int searchCount(final NodeCond searchCondition) throws InvalidSearchConditionException {
-        return controller.searchCount(searchCondition);
+    public PagedResult<RoleTO> search(final String fiql, final int page, final int size) {
+        checkPageSize(page, size);
+        SearchCond cond = getSearchCond(fiql);
+        return buildPagedResult(controller.search(cond, page, size), page, size, controller.searchCount(cond));
     }
 
     @Override
@@ -117,7 +108,7 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     public Response update(final Long roleId, final RoleMod roleMod) {
         RoleTO role = controller.read(roleId);
 
-        ResponseBuilder builder = context.getRequest().evaluatePreconditions(new EntityTag(role.getETagValue()));
+        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(role.getETagValue()));
         if (builder == null) {
             roleMod.setId(roleId);
             RoleTO updated = controller.update(roleMod);
@@ -129,11 +120,11 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
 
     @Override
     public Response associate(final Long roleId, final ResourceAssociationActionType type,
-            final List<ResourceNameTO> resourceNames) {
+            final List<ResourceName> resourceNames) {
 
         RoleTO role = controller.read(roleId);
 
-        ResponseBuilder builder = context.getRequest().evaluatePreconditions(new EntityTag(role.getETagValue()));
+        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(role.getETagValue()));
         if (builder == null) {
             RoleTO updated;
 

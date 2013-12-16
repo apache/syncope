@@ -105,9 +105,9 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//tr[7]/td[3]/div/span[14]/a");
+        selenium.click("//tr[6]/td[3]/div/span[14]/a");
 
-        assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
+        assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
 
         selenium.waitForCondition("selenium.isTextPresent(" + "\"Operation executed successfully\");", "30000");
     }
@@ -159,7 +159,7 @@ public class ConfigurationTestITCase extends AbstractTest {
                 + "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']"
                 + "/option[text()='PROPAGATION']\");",
                 "30000");
-        
+
         selenium.select(
                 "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']",
                 "label=PROPAGATION");
@@ -182,12 +182,12 @@ public class ConfigurationTestITCase extends AbstractTest {
                 "//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']",
                 "label=resource-db-sync");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//input[@name='eventSelection:eventsContainer:eventsPanel:failureGroup']\");",
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//input[@name='eventSelection:eventsContainer:eventsPanel:failureGroup']\");",
                 "30000");
-        
+
         selenium.click("//div[@class='eventSelectionWidzard']/div[2]/div[3]/span/div/input");
-        
+
         selenium.click("//div[2]/form/div[3]/ul/li[4]/a/span");
 
         selenium.waitForCondition("selenium.isElementPresent("

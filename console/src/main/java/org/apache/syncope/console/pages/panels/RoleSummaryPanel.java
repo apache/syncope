@@ -20,7 +20,7 @@ package org.apache.syncope.console.pages.panels;
 
 import java.io.Serializable;
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.RoleModalPage;
 import org.apache.syncope.console.rest.RoleRestClient;

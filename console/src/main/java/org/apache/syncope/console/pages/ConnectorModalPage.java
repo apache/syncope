@@ -33,7 +33,7 @@ import org.apache.syncope.common.to.ConnPoolConfTO;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.rest.ConnectorRestClient;

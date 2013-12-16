@@ -34,7 +34,7 @@ import org.apache.syncope.common.to.UserTO;
 @Path("users/self")
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-public interface UserSelfService {
+public interface UserSelfService extends JAXRSService {
 
     /**
      * @return Response contains special syncope HTTP header indicating if user self registration is allowed

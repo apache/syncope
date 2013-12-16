@@ -18,10 +18,9 @@
  */
 package org.apache.syncope.console.pages.panels;
 
-import org.apache.syncope.common.search.MembershipCond;
-import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.ResultStatusModalPage;
@@ -181,11 +180,11 @@ public class RoleTabPanel extends Panel {
 
             @Override
             protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                final MembershipCond membershipCond = new MembershipCond();
-                membershipCond.setRoleName(selectedNode.getName());
-                NodeCond cond = NodeCond.getLeafCond(membershipCond);
-
-                userListContainer.replace(new UserSearchResultPanel("userList", true, cond, pageRef, userRestClient));
+                userListContainer.replace(new UserSearchResultPanel("userList",
+                        true,
+                        SyncopeClient.getSearchConditionBuilder().hasRoles(selectedNode.getId()).query(),
+                        pageRef,
+                        userRestClient));
 
                 target.add(userListContainer);
             }

@@ -27,11 +27,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.syncope.common.search.AttributableCond;
-import org.apache.syncope.common.search.AttributeCond;
-import org.apache.syncope.common.search.MembershipCond;
-import org.apache.syncope.common.search.NodeCond;
-import org.apache.syncope.common.search.ResourceCond;
+import org.apache.syncope.core.persistence.dao.search.AttributableCond;
+import org.apache.syncope.core.persistence.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.dao.search.MembershipCond;
+import org.apache.syncope.core.persistence.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.dao.search.ResourceCond;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -69,12 +69,12 @@ public class AttributableSearchTest {
         MembershipCond membershipCond = new MembershipCond();
         membershipCond.setRoleId(5L);
 
-        assertFalse(searchDAO.matches(user, NodeCond.getLeafCond(membershipCond),
+        assertFalse(searchDAO.matches(user, SearchCond.getLeafCond(membershipCond),
                 AttributableUtil.getInstance(AttributableType.USER)));
 
         membershipCond.setRoleId(1L);
 
-        assertTrue(searchDAO.matches(user, NodeCond.getLeafCond(membershipCond),
+        assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(membershipCond),
                 AttributableUtil.getInstance(AttributableType.USER)));
     }
 
@@ -87,7 +87,7 @@ public class AttributableSearchTest {
         attrCond.setSchema("show");
         attrCond.setType(AttributeCond.Type.ISNOTNULL);
 
-        assertTrue(searchDAO.matches(role, NodeCond.getLeafCond(attrCond),
+        assertTrue(searchDAO.matches(role, SearchCond.getLeafCond(attrCond),
                 AttributableUtil.getInstance(AttributableType.ROLE)));
     }
 
@@ -104,12 +104,12 @@ public class AttributableSearchTest {
         loginDateCond.setSchema("loginDate");
         loginDateCond.setExpression("2009-05-26");
 
-        NodeCond subCond = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond), NodeCond.getLeafCond(
+        SearchCond subCond = SearchCond.getAndCond(SearchCond.getLeafCond(fullnameLeafCond), SearchCond.getLeafCond(
                 membershipCond));
 
         assertTrue(subCond.isValid());
 
-        NodeCond cond = NodeCond.getAndCond(subCond, NodeCond.getLeafCond(loginDateCond));
+        SearchCond cond = SearchCond.getAndCond(subCond, SearchCond.getLeafCond(loginDateCond));
 
         assertTrue(cond.isValid());
 
@@ -125,7 +125,7 @@ public class AttributableSearchTest {
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("Giuseppe Verdi");
 
-        final NodeCond cond = NodeCond.getNotLeafCond(fullnameLeafCond);
+        final SearchCond cond = SearchCond.getNotLeafCond(fullnameLeafCond);
         assertTrue(cond.isValid());
 
         final List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond,
@@ -147,7 +147,7 @@ public class AttributableSearchTest {
         coolLeafCond.setSchema("cool");
         coolLeafCond.setExpression("true");
 
-        final NodeCond cond = NodeCond.getLeafCond(coolLeafCond);
+        final SearchCond cond = SearchCond.getLeafCond(coolLeafCond);
         assertTrue(cond.isValid());
 
         final List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond,
@@ -171,12 +171,12 @@ public class AttributableSearchTest {
         loginDateCond.setSchema("loginDate");
         loginDateCond.setExpression("2009-05-26");
 
-        NodeCond subCond = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond), NodeCond.getLeafCond(
+        SearchCond subCond = SearchCond.getAndCond(SearchCond.getLeafCond(fullnameLeafCond), SearchCond.getLeafCond(
                 membershipCond));
 
         assertTrue(subCond.isValid());
 
-        NodeCond cond = NodeCond.getAndCond(subCond, NodeCond.getLeafCond(loginDateCond));
+        SearchCond cond = SearchCond.getAndCond(subCond, SearchCond.getLeafCond(loginDateCond));
 
         assertTrue(cond.isValid());
 
@@ -197,7 +197,7 @@ public class AttributableSearchTest {
         membershipCond.setRoleId(1L);
 
         List<SyncopeUser> users = searchDAO.search(
-                EntitlementUtil.getRoleIds(entitlementDAO.findAll()), NodeCond.getLeafCond(membershipCond),
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()), SearchCond.getLeafCond(membershipCond),
                 AttributableUtil.getInstance(AttributableType.USER));
         assertNotNull(users);
         assertEquals(2, users.size());
@@ -206,7 +206,7 @@ public class AttributableSearchTest {
         membershipCond.setRoleId(5L);
 
         users = searchDAO.search(
-                EntitlementUtil.getRoleIds(entitlementDAO.findAll()), NodeCond.getNotLeafCond(membershipCond),
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()), SearchCond.getNotLeafCond(membershipCond),
                 AttributableUtil.getInstance(AttributableType.USER));
         assertNotNull(users);
         assertEquals(5, users.size());
@@ -218,7 +218,7 @@ public class AttributableSearchTest {
         coolLeafCond.setSchema("cool");
 
         List<SyncopeUser> users = searchDAO.search(
-                EntitlementUtil.getRoleIds(entitlementDAO.findAll()), NodeCond.getLeafCond(coolLeafCond),
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()), SearchCond.getLeafCond(coolLeafCond),
                 AttributableUtil.getInstance(AttributableType.USER));
         assertNotNull(users);
         assertEquals(4, users.size());
@@ -227,7 +227,7 @@ public class AttributableSearchTest {
         coolLeafCond.setSchema("cool");
 
         users = searchDAO.search(
-                EntitlementUtil.getRoleIds(entitlementDAO.findAll()), NodeCond.getLeafCond(coolLeafCond),
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()), SearchCond.getLeafCond(coolLeafCond),
                 AttributableUtil.getInstance(AttributableType.USER));
         assertNotNull(users);
         assertEquals(1, users.size());
@@ -241,7 +241,7 @@ public class AttributableSearchTest {
         ResourceCond ws1 = new ResourceCond();
         ws1.setResourceName("ws-target-resource-list-mappings-2");
 
-        NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getNotLeafCond(ws2), NodeCond.getLeafCond(ws1));
+        SearchCond searchCondition = SearchCond.getAndCond(SearchCond.getNotLeafCond(ws2), SearchCond.getLeafCond(ws1));
 
         assertTrue(searchCondition.isValid());
 
@@ -263,8 +263,8 @@ public class AttributableSearchTest {
         idRightCond.setSchema("id");
         idRightCond.setExpression("2");
 
-        final NodeCond searchCondition = NodeCond.getOrCond(NodeCond.getLeafCond(usernameLeafCond),
-                NodeCond.getLeafCond(idRightCond));
+        final SearchCond searchCondition = SearchCond.getOrCond(SearchCond.getLeafCond(usernameLeafCond),
+                SearchCond.getLeafCond(idRightCond));
 
         final List<SyncopeUser> matchingUsers = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
                 searchCondition, AttributableUtil.getInstance(AttributableType.USER));
@@ -285,8 +285,8 @@ public class AttributableSearchTest {
         idRightCond.setSchema("id");
         idRightCond.setExpression("2");
 
-        final NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(rolenameLeafCond),
-                NodeCond.getLeafCond(idRightCond));
+        final SearchCond searchCondition = SearchCond.getAndCond(SearchCond.getLeafCond(rolenameLeafCond),
+                SearchCond.getLeafCond(idRightCond));
 
         assertTrue(searchCondition.isValid());
 
@@ -309,8 +309,8 @@ public class AttributableSearchTest {
         idRightCond.setSchema("fullname");
         idRightCond.setExpression("Giuseppe V%");
 
-        final NodeCond searchCondition = NodeCond.getOrCond(NodeCond.getLeafCond(usernameLeafCond),
-                NodeCond.getLeafCond(idRightCond));
+        final SearchCond searchCondition = SearchCond.getOrCond(SearchCond.getLeafCond(usernameLeafCond),
+                SearchCond.getLeafCond(idRightCond));
 
         final List<SyncopeUser> matchingUsers =
                 searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCondition,
@@ -326,7 +326,7 @@ public class AttributableSearchTest {
         idLeafCond.setSchema("id");
         idLeafCond.setExpression("2");
 
-        NodeCond searchCondition = NodeCond.getLeafCond(idLeafCond);
+        SearchCond searchCondition = SearchCond.getLeafCond(idLeafCond);
         assertTrue(searchCondition.isValid());
 
         List<SyncopeUser> users =
@@ -341,7 +341,7 @@ public class AttributableSearchTest {
         idLeafCond.setSchema("id");
         idLeafCond.setExpression("4");
 
-        searchCondition = NodeCond.getNotLeafCond(idLeafCond);
+        searchCondition = SearchCond.getNotLeafCond(idLeafCond);
         assertTrue(searchCondition.isValid());
 
         users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCondition,
@@ -366,8 +366,8 @@ public class AttributableSearchTest {
         final ResourceCond ws1 = new ResourceCond();
         ws1.setResourceName("ws-target-resource-list-mappings-1");
 
-        final NodeCond searchCondition =
-                NodeCond.getAndCond(NodeCond.getNotLeafCond(ws2), NodeCond.getNotLeafCond(ws1));
+        final SearchCond searchCondition =
+                SearchCond.getAndCond(SearchCond.getNotLeafCond(ws2), SearchCond.getNotLeafCond(ws1));
         assertTrue(searchCondition.isValid());
 
         final List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
@@ -389,7 +389,7 @@ public class AttributableSearchTest {
         cond.setSchema("id");
         cond.setExpression("test%");
 
-        final NodeCond searchCondition = NodeCond.getLeafCond(cond);
+        final SearchCond searchCondition = SearchCond.getLeafCond(cond);
         assertTrue(searchCondition.isValid());
 
         final List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
@@ -404,7 +404,7 @@ public class AttributableSearchTest {
         cond.setSchema("username");
         cond.setExpression("%ossin%");
 
-        NodeCond searchCondition = NodeCond.getLeafCond(cond);
+        SearchCond searchCondition = SearchCond.getLeafCond(cond);
         assertTrue(searchCondition.isValid());
 
         List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
@@ -422,7 +422,8 @@ public class AttributableSearchTest {
         likeCond.setSchema("username");
         likeCond.setExpression("%ossin%");
 
-        NodeCond searchCond = NodeCond.getOrCond(NodeCond.getLeafCond(isNullCond), NodeCond.getLeafCond(likeCond));
+        SearchCond searchCond = SearchCond.getOrCond(
+                SearchCond.getLeafCond(isNullCond), SearchCond.getLeafCond(likeCond));
 
         Integer count = searchDAO.count(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCond,
                 AttributableUtil.getInstance(AttributableType.USER));

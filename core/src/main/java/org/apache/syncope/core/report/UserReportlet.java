@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
+import org.apache.syncope.core.rest.data.SearchCondConverter;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.DataFormat;
 import org.apache.syncope.core.util.EntitlementUtil;
@@ -72,8 +73,8 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
         if (conf.getMatchingCond() == null) {
             result = userDAO.findAll(adminRoleIds, page, PAGE_SIZE);
         } else {
-            result = searchDAO.search(adminRoleIds, conf.getMatchingCond(), page, PAGE_SIZE,
-                    AttributableUtil.getInstance(AttributableType.USER));
+            result = searchDAO.search(adminRoleIds, SearchCondConverter.convert(conf.getMatchingCond()),
+                    page, PAGE_SIZE, AttributableUtil.getInstance(AttributableType.USER));
         }
 
         return result;
@@ -84,7 +85,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
 
         return conf.getMatchingCond() == null
                 ? userDAO.count(adminRoleIds)
-                : searchDAO.count(adminRoleIds, conf.getMatchingCond(),
+                : searchDAO.count(adminRoleIds, SearchCondConverter.convert(conf.getMatchingCond()),
                         AttributableUtil.getInstance(AttributableType.USER));
     }
 

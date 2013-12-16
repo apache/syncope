@@ -36,7 +36,7 @@ import org.apache.syncope.common.types.SchemaType;
 @Path("schemas/{kind}/{type}")
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-public interface SchemaService {
+public interface SchemaService extends JAXRSService {
 
     /**
      * @param <T> actual SchemaTO

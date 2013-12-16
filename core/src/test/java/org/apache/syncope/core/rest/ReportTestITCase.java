@@ -33,12 +33,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.report.UserReportletConf;
 import org.apache.syncope.common.services.ReportService;
-import org.apache.syncope.common.types.ReportletConfClasses;
+import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.types.ReportExecStatus;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.wrap.ReportletConfClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -54,24 +55,17 @@ public class ReportTestITCase extends AbstractTest {
 
     @Test
     public void getReportletClasses() {
-        ReportletConfClasses reportletClasses = reportService.getReportletConfClasses();
+        List<ReportletConfClass> reportletClasses = reportService.getReportletConfClasses();
         assertNotNull(reportletClasses);
-        assertFalse(reportletClasses.getConfClasses().isEmpty());
-    }
-
-    @Test
-    public void count() {
-        Integer count = reportService.count();
-        assertNotNull(count);
-        assertTrue(count > 0);
+        assertFalse(reportletClasses.isEmpty());
     }
 
     @Test
     public void list() {
-        List<ReportTO> reports = reportService.list();
+        PagedResult<ReportTO> reports = reportService.list();
         assertNotNull(reports);
-        assertFalse(reports.isEmpty());
-        for (ReportTO report : reports) {
+        assertFalse(reports.getResult().isEmpty());
+        for (ReportTO report : reports.getResult()) {
             assertNotNull(report);
         }
     }

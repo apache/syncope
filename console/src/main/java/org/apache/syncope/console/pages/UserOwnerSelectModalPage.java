@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel;
 import org.apache.syncope.console.pages.panels.SelectOnlyUserSearchResultPanel;
@@ -54,7 +53,7 @@ public class UserOwnerSelectModalPage extends BaseModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                final NodeCond searchCond = searchPanel.buildSearchCond();
+                final String searchCond = searchPanel.buildFIQL();
                 doSearch(target, searchCond, searchResult);
 
                 Session.get().getFeedbackMessages().clear();
@@ -69,14 +68,14 @@ public class UserOwnerSelectModalPage extends BaseModalPage {
 
     }
 
-    private void doSearch(final AjaxRequestTarget target, final NodeCond searchCond,
+    private void doSearch(final AjaxRequestTarget target, final String fiql,
             final AbstractSearchResultPanel resultsetPanel) {
 
-        if (searchCond == null || !searchCond.isValid()) {
+        if (fiql == null) {
             error(getString(Constants.SEARCH_ERROR));
             return;
         }
 
-        resultsetPanel.search(searchCond, target);
+        resultsetPanel.search(fiql, target);
     }
 }

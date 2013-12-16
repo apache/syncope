@@ -36,7 +36,8 @@ import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.to.ConnObjectTO;
-import org.apache.syncope.common.to.ResourceNameTO;
+import org.apache.syncope.common.reqres.PagedResult;
+import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
@@ -47,7 +48,7 @@ import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -169,10 +170,10 @@ public class RoleTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<RoleTO> roleTOs = roleService.list();
+        PagedResult<RoleTO> roleTOs = roleService.list();
         assertNotNull(roleTOs);
-        assertTrue(roleTOs.size() >= 8);
-        for (RoleTO roleTO : roleTOs) {
+        assertTrue(roleTOs.getResult().size() >= 8);
+        for (RoleTO roleTO : roleTOs.getResult()) {
             assertNotNull(roleTO);
         }
     }
@@ -403,7 +404,7 @@ public class RoleTestITCase extends AbstractTest {
 
         actual = roleService.associate(actual.getId(),
                 ResourceAssociationActionType.UNLINK,
-                CollectionWrapper.wrap("resource-ldap", ResourceNameTO.class)).
+                CollectionWrapper.wrap("resource-ldap", ResourceName.class)).
                 readEntity(RoleTO.class);
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
@@ -425,7 +426,7 @@ public class RoleTestITCase extends AbstractTest {
 
         actual = roleService.associate(actual.getId(),
                 ResourceAssociationActionType.UNASSIGN,
-                CollectionWrapper.wrap("resource-ldap", ResourceNameTO.class)).
+                CollectionWrapper.wrap("resource-ldap", ResourceName.class)).
                 readEntity(RoleTO.class);
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
@@ -451,7 +452,7 @@ public class RoleTestITCase extends AbstractTest {
 
         actual = roleService.associate(actual.getId(),
                 ResourceAssociationActionType.DEPROVISION,
-                CollectionWrapper.wrap("resource-ldap", ResourceNameTO.class)).
+                CollectionWrapper.wrap("resource-ldap", ResourceName.class)).
                 readEntity(RoleTO.class);
         assertNotNull(actual);
         assertFalse(actual.getResources().isEmpty());
@@ -516,7 +517,7 @@ public class RoleTestITCase extends AbstractTest {
         }
 
         RoleService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(RoleService.class);
-        assertFalse(anonymous.list().isEmpty());
+        assertFalse(anonymous.list().getResult().isEmpty());
     }
 
     @Test

@@ -25,7 +25,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
-import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrTemplate;
@@ -267,9 +266,7 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
     }
 
     @Override
-    public List<SyncopeRole> findByDerAttrValue(final String schemaName, final String value)
-            throws InvalidSearchConditionException {
-
+    public List<SyncopeRole> findByDerAttrValue(final String schemaName, final String value) {
         return findByDerAttrValue(schemaName, value, AttributableUtil.getInstance(AttributableType.ROLE));
     }
 
@@ -331,7 +328,7 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
     @Override
     public final int count() {
         Query countQuery = entityManager.createNativeQuery(
-                "SELECT COUNT(e) FROM " + SyncopeRole.class.getSimpleName() + " e");
+                "SELECT COUNT(e.id) FROM " + SyncopeRole.class.getSimpleName() + " e");
 
         return ((Number) countQuery.getSingleResult()).intValue();
     }

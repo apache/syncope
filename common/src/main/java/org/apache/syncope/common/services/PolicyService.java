@@ -30,14 +30,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.to.CorrelationRuleClassTO;
+import org.apache.syncope.common.wrap.CorrelationRuleClass;
 import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.types.PolicyType;
 
 @Path("policies")
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-public interface PolicyService {
+public interface PolicyService extends JAXRSService {
 
     /**
      * @param policyTO Policy to be created (needs to match type)
@@ -95,5 +95,5 @@ public interface PolicyService {
      */
     @GET
     @Path("syncCorrelationRuleClasses")
-    List<CorrelationRuleClassTO> getSyncCorrelationRuleClasses();
+    List<CorrelationRuleClass> getSyncCorrelationRuleClasses();
 }

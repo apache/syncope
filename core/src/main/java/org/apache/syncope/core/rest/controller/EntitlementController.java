@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.common.to.EntitlementTO;
+import org.apache.syncope.common.wrap.EntitlementTO;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.util.EntitlementUtil;

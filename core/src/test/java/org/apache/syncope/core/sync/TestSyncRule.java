@@ -18,19 +18,19 @@
  */
 package org.apache.syncope.core.sync;
 
-import org.apache.syncope.common.search.AttributeCond;
-import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.core.persistence.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 public class TestSyncRule implements SyncCorrelationRule {
 
     @Override
-    public NodeCond getSearchCond(ConnectorObject connObj) {
+    public SearchCond getSearchCond(ConnectorObject connObj) {
         AttributeCond cond = new AttributeCond();
         cond.setSchema("email");
         cond.setType(AttributeCond.Type.EQ);
         cond.setExpression(connObj.getName().getNameValue());
 
-        return NodeCond.getLeafCond(cond);
+        return SearchCond.getLeafCond(cond);
     }
 }

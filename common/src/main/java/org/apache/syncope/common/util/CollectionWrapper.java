@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.common.AbstractWrappable;
+import org.apache.syncope.common.wrap.AbstractWrappable;
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.types.AuditLoggerName;
 import org.apache.syncope.common.types.LoggerLevel;

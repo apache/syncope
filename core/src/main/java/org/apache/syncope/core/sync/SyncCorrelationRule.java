@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.sync;
 
-import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 /**
@@ -32,5 +32,5 @@ public interface SyncCorrelationRule {
      * @param connObj connector object.
      * @return search condition.
      */
-    NodeCond getSearchCond(ConnectorObject connObj);
+    SearchCond getSearchCond(ConnectorObject connObj);
 }

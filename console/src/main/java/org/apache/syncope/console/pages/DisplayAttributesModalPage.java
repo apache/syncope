@@ -18,13 +18,10 @@
  */
 package org.apache.syncope.console.pages;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.syncope.common.search.SearchableFields;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
@@ -50,7 +47,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 /**
  * Modal window with Display attributes form.
  */
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class DisplayAttributesModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -4274117450918385110L;
@@ -60,11 +57,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
      */
     private static final int MAX_SELECTIONS = 9;
 
-    private static final String[] ATTRIBUTES_TO_HIDE = {
-        "attrs", "derAttrs", "virAttrs", "memberships", "resources",
-        "serialVersionUID", "password", "propagationTOs"};
-
-    public static final String[] DEFAULT_SELECTION = {"id", "username", "status"};
+    public static final String[] DEFAULT_SELECTION = { "id", "username", "status" };
 
     @SpringBean
     private PreferenceManager prefMan;
@@ -88,23 +81,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
             @Override
             protected List<String> load() {
-
-                final List<String> details = new ArrayList<String>();
-
-                Class<?> clazz = UserTO.class;
-
-                // loop on class and all superclasses searching for field
-                while (clazz != null && clazz != Object.class) {
-                    for (Field field : clazz.getDeclaredFields()) {
-                        if (!ArrayUtils.contains(ATTRIBUTES_TO_HIDE, field.getName())) {
-                            details.add(field.getName());
-                        }
-                    }
-                    clazz = clazz.getSuperclass();
-                }
-
-                Collections.reverse(details);
-                return details;
+                return SearchableFields.get(UserTO.class);
             }
         };
 
@@ -137,7 +114,6 @@ public class DisplayAttributesModalPage extends BaseModalPage {
                 return vSchemaNames;
             }
         };
-
 
         final Form form = new Form(FORM);
         form.setModel(new CompoundPropertyModel(this));

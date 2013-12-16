@@ -24,7 +24,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.services.PolicyService;
 import org.apache.syncope.common.to.AccountPolicyTO;
-import org.apache.syncope.common.to.CorrelationRuleClassTO;
+import org.apache.syncope.common.wrap.CorrelationRuleClass;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
@@ -117,7 +117,7 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public List<CorrelationRuleClassTO> getSyncCorrelationRuleClasses() {
-        return CollectionWrapper.wrap(policyController.getSyncCorrelationRuleClasses(), CorrelationRuleClassTO.class);
+    public List<CorrelationRuleClass> getSyncCorrelationRuleClasses() {
+        return CollectionWrapper.wrap(policyController.getSyncCorrelationRuleClasses(), CorrelationRuleClass.class);
     }
 }

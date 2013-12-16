@@ -28,17 +28,13 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.mod.UserMod;
-import org.apache.syncope.common.search.AttributableCond;
-import org.apache.syncope.common.search.AttributeCond;
-import org.apache.syncope.common.search.MembershipCond;
-import org.apache.syncope.common.search.NodeCond;
-import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.NotificationService;
 import org.apache.syncope.common.services.TaskService;
 import org.apache.syncope.common.to.AttributeTO;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.JobClassTO;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.wrap.JobClass;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.to.NotificationTaskTO;
@@ -46,17 +42,18 @@ import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchedTaskTO;
-import org.apache.syncope.common.to.SyncActionClassTO;
+import org.apache.syncope.common.wrap.SyncActionClass;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
+import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.types.TraceLevel;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.core.sync.TestSyncActions;
 import org.apache.syncope.core.sync.TestSyncRule;
 import org.apache.syncope.core.sync.impl.SyncJob;
@@ -91,14 +88,14 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void getJobClasses() {
-        List<JobClassTO> jobClasses = taskService.getJobClasses();
+        List<JobClass> jobClasses = taskService.getJobClasses();
         assertNotNull(jobClasses);
         assertFalse(jobClasses.isEmpty());
     }
 
     @Test
     public void getSyncActionsClasses() {
-        List<SyncActionClassTO> actions = taskService.getSyncActionsClasses();
+        List<SyncActionClass> actions = taskService.getSyncActionsClasses();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }
@@ -150,48 +147,41 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public void count() {
-        Integer count = taskService.count(TaskType.PROPAGATION);
-        assertNotNull(count);
-        assertTrue(count > 0);
-    }
-
-    @Test
     public void list() {
-        List<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
+        PagedResult<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
 
         assertNotNull(tasks);
-        assertFalse(tasks.isEmpty());
-        for (AbstractTaskTO task : tasks) {
+        assertFalse(tasks.getResult().isEmpty());
+        for (AbstractTaskTO task : tasks.getResult()) {
             assertNotNull(task);
         }
     }
 
     @Test
     public void paginatedList() {
-        List<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION, 1, 2);
+        PagedResult<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION, 1, 2);
 
         assertNotNull(tasks);
-        assertFalse(tasks.isEmpty());
-        assertEquals(2, tasks.size());
+        assertFalse(tasks.getResult().isEmpty());
+        assertEquals(2, tasks.getResult().size());
 
-        for (AbstractTaskTO task : tasks) {
+        for (AbstractTaskTO task : tasks.getResult()) {
             assertNotNull(task);
         }
 
         tasks = taskService.list(TaskType.PROPAGATION, 2, 2);
 
         assertNotNull(tasks);
-        assertFalse(tasks.isEmpty());
+        assertFalse(tasks.getResult().isEmpty());
 
-        for (AbstractTaskTO task : tasks) {
+        for (AbstractTaskTO task : tasks.getResult()) {
             assertNotNull(task);
         }
 
         tasks = taskService.list(TaskType.PROPAGATION, 1000, 2);
 
         assertNotNull(tasks);
-        assertTrue(tasks.isEmpty());
+        assertTrue(tasks.getResult().isEmpty());
     }
 
     @Test
@@ -261,7 +251,7 @@ public class TaskTestITCase extends AbstractTest {
 
         // -----------------------------
         try {
-            int usersPre = userService.count();
+            int usersPre = userService.list(1, 1).getTotalCount();
             assertNotNull(usersPre);
 
             // Update sync task
@@ -318,7 +308,7 @@ public class TaskTestITCase extends AbstractTest {
             assertEquals("TYPE_8", userTO.getAttrMap().get("type").getValues().get(0));
 
             // check for sync results
-            int usersPost = userService.count();
+            int usersPost = userService.list(1, 1).getTotalCount();
             assertNotNull(usersPost);
             assertEquals(usersPre + 9, usersPost);
 
@@ -386,9 +376,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public void reconcileFromLDAP()
-            throws InvalidSearchConditionException {
-
+    public void reconcileFromLDAP() {
         // Update sync task
         SyncTaskTO task = taskService.read(11L);
         assertNotNull(task);
@@ -423,37 +411,33 @@ public class TaskTestITCase extends AbstractTest {
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
         // 2. verify that synchronized role is found, with expected attributes
-        final AttributableCond rolenameLeafCond = new AttributableCond(AttributableCond.Type.EQ);
-        rolenameLeafCond.setSchema("name");
-        rolenameLeafCond.setExpression("testLDAPGroup");
-        final List<RoleTO> matchingRoles = roleService.search(NodeCond.getLeafCond(rolenameLeafCond));
+        final PagedResult<RoleTO> matchingRoles = roleService.search(
+                SyncopeClient.getSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query());
         assertNotNull(matchingRoles);
-        assertEquals(1, matchingRoles.size());
+        assertEquals(1, matchingRoles.getResult().size());
 
-        final AttributableCond usernameLeafCond = new AttributableCond(AttributeCond.Type.EQ);
-        usernameLeafCond.setSchema("username");
-        usernameLeafCond.setExpression("syncFromLDAP");
-        final List<UserTO> matchingUsers = userService.search(NodeCond.getLeafCond(usernameLeafCond));
+        final PagedResult<UserTO> matchingUsers = userService.search(
+                SyncopeClient.getSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query());
         assertNotNull(matchingUsers);
-        assertEquals(1, matchingUsers.size());
+        assertEquals(1, matchingUsers.getResult().size());
 
         // Check for SYNCOPE-436
-        assertEquals("syncFromLDAP", matchingUsers.get(0).getVirAttrMap().get("virtualReadOnly").getValues().get(0));
+        assertEquals("syncFromLDAP", matchingUsers.getResult().get(0).getVirAttrMap().
+                get("virtualReadOnly").getValues().get(0));
 
-        final RoleTO roleTO = matchingRoles.iterator().next();
+        final RoleTO roleTO = matchingRoles.getResult().iterator().next();
         assertNotNull(roleTO);
         assertEquals("testLDAPGroup", roleTO.getName());
         assertEquals(8L, roleTO.getParent());
         assertEquals("true", roleTO.getAttrMap().get("show").getValues().get(0));
-        assertEquals(matchingUsers.iterator().next().getId(), (long) roleTO.getUserOwner());
+        assertEquals(matchingUsers.getResult().iterator().next().getId(), (long) roleTO.getUserOwner());
         assertNull(roleTO.getRoleOwner());
 
         // 3. verify that LDAP group membership is propagated as Syncope role membership
-        final MembershipCond membershipCond = new MembershipCond();
-        membershipCond.setRoleId(roleTO.getId());
-        final List<UserTO> members = userService.search(NodeCond.getLeafCond(membershipCond));
+        final PagedResult<UserTO> members = userService.search(
+                SyncopeClient.getSearchConditionBuilder().hasRoles(roleTO.getId()).query());
         assertNotNull(members);
-        assertEquals(1, members.size());
+        assertEquals(1, members.getResult().size());
     }
 
     @Test
@@ -535,11 +519,11 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     private NotificationTaskTO findNotificationTaskBySender(final String sender) {
-        List<NotificationTaskTO> tasks = taskService.list(TaskType.NOTIFICATION);
+        PagedResult<NotificationTaskTO> tasks = taskService.list(TaskType.NOTIFICATION);
         assertNotNull(tasks);
-        assertFalse(tasks.isEmpty());
+        assertFalse(tasks.getResult().isEmpty());
         NotificationTaskTO taskTO = null;
-        for (NotificationTaskTO task : tasks) {
+        for (NotificationTaskTO task : tasks.getResult()) {
             if (sender.equals(task.getSender())) {
                 taskTO = task;
             }
@@ -553,13 +537,9 @@ public class TaskTestITCase extends AbstractTest {
         notification.setTraceLevel(TraceLevel.FAILURES);
         notification.getEvents().add("[REST]:[UserController]:[]:[create]:[SUCCESS]");
 
-        MembershipCond membCond = new MembershipCond();
-        membCond.setRoleId(7L);
-        notification.setAbout(NodeCond.getLeafCond(membCond));
+        notification.setAbout(SyncopeClient.getSearchConditionBuilder().hasRoles(7L).query());
 
-        membCond = new MembershipCond();
-        membCond.setRoleId(8L);
-        notification.setRecipients(NodeCond.getLeafCond(membCond));
+        notification.setRecipients(SyncopeClient.getSearchConditionBuilder().hasRoles(8L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
@@ -905,7 +885,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void bulkAction() {
-        final List<PropagationTaskTO> before = taskService.list(TaskType.PROPAGATION);
+        final PagedResult<PropagationTaskTO> before = taskService.list(TaskType.PROPAGATION);
 
         // create user with testdb resource
         final UserTO userTO = UserTestITCase.getUniqueSampleTO("taskBulk@apache.org");
@@ -913,9 +893,9 @@ public class TaskTestITCase extends AbstractTest {
         createUser(userTO);
 
         final List<PropagationTaskTO> after = new ArrayList<PropagationTaskTO>(
-                taskService.<PropagationTaskTO>list(TaskType.PROPAGATION));
+                taskService.<PropagationTaskTO>list(TaskType.PROPAGATION).getResult());
 
-        after.removeAll(before);
+        after.removeAll(before.getResult());
 
         assertFalse(after.isEmpty());
 
@@ -928,6 +908,6 @@ public class TaskTestITCase extends AbstractTest {
 
         taskService.bulk(bulkAction);
 
-        assertFalse(taskService.list(TaskType.PROPAGATION).containsAll(after));
+        assertFalse(taskService.list(TaskType.PROPAGATION).getResult().containsAll(after));
     }
 }

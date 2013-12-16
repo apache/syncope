@@ -34,11 +34,11 @@ import java.util.Set;
 
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.services.ResourceService;
-import org.apache.syncope.common.to.BulkAction;
+import org.apache.syncope.common.reqres.BulkAction;
 
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
-import org.apache.syncope.common.to.PropagationActionClassTO;
+import org.apache.syncope.common.wrap.PropagationActionClass;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
@@ -46,7 +46,7 @@ import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -90,7 +90,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void getPropagationActionsClasses() {
-        List<PropagationActionClassTO> actions = resourceService.getPropagationActionsClasses();
+        List<PropagationActionClass> actions = resourceService.getPropagationActionsClasses();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }

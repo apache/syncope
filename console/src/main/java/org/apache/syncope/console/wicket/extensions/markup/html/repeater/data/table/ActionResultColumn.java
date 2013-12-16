@@ -19,7 +19,7 @@
 package org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table;
 
 import java.beans.PropertyDescriptor;
-import org.apache.syncope.common.to.BulkActionRes;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
@@ -41,11 +41,11 @@ public class ActionResultColumn<T, S> extends AbstractColumn<T, S> {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(ActionResultColumn.class);
 
-    private final BulkActionRes results;
+    private final BulkActionResult results;
 
     private final String idFieldName;
 
-    public ActionResultColumn(final BulkActionRes results, final String idFieldName) {
+    public ActionResultColumn(final BulkActionResult results, final String idFieldName) {
         super(new Model());
         this.results = results;
         this.idFieldName = idFieldName;

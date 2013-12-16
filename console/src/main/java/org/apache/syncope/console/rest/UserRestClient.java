@@ -22,19 +22,17 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
-import org.apache.syncope.common.search.NodeCond;
-import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.services.UserService;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.ConnObjectTO;
-import org.apache.syncope.common.to.ResourceNameTO;
+import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.status.StatusBean;
 import org.apache.syncope.console.commons.status.StatusUtils;
 import org.springframework.stereotype.Component;
@@ -48,8 +46,8 @@ public class UserRestClient extends AbstractAttributableRestClient {
     private static final long serialVersionUID = -1575748964398293968L;
 
     @Override
-    public Integer count() {
-        return getService(UserService.class).count();
+    public int count() {
+        return getService(UserService.class).list(1, 1).getTotalCount();
     }
 
     /**
@@ -61,7 +59,7 @@ public class UserRestClient extends AbstractAttributableRestClient {
      */
     @Override
     public List<UserTO> list(final int page, final int size) {
-        return getService(UserService.class).list(page, size);
+        return getService(UserService.class).list(page, size).getResult();
     }
 
     public UserTO create(final UserTO userTO) {
@@ -89,15 +87,13 @@ public class UserRestClient extends AbstractAttributableRestClient {
     }
 
     @Override
-    public Integer searchCount(final NodeCond searchCond) throws InvalidSearchConditionException {
-        return getService(UserService.class).searchCount(searchCond);
+    public int searchCount(final String fiql) {
+        return getService(UserService.class).search(fiql, 1, 1).getTotalCount();
     }
 
     @Override
-    public List<UserTO> search(final NodeCond searchCond, final int page, final int size)
-            throws InvalidSearchConditionException {
-
-        return getService(UserService.class).search(searchCond, page, size);
+    public List<UserTO> search(final String fiql, final int page, final int size) {
+        return getService(UserService.class).search(fiql, page, size).getResult();
     }
 
     @Override
@@ -118,23 +114,23 @@ public class UserRestClient extends AbstractAttributableRestClient {
     }
 
     @Override
-    public BulkActionRes bulkAction(final BulkAction action) {
+    public BulkActionResult bulkAction(final BulkAction action) {
         return getService(UserService.class).bulk(action);
     }
 
     public void unlink(final long userId, final List<StatusBean> statuses) {
         getService(UserService.class).associate(userId, ResourceAssociationActionType.UNLINK,
-                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceNameTO.class));
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class));
     }
 
     public void deprovision(final long userId, final List<StatusBean> statuses) {
         getService(UserService.class).associate(userId, ResourceAssociationActionType.DEPROVISION,
-                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceNameTO.class));
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class));
     }
 
     public void unassign(final long userId, final List<StatusBean> statuses) {
         getService(UserService.class).associate(userId, ResourceAssociationActionType.UNASSIGN,
-                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceNameTO.class));
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class));
     }
 
 }

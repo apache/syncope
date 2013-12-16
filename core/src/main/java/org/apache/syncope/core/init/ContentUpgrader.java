@@ -26,14 +26,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AbstractPolicySpec;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.Notification;
 import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
@@ -173,33 +171,6 @@ public class ContentUpgrader extends AbstractContentDealer {
         }
     }
 
-    private void upgradeNotification() {
-        Field xmlAbout = ReflectionUtils.findField(Notification.class, "xmlAbout");
-        xmlAbout.setAccessible(true);
-        Field xmlRecipients = ReflectionUtils.findField(Notification.class, "xmlRecipients");
-        xmlRecipients.setAccessible(true);
-        for (Notification notification : notificationDAO.findAll()) {
-            try {
-                String oldAbout = (String) xmlAbout.get(notification);
-                if (oldAbout != null) {
-                    notification.setAbout(
-                            XMLSerializer.<NodeCond>deserialize(
-                                    oldAbout.replaceAll("org\\.apache\\.syncope\\.client\\.search\\.",
-                                            "org.apache.syncope.common.search.")));
-                }
-                String oldRecipients = (String) xmlRecipients.get(notification);
-                if (oldRecipients != null) {
-                    notification.setRecipients(
-                            XMLSerializer.<NodeCond>deserialize(
-                                    oldRecipients.replaceAll("org\\.apache\\.syncope\\.client\\.search\\.",
-                                            "org.apache.syncope.common.search.")));
-                }
-            } catch (Exception e) {
-                LOG.error("While upgrading {}", notification, e);
-            }
-        }
-    }
-
     private void upgradeSyncTask() {
         Field userTemplate = ReflectionUtils.findField(SyncTask.class, "userTemplate");
         userTemplate.setAccessible(true);
@@ -252,8 +223,6 @@ public class ContentUpgrader extends AbstractContentDealer {
         upgradeExternalResource();
 
         upgradePolicy();
-
-        upgradeNotification();
 
         upgradeSyncTask();
 

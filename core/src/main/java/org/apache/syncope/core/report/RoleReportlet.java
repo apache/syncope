@@ -34,6 +34,7 @@ import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
+import org.apache.syncope.core.rest.data.SearchCondConverter;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,8 +65,8 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
         if (conf.getMatchingCond() == null) {
             result = roleDAO.findAll();
         } else {
-            result = searchDAO.search(adminRoleIds, conf.getMatchingCond(), page, PAGE_SIZE,
-                    AttributableUtil.getInstance(AttributableType.ROLE));
+            result = searchDAO.search(adminRoleIds, SearchCondConverter.convert(conf.getMatchingCond()),
+                    page, PAGE_SIZE, AttributableUtil.getInstance(AttributableType.ROLE));
         }
 
         return result;
@@ -76,8 +77,8 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
 
         return conf.getMatchingCond() == null
                 ? roleDAO.findAll().size()
-                : searchDAO.count(adminRoleIds, conf.getMatchingCond(),
-                AttributableUtil.getInstance(AttributableType.ROLE));
+                : searchDAO.count(adminRoleIds, SearchCondConverter.convert(conf.getMatchingCond()),
+                        AttributableUtil.getInstance(AttributableType.ROLE));
     }
 
     private void doExtractResources(final ContentHandler handler, final AbstractAttributableTO attributableTO)

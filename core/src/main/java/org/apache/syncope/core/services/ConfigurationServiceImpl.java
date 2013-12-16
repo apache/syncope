@@ -30,8 +30,8 @@ import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.ConfigurationTO;
-import org.apache.syncope.common.to.MailTemplateTO;
-import org.apache.syncope.common.to.ValidatorTO;
+import org.apache.syncope.common.wrap.MailTemplate;
+import org.apache.syncope.common.wrap.Validator;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.persistence.dao.impl.ContentLoader;
@@ -76,14 +76,14 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<MailTemplateTO> getMailTemplates() {
-        return CollectionWrapper.wrap(controller.getMailTemplates(), MailTemplateTO.class);
+    public List<MailTemplate> getMailTemplates() {
+        return CollectionWrapper.wrap(controller.getMailTemplates(), MailTemplate.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<ValidatorTO> getValidators() {
-        return CollectionWrapper.wrap(controller.getValidators(), ValidatorTO.class);
+    public List<Validator> getValidators() {
+        return CollectionWrapper.wrap(controller.getValidators(), Validator.class);
     }
 
     @Override

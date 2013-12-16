@@ -26,12 +26,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.syncope.common.to.EntitlementTO;
+import org.apache.syncope.common.wrap.EntitlementTO;
 
 @Path("entitlements")
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-public interface EntitlementService {
+public interface EntitlementService extends JAXRSService {
 
     /**
      * @return Returns a collection of all known entitlements.

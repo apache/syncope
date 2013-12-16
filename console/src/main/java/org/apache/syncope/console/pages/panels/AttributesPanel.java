@@ -110,7 +110,7 @@ public class AttributesPanel extends Panel {
                 final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
                 item.add(jexlHelp);
 
-                final AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
+                final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
                 item.add(questionMarkJexlHelp);
 
                 if (!templateMode) {

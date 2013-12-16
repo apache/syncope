@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.services.NotificationService;
-import org.apache.syncope.common.to.MailTemplateTO;
+import org.apache.syncope.common.wrap.MailTemplate;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.springframework.stereotype.Component;
@@ -55,6 +55,6 @@ public class NotificationRestClient extends BaseRestClient {
 
     public List<String> getMailTemplates() {
         return CollectionWrapper.unwrap(
-                new ArrayList<MailTemplateTO>(getService(ConfigurationService.class).getMailTemplates()));
+                new ArrayList<MailTemplate>(getService(ConfigurationService.class).getMailTemplates()));
     }
 }

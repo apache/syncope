@@ -59,7 +59,7 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
             default:
         }
 
-        Response.ResponseBuilder builder = Response.ok().header(HttpHeaders.ALLOW, "GET,POST,OPTIONS,HEAD");
+        Response.ResponseBuilder builder = Response.ok().header(HttpHeaders.ALLOW, OPTIONS_ALLOW);
         if (key != null && value != null) {
             builder.header(key, value);
         }
@@ -69,7 +69,7 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
     @Override
     public Response exportDefinition(final AttributableType kind) {
         final MediaType accept =
-                context.getHttpHeaders().getAcceptableMediaTypes().contains(MediaType.APPLICATION_JSON_TYPE)
+                messageContext.getHttpHeaders().getAcceptableMediaTypes().contains(MediaType.APPLICATION_JSON_TYPE)
                 ? MediaType.APPLICATION_JSON_TYPE
                 : MediaType.APPLICATION_XML_TYPE;
 
@@ -126,7 +126,7 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
     @Override
     public void importDefinition(final AttributableType kind, final String definition) {
         final MediaType contentType =
-                context.getHttpHeaders().getMediaType().equals(MediaType.APPLICATION_JSON_TYPE)
+                messageContext.getHttpHeaders().getMediaType().equals(MediaType.APPLICATION_JSON_TYPE)
                 ? MediaType.APPLICATION_JSON_TYPE
                 : MediaType.APPLICATION_XML_TYPE;
 

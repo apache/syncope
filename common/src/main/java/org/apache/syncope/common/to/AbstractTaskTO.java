@@ -20,8 +20,7 @@ package org.apache.syncope.common.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,12 +33,10 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.apache.syncope.common.AbstractBaseBean;
 
-@XmlRootElement(name = "task")
+@XmlRootElement(name = "abstractTask")
 @XmlType
-@XmlSeeAlso({
-    SyncTaskTO.class, NotificationTaskTO.class, SyncTaskTO.class, SchedTaskTO.class, PropagationTaskTO.class
-})
-@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY, property = "@class")
+@XmlSeeAlso({ PropagationTaskTO.class, SyncTaskTO.class, SchedTaskTO.class, NotificationTaskTO.class })
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public abstract class AbstractTaskTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 386450127003321197L;
@@ -70,9 +67,9 @@ public abstract class AbstractTaskTO extends AbstractBaseBean {
         this.latestExecStatus = latestExecStatus;
     }
 
-    @XmlElementWrapper(name = "excecutions")
-    @XmlElement(name = "excecution")
-    @JsonProperty("excecutions")
+    @XmlElementWrapper(name = "executions")
+    @XmlElement(name = "execution")
+    @JsonProperty("executions")
     public List<TaskExecTO> getExecutions() {
         return executions;
     }

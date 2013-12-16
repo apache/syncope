@@ -23,14 +23,12 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 
 import org.apache.syncope.common.mod.RoleMod;
-import org.apache.syncope.common.search.NodeCond;
-import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.services.RoleService;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.ConnObjectTO;
-import org.apache.syncope.common.to.ResourceNameTO;
+import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
@@ -48,29 +46,27 @@ public class RoleRestClient extends AbstractAttributableRestClient {
     private static final long serialVersionUID = -8549081557283519638L;
 
     @Override
-    public Integer count() {
-        return getService(RoleService.class).count();
+    public int count() {
+        return getService(RoleService.class).list(1, 1).getTotalCount();
     }
 
     public List<RoleTO> list() {
-        return getService(RoleService.class).list();
+        return getService(RoleService.class).list().getResult();
     }
 
     @Override
     public List<RoleTO> list(final int page, final int size) {
-        return getService(RoleService.class).list(page, size);
+        return getService(RoleService.class).list(page, size).getResult();
     }
 
     @Override
-    public Integer searchCount(final NodeCond searchCond) throws InvalidSearchConditionException {
-        return getService(RoleService.class).searchCount(searchCond);
+    public int searchCount(final String fiql) {
+        return getService(RoleService.class).search(fiql, 1, 1).getTotalCount();
     }
 
     @Override
-    public List<RoleTO> search(final NodeCond searchCond, final int page, final int size)
-            throws InvalidSearchConditionException {
-
-        return getService(RoleService.class).search(searchCond, page, size);
+    public List<RoleTO> search(final String fiql, final int page, final int size) {
+        return getService(RoleService.class).search(fiql, page, size).getResult();
     }
 
     @Override
@@ -97,25 +93,25 @@ public class RoleRestClient extends AbstractAttributableRestClient {
     }
 
     @Override
-    public BulkActionRes bulkAction(final BulkAction action) {
+    public BulkActionResult bulkAction(final BulkAction action) {
         return getService(RoleRestClient.class).bulkAction(action);
     }
 
     public RoleTO unlink(final long roleId, final List<StatusBean> statuses) {
         return getService(RoleService.class).associate(roleId, ResourceAssociationActionType.UNLINK,
-                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceNameTO.class)).
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class)).
                 readEntity(RoleTO.class);
     }
 
     public RoleTO deprovision(final long roleId, final List<StatusBean> statuses) {
         return getService(RoleService.class).associate(roleId, ResourceAssociationActionType.DEPROVISION,
-                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceNameTO.class)).
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class)).
                 readEntity(RoleTO.class);
     }
 
     public RoleTO unassign(final long roleId, final List<StatusBean> statuses) {
         return getService(RoleService.class).associate(roleId, ResourceAssociationActionType.UNASSIGN,
-                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceNameTO.class)).
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class)).
                 readEntity(RoleTO.class);
     }
 

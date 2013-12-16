@@ -24,12 +24,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.DisplayAttributesModalPage;
 import org.apache.syncope.console.pages.EditUserModalPage;
@@ -73,10 +72,9 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
     private final List<String> vSchemaNames;
 
     public <T extends AbstractAttributableTO> UserSearchResultPanel(final String id, final boolean filtered,
-            final NodeCond searchCond, final PageReference callerRef,
-            final AbstractAttributableRestClient restClient) {
+            final String fiql, final PageReference callerRef, final AbstractAttributableRestClient restClient) {
 
-        super(id, filtered, searchCond, callerRef, restClient);
+        super(id, filtered, fiql, callerRef, restClient);
 
         this.schemaNames = schemaRestClient.getSchemaNames(AttributableType.USER);
         this.dSchemaNames = schemaRestClient.getDerSchemaNames(AttributableType.USER);
@@ -88,7 +86,7 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
     @Override
     protected List<IColumn<AbstractAttributableTO, String>> getColumns() {
         final List<IColumn<AbstractAttributableTO, String>> columns =
-                 new ArrayList<IColumn<AbstractAttributableTO, String>>();
+                new ArrayList<IColumn<AbstractAttributableTO, String>>();
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {
             final Field field = ReflectionUtils.findField(UserTO.class, name);

@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.dao;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
@@ -35,7 +34,7 @@ public interface UserDAO extends AttributableDAO {
 
     SyncopeUser findByWorkflowId(String workflowId);
 
-    List<SyncopeUser> findByDerAttrValue(String schemaName, String value) throws InvalidSearchConditionException;
+    List<SyncopeUser> findByDerAttrValue(String schemaName, String value);
 
     List<SyncopeUser> findByAttrValue(String schemaName, UAttrValue attrValue);
 

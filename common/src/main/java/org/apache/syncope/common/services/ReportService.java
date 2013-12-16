@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.services;
 
-import org.apache.syncope.common.types.ReportletConfClasses;
+import org.apache.syncope.common.reqres.PagedResult;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -35,11 +35,12 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
+import org.apache.syncope.common.wrap.ReportletConfClass;
 
 @Path("reports")
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-public interface ReportService {
+public interface ReportService extends JAXRSService {
 
     /**
      * @param reportTO Report to be created
@@ -85,28 +86,22 @@ public interface ReportService {
      */
     @GET
     @Path("reportletConfClasses")
-    ReportletConfClasses getReportletConfClasses();
+    List<ReportletConfClass> getReportletConfClasses();
 
     /**
-     * @return Returns a list of all reports
+     * @return Paged list of all existing reports
      */
     @GET
-    List<ReportTO> list();
-
-    /**
-     * @return Returns number of existing reports
-     */
-    @GET
-    @Path("count")
-    int count();
+    PagedResult<ReportTO> list();
 
     /**
      * @param page selected page in relation to size
-     * @param size Number of items per page
-     * @return Returns a list of reports according to pagination
+     * @param size number of entries per page
+     * @return Paged list of existing reports matching page/size conditions
      */
     @GET
-    List<ReportTO> list(@QueryParam("page") int page, @QueryParam("size") @DefaultValue("25") int size);
+    PagedResult<ReportTO> list(@QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
+            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
 
     /**
      * @param reportId ID of report to be read

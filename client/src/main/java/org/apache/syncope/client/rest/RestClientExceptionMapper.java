@@ -30,8 +30,8 @@ import javax.xml.ws.WebServiceException;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.RESTHeaders;
-import org.apache.syncope.common.validation.SyncopeClientCompositeException;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientCompositeException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

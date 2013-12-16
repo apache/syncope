@@ -34,9 +34,9 @@ import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.types.LoggerType;
 
 @Path("logger")
-@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-public interface LoggerService {
+@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+public interface LoggerService extends JAXRSService {
 
     /**
      * @param type LoggerType to be selected.

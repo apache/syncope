@@ -32,7 +32,6 @@ import javax.persistence.TypedQuery;
 import org.apache.commons.jexl2.parser.Parser;
 import org.apache.commons.jexl2.parser.ParserConstants;
 import org.apache.commons.jexl2.parser.Token;
-import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
@@ -81,11 +80,9 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
      * @param value derived attribute value
      * @param attrUtil USER / ROLE
      * @return where clauses to use to build the query
-     * @throws InvalidSearchConditionException in case of errors retrieving identifiers
+     * @throws IllegalArgumentException in case of errors retrieving identifiers
      */
-    private Set<String> getWhereClause(final String expression, final String value, final AttributableUtil attrUtil)
-            throws InvalidSearchConditionException {
-
+    private Set<String> getWhereClause(final String expression, final String value, final AttributableUtil attrUtil) {
         final Parser parser = new Parser(new StringReader(expression));
 
         // Schema names
@@ -132,7 +129,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
 
         if (attrValues.size() != identifiers.size()) {
             LOG.error("Ambiguous jexl expression resolution.");
-            throw new InvalidSearchConditionException("literals and values have different size");
+            throw new IllegalArgumentException("literals and values have different size");
         }
 
         // clauses to be used with INTERSECTed queries
@@ -152,7 +149,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
                 AbstractNormalSchema schema = schemaDAO.find(identifiers.get(i), attrUtil.schemaClass());
                 if (schema == null) {
                     LOG.error("Invalid schema name '{}'", identifiers.get(i));
-                    throw new InvalidSearchConditionException("Invalid schema name " + identifiers.get(i));
+                    throw new IllegalArgumentException("Invalid schema name " + identifiers.get(i));
                 }
 
                 // clear builder
@@ -277,13 +274,10 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
      * @param value derived attribute value
      * @param attrUtil AttributableUtil
      * @return list of users / roles
-     * @throws InvalidSearchConditionException in case of errors retrieving schema names used to buid the derived schema
-     * expression.
      */
     @Override
     public <T extends AbstractAttributable> List<T> findByDerAttrValue(final String schemaName, final String value,
-            final AttributableUtil attrUtil)
-            throws InvalidSearchConditionException {
+            final AttributableUtil attrUtil) {
 
         AbstractDerSchema schema = derSchemaDAO.find(schemaName, attrUtil.derSchemaClass());
         if (schema == null) {

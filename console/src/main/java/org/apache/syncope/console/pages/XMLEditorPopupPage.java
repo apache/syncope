@@ -21,7 +21,7 @@ package org.apache.syncope.console.pages;
 import java.io.IOException;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.rest.WorkflowRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;

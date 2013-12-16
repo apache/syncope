@@ -29,7 +29,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.syncope.common.annotation.FormAttributeField;
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.types.IntMappingType;
 
 @XmlRootElement(name = "userReportletConf")
@@ -56,7 +55,7 @@ public class UserReportletConf extends AbstractReportletConf {
 
     private static final long serialVersionUID = 6602717600064602764L;
 
-    private NodeCond matchingCond;
+    private String matchingCond;
 
     @FormAttributeField(schema = IntMappingType.UserSchema)
     private List<String> attrs = new ArrayList<String>();
@@ -105,11 +104,11 @@ public class UserReportletConf extends AbstractReportletConf {
         return features;
     }
 
-    public NodeCond getMatchingCond() {
+    public String getMatchingCond() {
         return matchingCond;
     }
 
-    public void setMatchingCond(final NodeCond matchingCond) {
+    public void setMatchingCond(final String matchingCond) {
         this.matchingCond = matchingCond;
     }
 }

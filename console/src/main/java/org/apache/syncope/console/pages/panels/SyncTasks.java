@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.RoleTemplateModalPage;
 import org.apache.syncope.console.pages.SyncTaskModalPage;

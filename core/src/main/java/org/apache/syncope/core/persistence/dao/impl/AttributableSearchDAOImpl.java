@@ -31,12 +31,12 @@ import javax.persistence.TemporalType;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.apache.syncope.common.search.AttributableCond;
-import org.apache.syncope.common.search.AttributeCond;
-import org.apache.syncope.common.search.EntitlementCond;
-import org.apache.syncope.common.search.MembershipCond;
-import org.apache.syncope.common.search.NodeCond;
-import org.apache.syncope.common.search.ResourceCond;
+import org.apache.syncope.core.persistence.dao.search.AttributableCond;
+import org.apache.syncope.core.persistence.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.dao.search.EntitlementCond;
+import org.apache.syncope.core.persistence.dao.search.MembershipCond;
+import org.apache.syncope.core.persistence.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.dao.search.ResourceCond;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
@@ -55,7 +55,7 @@ import org.springframework.util.ReflectionUtils;
 @Repository
 public class AttributableSearchDAOImpl extends AbstractDAOImpl implements AttributableSearchDAO {
 
-    static final private String EMPTY_ATTR_QUERY = "SELECT subject_id FROM user_search_attr WHERE 1=2";
+    private static final String EMPTY_ATTR_QUERY = "SELECT subject_id FROM user_search_attr WHERE 1=2";
 
     @Autowired
     private UserDAO userDAO;
@@ -100,7 +100,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     }
 
     @Override
-    public int count(final Set<Long> adminRoles, final NodeCond searchCondition, final AttributableUtil attrUtil) {
+    public int count(final Set<Long> adminRoles, final SearchCond searchCondition, final AttributableUtil attrUtil) {
         List<Object> parameters = Collections.synchronizedList(new ArrayList<Object>());
 
         // 1. get the query string from the search condition
@@ -127,14 +127,14 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     }
 
     @Override
-    public <T extends AbstractAttributable> List<T> search(final Set<Long> adminRoles, final NodeCond searchCondition,
+    public <T extends AbstractAttributable> List<T> search(final Set<Long> adminRoles, final SearchCond searchCondition,
             final AttributableUtil attrUtil) {
 
         return search(adminRoles, searchCondition, -1, -1, attrUtil);
     }
 
     @Override
-    public <T extends AbstractAttributable> List<T> search(final Set<Long> adminRoles, final NodeCond searchCondition,
+    public <T extends AbstractAttributable> List<T> search(final Set<Long> adminRoles, final SearchCond searchCondition,
             final int page, final int itemsPerPage, final AttributableUtil attrUtil) {
 
         List<T> result = Collections.<T>emptyList();
@@ -157,7 +157,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     }
 
     @Override
-    public <T extends AbstractAttributable> boolean matches(final T user, final NodeCond searchCondition,
+    public <T extends AbstractAttributable> boolean matches(final T user, final SearchCond searchCondition,
             final AttributableUtil attrUtil) {
 
         List<Object> parameters = Collections.synchronizedList(new ArrayList<Object>());
@@ -212,7 +212,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends AbstractAttributable> List<T> doSearch(final Set<Long> adminRoles, final NodeCond nodeCond,
+    private <T extends AbstractAttributable> List<T> doSearch(final Set<Long> adminRoles, final SearchCond nodeCond,
             final int page, final int itemsPerPage, final AttributableUtil attrUtil) {
 
         List<Object> parameters = Collections.synchronizedList(new ArrayList<Object>());
@@ -281,7 +281,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         return result;
     }
 
-    private StringBuilder getQuery(final NodeCond nodeCond, final List<Object> parameters,
+    private StringBuilder getQuery(final SearchCond nodeCond, final List<Object> parameters,
             final AttributableUtil attrUtil) {
 
         StringBuilder query = new StringBuilder();
@@ -291,32 +291,32 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
             case LEAF:
             case NOT_LEAF:
                 if (nodeCond.getMembershipCond() != null && AttributableType.USER == attrUtil.getType()) {
-                    query.append(getQuery(nodeCond.getMembershipCond(), nodeCond.getType() == NodeCond.Type.NOT_LEAF,
+                    query.append(getQuery(nodeCond.getMembershipCond(), nodeCond.getType() == SearchCond.Type.NOT_LEAF,
                             parameters, attrUtil));
                 }
                 if (nodeCond.getResourceCond() != null) {
-                    query.append(getQuery(nodeCond.getResourceCond(), nodeCond.getType() == NodeCond.Type.NOT_LEAF,
-                            parameters, attrUtil));
+                    query.append(getQuery(nodeCond.getResourceCond(),
+                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, attrUtil));
                 }
                 if (nodeCond.getEntitlementCond() != null) {
-                    query.append(getQuery(nodeCond.getEntitlementCond(), nodeCond.getType() == NodeCond.Type.NOT_LEAF,
-                            parameters));
+                    query.append(getQuery(nodeCond.getEntitlementCond(),
+                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters));
                 }
                 if (nodeCond.getAttributeCond() != null) {
-                    query.append(getQuery(nodeCond.getAttributeCond(), nodeCond.getType() == NodeCond.Type.NOT_LEAF,
-                            parameters, attrUtil));
+                    query.append(getQuery(nodeCond.getAttributeCond(),
+                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, attrUtil));
                 }
                 if (nodeCond.getAttributableCond() != null) {
-                    query.append(getQuery(nodeCond.getAttributableCond(), nodeCond.getType() == NodeCond.Type.NOT_LEAF,
-                            parameters, attrUtil));
+                    query.append(getQuery(nodeCond.getAttributableCond(),
+                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, attrUtil));
                 }
                 break;
 
             case AND:
                 query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, attrUtil)).
                         append(" AND subject_id IN ( ").
-                        append(getQuery(nodeCond.getRightNodeCond(), parameters, attrUtil).
-                                append(")"));
+                        append(getQuery(nodeCond.getRightNodeCond(), parameters, attrUtil)).
+                        append(")");
                 break;
 
             case OR:
@@ -344,15 +344,9 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         }
 
         query.append("SELECT DISTINCT subject_id ").append("FROM ").
-                append(attrUtil.searchView()).append("_membership WHERE ");
-
-        if (cond.getRoleId() != null) {
-            query.append("role_id=?").append(setParameter(parameters, cond.getRoleId()));
-        } else if (cond.getRoleName() != null) {
-            query.append("role_name=?").append(setParameter(parameters, cond.getRoleName()));
-        }
-
-        query.append(')');
+                append(attrUtil.searchView()).append("_membership WHERE ").
+                append("role_id=?").append(setParameter(parameters, cond.getRoleId())).
+                append(')');
 
         return query.toString();
     }

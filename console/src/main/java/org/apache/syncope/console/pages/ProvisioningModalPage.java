@@ -22,12 +22,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-import org.apache.syncope.common.search.NodeCond;
-import org.apache.syncope.common.search.ResourceCond;
-import org.apache.syncope.common.services.InvalidSearchConditionException;
+import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.to.AbstractAttributableTO;
-import org.apache.syncope.common.to.BulkActionRes;
-import org.apache.syncope.common.to.BulkAssociationAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.common.reqres.BulkAssociationAction;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
@@ -53,7 +51,7 @@ import org.apache.wicket.model.StringResourceModel;
 
 public class ProvisioningModalPage<T extends AbstractAttributableTO> extends AbstractStatusModalPage {
 
-    private static final long serialVersionUID = 4114026480146090961L;
+    private static final long serialVersionUID = -4285220460543213901L;
 
     private final ResourceTO resourceTO;
 
@@ -188,19 +186,13 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
         @SuppressWarnings("unchecked")
         @Override
         public List<StatusBean> getStatusBeans() {
-            final ResourceCond res = new ResourceCond();
-            res.setResourceName(resourceTO.getName());
+            final String fiql = SyncopeClient.getSearchConditionBuilder().hasResources(resourceTO.getName()).query();
 
             final List<T> attributables = new ArrayList<T>();
-
-            try {
-                if (UserTO.class.isAssignableFrom(typeRef)) {
-                    attributables.addAll((List<T>) userRestClient.search(NodeCond.getLeafCond(res), 0, rowsPerPage));
-                } else {
-                    attributables.addAll((List<T>) roleRestClient.search(NodeCond.getLeafCond(res), 0, rowsPerPage));
-                }
-            } catch (InvalidSearchConditionException e) {
-                LOG.warn("Invalid serach condition {}", res, e);
+            if (UserTO.class.isAssignableFrom(typeRef)) {
+                attributables.addAll((List<T>) userRestClient.search(fiql, 0, rowsPerPage));
+            } else {
+                attributables.addAll((List<T>) roleRestClient.search(fiql, 0, rowsPerPage));
             }
 
             final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(
@@ -243,7 +235,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
         if (beans.isEmpty()) {
             window.close(target);
         } else {
-            final BulkActionRes res = resourceRestClient.bulkAssociationAction(
+            final BulkActionResult res = resourceRestClient.bulkAssociationAction(
                     resourceTO.getName(), bulkAction, typeRef);
 
             ((BasePage) pageRef.getPage()).setModalResult(true);

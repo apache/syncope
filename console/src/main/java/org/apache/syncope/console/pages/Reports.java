@@ -28,7 +28,7 @@ import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.AuditLoggerName;
 import org.apache.syncope.common.util.LoggerEventUtils;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;

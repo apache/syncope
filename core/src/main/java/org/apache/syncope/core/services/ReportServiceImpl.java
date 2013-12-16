@@ -26,13 +26,14 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import org.apache.syncope.common.services.ReportService;
-import org.apache.syncope.common.types.ReportletConfClasses;
+import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ReportExecExportFormat;
+import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.common.wrap.ReportletConfClass;
 import org.apache.syncope.core.persistence.beans.ReportExec;
-import org.apache.syncope.core.persistence.dao.ReportDAO;
 import org.apache.syncope.core.rest.controller.ReportController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,9 +43,6 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
 
     @Autowired
     private ReportController controller;
-
-    @Autowired
-    private ReportDAO reportDAO;
 
     @Override
     public Response create(final ReportTO reportTO) {
@@ -61,23 +59,19 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public int count() {
-        return reportDAO.count();
+    public PagedResult<ReportTO> list() {
+        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE);
     }
 
     @Override
-    public List<ReportTO> list() {
-        return controller.list();
+    public PagedResult<ReportTO> list(final int page, final int size) {
+        checkPageSize(page, size);
+        return buildPagedResult(controller.list(page, size), page, size, controller.count());
     }
 
     @Override
-    public List<ReportTO> list(final int page, final int size) {
-        return controller.list(page, size);
-    }
-
-    @Override
-    public ReportletConfClasses getReportletConfClasses() {
-        return new ReportletConfClasses(controller.getReportletConfClasses());
+    public List<ReportletConfClass> getReportletConfClasses() {
+        return CollectionWrapper.wrap(controller.getReportletConfClasses(), ReportletConfClass.class);
     }
 
     @Override

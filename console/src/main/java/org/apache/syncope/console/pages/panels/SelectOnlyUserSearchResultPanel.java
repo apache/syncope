@@ -20,7 +20,6 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.console.pages.DisplayAttributesModalPage;
 import org.apache.syncope.console.rest.UserRestClient;
@@ -47,10 +46,9 @@ public class SelectOnlyUserSearchResultPanel extends UserSearchResultPanel {
     private final ModalWindow window;
 
     public <T extends AbstractAttributableTO> SelectOnlyUserSearchResultPanel(final String id, final boolean filtered,
-            final NodeCond searchCond, final PageReference pageRef, final ModalWindow window,
-            final UserRestClient restClient) {
+            final String fiql, final PageReference pageRef, final ModalWindow window, final UserRestClient restClient) {
 
-        super(id, filtered, searchCond, pageRef, restClient);
+        super(id, filtered, fiql, pageRef, restClient);
 
         this.pageRef = pageRef;
         this.window = window;

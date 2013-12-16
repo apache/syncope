@@ -18,24 +18,23 @@
  */
 package org.apache.syncope.console.pages.panels;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.syncope.common.search.AttributableCond;
-import org.apache.syncope.common.search.AttributeCond;
-import org.apache.syncope.common.search.EntitlementCond;
-import org.apache.syncope.common.search.MembershipCond;
-import org.apache.syncope.common.search.NodeCond;
-import org.apache.syncope.common.search.ResourceCond;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.cxf.jaxrs.ext.search.ConditionType;
+import org.apache.cxf.jaxrs.ext.search.SearchBean;
+import org.apache.cxf.jaxrs.ext.search.SearchCondition;
+import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
+import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
+import org.apache.syncope.client.SyncopeClient;
+import org.apache.syncope.common.search.SearchableFields;
+import org.apache.syncope.common.search.SpecialAttr;
+import org.apache.syncope.common.search.SyncopeFiqlSearchConditionBuilder;
+import org.apache.syncope.common.search.SyncopeProperty;
 import org.apache.syncope.common.to.ResourceTO;
-import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.console.commons.SearchCondWrapper;
-import org.apache.syncope.console.commons.SearchCondWrapper.OperationType;
 import org.apache.syncope.console.rest.AuthRestClient;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
@@ -59,24 +58,6 @@ public abstract class AbstractSearchPanel extends Panel {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSearchPanel.class);
 
-    protected static final String[] ATTRIBUTES_NOTINCLUDED = {"attrs", "derAttrs", "virAttrs",
-        "serialVersionUID", "memberships", "entitlements", "resources", "password",
-        "propagationTOs", "propagationStatusMap"};
-
-    protected IModel<List<String>> dnames;
-
-    protected IModel<List<String>> anames;
-
-    protected IModel<List<String>> resourceNames;
-
-    protected IModel<List<String>> entitlements;
-
-    protected IModel<List<AttributeCond.Type>> attributeTypes;
-
-    protected IModel<List<SearchCondWrapper.FilterType>> filterTypes;
-
-    protected IModel<List<String>> roleNames;
-
     @SpringBean
     protected SchemaRestClient schemaRestClient;
 
@@ -86,9 +67,21 @@ public abstract class AbstractSearchPanel extends Panel {
     @SpringBean
     protected AuthRestClient authRestClient;
 
+    protected IModel<List<String>> dnames;
+
+    protected IModel<List<String>> anames;
+
+    protected IModel<List<String>> resourceNames;
+
+    protected IModel<List<String>> entitlements;
+
+    protected IModel<List<SearchClause.Type>> types;
+
+    protected IModel<List<String>> roleNames;
+
     protected FeedbackPanel searchFeedback;
 
-    protected List<SearchCondWrapper> searchConditionList;
+    protected List<SearchClause> searchClauses;
 
     protected WebMarkupContainer searchFormContainer;
 
@@ -100,8 +93,8 @@ public abstract class AbstractSearchPanel extends Panel {
         this(id, attributableType, null, true);
     }
 
-    protected AbstractSearchPanel(final String id, final AttributableType attributableType, final NodeCond initCond,
-            final boolean required) {
+    protected AbstractSearchPanel(final String id, final AttributableType attributableType,
+            final String fiql, final boolean required) {
 
         super(id);
         populate();
@@ -136,15 +129,23 @@ public abstract class AbstractSearchPanel extends Panel {
         searchFeedback.setOutputMarkupId(true);
         add(searchFeedback);
 
-        if (initCond == null) {
-            searchConditionList = new ArrayList<SearchCondWrapper>();
-            searchConditionList.add(new SearchCondWrapper());
-        } else {
-            searchConditionList = getSearchCondWrappers(initCond, null);
-        }
-        searchFormContainer.add(new SearchView("searchView", searchConditionList, searchFormContainer, required,
-                attributeTypes, filterTypes, anames, dnames, roleNames, resourceNames, entitlements));
+        this.searchClauses = new ArrayList<SearchClause>();
+        this.searchClauses.add(new SearchClause());
+        if (StringUtils.isNotBlank(fiql)) {
+            try {
+                FiqlParser<SearchBean> fiqlParser = new FiqlParser<SearchBean>(
+                        SearchBean.class, SyncopeFiqlSearchConditionBuilder.CONTEXTUAL_PROPERTIES);
+                List<SearchClause> parsed = getSearchClauses(fiqlParser.parse(fiql));
 
+                this.searchClauses.clear();
+                this.searchClauses.addAll(parsed);
+            } catch (Exception e) {
+                LOG.error("Unparseable FIQL expression '{}'", fiql, e);
+            }
+        }
+
+        searchFormContainer.add(new SearchView("searchView", searchClauses, searchFormContainer, required,
+                types, anames, dnames, roleNames, resourceNames, entitlements));
         add(searchFormContainer);
     }
 
@@ -155,24 +156,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                final List<String> details = new ArrayList<String>();
-
-                Class<?> clazz = attributableType == AttributableType.USER
-                        ? UserTO.class
-                        : RoleTO.class;
-
-                // loop on class and all superclasses searching for field
-                while (clazz != null && clazz != Object.class) {
-                    for (Field field : clazz.getDeclaredFields()) {
-                        if (!ArrayUtils.contains(ATTRIBUTES_NOTINCLUDED, field.getName())) {
-                            details.add(field.getName());
-                        }
-                    }
-                    clazz = clazz.getSuperclass();
-                }
-
-                Collections.reverse(details);
-                return details;
+                return SearchableFields.get(attributableType);
             }
         };
 
@@ -215,180 +199,192 @@ public abstract class AbstractSearchPanel extends Panel {
                 return result;
             }
         };
-
-        attributeTypes = new LoadableDetachableModel<List<AttributeCond.Type>>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
-
-            @Override
-            protected List<AttributeCond.Type> load() {
-                return Arrays.asList(AttributeCond.Type.values());
-            }
-        };
     }
 
     public FeedbackPanel getSearchFeedback() {
         return searchFeedback;
     }
 
-    private List<SearchCondWrapper> getSearchCondWrappers(final NodeCond searchCond, final NodeCond.Type type) {
-        LOG.debug("Search condition: {}", searchCond);
+    private SearchClause getPrimitiveSearchClause(final SearchCondition<SearchBean> sc) {
+        SearchClause searchClause = new SearchClause();
 
-        List<SearchCondWrapper> wrappers = new ArrayList<SearchCondWrapper>();
+        String property = sc.getCondition().getKeySet().iterator().next();
+        searchClause.setProperty(property);
+        String value = sc.getCondition().get(property);
+        searchClause.setValue(value);
 
-        switch (searchCond.getType()) {
-            case LEAF:
-            case NOT_LEAF:
-                final SearchCondWrapper wrapper = getSearchCondWrapper(searchCond);
+        if (SpecialAttr.ROLES.toString().equals(property)) {
+            searchClause.setType(SearchClause.Type.MEMBERSHIP);
+            for (String label : roleNames.getObject()) {
+                if (value.equals(label.substring(0, label.indexOf(' ')))) {
+                    searchClause.setProperty(label);
+                }
+            }
+        } else if (SpecialAttr.RESOURCES.toString().equals(property)) {
+            searchClause.setType(SearchClause.Type.RESOURCE);
+        } else if (SpecialAttr.ENTITLEMENTS.toString().equals(property)) {
+            searchClause.setType(SearchClause.Type.ENTITLEMENT);
+        } else {
+            searchClause.setType(SearchClause.Type.ATTRIBUTE);
+        }
 
-                if (type != null) {
-                    switch (type) {
-                        case AND:
-                            wrapper.setOperationType(OperationType.AND);
+        switch (sc.getConditionType()) {
+            case EQUALS:
+                searchClause.setComparator(SpecialAttr.NULL.toString().equals(value)
+                        ? SearchClause.Comparator.IS_NULL : SearchClause.Comparator.EQUALS);
+                break;
+
+            case NOT_EQUALS:
+                searchClause.setComparator(SpecialAttr.NULL.toString().equals(value)
+                        ? SearchClause.Comparator.IS_NOT_NULL : SearchClause.Comparator.NOT_EQUALS);
+                break;
+
+            case GREATER_OR_EQUALS:
+                searchClause.setComparator(SearchClause.Comparator.GREATER_OR_EQUALS);
+                break;
+
+            case GREATER_THAN:
+                searchClause.setComparator(SearchClause.Comparator.GREATER_THAN);
+                break;
+
+            case LESS_OR_EQUALS:
+                searchClause.setComparator(SearchClause.Comparator.LESS_OR_EQUALS);
+                break;
+
+            case LESS_THAN:
+                searchClause.setComparator(SearchClause.Comparator.LESS_THAN);
+                break;
+
+            default:
+                break;
+        }
+
+        return searchClause;
+    }
+
+    private List<SearchClause> getCompoundSearchClause(final SearchCondition<SearchBean> sc) {
+        List<SearchClause> clauses = new ArrayList<SearchClause>();
+
+        for (SearchCondition<SearchBean> searchCondition : sc.getSearchConditions()) {
+            if (searchCondition.getStatement() == null) {
+                clauses.addAll(getCompoundSearchClause(searchCondition));
+            } else {
+                SearchClause clause = getPrimitiveSearchClause(searchCondition);
+                if (sc.getConditionType() == ConditionType.AND) {
+                    clause.setOperator(SearchClause.Operator.AND);
+                }
+                if (sc.getConditionType() == ConditionType.OR) {
+                    clause.setOperator(SearchClause.Operator.OR);
+                }
+                clauses.add(clause);
+            }
+        }
+
+        return clauses;
+    }
+
+    private List<SearchClause> getSearchClauses(final SearchCondition<SearchBean> sc) {
+        List<SearchClause> clauses = new ArrayList<SearchClause>();
+
+        if (sc.getStatement() == null) {
+            clauses.addAll(getCompoundSearchClause(sc));
+        } else {
+            clauses.add(getPrimitiveSearchClause(sc));
+        }
+
+        return clauses;
+    }
+
+    public String buildFIQL() {
+        LOG.debug("Generating FIQL from List<SearchClause>: {}", searchClauses);
+
+        SyncopeFiqlSearchConditionBuilder builder = SyncopeClient.getSearchConditionBuilder();
+
+        CompleteCondition prevCondition;
+        CompleteCondition condition = null;
+        for (int i = 0; i < searchClauses.size(); i++) {
+            prevCondition = condition;
+
+            switch (searchClauses.get(i).getType()) {
+                case ENTITLEMENT:
+                    condition = searchClauses.get(i).getComparator() == SearchClause.Comparator.EQUALS
+                            ? builder.hasEntitlements(searchClauses.get(i).getProperty())
+                            : builder.hasNotEntitlements(searchClauses.get(i).getProperty());
+                    break;
+
+                case MEMBERSHIP:
+                    Long roleId = Long.valueOf(searchClauses.get(i).getProperty().split(" ")[0]);
+                    condition = searchClauses.get(i).getComparator() == SearchClause.Comparator.EQUALS
+                            ? builder.hasRoles(roleId)
+                            : builder.hasNotRoles(roleId);
+                    break;
+
+                case RESOURCE:
+                    condition = searchClauses.get(i).getComparator() == SearchClause.Comparator.EQUALS
+                            ? builder.hasResources(searchClauses.get(i).getProperty())
+                            : builder.hasNotResources(searchClauses.get(i).getProperty());
+                    break;
+
+                case ATTRIBUTE:
+                    SyncopeProperty property = builder.is(searchClauses.get(i).getProperty());
+                    switch (searchClauses.get(i).getComparator()) {
+                        case IS_NULL:
+                            condition = builder.isNull(searchClauses.get(i).getProperty());
                             break;
-                        case OR:
-                            wrapper.setOperationType(OperationType.OR);
+
+                        case IS_NOT_NULL:
+                            condition = builder.isNotNull(searchClauses.get(i).getProperty());
                             break;
+
+                        case LESS_THAN:
+                            condition = StringUtils.isNumeric(searchClauses.get(i).getProperty())
+                                    ? property.lessThan(NumberUtils.toDouble(searchClauses.get(i).getValue()))
+                                    : property.lexicalBefore(searchClauses.get(i).getValue());
+                            break;
+
+                        case LESS_OR_EQUALS:
+                            condition = StringUtils.isNumeric(searchClauses.get(i).getProperty())
+                                    ? property.lessOrEqualTo(NumberUtils.toDouble(searchClauses.get(i).getValue()))
+                                    : property.lexicalNotAfter(searchClauses.get(i).getValue());
+                            break;
+
+                        case GREATER_THAN:
+                            condition = StringUtils.isNumeric(searchClauses.get(i).getProperty())
+                                    ? property.greaterThan(NumberUtils.toDouble(searchClauses.get(i).getValue()))
+                                    : property.lexicalAfter(searchClauses.get(i).getValue());
+                            break;
+
+                        case GREATER_OR_EQUALS:
+                            condition = StringUtils.isNumeric(searchClauses.get(i).getProperty())
+                                    ? property.greaterOrEqualTo(NumberUtils.toDouble(searchClauses.get(i).getValue()))
+                                    : property.lexicalNotBefore(searchClauses.get(i).getValue());
+                            break;
+
+                        case NOT_EQUALS:
+                            condition = property.notEqualTo(searchClauses.get(i).getValue());
+                            break;
+
+                        case EQUALS:
                         default:
-                        // nothing to specify
+                            condition = property.equalTo(searchClauses.get(i).getValue());
+                            break;
                     }
+                default:
+                    break;
+            }
+
+            if (i > 0) {
+                if (searchClauses.get(i).getOperator() == SearchClause.Operator.AND) {
+                    condition = builder.and(prevCondition, condition);
                 }
-
-                wrappers.add(wrapper);
-                break;
-
-            case AND:
-            case OR:
-                wrappers.addAll(getSearchCondWrappers(searchCond.getLeftNodeCond(), type));
-                wrappers.addAll(getSearchCondWrappers(searchCond.getRightNodeCond(), searchCond.getType()));
-                break;
-
-            default:
-        }
-
-        LOG.debug("Search condition wrappers: {}", wrappers);
-
-        return wrappers;
-    }
-
-    private SearchCondWrapper getSearchCondWrapper(final NodeCond searchCond) {
-        SearchCondWrapper wrapper = new SearchCondWrapper();
-
-        if (searchCond.getAttributableCond() != null) {
-            wrapper.setFilterType(SearchCondWrapper.FilterType.ATTRIBUTE);
-            wrapper.setFilterName(searchCond.getAttributableCond().getSchema());
-            wrapper.setType(searchCond.getAttributableCond().getType());
-            wrapper.setFilterValue(searchCond.getAttributableCond().getExpression());
-        }
-        if (searchCond.getAttributeCond() != null) {
-            wrapper.setFilterType(SearchCondWrapper.FilterType.ATTRIBUTE);
-            wrapper.setFilterName(searchCond.getAttributeCond().getSchema());
-            wrapper.setType(searchCond.getAttributeCond().getType());
-            wrapper.setFilterValue(searchCond.getAttributeCond().getExpression());
-        }
-        if (searchCond.getMembershipCond() != null) {
-            wrapper.setFilterType(SearchCondWrapper.FilterType.MEMBERSHIP);
-            RoleTO role = new RoleTO();
-            role.setId(searchCond.getMembershipCond().getRoleId());
-            role.setName(searchCond.getMembershipCond().getRoleName());
-            wrapper.setFilterName(role.getDisplayName());
-        }
-        if (searchCond.getResourceCond() != null) {
-            wrapper.setFilterType(SearchCondWrapper.FilterType.RESOURCE);
-            wrapper.setFilterName(searchCond.getResourceCond().getResourceName());
-        }
-        if (searchCond.getEntitlementCond() != null) {
-            wrapper.setFilterType(SearchCondWrapper.FilterType.ENTITLEMENT);
-            wrapper.setFilterName(searchCond.getEntitlementCond().getExpression());
-        }
-
-        wrapper.setNotOperator(searchCond.getType() == NodeCond.Type.NOT_LEAF);
-
-        return wrapper;
-    }
-
-    public NodeCond buildSearchCond() {
-        return buildSearchCond(searchConditionList);
-    }
-
-    private NodeCond buildSearchCond(final List<SearchCondWrapper> conditions) {
-        SearchCondWrapper searchConditionWrapper = conditions.get(0);
-        if (searchConditionWrapper == null || searchConditionWrapper.getFilterType() == null) {
-            return null;
-        }
-        LOG.debug("Search condition wrapper: {}", searchConditionWrapper);
-
-        NodeCond nodeCond = null;
-
-        switch (searchConditionWrapper.getFilterType()) {
-            case ATTRIBUTE:
-                // AttributeCond or SyncopeUserCond
-                final String schema = searchConditionWrapper.getFilterName();
-
-                final AttributeCond attributeCond;
-                if (dnames.getObject().contains(schema)) {
-                    attributeCond = new AttributableCond();
-                    nodeCond = searchConditionWrapper.isNotOperator()
-                            ? NodeCond.getNotLeafCond((AttributableCond) attributeCond)
-                            : NodeCond.getLeafCond((AttributableCond) attributeCond);
-                } else {
-                    attributeCond = new AttributeCond();
-                    nodeCond = searchConditionWrapper.isNotOperator()
-                            ? NodeCond.getNotLeafCond(attributeCond)
-                            : NodeCond.getLeafCond(attributeCond);
+                if (searchClauses.get(i).getOperator() == SearchClause.Operator.OR) {
+                    condition = builder.or(prevCondition, condition);
                 }
-
-                attributeCond.setSchema(schema);
-                attributeCond.setType(searchConditionWrapper.getType());
-                attributeCond.setExpression(searchConditionWrapper.getFilterValue());
-
-                break;
-
-            case MEMBERSHIP:
-                final MembershipCond membershipCond = new MembershipCond();
-                membershipCond.setRoleId(RoleTO.fromDisplayName(searchConditionWrapper.getFilterName()));
-                membershipCond.setRoleName(searchConditionWrapper.getFilterName().
-                        substring(searchConditionWrapper.getFilterName().indexOf(' ') + 1));
-
-                nodeCond = searchConditionWrapper.isNotOperator()
-                        ? NodeCond.getNotLeafCond(membershipCond)
-                        : NodeCond.getLeafCond(membershipCond);
-
-                break;
-
-            case RESOURCE:
-                final ResourceCond resourceCond = new ResourceCond();
-                resourceCond.setResourceName(searchConditionWrapper.getFilterName());
-
-                nodeCond = searchConditionWrapper.isNotOperator()
-                        ? NodeCond.getNotLeafCond(resourceCond)
-                        : NodeCond.getLeafCond(resourceCond);
-
-                break;
-
-            case ENTITLEMENT:
-                final EntitlementCond entitlementCond = new EntitlementCond();
-                entitlementCond.setExpression(searchConditionWrapper.getFilterName());
-
-                nodeCond = searchConditionWrapper.isNotOperator()
-                        ? NodeCond.getNotLeafCond(entitlementCond)
-                        : NodeCond.getLeafCond(entitlementCond);
-                break;
-
-            default:
-            // nothing to do
+            }
         }
 
-        LOG.debug("Processed condition {}", nodeCond);
-
-        if (conditions.size() > 1) {
-            List<SearchCondWrapper> subList = conditions.subList(1, conditions.size());
-
-            nodeCond = OperationType.OR.equals(subList.get(0).getOperationType())
-                    ? NodeCond.getOrCond(nodeCond, buildSearchCond(subList))
-                    : NodeCond.getAndCond(nodeCond, buildSearchCond(subList));
-        }
-
-        return nodeCond;
+        String fiql = condition == null ? StringUtils.EMPTY : condition.query();
+        LOG.debug("Generated FIQL: {}", fiql);
+        return fiql;
     }
 }

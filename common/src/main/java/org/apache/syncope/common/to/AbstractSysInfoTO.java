@@ -20,12 +20,14 @@ package org.apache.syncope.common.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
+import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.AbstractBaseBean;
 
 /**
  * Abstract wrapper for common system information.
  */
+@XmlType
 public class AbstractSysInfoTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -930797879027642457L;

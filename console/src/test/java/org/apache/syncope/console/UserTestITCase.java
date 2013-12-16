@@ -71,16 +71,14 @@ public class UserTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("link=Search");
-        selenium.select("//td[3]/select", "label=MEMBERSHIP");
+        selenium.select("//td[2]/select", "label=MEMBERSHIP");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//td[4]/select[option='3 citizen']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//td[3]/select[option='3 citizen']\");", "30000");
 
-        selenium.select("//td[4]/select", "label=3 citizen");
+        selenium.select("//td[3]/select", "label=3 citizen");
         selenium.click("name=search");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//*[@id='users-contain']//*[div=2]\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//*[@id='users-contain']//*[div=2]\");", "30000");
     }
 
     @Test
@@ -91,7 +89,7 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.click("//*[@id=\"users-contain\"]//*[div=4]/../td[5]/div/span[14]/a");
 
-        assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
+        assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
 
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//div[@id='propagation']/span\");", "30000");
 

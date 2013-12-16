@@ -44,7 +44,7 @@ import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.types.ReportExecStatus;
 import org.apache.syncope.common.types.ClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.core.init.JobInstanceLoader;
 import org.apache.syncope.core.persistence.beans.Report;
 import org.apache.syncope.core.persistence.beans.ReportExec;
@@ -126,16 +126,6 @@ public class ReportController extends AbstractTransactionalController<ReportTO> 
     @PreAuthorize("hasRole('REPORT_LIST')")
     public int count() {
         return reportDAO.count();
-    }
-
-    @PreAuthorize("hasRole('REPORT_LIST')")
-    public List<ReportTO> list() {
-        List<Report> reports = reportDAO.findAll();
-        List<ReportTO> result = new ArrayList<ReportTO>(reports.size());
-        for (Report report : reports) {
-            result.add(binder.getReportTO(report));
-        }
-        return result;
     }
 
     @PreAuthorize("hasRole('REPORT_LIST')")

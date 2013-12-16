@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.console.rest.BaseRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
@@ -124,7 +124,7 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
                     try {
-                        final BulkActionRes res = (BulkActionRes) bulkActionExecutor.getClass().
+                        final BulkActionResult res = (BulkActionResult) bulkActionExecutor.getClass().
                                 getMethod("bulkAction", BulkAction.class).invoke(bulkActionExecutor, bulkAction);
 
                         setResponsePage(new BulkActionResultModalPage(window, items, columns, res, idFieldName));

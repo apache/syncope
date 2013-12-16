@@ -84,7 +84,6 @@ public final class AttributableOperations {
                 } else {
                     result.getAttrsToUpdate().add(mod);
                 }
-
             } else if (!updatedValues.equals(originalValues)) {
                 // avoid unwanted inputs
                 updatedValues.remove("");

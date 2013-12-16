@@ -28,7 +28,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.syncope.common.annotation.FormAttributeField;
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.types.IntMappingType;
 
 @XmlRootElement(name = "roleReportletConf")
@@ -51,7 +50,7 @@ public class RoleReportletConf extends AbstractReportletConf {
 
     }
 
-    private NodeCond matchingCond;
+    private String matchingCond;
 
     @FormAttributeField(schema = IntMappingType.RoleSchema)
     private List<String> attrs;
@@ -105,11 +104,11 @@ public class RoleReportletConf extends AbstractReportletConf {
         return features;
     }
 
-    public NodeCond getMatchingCond() {
+    public String getMatchingCond() {
         return matchingCond;
     }
 
-    public void setMatchingCond(final NodeCond matchingCond) {
+    public void setMatchingCond(final String matchingCond) {
         this.matchingCond = matchingCond;
     }
 }

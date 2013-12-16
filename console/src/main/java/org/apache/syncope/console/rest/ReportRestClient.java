@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.services.ReportService;
-import org.apache.syncope.common.types.ReportletConfClasses;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.wrap.ReportletConfClass;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,13 +34,18 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
     private static final long serialVersionUID = 1644689667998953604L;
 
     public List<String> getReportletConfClasses() {
+        List<String> result = new ArrayList<String>();
+
         try {
-            ReportletConfClasses reportletConfClasses = getService(ReportService.class).getReportletConfClasses();
-            return reportletConfClasses.getConfClasses();
+            List<ReportletConfClass> reportletConfClasses = getService(ReportService.class).getReportletConfClasses();
+            for (ReportletConfClass clazz : reportletConfClasses) {
+                result.add(clazz.getName());
+            }
         } catch (SyncopeClientException e) {
             LOG.error("While getting available reportlet classes", e);
-            return new ArrayList<String>();
         }
+
+        return result;
     }
 
     public ReportTO read(final Long reportId) {
@@ -48,15 +53,15 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
     }
 
     public List<ReportTO> list() {
-        return getService(ReportService.class).list();
+        return getService(ReportService.class).list().getResult();
     }
 
     public List<ReportTO> list(final int page, final int size) {
-        return getService(ReportService.class).list(page, size);
+        return getService(ReportService.class).list(page, size).getResult();
     }
 
     public int count() {
-        return getService(ReportService.class).count();
+        return getService(ReportService.class).list(1, 1).getTotalCount();
     }
 
     public void create(final ReportTO reportTO) {

@@ -29,16 +29,15 @@ import java.util.Set;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.mod.UserMod;
-import org.apache.syncope.common.search.NodeCond;
-import org.apache.syncope.common.services.InvalidSearchConditionException;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
-import org.apache.syncope.common.to.BulkActionRes.Status;
+import org.apache.syncope.core.persistence.dao.search.SearchCond;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.common.reqres.BulkActionResult.Status;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -120,12 +119,7 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
     @PreAuthorize("hasRole('USER_LIST')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
-    public int searchCount(final NodeCond searchCondition) throws InvalidSearchConditionException {
-        if (!searchCondition.isValid()) {
-            LOG.error("Invalid search condition: {}", searchCondition);
-            throw new InvalidSearchConditionException();
-        }
-
+    public int searchCount(final SearchCond searchCondition) {
         return searchDAO.count(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()),
                 searchCondition, AttributableUtil.getInstance(AttributableType.USER));
     }
@@ -152,21 +146,14 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_READ')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     public UserTO read(final Long userId) {
         return binder.getUserTO(userId);
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
-    public List<UserTO> search(final NodeCond searchCondition, final int page, final int size)
-            throws InvalidSearchConditionException {
-
-        if (!searchCondition.isValid()) {
-            LOG.error("Invalid search condition: {}", searchCondition);
-            throw new InvalidSearchConditionException();
-        }
-
+    @Transactional(readOnly = true)
+    public List<UserTO> search(final SearchCond searchCondition, final int page, final int size) {
         final List<SyncopeUser> matchingUsers = searchDAO.search(EntitlementUtil.getRoleIds(EntitlementUtil.
                 getOwnedEntitlementNames()), searchCondition, page, size,
                 AttributableUtil.getInstance(AttributableType.USER));
@@ -252,18 +239,16 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
          */
         WorkflowResult<Map.Entry<UserMod, Boolean>> updated = uwfAdapter.update(actual);
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated);
-
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
                 getBean(PropagationReporter.class);
 
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated);
         if (tasks.isEmpty()) {
             // SYNCOPE-459: take care of user virtual attributes ...
             binder.forceVirtualAttributes(
                     updated.getResult().getKey().getId(),
                     actual.getVirAttrsToRemove(),
                     actual.getVirAttrsToUpdate());
-
         } else {
             try {
                 taskExecutor.execute(tasks, propagationReporter);
@@ -389,8 +374,8 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
             + "(hasRole('USER_UPDATE') and "
             + "(#bulkAction.operation == #bulkAction.operation.REACTIVATE or "
             + "#bulkAction.operation == #bulkAction.operation.SUSPEND))")
-    public BulkActionRes bulk(final BulkAction bulkAction) {
-        BulkActionRes res = new BulkActionRes();
+    public BulkActionResult bulk(final BulkAction bulkAction) {
+        BulkActionResult res = new BulkActionResult();
 
         switch (bulkAction.getOperation()) {
             case DELETE:

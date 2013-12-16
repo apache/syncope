@@ -26,14 +26,14 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
@@ -302,16 +302,16 @@ public class ConnectorController extends AbstractTransactionalController<ConnIns
     }
 
     @PreAuthorize("hasRole('CONNECTOR_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE")
-    public BulkActionRes bulk(final BulkAction bulkAction) {
-        BulkActionRes res = new BulkActionRes();
+    public BulkActionResult bulk(final BulkAction bulkAction) {
+        BulkActionResult res = new BulkActionResult();
 
         if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
             for (String id : bulkAction.getTargets()) {
                 try {
-                    res.add(delete(Long.valueOf(id)).getId(), BulkActionRes.Status.SUCCESS);
+                    res.add(delete(Long.valueOf(id)).getId(), BulkActionResult.Status.SUCCESS);
                 } catch (Exception e) {
                     LOG.error("Error performing delete for connector {}", id, e);
-                    res.add(id, BulkActionRes.Status.FAILURE);
+                    res.add(id, BulkActionResult.Status.FAILURE);
                 }
             }
         }

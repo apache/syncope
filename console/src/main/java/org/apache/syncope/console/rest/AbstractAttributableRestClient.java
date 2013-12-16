@@ -19,29 +19,26 @@
 package org.apache.syncope.console.rest;
 
 import java.util.List;
-import org.apache.syncope.common.search.NodeCond;
-import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.to.AbstractAttributableTO;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.ConnObjectTO;
 
 public abstract class AbstractAttributableRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 1962529678091410544L;
 
-    public abstract Integer count();
+    public abstract int count();
 
     public abstract List<? extends AbstractAttributableTO> list(int page, int size);
 
-    public abstract Integer searchCount(NodeCond searchCond) throws InvalidSearchConditionException;
+    public abstract int searchCount(String fiql);
 
-    public abstract List<? extends AbstractAttributableTO> search(NodeCond searchCond, int page, int size)
-            throws InvalidSearchConditionException;
+    public abstract List<? extends AbstractAttributableTO> search(String fiql, int page, int size);
 
     public abstract ConnObjectTO getConnectorObject(String resourceName, Long id);
 
     public abstract AbstractAttributableTO delete(Long id);
 
-    public abstract BulkActionRes bulkAction(BulkAction action);
+    public abstract BulkActionResult bulkAction(BulkAction action);
 }

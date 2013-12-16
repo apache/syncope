@@ -28,7 +28,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.syncope.common.AbstractBaseBean;
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.TraceLevel;
 
@@ -42,9 +41,9 @@ public class NotificationTO extends AbstractBaseBean {
 
     private List<String> events = new ArrayList<String>();
 
-    private NodeCond about;
+    private String about;
 
-    private NodeCond recipients;
+    private String recipients;
 
     private IntMappingType recipientAttrType;
 
@@ -60,11 +59,11 @@ public class NotificationTO extends AbstractBaseBean {
 
     private TraceLevel traceLevel;
 
-    public NodeCond getAbout() {
+    public String getAbout() {
         return about;
     }
 
-    public void setAbout(final NodeCond about) {
+    public void setAbout(final String about) {
         this.about = about;
     }
 
@@ -83,11 +82,11 @@ public class NotificationTO extends AbstractBaseBean {
         this.id = id;
     }
 
-    public NodeCond getRecipients() {
+    public String getRecipients() {
         return recipients;
     }
 
-    public void setRecipients(NodeCond recipients) {
+    public void setRecipients(String recipients) {
         this.recipients = recipients;
     }
 

@@ -32,7 +32,7 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.BeanUtils;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.core.init.JobInstanceLoader;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.NotificationTask;

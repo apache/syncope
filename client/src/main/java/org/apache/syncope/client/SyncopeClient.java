@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client;
 
+import org.apache.syncope.common.search.SyncopeFiqlSearchConditionBuilder;
+import java.util.Map;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -52,6 +54,25 @@ public class SyncopeClient {
         this.restClientFactory = restClientFactory;
         this.username = username;
         this.password = password;
+    }
+
+    /**
+     * Returns a new instance of <tt>SyncopeFiqlSearchConditionBuilder</tt>, for assisted building of FIQL queries.
+     *
+     * @return default instance of <tt>SyncopeFiqlSearchConditionBuilder</tt>
+     */
+    public static SyncopeFiqlSearchConditionBuilder getSearchConditionBuilder() {
+        return new SyncopeFiqlSearchConditionBuilder();
+    }
+
+    /**
+     * Returns a new instance of <tt>SyncopeFiqlSearchConditionBuilder</tt>, for assisted building of FIQL queries.
+     *
+     * @param properties additional properties (date format, timezone support, etc.)
+     * @return default instance of <tt>SyncopeFiqlSearchConditionBuilder</tt>
+     */
+    public static SyncopeFiqlSearchConditionBuilder getSearchConditionBuilder(final Map<String, String> properties) {
+        return new SyncopeFiqlSearchConditionBuilder(properties);
     }
 
     /**

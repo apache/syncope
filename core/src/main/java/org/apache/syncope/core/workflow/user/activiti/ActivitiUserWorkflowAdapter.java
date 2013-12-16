@@ -66,7 +66,7 @@ import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.WorkflowFormPropertyType;
 import org.apache.syncope.common.util.BeanUtils;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;

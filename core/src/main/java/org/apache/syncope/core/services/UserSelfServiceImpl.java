@@ -36,7 +36,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
 
     @Override
     public Response getOptions() {
-        return Response.ok().header(HttpHeaders.ALLOW, "GET,POST,OPTIONS,HEAD").
+        return Response.ok().header(HttpHeaders.ALLOW, OPTIONS_ALLOW).
                 header(RESTHeaders.SELFREGISTRATION_ALLOWED, controller.isSelfRegistrationAllowed()).
                 build();
     }

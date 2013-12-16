@@ -58,13 +58,6 @@ under the License.
         <property name="innerElementCountThreshold" value="500"/>
       </bean>
     </property>
-    <property name="marshallerProperties">
-      <map>
-        <entry key="jaxb.formatted.output">
-          <value type="java.lang.Boolean">true</value>
-        </entry>
-      </map>
-    </property>
     <property name="collectionWrapperMap">
       <map>
         <entry>
@@ -84,6 +77,8 @@ under the License.
 
   <bean id="exceptionMapper" class="org.apache.syncope.core.rest.utils.RestServiceExceptionMapper"/>
 
+  <bean id="searchContextProvider" class="org.apache.cxf.jaxrs.ext.search.SearchContextProvider"/>
+  
   <bean id="wadlGenerator" class="org.apache.cxf.jaxrs.model.wadl.WadlGenerator">
     <property name="applicationTitle" value="Apache Syncope ${project.version}"/>
     <property name="namespacePrefix" value="syncope"/>
@@ -94,7 +89,7 @@ under the License.
   </bean>
   
   <bean id="addETagFilter" class="org.apache.syncope.core.services.AddETagFilter"/>
-  
+
   <jaxrs:server id="restContainer" address="/" staticSubresourceResolution="true">
     <jaxrs:serviceBeans>
       <ref bean="connectorServiceImpl"/>
@@ -116,10 +111,14 @@ under the License.
     <jaxrs:resourceComparator>
       <bean id="queryResourceInfoComparator" class="org.apache.syncope.core.rest.utils.QueryResourceInfoComparator"/>
     </jaxrs:resourceComparator>
+    <jaxrs:properties> 
+      <entry key="search.lax.property.match" value="true"/> 
+    </jaxrs:properties> 
     <jaxrs:providers>
       <ref bean="jaxbProvider"/>
       <ref bean="jsonProvider"/>
       <ref bean="exceptionMapper"/>
+      <ref bean="searchContextProvider"/>
       <ref bean="wadlGenerator"/>
       <ref bean="addETagFilter"/>
     </jaxrs:providers>

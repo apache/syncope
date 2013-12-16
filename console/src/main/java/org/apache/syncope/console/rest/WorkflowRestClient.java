@@ -26,7 +26,7 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.RESTHeaders;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.SyncopeSession;
 import org.springframework.stereotype.Component;
 

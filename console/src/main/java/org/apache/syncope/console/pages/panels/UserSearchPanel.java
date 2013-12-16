@@ -21,10 +21,8 @@ package org.apache.syncope.console.pages.panels;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.console.commons.SearchCondWrapper;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -42,7 +40,7 @@ public class UserSearchPanel extends AbstractSearchPanel {
 
         private String id;
 
-        private NodeCond initCond = null;
+        private String fiql = null;
 
         private boolean required = true;
 
@@ -50,8 +48,8 @@ public class UserSearchPanel extends AbstractSearchPanel {
             this.id = id;
         }
 
-        public UserSearchPanel.Builder nodeCond(final NodeCond initCond) {
-            this.initCond = initCond;
+        public UserSearchPanel.Builder fiql(final String fiql) {
+            this.fiql = fiql;
             return this;
         }
 
@@ -66,23 +64,23 @@ public class UserSearchPanel extends AbstractSearchPanel {
     }
 
     private UserSearchPanel(final Builder builder) {
-        super(builder.id, AttributableType.USER, builder.initCond, builder.required);
+        super(builder.id, AttributableType.USER, builder.fiql, builder.required);
     }
 
     @Override
     protected void populate() {
         super.populate();
 
-        this.filterTypes = new LoadableDetachableModel<List<SearchCondWrapper.FilterType>>() {
+        this.types = new LoadableDetachableModel<List<SearchClause.Type>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
-            protected List<SearchCondWrapper.FilterType> load() {
-                List<SearchCondWrapper.FilterType> result = new ArrayList<SearchCondWrapper.FilterType>();
-                result.add(SearchCondWrapper.FilterType.ATTRIBUTE);
-                result.add(SearchCondWrapper.FilterType.MEMBERSHIP);
-                result.add(SearchCondWrapper.FilterType.RESOURCE);
+            protected List<SearchClause.Type> load() {
+                List<SearchClause.Type> result = new ArrayList<SearchClause.Type>();
+                result.add(SearchClause.Type.ATTRIBUTE);
+                result.add(SearchClause.Type.MEMBERSHIP);
+                result.add(SearchClause.Type.RESOURCE);
                 return result;
             }
         };

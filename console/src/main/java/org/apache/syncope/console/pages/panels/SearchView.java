@@ -19,29 +19,26 @@
 package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.common.search.AttributeCond;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.SearchCondWrapper;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.ResourceModel;
 
-public class SearchView extends ListView<SearchCondWrapper> {
+public class SearchView extends ListView<SearchClause> {
 
     private static final long serialVersionUID = -527351923968737757L;
 
@@ -49,9 +46,7 @@ public class SearchView extends ListView<SearchCondWrapper> {
 
     private final boolean required;
 
-    private final IModel<List<AttributeCond.Type>> attributeTypes;
-
-    private final IModel<List<SearchCondWrapper.FilterType>> filterTypes;
+    private final IModel<List<SearchClause.Type>> types;
 
     private final IModel<List<String>> anames;
 
@@ -63,11 +58,10 @@ public class SearchView extends ListView<SearchCondWrapper> {
 
     private final IModel<List<String>> entitlements;
 
-    public SearchView(final String id, final List<? extends SearchCondWrapper> list,
+    public SearchView(final String id, final List<? extends SearchClause> list,
             final WebMarkupContainer searchFormContainer,
             final boolean required,
-            final IModel<List<AttributeCond.Type>> attributeTypes,
-            final IModel<List<SearchCondWrapper.FilterType>> filterTypes,
+            final IModel<List<SearchClause.Type>> types,
             final IModel<List<String>> anames,
             final IModel<List<String>> dnames,
             final IModel<List<String>> roleNames,
@@ -78,8 +72,7 @@ public class SearchView extends ListView<SearchCondWrapper> {
 
         this.searchFormContainer = searchFormContainer;
         this.required = required;
-        this.attributeTypes = attributeTypes;
-        this.filterTypes = filterTypes;
+        this.types = types;
         this.anames = anames;
         this.dnames = dnames;
         this.roleNames = roleNames;
@@ -88,17 +81,15 @@ public class SearchView extends ListView<SearchCondWrapper> {
     }
 
     @Override
-    protected void populateItem(final ListItem<SearchCondWrapper> item) {
-        final SearchCondWrapper searchCondition = item.getModelObject();
+    protected void populateItem(final ListItem<SearchClause> item) {
+        final SearchClause searchClause = item.getModelObject();
 
-        if (item.getIndex() == 0) {
-            item.add(new Label("operationType", ""));
-        } else {
-            item.add(new Label("operationType", searchCondition.getOperationType().toString()));
-        }
-
-        final CheckBox notOperator = new CheckBox("notOperator", new PropertyModel(searchCondition, "notOperator"));
-        notOperator.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        final DropDownChoice<SearchClause.Operator> operator = new DropDownChoice<SearchClause.Operator>("operator",
+                new PropertyModel<SearchClause.Operator>(searchClause, "operator"),
+                Arrays.asList(SearchClause.Operator.values()));
+        operator.setOutputMarkupPlaceholderTag(true);
+        operator.setNullValid(false);
+        operator.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -106,25 +97,32 @@ public class SearchView extends ListView<SearchCondWrapper> {
             protected void onUpdate(final AjaxRequestTarget target) {
             }
         });
-        item.add(notOperator);
+        item.add(operator);
+        if (item.getIndex() == 0) {
+            operator.setVisible(false);
+        }
 
-        final DropDownChoice<AttributeCond.Type> type = new DropDownChoice<AttributeCond.Type>("type",
-                new PropertyModel<AttributeCond.Type>(searchCondition, "type"), attributeTypes);
+        final DropDownChoice<SearchClause.Type> type = new DropDownChoice<SearchClause.Type>("type",
+                new PropertyModel<SearchClause.Type>(searchClause, "type"), types);
+        type.setOutputMarkupId(true);
+        type.setRequired(required);
         type.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
+                target.add(searchFormContainer);
             }
         });
         item.add(type);
 
-        final DropDownChoice<String> filterNameChooser = new DropDownChoice<String>("filterName",
-                new PropertyModel<String>(searchCondition, "filterName"), (IModel) null);
-        filterNameChooser.setOutputMarkupId(true);
-        filterNameChooser.setRequired(required);
-        filterNameChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        @SuppressWarnings("unchecked")
+        final DropDownChoice<String> property = new DropDownChoice<String>("property",
+                new PropertyModel<String>(searchClause, "property"), (IModel) null);
+        property.setOutputMarkupId(true);
+        property.setRequired(required);
+        property.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -132,11 +130,12 @@ public class SearchView extends ListView<SearchCondWrapper> {
             protected void onUpdate(final AjaxRequestTarget target) {
             }
         });
-        item.add(filterNameChooser);
+        item.add(property);
 
-        final TextField<String> filterValue = new TextField<String>("filterValue", new PropertyModel<String>(
-                searchCondition, "filterValue"));
-        filterValue.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        final TextField<String> value = new TextField<String>("value",
+                new PropertyModel<String>(searchClause, "value"));
+        value.setOutputMarkupId(true);
+        value.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -144,117 +143,154 @@ public class SearchView extends ListView<SearchCondWrapper> {
             protected void onUpdate(final AjaxRequestTarget target) {
             }
         });
-        item.add(filterValue);
+        item.add(value);
 
-        final DropDownChoice<SearchCondWrapper.FilterType> filterTypeChooser =
-                new DropDownChoice<SearchCondWrapper.FilterType>("filterType",
-                new PropertyModel<SearchCondWrapper.FilterType>(searchCondition, "filterType"), filterTypes);
-        filterTypeChooser.setOutputMarkupId(true);
-        filterTypeChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        final DropDownChoice<SearchClause.Comparator> comparator =
+                new DropDownChoice<SearchClause.Comparator>("comparator",
+                        new PropertyModel<SearchClause.Comparator>(searchClause, "comparator"),
+                        Collections.<SearchClause.Comparator>emptyList());
+        comparator.setOutputMarkupId(true);
+        comparator.setNullValid(false);
+        comparator.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                target.add(searchFormContainer);
+                if (type.getModelObject() == SearchClause.Type.ATTRIBUTE) {
+                    if (comparator.getModelObject() == SearchClause.Comparator.IS_NULL
+                            || comparator.getModelObject() == SearchClause.Comparator.IS_NOT_NULL) {
+
+                        value.setEnabled(false);
+                    } else {
+                        value.setEnabled(true);
+                    }
+                    target.add(value);
+                }
             }
         });
-        filterTypeChooser.setRequired(required);
-        item.add(filterTypeChooser);
+        comparator.setRequired(required);
+        item.add(comparator);
 
-        AjaxButton addAndButton = new IndicatingAjaxButton("addAndButton", new ResourceModel("addAndButton")) {
+        AjaxLink<Void> drop = new IndicatingAjaxLink<Void>("drop") {
 
-            private static final long serialVersionUID = -4804368561204623354L;
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                SearchCondWrapper conditionWrapper = new SearchCondWrapper();
-                conditionWrapper.setOperationType(SearchCondWrapper.OperationType.AND);
-                SearchView.this.getModelObject().add(conditionWrapper);
-                target.add(searchFormContainer);
-            }
+            private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+            public void onClick(final AjaxRequestTarget target) {
+                SearchView.this.getModel().getObject().remove(item.getModelObject());
                 target.add(searchFormContainer);
             }
         };
-        addAndButton.setDefaultFormProcessing(false);
-        if (item.getIndex() != getModelObject().size() - 1) {
-            addAndButton.setVisible(false);
-        }
-        item.add(addAndButton);
-
-        AjaxButton addOrButton = new IndicatingAjaxButton("addOrButton", new ResourceModel("addOrButton")) {
-
-            private static final long serialVersionUID = -4804368561204623354L;
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                SearchCondWrapper conditionWrapper = new SearchCondWrapper();
-                conditionWrapper.setOperationType(SearchCondWrapper.OperationType.OR);
-                SearchView.this.getModelObject().add(conditionWrapper);
-                target.add(searchFormContainer);
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(searchFormContainer);
-            }
-        };
-        addOrButton.setDefaultFormProcessing(false);
-        if (item.getIndex() != getModelObject().size() - 1) {
-            addOrButton.setVisible(false);
-        }
-        item.add(addOrButton);
-
-        AjaxButton dropButton = new IndicatingAjaxButton("dropButton", new ResourceModel("dropButton")) {
-
-            private static final long serialVersionUID = -4804368561204623354L;
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                getList().remove(Integer.valueOf(getParent().getId()).intValue());
-                target.add(searchFormContainer);
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(searchFormContainer);
-            }
-        };
-        dropButton.setDefaultFormProcessing(false);
+        item.add(drop);
         if (item.getIndex() == 0) {
-            dropButton.setVisible(false);
-        }
-        item.add(dropButton);
-
-        if (searchCondition == null || searchCondition.getFilterType() == null) {
-            filterNameChooser.setChoices(Collections.<String>emptyList());
+            drop.setVisible(false);
+            drop.setEnabled(false);
         } else {
-            switch (searchCondition.getFilterType()) {
+            drop.setVisible(true);
+            drop.setEnabled(true);
+        }
+
+        final AjaxLink<Void> add = new IndicatingAjaxLink<Void>("add") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                SearchClause clause = new SearchClause();
+                SearchView.this.getModel().getObject().add(clause);
+                target.add(searchFormContainer);
+            }
+        };
+        item.add(add);
+
+        if (searchClause == null || searchClause.getType() == null) {
+            property.setChoices(Collections.<String>emptyList());
+        } else {
+            switch (searchClause.getType()) {
                 case ATTRIBUTE:
                     final List<String> names = new ArrayList<String>(dnames.getObject());
-
                     if (anames.getObject() != null && !anames.getObject().isEmpty()) {
                         names.addAll(anames.getObject());
                     }
                     Collections.sort(names);
+                    property.setChoices(names);
 
-                    filterNameChooser.setChoices(names);
-                    if (!type.isEnabled()) {
-                        type.setEnabled(true);
-                        type.setRequired(true);
-                    }
-                    if (!filterValue.isEnabled()) {
-                        filterValue.setEnabled(true);
+                    comparator.setChoices(new LoadableDetachableModel<List<SearchClause.Comparator>>() {
+
+                        private static final long serialVersionUID = 5275935387613157437L;
+
+                        @Override
+                        protected List<SearchClause.Comparator> load() {
+                            return Arrays.asList(SearchClause.Comparator.values());
+                        }
+                    });
+                    comparator.setChoiceRenderer(new IChoiceRenderer<SearchClause.Comparator>() {
+
+                        private static final long serialVersionUID = -9086043750227867686L;
+
+                        @Override
+                        public Object getDisplayValue(final SearchClause.Comparator object) {
+                            String display;
+
+                            switch (object) {
+                                case IS_NULL:
+                                    display = "NULL";
+                                    break;
+
+                                case IS_NOT_NULL:
+                                    display = "NOT NULL";
+                                    break;
+
+                                case EQUALS:
+                                    display = "==";
+                                    break;
+
+                                case NOT_EQUALS:
+                                    display = "!=";
+                                    break;
+
+                                case LESS_THAN:
+                                    display = "<";
+                                    break;
+
+                                case LESS_OR_EQUALS:
+                                    display = "<=";
+                                    break;
+
+                                case GREATER_THAN:
+                                    display = ">";
+                                    break;
+
+                                case GREATER_OR_EQUALS:
+                                    display = ">=";
+                                    break;
+
+                                default:
+                                    display = StringUtils.EMPTY;
+                            }
+
+                            return display;
+                        }
+
+                        @Override
+                        public String getIdValue(final SearchClause.Comparator object, int index) {
+                            return getDisplayValue(object).toString();
+                        }
+                    });
+                    if (!comparator.isEnabled()) {
+                        comparator.setEnabled(true);
+                        comparator.setRequired(true);
                     }
 
+                    if (!value.isEnabled()) {
+                        value.setEnabled(true);
+                    }
                     break;
 
                 case MEMBERSHIP:
-                    filterNameChooser.setChoices(roleNames);
-                    filterNameChooser.setChoiceRenderer(new IChoiceRenderer<String>() {
+                    property.setChoices(roleNames);
+                    property.setChoiceRenderer(new IChoiceRenderer<String>() {
 
                         private static final long serialVersionUID = -4288397951948436434L;
 
@@ -268,39 +304,156 @@ public class SearchView extends ListView<SearchCondWrapper> {
                             return object;
                         }
                     });
-                    type.setEnabled(false);
-                    type.setRequired(false);
-                    type.setModelObject(null);
 
-                    filterValue.setEnabled(false);
-                    filterValue.setModelObject("");
+                    comparator.setChoices(new LoadableDetachableModel<List<SearchClause.Comparator>>() {
+
+                        private static final long serialVersionUID = 5275935387613157437L;
+
+                        @Override
+                        protected List<SearchClause.Comparator> load() {
+                            List<SearchClause.Comparator> comparators = new ArrayList<SearchClause.Comparator>();
+                            comparators.add(SearchClause.Comparator.EQUALS);
+                            comparators.add(SearchClause.Comparator.NOT_EQUALS);
+                            return comparators;
+                        }
+                    });
+                    comparator.setChoiceRenderer(new IChoiceRenderer<SearchClause.Comparator>() {
+
+                        private static final long serialVersionUID = -9086043750227867686L;
+
+                        @Override
+                        public Object getDisplayValue(final SearchClause.Comparator object) {
+                            String display;
+
+                            switch (object) {
+                                case EQUALS:
+                                    display = "IN";
+                                    break;
+
+                                case NOT_EQUALS:
+                                    display = "NOT IN";
+                                    break;
+
+                                default:
+                                    display = StringUtils.EMPTY;
+                            }
+
+                            return display;
+                        }
+
+                        @Override
+                        public String getIdValue(final SearchClause.Comparator object, final int index) {
+                            return getDisplayValue(object).toString();
+                        }
+                    });
+
+                    value.setEnabled(false);
+                    value.setModelObject("");
 
                     break;
 
                 case RESOURCE:
-                    filterNameChooser.setChoices(resourceNames);
-                    type.setEnabled(false);
-                    type.setRequired(false);
-                    type.setModelObject(null);
+                    property.setChoices(resourceNames);
 
-                    filterValue.setEnabled(false);
-                    filterValue.setModelObject("");
+                    comparator.setChoices(new LoadableDetachableModel<List<SearchClause.Comparator>>() {
+
+                        private static final long serialVersionUID = 5275935387613157437L;
+
+                        @Override
+                        protected List<SearchClause.Comparator> load() {
+                            List<SearchClause.Comparator> comparators = new ArrayList<SearchClause.Comparator>();
+                            comparators.add(SearchClause.Comparator.EQUALS);
+                            comparators.add(SearchClause.Comparator.NOT_EQUALS);
+                            return comparators;
+                        }
+                    });
+                    comparator.setChoiceRenderer(new IChoiceRenderer<SearchClause.Comparator>() {
+
+                        private static final long serialVersionUID = -9086043750227867686L;
+
+                        @Override
+                        public Object getDisplayValue(final SearchClause.Comparator object) {
+                            String display;
+
+                            switch (object) {
+                                case EQUALS:
+                                    display = "HAS";
+                                    break;
+
+                                case NOT_EQUALS:
+                                    display = "HAS NOT";
+                                    break;
+
+                                default:
+                                    display = StringUtils.EMPTY;
+                            }
+
+                            return display;
+                        }
+
+                        @Override
+                        public String getIdValue(final SearchClause.Comparator object, final int index) {
+                            return getDisplayValue(object).toString();
+                        }
+                    });
+
+                    value.setEnabled(false);
+                    value.setModelObject("");
 
                     break;
 
                 case ENTITLEMENT:
-                    filterNameChooser.setChoices(entitlements);
-                    type.setEnabled(false);
-                    type.setRequired(false);
-                    type.setModelObject(null);
+                    property.setChoices(entitlements);
 
-                    filterValue.setEnabled(false);
-                    filterValue.setModelObject("");
+                    comparator.setChoices(new LoadableDetachableModel<List<SearchClause.Comparator>>() {
+
+                        private static final long serialVersionUID = 5275935387613157437L;
+
+                        @Override
+                        protected List<SearchClause.Comparator> load() {
+                            List<SearchClause.Comparator> comparators = new ArrayList<SearchClause.Comparator>();
+                            comparators.add(SearchClause.Comparator.EQUALS);
+                            comparators.add(SearchClause.Comparator.NOT_EQUALS);
+                            return comparators;
+                        }
+                    });
+                    comparator.setChoiceRenderer(new IChoiceRenderer<SearchClause.Comparator>() {
+
+                        private static final long serialVersionUID = -9086043750227867686L;
+
+                        @Override
+                        public Object getDisplayValue(final SearchClause.Comparator object) {
+                            String display;
+
+                            switch (object) {
+                                case EQUALS:
+                                    display = "HAS";
+                                    break;
+
+                                case NOT_EQUALS:
+                                    display = "HAS NOT";
+                                    break;
+
+                                default:
+                                    display = StringUtils.EMPTY;
+                            }
+
+                            return display;
+                        }
+
+                        @Override
+                        public String getIdValue(final SearchClause.Comparator object, final int index) {
+                            return getDisplayValue(object).toString();
+                        }
+                    });
+
+                    value.setEnabled(false);
+                    value.setModelObject("");
 
                     break;
 
                 default:
-                    filterNameChooser.setChoices(Collections.<String>emptyList());
+                    property.setChoices(Collections.<String>emptyList());
             }
         }
     }

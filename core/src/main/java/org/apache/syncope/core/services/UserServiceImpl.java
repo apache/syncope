@@ -25,16 +25,16 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
-import org.apache.syncope.common.search.NodeCond;
-import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.UserService;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
-import org.apache.syncope.common.to.ResourceNameTO;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.common.reqres.PagedResult;
+import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.core.rest.controller.UserController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,21 +47,16 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
     @Override
     public Response getUsername(final Long userId) {
-        return Response.ok().header(HttpHeaders.ALLOW, "GET,POST,OPTIONS,HEAD").
+        return Response.ok().header(HttpHeaders.ALLOW, OPTIONS_ALLOW).
                 header(RESTHeaders.USERNAME, controller.getUsername(userId)).
                 build();
     }
 
     @Override
     public Response getUserId(final String username) {
-        return Response.ok().header(HttpHeaders.ALLOW, "GET,POST,OPTIONS,HEAD").
+        return Response.ok().header(HttpHeaders.ALLOW, OPTIONS_ALLOW).
                 header(RESTHeaders.USER_ID, controller.getUserId(username)).
                 build();
-    }
-
-    @Override
-    public int count() {
-        return controller.count();
     }
 
     @Override
@@ -74,7 +69,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     public Response delete(final Long userId) {
         UserTO user = controller.read(userId);
 
-        ResponseBuilder builder = context.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
+        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
         if (builder == null) {
             UserTO deleted = controller.delete(userId);
             builder = modificationResponse(deleted);
@@ -84,13 +79,14 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     }
 
     @Override
-    public List<UserTO> list() {
-        return list(1, 25);
+    public PagedResult<UserTO> list() {
+        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE);
     }
 
     @Override
-    public List<UserTO> list(final int page, final int size) {
-        return controller.list(page, size);
+    public PagedResult<UserTO> list(final int page, final int size) {
+        checkPageSize(page, size);
+        return buildPagedResult(controller.list(page, size), page, size, controller.count());
     }
 
     @Override
@@ -99,27 +95,22 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     }
 
     @Override
-    public List<UserTO> search(final NodeCond searchCondition) throws InvalidSearchConditionException {
-        return controller.search(searchCondition, 1, 25);
+    public PagedResult<UserTO> search(final String fiql) {
+        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE);
     }
 
     @Override
-    public List<UserTO> search(final NodeCond searchCondition, final int page, final int size)
-            throws InvalidSearchConditionException {
-
-        return controller.search(searchCondition, page, size);
-    }
-
-    @Override
-    public int searchCount(final NodeCond searchCondition) throws InvalidSearchConditionException {
-        return controller.searchCount(searchCondition);
+    public PagedResult<UserTO> search(final String fiql, final int page, final int size) {
+        checkPageSize(page, size);
+        SearchCond cond = getSearchCond(fiql);
+        return buildPagedResult(controller.search(cond, page, size), page, size, controller.searchCount(cond));
     }
 
     @Override
     public Response update(final Long userId, final UserMod userMod) {
         UserTO user = controller.read(userId);
 
-        ResponseBuilder builder = context.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
+        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
         if (builder == null) {
             userMod.setId(userId);
             UserTO updated = controller.update(userMod);
@@ -133,7 +124,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     public Response status(final Long userId, final StatusMod statusMod) {
         UserTO user = controller.read(userId);
 
-        ResponseBuilder builder = context.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
+        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
         if (builder == null) {
             statusMod.setId(userId);
             UserTO updated = controller.status(statusMod);
@@ -144,17 +135,17 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     }
 
     @Override
-    public BulkActionRes bulk(final BulkAction bulkAction) {
+    public BulkActionResult bulk(final BulkAction bulkAction) {
         return controller.bulk(bulkAction);
     }
 
     @Override
     public Response associate(final Long userId, final ResourceAssociationActionType type,
-            final List<ResourceNameTO> resourceNames) {
+            final List<ResourceName> resourceNames) {
 
         UserTO user = controller.read(userId);
 
-        ResponseBuilder builder = context.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
+        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
         if (builder == null) {
             UserTO updated;
 

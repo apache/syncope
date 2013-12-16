@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.services;
 
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -31,8 +33,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
@@ -42,7 +42,7 @@ import org.apache.syncope.common.types.ConnConfProperty;
 @Path("connectors")
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-public interface ConnectorService {
+public interface ConnectorService extends JAXRSService {
 
     /**
      * Create a new connector instance.
@@ -149,5 +149,5 @@ public interface ConnectorService {
 
     @POST
     @Path("bulk")
-    BulkActionRes bulk(BulkAction bulkAction);
+    BulkActionResult bulk(BulkAction bulkAction);
 }

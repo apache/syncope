@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.services.ConnectorService;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
@@ -122,7 +122,7 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     }
 
     @Override
-    public BulkActionRes bulk(final BulkAction bulkAction) {
+    public BulkActionResult bulk(final BulkAction bulkAction) {
         return controller.bulk(bulkAction);
     }
 }

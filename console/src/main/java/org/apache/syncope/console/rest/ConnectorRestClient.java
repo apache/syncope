@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.services.ConnectorService;
 import org.apache.syncope.common.services.ResourceService;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
@@ -34,7 +34,7 @@ import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.util.BeanUtils;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.SyncopeSession;
 import org.springframework.stereotype.Component;
 
@@ -211,7 +211,7 @@ public class ConnectorRestClient extends BaseRestClient {
         getService(ConnectorService.class).reload();
     }
 
-    public BulkActionRes bulkAction(final BulkAction action) {
+    public BulkActionResult bulkAction(final BulkAction action) {
         return getService(ConnectorService.class).bulk(action);
     }
 }

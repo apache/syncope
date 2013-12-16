@@ -627,7 +627,7 @@ under the License.
               </execution>
             </executions>
           </plugin>
-
+          
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
@@ -651,7 +651,7 @@ under the License.
                 <phase>none</phase>
               </execution>
             </executions>
-          </plugin>        
+          </plugin>          
         </plugins>
       </build>
     </profile>

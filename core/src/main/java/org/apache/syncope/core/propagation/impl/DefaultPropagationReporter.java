@@ -20,7 +20,7 @@ package org.apache.syncope.core.propagation.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.to.PropagationStatusTO;
+import org.apache.syncope.common.to.PropagationStatus;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
@@ -37,14 +37,14 @@ public class DefaultPropagationReporter implements PropagationReporter {
     @Autowired
     protected ConnObjectUtil connObjectUtil;
 
-    protected final List<PropagationStatusTO> statuses = new ArrayList<PropagationStatusTO>();
+    protected final List<PropagationStatus> statuses = new ArrayList<PropagationStatus>();
 
     @Override
     public void onSuccessOrSecondaryResourceFailures(final String resource,
             final PropagationTaskExecStatus executionStatus,
             final String failureReason, final ConnectorObject beforeObj, final ConnectorObject afterObj) {
 
-        final PropagationStatusTO propagation = new PropagationStatusTO();
+        final PropagationStatus propagation = new PropagationStatus();
         propagation.setResource(resource);
         propagation.setStatus(executionStatus);
         propagation.setFailureReason(failureReason);
@@ -61,7 +61,7 @@ public class DefaultPropagationReporter implements PropagationReporter {
     }
 
     private boolean containsPropagationStatusTO(final String resourceName) {
-        for (PropagationStatusTO status : statuses) {
+        for (PropagationStatus status : statuses) {
             if (resourceName.equals(status.getResource())) {
                 return true;
             }
@@ -77,7 +77,7 @@ public class DefaultPropagationReporter implements PropagationReporter {
 
         for (PropagationTask propagationTask : tasks) {
             if (!containsPropagationStatusTO(propagationTask.getResource().getName())) {
-                final PropagationStatusTO propagationStatusTO = new PropagationStatusTO();
+                final PropagationStatus propagationStatusTO = new PropagationStatus();
                 propagationStatusTO.setResource(propagationTask.getResource().getName());
                 propagationStatusTO.setStatus(PropagationTaskExecStatus.FAILURE);
                 propagationStatusTO.setFailureReason(
@@ -88,7 +88,7 @@ public class DefaultPropagationReporter implements PropagationReporter {
     }
 
     @Override
-    public List<PropagationStatusTO> getStatuses() {
+    public List<PropagationStatus> getStatuses() {
         return statuses;
     }
 }

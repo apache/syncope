@@ -30,10 +30,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.mod.UserMod;
-import org.apache.syncope.common.search.AttributableCond;
-import org.apache.syncope.common.search.AttributeCond;
-import org.apache.syncope.common.search.NodeCond;
-import org.apache.syncope.common.services.InvalidSearchConditionException;
+import org.apache.syncope.core.persistence.dao.search.AttributableCond;
+import org.apache.syncope.core.persistence.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.RoleTO;
@@ -310,13 +309,9 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
             case UserDerivedSchema:
             case RoleDerivedSchema:
-                try {
-                    subjects = userDAO.findByDerAttrValue(accountIdItem.getIntAttrName(), uid, attrUtil);
-                    for (AbstractAttributable subject : subjects) {
-                        result.add(subject.getId());
-                    }
-                } catch (InvalidSearchConditionException e) {
-                    LOG.error("Could not search for matching subjects", e);
+                subjects = userDAO.findByDerAttrValue(accountIdItem.getIntAttrName(), uid, attrUtil);
+                for (AbstractAttributable subject : subjects) {
+                    result.add(subject.getId());
                 }
                 break;
 
@@ -355,7 +350,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         return result;
     }
 
-    protected List<Long> search(final NodeCond searchCond, final AttributableUtil attrUtil) {
+    protected List<Long> search(final SearchCond searchCond, final AttributableUtil attrUtil) {
         final List<Long> result = new ArrayList<Long>();
 
         final List<AbstractAttributable> subjects = searchDAO.search(
@@ -386,7 +381,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         }
 
         // search for user/role by attribute(s) specified in the policy
-        NodeCond searchCond = null;
+        SearchCond searchCond = null;
 
         for (String schema : altSearchSchemas) {
             Attribute value = extValues.get(schema);
@@ -404,7 +399,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                         : value.getValue().get(0).toString();
             }
 
-            NodeCond nodeCond;
+            SearchCond nodeCond;
             // users: just id or username can be selected to be used
             // roles: just id or name can be selected to be used
             if ("id".equalsIgnoreCase(schema) || "username".equalsIgnoreCase(schema)
@@ -415,19 +410,19 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 cond.setType(type);
                 cond.setExpression(expression);
 
-                nodeCond = NodeCond.getLeafCond(cond);
+                nodeCond = SearchCond.getLeafCond(cond);
             } else {
                 AttributeCond cond = new AttributeCond();
                 cond.setSchema(schema);
                 cond.setType(type);
                 cond.setExpression(expression);
 
-                nodeCond = NodeCond.getLeafCond(cond);
+                nodeCond = SearchCond.getLeafCond(cond);
             }
 
             searchCond = searchCond == null
                     ? nodeCond
-                    : NodeCond.getAndCond(searchCond, nodeCond);
+                    : SearchCond.getAndCond(searchCond, nodeCond);
         }
 
         return search(searchCond, attrUtil);

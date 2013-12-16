@@ -21,7 +21,7 @@ package org.apache.syncope.console.rest;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.UserSelfService;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.SyncopeSession;
 import org.springframework.stereotype.Component;
 

@@ -32,6 +32,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.to.WorkflowFormPropertyTO;
 
 @XmlRootElement(name = "workflowForm")
 @XmlType

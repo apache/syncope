@@ -24,8 +24,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
@@ -34,7 +34,7 @@ import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.TaskType;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.init.JobInstanceLoader;
 import org.apache.syncope.core.notification.NotificationJob;
@@ -138,20 +138,6 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
     @PreAuthorize("hasRole('TASK_LIST')")
     public int count(final TaskType taskType) {
         return taskDAO.count(TaskUtil.getInstance(taskType).taskClass());
-    }
-
-    @PreAuthorize("hasRole('TASK_LIST')")
-    @SuppressWarnings("unchecked")
-    public <T extends AbstractTaskTO> List<T> list(final TaskType taskType) {
-        TaskUtil taskUtil = TaskUtil.getInstance(taskType);
-
-        List<Task> tasks = taskDAO.findAll(taskUtil.taskClass());
-        List<T> taskTOs = new ArrayList<T>(tasks.size());
-        for (Task task : tasks) {
-            taskTOs.add((T) binder.getTaskTO(task, taskUtil));
-        }
-
-        return taskTOs;
     }
 
     @PreAuthorize("hasRole('TASK_LIST')")
@@ -326,17 +312,17 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
             + "(hasRole('TASK_EXECUTE') and "
             + "(#bulkAction.operation == #bulkAction.operation.EXECUTE or "
             + "#bulkAction.operation == #bulkAction.operation.DRYRUN))")
-    public BulkActionRes bulk(final BulkAction bulkAction) {
-        BulkActionRes res = new BulkActionRes();
+    public BulkActionResult bulk(final BulkAction bulkAction) {
+        BulkActionResult res = new BulkActionResult();
 
         switch (bulkAction.getOperation()) {
             case DELETE:
                 for (String taskId : bulkAction.getTargets()) {
                     try {
-                        res.add(delete(Long.valueOf(taskId)).getId(), BulkActionRes.Status.SUCCESS);
+                        res.add(delete(Long.valueOf(taskId)).getId(), BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing delete for task {}", taskId, e);
-                        res.add(taskId, BulkActionRes.Status.FAILURE);
+                        res.add(taskId, BulkActionResult.Status.FAILURE);
                     }
                 }
                 break;
@@ -345,10 +331,10 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
                 for (String taskId : bulkAction.getTargets()) {
                     try {
                         execute(Long.valueOf(taskId), true);
-                        res.add(taskId, BulkActionRes.Status.SUCCESS);
+                        res.add(taskId, BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing dryrun for task {}", taskId, e);
-                        res.add(taskId, BulkActionRes.Status.FAILURE);
+                        res.add(taskId, BulkActionResult.Status.FAILURE);
                     }
                 }
                 break;
@@ -357,10 +343,10 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
                 for (String taskId : bulkAction.getTargets()) {
                     try {
                         execute(Long.valueOf(taskId), false);
-                        res.add(taskId, BulkActionRes.Status.SUCCESS);
+                        res.add(taskId, BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing execute for task {}", taskId, e);
-                        res.add(taskId, BulkActionRes.Status.FAILURE);
+                        res.add(taskId, BulkActionResult.Status.FAILURE);
                     }
                 }
                 break;

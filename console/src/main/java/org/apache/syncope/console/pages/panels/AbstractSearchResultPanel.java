@@ -20,7 +20,6 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.Collection;
 import java.util.List;
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.console.commons.AttributableDataProvider;
 import org.apache.syncope.console.commons.Constants;
@@ -124,7 +123,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
     /**
      * Filter used in case of filtered search.
      */
-    private NodeCond filter;
+    private String fiql;
 
     /**
      * Result table.
@@ -157,7 +156,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
     protected final AbstractBasePage page;
 
     protected <T extends AbstractAttributableTO> AbstractSearchResultPanel(final String id, final boolean filtered,
-            final NodeCond searchCond, final PageReference pageRef, final AbstractAttributableRestClient restClient) {
+            final String fiql, final PageReference pageRef, final AbstractAttributableRestClient restClient) {
 
         super(id);
 
@@ -166,7 +165,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
         this.page = (AbstractBasePage) pageRef.getPage();
 
         this.filtered = filtered;
-        this.filter = searchCond;
+        this.fiql = fiql;
         this.feedbackPanel = page.getFeedbackPanel();
 
         this.restClient = restClient;
@@ -236,9 +235,9 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
         setWindowClosedReloadCallback(displaymodal);
     }
 
-    public void search(final NodeCond searchCond, final AjaxRequestTarget target) {
-        this.filter = searchCond;
-        dataProvider.setSearchCond(filter);
+    public void search(final String fiql, final AjaxRequestTarget target) {
+        this.fiql = fiql;
+        dataProvider.setFIQL(fiql);
         target.add(container);
     }
 
@@ -248,7 +247,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
 
     private void updateResultTable(final boolean create, final int rows) {
         dataProvider = new AttributableDataProvider(restClient, rows, filtered);
-        dataProvider.setSearchCond(filter);
+        dataProvider.setFIQL(fiql);
 
         final int currentPage = resultTable != null
                 ? (create

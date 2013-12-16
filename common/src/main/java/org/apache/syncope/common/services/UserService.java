@@ -36,17 +36,17 @@ import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
-import org.apache.syncope.common.search.NodeCond;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
-import org.apache.syncope.common.to.ResourceNameTO;
+import org.apache.syncope.common.wrap.ResourceName;
+import org.apache.syncope.common.reqres.PagedResult;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 
 @Path("users")
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-public interface UserService {
+public interface UserService extends JAXRSService {
 
     @OPTIONS
     @Path("{userId}/username")
@@ -71,101 +71,72 @@ public interface UserService {
     UserTO read(@Description("id of user to be read") @PathParam("userId") Long userId);
 
     /**
-     * Returns the number of existing users.
-     *
-     * @return Number of existing users
-     */
-    @GET
-    @Path("count")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Returns the number of existing users"),
-        @Description(target = DocTarget.RETURN, value = "Number of existing users")
-    })
-    int count();
-
-    /**
-     * Returns a list of all existing users.
-     *
-     * @return A list of all existing users.
-     */
-    @GET
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Returns a list of all existing users"),
-        @Description(target = DocTarget.RETURN, value = "A list of all existing users")
-    })
-    List<UserTO> list();
-
-    /**
      * Returns a paged list of existing users.
      *
-     * @param page result page number
-     * @param size number of entries per page
-     * @return A list of all existing users matching page/size conditions.
+     * @return Paged list of all existing users
      */
     @GET
     @Descriptions({
         @Description(target = DocTarget.METHOD, value = "Returns a list of all existing users"),
-        @Description(target = DocTarget.RETURN, value = "A list of all existing users matching page/size conditions")
+        @Description(target = DocTarget.RETURN, value = "Paged list of all existing users")
     })
-    List<UserTO> list(@Description("result page number") @QueryParam("page") @DefaultValue("1") int page,
-            @Description("number of entries per page") @QueryParam("size") @DefaultValue("25") int size);
+    PagedResult<UserTO> list();
 
     /**
-     * Returns the number of users matching the provided search condition.
+     * Returns a paged list of existing users matching page/size conditions.
      *
-     * @param searchCondition search condition
-     * @return Number of users matching the provided search condition
-     * @throws InvalidSearchConditionException if provided search condition is not valid
-     */
-    @POST
-    @Path("search/count")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "Returns the number of users matching the provided search condition"),
-        @Description(target = DocTarget.RETURN,
-                value = "Number of users matching the provided search condition")
-    })
-    int searchCount(@Description("search condition") NodeCond searchCondition)
-            throws InvalidSearchConditionException;
-
-    /**
-     * Returns the list of users matching the given search condition.
-     *
-     * @param searchCondition search condition
-     * @return List of users matching the given search condition
-     * @throws InvalidSearchConditionException if provided search condition is not valid
-     */
-    @POST
-    @Path("search")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "Returns the list of users matching the given search condition"),
-        @Description(target = DocTarget.RETURN, value = "List of users matching the given condition")
-    })
-    List<UserTO> search(@Description("search condition") NodeCond searchCondition)
-            throws InvalidSearchConditionException;
-
-    /**
-     * Returns the paged list of users matching the given search condition.
-     *
-     * @param searchCondition search condition
      * @param page result page number
      * @param size number of entries per page
-     * @return List of users matching the given search and page/size conditions
-     * @throws InvalidSearchConditionException if provided search condition is not valid
+     * @return Paged list of existing users matching page/size conditions
      */
-    @POST
+    @GET
+    @Descriptions({
+        @Description(target = DocTarget.METHOD,
+                value = "Returns a list of all existing users matching page/size conditions"),
+        @Description(target = DocTarget.RETURN, value = "Paged list of existing users matching page/size conditions")
+    })
+    PagedResult<UserTO> list(
+            @Description("result page number")
+            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
+            @Description("number of entries per page")
+            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
+
+    /**
+     * Returns a paged list of users matching the provided FIQL search condition.
+     *
+     * @param fiql FIQL search expression
+     * @return Paged list of users matching the provided FIQL search condition
+     */
+    @GET
     @Path("search")
     @Descriptions({
         @Description(target = DocTarget.METHOD,
-                value = "Returns the paged list of users matching the given search condition"),
-        @Description(target = DocTarget.RETURN,
-                value = "List of users matching the given search and page/size conditions")
+                value = "Returns a paged list of users matching the provided FIQL search condition"),
+        @Description(target = DocTarget.RETURN, value = "List of users matching the given condition")
     })
-    List<UserTO> search(@Description("search condition") NodeCond searchCondition,
-            @Description("result page number") @QueryParam("page") @DefaultValue("1") int page,
-            @Description("number of entries per page") @QueryParam("size") @DefaultValue("25") int size)
-            throws InvalidSearchConditionException;
+    PagedResult<UserTO> search(@Description("FIQL search expression") @QueryParam("fiql") String fiql);
+
+    /**
+     * Returns a paged list of users matching the provided FIQL search condition.
+     *
+     * @param fiql FIQL search expression
+     * @param page result page number
+     * @param size number of entries per page
+     * @return Paged list of users matching the provided FIQL search condition
+     */
+    @GET
+    @Path("search")
+    @Descriptions({
+        @Description(target = DocTarget.METHOD,
+                value = "Returns a paged list of users matching the provided FIQL search condition"),
+        @Description(target = DocTarget.RETURN,
+                value = "Paged list of users matching the provided FIQL search condition")
+    })
+    PagedResult<UserTO> search(@Description("FIQL search expression") @QueryParam("fiql") String fiql,
+            @Description("result page number")
+            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
+            @Description("number of entries per page")
+            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
 
     /**
      * Creates a new user.
@@ -255,7 +226,7 @@ public interface UserService {
     Response associate(@Description("user id") @PathParam("userId") Long userId,
             @Description("resource association action type") @PathParam("type") ResourceAssociationActionType type,
             @Description("external resources to be used for propagation-related operations"
-            ) List<ResourceNameTO> resourceNames);
+            ) List<ResourceName> resourceNames);
 
     /**
      * Executes the provided bulk action.
@@ -269,6 +240,6 @@ public interface UserService {
         @Description(target = DocTarget.METHOD, value = "Executes the provided bulk action"),
         @Description(target = DocTarget.RETURN, value = "Bulk action result")
     })
-    BulkActionRes bulk(@Description("list of &lt;username, action&gt; pairs") BulkAction bulkAction);
+    BulkActionResult bulk(@Description("list of &lt;username, action&gt; pairs") BulkAction bulkAction);
 
 }

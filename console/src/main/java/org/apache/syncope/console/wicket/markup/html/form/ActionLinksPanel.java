@@ -92,6 +92,7 @@ public class ActionLinksPanel extends Panel {
 
     public void addWithRoles(
             final ActionLink link, final ActionLink.ActionType type, final String roles) {
+
         addWithRoles(link, type, roles, true);
     }
 
@@ -105,7 +106,7 @@ public class ActionLinksPanel extends Panel {
             case CLAIM:
                 fragment = new Fragment("panelClaim", "fragmentClaim", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink("claimLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("claimLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -119,7 +120,7 @@ public class ActionLinksPanel extends Panel {
             case MANAGE_RESOURCES:
                 fragment = new Fragment("panelManageResources", "fragmentManageResources", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink("manageResourcesLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("manageResourcesLink", pageRef) {
 
                     private static final long serialVersionUID = -6957616042924610291L;
 
@@ -133,7 +134,7 @@ public class ActionLinksPanel extends Panel {
             case MANAGE_USERS:
                 fragment = new Fragment("panelManageUsers", "fragmentManageUsers", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink("manageUsersLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("manageUsersLink", pageRef) {
 
                     private static final long serialVersionUID = -6957616042924610292L;
 
@@ -147,7 +148,7 @@ public class ActionLinksPanel extends Panel {
             case MANAGE_ROLES:
                 fragment = new Fragment("panelManageRoles", "fragmentManageRoles", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink("manageRolesLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("manageRolesLink", pageRef) {
 
                     private static final long serialVersionUID = -6957616042924610293L;
 
@@ -161,7 +162,7 @@ public class ActionLinksPanel extends Panel {
             case CREATE:
                 fragment = new Fragment("panelCreate", "fragmentCreate", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink("createLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("createLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -175,7 +176,7 @@ public class ActionLinksPanel extends Panel {
             case EDIT:
                 fragment = new Fragment("panelEdit", "fragmentEdit", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink("editLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("editLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -189,7 +190,7 @@ public class ActionLinksPanel extends Panel {
             case USER_TEMPLATE:
                 fragment = new Fragment("panelUserTemplate", "fragmentUserTemplate", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink("userTemplateLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("userTemplateLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -203,7 +204,7 @@ public class ActionLinksPanel extends Panel {
             case ROLE_TEMPLATE:
                 fragment = new Fragment("panelRoleTemplate", "fragmentRoleTemplate", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink("roleTemplateLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("roleTemplateLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -217,7 +218,7 @@ public class ActionLinksPanel extends Panel {
             case ENABLE:
                 fragment = new Fragment("panelEnable", "fragmentEnable", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink("enableLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("enableLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -231,7 +232,7 @@ public class ActionLinksPanel extends Panel {
             case SEARCH:
                 fragment = new Fragment("panelSearch", "fragmentSearch", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink("searchLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("searchLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -245,7 +246,7 @@ public class ActionLinksPanel extends Panel {
             case EXECUTE:
                 fragment = new Fragment("panelExecute", "fragmentExecute", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink("executeLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("executeLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -259,7 +260,7 @@ public class ActionLinksPanel extends Panel {
             case DRYRUN:
                 fragment = new Fragment("panelDryRun", "fragmentDryRun", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink("dryRunLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("dryRunLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -273,7 +274,7 @@ public class ActionLinksPanel extends Panel {
             case DELETE:
                 fragment = new Fragment("panelDelete", "fragmentDelete", this);
 
-                fragment.addOrReplace(new IndicatingOnConfirmAjaxLink("deleteLink", pageRef) {
+                fragment.addOrReplace(new IndicatingOnConfirmAjaxLink<Void>("deleteLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -288,7 +289,7 @@ public class ActionLinksPanel extends Panel {
             case SELECT:
                 fragment = new Fragment("panelSelect", "fragmentSelect", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink("selectLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("selectLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -303,7 +304,7 @@ public class ActionLinksPanel extends Panel {
             case EXPORT:
                 fragment = new Fragment("panelExport", "fragmentExport", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink("exportLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("exportLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -376,13 +377,13 @@ public class ActionLinksPanel extends Panel {
                 fragment.addOrReplace(
                         new IndicatingOnConfirmAjaxLink<Void>("unlinkLink", pageRef, "confirmUnlink") {
 
-                    private static final long serialVersionUID = -6957616042924610293L;
+                            private static final long serialVersionUID = -6957616042924610293L;
 
-                    @Override
-                    protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
-                    }
-                });
+                            @Override
+                            protected void onClickInternal(final AjaxRequestTarget target) {
+                                link.onClick(target);
+                            }
+                        });
                 break;
 
             case UNASSIGN:
@@ -391,13 +392,13 @@ public class ActionLinksPanel extends Panel {
                 fragment.addOrReplace(
                         new IndicatingOnConfirmAjaxLink<Void>("unassignLink", pageRef, "confirmUnassign") {
 
-                    private static final long serialVersionUID = -6957616042924610294L;
+                            private static final long serialVersionUID = -6957616042924610294L;
 
-                    @Override
-                    protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
-                    }
-                });
+                            @Override
+                            protected void onClickInternal(final AjaxRequestTarget target) {
+                                link.onClick(target);
+                            }
+                        });
                 break;
 
             case DEPROVISION:
@@ -406,13 +407,13 @@ public class ActionLinksPanel extends Panel {
                 fragment.addOrReplace(
                         new IndicatingOnConfirmAjaxLink<Void>("deprovisionLink", pageRef, "confirmDeprovision") {
 
-                    private static final long serialVersionUID = -6957616042924610295L;
+                            private static final long serialVersionUID = -6957616042924610295L;
 
-                    @Override
-                    protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
-                    }
-                });
+                            @Override
+                            protected void onClickInternal(final AjaxRequestTarget target) {
+                                link.onClick(target);
+                            }
+                        });
                 break;
             default:
             // do nothink

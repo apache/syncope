@@ -35,7 +35,7 @@ import org.apache.syncope.common.to.NotificationTO;
 @Path("notifications")
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-public interface NotificationService {
+public interface NotificationService extends JAXRSService {
 
     /**
      * @param notificationTO Creates a new notification.

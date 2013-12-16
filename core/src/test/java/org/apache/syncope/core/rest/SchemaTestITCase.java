@@ -40,7 +40,7 @@ import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.util.AttributableOperations;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;

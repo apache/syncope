@@ -25,7 +25,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
-import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
@@ -124,9 +123,7 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
     }
 
     @Override
-    public List<SyncopeUser> findByDerAttrValue(final String schemaName, final String value)
-            throws InvalidSearchConditionException {
-
+    public List<SyncopeUser> findByDerAttrValue(final String schemaName, final String value) {
         return findByDerAttrValue(schemaName, value, AttributableUtil.getInstance(AttributableType.USER));
     }
 

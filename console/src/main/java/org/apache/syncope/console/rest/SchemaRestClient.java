@@ -27,12 +27,12 @@ import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.to.DerSchemaTO;
 import org.apache.syncope.common.to.SchemaTO;
-import org.apache.syncope.common.to.ValidatorTO;
+import org.apache.syncope.common.wrap.Validator;
 import org.apache.syncope.common.to.VirSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -314,7 +314,7 @@ public class SchemaRestClient extends BaseRestClient {
 
         try {
             response = CollectionWrapper.unwrap(
-                    new ArrayList<ValidatorTO>(getService(ConfigurationService.class).getValidators()));
+                    new ArrayList<Validator>(getService(ConfigurationService.class).getValidators()));
         } catch (SyncopeClientException e) {
             LOG.error("While getting all validators", e);
         }

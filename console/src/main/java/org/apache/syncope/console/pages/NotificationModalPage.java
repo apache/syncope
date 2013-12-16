@@ -23,12 +23,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
-import org.apache.syncope.common.to.EventCategoryTO;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.TraceLevel;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.LoggerCategoryPanel;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
@@ -101,10 +100,10 @@ class NotificationModalPage extends BaseModalPage {
 
         final AjaxCheckBoxPanel checkAbout =
                 new AjaxCheckBoxPanel("checkAbout", "checkAbout",
-                new Model<Boolean>(notificationTO.getAbout() == null));
+                        new Model<Boolean>(notificationTO.getAbout() == null));
         aboutContainer.add(checkAbout);
 
-        final UserSearchPanel about = new UserSearchPanel.Builder("about").nodeCond(notificationTO.getAbout()).build();
+        final UserSearchPanel about = new UserSearchPanel.Builder("about").fiql(notificationTO.getAbout()).build();
         aboutContainer.add(about);
         about.setEnabled(!checkAbout.getModelObject());
 
@@ -125,7 +124,7 @@ class NotificationModalPage extends BaseModalPage {
                 new PropertyModel<IntMappingType>(notificationTO, "recipientAttrType"));
         recipientAttrType.setChoices(new ArrayList<IntMappingType>(
                 IntMappingType.getAttributeTypes(AttributableType.USER,
-                EnumSet.of(IntMappingType.UserId, IntMappingType.Password))));
+                        EnumSet.of(IntMappingType.UserId, IntMappingType.Password))));
         recipientAttrType.setRequired(true);
         form.add(recipientAttrType);
 
@@ -154,18 +153,18 @@ class NotificationModalPage extends BaseModalPage {
                 getPageReference(),
                 "Notification") {
 
-            private static final long serialVersionUID = 6429053774964787735L;
+                    private static final long serialVersionUID = 6429053774964787735L;
 
-            @Override
-            protected String[] getListRoles() {
-                return new String[] {};
-            }
+                    @Override
+                    protected String[] getListRoles() {
+                        return new String[] {};
+                    }
 
-            @Override
-            protected String[] getChangeRoles() {
-                return new String[] {};
-            }
-        });
+                    @Override
+                    protected String[] getChangeRoles() {
+                        return new String[] {};
+                    }
+                });
 
         final WebMarkupContainer recipientsContainer = new WebMarkupContainer("recipientsContainer");
         recipientsContainer.setOutputMarkupId(true);
@@ -182,12 +181,11 @@ class NotificationModalPage extends BaseModalPage {
 
         final AjaxCheckBoxPanel checkRecipients =
                 new AjaxCheckBoxPanel("checkRecipients", "checkRecipients",
-                new Model<Boolean>(notificationTO.getRecipients() == null ? false : true));
+                        new Model<Boolean>(notificationTO.getRecipients() == null ? false : true));
         recipientsContainer.add(checkRecipients);
 
         final UserSearchPanel recipients =
-                new UserSearchPanel.Builder("recipients")
-                .nodeCond(notificationTO.getRecipients() == null ? null : notificationTO.getRecipients()).build();
+                new UserSearchPanel.Builder("recipients").fiql(notificationTO.getRecipients()).build();
         recipientsContainer.add(recipients);
         recipients.setEnabled(checkRecipients.getModelObject());
 
@@ -229,8 +227,8 @@ class NotificationModalPage extends BaseModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                notificationTO.setAbout(checkAbout.getModelObject() ? null : about.buildSearchCond());
-                notificationTO.setRecipients(checkRecipients.getModelObject() ? recipients.buildSearchCond() : null);
+                notificationTO.setAbout(checkAbout.getModelObject() ? null : about.buildFIQL());
+                notificationTO.setRecipients(checkRecipients.getModelObject() ? recipients.buildFIQL() : null);
 
                 try {
                     if (createFlag) {
@@ -252,7 +250,6 @@ class NotificationModalPage extends BaseModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
                 target.add(feedbackPanel);
             }
         };
@@ -311,11 +308,5 @@ class NotificationModalPage extends BaseModalPage {
         }
 
         return result;
-    }
-
-    private EventCategoryTO getEventCategoryTO(final List<String> events) {
-        final EventCategoryTO res = new EventCategoryTO();
-
-        return res;
     }
 }

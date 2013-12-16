@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class NotificationDataBinder {
 
-    private static final String[] IGNORE_PROPERTIES = {"id", "about", "recipients"};
+    private static final String[] IGNORE_PROPERTIES = { "id", "about", "recipients" };
 
     public NotificationTO getNotificationTO(final Notification notification) {
         NotificationTO result = new NotificationTO();
@@ -48,6 +48,7 @@ public class NotificationDataBinder {
 
     public void updateNotification(final Notification notification, final NotificationTO notificationTO) {
         BeanUtils.copyProperties(notificationTO, notification, IGNORE_PROPERTIES);
+
         notification.setAbout(notificationTO.getAbout());
         notification.setRecipients(notificationTO.getRecipients());
     }

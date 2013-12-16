@@ -21,18 +21,18 @@ package org.apache.syncope.console.rest;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.services.TaskService;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
-import org.apache.syncope.common.to.JobClassTO;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.common.wrap.JobClass;
 import org.apache.syncope.common.to.NotificationTaskTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.SchedTaskTO;
-import org.apache.syncope.common.to.SyncActionClassTO;
+import org.apache.syncope.common.wrap.SyncActionClass;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -49,10 +49,10 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      * @return list of classes.
      */
     public List<String> getJobClasses() {
-        List<JobClassTO> jobClasses = null;
+        List<JobClass> jobClasses = null;
 
         try {
-            jobClasses = new ArrayList<JobClassTO>(getService(TaskService.class).getJobClasses());
+            jobClasses = new ArrayList<JobClass>(getService(TaskService.class).getJobClasses());
         } catch (SyncopeClientException e) {
             LOG.error("While getting all job classes", e);
         }
@@ -60,10 +60,10 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     public List<String> getSyncActionsClasses() {
-        List<SyncActionClassTO> actions = null;
+        List<SyncActionClass> actions = null;
 
         try {
-            actions = new ArrayList<SyncActionClassTO>(getService(TaskService.class).getSyncActionsClasses());
+            actions = new ArrayList<SyncActionClass>(getService(TaskService.class).getSyncActionsClasses());
         } catch (SyncopeClientException e) {
             LOG.error("While getting all sync actions classes", e);
         }
@@ -76,19 +76,15 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      * @param kind of task (propagation, sched, sync).
      * @return number of stored tasks.
      */
-    public Integer count(final String kind) {
-        return getService(TaskService.class).count(TaskType.fromString(kind));
+    public int count(final String kind) {
+        return getService(TaskService.class).list(TaskType.fromString(kind), 1, 1).getTotalCount();
     }
 
-    /**
-     * Return a paginated list of tasks.
-     *
-     * @param page number.
-     * @param size per page.
-     * @return paginated list.
-     */
-    public <T extends AbstractTaskTO> List<T> listTasks(final Class<T> reference, final int page, final int size) {
-        return getService(TaskService.class).list(getTaskType(reference), page, size);
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractTaskTO> List<T> listTasks(
+            final Class<T> reference, final int page, final int size) {
+
+        return (List<T>) getService(TaskService.class).list(getTaskType(reference), page, size).getResult();
     }
 
     private TaskType getTaskType(final Class<?> reference) {
@@ -117,11 +113,6 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return getService(TaskService.class).read(taskId);
     }
 
-    /**
-     * Delete specified task.
-     *
-     * @param taskId task to delete
-     */
     public void delete(final Long taskId, final Class<? extends AbstractTaskTO> taskToClass) {
         getService(TaskService.class).delete(taskId);
     }
@@ -131,20 +122,10 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         startExecution(taskId, false);
     }
 
-    /**
-     * Start execution for the specified TaskTO.
-     *
-     * @param taskId task id
-     */
     public void startExecution(final long taskId, final boolean dryRun) {
         getService(TaskService.class).execute(taskId, dryRun);
     }
 
-    /**
-     * Delete specified task's execution.
-     *
-     * @param taskExecId task execution id
-     */
     @Override
     public void deleteExecution(final long taskExecId) {
         getService(TaskService.class).deleteExecution(taskExecId);
@@ -166,7 +147,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         getService(TaskService.class).update(taskTO.getId(), taskTO);
     }
 
-    public BulkActionRes bulkAction(final BulkAction action) {
+    public BulkActionResult bulkAction(final BulkAction action) {
         return getService(TaskService.class).bulk(action);
     }
 }

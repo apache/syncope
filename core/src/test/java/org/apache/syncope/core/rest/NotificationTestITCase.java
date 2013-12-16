@@ -26,16 +26,13 @@ import static org.junit.Assert.fail;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
-
-import org.apache.syncope.common.search.AttributeCond;
-import org.apache.syncope.common.search.MembershipCond;
-import org.apache.syncope.common.search.NodeCond;
+import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.services.NotificationService;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.TraceLevel;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -48,16 +45,8 @@ public class NotificationTestITCase extends AbstractTest {
         notificationTO.setTraceLevel(TraceLevel.SUMMARY);
         notificationTO.getEvents().add("create");
 
-        AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
-        fullnameLeafCond1.setSchema("fullname");
-        fullnameLeafCond1.setExpression("%o%");
-        AttributeCond fullnameLeafCond2 = new AttributeCond(AttributeCond.Type.LIKE);
-        fullnameLeafCond2.setSchema("fullname");
-        fullnameLeafCond2.setExpression("%i%");
-        NodeCond about = NodeCond.getAndCond(NodeCond.getLeafCond(fullnameLeafCond1),
-                NodeCond.getLeafCond(fullnameLeafCond2));
-
-        notificationTO.setAbout(about);
+        notificationTO.setAbout(SyncopeClient.getSearchConditionBuilder().
+                is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query());
 
         notificationTO.setRecipientAttrName("email");
         notificationTO.setRecipientAttrType(IntMappingType.UserSchema);
@@ -87,11 +76,7 @@ public class NotificationTestITCase extends AbstractTest {
     @Test
     public void create() {
         NotificationTO notificationTO = buildNotificationTO();
-
-        MembershipCond membCond = new MembershipCond();
-        membCond.setRoleId(7L);
-        NodeCond recipients = NodeCond.getLeafCond(membCond);
-        notificationTO.setRecipients(recipients);
+        notificationTO.setRecipients(SyncopeClient.getSearchConditionBuilder().hasRoles(7L).query());
 
         Response response = notificationService.create(notificationTO);
         NotificationTO actual = getObject(response.getLocation(), NotificationService.class,
@@ -106,23 +91,7 @@ public class NotificationTestITCase extends AbstractTest {
     @Test
     public void update() {
         NotificationTO notificationTO = notificationService.read(1L);
-        assertNotNull(notificationTO);
-
-        notificationTO.setRecipients(NodeCond.getLeafCond(new MembershipCond()));
-
-        SyncopeClientException exception = null;
-        try {
-            notificationService.update(notificationTO.getId(), notificationTO);
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidNotification, e.getType());
-        }
-
-        MembershipCond membCond = new MembershipCond();
-        membCond.setRoleId(7L);
-        NodeCond recipients = NodeCond.getLeafCond(membCond);
-
-        notificationTO.setRecipients(recipients);
+        notificationTO.setRecipients(SyncopeClient.getSearchConditionBuilder().hasRoles(7L).query());
 
         notificationService.update(notificationTO.getId(), notificationTO);
         NotificationTO actual = notificationService.read(notificationTO.getId());
@@ -153,12 +122,11 @@ public class NotificationTestITCase extends AbstractTest {
         notificationTO.setSelfAsRecipient(true);
 
         NotificationTO actual = null;
-        SyncopeClientException exception = null;
         try {
             Response response = notificationService.create(notificationTO);
             actual = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidNotification, e.getType());
+            assertNotNull(e);
         }
         assertNotNull(actual);
         assertNotNull(actual.getId());

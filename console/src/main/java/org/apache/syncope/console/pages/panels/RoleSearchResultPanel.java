@@ -22,10 +22,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.ResultStatusModalPage;
 import org.apache.syncope.console.pages.RoleModalPage;
@@ -53,10 +52,9 @@ public class RoleSearchResultPanel extends AbstractSearchResultPanel {
     private final static String PAGEID = "Roles";
 
     public <T extends AbstractAttributableTO> RoleSearchResultPanel(final String id, final boolean filtered,
-            final NodeCond searchCond, final PageReference callerRef,
-            final AbstractAttributableRestClient restClient) {
+            final String fiql, final PageReference callerRef, final AbstractAttributableRestClient restClient) {
 
-        super(id, filtered, searchCond, callerRef, restClient);
+        super(id, filtered, fiql, callerRef, restClient);
         initResultTable();
     }
 
@@ -65,7 +63,7 @@ public class RoleSearchResultPanel extends AbstractSearchResultPanel {
         final List<IColumn<AbstractAttributableTO, String>> columns =
                 new ArrayList<IColumn<AbstractAttributableTO, String>>();
 
-        final String[] colnames = {"id", "name", "entitlements"};
+        final String[] colnames = { "id", "name", "entitlements" };
         for (String name : colnames) {
             columns.add(
                     new PropertyColumn<AbstractAttributableTO, String>(new ResourceModel(name, name), name, name));

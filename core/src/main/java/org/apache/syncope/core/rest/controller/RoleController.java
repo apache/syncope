@@ -27,12 +27,11 @@ import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.mod.RoleMod;
-import org.apache.syncope.common.search.NodeCond;
-import org.apache.syncope.common.services.InvalidSearchConditionException;
+import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ClientExceptionType;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -182,7 +181,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<RoleTO> list(final int page, final int size) {
-        List<SyncopeRole> roles = roleDAO.findAll();
+        List<SyncopeRole> roles = roleDAO.findAll(page, size);
 
         List<RoleTO> roleTOs = new ArrayList<RoleTO>(roles.size());
         for (SyncopeRole role : roles) {
@@ -194,28 +193,14 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
-    public int searchCount(final NodeCond searchCondition)
-            throws InvalidSearchConditionException {
-
-        if (!searchCondition.isValid()) {
-            LOG.error("Invalid search condition: {}", searchCondition);
-            throw new InvalidSearchConditionException();
-        }
-
+    public int searchCount(final SearchCond searchCondition) {
         final Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
         return searchDAO.count(adminRoleIds, searchCondition, AttributableUtil.getInstance(AttributableType.ROLE));
     }
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
-    public List<RoleTO> search(final NodeCond searchCondition, final int page, final int size)
-            throws InvalidSearchConditionException {
-
-        if (!searchCondition.isValid()) {
-            LOG.error("Invalid search condition: {}", searchCondition);
-            throw new InvalidSearchConditionException();
-        }
-
+    public List<RoleTO> search(final SearchCond searchCondition, final int page, final int size) {
         final List<SyncopeRole> matchingRoles = searchDAO.search(
                 EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()), searchCondition, page, size,
                 AttributableUtil.getInstance(AttributableType.ROLE));

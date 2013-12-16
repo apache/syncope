@@ -21,14 +21,14 @@ package org.apache.syncope.console.rest;
 import java.util.List;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.to.AbstractAttributableTO;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
-import org.apache.syncope.common.to.BulkAssociationAction;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.common.reqres.BulkAssociationAction;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -85,11 +85,11 @@ public class ResourceRestClient extends BaseRestClient {
         getService(ResourceService.class).delete(name);
     }
 
-    public BulkActionRes bulkAction(final BulkAction action) {
+    public BulkActionResult bulkAction(final BulkAction action) {
         return getService(ResourceService.class).bulk(action);
     }
 
-    public BulkActionRes bulkAssociationAction(
+    public BulkActionResult bulkAssociationAction(
             final String resourceName, final BulkAssociationAction bulkAssociationAction,
             final Class<? extends AbstractAttributableTO> typeRef) {
 

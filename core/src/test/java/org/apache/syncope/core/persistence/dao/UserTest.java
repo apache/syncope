@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
@@ -80,21 +79,18 @@ public class UserTest extends AbstractDAOTest {
     }
 
     @Test
-    public void findByDerAttributeValue()
-            throws InvalidSearchConditionException {
+    public void findByDerAttributeValue() {
         final List<SyncopeUser> list = userDAO.findByDerAttrValue("cn", "Vivaldi, Antonio");
         assertEquals("did not get expected number of users ", 1, list.size());
     }
 
-    @Test(expected = InvalidSearchConditionException.class)
-    public void findByInvalidDerAttrValue()
-            throws InvalidSearchConditionException {
+    @Test(expected = IllegalArgumentException.class)
+    public void findByInvalidDerAttrValue() {
         userDAO.findByDerAttrValue("cn", "Antonio, Maria, Rossi");
     }
 
-    @Test(expected = InvalidSearchConditionException.class)
-    public void findByInvalidDerAttrExpression()
-            throws InvalidSearchConditionException {
+    @Test(expected = IllegalArgumentException.class)
+    public void findByInvalidDerAttrExpression() {
         userDAO.findByDerAttrValue("noschema", "Antonio, Maria");
     }
 

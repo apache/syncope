@@ -21,7 +21,7 @@ package org.apache.syncope.console.pages;
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.to.VirSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;

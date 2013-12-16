@@ -506,9 +506,9 @@ under the License.
       </dependency>
       
       <dependency>
-        <groupId>javax.validation</groupId>
-        <artifactId>validation-api</artifactId>
-        <version>1.0.0.GA</version>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-validation_1.0_spec</artifactId>
+        <version>1.1</version>
       </dependency>
       <dependency>
         <groupId>org.apache.bval</groupId>
@@ -868,10 +868,6 @@ under the License.
 
   <repositories>
 
-    <repository>
-      <id>activiti</id>
-      <url>https://artifacts.alfresco.com/nexus/content/groups/public/</url>
-    </repository>
     <repository>
       <id>sonatype</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>

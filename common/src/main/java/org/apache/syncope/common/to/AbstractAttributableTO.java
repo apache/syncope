@@ -44,7 +44,7 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     private Set<String> resources;
 
-    private final List<PropagationStatusTO> propagationStatusTOs;
+    private final List<PropagationStatus> propagationStatusTOs;
 
     protected AbstractAttributableTO() {
         super();
@@ -52,7 +52,7 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         derAttrs = new ArrayList<AttributeTO>();
         virAttrs = new ArrayList<AttributeTO>();
         resources = new HashSet<String>();
-        propagationStatusTOs = new ArrayList<PropagationStatusTO>();
+        propagationStatusTOs = new ArrayList<PropagationStatus>();
     }
 
     public long getId() {
@@ -108,9 +108,9 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     public boolean removePropagationTO(final String resource) {
         if (resource != null && getPropagationStatusTOs().isEmpty()) {
-            final List<PropagationStatusTO> toBeRemoved = new ArrayList<PropagationStatusTO>();
+            final List<PropagationStatus> toBeRemoved = new ArrayList<PropagationStatus>();
 
-            for (PropagationStatusTO propagationTO : getPropagationStatusTOs()) {
+            for (PropagationStatus propagationTO : getPropagationStatusTOs()) {
                 if (resource.equals(propagationTO.getResource())) {
                     toBeRemoved.add(propagationTO);
                 }
@@ -124,7 +124,7 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
     @XmlElementWrapper(name = "propagationStatuses")
     @XmlElement(name = "propagationStatus")
     @JsonProperty("propagationStatuses")
-    public List<PropagationStatusTO> getPropagationStatusTOs() {
+    public List<PropagationStatus> getPropagationStatusTOs() {
         return propagationStatusTOs;
     }
 }

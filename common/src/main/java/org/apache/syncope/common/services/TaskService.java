@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.common.services;
 
+import org.apache.syncope.common.reqres.PagedResult;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import java.util.List;
 import javax.ws.rs.Consumes;
 
@@ -33,12 +36,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
 
-import org.apache.syncope.common.to.JobClassTO;
+import org.apache.syncope.common.wrap.JobClass;
 import org.apache.syncope.common.to.ReportExecTO;
-import org.apache.syncope.common.to.SyncActionClassTO;
+import org.apache.syncope.common.wrap.SyncActionClass;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.to.SchedTaskTO;
@@ -47,15 +48,7 @@ import org.apache.syncope.common.types.TaskType;
 @Path("tasks")
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-public interface TaskService {
-
-    /**
-     * @param taskType filter for task count
-     * @return Returns number of tasks with matching type
-     */
-    @GET
-    @Path("count")
-    int count(@MatrixParam("type") TaskType taskType);
+public interface TaskService extends JAXRSService {
 
     /**
      * @param taskTO Task to be created
@@ -93,14 +86,14 @@ public interface TaskService {
      */
     @GET
     @Path("jobClasses")
-    List<JobClassTO> getJobClasses();
+    List<JobClass> getJobClasses();
 
     /**
      * @return Returns list of SyncActionClasses
      */
     @GET
     @Path("syncActionsClasses")
-    List<SyncActionClassTO> getSyncActionsClasses();
+    List<SyncActionClass> getSyncActionsClasses();
 
     /**
      * @param taskType Type of tasks to be listed
@@ -108,7 +101,7 @@ public interface TaskService {
      * @return Returns list of tasks with matching type
      */
     @GET
-    <T extends AbstractTaskTO> List<T> list(@MatrixParam("type") TaskType taskType);
+    <T extends AbstractTaskTO> PagedResult<T> list(@MatrixParam("type") TaskType taskType);
 
     /**
      * @param taskType Type of tasks to be listed
@@ -118,8 +111,9 @@ public interface TaskService {
      * @return Returns paginated list of task with matching type
      */
     @GET
-    <T extends AbstractTaskTO> List<T> list(@MatrixParam("type") TaskType taskType,
-            @QueryParam("page") int page, @QueryParam("size") @DefaultValue("25") int size);
+    <T extends AbstractTaskTO> PagedResult<T> list(@MatrixParam("type") TaskType taskType,
+            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
+            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
 
     /**
      * @param taskId Id of task to be read
@@ -156,5 +150,5 @@ public interface TaskService {
 
     @POST
     @Path("bulk")
-    BulkActionRes bulk(BulkAction bulkAction);
+    BulkActionResult bulk(BulkAction bulkAction);
 }

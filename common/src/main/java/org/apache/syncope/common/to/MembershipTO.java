@@ -63,7 +63,7 @@ public class MembershipTO extends AbstractAttributableTO {
     }
 
     @Override
-    public List<PropagationStatusTO> getPropagationStatusTOs() {
-        return Collections.<PropagationStatusTO>emptyList();
+    public List<PropagationStatus> getPropagationStatusTOs() {
+        return Collections.<PropagationStatus>emptyList();
     }
 }

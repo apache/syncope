@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.common.services;
 
+import org.apache.syncope.common.reqres.BulkAssociationAction;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -30,18 +33,15 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.to.BulkAction;
-import org.apache.syncope.common.to.BulkActionRes;
-import org.apache.syncope.common.to.BulkAssociationAction;
 import org.apache.syncope.common.to.ConnObjectTO;
-import org.apache.syncope.common.to.PropagationActionClassTO;
+import org.apache.syncope.common.wrap.PropagationActionClass;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
 
 @Path("resources")
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-public interface ResourceService {
+public interface ResourceService extends JAXRSService {
 
     /**
      * @param resourceTO Resource to be checked
@@ -81,7 +81,7 @@ public interface ResourceService {
      */
     @GET
     @Path("propagationActionsClasses")
-    List<PropagationActionClassTO> getPropagationActionsClasses();
+    List<PropagationActionClass> getPropagationActionsClasses();
 
     /**
      * @return Returns list of all Resources
@@ -114,10 +114,10 @@ public interface ResourceService {
 
     @POST
     @Path("bulk")
-    BulkActionRes bulk(BulkAction bulkAction);
+    BulkActionResult bulk(BulkAction bulkAction);
 
     @POST
     @Path("{resourceName}/bulkAssociation/{type}")
-    BulkActionRes bulkAssociation(@PathParam("resourceName") String resourceName,
+    BulkActionResult bulkAssociation(@PathParam("resourceName") String resourceName,
             BulkAssociationAction bulkAssociationAction, @PathParam("type") AttributableType type);
 }

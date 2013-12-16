@@ -20,7 +20,6 @@ package org.apache.syncope.common.types;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.text.ParseException;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +38,6 @@ public class AuditLoggerName extends AbstractBaseBean {
 
     private final String subcategory;
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
     private final String event;
 
     private final Result result;
@@ -83,7 +81,7 @@ public class AuditLoggerName extends AbstractBaseBean {
     public String toLoggerName() {
         return new StringBuilder().append(
                 LoggerType.AUDIT.getPrefix()).append('.').append(
-                LoggerEventUtils.buildEvent(type, category, subcategory, event, result)).toString();
+                        LoggerEventUtils.buildEvent(type, category, subcategory, event, result)).toString();
     }
 
     @SuppressWarnings("unchecked")

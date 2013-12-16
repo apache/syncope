@@ -30,11 +30,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.ConfigurationTO;
-import org.apache.syncope.common.to.MailTemplateTO;
-import org.apache.syncope.common.to.ValidatorTO;
+import org.apache.syncope.common.wrap.MailTemplate;
+import org.apache.syncope.common.wrap.Validator;
 
 @Path("configurations")
-public interface ConfigurationService {
+public interface ConfigurationService extends JAXRSService {
 
     /**
      * Creates a new configuration element.
@@ -68,7 +68,7 @@ public interface ConfigurationService {
     @GET
     @Path("mailTemplates")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<MailTemplateTO> getMailTemplates();
+    List<MailTemplate> getMailTemplates();
 
     /**
      * @return Returns a list of known validator names.
@@ -76,7 +76,7 @@ public interface ConfigurationService {
     @GET
     @Path("validators")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ValidatorTO> getValidators();
+    List<Validator> getValidators();
 
     /**
      * @return list of all configuration elements.

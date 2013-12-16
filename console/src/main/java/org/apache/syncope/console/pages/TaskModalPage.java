@@ -28,7 +28,7 @@ import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;

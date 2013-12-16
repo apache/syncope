@@ -19,7 +19,7 @@
 package org.apache.syncope.core.propagation;
 
 import java.util.List;
-import org.apache.syncope.common.to.PropagationStatusTO;
+import org.apache.syncope.common.to.PropagationStatus;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -54,5 +54,5 @@ public interface PropagationReporter {
      *
      * @return the list of propagation statuses
      */
-    List<PropagationStatusTO> getStatuses();
+    List<PropagationStatus> getStatuses();
 }

@@ -20,7 +20,6 @@ package org.apache.syncope.common;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -29,38 +28,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.common.report.UserReportletConf;
-import org.apache.syncope.common.search.AttributeCond;
-import org.apache.syncope.common.search.MembershipCond;
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.to.WorkflowFormPropertyTO;
 import org.junit.Test;
 
 public class JSONTest {
-
-    @Test
-    public void searchCondition() throws IOException {
-        final AttributeCond usernameCond = new AttributeCond(AttributeCond.Type.LIKE);
-        usernameCond.setSchema("username");
-        usernameCond.setExpression("%o%");
-
-        final MembershipCond membershipCond = new MembershipCond();
-        membershipCond.setRoleName("root");
-
-        final NodeCond searchCondition = NodeCond.getAndCond(NodeCond.getLeafCond(usernameCond),
-                NodeCond.getLeafCond(membershipCond));
-
-        assertTrue(searchCondition.isValid());
-
-        ObjectMapper mapper = new ObjectMapper();
-
-        StringWriter writer = new StringWriter();
-        mapper.writeValue(writer, searchCondition);
-
-        NodeCond actual = mapper.readValue(writer.toString(), NodeCond.class);
-        assertEquals(searchCondition, actual);
-    }
 
     @Test
     public void lists() throws IOException {

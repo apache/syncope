@@ -30,7 +30,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.annotation.FormAttributeField;
 import org.apache.syncope.common.report.AbstractReportletConf;
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
@@ -166,7 +165,7 @@ public class ReportletConfModalPage extends BaseModalPage {
                     if (component instanceof UserSearchPanel) {
                         // using component.getDefaultModelObjectAsString() to fetch field name (set above)
                         wrapper.setPropertyValue(component.getDefaultModelObjectAsString(),
-                                ((UserSearchPanel) component).buildSearchCond());
+                                ((UserSearchPanel) component).buildFIQL());
                     }
                 }
 
@@ -267,9 +266,9 @@ public class ReportletConfModalPage extends BaseModalPage {
 
                 Panel panel;
 
-                if (NodeCond.class.equals(field.getType())) {
+                if (String.class.equals(field.getType())) {
                     panel = new UserSearchPanel.Builder("value")
-                            .nodeCond((NodeCond) wrapper.getPropertyValue(fieldName)).required(false).build();
+                            .fiql((String) wrapper.getPropertyValue(fieldName)).required(false).build();
                     // This is needed in order to manually update this.reportletConf with search panel selections
                     panel.setDefaultModel(new Model<String>(fieldName));
                 } else if (List.class.equals(field.getType())) {

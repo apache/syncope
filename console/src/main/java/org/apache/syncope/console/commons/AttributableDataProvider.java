@@ -21,8 +21,6 @@ package org.apache.syncope.console.commons;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.common.search.NodeCond;
-import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.console.rest.AbstractAttributableRestClient;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
@@ -40,7 +38,7 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
 
     private final SortableAttributableProviderComparator comparator;
 
-    private NodeCond filter = null;
+    private String fiql = null;
 
     private final int paginatorRows;
 
@@ -63,8 +61,8 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
         this.comparator = new SortableAttributableProviderComparator(this);
     }
 
-    public void setSearchCond(final NodeCond searchCond) {
-        this.filter = searchCond;
+    public void setFIQL(final String fiql) {
+        this.fiql = fiql;
     }
 
     @Override
@@ -72,14 +70,9 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
         List<? extends AbstractAttributableTO> result;
 
         if (filtered) {
-            try {
-                result = filter == null
-                        ? Collections.<AbstractAttributableTO>emptyList()
-                        : restClient.search(filter, ((int) first / paginatorRows) + 1, paginatorRows);
-            } catch (InvalidSearchConditionException e) {
-                LOG.error(e.getMessage(), e);
-                result = Collections.<AbstractAttributableTO>emptyList();
-            }
+            result = fiql == null
+                    ? Collections.<AbstractAttributableTO>emptyList()
+                    : restClient.search(fiql, ((int) first / paginatorRows) + 1, paginatorRows);
         } else {
             result = restClient.list(((int) first / paginatorRows) + 1, paginatorRows);
         }
@@ -93,14 +86,9 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
         long result;
 
         if (filtered) {
-            try {
-                result = filter == null
-                        ? 0
-                        : restClient.searchCount(filter);
-            } catch (InvalidSearchConditionException e) {
-                LOG.error(e.getMessage(), e);
-                result = 0;
-            }
+            result = fiql == null
+                    ? 0
+                    : restClient.searchCount(fiql);
         } else {
             result = restClient.count();
         }

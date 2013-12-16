@@ -170,6 +170,6 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.click("css=img[title='Delete']");
 
-        assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
+        assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
     }
 }

@@ -37,9 +37,8 @@ import javax.mail.Session;
 import javax.mail.Store;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.SyncopeConstants;
-import org.apache.syncope.common.search.MembershipCond;
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.NotificationTaskTO;
 import org.apache.syncope.common.to.UserTO;
@@ -210,14 +209,8 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
         notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
-
-        MembershipCond membCond = new MembershipCond();
-        membCond.setRoleId(7L);
-        notification.setAbout(NodeCond.getLeafCond(membCond));
-
-        membCond = new MembershipCond();
-        membCond.setRoleId(8L);
-        notification.setRecipients(NodeCond.getLeafCond(membCond));
+        notification.setAbout(SyncopeClient.getSearchConditionBuilder().hasRoles(7L).query());
+        notification.setRecipients(SyncopeClient.getSearchConditionBuilder().hasRoles(8L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
@@ -266,14 +259,8 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
         notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
-
-        MembershipCond membCond = new MembershipCond();
-        membCond.setRoleId(7L);
-        notification.setAbout(NodeCond.getLeafCond(membCond));
-
-        membCond = new MembershipCond();
-        membCond.setRoleId(8L);
-        notification.setRecipients(NodeCond.getLeafCond(membCond));
+        notification.setAbout(SyncopeClient.getSearchConditionBuilder().hasRoles(7L).query());
+        notification.setRecipients(SyncopeClient.getSearchConditionBuilder().hasRoles(8L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
@@ -324,12 +311,8 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
         notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
-
         notification.setAbout(null);
-
-        MembershipCond membCond = new MembershipCond();
-        membCond.setRoleId(8L);
-        notification.setRecipients(NodeCond.getLeafCond(membCond));
+        notification.setRecipients(SyncopeClient.getSearchConditionBuilder().hasRoles(8L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
@@ -378,12 +361,8 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
         notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
-
         notification.setAbout(null);
-
-        MembershipCond membCond = new MembershipCond();
-        membCond.setRoleId(8L);
-        notification.setRecipients(NodeCond.getLeafCond(membCond));
+        notification.setRecipients(SyncopeClient.getSearchConditionBuilder().hasRoles(8L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel;
@@ -70,7 +69,6 @@ public class Users extends BasePage {
                 new UserSearchResultPanel("listResult", false, null, getPageReference(), restClient);
         add(listResult);
 
-
         // create new user
         final AjaxLink<Void> createLink = new ClearIndicatingAjaxLink<Void>("createLink", getPageReference()) {
 
@@ -106,39 +104,39 @@ public class Users extends BasePage {
         final ClearIndicatingAjaxButton searchButton =
                 new ClearIndicatingAjaxButton("search", new ResourceModel("search"), getPageReference()) {
 
-            private static final long serialVersionUID = -958724007591692537L;
+                    private static final long serialVersionUID = -958724007591692537L;
 
-            @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                final NodeCond searchCond = searchPanel.buildSearchCond();
-                LOG.debug("Node condition " + searchCond);
+                    @Override
+                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                        final String fiql = searchPanel.buildFIQL();
+                        LOG.debug("FIQL: " + fiql);
 
-                doSearch(target, searchCond, searchResult);
+                        doSearch(target, fiql, searchResult);
 
-                Session.get().getFeedbackMessages().clear();
-                target.add(searchPanel.getSearchFeedback());
-            }
+                        Session.get().getFeedbackMessages().clear();
+                        target.add(searchPanel.getSearchFeedback());
+                    }
 
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                    @Override
+                    protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
-                target.add(searchPanel.getSearchFeedback());
-            }
-        };
+                        target.add(searchPanel.getSearchFeedback());
+                    }
+                };
 
         searchForm.add(searchButton);
         searchForm.setDefaultButton(searchButton);
     }
 
-    private void doSearch(final AjaxRequestTarget target, final NodeCond searchCond,
+    private void doSearch(final AjaxRequestTarget target, final String fiql,
             final AbstractSearchResultPanel resultsetPanel) {
 
-        if (searchCond == null || !searchCond.isValid()) {
+        if (fiql == null) {
             error(getString(Constants.SEARCH_ERROR));
             return;
         }
 
-        resultsetPanel.search(searchCond, target);
+        resultsetPanel.search(fiql, target);
     }
 
     private void setWindowClosedReloadCallback(final ModalWindow window) {

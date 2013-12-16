@@ -31,17 +31,16 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.core.Response;
+import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.mod.StatusMod;
 
-import org.apache.syncope.common.search.AttributeCond;
-import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.services.EntitlementService;
-import org.apache.syncope.common.services.InvalidSearchConditionException;
 import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.AttributeTO;
-import org.apache.syncope.common.to.EntitlementTO;
+import org.apache.syncope.common.wrap.EntitlementTO;
 import org.apache.syncope.common.to.MembershipTO;
+import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
@@ -52,7 +51,7 @@ import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
@@ -189,7 +188,7 @@ public class AuthenticationTestITCase extends AbstractTest {
     }
 
     @Test
-    public void testUserSearch() throws InvalidSearchConditionException {
+    public void testUserSearch() {
         UserTO userTO = UserTestITCase.getUniqueSampleTO("testusersearch@test.org");
 
         MembershipTO membershipTO = new MembershipTO();
@@ -206,28 +205,25 @@ public class AuthenticationTestITCase extends AbstractTest {
         UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
 
-        AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
-        isNullCond.setSchema("loginDate");
-        NodeCond searchCondition = NodeCond.getLeafCond(isNullCond);
-
-        List<UserTO> matchedUsers = userService2.search(searchCondition);
+        PagedResult<UserTO> matchedUsers = userService2.search(
+                SyncopeClient.getSearchConditionBuilder().isNotNull("loginDate").query());
         assertNotNull(matchedUsers);
-        assertFalse(matchedUsers.isEmpty());
-        Set<Long> userIds = new HashSet<Long>(matchedUsers.size());
-        for (UserTO user : matchedUsers) {
+        assertFalse(matchedUsers.getResult().isEmpty());
+        Set<Long> userIds = new HashSet<Long>(matchedUsers.getResult().size());
+        for (UserTO user : matchedUsers.getResult()) {
             userIds.add(user.getId());
         }
         assertTrue(userIds.contains(1L));
 
         UserService userService3 = clientFactory.create("verdi", "password").getService(UserService.class);
 
-        matchedUsers = userService3.search(searchCondition);
-
+        matchedUsers = userService3.search(
+                SyncopeClient.getSearchConditionBuilder().isNotNull("loginDate").query());
         assertNotNull(matchedUsers);
 
-        userIds = new HashSet<Long>(matchedUsers.size());
+        userIds = new HashSet<Long>(matchedUsers.getResult().size());
 
-        for (UserTO user : matchedUsers) {
+        for (UserTO user : matchedUsers.getResult()) {
             userIds.add(user.getId());
         }
         assertFalse(userIds.contains(1L));

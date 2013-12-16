@@ -21,7 +21,7 @@ package org.apache.syncope.console.pages;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.common.to.BulkActionRes;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionResultColumn;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -47,7 +47,7 @@ public class BulkActionResultModalPage<T, S> extends BaseModalPage {
             final ModalWindow window,
             final List<T> items,
             final List<IColumn<T, S>> columns,
-            final BulkActionRes results,
+            final BulkActionResult results,
             final String idFieldName) {
 
         super();

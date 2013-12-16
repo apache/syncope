@@ -21,7 +21,7 @@ package org.apache.syncope.core.services;
 import java.util.List;
 
 import org.apache.syncope.common.services.EntitlementService;
-import org.apache.syncope.common.to.EntitlementTO;
+import org.apache.syncope.common.wrap.EntitlementTO;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.rest.controller.EntitlementController;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.services;
 
+import org.apache.syncope.common.reqres.PagedResult;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -31,16 +32,17 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.syncope.common.search.NodeCond;
+import org.apache.cxf.jaxrs.model.wadl.Description;
+
 import org.apache.syncope.common.mod.RoleMod;
-import org.apache.syncope.common.to.ResourceNameTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
+import org.apache.syncope.common.wrap.ResourceName;
 
 @Path("roles")
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-public interface RoleService {
+public interface RoleService extends JAXRSService {
 
     /**
      * @param roleId ID of role to get children from
@@ -49,13 +51,6 @@ public interface RoleService {
     @GET
     @Path("{roleId}/children")
     List<RoleTO> children(@PathParam("roleId") Long roleId);
-
-    /**
-     * @return Returns number of known roles. (size of list)
-     */
-    @GET
-    @Path("count")
-    int count();
 
     /**
      * @param roleTO Role to be created
@@ -75,19 +70,19 @@ public interface RoleService {
     Response delete(@PathParam("roleId") Long roleId);
 
     /**
-     * @return Returns list of all knwon roles
+     * @return Paged list of all existing roles
      */
     @GET
-    List<RoleTO> list();
+    PagedResult<RoleTO> list();
 
     /**
-     * @param page Page of roles in relation to size parameter
-     * @param size Number of roles to be displayed per page
-     * @return Returns paginated list of roles
+     * @param page result page number
+     * @param size number of entries per page
+     * @return Paged list of existing roles matching page/size conditions
      */
     @GET
-    List<RoleTO> list(@QueryParam("page") @DefaultValue("1") int page,
-            @QueryParam("size") @DefaultValue("25") int size);
+    PagedResult<RoleTO> list(@QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
+            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
 
     /**
      * @param roleId Id of role to get parent role from
@@ -106,34 +101,24 @@ public interface RoleService {
     RoleTO read(@PathParam("roleId") Long roleId);
 
     /**
-     * @param searchCondition Filter condition for role list
-     * @return Returns list of roles with matching filter conditions
-     * @throws InvalidSearchConditionException if given search condition is not valid
+     * @param fiql FIQL search expression
+     * @return Paged list of roles matching the provided FIQL search condition
      */
-    @POST
+    @GET
     @Path("search")
-    List<RoleTO> search(NodeCond searchCondition) throws InvalidSearchConditionException;
+    PagedResult<RoleTO> search(@Description("FIQL search expression") @QueryParam("fiql") String fiql);
 
     /**
-     * @param searchCondition Filter condition for role list
-     * @param page Page of roles in relation to size parameter
-     * @param size Number of roles to be displayed per page
-     * @return Returns paginated list of roles with matching filter conditions
-     * @throws InvalidSearchConditionException if given search condition is not valid
+     * @param fiql FIQL search expression
+     * @param page result page number
+     * @param size number of entries per page
+     * @return Paged list of roles matching the provided FIQL search condition
      */
-    @POST
+    @GET
     @Path("search")
-    List<RoleTO> search(NodeCond searchCondition, @QueryParam("page") @DefaultValue("1") int page,
-            @QueryParam("size") @DefaultValue("25") int size) throws InvalidSearchConditionException;
-
-    /**
-     * @param searchCondition Filter condition for role list
-     * @return Returns number of roles matching provided filter conditions
-     * @throws InvalidSearchConditionException if given search condition is not valid
-     */
-    @POST
-    @Path("search/count")
-    int searchCount(NodeCond searchCondition) throws InvalidSearchConditionException;
+    PagedResult<RoleTO> search(@Description("FIQL search expression") @QueryParam("fiql") String fiql,
+            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
+            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
 
     /**
      * This method is similar to {@link #read(Long)}, but uses different authentication handling to ensure that a user
@@ -168,5 +153,5 @@ public interface RoleService {
     @POST
     @Path("{roleId}/associate/{type}")
     Response associate(@PathParam("roleId") Long roleId, @PathParam("type") ResourceAssociationActionType type,
-            List<ResourceNameTO> resourceNames);
+            List<ResourceName> resourceNames);
 }

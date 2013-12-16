@@ -32,9 +32,10 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.RESTHeaders;
 
 @Path("workflows/{kind}")
-public interface WorkflowService {
+public interface WorkflowService extends JAXRSService {
 
     /**
+     * @param kind Kind can be USER or ROLE only!
      * @return Response contains special syncope HTTP header indicating if Activiti is enabled for users / roles
      * @see org.apache.syncope.common.types.RESTHeaders#ACTIVITI_USER_ENABLED
      * @see org.apache.syncope.common.types.RESTHeaders#ACTIVITI_ROLE_ENABLED

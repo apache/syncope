@@ -42,7 +42,6 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
     private WebMarkupContainer container;
 
     public MultiValueSelectorPanel(final String id, final IModel<List<E>> model, final FieldPanel panelTemplate) {
-
         this(id, model, panelTemplate, false);
     }
 
@@ -74,7 +73,6 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
 
                         @Override
                         protected void onUpdate(final AjaxRequestTarget target) {
-
                             send(getPage(), Broadcast.BREADTH, new MultiValueSelectorEvent(target));
                         }
                     });
@@ -83,7 +81,7 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
                 fieldPanel.setNewModel(item);
                 item.add(fieldPanel);
 
-                AjaxLink minus = new IndicatingAjaxLink("drop") {
+                AjaxLink<Void> minus = new IndicatingAjaxLink<Void>("drop") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -112,7 +110,7 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
 
                 final Fragment fragment;
                 if (item.getIndex() == model.getObject().size() - 1) {
-                    final AjaxLink plus = new IndicatingAjaxLink("add") {
+                    final AjaxLink<Void> plus = new IndicatingAjaxLink<Void>("add") {
 
                         private static final long serialVersionUID = -7978723352517770644L;
 

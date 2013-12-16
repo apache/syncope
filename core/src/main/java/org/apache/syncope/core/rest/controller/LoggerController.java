@@ -40,7 +40,7 @@ import org.apache.syncope.common.types.LoggerLevel;
 import org.apache.syncope.common.types.LoggerType;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.util.BeanUtils;
-import org.apache.syncope.common.validation.SyncopeClientException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
