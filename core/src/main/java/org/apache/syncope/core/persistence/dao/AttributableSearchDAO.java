@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.util.AttributableUtil;
 
 public interface AttributableSearchDAO extends DAO {
@@ -48,14 +49,26 @@ public interface AttributableSearchDAO extends DAO {
     /**
      * @param adminRoles the set of admin roles owned by the caller
      * @param searchCondition the search condition
+     * @param orderBy list of ordering clauses
+     * @param attrUtil AttributeUtil
+     * @param <T> user/role
+     * @return the list of users/roles matching the given search condition
+     */
+    <T extends AbstractAttributable> List<T> search(Set<Long> adminRoles, SearchCond searchCondition,
+            List<OrderByClause> orderBy, AttributableUtil attrUtil);
+
+    /**
+     * @param adminRoles the set of admin roles owned by the caller
+     * @param searchCondition the search condition
      * @param page position of the first result, start from 1
      * @param itemsPerPage number of results per page
+     * @param orderBy list of ordering clauses
      * @param attrUtil AttributeUtil
      * @param <T> user/role
      * @return the list of users/roles matching the given search condition (in the given page)
      */
     <T extends AbstractAttributable> List<T> search(Set<Long> adminRoles, SearchCond searchCondition,
-            int page, int itemsPerPage, AttributableUtil attrUtil);
+            int page, int itemsPerPage, List<OrderByClause> orderBy, AttributableUtil attrUtil);
 
     /**
      * Verify if user/role matches the given search condition.

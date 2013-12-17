@@ -31,6 +31,7 @@ import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.core.rest.controller.RoleController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,14 +90,26 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
 
     @Override
     public PagedResult<RoleTO> search(final String fiql) {
-        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE);
+        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
+    }
+
+    @Override
+    public PagedResult<RoleTO> search(final String fiql, final String orderBy) {
+        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
     }
 
     @Override
     public PagedResult<RoleTO> search(final String fiql, final int page, final int size) {
+        return search(fiql, page, size, null);
+    }
+
+    @Override
+    public PagedResult<RoleTO> search(final String fiql, final int page, final int size, final String orderBy) {
         checkPageSize(page, size);
         SearchCond cond = getSearchCond(fiql);
-        return buildPagedResult(controller.search(cond, page, size), page, size, controller.searchCount(cond));
+        List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
+        return buildPagedResult(
+                controller.search(cond, page, size, orderByClauses), page, size, controller.searchCount(cond));
     }
 
     @Override

@@ -50,6 +50,7 @@ import org.apache.syncope.core.persistence.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.rest.data.SearchCondConverter;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -151,7 +152,7 @@ public class NotificationManager {
         if (notification.getRecipients() != null) {
             recipients.addAll(searchDAO.<SyncopeUser>search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
                     SearchCondConverter.convert(notification.getRecipients()),
-                    AttributableUtil.getInstance(AttributableType.USER)));
+                    Collections.<OrderByClause>emptyList(), AttributableUtil.getInstance(AttributableType.USER)));
         }
 
         if (notification.isSelfAsRecipient() && attributable instanceof SyncopeUser) {

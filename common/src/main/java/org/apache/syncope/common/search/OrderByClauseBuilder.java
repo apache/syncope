@@ -16,24 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.services;
+package org.apache.syncope.common.search;
 
-public interface JAXRSService {
+/**
+ * Simple builder for generating <tt>orderby</tt> values.
+ */
+public class OrderByClauseBuilder {
 
-    static final String PARAM_FIQL = "fiql";
+    private final StringBuilder builder = new StringBuilder();
 
-    static final String PARAM_PAGE = "page";
+    public OrderByClauseBuilder asc(final String key) {
+        builder.append(key).append(" ASC,");
+        return this;
+    }
 
-    static final String DEFAULT_PARAM_PAGE = "1";
+    public OrderByClauseBuilder desc(final String key) {
+        builder.append(key).append(" DESC,");
+        return this;
+    }
 
-    static final int DEFAULT_PARAM_PAGE_VALUE = Integer.valueOf(DEFAULT_PARAM_PAGE);
-
-    static final String PARAM_SIZE = "size";
-
-    static final String DEFAULT_PARAM_SIZE = "25";
-
-    static final int DEFAULT_PARAM_SIZE_VALUE = Integer.valueOf(DEFAULT_PARAM_SIZE);
-
-    static final String PARAM_ORDERBY = "orderby";
-
+    public String build() {
+        return builder.deleteCharAt(builder.length() - 1).toString();
+    }
 }

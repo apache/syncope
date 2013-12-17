@@ -19,6 +19,8 @@
 package org.apache.syncope.core.services;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.Context;
@@ -26,6 +28,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
@@ -37,6 +40,7 @@ import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.Preference;
 import org.apache.syncope.common.types.RESTHeaders;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.core.rest.data.SearchCondVisitor;
 import org.slf4j.Logger;
@@ -163,6 +167,30 @@ abstract class AbstractServiceImpl implements JAXRSService {
             sce.getElements().add(fiql);
             throw sce;
         }
+    }
+
+    protected List<OrderByClause> getOrderByClauses(final String orderBy) {
+        if (StringUtils.isBlank(orderBy)) {
+            return Collections.<OrderByClause>emptyList();
+        }
+
+        List<OrderByClause> result = new ArrayList<OrderByClause>();
+
+        for (String clause : orderBy.split(",")) {
+            String[] elems = clause.split(" ");
+
+            if (elems.length > 0 && StringUtils.isNotBlank(elems[0])) {
+                OrderByClause obc = new OrderByClause();
+                obc.setField(elems[0].trim());
+                if (elems.length > 1 && StringUtils.isNotBlank(elems[1])) {
+                    obc.setDirection(elems[1].trim().equalsIgnoreCase(OrderByClause.Direction.ASC.name())
+                            ? OrderByClause.Direction.ASC : OrderByClause.Direction.DESC);
+                }
+                result.add(obc);
+            }
+        }
+
+        return result;
     }
 
     /**

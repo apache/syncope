@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.services;
 
+import static org.apache.syncope.common.services.JAXRSService.DEFAULT_PARAM_PAGE_VALUE;
+import static org.apache.syncope.common.services.JAXRSService.DEFAULT_PARAM_SIZE_VALUE;
 import java.util.List;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
@@ -34,6 +36,7 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.core.rest.controller.UserController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,14 +99,26 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
     @Override
     public PagedResult<UserTO> search(final String fiql) {
-        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE);
+        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
+    }
+
+    @Override
+    public PagedResult<UserTO> search(final String fiql, final String orderBy) {
+        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
     }
 
     @Override
     public PagedResult<UserTO> search(final String fiql, final int page, final int size) {
+        return search(fiql, page, size, null);
+    }
+
+    @Override
+    public PagedResult<UserTO> search(final String fiql, final int page, final int size, final String orderBy) {
         checkPageSize(page, size);
         SearchCond cond = getSearchCond(fiql);
-        return buildPagedResult(controller.search(cond, page, size), page, size, controller.searchCount(cond));
+        List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
+        return buildPagedResult(
+                controller.search(cond, page, size, orderByClauses), page, size, controller.searchCount(cond));
     }
 
     @Override

@@ -45,6 +45,7 @@ import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationReporter;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
@@ -153,9 +154,12 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
     @PreAuthorize("hasRole('USER_LIST')")
     @Transactional(readOnly = true)
-    public List<UserTO> search(final SearchCond searchCondition, final int page, final int size) {
-        final List<SyncopeUser> matchingUsers = searchDAO.search(EntitlementUtil.getRoleIds(EntitlementUtil.
-                getOwnedEntitlementNames()), searchCondition, page, size,
+    public List<UserTO> search(final SearchCond searchCondition, final int page, final int size,
+            final List<OrderByClause> orderBy) {
+
+        final List<SyncopeUser> matchingUsers = searchDAO.search(
+                EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()),
+                searchCondition, page, size, orderBy,
                 AttributableUtil.getInstance(AttributableType.USER));
 
         final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());

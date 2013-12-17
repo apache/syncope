@@ -19,6 +19,7 @@
 package org.apache.syncope.core.report;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +34,7 @@ import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.SearchCondConverter;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -66,7 +68,8 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
             result = roleDAO.findAll();
         } else {
             result = searchDAO.search(adminRoleIds, SearchCondConverter.convert(conf.getMatchingCond()),
-                    page, PAGE_SIZE, AttributableUtil.getInstance(AttributableType.ROLE));
+                    page, PAGE_SIZE, Collections.<OrderByClause>emptyList(),
+                    AttributableUtil.getInstance(AttributableType.ROLE));
         }
 
         return result;

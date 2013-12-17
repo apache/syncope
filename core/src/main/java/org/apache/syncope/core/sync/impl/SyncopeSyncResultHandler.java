@@ -63,6 +63,7 @@ import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.propagation.PropagationException;
@@ -354,7 +355,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         final List<Long> result = new ArrayList<Long>();
 
         final List<AbstractAttributable> subjects = searchDAO.search(
-                EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCond, attrUtil);
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                searchCond, Collections.<OrderByClause>emptyList(), attrUtil);
         for (AbstractAttributable subject : subjects) {
             result.add(subject.getId());
         }

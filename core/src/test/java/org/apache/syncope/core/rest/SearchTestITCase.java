@@ -168,4 +168,16 @@ public class SearchTestITCase extends AbstractTest {
             assertNotNull(user);
         }
     }
+
+    @Test
+    public void orderBy() {
+        final PagedResult<UserTO> matchedUsers = userService.search(
+                SyncopeClient.getUserSearchConditionBuilder().is("userId").equalTo("*@apache.org").query(),
+                SyncopeClient.getOrderByClauseBuilder().asc("status").desc("firstname").build());
+
+        assertFalse(matchedUsers.getResult().isEmpty());
+        for (UserTO user : matchedUsers.getResult()) {
+            assertNotNull(user);
+        }
+    }
 }

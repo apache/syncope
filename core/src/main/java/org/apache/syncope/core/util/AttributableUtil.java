@@ -722,23 +722,6 @@ public final class AttributableUtil {
         return res;
     }
 
-    public String searchView() {
-        String result = "";
-
-        switch (type) {
-            case USER:
-                result = "user_search";
-                break;
-            case ROLE:
-                result = "role_search";
-                break;
-            case MEMBERSHIP:
-            default:
-        }
-
-        return result;
-    }
-
     public <T extends AbstractAttributableTO> T newAttributableTO() {
         T result = null;
 

@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationReporter;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
@@ -200,10 +201,12 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
-    public List<RoleTO> search(final SearchCond searchCondition, final int page, final int size) {
+    public List<RoleTO> search(final SearchCond searchCondition, final int page, final int size,
+            final List<OrderByClause> orderBy) {
+
         final List<SyncopeRole> matchingRoles = searchDAO.search(
-                EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()), searchCondition, page, size,
-                AttributableUtil.getInstance(AttributableType.ROLE));
+                EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()),
+                searchCondition, page, size, orderBy, AttributableUtil.getInstance(AttributableType.ROLE));
 
         final List<RoleTO> result = new ArrayList<RoleTO>(matchingRoles.size());
         for (SyncopeRole role : matchingRoles) {

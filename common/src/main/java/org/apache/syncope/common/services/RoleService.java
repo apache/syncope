@@ -104,7 +104,16 @@ public interface RoleService extends JAXRSService {
      */
     @GET
     @Path("search")
-    PagedResult<RoleTO> search(@QueryParam("fiql") String fiql);
+    PagedResult<RoleTO> search(@QueryParam(PARAM_FIQL) String fiql);
+
+    /**
+     * @param fiql FIQL search expression
+     * @param orderBy list of ordering clauses, separated by comma
+     * @return Paged list of roles matching the provided FIQL search condition
+     */
+    @GET
+    @Path("search")
+    PagedResult<RoleTO> search(@QueryParam(PARAM_FIQL) String fiql, @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
      * @param fiql FIQL search expression
@@ -114,9 +123,23 @@ public interface RoleService extends JAXRSService {
      */
     @GET
     @Path("search")
-    PagedResult<RoleTO> search(@QueryParam("fiql") String fiql,
+    PagedResult<RoleTO> search(@QueryParam(PARAM_FIQL) String fiql,
             @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
             @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
+
+    /**
+     * @param fiql FIQL search expression
+     * @param page result page number
+     * @param size number of entries per page
+     * @param orderBy list of ordering clauses, separated by comma
+     * @return Paged list of roles matching the provided FIQL search condition
+     */
+    @GET
+    @Path("search")
+    PagedResult<RoleTO> search(@QueryParam(PARAM_FIQL) String fiql,
+            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
+            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
+            @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
      * This method is similar to {@link #read(Long)}, but uses different authentication handling to ensure that a user

@@ -114,7 +114,24 @@ public interface UserService extends JAXRSService {
                 value = "Returns a paged list of users matching the provided FIQL search condition"),
         @Description(target = DocTarget.RETURN, value = "List of users matching the given condition")
     })
-    PagedResult<UserTO> search(@Description("FIQL search expression") @QueryParam("fiql") String fiql);
+    PagedResult<UserTO> search(@Description("FIQL search expression") @QueryParam(PARAM_FIQL) String fiql);
+
+    /**
+     * Returns a paged list of users matching the provided FIQL search condition.
+     *
+     * @param fiql FIQL search expression
+     * @param orderBy list of ordering clauses, separated by comma
+     * @return Paged list of users matching the provided FIQL search condition
+     */
+    @GET
+    @Path("search")
+    @Descriptions({
+        @Description(target = DocTarget.METHOD,
+                value = "Returns a paged list of users matching the provided FIQL search condition"),
+        @Description(target = DocTarget.RETURN, value = "List of users matching the given condition")
+    })
+    PagedResult<UserTO> search(@Description("FIQL search expression") @QueryParam(PARAM_FIQL) String fiql,
+            @Description("list of ordering clauses, separated by comma") @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
      * Returns a paged list of users matching the provided FIQL search condition.
@@ -132,11 +149,35 @@ public interface UserService extends JAXRSService {
         @Description(target = DocTarget.RETURN,
                 value = "Paged list of users matching the provided FIQL search condition")
     })
-    PagedResult<UserTO> search(@Description("FIQL search expression") @QueryParam("fiql") String fiql,
+    PagedResult<UserTO> search(@Description("FIQL search expression") @QueryParam(PARAM_FIQL) String fiql,
             @Description("result page number")
             @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
             @Description("number of entries per page")
             @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
+
+    /**
+     * Returns a paged list of users matching the provided FIQL search condition.
+     *
+     * @param fiql FIQL search expression
+     * @param page result page number
+     * @param size number of entries per page
+     * @param orderBy list of ordering clauses, separated by comma
+     * @return Paged list of users matching the provided FIQL search condition
+     */
+    @GET
+    @Path("search")
+    @Descriptions({
+        @Description(target = DocTarget.METHOD,
+                value = "Returns a paged list of users matching the provided FIQL search condition"),
+        @Description(target = DocTarget.RETURN,
+                value = "Paged list of users matching the provided FIQL search condition")
+    })
+    PagedResult<UserTO> search(@Description("FIQL search expression") @QueryParam(PARAM_FIQL) String fiql,
+            @Description("result page number")
+            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
+            @Description("number of entries per page")
+            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
+            @Description("list of ordering clauses, separated by comma") @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
      * Creates a new user.

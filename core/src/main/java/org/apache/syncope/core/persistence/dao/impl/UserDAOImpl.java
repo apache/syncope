@@ -180,24 +180,10 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
             query.setMaxResults(itemsPerPage);
         }
 
-        List<Number> userIds = new ArrayList<Number>();
-        List<Object> resultList = query.getResultList();
+        List<SyncopeUser> result = new ArrayList<SyncopeUser>();
 
-        // fix for HHH-5902 - bug hibernate
-        if (resultList != null) {
-            for (Object userId : resultList) {
-                if (userId instanceof Object[]) {
-                    userIds.add((Number) ((Object[]) userId)[0]);
-                } else {
-                    userIds.add((Number) userId);
-                }
-            }
-        }
-
-        List<SyncopeUser> result = new ArrayList<SyncopeUser>(userIds.size());
-
-        for (Number userId : userIds) {
-            SyncopeUser user = findInternal(userId.longValue());
+        for (Object userId : query.getResultList()) {
+            SyncopeUser user = findInternal(((Number) userId).longValue());
             if (user == null) {
                 LOG.error("Could not find user with id {}, even though returned by the native query", userId);
             } else {

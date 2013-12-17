@@ -23,6 +23,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +37,7 @@ import org.apache.syncope.core.persistence.dao.search.ResourceCond;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.junit.Test;
@@ -121,14 +124,14 @@ public class AttributableSearchTest {
 
     @Test
     public void searchWithNotCondition() {
-        final AttributeCond fullnameLeafCond = new AttributeCond(AttributeCond.Type.EQ);
+        AttributeCond fullnameLeafCond = new AttributeCond(AttributeCond.Type.EQ);
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("Giuseppe Verdi");
 
-        final SearchCond cond = SearchCond.getNotLeafCond(fullnameLeafCond);
+        SearchCond cond = SearchCond.getNotLeafCond(fullnameLeafCond);
         assertTrue(cond.isValid());
 
-        final List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond,
+        List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond,
                 AttributableUtil.getInstance(AttributableType.USER));
         assertNotNull(users);
         assertEquals(4, users.size());
@@ -143,14 +146,14 @@ public class AttributableSearchTest {
 
     @Test
     public void searchByBoolean() {
-        final AttributeCond coolLeafCond = new AttributeCond(AttributeCond.Type.EQ);
+        AttributeCond coolLeafCond = new AttributeCond(AttributeCond.Type.EQ);
         coolLeafCond.setSchema("cool");
         coolLeafCond.setExpression("true");
 
-        final SearchCond cond = SearchCond.getLeafCond(coolLeafCond);
+        SearchCond cond = SearchCond.getLeafCond(coolLeafCond);
         assertTrue(cond.isValid());
 
-        final List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond,
+        List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond,
                 AttributableUtil.getInstance(AttributableType.USER));
         assertNotNull(users);
         assertEquals(1, users.size());
@@ -180,12 +183,14 @@ public class AttributableSearchTest {
 
         assertTrue(cond.isValid());
 
-        List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond, 1, 2,
+        List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                cond, 1, 2, Collections.<OrderByClause>emptyList(),
                 AttributableUtil.getInstance(AttributableType.USER));
         assertNotNull(users);
         assertEquals(1, users.size());
 
-        users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond, 2, 2,
+        users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                cond, 2, 2, Collections.<OrderByClause>emptyList(),
                 AttributableUtil.getInstance(AttributableType.USER));
         assertNotNull(users);
         assertTrue(users.isEmpty());
@@ -255,18 +260,18 @@ public class AttributableSearchTest {
 
     @Test
     public void searchByUsernameAndId() {
-        final AttributableCond usernameLeafCond = new AttributableCond(AttributableCond.Type.EQ);
+        AttributableCond usernameLeafCond = new AttributableCond(AttributableCond.Type.EQ);
         usernameLeafCond.setSchema("username");
         usernameLeafCond.setExpression("rossini");
 
-        final AttributableCond idRightCond = new AttributableCond(AttributableCond.Type.LT);
+        AttributableCond idRightCond = new AttributableCond(AttributableCond.Type.LT);
         idRightCond.setSchema("id");
         idRightCond.setExpression("2");
 
-        final SearchCond searchCondition = SearchCond.getOrCond(SearchCond.getLeafCond(usernameLeafCond),
+        SearchCond searchCondition = SearchCond.getOrCond(SearchCond.getLeafCond(usernameLeafCond),
                 SearchCond.getLeafCond(idRightCond));
 
-        final List<SyncopeUser> matchingUsers = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+        List<SyncopeUser> matchingUsers = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
                 searchCondition, AttributableUtil.getInstance(AttributableType.USER));
 
         assertNotNull(matchingUsers);
@@ -277,20 +282,20 @@ public class AttributableSearchTest {
 
     @Test
     public void searchByRolenameAndId() {
-        final AttributableCond rolenameLeafCond = new AttributableCond(AttributableCond.Type.EQ);
+        AttributableCond rolenameLeafCond = new AttributableCond(AttributableCond.Type.EQ);
         rolenameLeafCond.setSchema("name");
         rolenameLeafCond.setExpression("root");
 
-        final AttributableCond idRightCond = new AttributableCond(AttributableCond.Type.LT);
+        AttributableCond idRightCond = new AttributableCond(AttributableCond.Type.LT);
         idRightCond.setSchema("id");
         idRightCond.setExpression("2");
 
-        final SearchCond searchCondition = SearchCond.getAndCond(SearchCond.getLeafCond(rolenameLeafCond),
+        SearchCond searchCondition = SearchCond.getAndCond(SearchCond.getLeafCond(rolenameLeafCond),
                 SearchCond.getLeafCond(idRightCond));
 
         assertTrue(searchCondition.isValid());
 
-        final List<SyncopeRole> matchingRoles = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+        List<SyncopeRole> matchingRoles = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
                 searchCondition, AttributableUtil.getInstance(AttributableType.ROLE));
 
         assertNotNull(matchingRoles);
@@ -301,18 +306,18 @@ public class AttributableSearchTest {
 
     @Test
     public void searchByUsernameAndFullname() {
-        final AttributableCond usernameLeafCond = new AttributableCond(AttributableCond.Type.EQ);
+        AttributableCond usernameLeafCond = new AttributableCond(AttributableCond.Type.EQ);
         usernameLeafCond.setSchema("username");
         usernameLeafCond.setExpression("rossini");
 
-        final AttributeCond idRightCond = new AttributeCond(AttributeCond.Type.LIKE);
+        AttributeCond idRightCond = new AttributeCond(AttributeCond.Type.LIKE);
         idRightCond.setSchema("fullname");
         idRightCond.setExpression("Giuseppe V%");
 
-        final SearchCond searchCondition = SearchCond.getOrCond(SearchCond.getLeafCond(usernameLeafCond),
+        SearchCond searchCondition = SearchCond.getOrCond(SearchCond.getLeafCond(usernameLeafCond),
                 SearchCond.getLeafCond(idRightCond));
 
-        final List<SyncopeUser> matchingUsers =
+        List<SyncopeUser> matchingUsers =
                 searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCondition,
                         AttributableUtil.getInstance(AttributableType.USER));
 
@@ -359,18 +364,66 @@ public class AttributableSearchTest {
     }
 
     @Test
+    public void userOrderBy() {
+        AttributableCond usernameLeafCond = new AttributableCond(AttributableCond.Type.EQ);
+        usernameLeafCond.setSchema("username");
+        usernameLeafCond.setExpression("rossini");
+        AttributeCond idRightCond = new AttributeCond(AttributeCond.Type.LIKE);
+        idRightCond.setSchema("fullname");
+        idRightCond.setExpression("Giuseppe V%");
+        SearchCond searchCondition = SearchCond.getOrCond(
+                SearchCond.getLeafCond(usernameLeafCond), SearchCond.getLeafCond(idRightCond));
+
+        List<OrderByClause> orderByClauses = new ArrayList<OrderByClause>();
+        OrderByClause orderByClause = new OrderByClause();
+        orderByClause.setField("username");
+        orderByClause.setDirection(OrderByClause.Direction.DESC);
+        orderByClauses.add(orderByClause);
+        orderByClause = new OrderByClause();
+        orderByClause.setField("fullname");
+        orderByClause.setDirection(OrderByClause.Direction.ASC);
+        orderByClauses.add(orderByClause);
+
+        List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                searchCondition, Collections.singletonList(orderByClause),
+                AttributableUtil.getInstance(AttributableType.USER));
+        assertEquals(searchDAO.count(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                searchCondition, AttributableUtil.getInstance(AttributableType.USER)),
+                users.size());
+    }
+
+    @Test
+    public void roleOrderBy() {
+        AttributableCond idLeafCond = new AttributableCond(AttributableCond.Type.LIKE);
+        idLeafCond.setSchema("name");
+        idLeafCond.setExpression("%r");
+        SearchCond searchCondition = SearchCond.getLeafCond(idLeafCond);
+        assertTrue(searchCondition.isValid());
+
+        OrderByClause orderByClause = new OrderByClause();
+        orderByClause.setField("name");
+
+        List<SyncopeRole> roles = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                searchCondition, Collections.singletonList(orderByClause),
+                AttributableUtil.getInstance(AttributableType.ROLE));
+        assertEquals(searchDAO.count(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                searchCondition, AttributableUtil.getInstance(AttributableType.ROLE)),
+                roles.size());
+    }
+
+    @Test
     public void issue202() {
-        final ResourceCond ws2 = new ResourceCond();
+        ResourceCond ws2 = new ResourceCond();
         ws2.setResourceName("ws-target-resource-2");
 
-        final ResourceCond ws1 = new ResourceCond();
+        ResourceCond ws1 = new ResourceCond();
         ws1.setResourceName("ws-target-resource-list-mappings-1");
 
-        final SearchCond searchCondition =
+        SearchCond searchCondition =
                 SearchCond.getAndCond(SearchCond.getNotLeafCond(ws2), SearchCond.getNotLeafCond(ws1));
         assertTrue(searchCondition.isValid());
 
-        final List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+        List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
                 searchCondition, AttributableUtil.getInstance(AttributableType.USER));
         assertNotNull(users);
         assertEquals(2, users.size());
@@ -385,14 +438,14 @@ public class AttributableSearchTest {
 
     @Test
     public void issue242() {
-        final AttributableCond cond = new AttributableCond(AttributeCond.Type.LIKE);
+        AttributableCond cond = new AttributableCond(AttributeCond.Type.LIKE);
         cond.setSchema("id");
         cond.setExpression("test%");
 
-        final SearchCond searchCondition = SearchCond.getLeafCond(cond);
+        SearchCond searchCondition = SearchCond.getLeafCond(cond);
         assertTrue(searchCondition.isValid());
 
-        final List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+        List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
                 searchCondition, AttributableUtil.getInstance(AttributableType.USER));
         assertNotNull(users);
         assertTrue(users.isEmpty());

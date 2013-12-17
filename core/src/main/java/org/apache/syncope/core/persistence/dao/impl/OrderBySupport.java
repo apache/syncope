@@ -16,24 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.services;
+package org.apache.syncope.core.persistence.dao.impl;
 
-public interface JAXRSService {
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-    static final String PARAM_FIQL = "fiql";
+class OrderBySupport {
 
-    static final String PARAM_PAGE = "page";
+    static class Item {
 
-    static final String DEFAULT_PARAM_PAGE = "1";
+        protected String select;
 
-    static final int DEFAULT_PARAM_PAGE_VALUE = Integer.valueOf(DEFAULT_PARAM_PAGE);
+        protected String where;
 
-    static final String PARAM_SIZE = "size";
+        protected String orderBy;
 
-    static final String DEFAULT_PARAM_SIZE = "25";
+        protected boolean isEmpty() {
+            return (select == null || select.isEmpty())
+                    && (where == null || where.isEmpty())
+                    && (orderBy == null || orderBy.isEmpty());
+        }
+    }
 
-    static final int DEFAULT_PARAM_SIZE_VALUE = Integer.valueOf(DEFAULT_PARAM_SIZE);
+    protected Set<SearchSupport.SearchView> views = new HashSet<SearchSupport.SearchView>();
 
-    static final String PARAM_ORDERBY = "orderby";
+    protected List<Item> items = new ArrayList<Item>();
 
 }
