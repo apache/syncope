@@ -37,6 +37,7 @@ import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.rest.controller.TaskController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -89,15 +90,28 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
 
     @Override
     public <T extends AbstractTaskTO> PagedResult<T> list(final TaskType taskType) {
-        return list(taskType, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE);
+        return list(taskType, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
+    }
+
+    @Override
+    public <T extends AbstractTaskTO> PagedResult<T> list(final TaskType taskType, final String orderBy) {
+        return list(taskType, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
+    }
+
+    @Override
+    public <T extends AbstractTaskTO> PagedResult<T> list(final TaskType taskType, final int page, final int size) {
+        return list(taskType, page, size, null);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends AbstractTaskTO> PagedResult<T> list(final TaskType taskType, final int page, final int size) {
+    public <T extends AbstractTaskTO> PagedResult<T> list(final TaskType taskType,
+            final int page, final int size, final String orderBy) {
+
         checkPageSize(page, size);
+        List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
         return (PagedResult<T>) buildPagedResult(
-                controller.list(taskType, page, size), page, size, controller.count(taskType));
+                controller.list(taskType, page, size, orderByClauses), page, size, controller.count(taskType));
     }
 
     @Override

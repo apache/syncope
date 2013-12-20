@@ -69,13 +69,24 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
 
     @Override
     public PagedResult<RoleTO> list() {
-        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE);
+        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
+    }
+
+    @Override
+    public PagedResult<RoleTO> list(final String orderBy) {
+        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
     }
 
     @Override
     public PagedResult<RoleTO> list(final int page, final int size) {
+        return list(page, size, null);
+    }
+
+    @Override
+    public PagedResult<RoleTO> list(final int page, final int size, final String orderBy) {
         checkPageSize(page, size);
-        return buildPagedResult(controller.list(page, size), page, size, controller.count());
+        List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
+        return buildPagedResult(controller.list(page, size, orderByClauses), page, size, controller.count());
     }
 
     @Override

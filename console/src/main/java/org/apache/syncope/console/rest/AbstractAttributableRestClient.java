@@ -23,6 +23,7 @@ import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.ConnObjectTO;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
 public abstract class AbstractAttributableRestClient extends BaseRestClient {
 
@@ -30,11 +31,12 @@ public abstract class AbstractAttributableRestClient extends BaseRestClient {
 
     public abstract int count();
 
-    public abstract List<? extends AbstractAttributableTO> list(int page, int size);
+    public abstract List<? extends AbstractAttributableTO> list(int page, int size, final SortParam<String> sort);
 
     public abstract int searchCount(String fiql);
 
-    public abstract List<? extends AbstractAttributableTO> search(String fiql, int page, int size);
+    public abstract List<? extends AbstractAttributableTO> search(String fiql,
+            int page, int size, final SortParam<String> sort);
 
     public abstract ConnObjectTO getConnectorObject(String resourceName, Long id);
 

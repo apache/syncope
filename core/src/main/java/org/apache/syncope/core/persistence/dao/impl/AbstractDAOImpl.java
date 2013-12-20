@@ -18,14 +18,17 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
+import java.util.List;
 import javax.persistence.CacheRetrieveMode;
 import javax.persistence.CacheStoreMode;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.core.persistence.beans.AbstractBaseBean;
 import org.apache.syncope.core.persistence.dao.DAO;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -39,9 +42,9 @@ public abstract class AbstractDAOImpl implements DAO {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractDAOImpl.class);
 
-    private String CACHE_STORE_MODE = "javax.persistence.cache.storeMode";
+    private final String CACHE_STORE_MODE = "javax.persistence.cache.storeMode";
 
-    private String CACHE_RETRIEVE_MODE = "javax.persistence.cache.retrieveMode";
+    private final String CACHE_RETRIEVE_MODE = "javax.persistence.cache.retrieveMode";
 
     @Value("#{entityManager}")
     @PersistenceContext(type = PersistenceContextType.TRANSACTION)
@@ -69,6 +72,22 @@ public abstract class AbstractDAOImpl implements DAO {
         if (storeMode != null) {
             entityManager.getProperties().put(CACHE_STORE_MODE, storeMode);
         }
+    }
+
+    protected String toOrderByStatement(final String prefix, final List<OrderByClause> orderByClauses) {
+        StringBuilder statement = new StringBuilder();
+
+        for (OrderByClause clause : orderByClauses) {
+            if (StringUtils.isNotBlank(prefix)) {
+                statement.append(prefix).append('.');
+            }
+            statement.append(clause.getField().trim()).append(' ').append(clause.getDirection().name());
+        }
+
+        if (statement.length() > 0) {
+            statement.insert(0, "ORDER BY ");
+        }
+        return statement.toString();
     }
 
     @Override

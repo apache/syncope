@@ -32,6 +32,7 @@ import javax.persistence.TypedQuery;
 import org.apache.commons.jexl2.parser.Parser;
 import org.apache.commons.jexl2.parser.ParserConstants;
 import org.apache.commons.jexl2.parser.Token;
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
@@ -42,7 +43,6 @@ import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 
 public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implements AttributableDAO {
 
@@ -93,7 +93,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
 
         // Get schema names and literals
         Token token;
-        while ((token = parser.getNextToken()) != null && StringUtils.hasText(token.toString())) {
+        while ((token = parser.getNextToken()) != null && StringUtils.isNotBlank(token.toString())) {
             if (token.kind == ParserConstants.STRING_LITERAL) {
                 literals.add(token.toString().substring(1, token.toString().length() - 1));
             }

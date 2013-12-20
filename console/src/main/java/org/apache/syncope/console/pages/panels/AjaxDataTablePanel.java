@@ -41,40 +41,12 @@ import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AjaxDataTablePanel<T, S> extends Panel {
 
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(AjaxDataTablePanel.class);
-
     private static final long serialVersionUID = -8826989026203543957L;
 
-    private final CheckGroup<T> group;
-
-    private final Form bulkActionForm;
-
     private final AjaxFallbackDefaultDataTable<T, S> dataTable;
-
-    public AjaxDataTablePanel(
-            final String id,
-            final List<IColumn<T, S>> columns,
-            final ISortableDataProvider<T, S> dataProvider,
-            final int rowsPerPage) {
-        super(id);
-
-        this.bulkActionForm = null;
-        this.group = null;
-        dataTable = new AjaxFallbackDefaultDataTable<T, S>("dataTable", columns, dataProvider, rowsPerPage);
-
-        Fragment fragment = new Fragment("tablePanel", "bulkNotAvailable", this);
-        fragment.add(dataTable);
-
-        add(fragment);
-    }
 
     public AjaxDataTablePanel(
             final String id,
@@ -83,7 +55,7 @@ public class AjaxDataTablePanel<T, S> extends Panel {
             final int rowsPerPage,
             final Collection<ActionLink.ActionType> actions,
             final BaseRestClient bulkActionExecutor,
-            final String itemIdFiled,
+            final String itemIdField,
             final String pageId,
             final PageReference pageRef) {
 
@@ -124,10 +96,10 @@ public class AjaxDataTablePanel<T, S> extends Panel {
         Fragment fragment = new Fragment("tablePanel", "bulkAvailable", this);
         add(fragment);
 
-        bulkActionForm = new Form("groupForm");
+        Form<T> bulkActionForm = new Form<T>("groupForm");
         fragment.add(bulkActionForm);
 
-        group = new CheckGroup<T>("checkgroup", new ArrayList<T>());
+        final CheckGroup<T> group = new CheckGroup<T>("checkgroup", new ArrayList<T>());
         bulkActionForm.add(group);
 
         columns.add(0, new CheckGroupColumn<T, S>(group));
@@ -152,7 +124,7 @@ public class AjaxDataTablePanel<T, S> extends Panel {
                                 columns,
                                 actions,
                                 bulkActionExecutor,
-                                itemIdFiled,
+                                itemIdField,
                                 pageId);
                     }
                 });

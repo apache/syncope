@@ -34,6 +34,7 @@ import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.wrap.ReportletConfClass;
 import org.apache.syncope.core.persistence.beans.ReportExec;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.rest.controller.ReportController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -60,13 +61,24 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
 
     @Override
     public PagedResult<ReportTO> list() {
-        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE);
+        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
+    }
+
+    @Override
+    public PagedResult<ReportTO> list(final String orderBy) {
+        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
     }
 
     @Override
     public PagedResult<ReportTO> list(final int page, final int size) {
+        return list(page, size, null);
+    }
+
+    @Override
+    public PagedResult<ReportTO> list(final int page, final int size, final String orderBy) {
         checkPageSize(page, size);
-        return buildPagedResult(controller.list(page, size), page, size, controller.count());
+        List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
+        return buildPagedResult(controller.list(page, size, orderByClauses), page, size, controller.count());
     }
 
     @Override

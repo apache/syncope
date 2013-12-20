@@ -181,8 +181,8 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public List<RoleTO> list(final int page, final int size) {
-        List<SyncopeRole> roles = roleDAO.findAll(page, size);
+    public List<RoleTO> list(final int page, final int size, final List<OrderByClause> orderBy) {
+        List<SyncopeRole> roles = roleDAO.findAll(page, size, orderBy);
 
         List<RoleTO> roleTOs = new ArrayList<RoleTO>(roles.size());
         for (SyncopeRole role : roles) {

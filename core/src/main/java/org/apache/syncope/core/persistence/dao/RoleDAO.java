@@ -25,6 +25,7 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.RAttrValue;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 public interface RoleDAO extends AttributableDAO {
@@ -57,7 +58,7 @@ public interface RoleDAO extends AttributableDAO {
 
     List<SyncopeRole> findAll();
 
-    List<SyncopeRole> findAll(int page, int itemsPerPage);
+    List<SyncopeRole> findAll(int page, int itemsPerPage, List<OrderByClause> orderBy);
 
     List<Membership> findMemberships(SyncopeRole role);
 

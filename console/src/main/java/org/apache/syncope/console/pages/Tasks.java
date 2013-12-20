@@ -151,8 +151,7 @@ public class Tasks extends BasePage {
         public Iterator<T> iterator(final long first, final long count) {
             final List<T> tasks = new ArrayList<T>();
 
-            for (T task : restClient.listTasks(reference, ((int) first / paginatorRows) + 1, paginatorRows)) {
-
+            for (T task : restClient.list(reference, ((int) first / paginatorRows) + 1, paginatorRows, getSort())) {
                 if (task instanceof SchedTaskTO && ((SchedTaskTO) task).getLastExec() == null
                         && task.getExecutions() != null && !task.getExecutions().isEmpty()) {
 
@@ -160,7 +159,6 @@ public class Tasks extends BasePage {
 
                         @Override
                         public int compare(final TaskExecTO left, final TaskExecTO right) {
-
                             return left.getStartDate().compareTo(right.getStartDate());
                         }
                     });
@@ -210,7 +208,7 @@ public class Tasks extends BasePage {
                 (ISortableDataProvider<AbstractTaskTO, String>) dataProvider,
                 dataProvider.paginatorRows,
                 Arrays.asList(new ActionLink.ActionType[] {
-            ActionLink.ActionType.DELETE, ActionLink.ActionType.DRYRUN, ActionLink.ActionType.EXECUTE}),
+                    ActionLink.ActionType.DELETE, ActionLink.ActionType.DRYRUN, ActionLink.ActionType.EXECUTE }),
                 restClient,
                 "id",
                 TASKS,

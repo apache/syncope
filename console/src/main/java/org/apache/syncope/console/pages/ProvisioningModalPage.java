@@ -45,6 +45,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColu
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -190,9 +191,11 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
 
             final List<T> attributables = new ArrayList<T>();
             if (UserTO.class.isAssignableFrom(typeRef)) {
-                attributables.addAll((List<T>) userRestClient.search(fiql, 0, rowsPerPage));
+                attributables.addAll((List<T>) userRestClient.search(fiql, 0, rowsPerPage,
+                        new SortParam<String>("id", true)));
             } else {
-                attributables.addAll((List<T>) roleRestClient.search(fiql, 0, rowsPerPage));
+                attributables.addAll((List<T>) roleRestClient.search(fiql, 0, rowsPerPage,
+                        new SortParam<String>("id", true)));
             }
 
             final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(

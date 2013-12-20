@@ -46,6 +46,7 @@ import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.TaskExecDAO;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.quartz.AbstractTaskJob;
 import org.apache.syncope.core.rest.data.TaskDataBinder;
@@ -142,10 +143,12 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
 
     @PreAuthorize("hasRole('TASK_LIST')")
     @SuppressWarnings("unchecked")
-    public <T extends AbstractTaskTO> List<T> list(final TaskType taskType, final int page, final int size) {
+    public <T extends AbstractTaskTO> List<T> list(final TaskType taskType,
+            final int page, final int size, final List<OrderByClause> orderByClauses) {
+
         TaskUtil taskUtil = TaskUtil.getInstance(taskType);
 
-        List<Task> tasks = taskDAO.findAll(page, size, taskUtil.taskClass());
+        List<Task> tasks = taskDAO.findAll(page, size, orderByClauses, taskUtil.taskClass());
         List<T> taskTOs = new ArrayList<T>(tasks.size());
         for (Task task : tasks) {
             taskTOs.add((T) binder.getTaskTO(task, taskUtil));

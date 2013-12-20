@@ -72,9 +72,9 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
         if (filtered) {
             result = fiql == null
                     ? Collections.<AbstractAttributableTO>emptyList()
-                    : restClient.search(fiql, ((int) first / paginatorRows) + 1, paginatorRows);
+                    : restClient.search(fiql, ((int) first / paginatorRows) + 1, paginatorRows, getSort());
         } else {
-            result = restClient.list(((int) first / paginatorRows) + 1, paginatorRows);
+            result = restClient.list(((int) first / paginatorRows) + 1, paginatorRows, getSort());
         }
 
         Collections.sort(result, comparator);

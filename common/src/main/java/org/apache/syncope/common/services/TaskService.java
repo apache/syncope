@@ -105,6 +105,30 @@ public interface TaskService extends JAXRSService {
 
     /**
      * @param taskType Type of tasks to be listed
+     * @param orderBy list of ordering clauses, separated by comma
+     * @param <T> type of taskTO
+     * @return Returns list of tasks with matching type
+     */
+    @GET
+    <T extends AbstractTaskTO> PagedResult<T> list(@MatrixParam("type") TaskType taskType,
+            @QueryParam(PARAM_ORDERBY) String orderBy);
+
+    /**
+     * @param taskType Type of tasks to be listed
+     * @param page Page number of tasks in relation to page size
+     * @param size Number of tasks listed per page
+     * @param orderBy list of ordering clauses, separated by comma
+     * @param <T> type of taskTO
+     * @return Returns paginated list of task with matching type
+     */
+    @GET
+    <T extends AbstractTaskTO> PagedResult<T> list(@MatrixParam("type") TaskType taskType,
+            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
+            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
+            @QueryParam(PARAM_ORDERBY) String orderBy);
+
+    /**
+     * @param taskType Type of tasks to be listed
      * @param page Page number of tasks in relation to page size
      * @param size Number of tasks listed per page
      * @param <T> type of taskTO

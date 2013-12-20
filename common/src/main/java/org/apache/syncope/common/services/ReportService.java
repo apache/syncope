@@ -95,6 +95,13 @@ public interface ReportService extends JAXRSService {
     PagedResult<ReportTO> list();
 
     /**
+     * @param orderBy list of ordering clauses, separated by comma
+     * @return Paged list of all existing reports
+     */
+    @GET
+    PagedResult<ReportTO> list(@QueryParam(PARAM_ORDERBY) String orderBy);
+
+    /**
      * @param page selected page in relation to size
      * @param size number of entries per page
      * @return Paged list of existing reports matching page/size conditions
@@ -102,6 +109,17 @@ public interface ReportService extends JAXRSService {
     @GET
     PagedResult<ReportTO> list(@QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
             @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
+
+    /**
+     * @param page selected page in relation to size
+     * @param size number of entries per page
+     * @param orderBy list of ordering clauses, separated by comma
+     * @return Paged list of existing reports matching page/size conditions
+     */
+    @GET
+    PagedResult<ReportTO> list(@QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
+            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
+            @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
      * @param reportId ID of report to be read

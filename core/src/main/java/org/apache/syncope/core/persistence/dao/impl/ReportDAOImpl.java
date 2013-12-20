@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.Query;
@@ -25,6 +26,7 @@ import javax.persistence.TypedQuery;
 
 import org.apache.syncope.core.persistence.beans.Report;
 import org.apache.syncope.core.persistence.dao.ReportDAO;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,13 +42,14 @@ public class ReportDAOImpl extends AbstractDAOImpl implements ReportDAO {
 
     @Override
     public List<Report> findAll() {
-        return findAll(-1, -1);
+        return findAll(-1, -1, Collections.<OrderByClause>emptyList());
     }
 
     @Override
-    public List<Report> findAll(final int page, final int itemsPerPage) {
+    public List<Report> findAll(final int page, final int itemsPerPage, final List<OrderByClause> orderByClauses) {
         final TypedQuery<Report> query = entityManager.createQuery(
-                "SELECT e FROM " + Report.class.getSimpleName() + " e", Report.class);
+                "SELECT e FROM " + Report.class.getSimpleName() + " e " + toOrderByStatement("e", orderByClauses),
+                Report.class);
 
         query.setFirstResult(itemsPerPage * (page <= 0
                 ? 0

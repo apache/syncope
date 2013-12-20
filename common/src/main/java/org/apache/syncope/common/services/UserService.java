@@ -83,6 +83,41 @@ public interface UserService extends JAXRSService {
     PagedResult<UserTO> list();
 
     /**
+     * Returns a paged list of existing users.
+     *
+     * @param orderBy list of ordering clauses, separated by comma
+     * @return Paged list of all existing users
+     */
+    @GET
+    @Descriptions({
+        @Description(target = DocTarget.METHOD, value = "Returns a list of all existing users"),
+        @Description(target = DocTarget.RETURN, value = "Paged list of all existing users")
+    })
+    PagedResult<UserTO> list(
+            @Description("list of ordering clauses, separated by comma") @QueryParam(PARAM_ORDERBY) String orderBy);
+
+    /**
+     * Returns a paged list of existing users matching page/size conditions.
+     *
+     * @param page result page number
+     * @param size number of entries per page
+     * @param orderBy list of ordering clauses, separated by comma
+     * @return Paged list of existing users matching page/size conditions
+     */
+    @GET
+    @Descriptions({
+        @Description(target = DocTarget.METHOD,
+                value = "Returns a list of all existing users matching page/size conditions"),
+        @Description(target = DocTarget.RETURN, value = "Paged list of existing users matching page/size conditions")
+    })
+    PagedResult<UserTO> list(
+            @Description("result page number")
+            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
+            @Description("number of entries per page")
+            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
+            @Description("list of ordering clauses, separated by comma") @QueryParam(PARAM_ORDERBY) String orderBy);
+
+    /**
      * Returns a paged list of existing users matching page/size conditions.
      *
      * @param page result page number

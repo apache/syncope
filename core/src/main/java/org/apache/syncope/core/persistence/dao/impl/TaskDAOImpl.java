@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -28,6 +29,7 @@ import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,13 +95,17 @@ public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
 
     @Override
     public <T extends Task> List<T> findAll(final Class<T> reference) {
-        return findAll(-1, -1, reference);
+        return findAll(-1, -1, Collections.<OrderByClause>emptyList(), reference);
     }
 
     @Override
-    public <T extends Task> List<T> findAll(final int page, final int itemsPerPage, final Class<T> reference) {
+    public <T extends Task> List<T> findAll(final int page, final int itemsPerPage,
+            final List<OrderByClause> orderByClauses, final Class<T> reference) {
+
         StringBuilder queryString = buildfindAllQuery(reference);
-        queryString.append("ORDER BY e.id DESC");
+        queryString.append(orderByClauses.isEmpty()
+                ? "ORDER BY e.id DESC"
+                : toOrderByStatement("e", orderByClauses));
 
         final TypedQuery<T> query = entityManager.createQuery(queryString.toString(), reference);
 
@@ -122,7 +128,7 @@ public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
         return ((Number) countQuery.getSingleResult()).intValue();
     }
 
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public <T extends Task> T save(final T task) {
         return entityManager.merge(task);

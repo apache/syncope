@@ -18,11 +18,10 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.NoResultException;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.apache.syncope.common.types.AttributableType;
@@ -33,14 +32,22 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
+import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.persistence.dao.search.AttributableCond;
+import org.apache.syncope.core.persistence.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO {
+
+    @Autowired
+    private AttributableSearchDAO searchDAO;
 
     @Autowired
     private RoleDAO roleDAO;
@@ -132,77 +139,28 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
         return findByResource(resource, SyncopeUser.class);
     }
 
-    private StringBuilder getFindAllQuery(final Set<Long> adminRoles) {
-        final StringBuilder queryString = new StringBuilder("SELECT id FROM SyncopeUser WHERE id NOT IN (");
-
-        if (adminRoles == null || adminRoles.isEmpty()) {
-            queryString.append("SELECT syncopeUser_id AS id FROM Membership");
-        } else {
-            queryString.append("SELECT syncopeUser_id FROM Membership M1 ").append("WHERE syncopeRole_id IN (");
-            queryString.append("SELECT syncopeRole_id FROM Membership M2 ").append(
-                    "WHERE M2.syncopeUser_id=M1.syncopeUser_id ").append("AND syncopeRole_id NOT IN (");
-
-            queryString.append("SELECT id AS syncopeRole_id FROM SyncopeRole");
-            boolean firstRole = true;
-            for (Long adminRoleId : adminRoles) {
-                if (firstRole) {
-                    queryString.append(" WHERE");
-                    firstRole = false;
-                } else {
-                    queryString.append(" OR");
-                }
-
-                queryString.append(" id=").append(adminRoleId);
-            }
-
-            queryString.append("))");
-        }
-        queryString.append(")");
-
-        return queryString;
-    }
-
-    @Override
-    public final List<SyncopeUser> findAll(final Set<Long> adminRoles) {
-        return findAll(adminRoles, -1, -1);
-    }
-
-    @SuppressWarnings("unchecked")
     @Override
     public final List<SyncopeUser> findAll(final Set<Long> adminRoles, final int page, final int itemsPerPage) {
-        final Query query = entityManager.createNativeQuery(getFindAllQuery(adminRoles).toString());
+        return findAll(adminRoles, page, itemsPerPage, Collections.<OrderByClause>emptyList());
+    }
 
-        query.setFirstResult(itemsPerPage * (page <= 0
-                ? 0
-                : page - 1));
+    private SearchCond getAllMatchingCond() {
+        AttributableCond idCond = new AttributableCond(AttributeCond.Type.ISNOTNULL);
+        idCond.setSchema("id");
+        return SearchCond.getLeafCond(idCond);
+    }
 
-        if (itemsPerPage > 0) {
-            query.setMaxResults(itemsPerPage);
-        }
+    @Override
+    public List<SyncopeUser> findAll(final Set<Long> adminRoles,
+            final int page, final int itemsPerPage, final List<OrderByClause> orderBy) {
 
-        List<SyncopeUser> result = new ArrayList<SyncopeUser>();
-
-        for (Object userId : query.getResultList()) {
-            SyncopeUser user = findInternal(((Number) userId).longValue());
-            if (user == null) {
-                LOG.error("Could not find user with id {}, even though returned by the native query", userId);
-            } else {
-                result.add(user);
-            }
-        }
-
-        return result;
+        return searchDAO.search(adminRoles, getAllMatchingCond(), page, itemsPerPage, orderBy,
+                AttributableUtil.getInstance(AttributableType.USER));
     }
 
     @Override
     public final int count(final Set<Long> adminRoles) {
-        StringBuilder queryString = getFindAllQuery(adminRoles);
-        queryString.insert(0, "SELECT COUNT(id) FROM (");
-        queryString.append(") count_user_id");
-
-        Query countQuery = entityManager.createNativeQuery(queryString.toString());
-
-        return ((Number) countQuery.getSingleResult()).intValue();
+        return searchDAO.count(adminRoles, getAllMatchingCond(), AttributableUtil.getInstance(AttributableType.USER));
     }
 
     @Override

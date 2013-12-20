@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.search;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Simple builder for generating <tt>orderby</tt> values.
  */
@@ -36,6 +38,8 @@ public class OrderByClauseBuilder {
     }
 
     public String build() {
-        return builder.deleteCharAt(builder.length() - 1).toString();
+        return builder.length() == 0
+                ? StringUtils.EMPTY
+                : builder.deleteCharAt(builder.length() - 1).toString();
     }
 }

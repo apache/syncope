@@ -127,10 +127,10 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
     @PreAuthorize("hasRole('USER_LIST')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
-    public List<UserTO> list(final int page, final int size) {
+    public List<UserTO> list(final int page, final int size, final List<OrderByClause> orderBy) {
         Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
 
-        List<SyncopeUser> users = userDAO.findAll(adminRoleIds, page, size);
+        List<SyncopeUser> users = userDAO.findAll(adminRoleIds, page, size, orderBy);
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
             userTOs.add(binder.getUserTO(user));

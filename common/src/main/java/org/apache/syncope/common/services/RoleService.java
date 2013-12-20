@@ -74,6 +74,13 @@ public interface RoleService extends JAXRSService {
     PagedResult<RoleTO> list();
 
     /**
+     * @param orderBy list of ordering clauses, separated by comma
+     * @return Paged list of all existing roles
+     */
+    @GET
+    PagedResult<RoleTO> list(@QueryParam(PARAM_ORDERBY) String orderBy);
+
+    /**
      * @param page result page number
      * @param size number of entries per page
      * @return Paged list of existing roles matching page/size conditions
@@ -81,6 +88,17 @@ public interface RoleService extends JAXRSService {
     @GET
     PagedResult<RoleTO> list(@QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
             @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
+
+    /**
+     * @param page result page number
+     * @param size number of entries per page
+     * @param orderBy list of ordering clauses, separated by comma
+     * @return Paged list of existing roles matching page/size conditions
+     */
+    @GET
+    PagedResult<RoleTO> list(@QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
+            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
+            @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
      * @param roleId Id of role to get parent role from

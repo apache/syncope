@@ -26,6 +26,7 @@ import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.wrap.ReportletConfClass;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -56,8 +57,8 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
         return getService(ReportService.class).list().getResult();
     }
 
-    public List<ReportTO> list(final int page, final int size) {
-        return getService(ReportService.class).list(page, size).getResult();
+    public List<ReportTO> list(final int page, final int size, final SortParam<String> sort) {
+        return getService(ReportService.class).list(page, size, toOrderBy(sort)).getResult();
     }
 
     public int count() {

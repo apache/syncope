@@ -169,9 +169,8 @@ public class SyncopeUserQueryImpl implements UserQuery {
         if (result == null) {
             result = new ArrayList<User>();
 
-            List<SyncopeUser> users = page == -1 && itemsPerPage == -1
-                    ? userDAO.findAll(EntitlementUtil.getRoleIds(entitlementDAO.findAll()))
-                    : userDAO.findAll(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), page, itemsPerPage);
+            List<SyncopeUser> users =
+                    userDAO.findAll(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), page, itemsPerPage);
             for (SyncopeUser user : users) {
                 result.add(fromSyncopeUser(user));
             }

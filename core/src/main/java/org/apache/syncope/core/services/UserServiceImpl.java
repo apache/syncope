@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.services;
 
-import static org.apache.syncope.common.services.JAXRSService.DEFAULT_PARAM_PAGE_VALUE;
-import static org.apache.syncope.common.services.JAXRSService.DEFAULT_PARAM_SIZE_VALUE;
 import java.util.List;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
@@ -83,13 +81,24 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
     @Override
     public PagedResult<UserTO> list() {
-        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE);
+        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
+    }
+
+    @Override
+    public PagedResult<UserTO> list(final String orderBy) {
+        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
     }
 
     @Override
     public PagedResult<UserTO> list(final int page, final int size) {
+        return list(page, size, null);
+    }
+
+    @Override
+    public PagedResult<UserTO> list(final int page, final int size, final String orderBy) {
         checkPageSize(page, size);
-        return buildPagedResult(controller.list(page, size), page, size, controller.count());
+        List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
+        return buildPagedResult(controller.list(page, size, orderByClauses), page, size, controller.count());
     }
 
     @Override

@@ -35,6 +35,7 @@ import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.status.StatusBean;
 import org.apache.syncope.console.commons.status.StatusUtils;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.springframework.stereotype.Component;
 
 /**
@@ -58,8 +59,8 @@ public class UserRestClient extends AbstractAttributableRestClient {
      * @return list of TaskTO objects
      */
     @Override
-    public List<UserTO> list(final int page, final int size) {
-        return getService(UserService.class).list(page, size).getResult();
+    public List<UserTO> list(final int page, final int size, final SortParam<String> sort) {
+        return getService(UserService.class).list(page, size, toOrderBy(sort)).getResult();
     }
 
     public UserTO create(final UserTO userTO) {
@@ -92,8 +93,8 @@ public class UserRestClient extends AbstractAttributableRestClient {
     }
 
     @Override
-    public List<UserTO> search(final String fiql, final int page, final int size) {
-        return getService(UserService.class).search(fiql, page, size).getResult();
+    public List<UserTO> search(final String fiql, final int page, final int size, final SortParam<String> sort) {
+        return getService(UserService.class).search(fiql, page, size, toOrderBy(sort)).getResult();
     }
 
     @Override

@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 public interface UserDAO extends AttributableDAO {
@@ -42,9 +43,9 @@ public interface UserDAO extends AttributableDAO {
 
     List<SyncopeUser> findByResource(ExternalResource resource);
 
-    List<SyncopeUser> findAll(Set<Long> adminRoles);
-
     List<SyncopeUser> findAll(Set<Long> adminRoles, int page, int itemsPerPage);
+
+    List<SyncopeUser> findAll(Set<Long> adminRoles, int page, int itemsPerPage, List<OrderByClause> orderBy);
 
     int count(Set<Long> adminRoles);
 

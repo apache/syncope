@@ -161,6 +161,7 @@ public class SearchView extends ListView<SearchClause> {
                     if (comparator.getModelObject() == SearchClause.Comparator.IS_NULL
                             || comparator.getModelObject() == SearchClause.Comparator.IS_NOT_NULL) {
 
+                        value.setModelObject(null);
                         value.setEnabled(false);
                     } else {
                         value.setEnabled(true);

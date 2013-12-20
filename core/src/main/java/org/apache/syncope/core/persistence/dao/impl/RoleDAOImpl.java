@@ -56,6 +56,7 @@ import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.VirAttrDAO;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -277,13 +278,14 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
 
     @Override
     public List<SyncopeRole> findAll() {
-        return findAll(-1, -1);
+        return findAll(-1, -1, Collections.<OrderByClause>emptyList());
     }
 
     @Override
-    public List<SyncopeRole> findAll(final int page, final int itemsPerPage) {
+    public List<SyncopeRole> findAll(final int page, final int itemsPerPage, final List<OrderByClause> orderBy) {
         TypedQuery<SyncopeRole> query = entityManager.createQuery(
-                "SELECT e FROM " + SyncopeRole.class.getSimpleName() + " e", SyncopeRole.class);
+                "SELECT e FROM " + SyncopeRole.class.getSimpleName() + " e " + toOrderByStatement("e", orderBy),
+                SyncopeRole.class);
 
         query.setFirstResult(itemsPerPage * (page <= 0
                 ? 0
@@ -299,8 +301,8 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
     @Override
     public List<Membership> findMemberships(final SyncopeRole role) {
         TypedQuery<Membership> query = entityManager.createQuery(
-                "SELECT e FROM " + Membership.class.getSimpleName() + " e"
-                + " WHERE e.syncopeRole=:role", Membership.class);
+                "SELECT e FROM " + Membership.class.getSimpleName() + " e" + " WHERE e.syncopeRole=:role",
+                Membership.class);
         query.setParameter("role", role);
 
         return query.getResultList();

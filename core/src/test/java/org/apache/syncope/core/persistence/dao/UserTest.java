@@ -46,7 +46,7 @@ public class UserTest extends AbstractDAOTest {
 
     @Test
     public void findAll() {
-        List<SyncopeUser> list = userDAO.findAll(EntitlementUtil.getRoleIds(entitlementDAO.findAll()));
+        List<SyncopeUser> list = userDAO.findAll(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), 1, 100);
         assertEquals("did not get expected number of users ", 5, list.size());
     }
 

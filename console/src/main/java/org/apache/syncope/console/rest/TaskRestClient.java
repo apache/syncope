@@ -33,6 +33,7 @@ import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.springframework.stereotype.Component;
 
 /**
@@ -81,10 +82,11 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractTaskTO> List<T> listTasks(
-            final Class<T> reference, final int page, final int size) {
+    public <T extends AbstractTaskTO> List<T> list(final Class<T> reference,
+            final int page, final int size, final SortParam<String> sort) {
 
-        return (List<T>) getService(TaskService.class).list(getTaskType(reference), page, size).getResult();
+        return (List<T>) getService(TaskService.class).list(getTaskType(reference), page, size, toOrderBy(sort)).
+                getResult();
     }
 
     private TaskType getTaskType(final Class<?> reference) {

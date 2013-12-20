@@ -51,6 +51,7 @@ import org.apache.syncope.core.persistence.beans.ReportExec;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.ReportDAO;
 import org.apache.syncope.core.persistence.dao.ReportExecDAO;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.report.Reportlet;
 import org.apache.syncope.core.report.cocoon.TextSerializer;
 import org.apache.syncope.core.rest.data.ReportDataBinder;
@@ -129,8 +130,8 @@ public class ReportController extends AbstractTransactionalController<ReportTO> 
     }
 
     @PreAuthorize("hasRole('REPORT_LIST')")
-    public List<ReportTO> list(final int page, final int size) {
-        List<Report> reports = reportDAO.findAll(page, size);
+    public List<ReportTO> list(final int page, final int size, final List<OrderByClause> orderByClauses) {
+        List<Report> reports = reportDAO.findAll(page, size, orderByClauses);
         List<ReportTO> result = new ArrayList<ReportTO>(reports.size());
         for (Report report : reports) {
             result.add(binder.getReportTO(report));

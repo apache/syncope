@@ -35,6 +35,7 @@ import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.console.commons.status.StatusBean;
 import org.apache.syncope.console.commons.status.StatusUtils;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.springframework.stereotype.Component;
 
 /**
@@ -55,8 +56,8 @@ public class RoleRestClient extends AbstractAttributableRestClient {
     }
 
     @Override
-    public List<RoleTO> list(final int page, final int size) {
-        return getService(RoleService.class).list(page, size).getResult();
+    public List<RoleTO> list(final int page, final int size, final SortParam<String> sort) {
+        return getService(RoleService.class).list(page, size, toOrderBy(sort)).getResult();
     }
 
     @Override
@@ -65,8 +66,8 @@ public class RoleRestClient extends AbstractAttributableRestClient {
     }
 
     @Override
-    public List<RoleTO> search(final String fiql, final int page, final int size) {
-        return getService(RoleService.class).search(fiql, page, size).getResult();
+    public List<RoleTO> search(final String fiql, final int page, final int size, final SortParam<String> sort) {
+        return getService(RoleService.class).search(fiql, page, size, toOrderBy(sort)).getResult();
     }
 
     @Override
