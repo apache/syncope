@@ -284,8 +284,8 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
     @Override
     public List<SyncopeRole> findAll(final int page, final int itemsPerPage, final List<OrderByClause> orderBy) {
         TypedQuery<SyncopeRole> query = entityManager.createQuery(
-                "SELECT e FROM " + SyncopeRole.class.getSimpleName() + " e " + toOrderByStatement("e", orderBy),
-                SyncopeRole.class);
+                "SELECT e FROM " + SyncopeRole.class.getSimpleName() + " e "
+                + toOrderByStatement(SyncopeRole.class, "e", orderBy), SyncopeRole.class);
 
         query.setFirstResult(itemsPerPage * (page <= 0
                 ? 0

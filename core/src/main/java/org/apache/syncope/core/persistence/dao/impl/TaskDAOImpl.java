@@ -105,7 +105,7 @@ public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
         StringBuilder queryString = buildfindAllQuery(reference);
         queryString.append(orderByClauses.isEmpty()
                 ? "ORDER BY e.id DESC"
-                : toOrderByStatement("e", orderByClauses));
+                : toOrderByStatement(reference, "e", orderByClauses));
 
         final TypedQuery<T> query = entityManager.createQuery(queryString.toString(), reference);
 

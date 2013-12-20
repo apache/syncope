@@ -48,8 +48,8 @@ public class ReportDAOImpl extends AbstractDAOImpl implements ReportDAO {
     @Override
     public List<Report> findAll(final int page, final int itemsPerPage, final List<OrderByClause> orderByClauses) {
         final TypedQuery<Report> query = entityManager.createQuery(
-                "SELECT e FROM " + Report.class.getSimpleName() + " e " + toOrderByStatement("e", orderByClauses),
-                Report.class);
+                "SELECT e FROM " + Report.class.getSimpleName() + " e "
+                + toOrderByStatement(Report.class, "e", orderByClauses), Report.class);
 
         query.setFirstResult(itemsPerPage * (page <= 0
                 ? 0

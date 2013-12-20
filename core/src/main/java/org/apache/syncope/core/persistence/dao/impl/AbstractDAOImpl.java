@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.ReflectionUtils;
 
 @Configurable
 public abstract class AbstractDAOImpl implements DAO {
@@ -74,14 +75,19 @@ public abstract class AbstractDAOImpl implements DAO {
         }
     }
 
-    protected String toOrderByStatement(final String prefix, final List<OrderByClause> orderByClauses) {
+    protected String toOrderByStatement(final Class<? extends AbstractBaseBean> beanClass, final String prefix,
+            final List<OrderByClause> orderByClauses) {
+
         StringBuilder statement = new StringBuilder();
 
         for (OrderByClause clause : orderByClauses) {
-            if (StringUtils.isNotBlank(prefix)) {
-                statement.append(prefix).append('.');
+            String field = clause.getField().trim();
+            if (ReflectionUtils.findField(beanClass, field) != null) {
+                if (StringUtils.isNotBlank(prefix)) {
+                    statement.append(prefix).append('.');
+                }
+                statement.append(field).append(' ').append(clause.getDirection().name());
             }
-            statement.append(clause.getField().trim()).append(' ').append(clause.getDirection().name());
         }
 
         if (statement.length() > 0) {
