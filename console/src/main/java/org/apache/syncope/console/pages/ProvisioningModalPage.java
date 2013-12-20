@@ -191,10 +191,10 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
 
             final List<T> attributables = new ArrayList<T>();
             if (UserTO.class.isAssignableFrom(typeRef)) {
-                attributables.addAll((List<T>) userRestClient.search(fiql, 0, rowsPerPage,
+                attributables.addAll((List<T>) userRestClient.search(fiql, 1, rowsPerPage,
                         new SortParam<String>("id", true)));
             } else {
-                attributables.addAll((List<T>) roleRestClient.search(fiql, 0, rowsPerPage,
+                attributables.addAll((List<T>) roleRestClient.search(fiql, 1, rowsPerPage,
                         new SortParam<String>("id", true)));
             }
 
