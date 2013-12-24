@@ -405,8 +405,8 @@ public class Resources extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(), getResponse(), Constants.PREF_RESOURCES_PAGINATOR_ROWS, String
-                        .valueOf(resourcePaginatorRows));
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_RESOURCES_PAGINATOR_ROWS,
+                        String.valueOf(resourcePaginatorRows));
 
                 table.setItemsPerPage(resourcePaginatorRows);
                 target.add(resourceContainer);
@@ -569,8 +569,8 @@ public class Resources extends BasePage {
 
             @Override
             protected void onUpdate(AjaxRequestTarget target) {
-                prefMan.set(getRequest(), getResponse(), Constants.PREF_CONNECTORS_PAGINATOR_ROWS, String
-                        .valueOf(connectorPaginatorRows));
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_CONNECTORS_PAGINATOR_ROWS,
+                        String.valueOf(connectorPaginatorRows));
                 table.setItemsPerPage(connectorPaginatorRows);
 
                 target.add(connectorContainer);

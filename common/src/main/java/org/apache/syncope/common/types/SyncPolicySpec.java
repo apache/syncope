@@ -36,7 +36,7 @@ public class SyncPolicySpec extends AbstractPolicySpec {
      * SyncopeUser attributes and fields for matching during synchronization.
      */
     @SchemaList(extended = true)
-    private List<String> uAltSearchSchemas = new ArrayList<String>();
+    private final List<String> uAltSearchSchemas = new ArrayList<String>();
 
     @ClassList
     private String userJavaRule;
@@ -45,7 +45,7 @@ public class SyncPolicySpec extends AbstractPolicySpec {
      * SyncopeRole attributes and fields for matching during synchronization.
      */
     @SchemaList(extended = true)
-    private List<String> rAltSearchSchemas = new ArrayList<String>();
+    private final List<String> rAltSearchSchemas = new ArrayList<String>();
 
     @ClassList
     private String roleJavaRule;

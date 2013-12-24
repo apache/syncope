@@ -25,9 +25,13 @@ import java.lang.annotation.Target;
 
 import org.apache.syncope.common.types.IntMappingType;
 
-@Target( { ElementType.FIELD })
+@Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FormAttributeField {
+
+    boolean userSearch() default false;
+
+    boolean roleSearch() default false;
 
     IntMappingType schema() default IntMappingType.UserSchema;
 }

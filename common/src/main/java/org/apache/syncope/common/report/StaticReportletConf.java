@@ -46,7 +46,7 @@ public class StaticReportletConf extends AbstractReportletConf {
 
     private TraceLevel traceLevel;
 
-    private List<String> listField;
+    private final List<String> listField = new ArrayList<String>();
 
     public StaticReportletConf() {
         super();
@@ -54,7 +54,6 @@ public class StaticReportletConf extends AbstractReportletConf {
 
     public StaticReportletConf(final String name) {
         super(name);
-        listField = new ArrayList<String>();
     }
 
     public Date getDateField() {

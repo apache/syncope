@@ -32,17 +32,18 @@ import org.apache.syncope.common.annotation.FormAttributeField;
 import org.apache.syncope.common.report.AbstractReportletConf;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.pages.panels.RoleSearchPanel;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.CheckBoxMultipleChoiceFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.apache.syncope.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -198,17 +199,15 @@ public class ReportletConfModalPage extends BaseModalPage {
     private FieldPanel buildSinglePanel(final Class<?> type, final String fieldName, final String id) {
         FieldPanel result = null;
         PropertyModel model = new PropertyModel(ReportletConfModalPage.this.reportletConf, fieldName);
-        if (Boolean.TYPE.equals(type) || Boolean.class.equals(type)) {
+        if (ClassUtils.isAssignable(Boolean.class, type)) {
             result = new AjaxCheckBoxPanel(id, fieldName, model);
-        } else if (Integer.TYPE.equals(type) || Integer.class.equals(type) || Long.TYPE.equals(type)
-                || Long.class.equals(type) || Double.TYPE.equals(type) || Double.class.equals(type)) {
-
-            result = new AjaxNumberFieldPanel(id, fieldName, model, ClassUtils.resolvePrimitiveIfNecessary(type));
+        } else if (ClassUtils.isAssignable(Number.class, type)) {
+            result = new SpinnerFieldPanel<Number>(id, fieldName, (Class<Number>) type, model, null, null, false);
         } else if (Date.class.equals(type)) {
             result = new DateTimeFieldPanel(id, fieldName, model, SyncopeConstants.DEFAULT_DATE_PATTERN);
         } else if (type.isEnum()) {
-            result = new AjaxDropDownChoicePanel(id, fieldName, model).setChoices(Arrays
-                    .asList(type.getEnumConstants()));
+            result = new AjaxDropDownChoicePanel(id, fieldName, model).setChoices(
+                    Arrays.asList(type.getEnumConstants()));
         }
 
         // treat as String if nothing matched above
@@ -261,28 +260,29 @@ public class ReportletConfModalPage extends BaseModalPage {
                     return;
                 }
 
+                FormAttributeField annotation = field.getAnnotation(FormAttributeField.class);
+
                 BeanWrapper wrapper = PropertyAccessorFactory.
                         forBeanPropertyAccess(ReportletConfModalPage.this.reportletConf);
 
                 Panel panel;
 
-                if (String.class.equals(field.getType())) {
-                    panel = new UserSearchPanel.Builder("value")
-                            .fiql((String) wrapper.getPropertyValue(fieldName)).required(false).build();
+                if (String.class.equals(field.getType()) && annotation != null && annotation.userSearch()) {
+                    panel = new UserSearchPanel.Builder("value").
+                            fiql((String) wrapper.getPropertyValue(fieldName)).required(false).build();
+                    // This is needed in order to manually update this.reportletConf with search panel selections
+                    panel.setDefaultModel(new Model<String>(fieldName));
+                } else if (String.class.equals(field.getType()) && annotation != null && annotation.roleSearch()) {
+                    panel = new RoleSearchPanel.Builder("value").
+                            fiql((String) wrapper.getPropertyValue(fieldName)).required(false).build();
                     // This is needed in order to manually update this.reportletConf with search panel selections
                     panel.setDefaultModel(new Model<String>(fieldName));
                 } else if (List.class.equals(field.getType())) {
-                    if (wrapper.getPropertyValue(fieldName) == null) {
-                        wrapper.setPropertyValue(fieldName, new ArrayList());
-                    }
-
                     Class<?> listItemType = String.class;
                     if (field.getGenericType() instanceof ParameterizedType) {
                         listItemType =
                                 (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
                     }
-
-                    FormAttributeField annotation = field.getAnnotation(FormAttributeField.class);
 
                     if (listItemType.equals(String.class) && annotation != null) {
                         List<String> choices;
@@ -332,16 +332,16 @@ public class ReportletConfModalPage extends BaseModalPage {
                                 true);
                     } else if (listItemType.isEnum()) {
                         panel = new CheckBoxMultipleChoiceFieldPanel("value", new PropertyModel(
-                                ReportletConfModalPage.this.reportletConf, fieldName), new ListModel(Arrays
-                                        .asList(listItemType.getEnumConstants())));
+                                ReportletConfModalPage.this.reportletConf, fieldName),
+                                new ListModel(Arrays.asList(listItemType.getEnumConstants())));
                     } else {
                         if (((List) wrapper.getPropertyValue(fieldName)).isEmpty()) {
                             ((List) wrapper.getPropertyValue(fieldName)).add(null);
                         }
 
                         panel = new MultiValueSelectorPanel("value", new PropertyModel<List>(
-                                ReportletConfModalPage.this.reportletConf, fieldName), buildSinglePanel(
-                                        field.getType(), fieldName, "panel"));
+                                ReportletConfModalPage.this.reportletConf, fieldName),
+                                buildSinglePanel(field.getType(), fieldName, "panel"));
                     }
                 } else {
                     panel = buildSinglePanel(field.getType(), fieldName, "value");

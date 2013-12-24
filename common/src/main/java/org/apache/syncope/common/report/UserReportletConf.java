@@ -55,18 +55,19 @@ public class UserReportletConf extends AbstractReportletConf {
 
     private static final long serialVersionUID = 6602717600064602764L;
 
+    @FormAttributeField(userSearch = true)
     private String matchingCond;
 
     @FormAttributeField(schema = IntMappingType.UserSchema)
-    private List<String> attrs = new ArrayList<String>();
+    private final List<String> attrs = new ArrayList<String>();
 
     @FormAttributeField(schema = IntMappingType.UserDerivedSchema)
-    private List<String> derAttrs = new ArrayList<String>();
+    private final List<String> derAttrs = new ArrayList<String>();
 
     @FormAttributeField(schema = IntMappingType.UserVirtualSchema)
-    private List<String> virAttrs = new ArrayList<String>();
+    private final List<String> virAttrs = new ArrayList<String>();
 
-    private List<Feature> features = new ArrayList<Feature>();
+    private final List<Feature> features = new ArrayList<Feature>();
 
     public UserReportletConf() {
         super();

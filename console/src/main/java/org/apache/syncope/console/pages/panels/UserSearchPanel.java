@@ -50,12 +50,12 @@ public class UserSearchPanel extends AbstractSearchPanel {
             this.id = id;
         }
 
-        public UserSearchPanel.Builder fiql(final String fiql) {
+        public Builder fiql(final String fiql) {
             this.fiql = fiql;
             return this;
         }
 
-        public UserSearchPanel.Builder required(final boolean required) {
+        public Builder required(final boolean required) {
             this.required = required;
             return this;
         }

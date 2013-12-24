@@ -25,21 +25,19 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.ConnPoolConfTO;
 import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
-import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.rest.ConnectorRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
@@ -78,15 +76,6 @@ import org.springframework.util.ClassUtils;
 public class ConnectorModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -2025535531121434050L;
-
-    // GuardedString is not in classpath
-    private static final String GUARDED_STRING = "org.identityconnectors.common.security.GuardedString";
-
-    // GuardedByteArray is not in classpath
-    private static final String GUARDED_BYTE_ARRAY = "org.identityconnectors.common.security.GuardedByteArray";
-
-    private static final Class[] NUMBER = { Integer.class, Double.class, Long.class,
-        Float.class, Number.class, Integer.TYPE, Long.TYPE, Double.TYPE, Float.TYPE };
 
     @SpringBean
     private ConnectorRestClient restClient;
@@ -201,8 +190,8 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorForm.add(version);
 
         final SpinnerFieldPanel<Integer> connRequestTimeout =
-                new SpinnerFieldPanel<Integer>("connRequestTimeout", "connRequestTimeout",
-                        new PropertyModel<Integer>(connInstanceTO, "connRequestTimeout"), 0, null);
+                new SpinnerFieldPanel<Integer>("connRequestTimeout", "connRequestTimeout", Integer.class,
+                        new PropertyModel<Integer>(connInstanceTO, "connRequestTimeout"), 0, null, true);
         connRequestTimeout.getField().add(new RangeValidator<Integer>(0, Integer.MAX_VALUE));
         connectorForm.add(connRequestTimeout);
 
@@ -210,29 +199,29 @@ public class ConnectorModalPage extends BaseModalPage {
             connInstanceTO.setPoolConf(new ConnPoolConfTO());
         }
         final SpinnerFieldPanel<Integer> poolMaxObjects =
-                new SpinnerFieldPanel<Integer>("poolMaxObjects", "poolMaxObjects",
-                        new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "maxObjects"), 0, null);
+                new SpinnerFieldPanel<Integer>("poolMaxObjects", "poolMaxObjects", Integer.class,
+                        new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "maxObjects"), 0, null, true);
         poolMaxObjects.getField().add(new RangeValidator<Integer>(0, Integer.MAX_VALUE));
         connectorForm.add(poolMaxObjects);
         final SpinnerFieldPanel<Integer> poolMinIdle =
-                new SpinnerFieldPanel<Integer>("poolMinIdle", "poolMinIdle",
-                        new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "minIdle"), 0, null);
+                new SpinnerFieldPanel<Integer>("poolMinIdle", "poolMinIdle", Integer.class,
+                        new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "minIdle"), 0, null, true);
         poolMinIdle.getField().add(new RangeValidator<Integer>(0, Integer.MAX_VALUE));
         connectorForm.add(poolMinIdle);
         final SpinnerFieldPanel<Integer> poolMaxIdle =
-                new SpinnerFieldPanel<Integer>("poolMaxIdle", "poolMaxIdle",
-                        new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "maxIdle"), 0, null);
+                new SpinnerFieldPanel<Integer>("poolMaxIdle", "poolMaxIdle", Integer.class,
+                        new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "maxIdle"), 0, null, true);
         poolMaxIdle.getField().add(new RangeValidator<Integer>(0, Integer.MAX_VALUE));
         connectorForm.add(poolMaxIdle);
         final SpinnerFieldPanel<Long> poolMaxWait =
-                new SpinnerFieldPanel<Long>("poolMaxWait", "poolMaxWait",
-                        new PropertyModel<Long>(connInstanceTO.getPoolConf(), "maxWait"), 0L, null);
+                new SpinnerFieldPanel<Long>("poolMaxWait", "poolMaxWait", Long.class,
+                        new PropertyModel<Long>(connInstanceTO.getPoolConf(), "maxWait"), 0L, null, true);
         poolMaxWait.getField().add(new RangeValidator<Long>(0L, Long.MAX_VALUE));
         connectorForm.add(poolMaxWait);
         final SpinnerFieldPanel<Long> poolMinEvictableIdleTime =
-                new SpinnerFieldPanel<Long>(
-                        "poolMinEvictableIdleTime", "poolMinEvictableIdleTime",
-                        new PropertyModel<Long>(connInstanceTO.getPoolConf(), "minEvictableIdleTimeMillis"), 0L, null);
+                new SpinnerFieldPanel<Long>("poolMinEvictableIdleTime", "poolMinEvictableIdleTime", Long.class,
+                        new PropertyModel<Long>(connInstanceTO.getPoolConf(), "minEvictableIdleTimeMillis"),
+                        0L, null, true);
         poolMinEvictableIdleTime.getField().add(new RangeValidator<Long>(0L, Long.MAX_VALUE));
         connectorForm.add(poolMinEvictableIdleTime);
 
@@ -304,12 +293,12 @@ public class ConnectorModalPage extends BaseModalPage {
                     private static final long serialVersionUID = 9101744072914090143L;
 
                     @Override
+                    @SuppressWarnings({ "unchecked", "rawtypes" })
                     protected void populateItem(final ListItem<ConnConfProperty> item) {
                         final ConnConfProperty property = item.getModelObject();
 
-                        final Label label = new Label("connPropAttrSchema", property.getSchema().getDisplayName()
-                                == null
-                                || property.getSchema().getDisplayName().isEmpty()
+                        final Label label = new Label("connPropAttrSchema",
+                                StringUtils.isBlank(property.getSchema().getDisplayName())
                                 ? property.getSchema().getName()
                                 : property.getSchema().getDisplayName());
 
@@ -319,8 +308,8 @@ public class ConnectorModalPage extends BaseModalPage {
                         boolean required = false;
                         boolean isArray = false;
                         if (property.getSchema().isConfidential()
-                        || GUARDED_STRING.equalsIgnoreCase(property.getSchema().getType())
-                        || GUARDED_BYTE_ARRAY.equalsIgnoreCase(property.getSchema().getType())) {
+                        || Constants.GUARDED_STRING.equalsIgnoreCase(property.getSchema().getType())
+                        || Constants.GUARDED_BYTE_ARRAY.equalsIgnoreCase(property.getSchema().getType())) {
 
                             field = new AjaxPasswordFieldPanel("panel",
                                     label.getDefaultModelObjectAsString(), new Model<String>());
@@ -338,14 +327,12 @@ public class ConnectorModalPage extends BaseModalPage {
                                 LOG.error("Error parsing attribute type", e);
                                 propertySchemaClass = String.class;
                             }
-                            if (ArrayUtils.contains(NUMBER, propertySchemaClass)) {
-                                field = new AjaxNumberFieldPanel("panel",
-                                        label.getDefaultModelObjectAsString(), new Model<Number>(),
-                                        ClassUtils.resolvePrimitiveIfNecessary(propertySchemaClass));
+                            if (ClassUtils.isAssignable(Number.class, propertySchemaClass)) {
+                                field = new SpinnerFieldPanel<Number>("panel", label.getDefaultModelObjectAsString(),
+                                        (Class<Number>) propertySchemaClass, new Model<Number>(), null, null, false);
 
                                 required = property.getSchema().isRequired();
-                            } else if (Boolean.class.equals(propertySchemaClass) || boolean.class.equals(
-                                    propertySchemaClass)) {
+                            } else if (ClassUtils.isAssignable(Boolean.class, propertySchemaClass)) {
                                 field = new AjaxCheckBoxPanel("panel",
                                         label.getDefaultModelObjectAsString(), new Model<Boolean>());
                             } else {

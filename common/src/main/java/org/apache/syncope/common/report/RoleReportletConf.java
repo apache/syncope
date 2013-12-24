@@ -50,18 +50,19 @@ public class RoleReportletConf extends AbstractReportletConf {
 
     }
 
+    @FormAttributeField(userSearch = true)
     private String matchingCond;
 
     @FormAttributeField(schema = IntMappingType.RoleSchema)
-    private List<String> attrs;
+    private final List<String> attrs = new ArrayList<String>();
 
     @FormAttributeField(schema = IntMappingType.RoleDerivedSchema)
-    private List<String> derAttrs;
+    private final List<String> derAttrs = new ArrayList<String>();
 
     @FormAttributeField(schema = IntMappingType.RoleVirtualSchema)
-    private List<String> virAttrs;
+    private final List<String> virAttrs = new ArrayList<String>();
 
-    private List<Feature> features;
+    private final List<Feature> features = new ArrayList<Feature>();
 
     public RoleReportletConf() {
         super();
@@ -69,11 +70,6 @@ public class RoleReportletConf extends AbstractReportletConf {
 
     public RoleReportletConf(final String name) {
         super(name);
-
-        attrs = new ArrayList<String>();
-        derAttrs = new ArrayList<String>();
-        virAttrs = new ArrayList<String>();
-        features = new ArrayList<Feature>();
     }
 
     @XmlElementWrapper(name = "attributes")

@@ -29,8 +29,8 @@ import org.apache.syncope.console.pages.ResourceModalPage.ResourceEvent;
 import org.apache.syncope.console.rest.ConnectorRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
@@ -79,12 +79,12 @@ public class ResourceDetailsPanel extends Panel {
 
         final AjaxCheckBoxPanel propagationPrimary = new AjaxCheckBoxPanel("propagationPrimary", new ResourceModel(
                 "propagationPrimary", "propagationPrimary").getObject(), new PropertyModel<Boolean>(resourceTO,
-                "propagationPrimary"));
+                        "propagationPrimary"));
         add(propagationPrimary);
 
-        final AjaxNumberFieldPanel propagationPriority = new AjaxNumberFieldPanel("propagationPriority",
-                new ResourceModel("propagationPriority", "propagationPriority").getObject(), new PropertyModel<Number>(
-                resourceTO, "propagationPriority"), Integer.class);
+        final SpinnerFieldPanel<Integer> propagationPriority =
+                new SpinnerFieldPanel<Integer>("propagationPriority", "propagationPriority", Integer.class,
+                        new PropertyModel<Integer>(resourceTO, "propagationPriority"), null, null, false);
         add(propagationPriority);
 
         final AjaxDropDownChoicePanel<PropagationMode> propagationMode = new AjaxDropDownChoicePanel<PropagationMode>(

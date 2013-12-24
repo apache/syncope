@@ -301,6 +301,10 @@ public abstract class AbstractSearchPanel extends Panel {
     public String buildFIQL() {
         LOG.debug("Generating FIQL from List<SearchClause>: {}", searchClauses);
 
+        if (searchClauses.isEmpty() || searchClauses.get(0).getType() == null) {
+            return StringUtils.EMPTY;
+        }
+
         SyncopeFiqlSearchConditionBuilder builder = getSearchConditionBuilder();
 
         CompleteCondition prevCondition;
@@ -318,7 +322,7 @@ public abstract class AbstractSearchPanel extends Panel {
                     break;
 
                 case MEMBERSHIP:
-                    Long roleId = Long.valueOf(searchClauses.get(i).getProperty().split(" ")[0]);
+                    Long roleId = NumberUtils.toLong(searchClauses.get(i).getProperty().split(" ")[0]);
                     condition = searchClauses.get(i).getComparator() == SearchClause.Comparator.EQUALS
                             ? ((UserFiqlSearchConditionBuilder) builder).hasRoles(roleId)
                             : ((UserFiqlSearchConditionBuilder) builder).hasNotRoles(roleId);

@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.util.cookies.CookieDefaults;
@@ -35,7 +36,6 @@ import org.apache.wicket.util.cookies.CookieUtils;
 import org.apache.wicket.util.crypt.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 public class PreferenceManager {
@@ -52,7 +52,7 @@ public class PreferenceManager {
     private static final TypeReference MAP_TYPE_REF = new TypeReference<Map<String, String>>() {
     };
 
-    private static final List<Integer> PAGINATOR_CHOICES = Arrays.asList(new Integer[]{10, 25, 50});
+    private static final List<Integer> PAGINATOR_CHOICES = Arrays.asList(new Integer[] { 10, 25, 50 });
 
     private final ObjectMapper mapper;
 
@@ -60,7 +60,7 @@ public class PreferenceManager {
 
     public PreferenceManager() {
         this.mapper = new ObjectMapper();
-        
+
         CookieDefaults cookieDefaults = new CookieDefaults();
         cookieDefaults.setMaxAge(ONE_YEAR_TIME);
         this.cookieUtils = new CookieUtils(cookieDefaults);
@@ -110,11 +110,7 @@ public class PreferenceManager {
 
         String value = get(request, key);
         if (value != null) {
-            try {
-                result = Integer.valueOf(value);
-            } catch (NumberFormatException e) {
-                LOG.error("Unparsable value " + value, e);
-            }
+            result = NumberUtils.toInt(value, 10);
         }
 
         return result;

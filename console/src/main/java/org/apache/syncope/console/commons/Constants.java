@@ -90,6 +90,16 @@ public final class Constants {
 
     public static final String PREF_POLICY_PAGINATOR_ROWS = "policy.paginator.rows";
 
+    /**
+     * ConnId's GuardedString is not in the classpath.
+     */
+    public static final String GUARDED_STRING = "org.identityconnectors.common.security.GuardedString";
+
+    /**
+     * ConnId's GuardedByteArray is not in the classpath.
+     */
+    public static final String GUARDED_BYTE_ARRAY = "org.identityconnectors.common.security.GuardedByteArray";
+
     private Constants() {
         // private constructor for static utility class
     }

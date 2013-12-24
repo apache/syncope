@@ -101,34 +101,35 @@ public class AttributesPanel extends Panel {
         final ListView<AttributeTO> attributeView = new AltListView<AttributeTO>("schemas",
                 new PropertyModel<List<? extends AttributeTO>>(entityTO, "attrs")) {
 
-            private static final long serialVersionUID = 9101744072914090143L;
+                    private static final long serialVersionUID = 9101744072914090143L;
 
-            @Override
-            protected void populateItem(final ListItem<AttributeTO> item) {
-                final AttributeTO attributeTO = (AttributeTO) item.getDefaultModelObject();
+                    @Override
+                    protected void populateItem(final ListItem<AttributeTO> item) {
+                        final AttributeTO attributeTO = (AttributeTO) item.getDefaultModelObject();
 
-                final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
-                item.add(jexlHelp);
+                        final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
+                        item.add(jexlHelp);
 
-                final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
-                item.add(questionMarkJexlHelp);
+                        final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp,
+                                "questionMarkJexlHelp");
+                        item.add(questionMarkJexlHelp);
 
-                if (!templateMode) {
-                    questionMarkJexlHelp.setVisible(false);
-                }
+                        if (!templateMode) {
+                            questionMarkJexlHelp.setVisible(false);
+                        }
 
-                item.add(new Label("name", attributeTO.getSchema()));
+                        item.add(new Label("name", attributeTO.getSchema()));
 
-                final FieldPanel panel = getFieldPanel(schemas.get(attributeTO.getSchema()), form, attributeTO);
+                        final FieldPanel panel = getFieldPanel(schemas.get(attributeTO.getSchema()), form, attributeTO);
 
-                if (templateMode || !schemas.get(attributeTO.getSchema()).isMultivalue()) {
-                    item.add(panel);
-                } else {
-                    item.add(new MultiValueSelectorPanel<String>(
-                            "panel", new PropertyModel<List<String>>(attributeTO, "values"), panel));
-                }
-            }
-        };
+                        if (templateMode || !schemas.get(attributeTO.getSchema()).isMultivalue()) {
+                            item.add(panel);
+                        } else {
+                            item.add(new MultiValueSelectorPanel<String>(
+                                            "panel", new PropertyModel<List<String>>(attributeTO, "values"), panel));
+                        }
+                    }
+                };
 
         add(attributeView);
     }
@@ -144,7 +145,7 @@ public class AttributesPanel extends Panel {
 
     private void setSchemas() {
         List<SchemaTO> schemaTOs;
-        
+
         if (entityTO instanceof RoleTO) {
             final RoleTO roleTO = (RoleTO) entityTO;
 
@@ -199,7 +200,7 @@ public class AttributesPanel extends Panel {
         entityTO.getAttrs().addAll(entityData);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private FieldPanel getFieldPanel(final SchemaTO schemaTO, final Form form, final AttributeTO attributeTO) {
         final boolean required = templateMode ? false : schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
 

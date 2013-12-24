@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.console.wicket.markup.html.form;
 
+import java.util.UUID;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -30,20 +32,35 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
 
     private static final long serialVersionUID = 6413819574530703577L;
 
+    private final String uuid;
+
     private final T min;
 
     private final T max;
 
-    public SpinnerFieldPanel(final String id, final String name, final IModel<T> model,
-            final T min, final T max) {
+    public SpinnerFieldPanel(final String id, final String name, final Class<T> reference, final IModel<T> model,
+            final T min, final T max, final boolean disableVisible) {
 
         super(id, name, model);
         this.min = min;
         this.max = max;
 
-        field = new TextField<T>("spinnerField", model);
-        field.setMarkupId(id);
+        uuid = UUID.randomUUID().toString();
+        field = new TextField<T>("spinnerField", model, reference);
+        field.setMarkupId(uuid);
         add(field.setLabel(new Model<String>(name)));
+
+        if (!isReadOnly()) {
+            field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                private static final long serialVersionUID = -1107858522700306810L;
+
+                @Override
+                protected void onUpdate(final AjaxRequestTarget target) {
+                    // nothing to do
+                }
+            });
+        }
 
         AjaxLink<Void> spinnerFieldDisable = new AjaxLink<Void>("spinnerFieldDisable") {
 
@@ -51,34 +68,30 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
+                // nothing to do
             }
 
         };
-        spinnerFieldDisable.setMarkupId("spinnerFieldDisable-" + id);
+        spinnerFieldDisable.setMarkupId("spinnerFieldDisable-" + uuid);
+        spinnerFieldDisable.setOutputMarkupPlaceholderTag(true);
+        spinnerFieldDisable.setVisible(disableVisible);
         add(spinnerFieldDisable);
-    }
-
-    @Override
-    public void renderHead(final IHeaderResponse response) {
-        super.renderHead(response);
 
         final StringBuilder statements = new StringBuilder();
         statements.append("jQuery(function() {").
-                append("var spinner = $('#").append(id).append("').spinner();");
-
+                append("var spinner = $('#").append(uuid).append("').spinner();");
         if (this.min != null) {
             statements.
-                    append("$('#").append(id).append("').spinner(").
+                    append("$('#").append(uuid).append("').spinner(").
                     append("'option', 'min', ").append(this.min).append(");");
         }
         if (this.max != null) {
             statements.
-                    append("$('#").append(id).append("').spinner(").
+                    append("$('#").append(uuid).append("').spinner(").
                     append("'option', 'max', ").append(this.max).append(");");
         }
-
         statements.
-                append("$('#spinnerFieldDisable-").append(id).append("').click(function() {").
+                append("$('#spinnerFieldDisable-").append(uuid).append("').click(function() {").
                 append("if (spinner.spinner('option', 'disabled')) {").
                 append("spinner.spinner('enable');").
                 append("} else {").
@@ -87,8 +100,9 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
                 append("}").
                 append("});").
                 append("});");
-
-        response.render(JavaScriptHeaderItem.forScript(statements, "script-" + id));
+        Label spinnerFieldJS = new Label("spinnerFieldJS", statements.toString());
+        spinnerFieldJS.setEscapeModelStrings(false);
+        add(spinnerFieldJS);
     }
 
 }

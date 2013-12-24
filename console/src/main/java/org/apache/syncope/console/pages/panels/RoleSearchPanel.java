@@ -39,12 +39,19 @@ public class RoleSearchPanel extends AbstractSearchPanel {
 
         private String fiql = null;
 
+        private boolean required = true;
+
         public Builder(final String id) {
             this.id = id;
         }
 
-        public RoleSearchPanel.Builder fiql(final String fiql) {
+        public Builder fiql(final String fiql) {
             this.fiql = fiql;
+            return this;
+        }
+
+        public Builder required(final boolean required) {
+            this.required = required;
             return this;
         }
 
@@ -54,7 +61,7 @@ public class RoleSearchPanel extends AbstractSearchPanel {
     }
 
     private RoleSearchPanel(final Builder builder) {
-        super(builder.id, AttributableType.ROLE, builder.fiql, true);
+        super(builder.id, AttributableType.ROLE, builder.fiql, builder.required);
     }
 
     @Override
