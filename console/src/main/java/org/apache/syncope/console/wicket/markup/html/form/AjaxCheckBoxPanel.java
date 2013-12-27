@@ -20,11 +20,11 @@ package org.apache.syncope.console.wicket.markup.html.form;
 
 import java.io.Serializable;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
@@ -37,7 +37,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
         super(id, name, model);
 
         field = new CheckBox("checkboxField", model);
-        add(field.setLabel(new Model(name)).setOutputMarkupId(true));
+        add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));
 
         if (!isReadOnly()) {
             field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -65,30 +65,67 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
     @Override
     public FieldPanel<Boolean> setNewModel(final List<Serializable> list) {
-        setNewModel(new Model() {
+        setNewModel(new Model<Boolean>() {
 
             private static final long serialVersionUID = 527651414610325237L;
 
             @Override
-            public Serializable getObject() {
+            public Boolean getObject() {
                 Boolean value = null;
 
-                if (list != null && !list.isEmpty() && StringUtils.isNotBlank(list.get(0).toString())) {
-                    value = "true".equalsIgnoreCase(list.get(0).toString());
+                if (list != null && !list.isEmpty()) {
+                    value = Boolean.TRUE.toString().equalsIgnoreCase(list.get(0).toString());
                 }
 
                 return value;
             }
 
             @Override
-            public void setObject(final Serializable object) {
-                if (object instanceof Boolean) {
-                    list.clear();
-                    list.add(((Boolean) object).toString());
+            public void setObject(final Boolean object) {
+                list.clear();
+                if (object != null) {
+                    list.add(object.toString());
                 }
             }
         });
 
         return this;
     }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public FieldPanel<Boolean> setNewModel(final ListItem item) {
+        IModel<Boolean> model = new Model<Boolean>() {
+
+            private static final long serialVersionUID = 6799404673615637845L;
+
+            @Override
+            public Boolean getObject() {
+                Boolean bool = null;
+
+                final Object obj = item.getModelObject();
+
+                if (obj != null && !obj.toString().isEmpty()) {
+                    if (obj instanceof String) {
+                        bool = Boolean.TRUE.toString().equalsIgnoreCase(obj.toString());
+                    } else if (obj instanceof Boolean) {
+                        // Don't parse anything
+                        bool = (Boolean) obj;
+                    }
+                }
+
+                return bool;
+            }
+
+            @Override
+            @SuppressWarnings("unchecked")
+            public void setObject(final Boolean object) {
+                item.setModelObject(object == null ? Boolean.FALSE.toString() : object.toString());
+            }
+        };
+
+        field.setModel(model);
+        return this;
+    }
+
 }

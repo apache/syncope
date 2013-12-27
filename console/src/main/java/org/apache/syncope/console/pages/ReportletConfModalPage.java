@@ -42,7 +42,7 @@ import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.CheckBoxMultipleChoiceFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
@@ -95,7 +95,7 @@ public class ReportletConfModalPage extends BaseModalPage {
         form.add(propertiesContainer);
 
         name = new AjaxTextFieldPanel("name", "name", this.reportletConf == null
-                ? new Model()
+                ? new Model<String>()
                 : new PropertyModel<String>(this.reportletConf, "name"));
         name.setOutputMarkupId(true);
         name.addRequiredLabel();
@@ -196,6 +196,7 @@ public class ReportletConfModalPage extends BaseModalPage {
         form.add(cancel);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private FieldPanel buildSinglePanel(final Class<?> type, final String fieldName, final String id) {
         FieldPanel result = null;
         PropertyModel model = new PropertyModel(ReportletConfModalPage.this.reportletConf, fieldName);
@@ -242,6 +243,7 @@ public class ReportletConfModalPage extends BaseModalPage {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
+            @SuppressWarnings({ "unchecked", "rawtypes" })
             @Override
             protected void populateItem(final ListItem<String> item) {
                 final String fieldName = item.getModelObject();
@@ -339,7 +341,7 @@ public class ReportletConfModalPage extends BaseModalPage {
                             ((List) wrapper.getPropertyValue(fieldName)).add(null);
                         }
 
-                        panel = new MultiValueSelectorPanel("value", new PropertyModel<List>(
+                        panel = new MultiFieldPanel("value", new PropertyModel<List>(
                                 ReportletConfModalPage.this.reportletConf, fieldName),
                                 buildSinglePanel(field.getType(), fieldName, "panel"));
                     }

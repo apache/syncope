@@ -39,7 +39,7 @@ import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePane
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -132,14 +132,13 @@ public class PolicyBeanPanel extends Panel {
             @Override
             @SuppressWarnings({ "unchecked", "rawtypes" })
             protected void populateItem(final ListItem<FieldWrapper> item) {
-
                 final FieldWrapper field = item.getModelObject();
 
                 final PropertyDescriptor propDesc = BeanUtils.getPropertyDescriptor(policy.getClass(), field.getName());
 
                 item.add(new Label("label", new ResourceModel(field.getName())));
 
-                final AbstractFieldPanel component;
+                AbstractFieldPanel component;
                 try {
                     if (field.getClassList() != null) {
                         component = new AjaxDropDownChoicePanel("field", field.getName(), new PropertyModel(policy,
@@ -212,7 +211,7 @@ public class PolicyBeanPanel extends Panel {
                                     new Model<String>(null));
                             panel.setRequired(true);
 
-                            component = new MultiValueSelectorPanel<String>("field",
+                            component = new MultiFieldPanel<String>("field",
                                     new PropertyModel(policy, field.getName()), panel);
 
                             item.add(component);
@@ -254,10 +253,10 @@ public class PolicyBeanPanel extends Panel {
         add(policies);
     }
 
-    private <T extends Serializable> AjaxCheckBoxPanel getActivationControl(final AbstractFieldPanel panel,
+    private <T extends Serializable> AjaxCheckBoxPanel getActivationControl(final AbstractFieldPanel<T> panel,
             final Boolean checked, final T defaultModelObject, final T reinitializedValue) {
 
-        final AjaxCheckBoxPanel check = new AjaxCheckBoxPanel("check", "check", new Model(checked));
+        final AjaxCheckBoxPanel check = new AjaxCheckBoxPanel("check", "check", new Model<Boolean>(checked));
 
         panel.setEnabled(checked);
 

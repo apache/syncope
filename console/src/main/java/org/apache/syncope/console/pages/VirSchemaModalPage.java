@@ -18,21 +18,18 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.common.AbstractBaseBean;
-import org.apache.syncope.common.to.DerSchemaTO;
+import org.apache.syncope.common.to.VirSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.JexlHelpUtil;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.PropertyModel;
@@ -41,59 +38,48 @@ import org.apache.wicket.model.ResourceModel;
 /**
  * Modal window with Schema form.
  */
-public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
+public class VirSchemaModalPage extends AbstractSchemaModalPage<VirSchemaTO> {
 
-    private static final long serialVersionUID = 6668789770131753386L;
+    private static final long serialVersionUID = 5979623248182851337L;
 
-    public DerivedSchemaModalPage(final AttributableType kind) {
+    public VirSchemaModalPage(final AttributableType kind) {
         super(kind);
     }
 
     @Override
     public void setSchemaModalPage(final PageReference pageRef, final ModalWindow window,
-            AbstractBaseBean schema, final boolean createFlag) {
+            VirSchemaTO schema, final boolean createFlag) {
 
         if (schema == null) {
-            schema = new DerSchemaTO();
+            schema = new VirSchemaTO();
         }
 
-        final Form schemaForm = new Form(FORM);
+        final Form<VirSchemaTO> schemaForm = new Form<VirSchemaTO>(FORM);
 
-        schemaForm.setModel(new CompoundPropertyModel(schema));
+        schemaForm.setModel(new CompoundPropertyModel<VirSchemaTO>(schema));
 
         final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", getString("name"), new PropertyModel<String>(
                 schema, "name"));
         name.addRequiredLabel();
 
-        final AjaxTextFieldPanel expression = new AjaxTextFieldPanel("expression", getString("expression"),
-                new PropertyModel<String>(schema, "expression"));
-        expression.addRequiredLabel();
-
-        final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
-        schemaForm.add(jexlHelp);
-
-
-        final AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
-        schemaForm.add(questionMarkJexlHelp);
-
-
         name.setEnabled(createFlag);
+
+        final AjaxCheckBoxPanel readonly = new AjaxCheckBoxPanel("readonly", getString("readonly"),
+                new PropertyModel<Boolean>(schema, "readonly"));
 
         final AjaxButton submit = new IndicatingAjaxButton(APPLY, new ResourceModel(SUBMIT)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form form) {
-                DerSchemaTO schemaTO = (DerSchemaTO) form.getDefaultModelObject();
-
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                VirSchemaTO schemaTO = (VirSchemaTO) form.getDefaultModelObject();
                 try {
                     if (createFlag) {
-                        schemaRestClient.createDerSchema(kind, schemaTO);
+                        schemaRestClient.createVirSchema(kind, schemaTO);
                     } else {
-                        schemaRestClient.updateDerSchema(kind, schemaTO);
+                        schemaRestClient.updateVirSchema(kind, schemaTO);
                     }
-
                     if (pageRef.getPage() instanceof BasePage) {
                         ((BasePage) pageRef.getPage()).setModalResult(true);
                     }
@@ -121,8 +107,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
             }
         };
 
-        cancel.setDefaultFormProcessing(
-                false);
+        cancel.setDefaultFormProcessing(false);
 
         String allowedRoles = createFlag
                 ? xmlRolesReader.getAllAllowedRoles("Schema", "create")
@@ -131,11 +116,9 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 
         schemaForm.add(name);
-
-        schemaForm.add(expression);
+        schemaForm.add(readonly);
 
         schemaForm.add(submit);
-
         schemaForm.add(cancel);
 
         add(schemaForm);

@@ -20,6 +20,7 @@ package org.apache.syncope.console.wicket.markup.html.form;
 
 import java.io.Serializable;
 import java.util.List;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.FormComponent;
@@ -28,7 +29,7 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPanel<T> implements Cloneable {
+public abstract class FieldPanel<T> extends AbstractFieldPanel<T> implements Cloneable {
 
     private static final long serialVersionUID = -198988924922541273L;
 
@@ -87,102 +88,12 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
         return this;
     }
 
-    public FieldPanel<T> setNewModel(final IModel<T> model) {
-        field.setModel(model);
-        return this;
-    }
-
-    @Override
-    public FieldPanel<T> setModelObject(T object) {
-        field.setModelObject(object);
-        return this;
-    }
-
-    public T getModelObject() {
-        return (T) field.getModelObject();
-    }
-
     public boolean isRequired() {
         return field.isRequired();
     }
 
     public boolean isReadOnly() {
         return !field.isEnabled();
-    }
-
-    /**
-     * Used by MultiValueSelectorPanel to attach items.
-     *
-     * @param item item to attach.
-     * @return updated FieldPanel object.
-     */
-    public FieldPanel<T> setNewModel(final ListItem<T> item) {
-        setNewModel(new Model<T>() {
-
-            private static final long serialVersionUID = 6799404673615637845L;
-
-            @Override
-            public T getObject() {
-                return item.getModelObject();
-            }
-
-            @Override
-            public void setObject(final T object) {
-                if (object != null && !object.toString().isEmpty()) {
-                    item.setModelObject(object);
-                }
-            }
-        });
-        return this;
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public FieldPanel<T> setNewModel(final List<Serializable> list) {
-        setNewModel(new Model() {
-
-            private static final long serialVersionUID = 1088212074765051906L;
-
-            @Override
-            public Serializable getObject() {
-                return list == null || list.isEmpty()
-                        ? null
-                        : list.get(0);
-            }
-
-            @Override
-            public void setObject(final Serializable object) {
-                list.clear();
-
-                if (object != null) {
-                    list.add(object);
-                }
-            }
-        });
-
-        return this;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public FieldPanel<T> clone() {
-        final FieldPanel<T> panel;
-        try {
-            panel = this.getClass().getConstructor(new Class<?>[] {String.class, String.class, IModel.class})
-                    .newInstance(id, name, new Model<T>(null));
-        } catch (Exception e) {
-            LOG.error("Error cloning field panel", e);
-            return null;
-        }
-
-        panel.setRequired(isRequired());
-        panel.setReadOnly(isReadOnly());
-        panel.setTitle(title);
-
-        if (isRequiredLabelAdded) {
-            panel.addRequiredLabel();
-        }
-
-        return panel;
     }
 
     public FieldPanel<T> addRequiredLabel() {
@@ -213,5 +124,85 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
         this.isRequiredLabelAdded = false;
 
         return this;
+    }
+
+    @Override
+    public FieldPanel<T> setModelObject(T object) {
+        field.setModelObject(object);
+        return this;
+    }
+
+    public T getModelObject() {
+        return (T) field.getModelObject();
+    }
+
+    public FieldPanel<T> setNewModel(final IModel<T> model) {
+        field.setModel(model);
+        return this;
+    }
+
+    /**
+     * Used by MultiValueSelectorPanel to attach items.
+     *
+     * @param item item to attach.
+     * @return updated FieldPanel object.
+     */
+    public FieldPanel<T> setNewModel(final ListItem<T> item) {
+        setNewModel(new IModel<T>() {
+
+            private static final long serialVersionUID = 6799404673615637845L;
+
+            @Override
+            public T getObject() {
+                return item.getModelObject();
+            }
+
+            @Override
+            public void setObject(final T object) {
+                if (object != null && !object.toString().isEmpty()) {
+                    item.setModelObject(object);
+                }
+            }
+
+            @Override
+            public void detach() {
+                // no detach
+            }
+        });
+        return this;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public FieldPanel<T> setNewModel(final List<Serializable> list) {
+        setNewModel(new Model() {
+
+            private static final long serialVersionUID = 1088212074765051906L;
+
+            @Override
+            public Serializable getObject() {
+                return list == null || list.isEmpty()
+                        ? null
+                        : list.get(0);
+            }
+
+            @Override
+            public void setObject(final Serializable object) {
+                list.clear();
+
+                if (object != null) {
+                    list.add(object);
+                }
+            }
+        });
+
+        return this;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public FieldPanel<T> clone() {
+        final FieldPanel<T> panel = SerializationUtils.clone(this);
+        panel.setModelObject(null);
+        return panel;
     }
 }

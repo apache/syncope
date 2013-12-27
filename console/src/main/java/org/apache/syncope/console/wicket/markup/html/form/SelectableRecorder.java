@@ -47,7 +47,7 @@ public class SelectableRecorder<T> extends Recorder<T> {
     private static final String[] EMPTY_IDS = new String[0];
 
     /**
-     * conveniently maintained array of selected ids
+     * Conveniently maintained array of selected ids.
      */
     private String[] ids;
 
@@ -122,7 +122,7 @@ public class SelectableRecorder<T> extends Recorder<T> {
     public Iterator<T> getSelectedChoices() {
         IChoiceRenderer<T> renderer = getPalette().getChoiceRenderer();
         if (ids.length == 0) {
-            return Collections.EMPTY_LIST.iterator();
+            return Collections.<T>emptyList().iterator();
         }
 
         List<T> selected = new ArrayList<T>(ids.length);
@@ -146,7 +146,7 @@ public class SelectableRecorder<T> extends Recorder<T> {
         Collection<? extends T> choices = getPalette().getChoices();
 
         if (choices.size() - ids.length == 0) {
-            return Collections.<T> emptyList().iterator();
+            return Collections.<T>emptyList().iterator();
         }
 
         List<T> unselected = new ArrayList<T>(Math.max(1, choices.size() - ids.length));

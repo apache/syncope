@@ -41,7 +41,7 @@ import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePane
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -358,7 +358,7 @@ public class ConnectorModalPage extends BaseModalPage {
                                 property.getValues().add(null);
                             }
 
-                            item.add(new MultiValueSelectorPanel<String>(
+                            item.add(new MultiFieldPanel<String>(
                                             "panel", new PropertyModel<List<String>>(property, "values"), field));
                         } else {
                             field.setNewModel(property.getValues());

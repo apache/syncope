@@ -62,14 +62,14 @@ public class Todo extends BasePage {
     @SpringBean
     private ApprovalRestClient restClient;
 
+    @SpringBean
+    private PreferenceManager prefMan;
+
     private final ModalWindow window;
 
     private static final int WIN_HEIGHT = 400;
 
     private static final int WIN_WIDTH = 600;
-
-    @SpringBean
-    private PreferenceManager prefMan;
 
     private WebMarkupContainer container;
 
@@ -87,13 +87,18 @@ public class Todo extends BasePage {
 
         paginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_TODO_PAGINATOR_ROWS);
 
-        List<IColumn> columns = new ArrayList<IColumn>();
-        columns.add(new PropertyColumn(new ResourceModel("taskId"), "taskId", "taskId"));
-        columns.add(new PropertyColumn(new ResourceModel("key"), "key", "key"));
-        columns.add(new PropertyColumn(new ResourceModel("description"), "description", "description"));
-        columns.add(new DatePropertyColumn(new ResourceModel("createTime"), "createTime", "createTime"));
-        columns.add(new DatePropertyColumn(new ResourceModel("dueDate"), "dueDate", "dueDate"));
-        columns.add(new PropertyColumn(new ResourceModel("owner"), "owner", "owner"));
+        List<IColumn<WorkflowFormTO, String>> columns = new ArrayList<IColumn<WorkflowFormTO, String>>();
+        columns.add(new PropertyColumn<WorkflowFormTO, String>(
+                new ResourceModel("taskId"), "taskId", "taskId"));
+        columns.add(new PropertyColumn<WorkflowFormTO, String>(
+                new ResourceModel("key"), "key", "key"));
+        columns.add(new PropertyColumn<WorkflowFormTO, String>(
+                new ResourceModel("description"), "description", "description"));
+        columns.add(new DatePropertyColumn<WorkflowFormTO>(
+                new ResourceModel("createTime"), "createTime", "createTime"));
+        columns.add(new DatePropertyColumn<WorkflowFormTO>(
+                new ResourceModel("dueDate"), "dueDate", "dueDate"));
+        columns.add(new PropertyColumn<WorkflowFormTO, String>(new ResourceModel("owner"), "owner", "owner"));
         columns.add(new AbstractColumn<WorkflowFormTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
@@ -153,21 +158,23 @@ public class Todo extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable approvalTable = new AjaxFallbackDefaultDataTable("approvalTable", columns,
-                new ApprovalProvider(), paginatorRows);
-
+        final AjaxFallbackDefaultDataTable<WorkflowFormTO, String> approvalTable =
+                new AjaxFallbackDefaultDataTable<WorkflowFormTO, String>(
+                        "approvalTable", columns, new ApprovalProvider(), paginatorRows);
         container.add(approvalTable);
-        container.setOutputMarkupId(true);
 
+        container.setOutputMarkupId(true);
         add(container);
 
+        @SuppressWarnings("rawtypes")
         Form approvalPaginatorForm = new Form("paginatorForm");
 
-        MetaDataRoleAuthorizationStrategy.authorize(approvalPaginatorForm, RENDER, xmlRolesReader.getAllAllowedRoles(
-                "Approval", "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(approvalPaginatorForm, RENDER,
+                xmlRolesReader.getAllAllowedRoles("Approval", "list"));
 
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
-                "paginatorRows"), prefMan.getPaginatorChoices());
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
+                new PropertyModel(this, "paginatorRows"), prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -175,8 +182,8 @@ public class Todo extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(), getResponse(), Constants.PREF_TODO_PAGINATOR_ROWS, String.valueOf(
-                        paginatorRows));
+                prefMan.set(getRequest(), getResponse(), Constants.PREF_TODO_PAGINATOR_ROWS,
+                        String.valueOf(paginatorRows));
                 approvalTable.setItemsPerPage(paginatorRows);
 
                 target.add(container);
@@ -198,9 +205,10 @@ public class Todo extends BasePage {
 
         private static final long serialVersionUID = -2311716167583335852L;
 
-        private SortableDataProviderComparator<WorkflowFormTO> comparator;
+        private final SortableDataProviderComparator<WorkflowFormTO> comparator;
 
         public ApprovalProvider() {
+            super();
             //Default sorting
             setSort("key", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<WorkflowFormTO>(this);

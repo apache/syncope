@@ -108,10 +108,11 @@ public class ReportModalPage extends BaseModalPage {
     private ListChoice<AbstractReportletConf> reportlets;
 
     public ReportModalPage(final ModalWindow window, final ReportTO reportTO, final PageReference callerPageRef) {
+        super();
         this.reportTO = reportTO;
 
         form = new Form<ReportTO>(FORM);
-        form.setModel(new CompoundPropertyModel(reportTO));
+        form.setModel(new CompoundPropertyModel<ReportTO>(reportTO));
         add(form);
 
         setupProfile();
@@ -128,16 +129,16 @@ public class ReportModalPage extends BaseModalPage {
 
                     @Override
                     protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                        ReportTO reportTO = (ReportTO) form.getModelObject();
-                        reportTO.setCronExpression(StringUtils.hasText(reportTO.getCronExpression())
+                        ReportTO toSubmit = (ReportTO) form.getModelObject();
+                        toSubmit.setCronExpression(StringUtils.hasText(toSubmit.getCronExpression())
                                 ? crontab.getCronExpression()
                                 : null);
 
                         try {
-                            if (reportTO.getId() > 0) {
-                                reportRestClient.update(reportTO);
+                            if (toSubmit.getId() > 0) {
+                                reportRestClient.update(toSubmit);
                             } else {
-                                reportRestClient.create(reportTO);
+                                reportRestClient.create(toSubmit);
                             }
 
                             ((BasePage) callerPageRef.getPage()).setModalResult(true);
@@ -157,11 +158,11 @@ public class ReportModalPage extends BaseModalPage {
                 };
 
         if (reportTO.getId() > 0) {
-            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getAllAllowedRoles("Reports",
-                    "update"));
+            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER,
+                    xmlRolesReader.getAllAllowedRoles("Reports", "update"));
         } else {
-            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getAllAllowedRoles("Reports",
-                    "create"));
+            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER,
+                    xmlRolesReader.getAllAllowedRoles("Reports", "create"));
         }
 
         form.add(submit);
@@ -243,8 +244,8 @@ public class ReportModalPage extends BaseModalPage {
         nextExec.setEnabled(false);
         profile.add(nextExec);
 
-        reportlets = new ListChoice<AbstractReportletConf>("reportletConfs", new Model(), reportTO.getReportletConfs(),
-                new IChoiceRenderer<ReportletConf>() {
+        reportlets = new ListChoice<AbstractReportletConf>("reportletConfs", new Model<AbstractReportletConf>(),
+                reportTO.getReportletConfs(), new IChoiceRenderer<ReportletConf>() {
 
                     private static final long serialVersionUID = 1048000918946220007L;
 
@@ -254,7 +255,7 @@ public class ReportModalPage extends BaseModalPage {
                     }
 
                     @Override
-                    public String getIdValue(final ReportletConf object, int index) {
+                    public String getIdValue(final ReportletConf object, final int index) {
                         return object.getName();
                     }
                 }) {
@@ -262,7 +263,7 @@ public class ReportModalPage extends BaseModalPage {
                     private static final long serialVersionUID = 4022366881854379834L;
 
                     @Override
-                    protected CharSequence getDefaultChoice(String selectedValue) {
+                    protected CharSequence getDefaultChoice(final String selectedValue) {
                         return null;
                     }
                 };
@@ -274,12 +275,12 @@ public class ReportModalPage extends BaseModalPage {
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
-            protected void onUpdate(AjaxRequestTarget target) {
+            protected void onUpdate(final AjaxRequestTarget target) {
                 target.add(reportlets);
             }
         });
 
-        profile.add(new AjaxLink(ADD_BUTTON_ID) {
+        profile.add(new AjaxLink<Void>(ADD_BUTTON_ID) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -301,13 +302,12 @@ public class ReportModalPage extends BaseModalPage {
             }
         });
 
-        profile.add(new AjaxLink(EDIT_BUTTON_ID) {
+        profile.add(new AjaxLink<Void>(EDIT_BUTTON_ID) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-
                 if (reportlets.getModelObject() != null) {
                     reportletConfWin.setPageCreator(new ModalWindow.PageCreator() {
 
@@ -322,13 +322,11 @@ public class ReportModalPage extends BaseModalPage {
                         }
                     });
                     reportletConfWin.show(target);
-                } else {
-                    target.appendJavaScript("alert('" + getString("selectItem") + "')");
                 }
             }
         });
 
-        profile.add(new AjaxLink(REMOVE_BUTTON_ID) {
+        profile.add(new AjaxLink<Void>(REMOVE_BUTTON_ID) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -341,7 +339,6 @@ public class ReportModalPage extends BaseModalPage {
 
             @Override
             protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
-
                 if (reportlets.getModelObject() != null) {
 
                     super.updateAjaxAttributes(attributes);
@@ -360,7 +357,7 @@ public class ReportModalPage extends BaseModalPage {
             }
         });
 
-        profile.add(new AjaxLink(UP_BUTTON_ID) {
+        profile.add(new AjaxLink<Void>(UP_BUTTON_ID) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -373,7 +370,7 @@ public class ReportModalPage extends BaseModalPage {
             }
         });
 
-        profile.add(new AjaxLink(DOWN_BUTTON_ID) {
+        profile.add(new AjaxLink<Void>(DOWN_BUTTON_ID) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -405,6 +402,7 @@ public class ReportModalPage extends BaseModalPage {
         }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void setupExecutions() {
         final WebMarkupContainer executions = new WebMarkupContainer("executionContainer");
         executions.setOutputMarkupId(true);
@@ -562,11 +560,12 @@ public class ReportModalPage extends BaseModalPage {
 
         private static final long serialVersionUID = 2118096121691420539L;
 
-        private SortableDataProviderComparator<ReportExecTO> comparator;
+        private final SortableDataProviderComparator<ReportExecTO> comparator;
 
-        private ReportTO reportTO;
+        private final ReportTO reportTO;
 
         public ReportExecutionsProvider(final ReportTO reportTO) {
+            super();
             this.reportTO = reportTO;
             setSort("startDate", SortOrder.DESCENDING);
             comparator = new SortableDataProviderComparator<ReportExecTO>(this);
@@ -613,6 +612,7 @@ public class ReportModalPage extends BaseModalPage {
         private HttpResourceStream stream;
 
         public AjaxExportDownloadBehavior(final ReportExecExportFormat exportFormat, final long exportExecId) {
+            super();
             this.exportFormat = exportFormat;
             this.exportExecId = exportExecId;
         }

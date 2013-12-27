@@ -51,13 +51,6 @@ public class UserRestClient extends AbstractAttributableRestClient {
         return getService(UserService.class).list(1, 1).getTotalCount();
     }
 
-    /**
-     * Get all stored users.
-     *
-     * @param page pagination element to fetch
-     * @param size maximum number to fetch
-     * @return list of TaskTO objects
-     */
     @Override
     public List<UserTO> list(final int page, final int size, final SortParam<String> sort) {
         return getService(UserService.class).list(page, size, toOrderBy(sort)).getResult();
@@ -68,8 +61,8 @@ public class UserRestClient extends AbstractAttributableRestClient {
         return response.readEntity(UserTO.class);
     }
 
-    public UserTO update(final UserMod userModTO) {
-        return getService(UserService.class).update(userModTO.getId(), userModTO).readEntity(UserTO.class);
+    public UserTO update(final UserMod userMod) {
+        return getService(UserService.class).update(userMod.getId(), userMod).readEntity(UserTO.class);
     }
 
     @Override

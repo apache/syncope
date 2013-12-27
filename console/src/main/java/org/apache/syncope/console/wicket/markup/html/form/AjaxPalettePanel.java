@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console.wicket.markup.html.form;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
@@ -27,7 +26,7 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class AjaxPalettePanel<T> extends AbstractFieldPanel {
+public class AjaxPalettePanel<T> extends AbstractFieldPanel<List<T>> {
 
     private static final long serialVersionUID = 7738499668258805567L;
 
@@ -60,7 +59,7 @@ public class AjaxPalettePanel<T> extends AbstractFieldPanel {
     }
 
     @Override
-    public AjaxPalettePanel<T> setModelObject(final Serializable object) {
+    public AjaxPalettePanel<T> setModelObject(final List<T> object) {
         palette.setDefaultModelObject(object);
         return this;
     }

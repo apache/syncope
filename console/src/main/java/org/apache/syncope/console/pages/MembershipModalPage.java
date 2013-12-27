@@ -42,11 +42,11 @@ public class MembershipModalPage extends BaseModalPage {
     public MembershipModalPage(final PageReference pageRef, final ModalWindow window, final MembershipTO membershipTO,
             final boolean templateMode) {
 
-        final Form form = new Form("MembershipForm");
+        final Form<MembershipTO> form = new Form<MembershipTO>("MembershipForm");
 
         final UserTO userTO = ((UserModalPage) pageRef.getPage()).getUserTO();
 
-        form.setModel(new CompoundPropertyModel(membershipTO));
+        form.setModel(new CompoundPropertyModel<MembershipTO>(membershipTO));
 
         submit = new AjaxButton(SUBMIT, new ResourceModel(SUBMIT)) {
 

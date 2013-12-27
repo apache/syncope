@@ -21,9 +21,9 @@ package org.apache.syncope.console.commons;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.console.pages.AbstractSchemaModalPage;
-import org.apache.syncope.console.pages.DerivedSchemaModalPage;
+import org.apache.syncope.console.pages.DerSchemaModalPage;
 import org.apache.syncope.console.pages.SchemaModalPage;
-import org.apache.syncope.console.pages.VirtualSchemaModalPage;
+import org.apache.syncope.console.pages.VirSchemaModalPage;
 
 public final class SchemaModalPageFactory {
 
@@ -41,11 +41,11 @@ public final class SchemaModalPageFactory {
 
         switch (schemaType) {
             case DERIVED:
-                page = (T) new DerivedSchemaModalPage(entity);
+                page = (T) new DerSchemaModalPage(entity);
                 break;
 
             case VIRTUAL:
-                page = (T) new VirtualSchemaModalPage(entity);
+                page = (T) new VirSchemaModalPage(entity);
                 break;
 
             default:

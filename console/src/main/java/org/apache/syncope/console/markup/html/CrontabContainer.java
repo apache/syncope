@@ -48,6 +48,7 @@ public class CrontabContainer extends WebMarkupContainer {
 
     private final TextField daysOfWeek;
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public CrontabContainer(final String id, final PropertyModel<String> cronExpressionModel,
             final String cronExpression) {
 
@@ -66,16 +67,15 @@ public class CrontabContainer extends WebMarkupContainer {
         final DropDownChoice<SelectOption> cronTemplateChooser =
                 new DropDownChoice<SelectOption>("cronTemplateChooser") {
 
-            private static final long serialVersionUID = -5843424545478691442L;
+                    private static final long serialVersionUID = -5843424545478691442L;
 
-            @Override
-            protected CharSequence getDefaultChoice(final String selected) {
-                return "<option value=\"\">" + getString("chooseForTemplate") + "</option>";
-            }
-        };
+                    @Override
+                    protected CharSequence getDefaultChoice(final String selected) {
+                        return "<option value=\"\">" + getString("chooseForTemplate") + "</option>";
+                    }
+                };
 
-        cronTemplateChooser.setModel(
-                new IModel<SelectOption>() {
+        cronTemplateChooser.setModel(new IModel<SelectOption>() {
 
             private static final long serialVersionUID = 6762568283146531315L;
 
@@ -101,6 +101,7 @@ public class CrontabContainer extends WebMarkupContainer {
 
             @Override
             public void detach() {
+                // no detach
             }
         });
         cronTemplateChooser.setChoices(Arrays.asList(CRON_TEMPLATES));

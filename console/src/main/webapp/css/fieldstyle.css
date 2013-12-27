@@ -74,13 +74,13 @@ div#formtable > span:first-of-type {
 div.tablerow {
   display: inline-table;
   padding: 5px;
-  width: 100%;
+  width: 99%;
 }
 
 div.tablerow2 {
   display: inline-table;
   padding: 5px 0px 5px 0px;
-  width: 100%;
+  width: 99%;
 }
 
 div.alt {

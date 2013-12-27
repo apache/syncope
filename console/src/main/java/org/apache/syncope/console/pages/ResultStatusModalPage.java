@@ -260,7 +260,7 @@ public class ResultStatusModalPage extends BaseModalPage {
      * @param propTO propagation TO.
      * @return list view.
      */
-    private ListView getConnObjectView(final PropagationStatus propTO) {
+    private ListView<String> getConnObjectView(final PropagationStatus propTO) {
         final ConnObjectTO before = propTO.getBeforeObj();
         final ConnObjectTO after = propTO.getAfterObj();
 
@@ -273,19 +273,13 @@ public class ResultStatusModalPage extends BaseModalPage {
         head.add(ConnIdSpecialAttributeName.UID);
         head.add(ConnIdSpecialAttributeName.NAME);
 
-        final Map<String, AttributeTO> beforeAttrMap;
-        if (before == null) {
-            beforeAttrMap = Collections.<String, AttributeTO>emptyMap();
-        } else {
-            beforeAttrMap = before.getAttrMap();
-        }
+        final Map<String, AttributeTO> beforeAttrMap = before == null
+                ? Collections.<String, AttributeTO>emptyMap()
+                : before.getAttrMap();
 
-        final Map<String, AttributeTO> afterAttrMap;
-        if (after == null) {
-            afterAttrMap = Collections.<String, AttributeTO>emptyMap();
-        } else {
-            afterAttrMap = after.getAttrMap();
-        }
+        final Map<String, AttributeTO> afterAttrMap = after == null
+                ? Collections.<String, AttributeTO>emptyMap()
+                : after.getAttrMap();
 
         final Set<String> attributes = new HashSet<String>();
         attributes.addAll(beforeAttrMap.keySet());
@@ -307,13 +301,13 @@ public class ResultStatusModalPage extends BaseModalPage {
             }
         }
 
-        return new ListView("attrs", profile) {
+        return new ListView<String>("attrs", profile) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
             @Override
-            protected void populateItem(final ListItem item) {
-                String name = item.getModelObject().toString();
+            protected void populateItem(final ListItem<String> item) {
+                String name = item.getModelObject();
 
                 final Fragment beforeValue;
                 final Fragment afterValue;

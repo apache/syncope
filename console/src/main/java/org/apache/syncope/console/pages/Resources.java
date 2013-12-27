@@ -394,8 +394,10 @@ public class Resources extends BasePage {
 
         add(createResourceLink);
 
+        @SuppressWarnings("rawtypes")
         final Form paginatorForm = new Form("resourcePaginatorForm");
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
                 "resourcePaginatorRows"), prefMan.getPaginatorChoices());
 
@@ -525,33 +527,35 @@ public class Resources extends BasePage {
         editConnectorWin.setInitialWidth(WIN_WIDTH);
         editConnectorWin.setCookieName("edit-conn-modal");
 
-        AjaxLink createConnectorLink = new ClearIndicatingAjaxLink("createConnectorLink", getPageReference()) {
+        AjaxLink<Void> createConnectorLink =
+                new ClearIndicatingAjaxLink<Void>("createConnectorLink", getPageReference()) {
 
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            protected void onClickInternal(final AjaxRequestTarget target) {
-                createConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                    private static final long serialVersionUID = -7834632442532690940L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public Page createPage() {
-                        ConnectorModalPage form = new ConnectorModalPage(Resources.this.getPageReference(),
-                                editConnectorWin, new ConnInstanceTO());
-                        return form;
-                    }
-                });
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        createConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                createConnectorWin.show(target);
-            }
-        };
+                            private static final long serialVersionUID = -7834632442532690940L;
+
+                            @Override
+                            public Page createPage() {
+                                ConnectorModalPage form = new ConnectorModalPage(Resources.this.getPageReference(),
+                                        editConnectorWin, new ConnInstanceTO());
+                                return form;
+                            }
+                        });
+
+                        createConnectorWin.show(target);
+                    }
+                };
 
         MetaDataRoleAuthorizationStrategy.authorize(createConnectorLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
                 "Connectors", "create"));
 
         add(createConnectorLink);
 
+        @SuppressWarnings("rawtypes")
         Form paginatorForm = new Form("connectorPaginatorForm");
 
         MetaDataRoleAuthorizationStrategy.authorize(paginatorForm, RENDER, xmlRolesReader.getAllAllowedRoles(
@@ -585,9 +589,10 @@ public class Resources extends BasePage {
 
         private static final long serialVersionUID = -9055916672926643975L;
 
-        private SortableDataProviderComparator<ResourceTO> comparator;
+        private final SortableDataProviderComparator<ResourceTO> comparator;
 
         public ResourcesProvider() {
+            super();
             //Default sorting
             setSort("name", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<ResourceTO>(this);
@@ -629,9 +634,10 @@ public class Resources extends BasePage {
 
         private static final long serialVersionUID = 4445909568349448518L;
 
-        private SortableDataProviderComparator<ConnInstanceTO> comparator;
+        private final SortableDataProviderComparator<ConnInstanceTO> comparator;
 
         public ConnectorsProvider() {
+            super();
             //Default sorting
             setSort("id", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<ConnInstanceTO>(this);

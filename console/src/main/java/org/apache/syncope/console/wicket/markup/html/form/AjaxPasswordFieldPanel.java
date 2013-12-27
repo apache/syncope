@@ -30,14 +30,13 @@ public class AjaxPasswordFieldPanel extends FieldPanel<String> {
     private static final long serialVersionUID = -5490115280336667460L;
 
     public AjaxPasswordFieldPanel(final String id, final String name, final IModel<String> model) {
-
         super(id, name, model);
 
         field = new PasswordTextField("passwordField", model);
 
         field.setRequired(false);
 
-        add(field.setLabel(new Model(name)).setOutputMarkupId(true));
+        add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));
 
         if (!isReadOnly()) {
             field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -53,8 +52,7 @@ public class AjaxPasswordFieldPanel extends FieldPanel<String> {
     }
 
     @Override
-    public FieldPanel addRequiredLabel() {
-
+    public FieldPanel<String> addRequiredLabel() {
         if (!isRequired()) {
             setRequired(true);
         }

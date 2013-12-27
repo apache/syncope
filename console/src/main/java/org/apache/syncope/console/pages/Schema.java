@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.AbstractSchemaTO;
+import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.console.commons.Constants;

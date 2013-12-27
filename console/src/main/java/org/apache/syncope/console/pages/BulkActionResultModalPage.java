@@ -60,7 +60,7 @@ public class BulkActionResultModalPage<T, S> extends BaseModalPage {
             private static final long serialVersionUID = 5291903859908641954L;
 
             @Override
-            public Iterator<? extends T> iterator(long first, long count) {
+            public Iterator<? extends T> iterator(final long first, final long count) {
                 return items.iterator();
             }
 
@@ -70,7 +70,7 @@ public class BulkActionResultModalPage<T, S> extends BaseModalPage {
             }
 
             @Override
-            public IModel<T> model(T object) {
+            public IModel<T> model(final T object) {
                 return new CompoundPropertyModel<T>(object);
             }
         };
@@ -92,6 +92,5 @@ public class BulkActionResultModalPage<T, S> extends BaseModalPage {
         };
 
         add(close);
-
     }
 }

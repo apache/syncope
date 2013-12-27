@@ -44,7 +44,7 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
         field = new DropDownChoice<T>(
                 "dropDownChoiceField", model, Collections.<T>emptyList(), new ChoiceRenderer<T>());
 
-        add(field.setLabel(new Model(name)).setOutputMarkupId(true));
+        add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));
 
         if (enableOnBlur) {
             field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
@@ -59,22 +59,26 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
         }
     }
 
+    @SuppressWarnings("unchecked")
     public AjaxDropDownChoicePanel<T> setChoiceRenderer(final IChoiceRenderer renderer) {
         ((DropDownChoice) field).setChoiceRenderer(renderer);
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     public AjaxDropDownChoicePanel<T> setChoices(final List<T> choices) {
         ((DropDownChoice) field).setChoices(choices);
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     public AjaxDropDownChoicePanel<T> setChoices(final IModel<? extends List<? extends T>> choices) {
         ((DropDownChoice) field).setChoices(choices);
         return this;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public FieldPanel clone() {
         final AjaxDropDownChoicePanel<T> panel = (AjaxDropDownChoicePanel<T>) super.clone();
         panel.setChoiceRenderer(((DropDownChoice) field).getChoiceRenderer());

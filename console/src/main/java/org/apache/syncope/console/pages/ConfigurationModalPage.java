@@ -45,7 +45,7 @@ public class ConfigurationModalPage extends BaseModalPage {
     @SpringBean
     private ConfigurationRestClient configurationsRestClient;
 
-    private AjaxButton submit;
+    private final AjaxButton submit;
 
     /**
      * ConfigurationModalPage constructor.
@@ -58,15 +58,17 @@ public class ConfigurationModalPage extends BaseModalPage {
     public ConfigurationModalPage(final PageReference pageRef, final ModalWindow window,
             final ConfigurationTO configurationTO, final boolean createFlag) {
 
-        Form form = new Form(FORM, new CompoundPropertyModel(configurationTO));
+        Form<ConfigurationTO> form =
+                new Form<ConfigurationTO>(FORM, new CompoundPropertyModel<ConfigurationTO>(configurationTO));
 
-        final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", "key", new PropertyModel(configurationTO, "key"));
+        final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", "key",
+                new PropertyModel<String>(configurationTO, "key"));
         form.add(key);
         key.setEnabled(createFlag);
         key.addRequiredLabel();
 
-        final AjaxTextFieldPanel value = new AjaxTextFieldPanel("value", "value", new PropertyModel(configurationTO,
-                "value"));
+        final AjaxTextFieldPanel value = new AjaxTextFieldPanel("value", "value",
+                new PropertyModel<String>(configurationTO, "value"));
         form.add(value);
 
         submit = new IndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT))) {

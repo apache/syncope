@@ -148,7 +148,7 @@ public class SyncopeApplication
             }
         });
 
-        final AjaxLink<Void> infoLink = new AjaxLink<Void>("infoLink") {
+        final AjaxLink<Page> infoLink = new AjaxLink<Page>("infoLink") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -159,7 +159,7 @@ public class SyncopeApplication
         };
         page.add(infoLink);
 
-        BookmarkablePageLink<Void> schemaLink = new BookmarkablePageLink<Void>("schema", Schema.class);
+        BookmarkablePageLink<Page> schemaLink = new BookmarkablePageLink<Page>("schema", Schema.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 schemaLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Schema", "list"));
         page.add(schemaLink);
@@ -167,7 +167,7 @@ public class SyncopeApplication
                 ? IMG_NOTSEL
                 : "") + "schema" + Constants.PNG_EXT)));
 
-        BookmarkablePageLink<Void> usersLink = new BookmarkablePageLink<Void>("users", Users.class);
+        BookmarkablePageLink<Page> usersLink = new BookmarkablePageLink<Page>("users", Users.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 usersLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "list"));
         page.add(usersLink);
@@ -175,7 +175,7 @@ public class SyncopeApplication
                 ? IMG_NOTSEL
                 : "") + "users" + Constants.PNG_EXT)));
 
-        BookmarkablePageLink<Void> rolesLink = new BookmarkablePageLink<Void>("roles", Roles.class);
+        BookmarkablePageLink<Page> rolesLink = new BookmarkablePageLink<Page>("roles", Roles.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 rolesLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Roles", "list"));
         page.add(rolesLink);
@@ -183,7 +183,7 @@ public class SyncopeApplication
                 ? IMG_NOTSEL
                 : "") + "roles" + Constants.PNG_EXT)));
 
-        BookmarkablePageLink<Void> resourcesLink = new BookmarkablePageLink<Void>("resources", Resources.class);
+        BookmarkablePageLink<Page> resourcesLink = new BookmarkablePageLink<Page>("resources", Resources.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 resourcesLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Resources", "list"));
         page.add(resourcesLink);
@@ -191,7 +191,7 @@ public class SyncopeApplication
                 ? IMG_NOTSEL
                 : "") + "resources" + Constants.PNG_EXT)));
 
-        BookmarkablePageLink<Void> todoLink = new BookmarkablePageLink<Void>("todo", Todo.class);
+        BookmarkablePageLink<Page> todoLink = new BookmarkablePageLink<Page>("todo", Todo.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 todoLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Approval", "list"));
         page.add(todoLink);
@@ -199,7 +199,7 @@ public class SyncopeApplication
                 ? IMG_NOTSEL
                 : "") + "todo" + Constants.PNG_EXT)));
 
-        BookmarkablePageLink<Void> reportLink = new BookmarkablePageLink<Void>("reports", Reports.class);
+        BookmarkablePageLink<Page> reportLink = new BookmarkablePageLink<Page>("reports", Reports.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 reportLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Reports", "list"));
         page.add(reportLink);
@@ -207,7 +207,7 @@ public class SyncopeApplication
                 ? IMG_NOTSEL
                 : "") + "reports" + Constants.PNG_EXT)));
 
-        BookmarkablePageLink<Void> configurationLink = new BookmarkablePageLink<Void>("configuration",
+        BookmarkablePageLink<Page> configurationLink = new BookmarkablePageLink<Page>("configuration",
                 Configuration.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 configurationLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Configuration", "list"));
@@ -216,7 +216,7 @@ public class SyncopeApplication
                 ? IMG_NOTSEL
                 : "") + "configuration" + Constants.PNG_EXT)));
 
-        BookmarkablePageLink<Void> taskLink = new BookmarkablePageLink<Void>("tasks", Tasks.class);
+        BookmarkablePageLink<Page> taskLink = new BookmarkablePageLink<Page>("tasks", Tasks.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 taskLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Tasks", "list"));
         page.add(taskLink);
@@ -224,7 +224,7 @@ public class SyncopeApplication
                 ? IMG_NOTSEL
                 : "") + "tasks" + Constants.PNG_EXT)));
 
-        page.add(new BookmarkablePageLink<Void>("logout", Logout.class));
+        page.add(new BookmarkablePageLink<Page>("logout", Logout.class));
     }
 
     public void setupEditProfileModal(final WebPage page, final UserSelfRestClient userSelfRestClient) {
@@ -236,7 +236,7 @@ public class SyncopeApplication
         editProfileModalWin.setCookieName("edit-profile-modal");
         page.add(editProfileModalWin);
 
-        final AjaxLink<Void> editProfileLink = new AjaxLink<Void>("editProfileLink") {
+        final AjaxLink<Page> editProfileLink = new AjaxLink<Page>("editProfileLink") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 

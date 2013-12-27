@@ -46,7 +46,7 @@ public class ActionResultColumn<T, S> extends AbstractColumn<T, S> {
     private final String idFieldName;
 
     public ActionResultColumn(final BulkActionResult results, final String idFieldName) {
-        super(new Model());
+        super(new Model<String>());
         this.results = results;
         this.idFieldName = idFieldName;
     }

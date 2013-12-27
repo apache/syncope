@@ -18,13 +18,17 @@
  */
 package org.apache.syncope.console.wicket.markup.html.form;
 
+import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
@@ -32,7 +36,9 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
 
     private static final long serialVersionUID = 6413819574530703577L;
 
-    private final String uuid;
+    private final Class<T> reference;
+
+    private final IModel<T> model;
 
     private final T min;
 
@@ -42,10 +48,12 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
             final T min, final T max, final boolean disableVisible) {
 
         super(id, name, model);
+        this.reference = reference;
+        this.model = model;
         this.min = min;
         this.max = max;
 
-        uuid = UUID.randomUUID().toString();
+        String uuid = UUID.randomUUID().toString();
         field = new TextField<T>("spinnerField", model, reference);
         field.setMarkupId(uuid);
         add(field.setLabel(new Model<String>(name)));
@@ -79,7 +87,9 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
 
         final StringBuilder statements = new StringBuilder();
         statements.append("jQuery(function() {").
-                append("var spinner = $('#").append(uuid).append("').spinner();");
+                append("var spinner = $('#").append(uuid).append("').spinner();").
+                append("$('#").append(uuid).append("').spinner(").
+                append("'option', 'stop', function(event, ui) { $(this).change(); });");
         if (this.min != null) {
             statements.
                     append("$('#").append(uuid).append("').spinner(").
@@ -103,6 +113,109 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
         Label spinnerFieldJS = new Label("spinnerFieldJS", statements.toString());
         spinnerFieldJS.setEscapeModelStrings(false);
         add(spinnerFieldJS);
+    }
+
+    @Override
+    public SpinnerFieldPanel<T> setNewModel(final List<Serializable> list) {
+        setNewModel(new Model<T>() {
+
+            private static final long serialVersionUID = 527651414610325237L;
+
+            @Override
+            @SuppressWarnings("unchecked")
+            public T getObject() {
+                T value = null;
+
+                if (list != null && !list.isEmpty()) {
+                    value = reference.equals(Integer.class)
+                            ? (T) Integer.valueOf(NumberUtils.toInt(list.get(0).toString()))
+                            : reference.equals(Long.class)
+                            ? (T) Short.valueOf(NumberUtils.toShort(list.get(0).toString()))
+                            : reference.equals(Short.class)
+                            ? (T) Long.valueOf(NumberUtils.toLong(list.get(0).toString()))
+                            : reference.equals(Float.class)
+                            ? (T) Float.valueOf(NumberUtils.toFloat(list.get(0).toString()))
+                            : reference.equals(Byte.class)
+                            ? (T) Byte.valueOf(NumberUtils.toByte(list.get(0).toString()))
+                            : (T) Double.valueOf(NumberUtils.toDouble(list.get(0).toString()));
+                }
+
+                return value;
+            }
+
+            @Override
+            public void setObject(final T object) {
+                list.clear();
+                if (object != null) {
+                    list.add(object.toString());
+                }
+            }
+        });
+
+        return this;
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public SpinnerFieldPanel<T> setNewModel(final ListItem item) {
+        field.setModel(new Model<T>() {
+
+            private static final long serialVersionUID = 6799404673615637845L;
+
+            @Override
+            @SuppressWarnings("unchecked")
+            public T getObject() {
+                T number = null;
+
+                final Object obj = item.getModelObject();
+
+                if (obj != null && !obj.toString().isEmpty()) {
+                    if (obj instanceof String) {
+                        number = reference.equals(Integer.class)
+                                ? (T) Integer.valueOf((String) obj)
+                                : reference.equals(Long.class)
+                                ? (T) Short.valueOf((String) obj)
+                                : reference.equals(Short.class)
+                                ? (T) Long.valueOf((String) obj)
+                                : reference.equals(Float.class)
+                                ? (T) Float.valueOf((String) obj)
+                                : reference.equals(Byte.class)
+                                ? (T) Byte.valueOf((String) obj)
+                                : (T) Double.valueOf((String) obj);
+
+                    } else if (obj instanceof Number) {
+                        // Don't parse anything
+                        number = (T) obj;
+                    }
+                }
+
+                return number;
+            }
+
+            @Override
+            @SuppressWarnings("unchecked")
+            public void setObject(final T object) {
+                item.setModelObject(object == null ? null : object.toString());
+            }
+        });
+
+        return this;
+    }
+
+    @Override
+    public SpinnerFieldPanel<T> clone() {
+        SpinnerFieldPanel<T> panel = new SpinnerFieldPanel<T>(
+                id, name, reference, model, min, max, isRequiredLabelAdded);
+
+        panel.setRequired(isRequired());
+        panel.setReadOnly(isReadOnly());
+        panel.setTitle(title);
+
+        if (isRequiredLabelAdded) {
+            panel.addRequiredLabel();
+        }
+
+        return panel;
     }
 
 }

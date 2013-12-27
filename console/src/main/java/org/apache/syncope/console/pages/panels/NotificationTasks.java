@@ -210,8 +210,10 @@ public class NotificationTasks extends AbstractTasks {
         window.setInitialWidth(WIN_WIDTH);
         window.setCookieName(VIEW_TASK_WIN_COOKIE_NAME);
 
+        @SuppressWarnings("rawtypes")
         Form paginatorForm = new Form("PaginatorForm");
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
 
@@ -227,7 +229,7 @@ public class NotificationTasks extends AbstractTasks {
                 table = Tasks.updateTaskTable(
                         columns,
                         new TasksProvider<NotificationTaskTO>(restClient, paginatorRows, getId(),
-                        NotificationTaskTO.class),
+                                NotificationTaskTO.class),
                         container,
                         table == null ? 0 : (int) table.getCurrentPage(),
                         pageRef,

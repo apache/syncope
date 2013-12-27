@@ -47,6 +47,7 @@ public class ResourceModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = 1734415311027284221L;
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public ResourceModalPage(final PageReference pageRef, final ModalWindow window, final ResourceTO resourceTO,
             final boolean createFlag) {
 

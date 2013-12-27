@@ -18,13 +18,12 @@
  */
 package org.apache.syncope.console.wicket.markup.html.form;
 
-import java.io.Serializable;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractFieldPanel<T extends Serializable> extends Panel {
+public abstract class AbstractFieldPanel<T> extends Panel {
 
     /**
      * Logger.

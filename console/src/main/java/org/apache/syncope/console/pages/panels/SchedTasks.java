@@ -189,7 +189,8 @@ public class SchedTasks extends AbstractTasks {
             }
 
             @Override
-            public Component getHeader(String componentId) {
+            public Component getHeader(final String componentId) {
+                @SuppressWarnings("rawtypes")
                 final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(), pageRef);
 
                 panel.add(new ActionLink() {
@@ -218,8 +219,10 @@ public class SchedTasks extends AbstractTasks {
 
         container.add(table);
 
+        @SuppressWarnings("rawtypes")
         Form paginatorForm = new Form("PaginatorForm");
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
 
@@ -247,7 +250,7 @@ public class SchedTasks extends AbstractTasks {
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
 
-        AjaxLink createLink = new ClearIndicatingAjaxLink("createLink", pageRef) {
+        AjaxLink<Void> createLink = new ClearIndicatingAjaxLink<Void>("createLink", pageRef) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 

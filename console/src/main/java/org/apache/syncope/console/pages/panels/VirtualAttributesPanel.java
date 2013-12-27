@@ -38,7 +38,7 @@ import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
@@ -210,7 +210,7 @@ public class VirtualAttributesPanel extends Panel {
                 }
 
                 final AjaxTextFieldPanel panel;
-                final MultiValueSelectorPanel multiPanel;
+                final MultiFieldPanel multiPanel;
                 if (templateMode) {
                     panel = new AjaxTextFieldPanel("values", "values", new Model<String>());
                     panel.setReadOnly(attributeTO.isReadonly());
@@ -218,7 +218,7 @@ public class VirtualAttributesPanel extends Panel {
                 } else {
                     panel = new AjaxTextFieldPanel("panel", "values", new Model<String>(null));
                     panel.setReadOnly(attributeTO.isReadonly());
-                    multiPanel = new MultiValueSelectorPanel("values",
+                    multiPanel = new MultiFieldPanel("values",
                             new PropertyModel<List<String>>(attributeTO, "values"), panel);
                 }
 

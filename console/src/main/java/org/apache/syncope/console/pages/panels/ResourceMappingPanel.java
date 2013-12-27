@@ -289,7 +289,7 @@ public class ResourceMappingPanel extends Panel {
 
                 final AjaxDropDownChoicePanel<String> intAttrNames =
                         new AjaxDropDownChoicePanel<String>("intAttrNames", getString("intAttrNames"),
-                        new PropertyModel<String>(mapItem, "intAttrName"), false);
+                                new PropertyModel<String>(mapItem, "intAttrName"), false);
                 intAttrNames.setChoices(schemaNames);
                 intAttrNames.setRequired(true);
                 intAttrNames.setStyleSheet(FIELD_STYLE);
@@ -305,8 +305,8 @@ public class ResourceMappingPanel extends Panel {
 
                 final AjaxDropDownChoicePanel<IntMappingType> intMappingTypes =
                         new AjaxDropDownChoicePanel<IntMappingType>("intMappingTypes",
-                        new ResourceModel("intMappingTypes", "intMappingTypes").getObject(),
-                        new PropertyModel<IntMappingType>(mapItem, "intMappingType"));
+                                new ResourceModel("intMappingTypes", "intMappingTypes").getObject(),
+                                new PropertyModel<IntMappingType>(mapItem, "intMappingType"));
                 intMappingTypes.setRequired(true);
                 intMappingTypes.setChoices(attrTypes);
                 intMappingTypes.setStyleSheet(FIELD_STYLE);
@@ -314,7 +314,8 @@ public class ResourceMappingPanel extends Panel {
 
                 final AjaxDropDownChoicePanel<AttributableType> entitiesPanel =
                         new AjaxDropDownChoicePanel<AttributableType>("entities",
-                        new ResourceModel("entities", "entities").getObject(), new Model<AttributableType>(entity));
+                                new ResourceModel("entities", "entities").getObject(), new Model<AttributableType>(
+                                        entity));
                 entitiesPanel.setChoices(attrType == AttributableType.ROLE
                         ? Collections.<AttributableType>singletonList(AttributableType.ROLE)
                         : Arrays.asList(AttributableType.values()));
@@ -337,7 +338,7 @@ public class ResourceMappingPanel extends Panel {
                 });
                 item.add(entitiesPanel);
 
-                final FieldPanel extAttrNames = new AjaxTextFieldPanel("extAttrName",
+                final FieldPanel<String> extAttrNames = new AjaxTextFieldPanel("extAttrName",
                         new ResourceModel("extAttrNames", "extAttrNames").getObject(),
                         new PropertyModel<String>(mapItem, "extAttrName"));
                 ((AjaxTextFieldPanel) extAttrNames).setChoices(schemaNames);
@@ -357,7 +358,7 @@ public class ResourceMappingPanel extends Panel {
                 final AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel("mandatoryCondition",
                         new ResourceModel("mandatoryCondition", "mandatoryCondition").getObject(),
                         new PropertyModel<String>(mapItem, "mandatoryCondition"));
-                mandatory.setChoices(Arrays.asList(new String[] {"true", "false"}));
+                mandatory.setChoices(Arrays.asList(new String[] { "true", "false" }));
                 mandatory.setStyleSheet(SHORT_FIELD_STYLE);
                 item.add(mandatory);
 
@@ -412,9 +413,9 @@ public class ResourceMappingPanel extends Panel {
 
                 final AjaxDropDownChoicePanel<MappingPurpose> purpose =
                         new AjaxDropDownChoicePanel<MappingPurpose>("purpose",
-                        new ResourceModel("purpose", "purpose").getObject(),
-                        new PropertyModel<MappingPurpose>(mapItem, "purpose"),
-                        false);
+                                new ResourceModel("purpose", "purpose").getObject(),
+                                new PropertyModel<MappingPurpose>(mapItem, "purpose"),
+                                false);
                 purpose.setChoices(Arrays.asList(MappingPurpose.values()));
                 purpose.setStyleSheet(FIELD_STYLE);
                 purpose.setRequired(true);

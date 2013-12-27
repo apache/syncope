@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console.wicket.markup.html.form;
 
-
 import java.util.Date;
 import org.apache.syncope.console.commons.Constants;
 
@@ -45,7 +44,7 @@ public class DateTextFieldPanel extends DateFieldPanel {
                 private static final long serialVersionUID = -1107858522700306810L;
 
                 @Override
-                protected void onUpdate(AjaxRequestTarget art) {
+                protected void onUpdate(final AjaxRequestTarget target) {
                     // nothing to do
                 }
             });
@@ -53,7 +52,7 @@ public class DateTextFieldPanel extends DateFieldPanel {
 
         field.add(getDatePicker());
 
-        add(field.setLabel(new Model(name)).setOutputMarkupId(true));
+        add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));
     }
 
     /**
@@ -76,8 +75,8 @@ public class DateTextFieldPanel extends DateFieldPanel {
     }
 
     @Override
-    public FieldPanel clone() {
-        final FieldPanel panel = new DateTextFieldPanel(id, name, new Model(), datePattern);
+    public FieldPanel<Date> clone() {
+        final FieldPanel<Date> panel = new DateTextFieldPanel(id, name, new Model<Date>(), datePattern);
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());
         panel.setTitle(title);

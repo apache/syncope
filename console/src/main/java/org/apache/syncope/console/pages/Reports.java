@@ -105,24 +105,24 @@ public class Reports extends BasePage {
         setupAudit();
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     private void setupReport() {
         reportContainer = new WebMarkupContainer("reportContainer");
         setWindowClosedCallback(window, reportContainer);
 
-        MetaDataRoleAuthorizationStrategy.authorize(reportContainer, RENDER, xmlRolesReader.getAllAllowedRoles(
-                "Reports", "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(reportContainer, RENDER,
+                xmlRolesReader.getAllAllowedRoles("Reports", "list"));
 
         paginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_REPORT_PAGINATOR_ROWS);
 
-        List<IColumn> columns = new ArrayList<IColumn>();
-        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
-        columns.add(new PropertyColumn(new ResourceModel("name"), "name", "name"));
-        columns.add(new DatePropertyColumn(new ResourceModel("lastExec"), "lastExec", "lastExec"));
-        columns.add(new DatePropertyColumn(new ResourceModel("nextExec"), "nextExec", "nextExec"));
-        columns.add(new DatePropertyColumn(new ResourceModel("startDate"), "startDate", "startDate"));
-        columns.add(new DatePropertyColumn(new ResourceModel("endDate"), "endDate", "endDate"));
-        columns.add(new PropertyColumn(new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
+        List<IColumn<ReportTO, String>> columns = new ArrayList<IColumn<ReportTO, String>>();
+        columns.add(new PropertyColumn<ReportTO, String>(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn<ReportTO, String>(new ResourceModel("name"), "name", "name"));
+        columns.add(new DatePropertyColumn<ReportTO>(new ResourceModel("lastExec"), "lastExec", "lastExec"));
+        columns.add(new DatePropertyColumn<ReportTO>(new ResourceModel("nextExec"), "nextExec", "nextExec"));
+        columns.add(new DatePropertyColumn<ReportTO>(new ResourceModel("startDate"), "startDate", "startDate"));
+        columns.add(new DatePropertyColumn<ReportTO>(new ResourceModel("endDate"), "endDate", "endDate"));
+        columns.add(new PropertyColumn<ReportTO, String>(
+                new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
         columns.add(new ActionColumn<ReportTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
@@ -213,19 +213,22 @@ public class Reports extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable reportTable =
-                new AjaxFallbackDefaultDataTable("reportTable", columns, new ReportProvider(), paginatorRows);
+        final AjaxFallbackDefaultDataTable<ReportTO, String> reportTable =
+                new AjaxFallbackDefaultDataTable<ReportTO, String>(
+                        "reportTable", columns, new ReportProvider(), paginatorRows);
 
         reportContainer.add(reportTable);
         reportContainer.setOutputMarkupId(true);
 
         add(reportContainer);
 
+        @SuppressWarnings("rawtypes")
         Form paginatorForm = new Form("paginatorForm");
 
-        MetaDataRoleAuthorizationStrategy.authorize(paginatorForm, RENDER, xmlRolesReader.getAllAllowedRoles("Reports",
-                "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(paginatorForm, RENDER,
+                xmlRolesReader.getAllAllowedRoles("Reports", "list"));
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
 

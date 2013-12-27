@@ -92,7 +92,7 @@ public class PoliciesPanel extends Panel {
 
     protected boolean modalResult = false;
 
-    private PolicyType policyType;
+    private final PolicyType policyType;
 
     public PoliciesPanel(final String id, final PageReference pageRef, final PolicyType policyType) {
         super(id);
@@ -146,7 +146,7 @@ public class PoliciesPanel extends Panel {
             public void populateItem(final Item<ICellPopulator<AbstractPolicyTO>> cellItem, final String componentId,
                     final IModel<AbstractPolicyTO> model) {
 
-                final AbstractPolicyTO accountPolicyTO = model.getObject();
+                final AbstractPolicyTO policyTO = model.getObject();
 
                 final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, pageRef);
 
@@ -161,9 +161,10 @@ public class PoliciesPanel extends Panel {
 
                             private static final long serialVersionUID = -7834632442532690940L;
 
+                            @SuppressWarnings({ "unchecked", "rawtypes" })
                             @Override
                             public Page createPage() {
-                                return new PolicyModalPage(mwindow, accountPolicyTO);
+                                return new PolicyModalPage(mwindow, policyTO);
                             }
                         });
 
@@ -178,13 +179,13 @@ public class PoliciesPanel extends Panel {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            policyRestClient.delete(accountPolicyTO.getId(), accountPolicyTO.getClass());
+                            policyRestClient.delete(policyTO.getId(), policyTO.getClass());
                             info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientException e) {
                             error(getString(Constants.OPERATION_ERROR));
 
-                            LOG.error("While deleting resource {}({})",
-                                    accountPolicyTO.getId(), accountPolicyTO.getDescription(), e);
+                            LOG.error("While deleting policy {}({})",
+                                    policyTO.getId(), policyTO.getDescription(), e);
                         }
 
                         target.add(container);
@@ -196,12 +197,13 @@ public class PoliciesPanel extends Panel {
             }
         });
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         final AjaxFallbackDefaultDataTable table = new AjaxFallbackDefaultDataTable("datatable", columns,
                 new PolicyDataProvider(), paginatorRows);
 
         container.add(table);
 
-        final AjaxLink createButton = new ClearIndicatingAjaxLink("createLink", pageRef) {
+        final AjaxLink<Void> createButton = new ClearIndicatingAjaxLink<Void>("createLink", pageRef) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -211,6 +213,7 @@ public class PoliciesPanel extends Panel {
 
                     private static final long serialVersionUID = -7834632442532690940L;
 
+                    @SuppressWarnings({ "unchecked", "rawtypes" })
                     @Override
                     public Page createPage() {
                         return new PolicyModalPage(mwindow, getPolicyTOInstance(policyType));
@@ -223,11 +226,13 @@ public class PoliciesPanel extends Panel {
 
         add(createButton);
 
-        MetaDataRoleAuthorizationStrategy.authorize(createButton, ENABLE, xmlRolesReader.getAllAllowedRoles("Policies",
-                "create"));
+        MetaDataRoleAuthorizationStrategy.authorize(createButton, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Policies", "create"));
 
+        @SuppressWarnings("rawtypes")
         final Form paginatorForm = new Form("PaginatorForm");
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
 
@@ -250,7 +255,6 @@ public class PoliciesPanel extends Panel {
     }
 
     private void setWindowClosedCallback(final ModalWindow window, final WebMarkupContainer container) {
-
         window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
@@ -266,7 +270,7 @@ public class PoliciesPanel extends Panel {
 
         private static final long serialVersionUID = -6976327453925166730L;
 
-        private SortableDataProviderComparator<AbstractPolicyTO> comparator;
+        private final SortableDataProviderComparator<AbstractPolicyTO> comparator;
 
         public PolicyDataProvider() {
             super();
@@ -284,7 +288,6 @@ public class PoliciesPanel extends Panel {
 
         @Override
         public Iterator<AbstractPolicyTO> iterator(final long first, final long count) {
-
             final List<AbstractPolicyTO> policies = policyRestClient.getPolicies(policyType, true);
 
             Collections.sort(policies, comparator);

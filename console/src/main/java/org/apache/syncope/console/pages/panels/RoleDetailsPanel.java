@@ -90,11 +90,12 @@ public class RoleDetailsPanel extends Panel {
             parentFragment = new Fragment("parent", "parentFragment", this);
 
             parentModel = new ParentModel(roleTO);
+            @SuppressWarnings("unchecked")
             final AjaxTextFieldPanel parent = new AjaxTextFieldPanel("parent", "parent", parentModel);
             parent.setReadOnly(true);
             parent.setOutputMarkupId(true);
             parentFragment.add(parent);
-            final IndicatingAjaxLink parentSelect = new IndicatingAjaxLink("parentSelect") {
+            final AjaxLink<Void> parentSelect = new IndicatingAjaxLink<Void>("parentSelect") {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
@@ -147,11 +148,12 @@ public class RoleDetailsPanel extends Panel {
         this.add(name);
 
         userOwnerModel = new OwnerModel(roleTO, AttributableType.USER);
+        @SuppressWarnings("unchecked")
         final AjaxTextFieldPanel userOwner = new AjaxTextFieldPanel("userOwner", "userOwner", userOwnerModel);
         userOwner.setReadOnly(true);
         userOwner.setOutputMarkupId(true);
         ownerContainer.add(userOwner);
-        final IndicatingAjaxLink<Void> userOwnerSelect = new IndicatingAjaxLink<Void>("userOwnerSelect") {
+        final AjaxLink<Void> userOwnerSelect = new IndicatingAjaxLink<Void>("userOwnerSelect") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -183,11 +185,12 @@ public class RoleDetailsPanel extends Panel {
         ownerContainer.add(userOwnerReset);
 
         roleOwnerModel = new OwnerModel(roleTO, AttributableType.ROLE);
+        @SuppressWarnings("unchecked")
         final AjaxTextFieldPanel roleOwner = new AjaxTextFieldPanel("roleOwner", "roleOwner", roleOwnerModel);
         roleOwner.setReadOnly(true);
         roleOwner.setOutputMarkupId(true);
         ownerContainer.add(roleOwner);
-        final IndicatingAjaxLink<Void> roleOwnerSelect = new IndicatingAjaxLink<Void>("roleOwnerSelect") {
+        final AjaxLink<Void> roleOwnerSelect = new IndicatingAjaxLink<Void>("roleOwnerSelect") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 

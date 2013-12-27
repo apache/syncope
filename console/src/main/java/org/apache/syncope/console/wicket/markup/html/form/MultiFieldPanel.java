@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console.wicket.markup.html.form;
 
-import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.console.commons.Constants;
 
@@ -33,7 +32,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 
-public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
+public class MultiFieldPanel<E> extends AbstractFieldPanel<List<E>> {
 
     private static final long serialVersionUID = -6322397761456513324L;
 
@@ -41,11 +40,11 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
 
     private WebMarkupContainer container;
 
-    public MultiValueSelectorPanel(final String id, final IModel<List<E>> model, final FieldPanel panelTemplate) {
+    public MultiFieldPanel(final String id, final IModel<List<E>> model, final FieldPanel<E> panelTemplate) {
         this(id, model, panelTemplate, false);
     }
 
-    public MultiValueSelectorPanel(final String id, final IModel<List<E>> model, final FieldPanel panelTemplate,
+    public MultiFieldPanel(final String id, final IModel<List<E>> model, final FieldPanel<E> panelTemplate,
             final boolean eventTemplate) {
 
         super(id, model);
@@ -64,7 +63,7 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
 
             @Override
             protected void populateItem(final ListItem<E> item) {
-                final FieldPanel fieldPanel = panelTemplate.clone();
+                final FieldPanel<E> fieldPanel = panelTemplate.clone();
 
                 if (eventTemplate) {
                     fieldPanel.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -145,11 +144,8 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
     }
 
     @Override
-    public MultiValueSelectorPanel<E> setModelObject(Serializable object) {
-        if (!(object instanceof List)) {
-            throw new ClassCastException("object is expected to be List: " + object.getClass().getName());
-        }
-        view.setModelObject((List<E>) object);
+    public MultiFieldPanel<E> setModelObject(final List<E> object) {
+        view.setModelObject(object);
         return this;
     }
 

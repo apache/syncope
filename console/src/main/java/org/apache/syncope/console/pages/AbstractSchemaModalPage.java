@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -26,7 +26,7 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 /**
  * Modal window with Schema form.
  */
-public abstract class AbstractSchemaModalPage extends BaseModalPage {
+public abstract class AbstractSchemaModalPage<T extends AbstractSchemaTO> extends BaseModalPage {
 
     private static final long serialVersionUID = 7369215690388444748L;
 
@@ -36,7 +36,7 @@ public abstract class AbstractSchemaModalPage extends BaseModalPage {
         this.kind = kind;
     }
 
-    public abstract void setSchemaModalPage(PageReference callerPageRef, ModalWindow window, AbstractBaseBean schema,
+    public abstract void setSchemaModalPage(PageReference callerPageRef, ModalWindow window, T schema,
             boolean createFlag);
 
     public AttributableType getKind() {

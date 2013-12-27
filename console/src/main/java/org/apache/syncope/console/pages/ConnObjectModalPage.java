@@ -25,7 +25,7 @@ import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -90,7 +90,7 @@ public class ConnObjectModalPage extends BaseModalPage {
                     field = new AjaxTextFieldPanel("value",
                             prop.getSchema(), new Model<String>(prop.getValues().get(0)));
                 } else {
-                    field = new MultiValueSelectorPanel<String>("value", new ListModel<String>(prop.getValues()),
+                    field = new MultiFieldPanel<String>("value", new ListModel<String>(prop.getValues()),
                             new AjaxTextFieldPanel("panel", prop.getSchema(), new Model<String>()));
                 }
                 item.add(field);

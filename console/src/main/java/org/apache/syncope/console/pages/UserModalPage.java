@@ -90,6 +90,7 @@ public abstract class UserModalPage extends BaseModalPage {
         this.userTO = userTO;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected Form setupEditPanel() {
         fragment.add(new Label("id", userTO.getId() == 0
                 ? ""
@@ -206,7 +207,9 @@ public abstract class UserModalPage extends BaseModalPage {
         };
     }
 
-    protected abstract void submitAction(final AjaxRequestTarget target, final Form form);
+    @SuppressWarnings("rawtypes")
+    protected abstract void submitAction(AjaxRequestTarget target, Form form);
 
-    protected abstract void closeAction(final AjaxRequestTarget target, final Form form);
+    @SuppressWarnings("rawtypes")
+    protected abstract void closeAction(AjaxRequestTarget target, Form form);
 }

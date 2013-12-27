@@ -74,14 +74,14 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
                 private static final long serialVersionUID = -1107858522700306810L;
 
                 @Override
-                protected void onUpdate(AjaxRequestTarget art) {
+                protected void onUpdate(final AjaxRequestTarget target) {
                     // nothing to do
                 }
             });
         }
     }
 
-    public void addValidator(final IValidator validator) {
+    public void addValidator(final IValidator<? super String> validator) {
         this.field.add(validator);
     }
 

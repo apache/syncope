@@ -377,10 +377,12 @@ public class Configuration extends BasePage {
                 "Configuration", "read"));
         add(dbExportLink);
 
+        @SuppressWarnings("rawtypes")
         Form confPaginatorForm = new Form("confPaginatorForm");
 
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
-                "confPaginatorRows"), prefMan.getPaginatorChoices());
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
+                new PropertyModel(this, "confPaginatorRows"), prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -528,8 +530,10 @@ public class Configuration extends BasePage {
                 "Notification", "create"));
         add(createNotificationLink);
 
+        @SuppressWarnings("rawtypes")
         Form notificationPaginatorForm = new Form("notificationPaginatorForm");
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
                 "notificationPaginatorRows"), prefMan.getPaginatorChoices());
 

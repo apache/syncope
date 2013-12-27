@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.SyncopeSession;
@@ -34,36 +35,39 @@ public class AccountInformationPanel extends SysInfoPanel {
         // ------------------------
         // Change password date
         // ------------------------
-        add(new Label("changePwdDate", new Model(userTO.getChangePwdDate() != null
-                ? SyncopeSession.get().getDateFormat().format(userTO.getChangePwdDate()) : "")));
+        add(new Label("changePwdDate", new Model<String>(userTO.getChangePwdDate() == null
+                ? StringUtils.EMPTY
+                : SyncopeSession.get().getDateFormat().format(userTO.getChangePwdDate()))));
         // ------------------------
 
         // ------------------------
         // Last login date
         // ------------------------
-        add(new Label("lastLoginDate", new Model(userTO.getLastLoginDate() != null
-                ? SyncopeSession.get().getDateFormat().format(userTO.getLastLoginDate()) : "")));
+        add(new Label("lastLoginDate", new Model<String>(userTO.getLastLoginDate() == null
+                ? StringUtils.EMPTY
+                : SyncopeSession.get().getDateFormat().format(userTO.getLastLoginDate()))));
         // ------------------------
 
         // ------------------------
         // Failed logins
         // ------------------------
-        add(new Label("failedLogins", new Model(userTO.getFailedLogins() != null
-                ? userTO.getFailedLogins() : "")));
+        add(new Label("failedLogins", new Model<Integer>(userTO.getFailedLogins())));
         // ------------------------
 
         // ------------------------
         // Token
         // ------------------------
-        add(new Label("token", new Model(userTO.getToken() != null
-                ? userTO.getToken() : "")));
+        add(new Label("token", new Model<String>(userTO.getToken() == null
+                ? StringUtils.EMPTY
+                : userTO.getToken())));
         // ------------------------
 
         // ------------------------
         // Token expire time
         // ------------------------
-        add(new Label("tokenExpireTime", new Model(userTO.getTokenExpireTime() != null
-                ? userTO.getTokenExpireTime() : "")));
+        add(new Label("tokenExpireTime", new Model<String>(userTO.getTokenExpireTime() == null
+                ? StringUtils.EMPTY
+                : SyncopeSession.get().getDateFormat().format(userTO.getTokenExpireTime()))));
         // ------------------------
     }
 }

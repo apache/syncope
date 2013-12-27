@@ -18,14 +18,12 @@
  */
 package org.apache.syncope.console.pages;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -36,7 +34,7 @@ import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -60,7 +58,7 @@ import org.apache.wicket.util.string.Strings;
 /**
  * Modal window with Schema form.
  */
-public class SchemaModalPage extends AbstractSchemaModalPage {
+public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
 
     private static final long serialVersionUID = -5991561277287424057L;
 
@@ -70,18 +68,15 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
     @Override
     public void setSchemaModalPage(final PageReference pageRef, final ModalWindow window,
-            AbstractBaseBean schemaTO, final boolean createFlag) {
+            final SchemaTO schemaTO, final boolean createFlag) {
 
-        final SchemaTO schema;
-        if (schemaTO != null && schemaTO instanceof SchemaTO) {
-            schema = (SchemaTO) schemaTO;
-        } else {
-            schema = new SchemaTO();
-        }
+        final SchemaTO schema = schemaTO == null
+                ? new SchemaTO()
+                : schemaTO;
 
-        final Form schemaForm = new Form(FORM);
+        final Form<SchemaTO> schemaForm = new Form<SchemaTO>(FORM);
 
-        schemaForm.setModel(new CompoundPropertyModel(schema));
+        schemaForm.setModel(new CompoundPropertyModel<SchemaTO>(schema));
         schemaForm.setOutputMarkupId(Boolean.TRUE);
 
         final AjaxTextFieldPanel name =
@@ -104,33 +99,35 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         };
 
         final AjaxDropDownChoicePanel<String> validatorClass = new AjaxDropDownChoicePanel<String>("validatorClass",
-                getString("validatorClass"), new PropertyModel(schema, "validatorClass"));
+                getString("validatorClass"), new PropertyModel<String>(schema, "validatorClass"));
 
         ((DropDownChoice) validatorClass.getField()).setNullValid(true);
         validatorClass.setChoices(validatorsList.getObject());
 
         final AjaxDropDownChoicePanel<AttributeSchemaType> type = new AjaxDropDownChoicePanel<AttributeSchemaType>(
-                "type", getString("type"), new PropertyModel(schema, "type"));
+                "type", getString("type"), new PropertyModel<AttributeSchemaType>(schema, "type"));
         type.setChoices(Arrays.asList(AttributeSchemaType.values()));
         type.addRequiredLabel();
 
         final AjaxTextFieldPanel enumerationValuesPanel =
                 new AjaxTextFieldPanel("panel", "enumerationValues", new Model<String>(null));
-        final MultiValueSelectorPanel<String> enumerationValues =
-                new MultiValueSelectorPanel<String>("enumerationValues",
-                new Model(),
-                enumerationValuesPanel);
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        final MultiFieldPanel<String> enumerationValues =
+                new MultiFieldPanel<String>("enumerationValues",
+                        new Model(),
+                        enumerationValuesPanel);
         schemaForm.add(enumerationValues);
 
-        enumerationValues.setModelObject((Serializable) getEnumValuesAsList(schema.getEnumerationValues()));
+        enumerationValues.setModelObject(getEnumValuesAsList(schema.getEnumerationValues()));
 
-        final MultiValueSelectorPanel<String> enumerationKeys =
-                new MultiValueSelectorPanel<String>("enumerationKeys",
-                new Model(),
-                new AjaxTextFieldPanel("panel", "enumerationKeys", new Model<String>(null)));
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        final MultiFieldPanel<String> enumerationKeys =
+                new MultiFieldPanel<String>("enumerationKeys",
+                        new Model(),
+                        new AjaxTextFieldPanel("panel", "enumerationKeys", new Model<String>(null)));
         schemaForm.add(enumerationKeys);
 
-        enumerationKeys.setModelObject((Serializable) getEnumValuesAsList(schema.getEnumerationKeys()));
+        enumerationKeys.setModelObject(getEnumValuesAsList(schema.getEnumerationKeys()));
 
         if (AttributeSchemaType.Enum == schema.getType()) {
             enumerationValues.setEnabled(Boolean.TRUE);
@@ -152,10 +149,10 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                         enumerationValuesPanel.addRequiredLabel();
                     }
                     enumerationValues.setEnabled(Boolean.TRUE);
-                    enumerationValues.setModelObject((Serializable) getEnumValuesAsList(schema.getEnumerationValues()));
+                    enumerationValues.setModelObject(getEnumValuesAsList(schema.getEnumerationValues()));
 
                     enumerationKeys.setEnabled(Boolean.TRUE);
-                    enumerationKeys.setModelObject((Serializable) getEnumValuesAsList(schema.getEnumerationKeys()));
+                    enumerationKeys.setModelObject(getEnumValuesAsList(schema.getEnumerationKeys()));
                 } else {
                     if (enumerationValuesPanel.isRequired()) {
                         enumerationValuesPanel.removeRequiredLabel();
@@ -164,41 +161,42 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                     values.add("");
 
                     enumerationValues.setEnabled(Boolean.FALSE);
-                    enumerationValues.setModelObject((Serializable) values);
+                    enumerationValues.setModelObject(values);
 
                     final List<String> keys = new ArrayList<String>();
                     keys.add("");
 
                     enumerationKeys.setEnabled(Boolean.FALSE);
-                    enumerationKeys.setModelObject((Serializable) keys);
+                    enumerationKeys.setModelObject(keys);
                 }
 
                 target.add(schemaForm);
             }
         });
 
-        final AutoCompleteTextField mandatoryCondition = new AutoCompleteTextField("mandatoryCondition") {
+        final AutoCompleteTextField<String> mandatoryCondition =
+                new AutoCompleteTextField<String>("mandatoryCondition") {
 
-            private static final long serialVersionUID = -2428903969518079100L;
+                    private static final long serialVersionUID = -2428903969518079100L;
 
-            @Override
-            protected Iterator<String> getChoices(String input) {
-                List<String> choices = new ArrayList<String>();
+                    @Override
+                    protected Iterator<String> getChoices(final String input) {
+                        List<String> choices = new ArrayList<String>();
 
-                if (Strings.isEmpty(input)) {
-                    choices = Collections.emptyList();
-                    return choices.iterator();
-                }
+                        if (Strings.isEmpty(input)) {
+                            choices = Collections.emptyList();
+                            return choices.iterator();
+                        }
 
-                if ("true".startsWith(input.toLowerCase())) {
-                    choices.add("true");
-                } else if ("false".startsWith(input.toLowerCase())) {
-                    choices.add("false");
-                }
+                        if ("true".startsWith(input.toLowerCase())) {
+                            choices.add("true");
+                        } else if ("false".startsWith(input.toLowerCase())) {
+                            choices.add("false");
+                        }
 
-                return choices.iterator();
-            }
-        };
+                        return choices.iterator();
+                    }
+                };
 
         mandatoryCondition.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 

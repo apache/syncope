@@ -127,7 +127,7 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
                         final BulkActionResult res = (BulkActionResult) bulkActionExecutor.getClass().
                                 getMethod("bulkAction", BulkAction.class).invoke(bulkActionExecutor, bulkAction);
 
-                        setResponsePage(new BulkActionResultModalPage(window, items, columns, res, idFieldName));
+                        setResponsePage(new BulkActionResultModalPage<T, S>(window, items, columns, res, idFieldName));
                     } catch (Exception e) {
                         LOG.error("Operation {} not supported", bulkAction.getOperation(), e);
                     }
@@ -142,13 +142,13 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
         final AjaxButton cancel =
                 new ClearIndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL), getPageReference()) {
 
-            private static final long serialVersionUID = -958724007591692537L;
+                    private static final long serialVersionUID = -958724007591692537L;
 
-            @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                window.close(target);
-            }
-        };
+                    @Override
+                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                        window.close(target);
+                    }
+                };
 
         cancel.setDefaultFormProcessing(false);
         form.add(cancel);

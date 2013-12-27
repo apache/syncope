@@ -107,7 +107,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
             }
         });
 
-        add(field.setLabel(new Model(name)).setOutputMarkupId(true));
+        add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));
     }
 
     /**
@@ -124,7 +124,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
                 throw new IllegalArgumentException("argument dateTimeComponent cannot be null");
             }
 
-            dateTimeComponents = new FormComponent[]{dateTimeComponent};
+            dateTimeComponents = new FormComponent[] { dateTimeComponent };
         }
 
         @Override
@@ -152,7 +152,8 @@ public class DateTimeFieldPanel extends DateFieldPanel {
         }
     }
 
-    public FieldPanel setFormValidator(final Form form) {
+    @SuppressWarnings("rawtypes")
+    public FieldPanel<Date> setFormValidator(final Form form) {
         if (field == null) {
             LOG.error("Error setting form validator");
         } else {
@@ -164,7 +165,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
     }
 
     @Override
-    public FieldPanel setStyleSheet(final String classes) {
+    public FieldPanel<Date> setStyleSheet(final String classes) {
         field.get("date").add(AttributeModifier.replace("class", (classes == null ? "" : classes) + " date_size"));
 
         field.get("hours").add(AttributeModifier.replace("class", classes == null ? "" : classes));
@@ -177,8 +178,8 @@ public class DateTimeFieldPanel extends DateFieldPanel {
     }
 
     @Override
-    public FieldPanel clone() {
-        final FieldPanel panel = new DateTimeFieldPanel(id, name, new Model<Date>(null), datePattern);
+    public FieldPanel<Date> clone() {
+        final FieldPanel<Date> panel = new DateTimeFieldPanel(id, name, new Model<Date>(null), datePattern);
 
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());

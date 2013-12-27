@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,8 +35,8 @@ import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
-import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel.MultiValueSelectorEvent;
+import org.apache.syncope.console.wicket.markup.html.form.MultiFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MultiFieldPanel.MultiValueSelectorEvent;
 import org.apache.syncope.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -77,7 +78,6 @@ public class ResourceConnConfPanel extends Panel {
 
     private ResourceTO resourceTO;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public ResourceConnConfPanel(final String id, final ResourceTO resourceTO, final boolean createFlag) {
         super(id);
         setOutputMarkupId(true);
@@ -114,11 +114,12 @@ public class ResourceConnConfPanel extends Panel {
          * the list of overridable connector properties
          */
         connConfPropContainer.add(new AltListView<ConnConfProperty>("connectorProperties",
-                new PropertyModel(this, "connConfProperties")) {
+                new PropertyModel<List<ConnConfProperty>>(this, "connConfProperties")) {
 
                     private static final long serialVersionUID = 9101744072914090143L;
 
                     @Override
+                    @SuppressWarnings({ "unchecked", "rawtypes" })
                     protected void populateItem(final ListItem<ConnConfProperty> item) {
                         final ConnConfProperty property = item.getModelObject();
 
@@ -129,7 +130,7 @@ public class ResourceConnConfPanel extends Panel {
 
                         item.add(label);
 
-                        final FieldPanel field;
+                        FieldPanel<? extends Serializable> field;
 
                         boolean required = false;
 
@@ -139,32 +140,33 @@ public class ResourceConnConfPanel extends Panel {
                         || Constants.GUARDED_BYTE_ARRAY.equalsIgnoreCase(property.getSchema().getType())) {
 
                             field = new AjaxPasswordFieldPanel("panel", label.getDefaultModelObjectAsString(),
-                                    new Model());
+                                    new Model<String>());
                             ((PasswordTextField) field.getField()).setResetPassword(false);
 
                             required = property.getSchema().isRequired();
                         } else {
                             Class<?> propertySchemaClass;
-
                             try {
-                                propertySchemaClass = ClassUtils.forName(property.getSchema().getType(), ClassUtils.
-                                        getDefaultClassLoader());
+                                propertySchemaClass = ClassUtils.forName(property.getSchema().getType(),
+                                        ClassUtils.getDefaultClassLoader());
                             } catch (Exception e) {
                                 LOG.error("Error parsing attribute type", e);
                                 propertySchemaClass = String.class;
                             }
 
                             if (ClassUtils.isAssignable(Number.class, propertySchemaClass)) {
+                                @SuppressWarnings("unchecked")
+                                Class<Number> numberClass = (Class<Number>) propertySchemaClass;
                                 field = new SpinnerFieldPanel<Number>("panel", label.getDefaultModelObjectAsString(),
-                                        (Class<Number>) propertySchemaClass, new Model<Number>(), null, null, false);
+                                        numberClass, new Model<Number>(), null, null, false);
 
                                 required = property.getSchema().isRequired();
                             } else if (ClassUtils.isAssignable(Boolean.class, propertySchemaClass)) {
                                 field = new AjaxCheckBoxPanel("panel", label.getDefaultModelObjectAsString(),
-                                        new Model());
+                                        new Model<Boolean>());
                             } else {
                                 field = new AjaxTextFieldPanel("panel", label.getDefaultModelObjectAsString(),
-                                        new Model());
+                                        new Model<String>());
 
                                 required = property.getSchema().isRequired();
                             }
@@ -183,7 +185,7 @@ public class ResourceConnConfPanel extends Panel {
                                 property.getValues().add(null);
                             }
 
-                            final MultiValueSelectorPanel multiFields = new MultiValueSelectorPanel<String>("panel",
+                            final MultiFieldPanel multiFields = new MultiFieldPanel("panel",
                                     new PropertyModel<List<String>>(property, "values"), field, true);
 
                             item.add(multiFields);
@@ -203,13 +205,27 @@ public class ResourceConnConfPanel extends Panel {
                                 }
                             });
 
-                            field.setNewModel(property.getValues());
+                            field.setNewModel(toSerializableList(property.getValues()));
                             item.add(field);
                         }
 
                         resourceTO.getConnConfProperties().add(property);
                     }
                 });
+    }
+
+    private List<Serializable> toSerializableList(final List<Object> values) {
+        List<Serializable> result = new ArrayList<Serializable>();
+
+        for (Object value : values) {
+            if (value instanceof Serializable) {
+                result.add((Serializable) value);
+            } else {
+                LOG.warn("Not serializable: {}", value);
+            }
+        }
+
+        return result;
     }
 
     /**

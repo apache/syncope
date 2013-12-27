@@ -48,7 +48,8 @@ import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.DateTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MultiFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -104,6 +105,7 @@ public class AttributesPanel extends Panel {
                     private static final long serialVersionUID = 9101744072914090143L;
 
                     @Override
+                    @SuppressWarnings({ "unchecked", "rawtypes" })
                     protected void populateItem(final ListItem<AttributeTO> item) {
                         final AttributeTO attributeTO = (AttributeTO) item.getDefaultModelObject();
 
@@ -125,7 +127,7 @@ public class AttributesPanel extends Panel {
                         if (templateMode || !schemas.get(attributeTO.getSchema()).isMultivalue()) {
                             item.add(panel);
                         } else {
-                            item.add(new MultiValueSelectorPanel<String>(
+                            item.add(new MultiFieldPanel<String>(
                                             "panel", new PropertyModel<List<String>>(attributeTO, "values"), panel));
                         }
                     }
@@ -263,9 +265,26 @@ public class AttributesPanel extends Panel {
                 if (required) {
                     panel.addRequiredLabel();
                 }
+                break;
+                
+            case Long:
+                panel = new SpinnerFieldPanel<Long>("panel", schemaTO.getName(),
+                        Long.class, new Model<Long>(), null, null, false);
 
+                if (required) {
+                    panel.addRequiredLabel();
+                }
                 break;
 
+            case Double:
+                panel = new SpinnerFieldPanel<Double>("panel", schemaTO.getName(),
+                        Double.class, new Model<Double>(), null, null, false);
+
+                if (required) {
+                    panel.addRequiredLabel();
+                }
+                break;
+                
             default:
                 panel = new AjaxTextFieldPanel("panel", schemaTO.getName(), new Model<String>());
                 if (required) {

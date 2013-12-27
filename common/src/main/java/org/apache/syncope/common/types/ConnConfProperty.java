@@ -37,7 +37,7 @@ public class ConnConfProperty extends AbstractBaseBean implements Comparable<Con
 
     private ConnConfPropSchema schema;
 
-    private List<Object> values = new ArrayList<Object>();
+    private final List<Object> values = new ArrayList<Object>();
 
     private boolean overridable;
 

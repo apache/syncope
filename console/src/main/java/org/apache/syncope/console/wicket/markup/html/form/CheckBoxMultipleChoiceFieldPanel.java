@@ -18,29 +18,28 @@
  */
 package org.apache.syncope.console.wicket.markup.html.form;
 
-import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.model.IModel;
 
-public class CheckBoxMultipleChoiceFieldPanel extends AbstractFieldPanel {
+public class CheckBoxMultipleChoiceFieldPanel<E> extends AbstractFieldPanel<List<E>> {
 
     private static final long serialVersionUID = 4124935025837737298L;
 
-    private final CheckBoxMultipleChoice field;
+    private final CheckBoxMultipleChoice<E> field;
 
-    public CheckBoxMultipleChoiceFieldPanel(final String id, final IModel<Collection> model, final IModel<List> choices) {
+    public CheckBoxMultipleChoiceFieldPanel(
+            final String id, final IModel<List<E>> model, final IModel<List<E>> choices) {
 
         super(id, model);
 
-        field = new CheckBoxMultipleChoice("checkBoxMultipleChoice", model, choices);
+        field = new CheckBoxMultipleChoice<E>("checkBoxMultipleChoice", model, choices);
         add(field);
     }
 
     @Override
-    public AbstractFieldPanel setModelObject(final Serializable object) {
+    public AbstractFieldPanel<List<E>> setModelObject(final List<E> object) {
         field.setModelObject(object);
         return this;
     }

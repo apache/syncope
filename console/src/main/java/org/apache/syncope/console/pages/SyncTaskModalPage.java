@@ -59,7 +59,7 @@ public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
         };
 
         final AjaxDropDownChoicePanel<String> resource = new AjaxDropDownChoicePanel<String>("resource",
-                getString("resourceName"), new PropertyModel(taskTO, "resource"));
+                getString("resourceName"), new PropertyModel<String>(taskTO, "resource"));
         resource.setChoices(allResources.getObject());
         resource.setChoiceRenderer(new SelectChoiceRenderer());
         resource.addRequiredLabel();
@@ -69,7 +69,7 @@ public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
         profile.add(resource);
 
         final AjaxDropDownChoicePanel<String> actionsClassName = new AjaxDropDownChoicePanel<String>(
-                "actionsClassName", getString("actionsClass"), new PropertyModel(taskTO, "actionsClassName"));
+                "actionsClassName", getString("actionsClass"), new PropertyModel<String>(taskTO, "actionsClassName"));
         actionsClassName.setChoices(taskRestClient.getSyncActionsClasses());
         actionsClassName.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
         profile.add(actionsClassName);

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.wicket.Page;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.Model;
@@ -30,12 +31,13 @@ public class ErrorPage extends BasePage {
 
     private static final long serialVersionUID = -390761262038796657L;
 
+    @SuppressWarnings("unchecked")
     public ErrorPage(final PageParameters parameters) {
         super(parameters);
 
         add(new Label("errorTitle", new Model<String>(parameters.get("errorTitle").toString())));
         add(new Label("errorMessage", new Model<String>(parameters.get("errorMessage").toString())));
 
-        add(new BookmarkablePageLink("home", getApplication().getHomePage()));
+        add(new BookmarkablePageLink<Page>("home", getApplication().getHomePage()));
     }
 }
