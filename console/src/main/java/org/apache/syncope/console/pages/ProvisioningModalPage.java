@@ -29,7 +29,7 @@ import org.apache.syncope.common.reqres.BulkAssociationAction;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.types.ResourceAssociationActionType;
+import org.apache.syncope.common.types.ResourceDeAssociationActionType;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.status.AbstractStatusBeanProvider;
 import org.apache.syncope.console.commons.status.StatusBean;
@@ -97,22 +97,22 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
         columns.add(new AbstractColumn<StatusBean, String>(
                 new StringResourceModel("status", this, null, "")) {
 
-                    private static final long serialVersionUID = -3503023501954863131L;
+            private static final long serialVersionUID = -3503023501954863131L;
 
-                    @Override
-                    public String getCssClass() {
-                        return "action";
-                    }
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
 
-                    @Override
-                    public void populateItem(
-                            final Item<ICellPopulator<StatusBean>> cellItem,
-                            final String componentId,
-                            final IModel<StatusBean> model) {
-                                cellItem.
-                                add(statusUtils.getStatusImagePanel(componentId, model.getObject().getStatus()));
-                            }
-                });
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<StatusBean>> cellItem,
+                    final String componentId,
+                    final IModel<StatusBean> model) {
+                cellItem.
+                        add(statusUtils.getStatusImagePanel(componentId, model.getObject().getStatus()));
+            }
+        });
 
         final ActionDataTablePanel<StatusBean, String> table = new ActionDataTablePanel<StatusBean, String>(
                 "resourceDatatable",
@@ -130,7 +130,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    bulkAssociationAction(target, ResourceAssociationActionType.UNLINK, table, columns);
+                    bulkAssociationAction(target, ResourceDeAssociationActionType.UNLINK, table, columns);
                 } catch (Exception e) {
                     LOG.error("Error unlinkink resources", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
@@ -146,7 +146,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    bulkAssociationAction(target, ResourceAssociationActionType.DEPROVISION, table, columns);
+                    bulkAssociationAction(target, ResourceDeAssociationActionType.DEPROVISION, table, columns);
                 } catch (Exception e) {
                     LOG.error("Error de-provisioning user", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
@@ -162,7 +162,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    bulkAssociationAction(target, ResourceAssociationActionType.UNASSIGN, table, columns);
+                    bulkAssociationAction(target, ResourceDeAssociationActionType.UNASSIGN, table, columns);
                 } catch (Exception e) {
                     LOG.error("Error unassigning resources", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
@@ -222,7 +222,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
 
     private void bulkAssociationAction(
             final AjaxRequestTarget target,
-            final ResourceAssociationActionType type,
+            final ResourceDeAssociationActionType type,
             final ActionDataTablePanel<StatusBean, String> table,
             final List<IColumn<StatusBean, String>> columns) {
 

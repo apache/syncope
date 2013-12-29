@@ -34,6 +34,7 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.model.wadl.Description;
 import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
+import org.apache.syncope.common.mod.ResourceAssociationMod;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.wrap.ResourceName;
@@ -42,6 +43,7 @@ import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
+import org.apache.syncope.common.types.ResourceDeAssociationActionType;
 
 @Path("users")
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -287,22 +289,37 @@ public interface UserService extends JAXRSService {
      * Executes resource-related operations on given user.
      *
      * @param userId user id.
-     * @param type resource association action type
+     * @param type resource de-association action type
      * @param resourceNames external resources to be used for propagation-related operations
-     * @return <tt>Response</tt> object featuring the updated user enriched with propagation status information,
-     * as <tt>Entity</tt>
+     * @return <tt>Response</tt> object featuring the bulk action result
      */
     @POST
-    @Path("{userId}/associate/{type}")
+    @Path("{userId}/bulkDeassociation/{type}")
     @Descriptions({
         @Description(target = DocTarget.METHOD, value = "Executes resource-related operations on given user"),
-        @Description(target = DocTarget.RETURN, value = "<tt>Response</tt> object featuring the updated user enriched "
-                + "with propagation status information, as <tt>Entity</tt>")
+        @Description(target = DocTarget.RETURN, value = "<tt>Response</tt> object featuring the bulk action result")
     })
-    Response associate(@Description("user id") @PathParam("userId") Long userId,
+    Response bulkDeassociation(@Description("user id") @PathParam("userId") Long userId,
+            @Description("resource de-association action type") @PathParam("type") ResourceDeAssociationActionType type,
+            @Description("external resources to be used for propagation-related operations") List<ResourceName> resourceNames);
+
+    /**
+     * Executes resource-related operations on given user.
+     *
+     * @param userId user id.
+     * @param type resource association action type
+     * @param associationMod external resources to be used for propagation-related operations
+     * @return <tt>Response</tt> object featuring the bulk action result
+     */
+    @POST
+    @Path("{userId}/bulkAssociation/{type}")
+    @Descriptions({
+        @Description(target = DocTarget.METHOD, value = "Executes resource-related operations on given user"),
+        @Description(target = DocTarget.RETURN, value = "<tt>Response</tt> object featuring the bulk action result")
+    })
+    Response bulkAssociation(@Description("user id") @PathParam("userId") Long userId,
             @Description("resource association action type") @PathParam("type") ResourceAssociationActionType type,
-            @Description("external resources to be used for propagation-related operations"
-            ) List<ResourceName> resourceNames);
+            @Description("external resources to be used for propagation-related operations") ResourceAssociationMod associationMod);
 
     /**
      * Executes the provided bulk action.
@@ -317,5 +334,4 @@ public interface UserService extends JAXRSService {
         @Description(target = DocTarget.RETURN, value = "Bulk action result")
     })
     BulkActionResult bulk(@Description("list of &lt;username, action&gt; pairs") BulkAction bulkAction);
-
 }

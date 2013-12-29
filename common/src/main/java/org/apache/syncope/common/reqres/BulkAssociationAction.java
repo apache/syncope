@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.AbstractBaseBean;
-import org.apache.syncope.common.types.ResourceAssociationActionType;
+import org.apache.syncope.common.types.ResourceDeAssociationActionType;
 
 @XmlRootElement(name = "bulkAssociationAction")
 @XmlType
@@ -35,18 +35,18 @@ public class BulkAssociationAction extends AbstractBaseBean {
 
     private static final long serialVersionUID = 1395353278878758961L;
 
-    private ResourceAssociationActionType operation;
+    private ResourceDeAssociationActionType operation;
 
     /**
      * Serialized identifiers.
      */
     private final List<Long> targets = new ArrayList<Long>();
 
-    public ResourceAssociationActionType getOperation() {
+    public ResourceDeAssociationActionType getOperation() {
         return operation;
     }
 
-    public void setOperation(final ResourceAssociationActionType operation) {
+    public void setOperation(final ResourceDeAssociationActionType operation) {
         this.operation = operation;
     }
 

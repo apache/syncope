@@ -24,16 +24,16 @@ import javax.xml.bind.annotation.XmlEnum;
 public enum ResourceAssociationActionType {
 
     /**
-     * Remove association between user/role on Syncope and external resource(s).
+     * Add association between user/role on Syncope and external resource(s) without any propagation.
      */
-    UNLINK,
+    LINK,
     /**
-     * Remove user/role from external resource(s).
+     * Add user/role into external resource(s).
      */
-    DEPROVISION,
+    PROVISION,
     /**
-     * Unassign (unlink + deprovision) external resource(s) from user/role.
+     * Assign (link + provision) external resource(s) with user/role.
      */
-    UNASSIGN
+    ASSIGN
 
 }

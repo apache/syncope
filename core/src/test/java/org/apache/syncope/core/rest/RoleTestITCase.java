@@ -45,10 +45,12 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.Preference;
 import org.apache.syncope.common.types.RESTHeaders;
-import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.common.types.ResourceAssociationActionType;
+import org.apache.syncope.common.types.ResourceDeAssociationActionType;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -402,19 +404,47 @@ public class RoleTestITCase extends AbstractTest {
 
         assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
 
-        actual = roleService.associate(actual.getId(),
-                ResourceAssociationActionType.UNLINK,
-                CollectionWrapper.wrap("resource-ldap", ResourceName.class)).
-                readEntity(RoleTO.class);
-        assertNotNull(actual);
-        assertTrue(actual.getResources().isEmpty());
+        assertNotNull(roleService.bulkDeassociation(actual.getId(),
+                ResourceDeAssociationActionType.UNLINK,
+                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
+                readEntity(BulkActionResult.class));
 
         actual = roleService.read(actual.getId());
         assertNotNull(actual);
-
         assertTrue(actual.getResources().isEmpty());
 
         assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
+    }
+
+    @Test
+    public void link() {
+        RoleTO roleTO = buildRoleTO("link");
+        roleTO.getResources().clear();
+
+        RoleTO actual = createRole(roleTO);
+        assertNotNull(actual);
+
+        try {
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
+
+        assertNotNull(roleService.bulkAssociation(actual.getId(),
+                ResourceAssociationActionType.LINK,
+                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
+                readEntity(BulkActionResult.class));
+
+        actual = roleService.read(actual.getId());
+        assertFalse(actual.getResources().isEmpty());
+
+        try {
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
     }
 
     @Test
@@ -424,12 +454,10 @@ public class RoleTestITCase extends AbstractTest {
 
         assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
 
-        actual = roleService.associate(actual.getId(),
-                ResourceAssociationActionType.UNASSIGN,
-                CollectionWrapper.wrap("resource-ldap", ResourceName.class)).
-                readEntity(RoleTO.class);
-        assertNotNull(actual);
-        assertTrue(actual.getResources().isEmpty());
+        assertNotNull(roleService.bulkDeassociation(actual.getId(),
+                ResourceDeAssociationActionType.UNASSIGN,
+                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
+                readEntity(BulkActionResult.class));
 
         actual = roleService.read(actual.getId());
         assertNotNull(actual);
@@ -444,22 +472,113 @@ public class RoleTestITCase extends AbstractTest {
     }
 
     @Test
+    public void assign() {
+        RoleTO roleTO = buildRoleTO("assign");
+        roleTO.getResources().clear();
+
+        RoleTO actual = createRole(roleTO);
+        assertNotNull(actual);
+
+        try {
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
+
+        assertNotNull(roleService.bulkAssociation(actual.getId(),
+                ResourceAssociationActionType.ASSIGN,
+                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
+                readEntity(BulkActionResult.class));
+
+        actual = roleService.read(actual.getId());
+        assertFalse(actual.getResources().isEmpty());
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
+    }
+
+    @Test
     public void deprovision() {
         RoleTO actual = createRole(buildRoleTO("deprovision"));
         assertNotNull(actual);
 
         assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
 
-        actual = roleService.associate(actual.getId(),
-                ResourceAssociationActionType.DEPROVISION,
-                CollectionWrapper.wrap("resource-ldap", ResourceName.class)).
-                readEntity(RoleTO.class);
-        assertNotNull(actual);
-        assertFalse(actual.getResources().isEmpty());
+        assertNotNull(roleService.bulkDeassociation(actual.getId(),
+                ResourceDeAssociationActionType.DEPROVISION,
+                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
+                readEntity(BulkActionResult.class));
 
         actual = roleService.read(actual.getId());
         assertNotNull(actual);
         assertFalse(actual.getResources().isEmpty());
+
+        try {
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void provision() {
+        RoleTO roleTO = buildRoleTO("assign");
+        roleTO.getResources().clear();
+
+        RoleTO actual = createRole(roleTO);
+        assertNotNull(actual);
+
+        try {
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
+
+        assertNotNull(roleService.bulkAssociation(actual.getId(),
+                ResourceAssociationActionType.PROVISION,
+                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
+                readEntity(BulkActionResult.class));
+
+        actual = roleService.read(actual.getId());
+        assertTrue(actual.getResources().isEmpty());
+
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
+    }
+
+    @Test
+    public void deprovisionUnlinked() {
+        RoleTO roleTO = buildRoleTO("assign");
+        roleTO.getResources().clear();
+
+        RoleTO actual = createRole(roleTO);
+        assertNotNull(actual);
+
+        try {
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
+
+        assertNotNull(roleService.bulkAssociation(actual.getId(),
+                ResourceAssociationActionType.PROVISION,
+                CollectionWrapper.wrap("resource-ldap", ResourceName.class)).
+                readEntity(BulkActionResult.class));
+
+        actual = roleService.read(actual.getId());
+        assertTrue(actual.getResources().isEmpty());
+
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
+
+        assertNotNull(roleService.bulkDeassociation(actual.getId(),
+                ResourceDeAssociationActionType.DEPROVISION,
+                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
+                readEntity(BulkActionResult.class));
+
+        actual = roleService.read(actual.getId());
+        assertNotNull(actual);
+        assertTrue(actual.getResources().isEmpty());
 
         try {
             resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());

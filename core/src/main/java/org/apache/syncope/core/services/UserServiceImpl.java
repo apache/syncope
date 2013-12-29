@@ -23,16 +23,19 @@ import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import org.apache.syncope.common.mod.ResourceAssociationMod;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
-import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.reqres.PagedResult;
+import org.apache.syncope.common.to.PropagationStatus;
 import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
+import org.apache.syncope.common.types.ResourceDeAssociationActionType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.dao.search.SearchCond;
@@ -159,17 +162,13 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     }
 
     @Override
-    public BulkActionResult bulk(final BulkAction bulkAction) {
-        return controller.bulk(bulkAction);
-    }
+    public Response bulkDeassociation(
+            final Long userId, final ResourceDeAssociationActionType type, final List<ResourceName> resourceNames) {
 
-    @Override
-    public Response associate(final Long userId, final ResourceAssociationActionType type,
-            final List<ResourceName> resourceNames) {
-
-        UserTO user = controller.read(userId);
+        final UserTO user = controller.read(userId);
 
         ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
+
         if (builder == null) {
             UserTO updated;
 
@@ -190,9 +189,85 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
                     updated = controller.read(userId);
             }
 
-            builder = modificationResponse(updated);
+            final BulkActionResult res = new BulkActionResult();
+
+            if (type == ResourceDeAssociationActionType.UNLINK) {
+                for (ResourceName resourceName : resourceNames) {
+                    res.add(resourceName.getName(), updated.getResources().contains(resourceName.getName())
+                            ? BulkActionResult.Status.FAILURE
+                            : BulkActionResult.Status.SUCCESS);
+                }
+            } else {
+                for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
+                    res.add(propagationStatusTO.getResource(), propagationStatusTO.getStatus().toString());
+                }
+            }
+
+            builder = modificationResponse(res);
         }
 
         return builder.build();
+    }
+
+    @Override
+    public Response bulkAssociation(
+            final Long userId, final ResourceAssociationActionType type, final ResourceAssociationMod associationMod) {
+
+        final UserTO user = controller.read(userId);
+
+        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
+        if (builder == null) {
+            UserTO updated;
+
+            switch (type) {
+                case LINK:
+                    updated = controller.link(
+                            userId,
+                            CollectionWrapper.unwrap(associationMod.getTargetResources()));
+                    break;
+
+                case ASSIGN:
+                    updated = controller.assign(
+                            userId,
+                            CollectionWrapper.unwrap(associationMod.getTargetResources()),
+                            associationMod.isChangePwd(),
+                            associationMod.getPassword());
+                    break;
+
+                case PROVISION:
+                    updated = controller.provision(
+                            userId,
+                            CollectionWrapper.unwrap(associationMod.getTargetResources()),
+                            associationMod.isChangePwd(),
+                            associationMod.getPassword());
+                    break;
+
+                default:
+                    updated = controller.read(userId);
+            }
+
+            final BulkActionResult res = new BulkActionResult();
+
+            if (type == ResourceAssociationActionType.LINK) {
+                for (ResourceName resourceName : associationMod.getTargetResources()) {
+                    res.add(resourceName.getName(), updated.getResources().contains(resourceName.getName())
+                            ? BulkActionResult.Status.FAILURE
+                            : BulkActionResult.Status.SUCCESS);
+                }
+            } else {
+                for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
+                    res.add(propagationStatusTO.getResource(), propagationStatusTO.getStatus().toString());
+                }
+            }
+
+            builder = modificationResponse(res);
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    public BulkActionResult bulk(final BulkAction bulkAction) {
+        return controller.bulk(bulkAction);
     }
 }

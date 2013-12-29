@@ -62,7 +62,6 @@ import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.ClientExceptionType;
-import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.common.util.CollectionWrapper;
@@ -79,10 +78,13 @@ import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.SyncopeClient;
+import org.apache.syncope.common.mod.ResourceAssociationMod;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.types.Preference;
 import org.apache.syncope.common.types.RESTHeaders;
+import org.apache.syncope.common.types.ResourceAssociationActionType;
+import org.apache.syncope.common.types.ResourceDeAssociationActionType;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
@@ -1848,26 +1850,56 @@ public class UserTestITCase extends AbstractTest {
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId()));
 
-        ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
-        assertNotNull(connObjectTO);
-
-        actual = userService.associate(actual.getId(),
-                ResourceAssociationActionType.UNLINK,
+        assertNotNull(userService.bulkDeassociation(actual.getId(),
+                ResourceDeAssociationActionType.UNLINK,
                 CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class)).
-                readEntity(UserTO.class);
-        assertNotNull(actual);
-        assertTrue(actual.getResources().isEmpty());
+                readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getId());
         assertNotNull(actual);
-
         assertTrue(actual.getResources().isEmpty());
 
-        connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
-        assertNotNull(connObjectTO);
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId()));
+    }
+
+    @Test
+    public void link() {
+        UserTO userTO = getUniqueSampleTO("link@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getDerAttrs().clear();
+        userTO.getVirAttrs().clear();
+        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
+
+        UserTO actual = createUser(userTO);
+        assertNotNull(actual);
+        assertTrue(actual.getResources().isEmpty());
+
+        try {
+            resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
+
+        final ResourceAssociationMod associationMod = new ResourceAssociationMod();
+        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class));
+
+        assertNotNull(userService.bulkAssociation(
+                actual.getId(), ResourceAssociationActionType.LINK, associationMod).readEntity(BulkActionResult.class));
+
+        actual = userService.read(actual.getId());
+        assertNotNull(actual);
+        assertFalse(actual.getResources().isEmpty());
+
+        try {
+            resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
     }
 
     @Test
@@ -1882,17 +1914,12 @@ public class UserTestITCase extends AbstractTest {
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId()));
 
-        ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
-        assertNotNull(connObjectTO);
-
-        actual = userService.associate(actual.getId(),
-                ResourceAssociationActionType.UNASSIGN,
+        assertNotNull(userService.bulkDeassociation(actual.getId(),
+                ResourceDeAssociationActionType.UNASSIGN,
                 CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class)).
-                readEntity(UserTO.class);
-        assertNotNull(actual);
-        assertTrue(actual.getResources().isEmpty());
+                readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getId());
         assertNotNull(actual);
@@ -1907,6 +1934,40 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
+    public void assign() {
+        UserTO userTO = getUniqueSampleTO("assign@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getDerAttrs().clear();
+        userTO.getVirAttrs().clear();
+        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
+
+        UserTO actual = createUser(userTO);
+        assertNotNull(actual);
+        assertTrue(actual.getResources().isEmpty());
+
+        try {
+            resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
+
+        final ResourceAssociationMod associationMod = new ResourceAssociationMod();
+        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class));
+        associationMod.setChangePwd(true);
+        associationMod.setPassword("password");
+
+        assertNotNull(userService.bulkAssociation(actual.getId(), ResourceAssociationActionType.ASSIGN, associationMod)
+                .readEntity(BulkActionResult.class));
+
+        actual = userService.read(actual.getId());
+        assertNotNull(actual);
+        assertFalse(actual.getResources().isEmpty());
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId()));
+    }
+
+    @Test
     public void deprovision() {
         UserTO userTO = getUniqueSampleTO("deprovision@syncope.apache.org");
         userTO.getResources().clear();
@@ -1918,21 +1979,102 @@ public class UserTestITCase extends AbstractTest {
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId()));
 
-        ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
-        assertNotNull(connObjectTO);
-
-        actual = userService.associate(actual.getId(),
-                ResourceAssociationActionType.DEPROVISION,
+        assertNotNull(userService.bulkDeassociation(actual.getId(),
+                ResourceDeAssociationActionType.DEPROVISION,
                 CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class)).
-                readEntity(UserTO.class);
-        assertNotNull(actual);
-        assertFalse(actual.getResources().isEmpty());
+                readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getId());
         assertNotNull(actual);
         assertFalse(actual.getResources().isEmpty());
+
+        try {
+            resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void provision() {
+        UserTO userTO = getUniqueSampleTO("provision@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getDerAttrs().clear();
+        userTO.getVirAttrs().clear();
+        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
+
+        UserTO actual = createUser(userTO);
+        assertNotNull(actual);
+        assertTrue(actual.getResources().isEmpty());
+
+        try {
+            resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
+
+        final ResourceAssociationMod associationMod = new ResourceAssociationMod();
+        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class));
+        associationMod.setChangePwd(true);
+        associationMod.setPassword("password");
+
+        assertNotNull(userService.bulkAssociation(actual.getId(), ResourceAssociationActionType.PROVISION,
+                associationMod)
+                .readEntity(BulkActionResult.class));
+
+        actual = userService.read(actual.getId());
+        assertNotNull(actual);
+        assertTrue(actual.getResources().isEmpty());
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId()));
+    }
+
+    @Test
+    public void deprovisionUnlinked() {
+        UserTO userTO = getUniqueSampleTO("provision@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getDerAttrs().clear();
+        userTO.getVirAttrs().clear();
+        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
+
+        UserTO actual = createUser(userTO);
+        assertNotNull(actual);
+        assertTrue(actual.getResources().isEmpty());
+
+        try {
+            resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
+
+        final ResourceAssociationMod associationMod = new ResourceAssociationMod();
+        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class));
+        associationMod.setChangePwd(true);
+        associationMod.setPassword("password");
+
+        assertNotNull(userService.bulkAssociation(actual.getId(), ResourceAssociationActionType.PROVISION,
+                associationMod)
+                .readEntity(BulkActionResult.class));
+
+        actual = userService.read(actual.getId());
+        assertNotNull(actual);
+        assertTrue(actual.getResources().isEmpty());
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId()));
+
+        assertNotNull(userService.bulkDeassociation(actual.getId(),
+                ResourceDeAssociationActionType.DEPROVISION,
+                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class)).
+                readEntity(BulkActionResult.class));
+
+        actual = userService.read(actual.getId());
+        assertNotNull(actual);
+        assertTrue(actual.getResources().isEmpty());
 
         try {
             resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId());
@@ -2062,5 +2204,4 @@ public class UserTestITCase extends AbstractTest {
                 "password123",
                 connObject.getAttrMap().get(Name.NAME).getValues().get(0)));
     }
-
 }

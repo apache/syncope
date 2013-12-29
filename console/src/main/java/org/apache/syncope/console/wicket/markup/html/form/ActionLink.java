@@ -25,6 +25,8 @@ public abstract class ActionLink implements Serializable {
 
     private static final long serialVersionUID = 7031329706998320639L;
 
+    private boolean reloadFeedbackPanel = true;
+
     public enum ActionType {
 
         CREATE("create"),
@@ -44,8 +46,11 @@ public abstract class ActionLink implements Serializable {
         RELOAD("reload"),
         CHANGE_VIEW("changeView"),
         UNLINK("update"),
+        LINK("update"),
         UNASSIGN("update"),
+        ASSIGN("update"),
         DEPROVISION("update"),
+        PROVISION("update"),
         MANAGE_RESOURCES("update"),
         MANAGE_USERS("update"),
         MANAGE_ROLES("update");
@@ -64,5 +69,14 @@ public abstract class ActionLink implements Serializable {
     public abstract void onClick(final AjaxRequestTarget target);
 
     public void postClick() {
+    }
+
+    public boolean feedbackPanelAutomaticReload() {
+        return reloadFeedbackPanel;
+    }
+
+    public ActionLink feedbackPanelAutomaticReload(boolean reloadFeedbackPanel) {
+        this.reloadFeedbackPanel = reloadFeedbackPanel;
+        return this;
     }
 }

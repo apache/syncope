@@ -56,7 +56,7 @@ public class ActionDataTablePanel<T, S> extends Panel {
 
     private final CheckGroup<T> group;
 
-    private final Form bulkActionForm;
+    private final Form<?> bulkActionForm;
 
     private final ActionLinksPanel actionPanel;
 
@@ -96,7 +96,7 @@ public class ActionDataTablePanel<T, S> extends Panel {
             private static final long serialVersionUID = -151291731388673682L;
 
             @Override
-            protected void onUpdate(AjaxRequestTarget target) {
+            protected void onUpdate(final AjaxRequestTarget target) {
                 // ignore
             }
         });
@@ -168,7 +168,7 @@ public class ActionDataTablePanel<T, S> extends Panel {
             protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 window.close(target);
             }
-        };
+        }.feedbackPanelAutomaticReload(false);
 
         cancel.setDefaultFormProcessing(false);
         bulkActionForm.addOrReplace(cancel);

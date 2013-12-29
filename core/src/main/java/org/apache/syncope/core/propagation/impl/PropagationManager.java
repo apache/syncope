@@ -393,9 +393,7 @@ public class PropagationManager {
      */
     public List<PropagationTask> getUserDeleteTaskIds(final Long userId, final String noPropResourceName)
             throws NotFoundException, UnauthorizedRoleException {
-
-        SyncopeUser user = userDataBinder.getUserFromId(userId);
-        return getDeleteTaskIds(user, Collections.<String>singleton(noPropResourceName));
+        return getUserDeleteTaskIds(userId, Collections.<String>singleton(noPropResourceName));
     }
 
     /**
@@ -413,7 +411,26 @@ public class PropagationManager {
             throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeUser user = userDataBinder.getUserFromId(userId);
-        return getDeleteTaskIds(user, noPropResourceNames);
+        return getDeleteTaskIds(user, user.getResourceNames(), noPropResourceNames);
+    }
+
+    /**
+     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
+     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
+     * the creation fails onto a mandatory resource.
+     *
+     * @param userId to be deleted
+     * @param noPropResourceNames name of external resources not to be considered for propagation
+     * @return list of propagation tasks
+     * @throws NotFoundException if user is not found
+     * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given user
+     */
+    public List<PropagationTask> getUserDeleteTaskIds(
+            final Long userId, final Set<String> resourceNames, final Collection<String> noPropResourceNames)
+            throws NotFoundException, UnauthorizedRoleException {
+
+        SyncopeUser user = userDataBinder.getUserFromId(userId);
+        return getDeleteTaskIds(user, resourceNames, noPropResourceNames);
     }
 
     /**
@@ -477,14 +494,35 @@ public class PropagationManager {
             throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeRole role = roleDataBinder.getRoleFromId(roleId);
-        return getDeleteTaskIds(role, noPropResourceNames);
+        return getDeleteTaskIds(role, role.getResourceNames(), noPropResourceNames);
+    }
+    
+    /**
+     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
+     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
+     * the creation fails onto a mandatory resource.
+     *
+     * @param roleId to be deleted
+     * @param noPropResourceNames name of external resources not to be considered for propagation
+     * @return list of propagation tasks
+     * @throws NotFoundException if role is not found
+     * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given role
+     */
+    public List<PropagationTask> getRoleDeleteTaskIds(
+            final Long roleId, final Set<String> resourceNames, final Collection<String> noPropResourceNames)
+            throws NotFoundException, UnauthorizedRoleException {
+
+        SyncopeRole role = roleDataBinder.getRoleFromId(roleId);
+        return getDeleteTaskIds(role, resourceNames, noPropResourceNames);
     }
 
-    protected List<PropagationTask> getDeleteTaskIds(final AbstractAttributable attributable,
+    protected List<PropagationTask> getDeleteTaskIds(
+            final AbstractAttributable attributable,
+            final Set<String> resourceNames,
             final Collection<String> noPropResourceNames) {
 
         final PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(ResourceOperation.DELETE, attributable.getResourceNames());
+        propByRes.set(ResourceOperation.DELETE, resourceNames);
         if (noPropResourceNames != null && !noPropResourceNames.isEmpty()) {
             propByRes.get(ResourceOperation.DELETE).removeAll(noPropResourceNames);
         }

@@ -35,6 +35,7 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
+import org.apache.syncope.common.types.ResourceDeAssociationActionType;
 import org.apache.syncope.common.wrap.ResourceName;
 
 @Path("roles")
@@ -186,11 +187,23 @@ public interface RoleService extends JAXRSService {
      * @param roleId role id.
      * @param type resource association action type
      * @param resourceNames external resources to be used for propagation-related operations
-     * @return <tt>Response</tt> object featuring the updated role enriched with propagation status information,
-     * as <tt>Entity</tt>
+     * @return <tt>Response</tt> object featuring the bulk action result
+     */
+    @POST
+    @Path("{roleId}/deassociate/{type}")
+    Response bulkDeassociation(@PathParam("roleId") Long roleId, @PathParam("type") ResourceDeAssociationActionType type,
+            List<ResourceName> resourceNames);
+    
+    /**
+     * Executes resource-related operations on given role.
+     *
+     * @param roleId role id.
+     * @param type resource association action type
+     * @param resourceNames external resources to be used for propagation-related operations
+     * @return <tt>Response</tt> object featuring the bulk action result
      */
     @POST
     @Path("{roleId}/associate/{type}")
-    Response associate(@PathParam("roleId") Long roleId, @PathParam("type") ResourceAssociationActionType type,
+    Response bulkAssociation(@PathParam("roleId") Long roleId, @PathParam("type") ResourceAssociationActionType type,
             List<ResourceName> resourceNames);
 }

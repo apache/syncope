@@ -25,11 +25,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.syncope.common.mod.RoleMod;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.reqres.PagedResult;
+import org.apache.syncope.common.to.PropagationStatus;
 import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
+import org.apache.syncope.common.types.ResourceDeAssociationActionType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.dao.search.SearchCond;
@@ -143,8 +146,8 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     }
 
     @Override
-    public Response associate(final Long roleId, final ResourceAssociationActionType type,
-            final List<ResourceName> resourceNames) {
+    public Response bulkDeassociation(
+            final Long roleId, final ResourceDeAssociationActionType type, final List<ResourceName> resourceNames) {
 
         RoleTO role = controller.read(roleId);
 
@@ -169,7 +172,68 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
                     updated = controller.read(roleId);
             }
 
-            builder = modificationResponse(updated);
+            final BulkActionResult res = new BulkActionResult();
+
+            if (type == ResourceDeAssociationActionType.UNLINK) {
+                for (ResourceName resourceName : resourceNames) {
+                    res.add(resourceName.getName(), updated.getResources().contains(resourceName.getName())
+                            ? BulkActionResult.Status.FAILURE
+                            : BulkActionResult.Status.SUCCESS);
+                }
+            } else {
+                for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
+                    res.add(propagationStatusTO.getResource(), propagationStatusTO.getStatus().toString());
+                }
+            }
+
+            builder = modificationResponse(res);
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    public Response bulkAssociation(
+            final Long roleId, final ResourceAssociationActionType type, final List<ResourceName> resourceNames) {
+
+        RoleTO role = controller.read(roleId);
+
+        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(role.getETagValue()));
+        if (builder == null) {
+            RoleTO updated;
+
+            switch (type) {
+                case LINK:
+                    updated = controller.link(roleId, CollectionWrapper.unwrap(resourceNames));
+                    break;
+
+                case ASSIGN:
+                    updated = controller.assign(roleId, CollectionWrapper.unwrap(resourceNames), false, null);
+                    break;
+
+                case PROVISION:
+                    updated = controller.provision(roleId, CollectionWrapper.unwrap(resourceNames), false, null);
+                    break;
+
+                default:
+                    updated = controller.read(roleId);
+            }
+
+            final BulkActionResult res = new BulkActionResult();
+
+            if (type == ResourceAssociationActionType.LINK) {
+                for (ResourceName resourceName : resourceNames) {
+                    res.add(resourceName.getName(), updated.getResources().contains(resourceName.getName())
+                            ? BulkActionResult.Status.FAILURE
+                            : BulkActionResult.Status.SUCCESS);
+                }
+            } else {
+                for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
+                    res.add(propagationStatusTO.getResource(), propagationStatusTO.getStatus().toString());
+                }
+            }
+
+            builder = modificationResponse(res);
         }
 
         return builder.build();

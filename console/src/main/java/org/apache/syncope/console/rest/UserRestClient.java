@@ -30,9 +30,11 @@ import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.mod.ResourceAssociationMod;
+import org.apache.syncope.common.types.ResourceAssociationActionType;
+import org.apache.syncope.common.types.ResourceDeAssociationActionType;
 import org.apache.syncope.console.commons.status.StatusBean;
 import org.apache.syncope.console.commons.status.StatusUtils;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -112,19 +114,56 @@ public class UserRestClient extends AbstractAttributableRestClient {
         return getService(UserService.class).bulk(action);
     }
 
-    public void unlink(final long userId, final List<StatusBean> statuses) {
-        getService(UserService.class).associate(userId, ResourceAssociationActionType.UNLINK,
-                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class));
+    public BulkActionResult unlink(final long userId, final List<StatusBean> statuses) {
+        return getService(UserService.class).bulkDeassociation(userId, ResourceDeAssociationActionType.UNLINK,
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class))
+                .readEntity(BulkActionResult.class);
     }
 
-    public void deprovision(final long userId, final List<StatusBean> statuses) {
-        getService(UserService.class).associate(userId, ResourceAssociationActionType.DEPROVISION,
+    public BulkActionResult link(final long userId, final List<StatusBean> statuses) {
+        final ResourceAssociationMod associationMod = new ResourceAssociationMod();
+        associationMod.getTargetResources().addAll(
                 CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class));
+
+        return getService(UserService.class).bulkAssociation(userId, ResourceAssociationActionType.LINK, associationMod)
+                .readEntity(BulkActionResult.class);
     }
 
-    public void unassign(final long userId, final List<StatusBean> statuses) {
-        getService(UserService.class).associate(userId, ResourceAssociationActionType.UNASSIGN,
-                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class));
+    public BulkActionResult deprovision(final long userId, final List<StatusBean> statuses) {
+        return getService(UserService.class).bulkDeassociation(userId, ResourceDeAssociationActionType.DEPROVISION,
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class))
+                .readEntity(BulkActionResult.class);
     }
 
+    public BulkActionResult provision(
+            final long userId, final List<StatusBean> statuses, final boolean changepwd, final String password) {
+        final ResourceAssociationMod associationMod = new ResourceAssociationMod();
+        associationMod.getTargetResources().addAll(
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class));
+        associationMod.setChangePwd(changepwd);
+        associationMod.setPassword(password);
+
+        return getService(UserService.class)
+                .bulkAssociation(userId, ResourceAssociationActionType.PROVISION, associationMod)
+                .readEntity(BulkActionResult.class);
+    }
+
+    public BulkActionResult unassign(final long userId, final List<StatusBean> statuses) {
+        return getService(UserService.class).bulkDeassociation(userId, ResourceDeAssociationActionType.UNASSIGN,
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class))
+                .readEntity(BulkActionResult.class);
+    }
+
+    public BulkActionResult assign(
+            final long userId, final List<StatusBean> statuses, final boolean changepwd, final String password) {
+        final ResourceAssociationMod associationMod = new ResourceAssociationMod();
+        associationMod.getTargetResources().addAll(
+                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class));
+        associationMod.setChangePwd(changepwd);
+        associationMod.setPassword(password);
+
+        return getService(UserService.class).bulkAssociation(userId, ResourceAssociationActionType.ASSIGN,
+                associationMod)
+                .readEntity(BulkActionResult.class);
+    }
 }

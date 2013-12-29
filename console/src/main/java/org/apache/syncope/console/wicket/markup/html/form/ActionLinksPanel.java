@@ -68,8 +68,11 @@ public class ActionLinksPanel extends Panel {
         super.add(new Fragment("panelReload", "emptyFragment", this));
         super.add(new Fragment("panelChangeView", "emptyFragment", this));
         super.add(new Fragment("panelUnlink", "emptyFragment", this));
+        super.add(new Fragment("panelLink", "emptyFragment", this));
         super.add(new Fragment("panelUnassign", "emptyFragment", this));
+        super.add(new Fragment("panelAssign", "emptyFragment", this));
         super.add(new Fragment("panelDeprovision", "emptyFragment", this));
+        super.add(new Fragment("panelProvision", "emptyFragment", this));
     }
 
     public void add(
@@ -114,7 +117,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case MANAGE_RESOURCES:
@@ -128,7 +131,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case MANAGE_USERS:
@@ -142,7 +145,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case MANAGE_ROLES:
@@ -156,7 +159,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case CREATE:
@@ -170,7 +173,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case EDIT:
@@ -184,7 +187,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case USER_TEMPLATE:
@@ -198,7 +201,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case ROLE_TEMPLATE:
@@ -212,7 +215,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case ENABLE:
@@ -226,7 +229,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case SEARCH:
@@ -240,7 +243,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case EXECUTE:
@@ -254,7 +257,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case DRYRUN:
@@ -268,7 +271,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case DELETE:
@@ -282,7 +285,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
 
                 break;
 
@@ -297,7 +300,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
 
                 break;
 
@@ -312,7 +315,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case SUSPEND:
@@ -326,7 +329,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case REACTIVATE:
@@ -340,7 +343,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case RELOAD:
@@ -354,7 +357,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case CHANGE_VIEW:
@@ -368,7 +371,7 @@ public class ActionLinksPanel extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target);
                     }
-                });
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case UNLINK:
@@ -377,13 +380,27 @@ public class ActionLinksPanel extends Panel {
                 fragment.addOrReplace(
                         new IndicatingOnConfirmAjaxLink<Void>("unlinkLink", pageRef, "confirmUnlink") {
 
-                            private static final long serialVersionUID = -6957616042924610293L;
+                    private static final long serialVersionUID = -6957616042924610293L;
 
-                            @Override
-                            protected void onClickInternal(final AjaxRequestTarget target) {
-                                link.onClick(target);
-                            }
-                        });
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
+                break;
+
+            case LINK:
+                fragment = new Fragment("panelLink", "fragmentLink", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("linkLink", pageRef) {
+
+                    private static final long serialVersionUID = -6957616042924610303L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case UNASSIGN:
@@ -392,13 +409,27 @@ public class ActionLinksPanel extends Panel {
                 fragment.addOrReplace(
                         new IndicatingOnConfirmAjaxLink<Void>("unassignLink", pageRef, "confirmUnassign") {
 
-                            private static final long serialVersionUID = -6957616042924610294L;
+                    private static final long serialVersionUID = -6957616042924610294L;
 
-                            @Override
-                            protected void onClickInternal(final AjaxRequestTarget target) {
-                                link.onClick(target);
-                            }
-                        });
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
+                break;
+
+            case ASSIGN:
+                fragment = new Fragment("panelAssign", "fragmentAssign", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("assignLink", pageRef) {
+
+                    private static final long serialVersionUID = -6957616042924610304L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case DEPROVISION:
@@ -407,13 +438,27 @@ public class ActionLinksPanel extends Panel {
                 fragment.addOrReplace(
                         new IndicatingOnConfirmAjaxLink<Void>("deprovisionLink", pageRef, "confirmDeprovision") {
 
-                            private static final long serialVersionUID = -6957616042924610295L;
+                    private static final long serialVersionUID = -6957616042924610295L;
 
-                            @Override
-                            protected void onClickInternal(final AjaxRequestTarget target) {
-                                link.onClick(target);
-                            }
-                        });
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
+                break;
+
+            case PROVISION:
+                fragment = new Fragment("panelProvision", "fragmentProvision", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("provisionLink", pageRef) {
+
+                    private static final long serialVersionUID = -6957616042924610305L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
             default:
             // do nothink
@@ -500,12 +545,24 @@ public class ActionLinksPanel extends Panel {
                 super.addOrReplace(new Fragment("panelUnlink", "emptyFragment", this));
                 break;
 
+            case LINK:
+                super.addOrReplace(new Fragment("panelLink", "emptyFragment", this));
+                break;
+
             case UNASSIGN:
                 super.addOrReplace(new Fragment("panelUnassign", "emptyFragment", this));
                 break;
 
+            case ASSIGN:
+                super.addOrReplace(new Fragment("panelAssign", "emptyFragment", this));
+                break;
+
             case DEPROVISION:
                 super.addOrReplace(new Fragment("panelDeprovision", "emptyFragment", this));
+                break;
+
+            case PROVISION:
+                super.addOrReplace(new Fragment("panelProvision", "emptyFragment", this));
                 break;
             default:
             // do nothing

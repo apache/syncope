@@ -31,11 +31,90 @@ under the License.
       #dataTableSpan table{
         width: 100%;
       }
+
+      form#pwdMgtForm {
+        border: 1px solid #AAAAAA;
+        margin:10px;
+      }
+
+      div#changepwd {
+        display: inline-row;
+        margin-top: 5px;
+      }
+
+      div#changepwd div{
+        display: table-cell;
+      }
+
+      div#changepwd div#label{
+        padding-left: 5px;
+        vertical-align: middle;
+        font-family: Verdana,Arial,sans-serif;
+      }
+
+      div#password {
+        display: inline-row;
+        margin: 5px;
+      }
+
+      div#continue {
+        display: inline-row;
+        margin: 5px;
+      }
+
+      div#continue div{
+        display: table-cell;
+      }
+
+      div#cancelBtmForm {
+        padding-left: 5px;
+      }
     </style>
   </wicket:head>
   <wicket:extend>
     <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
     <span wicket:id="resourceDatatable" id="dataTableSpan">[resources]</span>
+
+    <span wicket:id="pwdMgtFields">[password management]</span>
+
+    <wicket:fragment wicket:id="pwdMgtFragment">
+      <div wicket:id="pwdMgt">
+        <form wicket:id="pwdMgtForm" id="pwdMgtForm">
+          <div id="changepwd">
+            <div id="value">
+              <span wicket:id="changepwd">[changepwd]</span>
+            </div>
+            <div id="label">
+              <label wicket:id="changePwdLabel">[Change password]</label>
+            </div>
+          </div>
+
+          <div id="password">
+            <input type="password" wicket:id="password" id="password" size="25"  style="width: 180px" title="password"/>
+          </div>
+
+          <div id="password">
+            <input type="password" wicket:id="confirm" id="confirm" size="25"  style="width: 180px" title="confirm"/>
+          </div>
+
+          <div id="continue">
+            <div id="continueBtmForm">
+              <input type="button" wicket:id="continue" id="continue"
+                     class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"/>
+            </div>
+
+            <div id="cancelBtmForm">
+              <input type="button" wicket:id="cancel" id="cancel"
+                     class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"/>
+            </div>
+          </div>
+        </form>
+      </div>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="emptyFragment">
+    </wicket:fragment>
+
     <wicket:child />
   </wicket:extend>
 </html>

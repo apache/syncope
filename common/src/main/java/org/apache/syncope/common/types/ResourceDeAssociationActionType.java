@@ -16,22 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest.controller;
+package org.apache.syncope.common.types;
 
-import java.util.Collection;
-import org.apache.syncope.common.to.AbstractAttributableTO;
+import javax.xml.bind.annotation.XmlEnum;
 
-public abstract class AbstractResourceAssociator<T extends AbstractAttributableTO> extends AbstractController<T> {
+@XmlEnum
+public enum ResourceDeAssociationActionType {
 
-    public abstract T unlink(Long id, Collection<String> resources);
+    /**
+     * Remove association between user/role on Syncope and external resource(s) without any propagation.
+     */
+    UNLINK,
+    /**
+     * Remove user/role from external resource(s).
+     */
+    DEPROVISION,
+    /**
+     * Unassign (unlink + de-provision) external resource(s) from user/role.
+     */
+    UNASSIGN
 
-    public abstract T link(Long id, Collection<String> resources);
-
-    public abstract T unassign(Long id, Collection<String> resources);
-
-    public abstract T assign(Long id, Collection<String> resources, boolean changepwd, String password);
-
-    public abstract T deprovision(Long userId, Collection<String> resources);
-
-    public abstract T provision(Long userId, Collection<String> resources, boolean changepwd, String password);
 }

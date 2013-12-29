@@ -31,6 +31,8 @@ public abstract class ClearIndicatingAjaxLink<T> extends IndicatingAjaxLink<T> {
 
     private final PageReference pageRef;
 
+    private boolean reloadFeedbackPanel = true;
+
     public ClearIndicatingAjaxLink(final String id, final PageReference pageRef) {
         super(id);
         this.pageRef = pageRef;
@@ -41,12 +43,17 @@ public abstract class ClearIndicatingAjaxLink<T> extends IndicatingAjaxLink<T> {
         this.pageRef = pageRef;
     }
 
+    public ClearIndicatingAjaxLink<T> feedbackPanelAutomaticReload(boolean reloadFeedbackPanel) {
+        this.reloadFeedbackPanel = reloadFeedbackPanel;
+        return this;
+    }
+
     protected abstract void onClickInternal(AjaxRequestTarget target);
 
     @Override
     public final void onClick(final AjaxRequestTarget target) {
         Page page = pageRef.getPage();
-        if (page instanceof BasePage) {
+        if (reloadFeedbackPanel && page instanceof BasePage) {
             target.add(((BasePage) page).getFeedbackPanel());
         }
         onClickInternal(target);

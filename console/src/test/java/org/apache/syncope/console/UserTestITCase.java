@@ -97,4 +97,18 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isTextPresent(" + "\"Operation executed successfully\");", "30000");
     }
+
+    @Test
+    public void browsProvisioningFeatures() {
+        selenium.click("css=img[alt=\"Users\"]");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        //Edit vivaldi
+        selenium.click("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[2]/a");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//td[div='ws-target-resource-1']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//td[div='resource-testdb']\");", "30000");
+
+        selenium.click("css=a.w_close");
+    }
 }

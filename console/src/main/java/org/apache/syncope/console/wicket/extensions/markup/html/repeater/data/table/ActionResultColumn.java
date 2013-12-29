@@ -20,6 +20,7 @@ package org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.t
 
 import java.beans.PropertyDescriptor;
 import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.common.reqres.BulkActionResult.Status;
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
@@ -67,7 +68,8 @@ public class ActionResultColumn<T, S> extends AbstractColumn<T, S> {
             final PropertyDescriptor propDesc =
                     BeanUtils.getPropertyDescriptor(rowModel.getObject().getClass(), idFieldName);
             final Object id = propDesc.getReadMethod().invoke(rowModel.getObject(), new Object[0]);
-            item.add(new Label(componentId, results.getResultMap().get(id.toString()).toString()));
+            final Status status = id == null ? null : results.getResultMap().get(id.toString());
+            item.add(new Label(componentId, status == null ? Status.SUCCESS : status.toString()));
         } catch (Exception e) {
             LOG.error("Errore retrieving target id value", e);
         }

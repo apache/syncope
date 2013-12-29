@@ -39,6 +39,8 @@ public class StatusBean implements Serializable {
 
     private Status status = Status.OBJECT_NOT_FOUND;
 
+    private boolean linked = true;
+
     public StatusBean(final AbstractAttributableTO attributable, String resourceName) {
         this.attributableId = attributable.getId();
         this.attributableName = attributable instanceof UserTO
@@ -72,6 +74,14 @@ public class StatusBean implements Serializable {
 
     public String getAttributableName() {
         return attributableName;
+    }
+
+    public boolean isLinked() {
+        return linked;
+    }
+
+    public void setLinked(boolean linked) {
+        this.linked = linked;
     }
 
     @Override

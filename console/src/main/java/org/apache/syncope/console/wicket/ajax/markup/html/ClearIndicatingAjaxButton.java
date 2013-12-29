@@ -32,6 +32,8 @@ public abstract class ClearIndicatingAjaxButton extends IndicatingAjaxButton {
 
     private final PageReference pageRef;
 
+    private boolean reloadFeebackPanel = true;
+
     public ClearIndicatingAjaxButton(final String id, final PageReference pageRef) {
         super(id);
         this.pageRef = pageRef;
@@ -56,12 +58,17 @@ public abstract class ClearIndicatingAjaxButton extends IndicatingAjaxButton {
 
     protected abstract void onSubmitInternal(AjaxRequestTarget target, Form<?> form);
 
+    public ClearIndicatingAjaxButton feedbackPanelAutomaticReload(boolean reloadFeedbackPanel) {
+        this.reloadFeebackPanel = reloadFeedbackPanel;
+        return this;
+    }
+
     @Override
     protected final void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         super.onSubmit(target, form);
 
         Page page = pageRef.getPage();
-        if (page instanceof BasePage) {
+        if (reloadFeebackPanel && page instanceof BasePage) {
             target.add(((BasePage) page).getFeedbackPanel());
         }
         onSubmitInternal(target, form);

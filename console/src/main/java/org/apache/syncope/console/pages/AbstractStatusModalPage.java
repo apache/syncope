@@ -18,8 +18,13 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.wicket.markup.html.panel.Fragment;
+
 public class AbstractStatusModalPage extends BaseModalPage {
 
-    protected static final long serialVersionUID = 6633408683036028540L;
+    private static final long serialVersionUID = 6633408683036028540L;
 
+    public AbstractStatusModalPage() {
+        add(new Fragment("pwdMgtFields", "emptyFragment", this));
+    }
 }

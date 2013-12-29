@@ -41,8 +41,13 @@ public class BulkActionResult extends AbstractBaseBean {
     @XmlType(name = "bulkActionStatus")
     public enum Status {
 
+        // general bulk action result statuses
         SUCCESS,
-        FAILURE
+        FAILURE,
+        // specific propagation task execution statuses
+        CREATED,
+        SUBMITTED,
+        UNSUBMITTED;
 
     }
 
@@ -59,6 +64,13 @@ public class BulkActionResult extends AbstractBaseBean {
     public void add(final Object id, final Status status) {
         if (id != null) {
             results.add(new Result(id.toString(), status));
+        }
+    }
+
+    @JsonIgnore
+    public void add(final Object id, final String status) {
+        if (id != null) {
+            results.add(new Result(id.toString(), Status.valueOf(status.toUpperCase())));
         }
     }
 
