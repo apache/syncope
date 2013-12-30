@@ -32,6 +32,7 @@ import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
@@ -46,35 +47,18 @@ import org.slf4j.LoggerFactory;
 
 public class AjaxDataTablePanel<T, S> extends Panel {
 
+    private static final long serialVersionUID = -8826989026203543957L;
+
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(AjaxDataTablePanel.class);
-
-    private static final long serialVersionUID = -8826989026203543957L;
+    private static final Logger LOG = LoggerFactory.getLogger(AjaxDataTablePanel.class);
 
     private final CheckGroup<T> group;
 
     private final Form bulkActionForm;
 
     private final AjaxFallbackDefaultDataTable<T, S> dataTable;
-
-    public AjaxDataTablePanel(
-            final String id,
-            final List<IColumn<T, S>> columns,
-            final ISortableDataProvider<T, S> dataProvider,
-            final int rowsPerPage) {
-        super(id);
-
-        this.bulkActionForm = null;
-        this.group = null;
-        dataTable = new AjaxFallbackDefaultDataTable<T, S>("dataTable", columns, dataProvider, rowsPerPage);
-
-        Fragment fragment = new Fragment("tablePanel", "bulkNotAvailable", this);
-        fragment.add(dataTable);
-
-        add(fragment);
-    }
 
     public AjaxDataTablePanel(
             final String id,
@@ -128,6 +112,15 @@ public class AjaxDataTablePanel<T, S> extends Panel {
         fragment.add(bulkActionForm);
 
         group = new CheckGroup<T>("checkgroup", new ArrayList<T>());
+        group.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+
+            private static final long serialVersionUID = -151291731388673682L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+            }
+
+        });
         bulkActionForm.add(group);
 
         columns.add(0, new CheckGroupColumn<T, S>(group));

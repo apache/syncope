@@ -153,53 +153,57 @@ public class Resources extends BasePage {
     private void setupResources() {
         List<IColumn<ResourceTO, String>> columns = new ArrayList<IColumn<ResourceTO, String>>();
 
-        columns.add(new PropertyColumn(new StringResourceModel("name", this, null), "name", "name"));
+        columns.add(new PropertyColumn<ResourceTO, String>(
+                new StringResourceModel("name", this, null), "name", "name"));
 
         columns.add(new AbstractColumn<ResourceTO, String>(
                 new StringResourceModel("connector", this, null, "connector")) {
 
-            private static final long serialVersionUID = 8263694778917279290L;
-
-            @Override
-            public void populateItem(final Item<ICellPopulator<ResourceTO>> cellItem, final String componentId,
-                    final IModel<ResourceTO> rowModel) {
-
-                final AjaxLink<String> editLink = new ClearIndicatingAjaxLink<String>("link", getPageReference()) {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
+                    private static final long serialVersionUID = 8263694778917279290L;
 
                     @Override
-                    protected void onClickInternal(final AjaxRequestTarget target) {
+                    public void populateItem(final Item<ICellPopulator<ResourceTO>> cellItem, final String componentId,
+                            final IModel<ResourceTO> rowModel) {
 
-                        editConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
+                        final AjaxLink<String> editLink =
+                        new ClearIndicatingAjaxLink<String>("link", getPageReference()) {
 
-                            private static final long serialVersionUID = -7834632442532690940L;
+                            private static final long serialVersionUID = -7978723352517770644L;
 
                             @Override
-                            public Page createPage() {
-                                return new ConnectorModalPage(Resources.this.getPageReference(), editConnectorWin,
-                                        connectorRestClient.read(rowModel.getObject().getConnectorId()));
+                            protected void onClickInternal(final AjaxRequestTarget target) {
+
+                                editConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                                    private static final long serialVersionUID = -7834632442532690940L;
+
+                                    @Override
+                                    public Page createPage() {
+                                        return new ConnectorModalPage(Resources.this.getPageReference(),
+                                                editConnectorWin,
+                                                connectorRestClient.read(rowModel.getObject().getConnectorId()));
+                                    }
+                                });
+
+                                editConnectorWin.show(target);
                             }
-                        });
+                        };
+                        editLink.add(new Label("linkTitle", rowModel.getObject().getConnectorDisplayName()));
 
-                        editConnectorWin.show(target);
+                        LinkPanel editConnPanel = new LinkPanel(componentId);
+                        editConnPanel.add(editLink);
+
+                        cellItem.add(editConnPanel);
+
+                        MetaDataRoleAuthorizationStrategy.authorize(editConnPanel, ENABLE, xmlRolesReader.
+                                getAllAllowedRoles(
+                                        "Connectors", "read"));
                     }
-                };
-                editLink.add(new Label("linkTitle", rowModel.getObject().getConnectorDisplayName()));
+                });
 
-                LinkPanel editConnPanel = new LinkPanel(componentId);
-                editConnPanel.add(editLink);
-
-                cellItem.add(editConnPanel);
-
-                MetaDataRoleAuthorizationStrategy.authorize(editConnPanel, ENABLE, xmlRolesReader.getAllAllowedRoles(
-                        "Connectors", "read"));
-            }
-        });
-
-        columns.add(new PropertyColumn(new StringResourceModel(
+        columns.add(new PropertyColumn<ResourceTO, String>(new StringResourceModel(
                 "propagationPrimary", this, null), "propagationPrimary", "propagationPrimary"));
-        columns.add(new PropertyColumn(new StringResourceModel(
+        columns.add(new PropertyColumn<ResourceTO, String>(new StringResourceModel(
                 "propagationPriority", this, null), "propagationPriority", "propagationPriority"));
 
         columns.add(new AbstractColumn<ResourceTO, String>(new StringResourceModel("actions", this, null, "")) {
@@ -271,7 +275,7 @@ public class Resources extends BasePage {
                 columns,
                 (ISortableDataProvider<ResourceTO, String>) new ResourcesProvider(),
                 resourcePaginatorRows,
-                Arrays.asList(new ActionLink.ActionType[] {ActionLink.ActionType.DELETE}),
+                Arrays.asList(new ActionLink.ActionType[] { ActionLink.ActionType.DELETE }),
                 resourceRestClient,
                 "name",
                 "Resources",
@@ -426,7 +430,7 @@ public class Resources extends BasePage {
                 columns,
                 (ISortableDataProvider<ConnInstanceTO, String>) new ConnectorsProvider(),
                 connectorPaginatorRows,
-                Arrays.asList(new ActionLink.ActionType[] {ActionLink.ActionType.DELETE}),
+                Arrays.asList(new ActionLink.ActionType[] { ActionLink.ActionType.DELETE }),
                 connectorRestClient,
                 "id",
                 "Connectors",
