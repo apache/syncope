@@ -393,7 +393,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<ResourceTO> actuals = resourceService.list(null);
+        List<ResourceTO> actuals = resourceService.list();
         assertNotNull(actuals);
         assertFalse(actuals.isEmpty());
         for (ResourceTO resourceTO : actuals) {

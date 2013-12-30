@@ -18,11 +18,13 @@
  */
 package org.apache.syncope.core.rest.data;
 
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.AccountPolicySpec;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.SyncPolicySpec;
@@ -105,8 +107,9 @@ public class PolicyDataBinder {
     @SuppressWarnings("unchecked")
     public <T extends Policy> T getPolicy(T policy, final AbstractPolicyTO policyTO) {
         if (policy != null && policy.getType() != policyTO.getType()) {
-            throw new IllegalArgumentException(
-                    String.format("Cannot update %s from %s", policy.getType(), policyTO.getType()));
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
+            sce.getElements().add(String.format("Cannot update %s from %s", policy.getType(), policyTO.getType()));
+            throw sce;
         }
 
         final boolean isGlobal = isGlobalPolicy(policyTO.getType());

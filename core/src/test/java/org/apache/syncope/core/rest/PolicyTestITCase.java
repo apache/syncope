@@ -40,6 +40,18 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class PolicyTestITCase extends AbstractTest {
 
+    private SyncPolicyTO buildSyncPolicyTO() {
+        SyncPolicyTO policy = new SyncPolicyTO();
+
+        SyncPolicySpec spec = new SyncPolicySpec();
+        spec.setUserJavaRule(TestSyncRule.class.getName());
+
+        policy.setSpecification(spec);
+        policy.setDescription("Sync policy");
+
+        return policy;
+    }
+
     @Test
     public void listByType() {
         List<SyncPolicyTO> policyTOs = policyService.list(PolicyType.SYNC);
@@ -82,7 +94,7 @@ public class PolicyTestITCase extends AbstractTest {
             createPolicy(policy);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidPasswordPolicy, e.getType());
+            assertEquals(ClientExceptionType.InvalidPolicy, e.getType());
         }
     }
 
@@ -95,7 +107,7 @@ public class PolicyTestITCase extends AbstractTest {
             createPolicy(policy);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSyncPolicy, e.getType());
+            assertEquals(ClientExceptionType.InvalidPolicy, e.getType());
         }
     }
 
@@ -163,15 +175,17 @@ public class PolicyTestITCase extends AbstractTest {
         assertEquals(1, policyService.getSyncCorrelationRuleClasses().size());
     }
 
-    private SyncPolicyTO buildSyncPolicyTO() {
-        SyncPolicyTO policy = new SyncPolicyTO();
+    @Test
+    public void issueSYNCOPE466() {
+        PasswordPolicyTO policy = policyService.read(4L);
+        assertEquals(PolicyType.PASSWORD, policy.getType());
 
-        SyncPolicySpec spec = new SyncPolicySpec();
-        spec.setUserJavaRule(TestSyncRule.class.getName());
-
-        policy.setSpecification(spec);
-        policy.setDescription("Sync policy");
-
-        return policy;
+        policy.setType(PolicyType.GLOBAL_PASSWORD);
+        try {
+            policyService.update(policy.getId(), policy);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidPolicy, e.getType());
+        }
     }
 }
