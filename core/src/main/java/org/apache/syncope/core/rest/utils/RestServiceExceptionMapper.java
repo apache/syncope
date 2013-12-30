@@ -167,10 +167,12 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
             } else {
                 return ((BadRequestException) ex).getResponse();
             }
-
         } else if (ex instanceof InvalidEntityException) {
-            SyncopeClientExceptionType exType = SyncopeClientExceptionType.valueOf("Invalid"
-                    + ((InvalidEntityException) ex).getEntityClassSimpleName());
+            SyncopeClientExceptionType exType =
+                    ((InvalidEntityException) ex).getEntityClassSimpleName().endsWith("Policy")
+                    ? SyncopeClientExceptionType.InvalidPolicy
+                    : SyncopeClientExceptionType.valueOf(
+                            "Invalid" + ((InvalidEntityException) ex).getEntityClassSimpleName());
 
             responseBuilder.header(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER, exType.getHeaderValue());
 

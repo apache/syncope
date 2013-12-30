@@ -26,10 +26,14 @@ import org.apache.syncope.common.types.AccountPolicySpec;
 import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.SyncPolicySpec;
+import org.apache.syncope.common.types.SyncopeClientExceptionType;
+import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
+import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -105,8 +109,12 @@ public class PolicyDataBinder {
     @SuppressWarnings("unchecked")
     public <T extends Policy> T getPolicy(T policy, final PolicyTO policyTO) {
         if (policy != null && policy.getType() != policyTO.getType()) {
-            throw new IllegalArgumentException(
-                    String.format("Cannot update %s from %s", policy.getType(), policyTO.getType()));
+            SyncopeClientException sce = new SyncopeClientException(SyncopeClientExceptionType.InvalidPolicy);
+            sce.addElement(String.format("Cannot update %s from %s", policy.getType(), policyTO.getType()));
+            SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
+            scce.addException(sce);
+            throw scce;
         }
 
         final boolean isGlobal = isGlobalPolicy(policyTO.getType());

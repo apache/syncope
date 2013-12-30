@@ -49,8 +49,11 @@ under the License.
     int statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 
     if (ex instanceof InvalidEntityException) {
-        SyncopeClientExceptionType exType = SyncopeClientExceptionType.valueOf(
-                "Invalid" + ((InvalidEntityException) ex).getEntityClassSimpleName());
+        SyncopeClientExceptionType exType =
+                ((InvalidEntityException) ex).getEntityClassSimpleName().endsWith("Policy")
+                ? SyncopeClientExceptionType.InvalidPolicy
+                : SyncopeClientExceptionType.valueOf(
+                        "Invalid" + ((InvalidEntityException) ex).getEntityClassSimpleName());
 
         response.setHeader(SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER, exType.getHeaderValue());
 

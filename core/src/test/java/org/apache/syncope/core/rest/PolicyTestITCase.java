@@ -82,7 +82,7 @@ public class PolicyTestITCase extends AbstractTest {
             createPolicy(PolicyType.PASSWORD, policy);
             fail();
         } catch (SyncopeClientCompositeErrorException sccee) {
-            assertNotNull(sccee.getException(SyncopeClientExceptionType.InvalidPasswordPolicy));
+            assertNotNull(sccee.getException(SyncopeClientExceptionType.InvalidPolicy));
         }
     }
 
@@ -95,7 +95,7 @@ public class PolicyTestITCase extends AbstractTest {
             createPolicy(PolicyType.SYNC, policy);
             fail();
         } catch (SyncopeClientCompositeErrorException sccee) {
-            assertNotNull(sccee.getException(SyncopeClientExceptionType.InvalidSyncPolicy));
+            assertNotNull(sccee.getException(SyncopeClientExceptionType.InvalidPolicy));
         }
     }
 
@@ -163,6 +163,20 @@ public class PolicyTestITCase extends AbstractTest {
     @Test
     public void getCorrelationRules() {
         assertEquals(1, policyService.getSyncCorrelationRuleClasses(PolicyType.SYNC).size());
+    }
+
+    @Test
+    public void issueSYNCOPE466() {
+        PasswordPolicyTO policy = policyService.read(PolicyType.PASSWORD, 4L);
+        assertEquals(PolicyType.PASSWORD, policy.getType());
+
+        policy.setType(PolicyType.GLOBAL_PASSWORD);
+        try {
+            policyService.update(PolicyType.PASSWORD, policy.getId(), policy);
+            fail();
+        } catch (SyncopeClientCompositeErrorException e) {
+            assertNotNull(e.getException(SyncopeClientExceptionType.InvalidPolicy));
+        }
     }
 
     private SyncPolicyTO buildSyncPolicyTO() {
