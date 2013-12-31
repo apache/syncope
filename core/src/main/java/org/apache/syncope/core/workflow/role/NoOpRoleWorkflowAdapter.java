@@ -19,7 +19,6 @@
 package org.apache.syncope.core.workflow.role;
 
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,8 +40,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(rollbackFor = { Throwable.class })
 public class NoOpRoleWorkflowAdapter extends AbstractRoleWorkflowAdapter {
-
-    private static final List<String> TASKS = Arrays.asList(new String[] { "create", "update", "delete" });
 
     @Override
     public WorkflowResult<Long> create(final RoleTO roleTO)

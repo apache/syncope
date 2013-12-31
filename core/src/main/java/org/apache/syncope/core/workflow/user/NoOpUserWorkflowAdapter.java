@@ -21,7 +21,6 @@ package org.apache.syncope.core.workflow.user;
 import java.io.OutputStream;
 import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -44,9 +43,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(rollbackFor = { Throwable.class })
 public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
-
-    private static final List<String> TASKS =
-            Arrays.asList(new String[] { "create", "activate", "update", "suspend", "reactivate", "delete" });
 
     public static final String ENABLED = "enabled";
 
