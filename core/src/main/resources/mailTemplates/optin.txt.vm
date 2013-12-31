@@ -30,5 +30,3 @@ You have been provided with the following roles:
   * $membership.roleName
 #end
 #end
-
-SMPT HOST is $syncopeConf.get("smtp.host").
