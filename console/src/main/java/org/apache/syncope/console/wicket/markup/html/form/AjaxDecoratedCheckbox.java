@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.wicket.markup.html.form;
 
+import org.apache.syncope.console.commons.Constants;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
@@ -37,7 +38,8 @@ public abstract class AjaxDecoratedCheckbox extends AjaxCheckBox {
     public AjaxDecoratedCheckbox(final String id, final IModel<Boolean> model) {
         super(id, model);
 
-        add(new AjaxEventBehavior("onclick") {
+        add(new AjaxEventBehavior(Constants.ON_CLICK) {
+
             private static final long serialVersionUID = -295188647830294610L;
 
             @Override

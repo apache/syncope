@@ -30,7 +30,7 @@ public class CheckGroupColumn<T, S> extends AbstractColumn<T, S> {
 
     private static final long serialVersionUID = 7955560320949560715L;
 
-    private CheckGroup<T> group;
+    private final CheckGroup<T> group;
 
     public CheckGroupColumn(final CheckGroup<T> checkGroup) {
         super(new Model<String>());

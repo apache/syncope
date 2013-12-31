@@ -47,12 +47,14 @@ import org.slf4j.LoggerFactory;
 
 public class ActionDataTablePanel<T, S> extends Panel {
 
+    private static final long serialVersionUID = -8826989026203543957L;
+
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(ActionDataTablePanel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ActionDataTablePanel.class);
 
-    private static final long serialVersionUID = -8826989026203543957L;
+    private static final String CANCEL = "cancel";
 
     private final CheckGroup<T> group;
 
@@ -63,8 +65,6 @@ public class ActionDataTablePanel<T, S> extends Panel {
     private final AjaxFallbackDefaultDataTable<T, S> dataTable;
 
     private final PageReference pageRef;
-
-    private final String CANCEL = "cancel";
 
     public ActionDataTablePanel(
             final String id,
@@ -85,12 +85,10 @@ public class ActionDataTablePanel<T, S> extends Panel {
             private static final long serialVersionUID = -8667764190925075389L;
 
             @Override
-            public boolean isCheckable(T element) {
+            public boolean isCheckable(final T element) {
                 return isElementEnabled(element);
             }
         };
-        bulkActionForm.add(group);
-
         group.add(new AjaxFormChoiceComponentUpdatingBehavior() {
 
             private static final long serialVersionUID = -151291731388673682L;
@@ -100,6 +98,7 @@ public class ActionDataTablePanel<T, S> extends Panel {
                 // ignore
             }
         });
+        bulkActionForm.add(group);
 
         columns.add(0, new CheckGroupColumn<T, S>(group));
         dataTable = new AjaxFallbackDefaultDataTable<T, S>("dataTable", columns, dataProvider, rowsPerPage);

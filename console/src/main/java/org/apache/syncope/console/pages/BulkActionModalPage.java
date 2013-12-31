@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console.pages;
 
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,7 +48,7 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
 
     public BulkActionModalPage(
             final ModalWindow window,
-            final List<T> items,
+            final Collection<T> items,
             final List<IColumn<T, S>> columns,
             final Collection<ActionLink.ActionType> actions,
             final BaseRestClient bulkActionExecutor,
@@ -63,7 +62,7 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
             private static final long serialVersionUID = 5291903859908641954L;
 
             @Override
-            public Iterator<? extends T> iterator(long first, long count) {
+            public Iterator<? extends T> iterator(final long first, final long count) {
                 return items.iterator();
             }
 
@@ -73,7 +72,7 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
             }
 
             @Override
-            public IModel<T> model(T object) {
+            public IModel<T> model(final T object) {
                 return new CompoundPropertyModel<T>(object);
             }
         };
@@ -89,7 +88,7 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
 
         for (ActionLink.ActionType action : actions) {
             final BulkAction bulkAction = new BulkAction();
-            for (Object item : items) {
+            for (T item : items) {
                 try {
                     bulkAction.getTargets().add(getTargetId(item, idFieldName).toString());
                 } catch (Exception e) {
@@ -136,7 +135,7 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
             }, action, pageId, !items.isEmpty());
         }
 
-        final Form form = new Form(FORM);
+        final Form<Void> form = new Form<Void>(FORM);
         add(form);
 
         final AjaxButton cancel =
@@ -155,8 +154,9 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
     }
 
     private Object getTargetId(final Object target, final String idFieldName)
-            throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        final PropertyDescriptor propDesc = BeanUtils.getPropertyDescriptor(target.getClass(), idFieldName);
-        return propDesc.getReadMethod().invoke(target, new Object[0]);
+            throws IllegalAccessException, InvocationTargetException {
+
+        return BeanUtils.getPropertyDescriptor(target.getClass(), idFieldName).
+                getReadMethod().invoke(target, new Object[0]);
     }
 }

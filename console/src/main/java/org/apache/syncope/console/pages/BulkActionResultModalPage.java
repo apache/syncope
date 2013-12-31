@@ -19,6 +19,7 @@
 package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.common.reqres.BulkActionResult;
@@ -45,7 +46,7 @@ public class BulkActionResultModalPage<T, S> extends BaseModalPage {
 
     public BulkActionResultModalPage(
             final ModalWindow window,
-            final List<T> items,
+            final Collection<T> items,
             final List<IColumn<T, S>> columns,
             final BulkActionResult results,
             final String idFieldName) {

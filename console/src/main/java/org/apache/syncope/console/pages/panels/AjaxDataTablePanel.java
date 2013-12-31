@@ -32,6 +32,7 @@ import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
@@ -44,7 +45,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 public class AjaxDataTablePanel<T, S> extends Panel {
 
-    private static final long serialVersionUID = -8826989026203543957L;
+    private static final long serialVersionUID = -7264400471578272966L;
 
     private final AjaxFallbackDefaultDataTable<T, S> dataTable;
 
@@ -100,6 +101,16 @@ public class AjaxDataTablePanel<T, S> extends Panel {
         fragment.add(bulkActionForm);
 
         final CheckGroup<T> group = new CheckGroup<T>("checkgroup", new ArrayList<T>());
+        group.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+
+            private static final long serialVersionUID = -151291731388673682L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                // triggers AJAX form submit
+            }
+
+        });
         bulkActionForm.add(group);
 
         columns.add(0, new CheckGroupColumn<T, S>(group));
@@ -120,7 +131,7 @@ public class AjaxDataTablePanel<T, S> extends Panel {
                     public Page createPage() {
                         return new BulkActionModalPage<T, S>(
                                 bulkModalWin,
-                                new ArrayList<T>(group.getModelObject()),
+                                group.getModelObject(),
                                 columns,
                                 actions,
                                 bulkActionExecutor,

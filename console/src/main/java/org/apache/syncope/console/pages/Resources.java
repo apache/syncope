@@ -74,6 +74,10 @@ public class Resources extends BasePage {
 
     private static final long serialVersionUID = -3789252860990261728L;
 
+    private static final int WIN_HEIGHT = 600;
+
+    private static final int WIN_WIDTH = 1100;
+
     @SpringBean
     private ConnectorRestClient connectorRestClient;
 
@@ -88,17 +92,13 @@ public class Resources extends BasePage {
 
     private final ModalWindow editConnectorWin;
 
-    private static final int WIN_HEIGHT = 600;
+    private final int resourcePaginatorRows;
 
-    private static final int WIN_WIDTH = 1100;
+    private final int connectorPaginatorRows;
 
     private WebMarkupContainer resourceContainer;
 
     private WebMarkupContainer connectorContainer;
-
-    private int resourcePaginatorRows;
-
-    private int connectorPaginatorRows;
 
     /**
      * Modal window to be used for user status management.
@@ -367,27 +367,29 @@ public class Resources extends BasePage {
         editResourceWin.setInitialWidth(WIN_WIDTH);
         editResourceWin.setCookieName("edit-res-modal");
 
-        AjaxLink createResourceLink = new ClearIndicatingAjaxLink("createResourceLink", getPageReference()) {
+        AjaxLink<Void> createResourceLink =
+                new ClearIndicatingAjaxLink<Void>("createResourceLink", getPageReference()) {
 
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            protected void onClickInternal(final AjaxRequestTarget target) {
-                createResourceWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                    private static final long serialVersionUID = -7834632442532690940L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public Page createPage() {
-                        final ResourceModalPage windows = new ResourceModalPage(Resources.this.getPageReference(),
-                                editResourceWin, new ResourceTO(), true);
-                        return windows;
-                    }
-                });
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        createResourceWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                createResourceWin.show(target);
-            }
-        };
+                            private static final long serialVersionUID = -7834632442532690940L;
+
+                            @Override
+                            public Page createPage() {
+                                final ResourceModalPage windows = new ResourceModalPage(Resources.this.
+                                        getPageReference(),
+                                        editResourceWin, new ResourceTO(), true);
+                                return windows;
+                            }
+                        });
+
+                        createResourceWin.show(target);
+                    }
+                };
 
         MetaDataRoleAuthorizationStrategy.authorize(createResourceLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
                 "Resources", "create"));

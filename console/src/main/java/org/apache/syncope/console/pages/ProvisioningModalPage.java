@@ -54,6 +54,8 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
 
     private static final long serialVersionUID = -4285220460543213901L;
 
+    private static final int ROWS_PER_PAGE = 10;
+
     private final ResourceTO resourceTO;
 
     private final Class<? extends AbstractAttributableTO> typeRef;
@@ -61,8 +63,6 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
     private final PageReference pageRef;
 
     private final ModalWindow window;
-
-    private int rowsPerPage = 25;
 
     private final StatusUtils statusUtils;
 
@@ -97,28 +97,28 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
         columns.add(new AbstractColumn<StatusBean, String>(
                 new StringResourceModel("status", this, null, "")) {
 
-            private static final long serialVersionUID = -3503023501954863131L;
+                    private static final long serialVersionUID = -3503023501954863131L;
 
-            @Override
-            public String getCssClass() {
-                return "action";
-            }
+                    @Override
+                    public String getCssClass() {
+                        return "action";
+                    }
 
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<StatusBean>> cellItem,
-                    final String componentId,
-                    final IModel<StatusBean> model) {
-                cellItem.
-                        add(statusUtils.getStatusImagePanel(componentId, model.getObject().getStatus()));
-            }
-        });
+                    @Override
+                    public void populateItem(
+                            final Item<ICellPopulator<StatusBean>> cellItem,
+                            final String componentId,
+                            final IModel<StatusBean> model) {
+                                cellItem.
+                                add(statusUtils.getStatusImagePanel(componentId, model.getObject().getStatus()));
+                            }
+                });
 
         final ActionDataTablePanel<StatusBean, String> table = new ActionDataTablePanel<StatusBean, String>(
                 "resourceDatatable",
                 columns,
                 (ISortableDataProvider<StatusBean, String>) new StatusBeanProvider(),
-                rowsPerPage,
+                ROWS_PER_PAGE,
                 pageRef);
 
         final String pageId = "Resources";
@@ -191,10 +191,10 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
 
             final List<T> attributables = new ArrayList<T>();
             if (UserTO.class.isAssignableFrom(typeRef)) {
-                attributables.addAll((List<T>) userRestClient.search(fiql, 1, rowsPerPage,
+                attributables.addAll((List<T>) userRestClient.search(fiql, 1, ROWS_PER_PAGE,
                         new SortParam<String>("id", true)));
             } else {
-                attributables.addAll((List<T>) roleRestClient.search(fiql, 1, rowsPerPage,
+                attributables.addAll((List<T>) roleRestClient.search(fiql, 1, ROWS_PER_PAGE,
                         new SortParam<String>("id", true)));
             }
 
