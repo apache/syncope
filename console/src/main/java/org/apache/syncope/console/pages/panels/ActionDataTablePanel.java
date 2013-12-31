@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console.pages.panels;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.console.commons.ActionTableCheckGroup;
@@ -37,32 +36,19 @@ import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFal
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class ActionDataTablePanel<T, S> extends Panel {
+public class ActionDataTablePanel<T, S> extends DataTablePanel<T, S> {
 
     private static final long serialVersionUID = -8826989026203543957L;
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(ActionDataTablePanel.class);
-
     private static final String CANCEL = "cancel";
 
-    private final CheckGroup<T> group;
-
-    private final Form<?> bulkActionForm;
+    private final Form<T> bulkActionForm;
 
     private final ActionLinksPanel actionPanel;
-
-    private final AjaxFallbackDefaultDataTable<T, S> dataTable;
 
     private final PageReference pageRef;
 
@@ -77,10 +63,10 @@ public class ActionDataTablePanel<T, S> extends Panel {
 
         this.pageRef = pageRef;
 
-        bulkActionForm = new Form("groupForm");
+        bulkActionForm = new Form<T>("groupForm");
         add(bulkActionForm);
 
-        group = new ActionTableCheckGroup<T>("checkgroup", new ArrayList<T>()) {
+        group = new ActionTableCheckGroup<T>("checkgroup", model) {
 
             private static final long serialVersionUID = -8667764190925075389L;
 
@@ -95,7 +81,7 @@ public class ActionDataTablePanel<T, S> extends Panel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                // ignore
+                // triggers AJAX form submit
             }
         });
         bulkActionForm.add(group);
@@ -123,26 +109,6 @@ public class ActionDataTablePanel<T, S> extends Panel {
                 // ignore
             }
         }.setVisible(false).setEnabled(false));
-    }
-
-    public final void setCurrentPage(final long page) {
-        dataTable.setCurrentPage(page);
-    }
-
-    public final long getRowCount() {
-        return dataTable.getRowCount();
-    }
-
-    public final long getCurrentPage() {
-        return dataTable.getCurrentPage();
-    }
-
-    public final long getPageCount() {
-        return dataTable.getPageCount();
-    }
-
-    public void setItemsPerPage(final int resourcePaginatorRows) {
-        dataTable.setItemsPerPage(resourcePaginatorRows);
     }
 
     public void addAction(final ActionLink action, final ActionType type, final String pageId) {

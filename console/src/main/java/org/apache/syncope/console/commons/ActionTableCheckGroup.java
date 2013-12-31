@@ -20,14 +20,18 @@ package org.apache.syncope.console.commons;
 
 import java.util.Collection;
 import org.apache.wicket.markup.html.form.CheckGroup;
+import org.apache.wicket.model.IModel;
 
 public class ActionTableCheckGroup<T> extends CheckGroup<T> {
 
     private static final long serialVersionUID = 1288270558573401394L;
 
-    public ActionTableCheckGroup(String id,
-            Collection<T> collection) {
+    public ActionTableCheckGroup(final String id, final Collection<T> collection) {
         super(id, collection);
+    }
+
+    public ActionTableCheckGroup(final String id, final IModel<Collection<T>> model) {
+        super(id, model);
     }
 
     public boolean isCheckable(final T element) {

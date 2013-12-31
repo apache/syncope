@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console.pages.panels;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.console.commons.Constants;
@@ -41,13 +40,10 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDat
 import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Fragment;
-import org.apache.wicket.markup.html.panel.Panel;
 
-public class AjaxDataTablePanel<T, S> extends Panel {
+public class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
 
     private static final long serialVersionUID = -7264400471578272966L;
-
-    private final AjaxFallbackDefaultDataTable<T, S> dataTable;
 
     public AjaxDataTablePanel(
             final String id,
@@ -100,7 +96,7 @@ public class AjaxDataTablePanel<T, S> extends Panel {
         Form<T> bulkActionForm = new Form<T>("groupForm");
         fragment.add(bulkActionForm);
 
-        final CheckGroup<T> group = new CheckGroup<T>("checkgroup", new ArrayList<T>());
+        group = new CheckGroup<T>("checkgroup", model);
         group.add(new AjaxFormChoiceComponentUpdatingBehavior() {
 
             private static final long serialVersionUID = -151291731388673682L;
@@ -109,7 +105,6 @@ public class AjaxDataTablePanel<T, S> extends Panel {
             protected void onUpdate(final AjaxRequestTarget target) {
                 // triggers AJAX form submit
             }
-
         });
         bulkActionForm.add(group);
 
@@ -143,25 +138,5 @@ public class AjaxDataTablePanel<T, S> extends Panel {
                 bulkModalWin.show(target);
             }
         });
-    }
-
-    public final void setCurrentPage(final long page) {
-        dataTable.setCurrentPage(page);
-    }
-
-    public final long getRowCount() {
-        return dataTable.getRowCount();
-    }
-
-    public final long getCurrentPage() {
-        return dataTable.getCurrentPage();
-    }
-
-    public final long getPageCount() {
-        return dataTable.getPageCount();
-    }
-
-    public void setItemsPerPage(final int resourcePaginatorRows) {
-        dataTable.setItemsPerPage(resourcePaginatorRows);
     }
 }

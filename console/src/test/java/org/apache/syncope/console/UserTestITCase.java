@@ -109,6 +109,12 @@ public class UserTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//td[div='ws-target-resource-1']\");", "30000");
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//td[div='resource-testdb']\");", "30000");
 
+        selenium.click("//div[@class='navigator']/div/span[4]/a");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//td[div='resource-ldap']\");", "30000");
+
+        selenium.click("//div[@class='navigator']/div/span/a");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//td[div='ws-target-resource-1']\");", "30000");
+
         selenium.click("css=a.w_close");
     }
 }
