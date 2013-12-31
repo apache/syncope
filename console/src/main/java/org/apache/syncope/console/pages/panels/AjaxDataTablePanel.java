@@ -20,7 +20,10 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.AbstractBasePage;
 import org.apache.syncope.console.pages.BulkActionModalPage;
@@ -29,6 +32,7 @@ import org.apache.syncope.console.rest.BaseRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.CheckGroupColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -36,12 +40,15 @@ import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
+import org.apache.wicket.extensions.markup.html.repeater.data.grid.DataGridView;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
 import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.model.IModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,13 +59,15 @@ public class AjaxDataTablePanel<T, S> extends Panel {
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(AjaxDataTablePanel.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AjaxDataTablePanel.class);
 
     private final CheckGroup<T> group;
 
-    private final Form bulkActionForm;
+    private final Form<?> bulkActionForm;
 
-    private final AjaxFallbackDefaultDataTable<T, S> dataTable;
+    protected final AjaxFallbackDefaultDataTable<T, S> dataTable;
+
+    protected IModel<Collection<T>> model;
 
     public AjaxDataTablePanel(
             final String id,
@@ -72,6 +81,31 @@ public class AjaxDataTablePanel<T, S> extends Panel {
             final PageReference pageRef) {
 
         super(id);
+
+        model = new IModel<Collection<T>>() {
+
+            private static final long serialVersionUID = 4886729136344643465L;
+
+            private Collection<T> values = new HashSet<T>();
+
+            @Override
+            public Collection<T> getObject() {
+                // Someone or something call this method to change the model: this is not the right behavior.
+                // Return a copy of the model object in order to avoid SYNCOPE-465
+                return new HashSet<T>(values);
+            }
+
+            @Override
+            public void setObject(final Collection<T> selected) {
+                final Collection<T> all = getGroupModelObjects();
+                values.removeAll(all);
+                values.addAll(selected);
+            }
+
+            @Override
+            public void detach() {
+            }
+        };
 
         final ModalWindow bulkModalWin = new ModalWindow("bulkModal");
         bulkModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
@@ -111,7 +145,7 @@ public class AjaxDataTablePanel<T, S> extends Panel {
         bulkActionForm = new Form("groupForm");
         fragment.add(bulkActionForm);
 
-        group = new CheckGroup<T>("checkgroup", new ArrayList<T>());
+        group = new CheckGroup<T>("checkgroup", model);
         group.add(new AjaxFormChoiceComponentUpdatingBehavior() {
 
             private static final long serialVersionUID = -151291731388673682L;
@@ -119,7 +153,6 @@ public class AjaxDataTablePanel<T, S> extends Panel {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
             }
-
         });
         bulkActionForm.add(group);
 
@@ -173,5 +206,20 @@ public class AjaxDataTablePanel<T, S> extends Panel {
 
     public void setItemsPerPage(final int resourcePaginatorRows) {
         dataTable.setItemsPerPage(resourcePaginatorRows);
+    }
+
+    protected Collection<T> getGroupModelObjects() {
+        final Set<T> res = new HashSet<T>();
+
+        final Component rows = group.get("dataTable:body:rows");
+        if (rows instanceof DataGridView) {
+            @SuppressWarnings("unchecked")
+            final Iterator<Item<T>> iter = ((DataGridView<T>) rows).getItems();
+
+            while (iter.hasNext()) {
+                res.add(iter.next().getModelObject());
+            }
+        }
+        return res;
     }
 }
