@@ -19,10 +19,6 @@
 package org.apache.syncope.core.quartz;
 
 import org.apache.syncope.core.init.JobInstanceLoader;
-import org.apache.syncope.core.persistence.beans.Report;
-import org.apache.syncope.core.persistence.beans.SchedTask;
-import org.apache.syncope.core.persistence.dao.ReportDAO;
-import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.quartz.SchedulerContext;
 import org.quartz.spi.TriggerFiredBundle;
 import org.springframework.beans.BeanWrapper;
@@ -58,27 +54,20 @@ public class SpringBeanJobFactory extends org.springframework.scheduling.quartz.
      */
     @Override
     protected Object createJobInstance(final TriggerFiredBundle bundle) throws Exception {
-
         final ApplicationContext ctx = ((ConfigurableApplicationContext) schedulerContext.get("applicationContext"));
 
         // Try to re-create job bean from underlying task (useful for managing failover scenarios)
         if (!ctx.containsBean(bundle.getJobDetail().getKey().getName())) {
             Long taskId = JobInstanceLoader.getTaskIdFromJobName(bundle.getJobDetail().getKey().getName());
             if (taskId != null) {
-                TaskDAO taskDAO = ctx.getBean(TaskDAO.class);
-                SchedTask task = taskDAO.find(taskId);
-
                 JobInstanceLoader jobInstanceLoader = ctx.getBean(JobInstanceLoader.class);
-                jobInstanceLoader.registerJob(task, task.getJobClassName(), task.getCronExpression());
+                jobInstanceLoader.registerTaskJob(taskId);
             }
 
             Long reportId = JobInstanceLoader.getReportIdFromJobName(bundle.getJobDetail().getKey().getName());
             if (reportId != null) {
-                ReportDAO reportDAO = ctx.getBean(ReportDAO.class);
-                Report report = reportDAO.find(reportId);
-
                 JobInstanceLoader jobInstanceLoader = ctx.getBean(JobInstanceLoader.class);
-                jobInstanceLoader.registerJob(report);
+                jobInstanceLoader.registerReportJob(reportId);
             }
         }
 
@@ -96,7 +85,6 @@ public class SpringBeanJobFactory extends org.springframework.scheduling.quartz.
             } else {
                 for (String propName : this.ignoredUnknownProperties) {
                     if (pvs.contains(propName) && !wrapper.isWritableProperty(propName)) {
-
                         pvs.removePropertyValue(propName);
                     }
                 }

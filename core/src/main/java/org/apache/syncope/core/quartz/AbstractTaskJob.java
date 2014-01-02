@@ -39,7 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Abstract job implementation that delegates to concrete implementation the actual job execution and provides some
  * base features.
- * <strong>Extending ttis class will not provide support transaction management.</strong><br/>
+ * <strong>Extending this class will not provide support transaction management.</strong><br/>
  * Extend <tt>AbstractTransactionalTaskJob</tt> for this purpose.
  *
  * @see AbstractTransactionalTaskJob

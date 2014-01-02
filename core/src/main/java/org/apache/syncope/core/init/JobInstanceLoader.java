@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
+import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.ReportDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.quartz.TaskJob;
@@ -183,12 +184,34 @@ public class JobInstanceLoader {
         registerJob(getJobName(task), jobInstance, cronExpression);
     }
 
+    @Transactional(readOnly = true)
+    public void registerTaskJob(final Long taskId)
+            throws ClassNotFoundException, SchedulerException, ParseException {
+
+        SchedTask task = taskDAO.find(taskId);
+        if (task == null) {
+            throw new NotFoundException("Task " + taskId);
+        } else {
+            registerJob(task, task.getJobClassName(), task.getCronExpression());
+        }
+    }
+
     public void registerJob(final Report report) throws SchedulerException, ParseException {
         Job jobInstance = (Job) ApplicationContextProvider.getBeanFactory().
                 createBean(ReportJob.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
         ((ReportJob) jobInstance).setReportId(report.getId());
 
         registerJob(getJobName(report), jobInstance, report.getCronExpression());
+    }
+
+    @Transactional(readOnly = true)
+    public void registerReportJob(final Long reportId) throws SchedulerException, ParseException {
+        Report report = reportDAO.find(reportId);
+        if (report == null) {
+            throw new NotFoundException("Report " + reportId);
+        } else {
+            registerJob(report);
+        }
     }
 
     private void unregisterJob(final String jobName) {

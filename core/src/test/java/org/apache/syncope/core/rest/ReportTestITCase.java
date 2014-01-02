@@ -47,7 +47,7 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class ReportTestITCase extends AbstractTest {
 
-    public ReportTO createReport(final ReportTO report) {
+    private ReportTO createReport(final ReportTO report) {
         Response response = reportService.create(report);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
         return getObject(response.getLocation(), ReportService.class, ReportTO.class);
@@ -181,7 +181,8 @@ public class ReportTestITCase extends AbstractTest {
             assertNotNull(reportTO.getExecutions());
 
             i++;
-        } while (!ReportExecStatus.SUCCESS.name().equals(reportTO.getExecutions().get(0).getStatus()) && i < maxit);
+        } while (reportTO.getExecutions().isEmpty()
+                || (!ReportExecStatus.SUCCESS.name().equals(reportTO.getExecutions().get(0).getStatus()) && i < maxit));
         assertEquals(ReportExecStatus.SUCCESS.name(), reportTO.getExecutions().get(0).getStatus());
 
         long execId = reportTO.getExecutions().get(0).getId();
