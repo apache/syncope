@@ -45,7 +45,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 @FixMethodOrder(MethodSorters.JVM)
 public class ReportTestITCase extends AbstractTest {
 
-    public ReportTO createReport(final ReportTO report) {
+    private ReportTO createReport(final ReportTO report) {
         Response response = reportService.create(report);
         assertCreated(response);
         return getObject(response, ReportTO.class, reportService);
@@ -186,7 +186,8 @@ public class ReportTestITCase extends AbstractTest {
             assertNotNull(reportTO.getExecutions());
 
             i++;
-        } while (!ReportExecStatus.SUCCESS.name().equals(reportTO.getExecutions().get(0).getStatus()) && i < maxit);
+        } while (reportTO.getExecutions().isEmpty()
+                || (!ReportExecStatus.SUCCESS.name().equals(reportTO.getExecutions().get(0).getStatus()) && i < maxit));
         assertEquals(ReportExecStatus.SUCCESS.name(), reportTO.getExecutions().get(0).getStatus());
 
         long execId = reportTO.getExecutions().get(0).getId();

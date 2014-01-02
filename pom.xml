@@ -321,7 +321,8 @@ under the License.
 
     <openjpa.version>2.2.2</openjpa.version>
     <bval.version>0.5</bval.version>
-        
+    <commons-dbcp.version>1.4</commons-dbcp.version>
+
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
     <wicket.version>6.12.0</wicket.version>
@@ -489,6 +490,12 @@ under the License.
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa-persistence-jdbc</artifactId>
         <version>${openjpa.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-dbcp</groupId>
+        <artifactId>commons-dbcp</artifactId>
+        <version>${commons-dbcp.version}</version>
       </dependency>
       
       <dependency>

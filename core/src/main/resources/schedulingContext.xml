@@ -35,6 +35,8 @@ under the License.
     </property>
     <property name="quartzProperties">
       <props>
+        <prop key="org.quartz.scheduler.idleWaitTime">${quartz.scheduler.idleWaitTime:30000}</prop>
+        
         <prop key="org.quartz.jobStore.misfireThreshold">6000000</prop>
         <prop key="org.quartz.jobStore.driverDelegateClass">${quartz.jobstore}</prop>
 

@@ -22,6 +22,7 @@ under the License.
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context
@@ -29,7 +30,9 @@ under the License.
                            http://www.springframework.org/schema/tx
                            http://www.springframework.org/schema/tx/spring-tx.xsd
                            http://www.springframework.org/schema/aop
-                           http://www.springframework.org/schema/aop/spring-aop.xsd">
+                           http://www.springframework.org/schema/aop/spring-aop.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util.xsd">
 
   <import resource="persistenceContextEMFactory.xml"/>
 
@@ -50,16 +53,32 @@ under the License.
     <property name="defaultObject" ref="localDataSource"/>
   </bean>
 
-  <bean id="localDataSource" class="org.springframework.jdbc.datasource.IsolationLevelDataSourceAdapter">
-    <property name="targetDataSource">
-      <bean class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="${jpa.driverClassName}"/>
-        <property name="url" value="${jpa.url}"/>
-        <property name="username" value="${jpa.username}"/>
-        <property name="password" value="${jpa.password}"/>
-      </bean>
+  <bean id="localDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="${jpa.driverClassName}"/>
+    <property name="url" value="${jpa.url}"/>
+    <property name="username" value="${jpa.username}"/>
+    <property name="password" value="${jpa.password}"/>
+    <!-- connection pool configuration - transaction isolation, default READ_COMMITTED (see SYNCOPE-202) -->
+    <property name="defaultTransactionIsolation">
+      <util:constant static-field="${jpa.pool.defaultTransactionIsolation:java.sql.Connection.TRANSACTION_READ_COMMITTED}"/>
     </property>
-    <property name="isolationLevelName" value="ISOLATION_READ_COMMITTED"/>
+    <!-- connection pool configuration - default values taken from BasicDataSource default values -->
+    <property name="initialSize" value="${jpa.pool.initialSize:0}"/>
+    <property name="maxActive" value="${jpa.pool.maxActive:8}"/>
+    <property name="maxIdle" value="${jpa.pool.maxIdle:8}"/>
+    <property name="minIdle" value="${jpa.pool.minIdle:0}"/>
+    <property name="maxWait" value="${jpa.pool.maxWait:-1}"/>
+    <property name="validationQuery" value="${jpa.pool.validationQuery}"/>
+    <property name="validationQueryTimeout" value="${jpa.pool.validationQueryTimeout:-1}"/>
+    <property name="testOnBorrow" value="${jpa.pool.testOnBorrow:true}"/>
+    <property name="testOnReturn" value="${jpa.pool.testOnReturn:false}"/>
+    <property name="testWhileIdle" value="${jpa.pool.testWhileIdle:false}"/>
+    <property name="timeBetweenEvictionRunsMillis" value="${jpa.pool.timeBetweenEvictionRunsMillis:-1}"/>
+    <property name="numTestsPerEvictionRun" value="${jpa.pool.numTestsPerEvictionRun:3}"/>
+    <property name="minEvictableIdleTimeMillis" value="${jpa.pool.minEvictableIdleTimeMillis:1800000}"/>
+    <property name="removeAbandoned" value="${jpa.pool.removeAbandoned:false}"/>
+    <property name="removeAbandonedTimeout" value="${jpa.pool.removeAbandonedTimeout:300}"/>
+    <property name="logAbandoned" value="${jpa.pool.logAbandoned:false}"/>
   </bean>
 
   <bean id="entityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">

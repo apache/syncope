@@ -249,6 +249,11 @@ under the License.
       <groupId>org.apache.openjpa</groupId>
       <artifactId>openjpa-persistence-jdbc</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>commons-dbcp</groupId> 
+      <artifactId>commons-dbcp</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>javax.validation</groupId>
@@ -984,14 +989,14 @@ under the License.
     <profile>
       <id>postgres-it</id>
       <properties>
-        <jdbcdriver.groupId>postgresql</jdbcdriver.groupId>
+        <jdbcdriver.groupId>org.postgresql</jdbcdriver.groupId>
         <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>
       </properties>
       <dependencies>
         <dependency>
-          <groupId>postgresql</groupId>
+          <groupId>org.postgresql</groupId>
           <artifactId>postgresql</artifactId>
-          <version>9.1-901-1.jdbc4</version>
+          <version>9.3-1100-jdbc41</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
