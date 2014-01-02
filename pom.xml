@@ -304,7 +304,7 @@ under the License.
     <connid.ad.version>1.1.2</connid.ad.version>
 
     <commons-jexl.version>2.1.1</commons-jexl.version>
-    <commons-lang.version>3.1</commons-lang.version>
+    <commons-lang.version>3.2</commons-lang.version>
         
     <hc.client.version>4.2.6</hc.client.version>
 
