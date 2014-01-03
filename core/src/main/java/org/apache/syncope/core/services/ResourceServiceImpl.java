@@ -30,13 +30,14 @@ import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.reqres.BulkActionResult;
-import org.apache.syncope.common.reqres.BulkAssociationAction;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.wrap.PropagationActionClass;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.RESTHeaders;
+import org.apache.syncope.common.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.common.wrap.SubjectId;
 import org.apache.syncope.core.rest.controller.AbstractResourceAssociator;
 import org.apache.syncope.core.rest.controller.ResourceController;
 import org.apache.syncope.core.rest.controller.RoleController;
@@ -111,33 +112,33 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public BulkActionResult bulkAssociation(final String resourceName,
-            final BulkAssociationAction bulkAssociationAction, final AttributableType type) {
+    public BulkActionResult bulkDeassociation(final String resourceName, final AttributableType attrType,
+            final ResourceDeassociationActionType type, final List<SubjectId> subjectIds) {
 
-        if (bulkAssociationAction.getOperation() == null || type == AttributableType.MEMBERSHIP) {
+        if (attrType == AttributableType.MEMBERSHIP) {
             throw new BadRequestException();
         }
 
-        AbstractResourceAssociator<? extends AbstractAttributableTO> associator = type == AttributableType.USER
+        AbstractResourceAssociator<? extends AbstractAttributableTO> associator = attrType == AttributableType.USER
                 ? userController
                 : roleController;
 
         final BulkActionResult res = new BulkActionResult();
 
-        for (Long id : bulkAssociationAction.getTargets()) {
+        for (SubjectId id : subjectIds) {
             final Set<String> resources = Collections.singleton(resourceName);
             try {
-                switch (bulkAssociationAction.getOperation()) {
+                switch (type) {
                     case DEPROVISION:
-                        associator.deprovision(id, resources);
+                        associator.deprovision(id.getElement(), resources);
                         break;
 
                     case UNASSIGN:
-                        associator.unassign(id, resources);
+                        associator.unassign(id.getElement(), resources);
                         break;
 
                     case UNLINK:
-                        associator.unlink(id, resources);
+                        associator.unlink(id.getElement(), resources);
                         break;
 
                     default:
@@ -145,7 +146,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
 
                 res.add(id, BulkActionResult.Status.SUCCESS);
             } catch (Exception e) {
-                LOG.warn("While executing {} on {} {}", bulkAssociationAction.getOperation(), type, id, e);
+                LOG.warn("While executing {} on {} {}", type, attrType, id.getElement(), e);
                 res.add(id, BulkActionResult.Status.FAILURE);
             }
         }

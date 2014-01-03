@@ -33,26 +33,24 @@ public final class CollectionWrapper {
         // empty constructor for static utility class
     }
 
-    public static <T extends AbstractWrappable> List<T> wrap(
-            final String element, final Class<T> reference) {
-
+    public static <E, T extends AbstractWrappable<E>> List<T> wrap(final E element, final Class<T> reference) {
         return Collections.singletonList(AbstractWrappable.getInstance(reference, element));
     }
 
-    public static <T extends AbstractWrappable> List<T> wrap(
-            final Collection<String> collection, final Class<T> reference) {
+    public static <E, T extends AbstractWrappable<E>> List<T> wrap(
+            final Collection<E> collection, final Class<T> reference) {
 
         List<T> response = new ArrayList<T>();
-        for (String element : collection) {
+        for (E element : collection) {
             response.add(AbstractWrappable.getInstance(reference, element));
         }
         return response;
     }
 
-    public static <T extends AbstractWrappable> List<String> unwrap(final Collection<T> collection) {
-        List<String> response = new ArrayList<String>();
-        for (T e : collection) {
-            response.add(e.getName());
+    public static <E, T extends AbstractWrappable<E>> List<E> unwrap(final Collection<T> collection) {
+        List<E> response = new ArrayList<E>();
+        for (T item : collection) {
+            response.add(item.getElement());
         }
         return response;
     }

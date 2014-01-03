@@ -32,7 +32,7 @@ import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
-import org.apache.syncope.common.types.ResourceDeAssociationActionType;
+import org.apache.syncope.common.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.console.commons.status.StatusBean;
 import org.apache.syncope.console.commons.status.StatusUtils;
@@ -100,7 +100,7 @@ public class RoleRestClient extends AbstractAttributableRestClient {
     }
 
     public BulkActionResult unlink(final long roleId, final List<StatusBean> statuses) {
-        return getService(RoleService.class).bulkDeassociation(roleId, ResourceDeAssociationActionType.UNLINK,
+        return getService(RoleService.class).bulkDeassociation(roleId, ResourceDeassociationActionType.UNLINK,
                 CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class)).
                 readEntity(BulkActionResult.class);
     }
@@ -112,7 +112,7 @@ public class RoleRestClient extends AbstractAttributableRestClient {
     }
 
     public BulkActionResult deprovision(final long roleId, final List<StatusBean> statuses) {
-        return getService(RoleService.class).bulkDeassociation(roleId, ResourceDeAssociationActionType.DEPROVISION,
+        return getService(RoleService.class).bulkDeassociation(roleId, ResourceDeassociationActionType.DEPROVISION,
                 CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class)).
                 readEntity(BulkActionResult.class);
     }
@@ -124,7 +124,7 @@ public class RoleRestClient extends AbstractAttributableRestClient {
     }
 
     public BulkActionResult unassign(final long roleId, final List<StatusBean> statuses) {
-        return getService(RoleService.class).bulkDeassociation(roleId, ResourceDeAssociationActionType.UNASSIGN,
+        return getService(RoleService.class).bulkDeassociation(roleId, ResourceDeassociationActionType.UNASSIGN,
                 CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class)).
                 readEntity(BulkActionResult.class);
     }

@@ -34,6 +34,7 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.model.wadl.Description;
 import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
+
 import org.apache.syncope.common.mod.ResourceAssociationMod;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -43,17 +44,38 @@ import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
-import org.apache.syncope.common.types.ResourceDeAssociationActionType;
+import org.apache.syncope.common.types.ResourceDeassociationActionType;
 
+/**
+ * REST operations for users.
+ */
 @Path("users")
-@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface UserService extends JAXRSService {
 
+    /**
+     * Gives the username for the provided user id.
+     *
+     * @param userId user id
+     * @return <tt>Response</tt> object featuring HTTP header with username matching the given userId
+     */
+    @Descriptions({
+        @Description(target = DocTarget.RETURN,
+                value = "<tt>Response</tt> object featuring HTTP header with username matching the given userId")
+    })
     @OPTIONS
     @Path("{userId}/username")
     Response getUsername(@PathParam("userId") Long userId);
 
+    /**
+     * Gives the user id for the provided username.
+     *
+     * @param username username
+     * @return <tt>Response</tt> object featuring HTTP header with userId matching the given username
+     */
+    @Descriptions({
+        @Description(target = DocTarget.RETURN,
+                value = "<tt>Response</tt> object featuring HTTP header with userId matching the given username")
+    })
     @OPTIONS
     @Path("{username}/userId")
     Response getUserId(@PathParam("username") String username);
@@ -66,109 +88,78 @@ public interface UserService extends JAXRSService {
      */
     @GET
     @Path("{userId}")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Reads the user matching the provided userId"),
-        @Description(target = DocTarget.RETURN, value = "User matching the provided userId")
-    })
-    UserTO read(@Description("id of user to be read") @PathParam("userId") Long userId);
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    UserTO read(@PathParam("userId") Long userId);
 
     /**
      * Returns a paged list of existing users.
      *
-     * @return Paged list of all existing users
+     * @return paged list of all existing users
      */
     @GET
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Returns a list of all existing users"),
-        @Description(target = DocTarget.RETURN, value = "Paged list of all existing users")
-    })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<UserTO> list();
 
     /**
      * Returns a paged list of existing users.
      *
      * @param orderBy list of ordering clauses, separated by comma
-     * @return Paged list of all existing users
+     * @return paged list of all existing users
      */
     @GET
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Returns a list of all existing users"),
-        @Description(target = DocTarget.RETURN, value = "Paged list of all existing users")
-    })
-    PagedResult<UserTO> list(
-            @Description("list of ordering clauses, separated by comma") @QueryParam(PARAM_ORDERBY) String orderBy);
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    PagedResult<UserTO> list(@QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
      * Returns a paged list of existing users matching page/size conditions.
      *
      * @param page result page number
      * @param size number of entries per page
-     * @param orderBy list of ordering clauses, separated by comma
-     * @return Paged list of existing users matching page/size conditions
+     * @return paged list of existing users matching page/size conditions
      */
     @GET
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "Returns a list of all existing users matching page/size conditions"),
-        @Description(target = DocTarget.RETURN, value = "Paged list of existing users matching page/size conditions")
-    })
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<UserTO> list(
-            @Description("result page number")
             @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @Description("number of entries per page")
-            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
-            @Description("list of ordering clauses, separated by comma") @QueryParam(PARAM_ORDERBY) String orderBy);
-
-    /**
-     * Returns a paged list of existing users matching page/size conditions.
-     *
-     * @param page result page number
-     * @param size number of entries per page
-     * @return Paged list of existing users matching page/size conditions
-     */
-    @GET
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "Returns a list of all existing users matching page/size conditions"),
-        @Description(target = DocTarget.RETURN, value = "Paged list of existing users matching page/size conditions")
-    })
-    PagedResult<UserTO> list(
-            @Description("result page number")
-            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @Description("number of entries per page")
             @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
 
     /**
+     * Returns a paged list of existing users matching page/size conditions.
+     *
+     * @param page result page number
+     * @param size number of entries per page
+     * @param orderBy list of ordering clauses, separated by comma
+     * @return paged list of existing users matching page/size conditions
+     */
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    PagedResult<UserTO> list(
+            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
+            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
+            @QueryParam(PARAM_ORDERBY) String orderBy);
+
+    /**
      * Returns a paged list of users matching the provided FIQL search condition.
      *
      * @param fiql FIQL search expression
-     * @return Paged list of users matching the provided FIQL search condition
+     * @return paged list of users matching the provided FIQL search condition
      */
     @GET
     @Path("search")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "Returns a paged list of users matching the provided FIQL search condition"),
-        @Description(target = DocTarget.RETURN, value = "List of users matching the given condition")
-    })
-    PagedResult<UserTO> search(@Description("FIQL search expression") @QueryParam(PARAM_FIQL) String fiql);
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    PagedResult<UserTO> search(@QueryParam(PARAM_FIQL) String fiql);
 
     /**
      * Returns a paged list of users matching the provided FIQL search condition.
      *
      * @param fiql FIQL search expression
      * @param orderBy list of ordering clauses, separated by comma
-     * @return Paged list of users matching the provided FIQL search condition
+     * @return paged list of users matching the provided FIQL search condition
      */
     @GET
     @Path("search")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "Returns a paged list of users matching the provided FIQL search condition"),
-        @Description(target = DocTarget.RETURN, value = "List of users matching the given condition")
-    })
-    PagedResult<UserTO> search(@Description("FIQL search expression") @QueryParam(PARAM_FIQL) String fiql,
-            @Description("list of ordering clauses, separated by comma") @QueryParam(PARAM_ORDERBY) String orderBy);
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    PagedResult<UserTO> search(@QueryParam(PARAM_FIQL) String fiql, @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
      * Returns a paged list of users matching the provided FIQL search condition.
@@ -176,20 +167,13 @@ public interface UserService extends JAXRSService {
      * @param fiql FIQL search expression
      * @param page result page number
      * @param size number of entries per page
-     * @return Paged list of users matching the provided FIQL search condition
+     * @return paged list of users matching the provided FIQL search condition
      */
     @GET
     @Path("search")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "Returns a paged list of users matching the provided FIQL search condition"),
-        @Description(target = DocTarget.RETURN,
-                value = "Paged list of users matching the provided FIQL search condition")
-    })
-    PagedResult<UserTO> search(@Description("FIQL search expression") @QueryParam(PARAM_FIQL) String fiql,
-            @Description("result page number")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    PagedResult<UserTO> search(@QueryParam(PARAM_FIQL) String fiql,
             @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @Description("number of entries per page")
             @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
 
     /**
@@ -199,109 +183,106 @@ public interface UserService extends JAXRSService {
      * @param page result page number
      * @param size number of entries per page
      * @param orderBy list of ordering clauses, separated by comma
-     * @return Paged list of users matching the provided FIQL search condition
+     * @return paged list of users matching the provided FIQL search condition
      */
     @GET
     @Path("search")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD,
-                value = "Returns a paged list of users matching the provided FIQL search condition"),
-        @Description(target = DocTarget.RETURN,
-                value = "Paged list of users matching the provided FIQL search condition")
-    })
-    PagedResult<UserTO> search(@Description("FIQL search expression") @QueryParam(PARAM_FIQL) String fiql,
-            @Description("result page number")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    PagedResult<UserTO> search(@QueryParam(PARAM_FIQL) String fiql,
             @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @Description("number of entries per page")
             @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
-            @Description("list of ordering clauses, separated by comma") @QueryParam(PARAM_ORDERBY) String orderBy);
+            @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
      * Creates a new user.
      *
      * @param userTO user to be created
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created user as well as the user itself
-     * enriched with propagation status information, as <tt>Entity</tt>
+     * enriched with propagation status information - {@link UserTO} as <tt>Entity</tt>
      */
-    @POST
     @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Creates a new user"),
         @Description(target = DocTarget.RETURN,
-                value = "Response object featuring <tt>Location</tt> header of created user"),
-        @Description(target = DocTarget.RESPONSE,
-                value = "User created available at URL specified via the <tt>Location</tt> header")
+                value = "<tt>Response</tt> object featuring <tt>Location</tt> header of created user as well as the "
+                + "user itself enriched with propagation status information - <tt>UserTO</tt> as <tt>Entity</tt>")
     })
-    Response create(@Description("user to be created") UserTO userTO);
+    @POST
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    Response create(UserTO userTO);
 
     /**
      * Updates user matching the provided userId.
      *
      * @param userId id of user to be updated
      * @param userMod modification to be applied to user matching the provided userId
-     * @return <tt>Response</tt> object featuring the updated user enriched with propagation status information,
-     * as <tt>Entity</tt>
+     * @return <tt>Response</tt> object featuring the updated user enriched with propagation status information
+     * - {@link UserTO} as <tt>Entity</tt>
      */
+    @Descriptions({
+        @Description(target = DocTarget.RETURN,
+                value = "<tt>Response</tt> object featuring the updated user enriched with propagation status "
+                + "information - <tt>UserTO</tt> as <tt>Entity</tt>")
+    })
     @POST
     @Path("{userId}")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Updates user matching the provided userId"),
-        @Description(target = DocTarget.RETURN, value = "<tt>Response</tt> object featuring the updated user enriched "
-                + "with propagation status information, as <tt>Entity</tt>")
-    })
-    Response update(@Description("id of user to be updated") @PathParam("userId") Long userId,
-            @Description("modification to be applied to user matching the provided userId") UserMod userMod);
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    Response update(@PathParam("userId") Long userId, UserMod userMod);
 
     /**
      * Performs a status update on user matching provided userId.
      *
      * @param userId id of user to be subjected to status update
      * @param statusMod status update details
-     * @return <tt>Response</tt> object featuring the updated user enriched with propagation status information,
-     * as <tt>Entity</tt>
+     * @return <tt>Response</tt> object featuring the updated user enriched with propagation status information
+     * - {@link UserTO} as <tt>Entity</tt>
      */
+    @Descriptions({
+        @Description(target = DocTarget.RETURN,
+                value = "<tt>Response</tt> object featuring the updated user enriched with propagation status "
+                + "information - <tt>UserTO</tt> as <tt>Entity</tt>")
+    })
     @POST
     @Path("{userId}/status")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Performs a status update on user matching provided userId"),
-        @Description(target = DocTarget.RETURN, value = "<tt>Response</tt> object featuring the updated user enriched "
-                + "with propagation status information, as <tt>Entity</tt>")
-    })
-    Response status(@Description("id of user to be subjected to status update") @PathParam("userId") Long userId,
-            @Description("status update details") StatusMod statusMod);
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    Response status(@PathParam("userId") Long userId, StatusMod statusMod);
 
     /**
      * Deletes user matching provided userId.
      *
      * @param userId id of user to be deleted
-     * @return <tt>Response</tt> object featuring the deleted user enriched with propagation status information,
-     * as <tt>Entity</tt>
+     * @return <tt>Response</tt> object featuring the deleted user enriched with propagation status information
+     * - {@link UserTO} as <tt>Entity</tt>
      */
+    @Descriptions({
+        @Description(target = DocTarget.RETURN,
+                value = "<tt>Response</tt> object featuring the deleted user enriched with propagation status "
+                + "information - <tt>UserTO</tt> as <tt>Entity</tt>")
+    })
     @DELETE
     @Path("{userId}")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Deletes user matching provided userId"),
-        @Description(target = DocTarget.RETURN, value = "<tt>Response</tt> object featuring the deleted user enriched "
-                + "with propagation status information, as <tt>Entity</tt>")
-    })
-    Response delete(@Description("id of user to be deleted") @PathParam("userId") Long userId);
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    Response delete(@PathParam("userId") Long userId);
 
     /**
      * Executes resource-related operations on given user.
      *
-     * @param userId user id.
+     * @param userId user id
      * @param type resource de-association action type
      * @param resourceNames external resources to be used for propagation-related operations
-     * @return <tt>Response</tt> object featuring the bulk action result
+     * @return <tt>Response</tt> object featuring {@link BulkActionResult} as <tt>Entity</tt>
      */
+    @Descriptions({
+        @Description(target = DocTarget.RETURN,
+                value = "<tt>Response</tt> object featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
+    })
     @POST
     @Path("{userId}/bulkDeassociation/{type}")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Executes resource-related operations on given user"),
-        @Description(target = DocTarget.RETURN, value = "<tt>Response</tt> object featuring the bulk action result")
-    })
-    Response bulkDeassociation(@Description("user id") @PathParam("userId") Long userId,
-            @Description("resource de-association action type") @PathParam("type") ResourceDeAssociationActionType type,
-            @Description("external resources to be used for propagation-related operations") List<ResourceName> resourceNames);
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    Response bulkDeassociation(@PathParam("userId") Long userId,
+            @PathParam("type") ResourceDeassociationActionType type, List<ResourceName> resourceNames);
 
     /**
      * Executes resource-related operations on given user.
@@ -309,29 +290,29 @@ public interface UserService extends JAXRSService {
      * @param userId user id.
      * @param type resource association action type
      * @param associationMod external resources to be used for propagation-related operations
-     * @return <tt>Response</tt> object featuring the bulk action result
+     * @return <tt>Response</tt> object featuring {@link BulkActionResult} as <tt>Entity</tt>
      */
+    @Descriptions({
+        @Description(target = DocTarget.RETURN,
+                value = "<tt>Response</tt> object featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
+    })
     @POST
     @Path("{userId}/bulkAssociation/{type}")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Executes resource-related operations on given user"),
-        @Description(target = DocTarget.RETURN, value = "<tt>Response</tt> object featuring the bulk action result")
-    })
-    Response bulkAssociation(@Description("user id") @PathParam("userId") Long userId,
-            @Description("resource association action type") @PathParam("type") ResourceAssociationActionType type,
-            @Description("external resources to be used for propagation-related operations") ResourceAssociationMod associationMod);
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    Response bulkAssociation(@PathParam("userId") Long userId,
+            @PathParam("type") ResourceAssociationActionType type,
+            ResourceAssociationMod associationMod);
 
     /**
      * Executes the provided bulk action.
      *
-     * @param bulkAction list of &lt;username, action&gt; pairs
-     * @return Bulk action result.
+     * @param bulkAction list of user ids against which the bulk action will be performed.
+     * @return Bulk action result
      */
     @POST
     @Path("bulk")
-    @Descriptions({
-        @Description(target = DocTarget.METHOD, value = "Executes the provided bulk action"),
-        @Description(target = DocTarget.RETURN, value = "Bulk action result")
-    })
-    BulkActionResult bulk(@Description("list of &lt;username, action&gt; pairs") BulkAction bulkAction);
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    BulkActionResult bulk(BulkAction bulkAction);
 }

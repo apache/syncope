@@ -16,24 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.types;
+@XmlSchema(namespace = SyncopeConstants.NAMESPACE)
+package org.apache.syncope.common.reqres;
 
-import javax.xml.bind.annotation.XmlEnum;
-
-@XmlEnum
-public enum ResourceDeAssociationActionType {
-
-    /**
-     * Remove association between user/role on Syncope and external resource(s) without any propagation.
-     */
-    UNLINK,
-    /**
-     * Remove user/role from external resource(s).
-     */
-    DEPROVISION,
-    /**
-     * Unassign (unlink + de-provision) external resource(s) from user/role.
-     */
-    UNASSIGN
-
-}
+import javax.xml.bind.annotation.XmlSchema;
+import org.apache.syncope.common.SyncopeConstants;

@@ -16,15 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.wrap;
+package org.apache.syncope.common.types;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlEnum;
 
-@XmlRootElement(name = "resourceName")
-@XmlType
-public class ResourceName extends AbstractWrappable<String> {
+@XmlEnum
+public enum ResourceDeassociationActionType {
 
-    private static final long serialVersionUID = -175720097924079573L;
+    /**
+     * Remove association between user/role on Syncope and external resource(s) without any propagation.
+     */
+    UNLINK,
+    /**
+     * Remove user/role from external resource(s).
+     */
+    DEPROVISION,
+    /**
+     * Unassign (unlink + de-provision) external resource(s) from user/role.
+     */
+    UNASSIGN
 
 }

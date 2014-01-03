@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.services;
 
-import org.apache.syncope.common.to.WorkflowFormTO;
 import java.util.List;
 import javax.ws.rs.Consumes;
 
@@ -30,33 +29,80 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.to.WorkflowFormTO;
 
+/**
+ * REST operations related to user workflow.
+ */
 @Path("userworkflow")
-@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface UserWorkflowService extends JAXRSService {
 
-    @POST
-    @Path("forms")
-    UserTO submitForm(WorkflowFormTO form);
-
+    /**
+     * Returns a list of all available workflow forms.
+     *
+     * @return list of all available workflow forms
+     */
     @GET
     @Path("forms")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<WorkflowFormTO> getForms();
 
+    /**
+     * Returns a list of all available workflow forms with matching name, for the given user id.
+     *
+     * @param userId user id
+     * @param name form name
+     * @return list of all available workflow forms with matching name, fir the given user id.
+     */
     @GET
     @Path("forms/{userId}/{name}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<WorkflowFormTO> getFormsByName(@PathParam("userId") final Long userId, @PathParam("name") final String name);
 
+    /**
+     * Returns a list of available forms for the given user id.
+     *
+     * @param userId user id
+     * @return list of available forms for the given user id
+     */
     @GET
     @Path("forms/{userId}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     WorkflowFormTO getFormForUser(@PathParam("userId") Long userId);
 
+    /**
+     * Claims the form for the given task id.
+     *
+     * @param taskId workflow task id
+     * @return the workflow form for the given task id
+     */
     @POST
-    @Path("tasks/{taskId}/claim")
+    @Path("forms/{taskId}/claim")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     WorkflowFormTO claimForm(@PathParam("taskId") String taskId);
 
+    /**
+     * Submits a workflow form.
+     *
+     * @param form workflow form.
+     * @return updated user
+     */
+    @POST
+    @Path("forms")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    UserTO submitForm(WorkflowFormTO form);
+
+    /**
+     * Executes workflow task for matching id.
+     *
+     * @param taskId workflow task id
+     * @param userTO argument to be passed to workflow task
+     * @return updated user
+     */
     @POST
     @Path("tasks/{taskId}/execute")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     UserTO executeTask(@PathParam("taskId") String taskId, UserTO userTO);
 }

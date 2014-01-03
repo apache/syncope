@@ -29,25 +29,22 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.cxf.jaxrs.model.wadl.Description;
+import org.apache.cxf.jaxrs.model.wadl.Descriptions;
+import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.wrap.MailTemplate;
 import org.apache.syncope.common.wrap.Validator;
 
+/**
+ * REST operations for configuration.
+ */
 @Path("configurations")
 public interface ConfigurationService extends JAXRSService {
 
     /**
-     * Creates a new configuration element.
+     * Exports internal storage content as downloadable XML file.
      *
-     * @param configurationTO Configuration to be stored.
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created configuration
-     */
-    @POST
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response create(ConfigurationTO configurationTO);
-
-    /**
      * @return internal storage content as downloadable XML file
      */
     @GET
@@ -55,15 +52,9 @@ public interface ConfigurationService extends JAXRSService {
     Response export();
 
     /**
-     * @param key Deletes configuration with matching key.
-     */
-    @DELETE
-    @Path("{key}")
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void delete(@PathParam("key") String key);
-
-    /**
-     * @return Returns a list of known mail-template names.
+     * Returns a list of known mail-template names.
+     *
+     * @return a list of known mail-template names
      */
     @GET
     @Path("mailTemplates")
@@ -71,7 +62,9 @@ public interface ConfigurationService extends JAXRSService {
     List<MailTemplate> getMailTemplates();
 
     /**
-     * @return Returns a list of known validator names.
+     * Returns a list of known validator names.
+     *
+     * @return a list of known validator names
      */
     @GET
     @Path("validators")
@@ -79,15 +72,10 @@ public interface ConfigurationService extends JAXRSService {
     List<Validator> getValidators();
 
     /**
-     * @return list of all configuration elements.
-     */
-    @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ConfigurationTO> list();
-
-    /**
-     * @param key Identifier of configuration to be read.
-     * @return configuration element with matching key.
+     * Returns configuration parameter with matching key.
+     *
+     * @param key identifier of configuration to be read
+     * @return configuration parameter with matching key
      */
     @GET
     @Path("{key}")
@@ -95,11 +83,47 @@ public interface ConfigurationService extends JAXRSService {
     ConfigurationTO read(@PathParam("key") String key);
 
     /**
-     * @param key Overwrites configuration element with matching key.
-     * @param configurationTO New configuration
+     * Returns list of all configuration parameters.
+     *
+     * @return list of all configuration parameters
+     */
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    List<ConfigurationTO> list();
+
+    /**
+     * Creates a new configuration parameter.
+     *
+     * @param configurationTO Configuration to be stored.
+     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created configuration
+     */
+    @Descriptions({
+        @Description(target = DocTarget.RETURN,
+                value = "<tt>Response</tt> object featuring <tt>Location</tt> header of created configuration")
+    })
+    @POST
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    Response create(ConfigurationTO configurationTO);
+
+    /**
+     * Updates configuration parameter for the given key.
+     *
+     * @param key configuration parameter key
+     * @param configurationTO new configuration
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     void update(@PathParam("key") String key, ConfigurationTO configurationTO);
+
+    /**
+     * Deletes configuration with matching key.
+     *
+     * @param key configuration parameter key
+     */
+    @DELETE
+    @Path("{key}")
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    void delete(@PathParam("key") String key);
 }

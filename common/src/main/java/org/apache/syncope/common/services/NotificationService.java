@@ -29,48 +29,69 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.cxf.jaxrs.model.wadl.Description;
+import org.apache.cxf.jaxrs.model.wadl.Descriptions;
+import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 
 import org.apache.syncope.common.to.NotificationTO;
 
+/**
+ * REST operations for notifications.
+ */
 @Path("notifications")
-@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface NotificationService extends JAXRSService {
 
     /**
+     * Returns notification with matching id.
+     *
+     * @param notificationId id of notification to be read
+     * @return notification with matching id
+     */
+    @GET
+    @Path("{notificationId}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    NotificationTO read(@PathParam("notificationId") Long notificationId);
+
+    /**
+     * Returns a list of all notifications.
+     *
+     * @return list of all notifications.
+     */
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    List<NotificationTO> list();
+
+    /**
+     * Creates a new notification.
+     *
      * @param notificationTO Creates a new notification.
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created notification
      */
+    @Descriptions({
+        @Description(target = DocTarget.RETURN,
+                value = "<tt>Response</tt> object featuring <tt>Location</tt> header of created notification")
+    })
     @POST
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response create(NotificationTO notificationTO);
 
     /**
-     * @param notificationId ID for notification to be deleted.
+     * Updates the notification matching the given id.
+     *
+     * @param notificationId id of notification to be updated
+     * @param notificationTO notification to be stored
+     */
+    @PUT
+    @Path("{notificationId}")
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    void update(@PathParam("notificationId") Long notificationId, NotificationTO notificationTO);
+
+    /**
+     * Deletes the notification matching the given id.
+     *
+     * @param notificationId id for notification to be deleted
      */
     @DELETE
     @Path("{notificationId}")
     void delete(@PathParam("notificationId") Long notificationId);
-
-    /**
-     * @return Returns list of all notifications.
-     */
-    @GET
-    List<NotificationTO> list();
-
-    /**
-     * @param notificationId ID of notification to be read.
-     * @return Notification with matching id.
-     */
-    @GET
-    @Path("{notificationId}")
-    NotificationTO read(@PathParam("notificationId") Long notificationId);
-
-    /**
-     * @param notificationId ID of notification to be updated.
-     * @param notificationTO Notification to be stored.
-     */
-    @PUT
-    @Path("{notificationId}")
-    void update(@PathParam("notificationId") Long notificationId, NotificationTO notificationTO);
-
 }

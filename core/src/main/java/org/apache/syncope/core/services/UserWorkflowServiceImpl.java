@@ -40,7 +40,7 @@ public class UserWorkflowServiceImpl implements UserWorkflowService {
 
     @Override
     public UserTO executeTask(final String taskId, final UserTO userTO) {
-        return controller.executeWorkflow(userTO, taskId);
+        return controller.executeWorkflowTask(userTO, taskId);
     }
 
     @Override

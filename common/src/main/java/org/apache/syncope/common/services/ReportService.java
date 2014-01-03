@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.services;
 
-import org.apache.syncope.common.reqres.PagedResult;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -32,24 +31,128 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.cxf.jaxrs.model.wadl.Description;
+import org.apache.cxf.jaxrs.model.wadl.Descriptions;
+import org.apache.cxf.jaxrs.model.wadl.DocTarget;
+import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.wrap.ReportletConfClass;
 
+/**
+ * REST operations for reports.
+ */
 @Path("reports")
-@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface ReportService extends JAXRSService {
 
     /**
-     * @param reportTO Report to be created
+     * Returns a list of available classes for reportlet configuration.
+     *
+     * @return list of available classes for reportlet configuration
+     */
+    @GET
+    @Path("reportletConfClasses")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    List<ReportletConfClass> getReportletConfClasses();
+
+    /**
+     * Returns report with matching id.
+     *
+     * @param reportId id of report to be read
+     * @return report with matching id
+     */
+    @GET
+    @Path("{reportId}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    ReportTO read(@PathParam("reportId") Long reportId);
+
+    /**
+     * Returns report execution with matching id.
+     *
+     * @param executionId report execution id to be selected
+     * @return report execution with matching id
+     */
+    @GET
+    @Path("executions/{executionId}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    ReportExecTO readExecution(@PathParam("executionId") Long executionId);
+
+    /**
+     * Returns a paged list of all existing reports.
+     *
+     * @return paged list of all existing reports
+     */
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    PagedResult<ReportTO> list();
+
+    /**
+     * Returns a paged list of all existing reports.
+     *
+     * @param orderBy list of ordering clauses, separated by comma
+     * @return paged list of all existing reports
+     */
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    PagedResult<ReportTO> list(@QueryParam(PARAM_ORDERBY) String orderBy);
+
+    /**
+     * Returns a paged list of all existing reports matching page/size conditions.
+     *
+     * @param page selected page in relation to size
+     * @param size number of entries per page
+     * @return paged list of existing reports matching page/size conditions
+     */
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    PagedResult<ReportTO> list(
+            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
+            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
+
+    /**
+     * Returns a paged list of all existing reports matching page/size conditions.
+     *
+     * @param page selected page in relation to size
+     * @param size number of entries per page
+     * @param orderBy list of ordering clauses, separated by comma
+     * @return paged list of existing reports matching page/size conditions
+     */
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    PagedResult<ReportTO> list(
+            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
+            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
+            @QueryParam(PARAM_ORDERBY) String orderBy);
+
+    /**
+     * Creates a new report.
+     *
+     * @param reportTO report to be created
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created report
      */
+    @Descriptions({
+        @Description(target = DocTarget.RETURN,
+                value = "<tt>Response</tt> object featuring <tt>Location</tt> header of created report")
+    })
     @POST
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response create(ReportTO reportTO);
 
     /**
+     * Updates report with matching id.
+     *
+     * @param reportId id for report to be updated
+     * @param reportTO report to be stored
+     */
+    @PUT
+    @Path("{reportId}")
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    void update(@PathParam("reportId") Long reportId, ReportTO reportTO);
+
+    /**
+     * Deletes report with matching id.
+     *
      * @param reportId Deletes report with matching id
      */
     @DELETE
@@ -57,91 +160,35 @@ public interface ReportService extends JAXRSService {
     void delete(@PathParam("reportId") Long reportId);
 
     /**
-     * @param executionId ID of execution report to be deleted
+     * Deletes report execution with matching id.
+     *
+     * @param executionId id of execution report to be deleted
      */
     @DELETE
     @Path("executions/{executionId}")
     void deleteExecution(@PathParam("executionId") Long executionId);
 
     /**
-     * @param reportId ID of report to be executed.
-     * @return Execution result
+     * Executes the report with matching id.
+     *
+     * @param reportId id of report to be executed
+     * @return report execution result
      */
     @POST
     @Path("{reportId}/execute")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     ReportExecTO execute(@PathParam("reportId") Long reportId);
 
     /**
-     * @param executionId ID of execution report to be selected
+     * Exports the report execution with matching id in the requested format.
+     *
+     * @param executionId id of execution report to be selected
      * @param fmt file-format selection
-     * @return Returns a stream for content download
+     * @return a stream for content download
      */
     @GET
     @Path("executions/{executionId}/stream")
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response exportExecutionResult(@PathParam("executionId") Long executionId,
             @QueryParam("format") ReportExecExportFormat fmt);
-
-    /**
-     * @return Returns a list of all reportletConfClasses
-     */
-    @GET
-    @Path("reportletConfClasses")
-    List<ReportletConfClass> getReportletConfClasses();
-
-    /**
-     * @return Paged list of all existing reports
-     */
-    @GET
-    PagedResult<ReportTO> list();
-
-    /**
-     * @param orderBy list of ordering clauses, separated by comma
-     * @return Paged list of all existing reports
-     */
-    @GET
-    PagedResult<ReportTO> list(@QueryParam(PARAM_ORDERBY) String orderBy);
-
-    /**
-     * @param page selected page in relation to size
-     * @param size number of entries per page
-     * @return Paged list of existing reports matching page/size conditions
-     */
-    @GET
-    PagedResult<ReportTO> list(@QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
-
-    /**
-     * @param page selected page in relation to size
-     * @param size number of entries per page
-     * @param orderBy list of ordering clauses, separated by comma
-     * @return Paged list of existing reports matching page/size conditions
-     */
-    @GET
-    PagedResult<ReportTO> list(@QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
-            @QueryParam(PARAM_ORDERBY) String orderBy);
-
-    /**
-     * @param reportId ID of report to be read
-     * @return Report with matching ID
-     */
-    @GET
-    @Path("{reportId}")
-    ReportTO read(@PathParam("reportId") Long reportId);
-
-    /**
-     * @param executionId ID ExecutionReport to be selected
-     * @return Returns ExecutionReport with matching id
-     */
-    @GET
-    @Path("executions/{executionId}")
-    ReportExecTO readExecution(@PathParam("executionId") Long executionId);
-
-    /**
-     * @param reportId ID for report to be updated
-     * @param reportTO Updates report with matching reportId
-     */
-    @PUT
-    @Path("{reportId}")
-    void update(@PathParam("reportId") Long reportId, ReportTO reportTO);
 }

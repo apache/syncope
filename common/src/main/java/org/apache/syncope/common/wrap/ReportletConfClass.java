@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "reportletConfClass")
 @XmlType
-public class ReportletConfClass extends AbstractWrappable {
+public class ReportletConfClass extends AbstractWrappable<String> {
 
     private static final long serialVersionUID = 1343357929074360450L;
 

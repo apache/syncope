@@ -34,7 +34,7 @@ import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.mod.ResourceAssociationMod;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
-import org.apache.syncope.common.types.ResourceDeAssociationActionType;
+import org.apache.syncope.common.types.ResourceDeassociationActionType;
 import org.apache.syncope.console.commons.status.StatusBean;
 import org.apache.syncope.console.commons.status.StatusUtils;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -115,7 +115,7 @@ public class UserRestClient extends AbstractAttributableRestClient {
     }
 
     public BulkActionResult unlink(final long userId, final List<StatusBean> statuses) {
-        return getService(UserService.class).bulkDeassociation(userId, ResourceDeAssociationActionType.UNLINK,
+        return getService(UserService.class).bulkDeassociation(userId, ResourceDeassociationActionType.UNLINK,
                 CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class))
                 .readEntity(BulkActionResult.class);
     }
@@ -130,7 +130,7 @@ public class UserRestClient extends AbstractAttributableRestClient {
     }
 
     public BulkActionResult deprovision(final long userId, final List<StatusBean> statuses) {
-        return getService(UserService.class).bulkDeassociation(userId, ResourceDeAssociationActionType.DEPROVISION,
+        return getService(UserService.class).bulkDeassociation(userId, ResourceDeassociationActionType.DEPROVISION,
                 CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class))
                 .readEntity(BulkActionResult.class);
     }
@@ -149,7 +149,7 @@ public class UserRestClient extends AbstractAttributableRestClient {
     }
 
     public BulkActionResult unassign(final long userId, final List<StatusBean> statuses) {
-        return getService(UserService.class).bulkDeassociation(userId, ResourceDeAssociationActionType.UNASSIGN,
+        return getService(UserService.class).bulkDeassociation(userId, ResourceDeassociationActionType.UNASSIGN,
                 CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class))
                 .readEntity(BulkActionResult.class);
     }

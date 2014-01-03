@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "entitlement")
 @XmlType
-public class EntitlementTO extends AbstractWrappable {
+public class EntitlementTO extends AbstractWrappable<String> {
 
     private static final long serialVersionUID = 7133614577172038452L;
 

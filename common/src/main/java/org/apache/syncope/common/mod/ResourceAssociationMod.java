@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.common.mod;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -41,7 +44,7 @@ public class ResourceAssociationMod extends AbstractBaseBean {
     /**
      * Target external resources.
      */
-    private List<ResourceName> targetResources;
+    private final List<ResourceName> targetResources = new ArrayList<ResourceName>();
 
     /**
      * Indicate the willing to change password on target external resources.
@@ -53,12 +56,9 @@ public class ResourceAssociationMod extends AbstractBaseBean {
      */
     private String password;
 
-    public ResourceAssociationMod() {
-        targetResources = new ArrayList<ResourceName>();
-        changePwd = false;
-        password = null;
-    }
-
+    @XmlElementWrapper(name = "resources")
+    @XmlElement(name = "resource")
+    @JsonProperty("resources")
     public List<ResourceName> getTargetResources() {
         return targetResources;
     }

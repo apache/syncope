@@ -28,32 +28,86 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.cxf.jaxrs.model.wadl.Description;
+import org.apache.cxf.jaxrs.model.wadl.Descriptions;
+import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 
+/**
+ * REST operations for user self-management.
+ */
 @Path("users/self")
-@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface UserSelfService extends JAXRSService {
 
     /**
-     * @return Response contains special syncope HTTP header indicating if user self registration is allowed
+     * Checks whether self-registration is allowed.
+     *
+     * @return <tt>Response</tt> contains special Syncope HTTP header indicating if user self registration is allowed
      * @see org.apache.syncope.common.types.RESTHeaders#SELFREGISTRATION_ALLOWED
      */
+    @Descriptions({
+        @Description(target = DocTarget.RETURN,
+                value = "<tt>Response</tt> contains special Syncope HTTP header indicating if user self registration "
+                + "is allowed")
+    })
     @OPTIONS
     Response getOptions();
 
-    @POST
-    Response create(UserTO userTO);
-
+    /**
+     * Returns the user making the service call.
+     *
+     * @return calling user data
+     */
     @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     UserTO read();
 
+    /**
+     * Self-registration for new user.
+     *
+     * @param userTO user to be created
+     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of self-registered user as well as the user
+     * itself - {@link UserTO} as <tt>Entity</tt>
+     */
+    @Descriptions({
+        @Description(target = DocTarget.RETURN,
+                value = "<tt>Response</tt> object featuring <tt>Location</tt> header of self-registered user as well "
+                + "as the user itself - {@link UserTO} as <tt>Entity</tt>")
+    })
+    @POST
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    Response create(UserTO userTO);
+
+    /**
+     * Self-updates user.
+     *
+     * @param userId id of user to be updated
+     * @param userMod modification to be applied to user matching the provided userId
+     * @return <tt>Response</tt> object featuring the updated user - {@link UserTO} as <tt>Entity</tt>
+     */
+    @Descriptions({
+        @Description(target = DocTarget.RETURN,
+                value = "<tt>Response</tt> object featuring the updated user - <tt>UserTO</tt> as <tt>Entity</tt>")
+    })
     @POST
     @Path("{userId}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response update(@PathParam("userId") Long userId, UserMod userMod);
 
+    /**
+     * Self-deletes user.
+     *
+     * @return <tt>Response</tt> object featuring the deleted user - {@link UserTO} as <tt>Entity</tt>
+     */
+    @Descriptions({
+        @Description(target = DocTarget.RETURN,
+                value = "<tt>Response</tt> object featuring the deleted user - <tt>UserTO</tt> as <tt>Entity</tt>")
+    })
     @DELETE
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response delete();
 
 }

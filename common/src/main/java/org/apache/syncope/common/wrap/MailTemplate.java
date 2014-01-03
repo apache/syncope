@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "mailTemplate")
 @XmlType
-public class MailTemplate extends AbstractWrappable {
+public class MailTemplate extends AbstractWrappable<String> {
 
     private static final long serialVersionUID = 7232619557172031478L;
 

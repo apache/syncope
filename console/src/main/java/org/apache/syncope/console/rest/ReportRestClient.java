@@ -40,7 +40,7 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
         try {
             List<ReportletConfClass> reportletConfClasses = getService(ReportService.class).getReportletConfClasses();
             for (ReportletConfClass clazz : reportletConfClasses) {
-                result.add(clazz.getName());
+                result.add(clazz.getElement());
             }
         } catch (SyncopeClientException e) {
             LOG.error("While getting available reportlet classes", e);

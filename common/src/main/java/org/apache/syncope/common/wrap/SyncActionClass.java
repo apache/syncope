@@ -23,6 +23,8 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "syncActionClass")
 @XmlType
-public class SyncActionClass extends AbstractWrappable {
+public class SyncActionClass extends AbstractWrappable<String> {
+
+    private static final long serialVersionUID = 1669581609310071905L;
 
 }

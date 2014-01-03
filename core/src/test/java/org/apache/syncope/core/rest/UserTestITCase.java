@@ -84,7 +84,7 @@ import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.types.Preference;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
-import org.apache.syncope.common.types.ResourceDeAssociationActionType;
+import org.apache.syncope.common.types.ResourceDeassociationActionType;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
@@ -1853,7 +1853,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId()));
 
         assertNotNull(userService.bulkDeassociation(actual.getId(),
-                ResourceDeAssociationActionType.UNLINK,
+                ResourceDeassociationActionType.UNLINK,
                 CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class)).
                 readEntity(BulkActionResult.class));
 
@@ -1917,7 +1917,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId()));
 
         assertNotNull(userService.bulkDeassociation(actual.getId(),
-                ResourceDeAssociationActionType.UNASSIGN,
+                ResourceDeassociationActionType.UNASSIGN,
                 CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class)).
                 readEntity(BulkActionResult.class));
 
@@ -1982,7 +1982,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId()));
 
         assertNotNull(userService.bulkDeassociation(actual.getId(),
-                ResourceDeAssociationActionType.DEPROVISION,
+                ResourceDeassociationActionType.DEPROVISION,
                 CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class)).
                 readEntity(BulkActionResult.class));
 
@@ -2068,7 +2068,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, AttributableType.USER, actual.getId()));
 
         assertNotNull(userService.bulkDeassociation(actual.getId(),
-                ResourceDeAssociationActionType.DEPROVISION,
+                ResourceDeassociationActionType.DEPROVISION,
                 CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class)).
                 readEntity(BulkActionResult.class));
 

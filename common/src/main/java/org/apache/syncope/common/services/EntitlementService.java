@@ -19,7 +19,6 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
-import javax.ws.rs.Consumes;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -28,21 +27,28 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.syncope.common.wrap.EntitlementTO;
 
+/**
+ * REST operations for entitlements.
+ */
 @Path("entitlements")
-@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface EntitlementService extends JAXRSService {
 
     /**
-     * @return Returns a collection of all known entitlements.
+     * Returns a list of all known entitlements.
+     *
+     * @return list of all known entitlements
      */
     @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<EntitlementTO> getAllEntitlements();
 
     /**
-     * @return Returns a collection of entitlements assigned to user making this request (Service Call).
+     * Returns a list of entitlements assigned to user making the current request.
+     *
+     * @return list of entitlements assigned to user making the current request
      */
     @GET
     @Path("own")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<EntitlementTO> getOwnEntitlements();
 }

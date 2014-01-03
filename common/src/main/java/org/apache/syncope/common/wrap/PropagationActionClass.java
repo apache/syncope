@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "propagationActionClass")
 @XmlType
-public class PropagationActionClass extends AbstractWrappable {
+public class PropagationActionClass extends AbstractWrappable<String> {
 
     private static final long serialVersionUID = 2187654394121198308L;
 

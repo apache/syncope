@@ -20,33 +20,27 @@ package org.apache.syncope.common.wrap;
 
 import org.apache.syncope.common.AbstractBaseBean;
 
-public abstract class AbstractWrappable extends AbstractBaseBean {
+public abstract class AbstractWrappable<E> extends AbstractBaseBean {
 
     private static final long serialVersionUID = 1712808704911635170L;
 
-    private String name;
+    private E element;
 
-    public static <T extends AbstractWrappable> T getInstance(final Class<T> reference, final String name) {
+    public static <E, T extends AbstractWrappable<E>> T getInstance(final Class<T> reference, final E element) {
         try {
             T instance = reference.newInstance();
-            instance.setName(name);
+            instance.setElement(element);
             return instance;
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not instantiate " + reference.getName(), e);
         }
     }
 
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
+    public E getElement() {
+        return element;
     }
 
-    /**
-     * @param name the name to set
-     */
-    public void setName(final String name) {
-        this.name = name;
+    public void setElement(final E element) {
+        this.element = element;
     }
 }

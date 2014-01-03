@@ -50,7 +50,7 @@ import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
-import org.apache.syncope.common.types.ResourceDeAssociationActionType;
+import org.apache.syncope.common.types.ResourceDeassociationActionType;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -405,7 +405,7 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
 
         assertNotNull(roleService.bulkDeassociation(actual.getId(),
-                ResourceDeAssociationActionType.UNLINK,
+                ResourceDeassociationActionType.UNLINK,
                 CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
                 readEntity(BulkActionResult.class));
 
@@ -455,7 +455,7 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
 
         assertNotNull(roleService.bulkDeassociation(actual.getId(),
-                ResourceDeAssociationActionType.UNASSIGN,
+                ResourceDeassociationActionType.UNASSIGN,
                 CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
                 readEntity(BulkActionResult.class));
 
@@ -504,7 +504,7 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
 
         assertNotNull(roleService.bulkDeassociation(actual.getId(),
-                ResourceDeAssociationActionType.DEPROVISION,
+                ResourceDeassociationActionType.DEPROVISION,
                 CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
                 readEntity(BulkActionResult.class));
 
@@ -572,7 +572,7 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
 
         assertNotNull(roleService.bulkDeassociation(actual.getId(),
-                ResourceDeAssociationActionType.DEPROVISION,
+                ResourceDeassociationActionType.DEPROVISION,
                 CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
                 readEntity(BulkActionResult.class));
 

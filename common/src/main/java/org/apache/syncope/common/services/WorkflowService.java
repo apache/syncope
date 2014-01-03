@@ -27,37 +27,61 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.cxf.jaxrs.model.wadl.Description;
+import org.apache.cxf.jaxrs.model.wadl.Descriptions;
+import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.RESTHeaders;
 
+/**
+ * REST operations for workflow definition management.
+ */
 @Path("workflows/{kind}")
 public interface WorkflowService extends JAXRSService {
 
     /**
-     * @param kind Kind can be USER or ROLE only!
-     * @return Response contains special syncope HTTP header indicating if Activiti is enabled for users / roles
+     * Checks whether Activiti is enabled (for users or roles).
+     *
+     * @param kind can be USER or ROLE only!
+     * @return <tt>Response</tt> contains special syncope HTTP header indicating if Activiti is enabled for
+     * users / roles
      * @see org.apache.syncope.common.types.RESTHeaders#ACTIVITI_USER_ENABLED
      * @see org.apache.syncope.common.types.RESTHeaders#ACTIVITI_ROLE_ENABLED
      */
+    @Descriptions({
+        @Description(target = DocTarget.RETURN,
+                value = "<tt>Response</tt> contains special syncope HTTP header indicating if Activiti is enabled for "
+                + "users / roles")
+    })
     @OPTIONS
     Response getOptions(@PathParam("kind") AttributableType kind);
 
     /**
-     * @param kind Kind can be USER or ROLE only!
-     * @return Returns workflow definition for matching kind.
+     * Exports workflow definition for matching kind.
+     *
+     * @param kind can be USER or ROLE only!
+     * @return workflow definition for matching kind
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response exportDefinition(@PathParam("kind") AttributableType kind);
 
+    /**
+     * Exports workflow diagram representation.
+     *
+     * @param kind can be USER or ROLE only!
+     * @return workflow diagram representation
+     */
     @GET
     @Path("diagram.png")
     @Produces({ RESTHeaders.MEDIATYPE_IMAGE_PNG })
     Response exportDiagram(@PathParam("kind") AttributableType kind);
 
     /**
-     * @param kind Kind can be USER or ROLE only!
+     * Imports workflow definition for matching kind.
+     *
+     * @param kind can be USER or ROLE only!
      * @param definition workflow definition for matching kind
      */
     @PUT

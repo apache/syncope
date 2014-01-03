@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "validator")
 @XmlType
-public class Validator extends AbstractWrappable {
+public class Validator extends AbstractWrappable<String> {
 
     private static final long serialVersionUID = 7233619557177034453L;
 

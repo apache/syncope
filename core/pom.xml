@@ -261,6 +261,12 @@ under the License.
       <artifactId>syncope-common</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.syncope</groupId>
+      <artifactId>syncope-common</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
+    </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>

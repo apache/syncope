@@ -61,7 +61,7 @@ public class UserWorkflowController extends AbstractTransactionalController<Work
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
-    public UserTO executeWorkflow(final UserTO userTO, final String taskId) {
+    public UserTO executeWorkflowTask(final UserTO userTO, final String taskId) {
         WorkflowResult<Long> updated = uwfAdapter.execute(userTO, taskId);
 
         UserMod userMod = new UserMod();

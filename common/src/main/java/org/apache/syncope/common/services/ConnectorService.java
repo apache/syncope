@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.services;
 
-import org.apache.syncope.common.reqres.BulkAction;
-import org.apache.syncope.common.reqres.BulkActionResult;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -33,50 +31,49 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.cxf.jaxrs.model.wadl.Description;
+import org.apache.cxf.jaxrs.model.wadl.Descriptions;
+import org.apache.cxf.jaxrs.model.wadl.DocTarget;
+
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.ConnConfProperty;
 
+/**
+ * REST operations for connector bundles and instances.
+ */
 @Path("connectors")
-@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface ConnectorService extends JAXRSService {
 
     /**
-     * Create a new connector instance.
+     * Returns available connector bundles with property keys in selected language.
      *
-     * @param connInstanceTO connector instance to be created
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created connector instance
-     */
-    @POST
-    Response create(ConnInstanceTO connInstanceTO);
-
-    /**
-     * @param connInstanceId connector instance id to be deleted
-     */
-    @DELETE
-    @Path("{connInstanceId}")
-    void delete(@PathParam("connInstanceId") Long connInstanceId);
-
-    /**
      * @param lang language to select property keys; default language is English
      * @return available connector bundles with property keys in selected language
      */
     @GET
     @Path("bundles")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<ConnBundleTO> getBundles(@QueryParam("lang") String lang);
 
     /**
+     * Returns configuration for given connector instance.
+     *
      * @param connInstanceId connector instance id to read configuration from
-     * @return configuration for selected connector instance
+     * @return configuration for given connector instance
      */
     @GET
     @Path("{connInstanceId}/configuration")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<ConnConfProperty> getConfigurationProperties(@PathParam("connInstanceId") Long connInstanceId);
 
     /**
+     * Returns schema names for connector bundle matching the given connector instance id.
+     *
      * @param connInstanceId connector instance id to be used for schema lookup
      * @param connInstanceTO connector instance object to provide special configuration properties
      * @param includeSpecial if set to true, special schema names (like '__PASSWORD__') will be included;
@@ -85,52 +82,91 @@ public interface ConnectorService extends JAXRSService {
      */
     @POST
     @Path("{connInstanceId}/schemaNames")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<SchemaTO> getSchemaNames(@PathParam("connInstanceId") Long connInstanceId, ConnInstanceTO connInstanceTO,
             @QueryParam("includeSpecial") @DefaultValue("false") boolean includeSpecial);
 
     /**
+     * Returns supported object classes for connector bundle matching the given connector instance id.
+     *
      * @param connInstanceId connector instance id to be used for schema lookup
      * @param connInstanceTO connector instance object to provide special configuration properties
      * @return supported object classes for connector bundle matching the given connector instance id
      */
     @POST
     @Path("{connInstanceId}/supportedObjectClasses")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<ConnIdObjectClassTO> getSupportedObjectClasses(@PathParam("connInstanceId") Long connInstanceId,
             ConnInstanceTO connInstanceTO);
 
     /**
-     * @param lang language to select property keys, null for default (English).
-     * An ISO 639 alpha-2 or alpha-3 language code, or a language subtag up to 8 characters in length. See the
-     * java.util.Locale class description about valid language values.
-     * @return list of all connector instances with property keys in the matching language
-     * @see java.util.Locale
-     */
-    @GET
-    List<ConnInstanceTO> list(@QueryParam("lang") String lang);
-
-    /**
+     * Returns connector instance with matching id.
+     *
      * @param connInstanceId connector instance id to be read
      * @return connector instance with matching id
      */
     @GET
     @Path("{connInstanceId}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     ConnInstanceTO read(@PathParam("connInstanceId") Long connInstanceId);
 
     /**
+     * Returns connector instance for matching resource.
+     *
      * @param resourceName resource name to be used for connector lookup
      * @return connector instance for matching resource
      */
     @GET
     @Path("byResource/{resourceName}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     ConnInstanceTO readByResource(@PathParam("resourceName") String resourceName);
 
     /**
+     * @Returns a list of all connector instances with property keys in the matching language.
+     *
+     * @param lang language to select property keys, null for default (English).
+     * An ISO 639 alpha-2 or alpha-3 language code, or a language subtag up to 8 characters in length.
+     * @return list of all connector instances with property keys in the matching language
+     */
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    List<ConnInstanceTO> list(@QueryParam("lang") String lang);
+
+    /**
+     * Creates a new connector instance.
+     *
+     * @param connInstanceTO connector instance to be created
+     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created connector instance
+     */
+    @Descriptions({
+        @Description(target = DocTarget.RETURN,
+                value = "<tt>Response</tt> object featuring <tt>Location</tt> header of created connector instance")
+    })
+    @POST
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    Response create(ConnInstanceTO connInstanceTO);
+
+    /**
+     * Updates the connector instance matching the provided id.
+     *
      * @param connInstanceId connector instance id to be updated
      * @param connInstaceTO connector instance to be stored
      */
     @PUT
     @Path("{connInstanceId}")
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     void update(@PathParam("connInstanceId") Long connInstanceId, ConnInstanceTO connInstaceTO);
+
+    /**
+     * Deletes the connector instance matching the provided id.
+     *
+     * @param connInstanceId connector instance id to be deleted
+     */
+    @DELETE
+    @Path("{connInstanceId}")
+    void delete(@PathParam("connInstanceId") Long connInstanceId);
 
     /**
      * @param connInstaceTO connector instance to be used for connection check
@@ -138,6 +174,8 @@ public interface ConnectorService extends JAXRSService {
      */
     @POST
     @Path("check")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     boolean check(ConnInstanceTO connInstaceTO);
 
     /**
@@ -147,7 +185,15 @@ public interface ConnectorService extends JAXRSService {
     @Path("reload")
     void reload();
 
+    /**
+     * Executes the provided bulk action.
+     *
+     * @param bulkAction list of connector instance ids against which the bulk action will be performed.
+     * @return Bulk action result
+     */
     @POST
     @Path("bulk")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     BulkActionResult bulk(BulkAction bulkAction);
 }

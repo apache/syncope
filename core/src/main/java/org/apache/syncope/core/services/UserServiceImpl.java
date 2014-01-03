@@ -35,7 +35,7 @@ import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
-import org.apache.syncope.common.types.ResourceDeAssociationActionType;
+import org.apache.syncope.common.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.dao.search.SearchCond;
@@ -163,7 +163,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
     @Override
     public Response bulkDeassociation(
-            final Long userId, final ResourceDeAssociationActionType type, final List<ResourceName> resourceNames) {
+            final Long userId, final ResourceDeassociationActionType type, final List<ResourceName> resourceNames) {
 
         final UserTO user = controller.read(userId);
 
@@ -191,9 +191,9 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
             final BulkActionResult res = new BulkActionResult();
 
-            if (type == ResourceDeAssociationActionType.UNLINK) {
+            if (type == ResourceDeassociationActionType.UNLINK) {
                 for (ResourceName resourceName : resourceNames) {
-                    res.add(resourceName.getName(), updated.getResources().contains(resourceName.getName())
+                    res.add(resourceName.getElement(), updated.getResources().contains(resourceName.getElement())
                             ? BulkActionResult.Status.FAILURE
                             : BulkActionResult.Status.SUCCESS);
                 }
@@ -250,7 +250,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
             if (type == ResourceAssociationActionType.LINK) {
                 for (ResourceName resourceName : associationMod.getTargetResources()) {
-                    res.add(resourceName.getName(), updated.getResources().contains(resourceName.getName())
+                    res.add(resourceName.getElement(), updated.getResources().contains(resourceName.getElement())
                             ? BulkActionResult.Status.FAILURE
                             : BulkActionResult.Status.SUCCESS);
                 }

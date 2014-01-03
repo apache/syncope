@@ -25,11 +25,12 @@ import java.util.List;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.reqres.BulkActionResult;
-import org.apache.syncope.common.reqres.BulkAssociationAction;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.types.ResourceDeAssociationActionType;
+import org.apache.syncope.common.types.ResourceDeassociationActionType;
+import org.apache.syncope.common.wrap.AbstractWrappable;
+import org.apache.syncope.common.wrap.SubjectId;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.status.AbstractStatusBeanProvider;
 import org.apache.syncope.console.commons.status.StatusBean;
@@ -130,7 +131,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    bulkAssociationAction(target, ResourceDeAssociationActionType.UNLINK, table, columns);
+                    bulkAssociationAction(target, ResourceDeassociationActionType.UNLINK, table, columns);
                 } catch (Exception e) {
                     LOG.error("Error unlinkink resources", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
@@ -146,7 +147,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    bulkAssociationAction(target, ResourceDeAssociationActionType.DEPROVISION, table, columns);
+                    bulkAssociationAction(target, ResourceDeassociationActionType.DEPROVISION, table, columns);
                 } catch (Exception e) {
                     LOG.error("Error de-provisioning user", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
@@ -162,7 +163,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    bulkAssociationAction(target, ResourceDeAssociationActionType.UNASSIGN, table, columns);
+                    bulkAssociationAction(target, ResourceDeassociationActionType.UNASSIGN, table, columns);
                 } catch (Exception e) {
                     LOG.error("Error unassigning resources", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
@@ -222,24 +223,22 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
 
     private void bulkAssociationAction(
             final AjaxRequestTarget target,
-            final ResourceDeAssociationActionType type,
+            final ResourceDeassociationActionType type,
             final ActionDataTablePanel<StatusBean, String> table,
             final List<IColumn<StatusBean, String>> columns) {
 
-        final BulkAssociationAction bulkAction = new BulkAssociationAction();
-        bulkAction.setOperation(type);
-
         final List<StatusBean> beans = new ArrayList<StatusBean>(table.getModelObject());
+        List<SubjectId> subjectIds = new ArrayList<SubjectId>();
         for (StatusBean bean : beans) {
             LOG.debug("Selected bean {}", bean);
-            bulkAction.getTargets().add(bean.getAttributableId());
+            subjectIds.add(AbstractWrappable.getInstance(SubjectId.class, bean.getAttributableId()));
         }
 
         if (beans.isEmpty()) {
             window.close(target);
         } else {
             final BulkActionResult res = resourceRestClient.bulkAssociationAction(
-                    resourceTO.getName(), bulkAction, typeRef);
+                    resourceTO.getName(), typeRef, type, subjectIds);
 
             ((BasePage) pageRef.getPage()).setModalResult(true);
 

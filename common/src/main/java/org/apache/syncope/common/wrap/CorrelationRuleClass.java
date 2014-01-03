@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "correlationRuleClass")
 @XmlType
-public class CorrelationRuleClass extends AbstractWrappable {
+public class CorrelationRuleClass extends AbstractWrappable<String> {
 
     private static final long serialVersionUID = -6715106427060816725L;
 
