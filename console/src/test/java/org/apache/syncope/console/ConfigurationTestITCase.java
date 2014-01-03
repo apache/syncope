@@ -60,25 +60,8 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//div[3]/ul/li[2]/a");
-        selenium.click("//div[3]/div[2]/span/div/a");
-
-        selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='id:textField']\");", "30000");
-
-        selenium.type("name=description:textField", "new description");
-        selenium.click("//div[2]/form/div[3]/input[@type='submit']");
-
-        selenium.waitForCondition("selenium.isTextPresent(\"new description\");", "30000");
-    }
-
-    @Test
-    public void browseAccountPolicy() {
-        selenium.click("css=img[alt=\"Configuration\"]");
-
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
-
-        selenium.click("//div[3]/ul/li[3]/a");
-        selenium.click("//div[3]/div[3]/span/div/a");
+        selenium.click("//div[@id='tabs']/ul/li[2]/a");
+        selenium.click("//div[@id='password']/span/div/a");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='id:textField']\");", "30000");
 
@@ -94,7 +77,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//div[@id='tabs']/ul/li[6]/a/span");
+        selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='workflow']/div/span/img\");", "30000");
     }
@@ -118,9 +101,9 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//div[@id='tabs']/ul/li[7]/a/span");
+        selenium.click("//div[@id='logs']/ul/li/a/span");
 
-        selenium.select("//div[3]/div[7]/div/span/table/tbody/tr/td[2]/select", "label=ERROR");
+        selenium.select("//div[@id='core']/div/span/table/tbody/tr/td[2]/select", "label=ERROR");
 
         selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
     }

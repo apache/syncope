@@ -26,7 +26,7 @@ under the License.
     </style>
   </wicket:head>
   <wicket:panel xmlns:wicket="http://wicket.apache.org">
-    <div class="ui-tabs ui-widget ui-widget-content ui-corner-all">
+    <div>
       <span wicket:id="tabs-container"> 
         <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
           <li wicket:id="tabs" class="ui-state-default ui-corner-top">
@@ -34,7 +34,8 @@ under the License.
           </li>
         </ul>
       </span>
-      <div wicket:id="panel" class="ui-tabs-panel ui-widget-content ui-corner-bottom">[panel]</div>
+      <div wicket:id="panel" class="ui-tabs-panel ui-widget-content ui-corner-bottom" 
+           style="border-width: 1px;border-top-width: 0px;">[panel]</div>
     </div>
   </wicket:panel>
 </html>

@@ -16,7 +16,14 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">  
+  <wicket:head>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $("#attrTemplateTabs").tabs();
+      });
+    </script>
+  </wicket:head>
   <wicket:panel>
     <div id="attrTemplateTabs">
       <ul>
