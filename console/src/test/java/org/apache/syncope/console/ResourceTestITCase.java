@@ -53,7 +53,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         selenium.click("//tbody/tr[2]/td/input");
 
-        assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
+        assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
 
         selenium.click("name=apply");
     }
@@ -66,7 +66,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         selenium.click("//tr[3]/td[6]/div/span[11]/a");
 
-        assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
+        assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
     }
 
     @Test

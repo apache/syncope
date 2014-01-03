@@ -78,7 +78,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         selenium.click("//div[3]/ul/li[2]/a");
         selenium.click("//tr[4]/td[7]/div/span[11]/a");
 
-        assertTrue(selenium.getConfirmation().matches("^Do you really want to delete the selected item[\\s\\S]$"));
+        assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
 
         selenium.waitForCondition("selenium.isTextPresent(\"Error:\");", "10000");
     }

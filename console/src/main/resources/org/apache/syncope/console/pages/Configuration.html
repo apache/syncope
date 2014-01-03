@@ -24,6 +24,10 @@ under the License.
     <script type="text/javascript" src="scripts/codemirror.js"></script>
     <script type="text/javascript" src="scripts/xmlpure.js"></script>
     <script type="text/javascript">
+      $(document).ready(function() {
+        $("#policies").tabs();
+        $("#logs").tabs();
+      });
       function updateTextArea(editor) {
         document.getElementById("workflowDefArea").value = editor.getValue();
       }
@@ -42,18 +46,14 @@ under the License.
     <div id="tabs">
       <ul>
         <li class="tabs-selected">
-          <a href="#tabs-1"><span><wicket:message key="tab1"/></span></a>
+          <a href="#parameters"><span><wicket:message key="parameters"/></span></a>
         </li>
-        <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
-        <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
-        <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
-        <li><a href="#tabs-5"><span><wicket:message key="tab5"/></span></a></li>
-        <li><a href="#tabs-6"><span><wicket:message key="tab6"/></span></a></li>
-        <li><a href="#tabs-7"><span><wicket:message key="tab7"/></span></a></li>
-        <li><a href="#tabs-8"><span><wicket:message key="tab8"/></span></a></li>
+        <li><a href="#policies"><span><wicket:message key="policies"/></span></a></li>
+        <li><a href="#notifications"><span><wicket:message key="notifications"/></span></a></li>
+        <li><a href="#workflow"><span><wicket:message key="workflow"/></span></a></li>
+        <li><a href="#logs"><span><wicket:message key="logs"/></span></a></li>
       </ul>
-      <div id="tabs-1">
-
+      <div id="parameters">
         <div id="users-contain" class="ui-widget" style="width:inherit">
           <span wicket:id="confContainer">
             <table class="ui-widget ui-widget-content table-hover"
@@ -77,16 +77,25 @@ under the License.
           <wicket:message key="create_configuration"/>
         </a>
       </div>
-      <div id="tabs-2">
-        <span wicket:id="passwordPoliciesPanel">[password policies]</span>
+      <div id="policies">
+        <ul>
+          <li class="tabs-selected">
+            <a href="#password"><span><wicket:message key="password"/></span></a>
+          </li>
+          <li><a href="#account"><span><wicket:message key="account"/></span></a></li>
+          <li><a href="#sync"><span><wicket:message key="sync"/></span></a></li>
+        </ul>
+        <div id="password" style="border-width: 1px;border-top-width: 0px;">
+          <span wicket:id="passwordPoliciesPanel">[password policies]</span>
+        </div>
+        <div id="account" style="border-width: 1px;border-top-width: 0px;">
+          <span wicket:id="accountPoliciesPanel">[account policies]</span>
+        </div>
+        <div id="sync" style="border-width: 1px;border-top-width: 0px;">
+          <span wicket:id="syncPoliciesPanel">[sync policies]</span>
+        </div>
       </div>
-      <div id="tabs-3">
-        <span wicket:id="accountPoliciesPanel">[account policies]</span>
-      </div>
-      <div id="tabs-4">
-        <span wicket:id="syncPoliciesPanel">[sync policies]</span>
-      </div>
-      <div id="tabs-5">
+      <div id="notifications">
         <div id="users-contain" class="ui-widget" style="width:inherit">
           <span wicket:id="notificationContainer">
             <table class="ui-widget ui-widget-content table-hover"
@@ -110,7 +119,7 @@ under the License.
           <wicket:message key="create_notification"/>
         </a>
       </div>
-      <div id="tabs-6">
+      <div id="workflow">
         <div id="users-contain" class="ui-widget" style="width:inherit">
           <span wicket:id="workflowDefContainer">
             <form wicket:id="workflowDefForm">
@@ -129,44 +138,52 @@ under the License.
           </span>
         </div>
       </div>
-      <div id="tabs-7">
-        <div id="users-contain" class="ui-widget" style="width:inherit">
-          <span wicket:id="coreLoggerContainer">
-            <table class="ui-widget ui-widget-content table-hover">
-              <thead class="ui-widget-header">
-                <tr class="heaaders">
-                  <th><wicket:message key="logger"/></th>
-                  <th><wicket:message key="level"/></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr wicket:id="corelogger">
-                  <td><span wicket:id="name"/></td>
-                  <td id="level"><select wicket:id="level"/></td>
-                </tr>
-              </tbody>
-            </table>
-          </span>
+      <div id="logs">
+        <ul>
+          <li class="tabs-selected">
+            <a href="#core"><span>Core</span></a>
+          </li>
+          <li><a href="#console"><span>Console</span></a></li>
+        </ul>
+        <div id="core" style="border-width: 1px;border-top-width: 0px;">
+          <div id="users-contain" class="ui-widget" style="width:inherit">
+            <span wicket:id="coreLoggerContainer">
+              <table class="ui-widget ui-widget-content table-hover">
+                <thead class="ui-widget-header">
+                  <tr class="heaaders">
+                    <th><wicket:message key="logger"/></th>
+                    <th><wicket:message key="level"/></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr wicket:id="corelogger">
+                    <td><span wicket:id="name"/></td>
+                    <td id="level"><select wicket:id="level"/></td>
+                  </tr>
+                </tbody>
+              </table>
+            </span>
+          </div>
         </div>
-      </div>
-      <div id="tabs-8">
-        <div id="users-contain" class="ui-widget" style="width:inherit">
-          <span wicket:id="consoleLoggerContainer">
-            <table class="ui-widget ui-widget-content table-hover">
-              <thead class="ui-widget-header">
-                <tr class="heaaders">
-                  <th><wicket:message key="logger"/></th>
-                  <th><wicket:message key="level"/></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr wicket:id="consolelogger">
-                  <td><span wicket:id="name"/></td>
-                  <td id="level"><select wicket:id="level"/></td>
-                </tr>
-              </tbody>
-            </table>
-          </span>
+        <div id="console" style="border-width: 1px;border-top-width: 0px;">
+          <div id="users-contain" class="ui-widget" style="width:inherit">
+            <span wicket:id="consoleLoggerContainer">
+              <table class="ui-widget ui-widget-content table-hover">
+                <thead class="ui-widget-header">
+                  <tr class="heaaders">
+                    <th><wicket:message key="logger"/></th>
+                    <th><wicket:message key="level"/></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr wicket:id="consolelogger">
+                    <td><span wicket:id="name"/></td>
+                    <td id="level"><select wicket:id="level"/></td>
+                  </tr>
+                </tbody>
+              </table>
+            </span>
+          </div>
         </div>
       </div>
       <div>
