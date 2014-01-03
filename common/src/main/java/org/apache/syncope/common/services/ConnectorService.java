@@ -124,7 +124,7 @@ public interface ConnectorService extends JAXRSService {
     ConnInstanceTO readByResource(@PathParam("resourceName") String resourceName);
 
     /**
-     * @Returns a list of all connector instances with property keys in the matching language.
+     * Returns a list of all connector instances with property keys in the matching language.
      *
      * @param lang language to select property keys, null for default (English).
      * An ISO 639 alpha-2 or alpha-3 language code, or a language subtag up to 8 characters in length.

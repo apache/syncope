@@ -147,7 +147,8 @@ public class ConnInstanceTO extends AbstractBaseBean {
     }
 
     /**
-     * Get connector request timeout. It is not applied in case of sync, full reconciliation and search.
+     * Get connector request timeout.
+     * It is not applied in case of sync, full reconciliation and search.
      *
      * @return timeout.
      */
@@ -156,9 +157,10 @@ public class ConnInstanceTO extends AbstractBaseBean {
     }
 
     /**
-     * Set connector request timeout. It is not applied in case of sync, full reconciliation and search.
+     * Set connector request timeout.
+     * It is not applied in case of sync, full reconciliation and search.
      *
-     * @param timeout.
+     * @param connRequestTimeout timeout
      */
     public void setConnRequestTimeout(final Integer connRequestTimeout) {
         this.connRequestTimeout = connRequestTimeout;

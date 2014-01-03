@@ -21,14 +21,14 @@ package org.apache.syncope.common.types;
 import javax.xml.bind.annotation.XmlEnum;
 
 /**
- * Status of a TaskExecution.
+ * Status of a propagation task execution.
  *
  * CREATED -> SUBMITTED or UBSUBMITTED (depending on the external resource to
  * return success or failure).
  * SUBMITTED -> SUCCESS or FAILURE (depending on the external resource to
  * report success or failure).
  *
- * @see TaskExecution
+ * @see org.apache.syncope.common.to.TaskExecTO
  */
 @XmlEnum
 public enum PropagationTaskExecStatus {

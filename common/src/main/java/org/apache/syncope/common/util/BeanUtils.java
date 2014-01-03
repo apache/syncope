@@ -35,8 +35,9 @@ import org.springframework.util.Assert;
  * Overrides Spring's BeanUtils not using collection setters but instead getters + addAll() / putAll(),
  * in a JAXB friendly way.
  *
+ * Refer to <a href="https://issues.apache.org/jira/browse/SYNCOPE-246">SYNCOPE-246</a> for more information.
+ *
  * @see org.springframework.beans.BeanUtils
- * @see https://issues.apache.org/jira/browse/SYNCOPE-246
  */
 public final class BeanUtils {
 
@@ -46,11 +47,12 @@ public final class BeanUtils {
 
     /**
      * Copy the property values of the given source bean into the target bean.
-     * <p>Note: The source and target classes do not have to match or even be derived
+     * <br/>
+     * Note: The source and target classes do not have to match or even be derived
      * from each other, as long as the properties match. Any bean properties that the
      * source bean exposes but the target bean does not will silently be ignored.
-     * <p>This is just a convenience method. For more complex transfer needs,
-     * consider using a full BeanWrapper.
+     * <br/>
+     * This is just a convenience method. For more complex transfer needs, consider using a full BeanWrapper.
      *
      * @param source the source bean
      * @param target the target bean
@@ -63,7 +65,8 @@ public final class BeanUtils {
 
     /**
      * Copy the property values of the given source bean into the given target bean.
-     * <p>Note: The source and target classes do not have to match or even be derived
+     * <br/>
+     * Note: The source and target classes do not have to match or even be derived
      * from each other, as long as the properties match. Any bean properties that the
      * source bean exposes but the target bean does not will silently be ignored.
      *

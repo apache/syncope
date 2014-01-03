@@ -67,17 +67,17 @@ public final class RESTHeaders {
 
     /**
      * Allows the client to specify a preference for the result to be returned from the server.
+     * <a href="http://msdn.microsoft.com/en-us/library/hh537533.aspx">More information</a>.
      *
      * @see Preference
-     * @see http://msdn.microsoft.com/en-us/library/hh537533.aspx
      */
     public static final String PREFER = "Prefer";
 
     /**
      * Allowd the server to inform the client about the fact that a specified preference was applied.
+     * <a href="http://msdn.microsoft.com/en-us/library/hh554623.aspx">More information</a>.
      *
      * @see Preference
-     * @see http://msdn.microsoft.com/en-us/library/hh554623.aspx
      */
     public static final String PREFERENCE_APPLIED = "Preference-Applied";
 
