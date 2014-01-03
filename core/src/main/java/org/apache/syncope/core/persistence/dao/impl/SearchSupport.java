@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
-import static org.apache.syncope.common.types.AttributeSchemaType.Double;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.types.AttributableType;

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console.pages;
 
-import static org.apache.syncope.console.pages.AbstractBasePage.LOG;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -123,29 +122,29 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
         columns.add(new AbstractColumn<StatusBean, String>(
                 new StringResourceModel("resourceName", this, null, "Resource name"), "resourceName") {
 
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<StatusBean>> cellItem,
-                    final String componentId,
-                    final IModel<StatusBean> model) {
-
-                cellItem.add(new Label(componentId, model.getObject().getResourceName()) {
-
-                    private static final long serialVersionUID = 8432079838783825801L;
+                    private static final long serialVersionUID = 2054811145491901166L;
 
                     @Override
-                    protected void onComponentTag(final ComponentTag tag) {
-                        if (model.getObject().isLinked()) {
-                            super.onComponentTag(tag);
-                        } else {
-                            tag.put("style", "color: #DDDDDD");
-                        }
-                    }
+                    public void populateItem(
+                            final Item<ICellPopulator<StatusBean>> cellItem,
+                            final String componentId,
+                            final IModel<StatusBean> model) {
+
+                                cellItem.add(new Label(componentId, model.getObject().getResourceName()) {
+
+                                    private static final long serialVersionUID = 8432079838783825801L;
+
+                                    @Override
+                                    protected void onComponentTag(final ComponentTag tag) {
+                                        if (model.getObject().isLinked()) {
+                                            super.onComponentTag(tag);
+                                        } else {
+                                            tag.put("style", "color: #DDDDDD");
+                                        }
+                                    }
+                                });
+                            }
                 });
-            }
-        });
 
         columns.add(new PropertyColumn<StatusBean, String>(
                 new StringResourceModel("accountLink", this, null, "Account link"), "accountLink", "accountLink"));
@@ -153,26 +152,27 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
         columns.add(new AbstractColumn<StatusBean, String>(
                 new StringResourceModel("status", this, null, "")) {
 
-            private static final long serialVersionUID = -3503023501954863131L;
+                    private static final long serialVersionUID = -3503023501954863131L;
 
-            @Override
-            public String getCssClass() {
-                return "action";
-            }
+                    @Override
+                    public String getCssClass() {
+                        return "action";
+                    }
 
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<StatusBean>> cellItem,
-                    final String componentId,
-                    final IModel<StatusBean> model) {
+                    @Override
+                    public void populateItem(
+                            final Item<ICellPopulator<StatusBean>> cellItem,
+                            final String componentId,
+                            final IModel<StatusBean> model) {
 
-                if (model.getObject().isLinked()) {
-                    cellItem.add(statusUtils.getStatusImagePanel(componentId, model.getObject().getStatus()));
-                } else {
-                    cellItem.add(new Label(componentId, ""));
-                }
-            }
-        });
+                                if (model.getObject().isLinked()) {
+                                    cellItem.add(statusUtils.getStatusImagePanel(componentId, model.getObject().
+                                                    getStatus()));
+                                } else {
+                                    cellItem.add(new Label(componentId, ""));
+                                }
+                            }
+                });
 
         table = new ActionDataTablePanel<StatusBean, String>(
                 "resourceDatatable",
@@ -181,13 +181,13 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                 rowsPerPage,
                 pageRef) {
 
-            private static final long serialVersionUID = 6510391461033818316L;
+                    private static final long serialVersionUID = 6510391461033818316L;
 
-            @Override
-            public boolean isElementEnabled(final StatusBean element) {
-                return !statusOnly || element.getStatus() != Status.OBJECT_NOT_FOUND;
-            }
-        };
+                    @Override
+                    public boolean isElementEnabled(final StatusBean element) {
+                        return !statusOnly || element.getStatus() != Status.OBJECT_NOT_FOUND;
+                    }
+                };
         table.setOutputMarkupId(true);
 
         final String pageId = attributableTO instanceof RoleTO ? "Roles" : "Users";
@@ -240,13 +240,13 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
         final ClearIndicatingAjaxButton goon =
                 new ClearIndicatingAjaxButton("continue", new ResourceModel("continue"), pageRef) {
 
-            private static final long serialVersionUID = -2341391430136818027L;
+                    private static final long serialVersionUID = -2341391430136818027L;
 
-            @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                // none
-            }
-        };
+                    @Override
+                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                        // none
+                    }
+                };
 
         pwdMgtForm.add(goon);
 
@@ -525,53 +525,53 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
         final ClearIndicatingAjaxButton goon =
                 new ClearIndicatingAjaxButton("continue", new ResourceModel("continue", "Continue"), pageRef) {
 
-            private static final long serialVersionUID = -2341391430136818027L;
+                    private static final long serialVersionUID = -2341391430136818027L;
 
-            @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                try {
-                    if (StringUtils.isNotBlank(password.getModelObject())
+                    @Override
+                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                        try {
+                            if (StringUtils.isNotBlank(password.getModelObject())
                             && !password.getModelObject().equals(confirm.getModelObject())) {
-                        throw new Exception(getString("passwordMismatch"));
-                    }
+                                throw new Exception(getString("passwordMismatch"));
+                            }
 
-                    final BulkActionResult bulkActionResult;
-                    switch (type) {
-                        case ASSIGN:
-                            bulkActionResult = userRestClient.assign(
-                                    attributableTO.getId(),
-                                    new ArrayList<StatusBean>(selection),
-                                    changepwd.getModelObject(),
-                                    password.getModelObject());
-                            break;
-                        case PROVISION:
-                            bulkActionResult = userRestClient.provision(
-                                    attributableTO.getId(),
-                                    new ArrayList<StatusBean>(selection),
-                                    changepwd.getModelObject(),
-                                    password.getModelObject());
-                            break;
-                        default:
-                            bulkActionResult = null;
-                        // ignore
+                            final BulkActionResult bulkActionResult;
+                            switch (type) {
+                                case ASSIGN:
+                                    bulkActionResult = userRestClient.assign(
+                                            attributableTO.getId(),
+                                            new ArrayList<StatusBean>(selection),
+                                            changepwd.getModelObject(),
+                                            password.getModelObject());
+                                    break;
+                                case PROVISION:
+                                    bulkActionResult = userRestClient.provision(
+                                            attributableTO.getId(),
+                                            new ArrayList<StatusBean>(selection),
+                                            changepwd.getModelObject(),
+                                            password.getModelObject());
+                                    break;
+                                default:
+                                    bulkActionResult = null;
+                                // ignore
+                            }
+
+                            ((BasePage) pageRef.getPage()).setModalResult(true);
+
+                            if (bulkActionResult != null) {
+                                loadBulkActionResultPage(selection, bulkActionResult);
+                            } else {
+
+                                target.add(((BasePage) pageRef.getPage()).getFeedbackPanel());
+                                window.close(target);
+                            }
+                        } catch (Exception e) {
+                            LOG.error("Error provisioning resources", e);
+                            error(getString(Constants.ERROR) + ": " + e.getMessage());
+                            target.add(feedbackPanel);
                         }
-
-                    ((BasePage) pageRef.getPage()).setModalResult(true);
-
-                    if (bulkActionResult != null) {
-                        loadBulkActionResultPage(selection, bulkActionResult);
-                    } else {
-
-                        target.add(((BasePage) pageRef.getPage()).getFeedbackPanel());
-                        window.close(target);
                     }
-                } catch (Exception e) {
-                    LOG.error("Error provisioning resources", e);
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    target.add(feedbackPanel);
-                }
-            }
-        }.feedbackPanelAutomaticReload(false);
+                }.feedbackPanelAutomaticReload(false);
 
         pwdMgtForm.addOrReplace(goon);
 
