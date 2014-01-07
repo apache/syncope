@@ -18,6 +18,13 @@
  */
 package org.apache.syncope.common.to;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlType;
+
+@XmlRootElement(name = "abstractSyncTask")
+@XmlType
+@XmlSeeAlso({ PushTaskTO.class, SyncTaskTO.class })
 public class AbstractSyncTaskTO extends SchedTaskTO {
 
     private static final long serialVersionUID = -2143537546915809016L;
@@ -78,7 +85,7 @@ public class AbstractSyncTaskTO extends SchedTaskTO {
         return actionsClassName;
     }
 
-    public void setActionsClassName(String actionsClassName) {
+    public void setActionsClassName(final String actionsClassName) {
         this.actionsClassName = actionsClassName;
     }
 }

@@ -21,10 +21,12 @@ package org.apache.syncope.common.to;
 import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "schedTask")
 @XmlType
+@XmlSeeAlso(AbstractSyncTaskTO.class)
 public class SchedTaskTO extends AbstractTaskTO {
 
     private static final long serialVersionUID = -5722284116974636425L;

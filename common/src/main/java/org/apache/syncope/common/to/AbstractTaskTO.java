@@ -35,7 +35,7 @@ import org.apache.syncope.common.AbstractBaseBean;
 
 @XmlRootElement(name = "abstractTask")
 @XmlType
-@XmlSeeAlso({ PropagationTaskTO.class, SyncTaskTO.class, SchedTaskTO.class, NotificationTaskTO.class })
+@XmlSeeAlso({ PropagationTaskTO.class, SchedTaskTO.class, NotificationTaskTO.class })
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public abstract class AbstractTaskTO extends AbstractBaseBean {
 
