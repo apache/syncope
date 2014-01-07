@@ -25,6 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.notification.NotificationJob;
+import org.apache.syncope.core.persistence.beans.PushTask;
 import org.apache.syncope.core.persistence.beans.Report;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
@@ -35,8 +36,11 @@ import org.apache.syncope.core.persistence.dao.ReportDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.quartz.TaskJob;
 import org.apache.syncope.core.report.ReportJob;
+import org.apache.syncope.core.sync.DefaultPushActions;
 import org.apache.syncope.core.sync.DefaultSyncActions;
+import org.apache.syncope.core.sync.PushActions;
 import org.apache.syncope.core.sync.SyncActions;
+import org.apache.syncope.core.sync.impl.PushJob;
 import org.apache.syncope.core.sync.impl.SyncJob;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.quartz.Job;
@@ -179,6 +183,21 @@ public class JobInstanceLoader {
                     createBean(syncActionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
 
             ((SyncJob) jobInstance).setActions(syncActions);
+        } else if (jobInstance instanceof PushJob && task instanceof PushTask) {
+            String jobActionsClassName = ((PushTask) task).getActionsClassName();
+            Class<?> syncActionsClass = DefaultPushActions.class;
+            if (StringUtils.isNotBlank(jobActionsClassName)) {
+                try {
+                    syncActionsClass = Class.forName(jobActionsClassName);
+                } catch (Exception e) {
+                    LOG.error("Class {} not found, reverting to {}", jobActionsClassName,
+                            syncActionsClass.getName(), e);
+                }
+            }
+            PushActions pushActions = (PushActions) ApplicationContextProvider.getBeanFactory().
+                    createBean(syncActionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+
+            ((PushJob) jobInstance).setActions(pushActions);
         }
 
         registerJob(getJobName(task), jobInstance, cronExpression);
@@ -240,6 +259,7 @@ public class JobInstanceLoader {
         // 1. jobs for SchedTasks
         Set<SchedTask> tasks = new HashSet<SchedTask>(taskDAO.findAll(SchedTask.class));
         tasks.addAll(taskDAO.findAll(SyncTask.class));
+        tasks.addAll(taskDAO.findAll(PushTask.class));
         for (SchedTask task : tasks) {
             try {
                 registerJob(task, task.getJobClassName(), task.getCronExpression());

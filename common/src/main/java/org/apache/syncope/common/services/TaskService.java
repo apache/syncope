@@ -46,6 +46,7 @@ import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.wrap.JobClass;
+import org.apache.syncope.common.wrap.PushActionClass;
 import org.apache.syncope.common.wrap.SyncActionClass;
 
 /**
@@ -73,6 +74,16 @@ public interface TaskService extends JAXRSService {
     @Path("syncActionsClasses")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<SyncActionClass> getSyncActionsClasses();
+
+    /**
+     * Returns a list of classes to be used as push actions.
+     *
+     * @return list of classes to be used as push actions
+     */
+    @GET
+    @Path("pushActionsClasses")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    List<PushActionClass> getPushActionsClasses();
 
     /**
      * Returns the task matching the given id.

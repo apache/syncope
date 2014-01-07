@@ -22,10 +22,10 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.EntityViolationType;
-import org.apache.syncope.core.persistence.beans.SyncTask;
+import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
 import org.apache.syncope.core.sync.SyncActions;
 
-public class SyncTaskValidator extends AbstractValidator<SyncTaskCheck, SyncTask> {
+public class SyncTaskValidator extends AbstractValidator<SyncTaskCheck, AbstractSyncTask> {
 
     private final SchedTaskValidator schedV;
 
@@ -36,7 +36,7 @@ public class SyncTaskValidator extends AbstractValidator<SyncTaskCheck, SyncTask
     }
 
     @Override
-    public boolean isValid(final SyncTask object, final ConstraintValidatorContext context) {
+    public boolean isValid(final AbstractSyncTask object, final ConstraintValidatorContext context) {
         boolean isValid = schedV.isValid(object, context);
 
         if (isValid) {

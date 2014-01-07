@@ -214,7 +214,8 @@ public abstract class EventSelectionPanel extends Panel {
 
         if (res.isEmpty()) {
             if ((AuditElements.EventCategoryType.PROPAGATION == eventCategoryTO.getType()
-                    || AuditElements.EventCategoryType.SYNCHRONIZATION == eventCategoryTO.getType())
+                    || AuditElements.EventCategoryType.SYNCHRONIZATION == eventCategoryTO.getType()
+                    || AuditElements.EventCategoryType.PUSH == eventCategoryTO.getType())
                     && StringUtils.isEmpty(eventCategoryTO.getCategory())) {
                 res.add(eventCategoryTO.getType().toString());
             } else if (AuditElements.EventCategoryType.TASK == eventCategoryTO.getType()

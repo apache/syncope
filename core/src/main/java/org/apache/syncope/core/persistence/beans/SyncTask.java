@@ -21,25 +21,16 @@ package org.apache.syncope.core.persistence.beans;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.core.persistence.validation.entity.SyncTaskCheck;
 import org.apache.syncope.core.util.XMLSerializer;
 
 @Entity
-@SyncTaskCheck
-public class SyncTask extends SchedTask {
+public class SyncTask extends AbstractSyncTask {
 
-    private static final long serialVersionUID = -4141057723006682562L;
-
-    /**
-     * ExternalResource to which the sync happens.
-     */
-    @ManyToOne
-    private ExternalResource resource;
+    private static final long serialVersionUID = -4141057723006682563L;
 
     @Lob
     private String userTemplate;
@@ -50,50 +41,13 @@ public class SyncTask extends SchedTask {
     @Basic
     @Min(0)
     @Max(1)
-    private Integer performCreate;
-
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer performUpdate;
-
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer performDelete;
-
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer syncStatus;
-
-    @Basic
-    @Min(0)
-    @Max(1)
     private Integer fullReconciliation;
-
-    private String actionsClassName;
 
     /**
      * Default constructor.
      */
     public SyncTask() {
-        super();
-
-        super.setJobClassName("org.apache.syncope.core.sync.impl.SyncJob");
-    }
-
-    @Override
-    public void setJobClassName(final String jobClassName) {
-        // fixed to SyncJob, cannot be changed
-    }
-
-    public ExternalResource getResource() {
-        return resource;
-    }
-
-    public void setResource(ExternalResource resource) {
-        this.resource = resource;
+        super("org.apache.syncope.core.sync.impl.SyncJob");
     }
 
     public UserTO getUserTemplate() {
@@ -116,51 +70,11 @@ public class SyncTask extends SchedTask {
         this.roleTemplate = XMLSerializer.serialize(roleTemplate);
     }
 
-    public boolean isPerformCreate() {
-        return isBooleanAsInteger(performCreate);
-    }
-
-    public void setPerformCreate(final boolean performCreate) {
-        this.performCreate = getBooleanAsInteger(performCreate);
-    }
-
-    public boolean isPerformUpdate() {
-        return isBooleanAsInteger(performUpdate);
-    }
-
-    public void setPerformUpdate(final boolean performUpdate) {
-        this.performUpdate = getBooleanAsInteger(performUpdate);
-    }
-
-    public boolean isPerformDelete() {
-        return isBooleanAsInteger(performDelete);
-    }
-
-    public void setPerformDelete(boolean performDelete) {
-        this.performDelete = getBooleanAsInteger(performDelete);
-    }
-
-    public boolean isSyncStatus() {
-        return isBooleanAsInteger(syncStatus);
-    }
-
-    public void setSyncStatus(final boolean syncStatus) {
-        this.syncStatus = getBooleanAsInteger(syncStatus);
-    }
-
     public boolean isFullReconciliation() {
         return isBooleanAsInteger(fullReconciliation);
     }
 
     public void setFullReconciliation(final boolean fullReconciliation) {
         this.fullReconciliation = getBooleanAsInteger(fullReconciliation);
-    }
-
-    public String getActionsClassName() {
-        return actionsClassName;
-    }
-
-    public void setActionsClassName(String actionsClassName) {
-        this.actionsClassName = actionsClassName;
     }
 }

@@ -33,7 +33,9 @@ import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.to.AbstractSyncTaskTO;
 import org.apache.syncope.core.init.JobInstanceLoader;
+import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
@@ -64,9 +66,9 @@ public class TaskDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
-    private static final String[] IGNORE_TASK_PROPERTIES = {"executions", "resource",};
+    private static final String[] IGNORE_TASK_PROPERTIES = { "executions", "resource", };
 
-    private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {"id", "task"};
+    private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = { "id", "task" };
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -91,54 +93,69 @@ public class TaskDataBinder {
         }
     }
 
-    private void fill(final SyncTask task, final SyncTaskTO taskTO) {
+    private void fill(final AbstractSyncTask task, final AbstractSyncTaskTO taskTO) {
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSyncTask);
 
-        // 1. validate JEXL expressions in user and role templates
-        if (taskTO.getUserTemplate() != null) {
-            UserTO template = taskTO.getUserTemplate();
+        if (task instanceof SyncTask && taskTO instanceof SyncTaskTO) {
+            final SyncTask syncTask = (SyncTask) task;
+            final SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
 
-            if (StringUtils.isNotBlank(template.getUsername()) && !JexlUtil.isExpressionValid(template.getUsername())) {
-                sce.getElements().add("Invalid JEXL: " + template.getUsername());
+            // 1. validate JEXL expressions in user and role templates
+            if (syncTaskTO.getUserTemplate() != null) {
+                UserTO template = syncTaskTO.getUserTemplate();
+
+                if (StringUtils.isNotBlank(template.getUsername()) && !JexlUtil.
+                        isExpressionValid(template.getUsername())) {
+                    sce.getElements().add("Invalid JEXL: " + template.getUsername());
+                }
+                if (StringUtils.isNotBlank(template.getPassword()) && !JexlUtil.
+                        isExpressionValid(template.getPassword())) {
+                    sce.getElements().add("Invalid JEXL: " + template.getPassword());
+                }
+
+                checkJexl(template, sce);
+
+                for (MembershipTO memb : template.getMemberships()) {
+                    checkJexl(memb, sce);
+                }
             }
-            if (StringUtils.isNotBlank(template.getPassword()) && !JexlUtil.isExpressionValid(template.getPassword())) {
-                sce.getElements().add("Invalid JEXL: " + template.getPassword());
+            if (syncTaskTO.getRoleTemplate() != null) {
+                RoleTO template = syncTaskTO.getRoleTemplate();
+
+                if (StringUtils.isNotBlank(template.getName()) && !JexlUtil.isExpressionValid(template.getName())) {
+                    sce.getElements().add("Invalid JEXL: " + template.getName());
+                }
+
+                checkJexl(template, sce);
+            }
+            if (!sce.isEmpty()) {
+                throw sce;
             }
 
-            checkJexl(template, sce);
+            // 2. all JEXL expressions are valid: accept user and role templates
+            syncTask.setUserTemplate(syncTaskTO.getUserTemplate());
+            syncTask.setRoleTemplate(syncTaskTO.getRoleTemplate());
 
-            for (MembershipTO memb : template.getMemberships()) {
-                checkJexl(memb, sce);
-            }
+            syncTask.setFullReconciliation(syncTaskTO.isFullReconciliation());
         }
-        if (taskTO.getRoleTemplate() != null) {
-            RoleTO template = taskTO.getRoleTemplate();
-
-            if (StringUtils.isNotBlank(template.getName()) && !JexlUtil.isExpressionValid(template.getName())) {
-                sce.getElements().add("Invalid JEXL: " + template.getName());
-            }
-
-            checkJexl(template, sce);
-        }
-        if (!sce.isEmpty()) {
-            throw sce;
-        }
-
-        // 2. all JEXL expressions are valid: accept user and role templates
-        task.setUserTemplate(taskTO.getUserTemplate());
-        task.setRoleTemplate(taskTO.getRoleTemplate());
 
         // 3. fill the remaining fields
         task.setPerformCreate(taskTO.isPerformCreate());
         task.setPerformUpdate(taskTO.isPerformUpdate());
         task.setPerformDelete(taskTO.isPerformDelete());
         task.setSyncStatus(taskTO.isSyncStatus());
-        task.setFullReconciliation(taskTO.isFullReconciliation());
 
         task.setActionsClassName(taskTO.getActionsClassName());
     }
 
     public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtil taskUtil) {
+        final Class<?> taskTOClass = taskUtil.taskTOClass();
+
+        if (taskTOClass == null || !taskTOClass.equals(taskTO.getClass())) {
+            throw new ClassCastException(
+                    String.format("taskUtil is type %s but task is not: %s", taskTOClass, taskTO.getClass()));
+        }
+
         SchedTask task = taskUtil.newTask();
         task.setCronExpression(taskTO.getCronExpression());
         task.setName(taskTO.getName());
@@ -146,13 +163,8 @@ public class TaskDataBinder {
 
         if (taskUtil.getType() == TaskType.SCHEDULED) {
             task.setJobClassName(taskTO.getJobClassName());
-        }
-        if (taskUtil.getType() == TaskType.SYNCHRONIZATION) {
-            if (!(taskTO instanceof SyncTaskTO)) {
-                throw new ClassCastException("taskUtil is type SyncTask but taskTO is not SyncTaskTO: " + taskTO.
-                        getClass().getName());
-            }
-            SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
+        } else if (taskTO instanceof AbstractSyncTaskTO) {
+            final AbstractSyncTaskTO syncTaskTO = (AbstractSyncTaskTO) taskTO;
 
             ExternalResource resource = resourceDAO.find(syncTaskTO.getResource());
             if (resource == null) {
@@ -160,13 +172,26 @@ public class TaskDataBinder {
             }
             ((SyncTask) task).setResource(resource);
 
-            fill((SyncTask) task, syncTaskTO);
+            fill((AbstractSyncTask) task, syncTaskTO);
         }
 
         return task;
     }
 
     public void updateSchedTask(final SchedTask task, final SchedTaskTO taskTO, final TaskUtil taskUtil) {
+        Class<?> taskClass = taskUtil.taskClass();
+        Class<?> taskTOClass = taskUtil.taskTOClass();
+
+        if (taskClass == null || !taskClass.equals(task.getClass())) {
+            throw new ClassCastException(
+                    String.format("taskUtil is type %s but task is not: %s", taskClass, task.getClass()));
+        }
+
+        if (taskTOClass == null || !taskTOClass.equals(taskTO.getClass())) {
+            throw new ClassCastException(
+                    String.format("taskUtil is type %s but task is not: %s", taskTOClass, taskTO.getClass()));
+        }
+
         task.setCronExpression(taskTO.getCronExpression());
         if (StringUtils.isNotBlank(taskTO.getName())) {
             task.setName(taskTO.getName());
@@ -175,17 +200,8 @@ public class TaskDataBinder {
             task.setDescription(taskTO.getDescription());
         }
 
-        if (taskUtil.getType() == TaskType.SYNCHRONIZATION) {
-            if (!(task instanceof SyncTask)) {
-                throw new ClassCastException("taskUtil is type SyncTask but task is not SyncTask: " + task.getClass().
-                        getName());
-            }
-            if (!(taskTO instanceof SyncTaskTO)) {
-                throw new ClassCastException("taskUtil is type SyncTask but taskTO is not SyncTaskTO: " + taskTO.
-                        getClass().getName());
-            }
-
-            fill((SyncTask) task, (SyncTaskTO) taskTO);
+        if (task instanceof AbstractSyncTask) {
+            fill((AbstractSyncTask) task, (AbstractSyncTaskTO) taskTO);
         }
     }
 

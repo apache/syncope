@@ -25,6 +25,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
+import org.apache.syncope.core.persistence.beans.PushTask;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
@@ -47,7 +48,10 @@ public class TaskDAOImpl extends AbstractDAOImpl implements TaskDAO {
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(reference.getSimpleName()).append(" e ");
         if (SchedTask.class.equals(reference)) {
             queryString.append("WHERE e.id NOT IN (SELECT e.id FROM ").
-                    append(SyncTask.class.getSimpleName()).append(" e) ");
+                    append(SyncTask.class.getSimpleName()).
+                    append(" e) AND e.id NOT IN (SELECT e.id FROM ").
+                    append(PushTask.class.getSimpleName()).
+                    append(" e)");
         }
 
         return queryString;

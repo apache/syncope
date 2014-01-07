@@ -512,7 +512,7 @@ under the License.
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <ExternalResource name="resource-testdb2" connector_id="106"
-                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
+                    randomPwdIfNotProvided="1" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
@@ -839,7 +839,10 @@ under the License.
         jobClassName="org.apache.syncope.core.sync.impl.SyncJob"/>
   <Task DTYPE="SyncTask" id="12" name="VirAttrCache test" resource_name="resource-csv"
         performCreate="0" performUpdate="1" performDelete="0" syncStatus="0" fullReconciliation="1"
-        jobClassName="org.apache.syncope.core.sync.impl.SyncJob"/>        
+        jobClassName="org.apache.syncope.core.sync.impl.SyncJob"/>
+  <Task DTYPE="PushTask" id="13" name="Export on resource-testdb" resource_name="resource-testdb2"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
+        jobClassName="org.apache.syncope.core.sync.impl.PushJob"/>
       
   <Notification id="1" sender="test@syncope.apache.org" subject="Test subject" template="test" selfAsRecipient="0" traceLevel="ALL"
                 about="fullname==*o*;fullname==*i*"

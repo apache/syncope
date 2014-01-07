@@ -22,8 +22,8 @@ import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.core.sync.impl.AbstractSyncopeSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
-import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.quartz.JobExecutionException;
 
 public class TestSyncActions extends DefaultSyncActions {
@@ -31,7 +31,7 @@ public class TestSyncActions extends DefaultSyncActions {
     private int counter = 0;
 
     @Override
-    public <T extends AbstractAttributableTO> SyncDelta beforeCreate(final SyncResultsHandler handler,
+    public <T extends AbstractAttributableTO> SyncDelta beforeCreate(final AbstractSyncopeSyncResultHandler handler,
             final SyncDelta delta, final T subject) throws JobExecutionException {
 
         AttributeTO attrTO = null;
@@ -53,7 +53,7 @@ public class TestSyncActions extends DefaultSyncActions {
 
     @Override
     public <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
-            final SyncResultsHandler handler, final SyncDelta delta, final T subject, final K subjectMod)
+            final AbstractSyncopeSyncResultHandler handler, final SyncDelta delta, final T subject, final K subjectMod)
             throws JobExecutionException {
 
         subjectMod.getAttrsToRemove().add("fullname");

@@ -37,6 +37,7 @@ import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.common.wrap.PushActionClass;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.rest.controller.TaskController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +87,11 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     @Override
     public List<SyncActionClass> getSyncActionsClasses() {
         return CollectionWrapper.wrap(controller.getSyncActionsClasses(), SyncActionClass.class);
+    }
+
+    @Override
+    public List<PushActionClass> getPushActionsClasses() {
+        return CollectionWrapper.wrap(controller.getPushActionsClasses(), PushActionClass.class);
     }
 
     @Override

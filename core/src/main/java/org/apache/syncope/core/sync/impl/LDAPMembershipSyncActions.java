@@ -53,7 +53,6 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
 import org.identityconnectors.framework.common.objects.SyncDelta;
-import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,7 +121,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     @Transactional(readOnly = true)
     @Override
     public <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
-            final SyncResultsHandler handler, final SyncDelta delta, final T subject, final K subjectMod)
+            final AbstractSyncopeSyncResultHandler handler, final SyncDelta delta, final T subject, final K subjectMod)
             throws JobExecutionException {
 
         if (subject instanceof RoleTO) {
@@ -283,8 +282,11 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * {@inheritDoc}
      */
     @Override
-    public <T extends AbstractAttributableTO> void after(final SyncResultsHandler handler, final SyncDelta delta,
-            final T subject, final SyncResult result) throws JobExecutionException {
+    public <T extends AbstractAttributableTO> void after(
+            final AbstractSyncopeSyncResultHandler handler,
+            final SyncDelta delta,
+            final T subject,
+            final SyncResult result) throws JobExecutionException {
 
         if (!(handler instanceof SyncopeSyncResultHandler)) {
             return;

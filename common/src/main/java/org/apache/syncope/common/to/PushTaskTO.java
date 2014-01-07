@@ -21,39 +21,10 @@ package org.apache.syncope.common.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "syncTask")
+@XmlRootElement(name = "pushTask")
 @XmlType
-public class SyncTaskTO extends AbstractSyncTaskTO {
+public class PushTaskTO extends AbstractSyncTaskTO {
 
-    private static final long serialVersionUID = -2143537546915809017L;
+    private static final long serialVersionUID = -2143537546915809018L;
 
-    private UserTO userTemplate;
-
-    private RoleTO roleTemplate;
-
-    private boolean fullReconciliation;
-
-    public UserTO getUserTemplate() {
-        return userTemplate;
-    }
-
-    public void setUserTemplate(UserTO userTemplate) {
-        this.userTemplate = userTemplate;
-    }
-
-    public RoleTO getRoleTemplate() {
-        return roleTemplate;
-    }
-
-    public void setRoleTemplate(RoleTO roleTemplate) {
-        this.roleTemplate = roleTemplate;
-    }
-
-    public boolean isFullReconciliation() {
-        return fullReconciliation;
-    }
-
-    public void setFullReconciliation(boolean fullReconciliation) {
-        this.fullReconciliation = fullReconciliation;
-    }
 }

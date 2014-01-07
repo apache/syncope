@@ -26,7 +26,8 @@ public enum TaskType {
     PROPAGATION("propagation"),
     NOTIFICATION("notification"),
     SCHEDULED("sched"),
-    SYNCHRONIZATION("sync");
+    SYNCHRONIZATION("sync"),
+    PUSH("push");
 
     private String name;
 
@@ -47,6 +48,7 @@ public enum TaskType {
                 }
             }
         }
-        return TaskType.valueOf(name.toUpperCase());
+
+        return null;
     }
 }

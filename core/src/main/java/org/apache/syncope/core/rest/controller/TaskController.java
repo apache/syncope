@@ -167,6 +167,11 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
         return classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.SYNC_ACTIONS);
     }
 
+    @PreAuthorize("hasRole('TASK_LIST')")
+    public Set<String> getPushActionsClasses() {
+        return classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.PUSH_ACTIONS);
+    }
+
     @PreAuthorize("hasRole('TASK_READ')")
     public <T extends AbstractTaskTO> T read(final Long taskId) {
         Task task = taskDAO.find(taskId);
@@ -207,6 +212,7 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
 
             case SCHEDULED:
             case SYNCHRONIZATION:
+            case PUSH:
                 try {
                     jobInstanceLoader.registerJob(task,
                             ((SchedTask) task).getJobClassName(),
@@ -291,7 +297,9 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
 
         T taskToDelete = binder.getTaskTO(task, taskUtil);
 
-        if (TaskType.SCHEDULED == taskUtil.getType() || TaskType.SYNCHRONIZATION == taskUtil.getType()) {
+        if (TaskType.SCHEDULED == taskUtil.getType()
+                || TaskType.SYNCHRONIZATION == taskUtil.getType()
+                || TaskType.PUSH == taskUtil.getType()) {
             jobInstanceLoader.unregisterJob(task);
         }
 

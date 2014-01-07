@@ -23,9 +23,11 @@ import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
+import org.apache.syncope.common.to.PushTaskTO;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.persistence.beans.PushTask;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
@@ -43,6 +45,8 @@ public final class TaskUtil {
         TaskType type;
         if (task instanceof SyncTask) {
             type = TaskType.SYNCHRONIZATION;
+        } else if (task instanceof PushTask) {
+            type = TaskType.PUSH;
         } else if (task instanceof SchedTask) {
             type = TaskType.SCHEDULED;
         } else if (task instanceof PropagationTask) {
@@ -66,6 +70,8 @@ public final class TaskUtil {
             type = TaskType.SCHEDULED;
         } else if (taskClass == SyncTaskTO.class) {
             type = TaskType.SYNCHRONIZATION;
+        } else if (taskClass == PushTaskTO.class) {
+            type = TaskType.PUSH;
         } else {
             throw new IllegalArgumentException("Invalid TaskTO class: " + taskClass.getName());
         }
@@ -101,6 +107,10 @@ public final class TaskUtil {
                 result = (Class<T>) SyncTask.class;
                 break;
 
+            case PUSH:
+                result = (Class<T>) PushTask.class;
+                break;
+
             case NOTIFICATION:
                 result = (Class<T>) NotificationTask.class;
                 break;
@@ -112,29 +122,12 @@ public final class TaskUtil {
     }
 
     public <T extends Task> T newTask() {
-        T result = null;
-
-        switch (type) {
-            case PROPAGATION:
-                result = (T) new PropagationTask();
-                break;
-
-            case SCHEDULED:
-                result = (T) new SchedTask();
-                break;
-
-            case SYNCHRONIZATION:
-                result = (T) new SyncTask();
-                break;
-
-            case NOTIFICATION:
-                result = (T) new NotificationTask();
-                break;
-
-            default:
+        final Class<T> taskClass = taskClass();
+        try {
+            return taskClass == null ? null : taskClass.newInstance();
+        } catch (Exception e) {
+            return null;
         }
-
-        return result;
     }
 
     public <T extends AbstractTaskTO> Class<T> taskTOClass() {
@@ -153,6 +146,10 @@ public final class TaskUtil {
                 result = (Class<T>) SyncTaskTO.class;
                 break;
 
+            case PUSH:
+                result = (Class<T>) PushTaskTO.class;
+                break;
+
             case NOTIFICATION:
                 result = (Class<T>) NotificationTaskTO.class;
                 break;
@@ -163,29 +160,13 @@ public final class TaskUtil {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends AbstractTaskTO> T newTaskTO() {
-        T result = null;
-
-        switch (type) {
-            case PROPAGATION:
-                result = (T) new PropagationTaskTO();
-                break;
-
-            case SCHEDULED:
-                result = (T) new SchedTaskTO();
-                break;
-
-            case SYNCHRONIZATION:
-                result = (T) new SyncTaskTO();
-                break;
-
-            case NOTIFICATION:
-                result = (T) new NotificationTaskTO();
-                break;
-
-            default:
+        final Class<T> taskClass = taskTOClass();
+        try {
+            return taskClass == null ? null : taskClass.newInstance();
+        } catch (Exception e) {
+            return null;
         }
-
-        return result;
     }
 }

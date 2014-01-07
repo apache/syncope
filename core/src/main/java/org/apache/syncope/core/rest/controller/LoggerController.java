@@ -242,25 +242,31 @@ public class LoggerController extends AbstractTransactionalController<LoggerTO> 
 
             events.add(new EventCategoryTO(EventCategoryType.PROPAGATION));
             events.add(new EventCategoryTO(EventCategoryType.SYNCHRONIZATION));
+            events.add(new EventCategoryTO(EventCategoryType.PUSH));
 
             for (AttributableType attributableType : AttributableType.values()) {
                 for (ExternalResource resource : resourceDAO.findAll()) {
                     final EventCategoryTO propEventCategoryTO = new EventCategoryTO(EventCategoryType.PROPAGATION);
                     final EventCategoryTO syncEventCategoryTO = new EventCategoryTO(EventCategoryType.SYNCHRONIZATION);
+                    final EventCategoryTO pushEventCategoryTO = new EventCategoryTO(EventCategoryType.PUSH);
 
                     propEventCategoryTO.setCategory(attributableType.name().toLowerCase());
                     propEventCategoryTO.setSubcategory(resource.getName());
 
                     syncEventCategoryTO.setCategory(attributableType.name().toLowerCase());
+                    pushEventCategoryTO.setCategory(attributableType.name().toLowerCase());
                     syncEventCategoryTO.setSubcategory(resource.getName());
+                    pushEventCategoryTO.setSubcategory(resource.getName());
 
                     for (ResourceOperation resourceOperation : ResourceOperation.values()) {
                         propEventCategoryTO.getEvents().add(resourceOperation.name().toLowerCase());
                         syncEventCategoryTO.getEvents().add(resourceOperation.name().toLowerCase());
+                        pushEventCategoryTO.getEvents().add(resourceOperation.name().toLowerCase());
                     }
 
                     events.add(propEventCategoryTO);
                     events.add(syncEventCategoryTO);
+                    events.add(pushEventCategoryTO);
                 }
             }
 

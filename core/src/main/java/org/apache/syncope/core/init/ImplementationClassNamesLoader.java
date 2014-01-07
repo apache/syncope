@@ -29,8 +29,10 @@ import org.apache.syncope.core.persistence.validation.attrvalue.Validator;
 import org.apache.syncope.core.propagation.PropagationActions;
 import org.apache.syncope.core.quartz.TaskJob;
 import org.apache.syncope.core.report.Reportlet;
+import org.apache.syncope.core.sync.PushActions;
 import org.apache.syncope.core.sync.SyncActions;
 import org.apache.syncope.core.sync.SyncCorrelationRule;
+import org.apache.syncope.core.sync.impl.PushJob;
 import org.apache.syncope.core.sync.impl.SyncJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +55,9 @@ public class ImplementationClassNamesLoader {
         REPORTLET,
         TASKJOB,
         SYNC_ACTIONS,
+        PUSH_ACTIONS,
         SYNC_CORRELATION_RULES,
+        PUSH_CORRELATION_RULES,
         PROPAGATION_ACTIONS,
         VALIDATOR
 
@@ -90,7 +94,9 @@ public class ImplementationClassNamesLoader {
                     }
 
                     if ((interfaces.contains(TaskJob.class))
-                            && !metadata.isAbstract() && !SyncJob.class.getName().equals(metadata.getClassName())) {
+                            && !metadata.isAbstract()
+                            && !SyncJob.class.getName().equals(metadata.getClassName())
+                            && !PushJob.class.getName().equals(metadata.getClassName())) {
 
                         classNames.get(Type.TASKJOB).add(metadata.getClassName());
                     }
@@ -99,9 +105,15 @@ public class ImplementationClassNamesLoader {
                         classNames.get(Type.SYNC_ACTIONS).add(metadata.getClassName());
                     }
 
+                    if (interfaces.contains(PushActions.class) && !metadata.isAbstract()) {
+                        classNames.get(Type.PUSH_ACTIONS).add(metadata.getClassName());
+                    }
+
                     if (interfaces.contains(SyncCorrelationRule.class) && !metadata.isAbstract()) {
                         classNames.get(Type.SYNC_CORRELATION_RULES).add(metadata.getClassName());
                     }
+
+                    // TODO: add push correlation rules management
 
                     if (interfaces.contains(PropagationActions.class) && !metadata.isAbstract()) {
                         classNames.get(Type.PROPAGATION_ACTIONS).add(metadata.getClassName());

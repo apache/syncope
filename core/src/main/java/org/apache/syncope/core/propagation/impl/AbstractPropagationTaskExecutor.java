@@ -19,7 +19,6 @@
 package org.apache.syncope.core.propagation.impl;
 
 import java.util.ArrayList;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -138,15 +137,23 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return result;
     }
 
-    protected void createOrUpdate(final PropagationTask task, final ConnectorObject beforeObj,
-            final Connector connector, final Set<String> propagationAttempted) {
+    public static void createOrUpdate(
+            final ObjectClass oclass,
+            final String accountId,
+            final Set<Attribute> attrs,
+            final String resource,
+            final PropagationMode propagationMode,
+            final ConnectorObject beforeObj,
+            final Connector connector,
+            final Set<String> propagationAttempted,
+            final ConnObjectUtil connObjectUtil) {
 
         // set of attributes to be propagated
-        final Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
+        final Set<Attribute> attributes = new HashSet<Attribute>(attrs);
 
         // check if there is any missing or null / empty mandatory attribute
         List<Object> mandatoryAttrNames = new ArrayList<Object>();
-        Attribute mandatoryMissing = AttributeUtil.find(MANDATORY_MISSING_ATTR_NAME, task.getAttributes());
+        Attribute mandatoryMissing = AttributeUtil.find(MANDATORY_MISSING_ATTR_NAME, attrs);
         if (mandatoryMissing != null) {
             attributes.remove(mandatoryMissing);
 
@@ -154,7 +161,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 mandatoryAttrNames.addAll(mandatoryMissing.getValue());
             }
         }
-        Attribute mandatoryNullOrEmpty = AttributeUtil.find(MANDATORY_NULL_OR_EMPTY_ATTR_NAME, task.getAttributes());
+        Attribute mandatoryNullOrEmpty = AttributeUtil.find(MANDATORY_NULL_OR_EMPTY_ATTR_NAME, attrs);
         if (mandatoryNullOrEmpty != null) {
             attributes.remove(mandatoryNullOrEmpty);
 
@@ -166,30 +173,26 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
 
         if (beforeObj == null) {
-            // 1. get accountId
-            final String accountId = task.getAccountId();
-
-            // 2. get name
+            // 1. get name
             final Name name = (Name) AttributeUtil.find(Name.NAME, attributes);
 
-            // 3. check if:
+            // 2. check if:
             //      * accountId is not blank;
             //      * accountId is not equal to Name.
             if (StringUtils.isNotBlank(accountId) && (name == null || !accountId.equals(name.getNameValue()))) {
-                // 3.a retrieve uid
+                // 2.a retrieve uid
                 final Uid uid = (Uid) AttributeUtil.find(Uid.NAME, attributes);
 
-                // 3.b add Uid if not provided
+                // 2.b add Uid if not provided
                 if (uid == null) {
                     attributes.add(AttributeBuilder.build(Uid.NAME, Collections.singleton(accountId)));
                 }
             }
 
-            // 4. provision entry
-            LOG.debug("Create {} on {}", attributes, task.getResource().getName());
+            // 3. provision entry
+            LOG.debug("Create {} on {}", attributes, resource);
 
-            connector.create(task.getPropagationMode(), new ObjectClass(task.getObjectClassName()),
-                    attributes, null, propagationAttempted);
+            connector.create(propagationMode, oclass, attributes, null, propagationAttempted);
         } else {
             // 1. check if rename is really required
             final Name newName = (Name) AttributeUtil.find(Name.NAME, attributes);
@@ -230,12 +233,30 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 }
 
                 // 3. provision entry
-                LOG.debug("Update {} on {}", strictlyModified, task.getResource().getName());
+                LOG.debug("Update {} on {}", strictlyModified, resource);
 
-                connector.update(task.getPropagationMode(), beforeObj.getObjectClass(),
+                connector.update(propagationMode, beforeObj.getObjectClass(),
                         beforeObj.getUid(), strictlyModified, null, propagationAttempted);
             }
         }
+    }
+
+    protected void createOrUpdate(
+            final PropagationTask task,
+            final ConnectorObject beforeObj,
+            final Connector connector,
+            final Set<String> propagationAttempted) {
+
+        createOrUpdate(
+                new ObjectClass(task.getObjectClassName()),
+                task.getAccountId(),
+                task.getAttributes(),
+                task.getResource().getName(),
+                task.getResource().getPropagationMode(),
+                beforeObj,
+                connector,
+                propagationAttempted,
+                connObjectUtil);
     }
 
     protected AbstractAttributable getSubject(final PropagationTask task) {
@@ -510,7 +531,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     new ObjectClass(task.getObjectClassName()),
                     new Uid(accountId),
                     connector.getOperationOptions(AttributableUtil.getInstance(task.getSubjectType()).
-                            getMappingItems(task.getResource(), MappingPurpose.PROPAGATION)));
+                    getMappingItems(task.getResource(), MappingPurpose.PROPAGATION)));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;

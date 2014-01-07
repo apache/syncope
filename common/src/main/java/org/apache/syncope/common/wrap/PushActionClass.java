@@ -16,44 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.to;
+package org.apache.syncope.common.wrap;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "syncTask")
+@XmlRootElement(name = "pushActionClass")
 @XmlType
-public class SyncTaskTO extends AbstractSyncTaskTO {
+public class PushActionClass extends AbstractWrappable<String> {
 
-    private static final long serialVersionUID = -2143537546915809017L;
+    private static final long serialVersionUID = 1669581609310071906L;
 
-    private UserTO userTemplate;
-
-    private RoleTO roleTemplate;
-
-    private boolean fullReconciliation;
-
-    public UserTO getUserTemplate() {
-        return userTemplate;
-    }
-
-    public void setUserTemplate(UserTO userTemplate) {
-        this.userTemplate = userTemplate;
-    }
-
-    public RoleTO getRoleTemplate() {
-        return roleTemplate;
-    }
-
-    public void setRoleTemplate(RoleTO roleTemplate) {
-        this.roleTemplate = roleTemplate;
-    }
-
-    public boolean isFullReconciliation() {
-        return fullReconciliation;
-    }
-
-    public void setFullReconciliation(boolean fullReconciliation) {
-        this.fullReconciliation = fullReconciliation;
-    }
 }

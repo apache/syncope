@@ -47,6 +47,8 @@ public class LoggerEventUtils {
                     type = EventCategoryType.PROPAGATION;
                 } else if (EventCategoryType.SYNCHRONIZATION.toString().equals(elements[0])) {
                     type = EventCategoryType.SYNCHRONIZATION;
+                } else if (EventCategoryType.PUSH.toString().equals(elements[0])) {
+                    type = EventCategoryType.PUSH;
                 } else {
                     try {
                         type = EventCategoryType.valueOf(elements[0]);

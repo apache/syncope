@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.propagation.impl;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,11 +30,9 @@ import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.connid.ConnObjectUtil;
-import org.apache.syncope.core.connid.PasswordGenerator;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
@@ -54,12 +51,10 @@ import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.JexlUtil;
 import org.apache.syncope.core.util.MappingUtil;
-import org.apache.syncope.core.util.VirAttrCache;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
-import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,15 +94,6 @@ public class PropagationManager {
      */
     @Autowired
     private ConnObjectUtil connObjectUtil;
-
-    @Autowired
-    private PasswordGenerator passwordGenerator;
-
-    /**
-     * Virtual attribute cache.
-     */
-    @Autowired
-    private VirAttrCache virAttrCache;
 
     /**
      * Create the user on every associated resource.
@@ -496,7 +482,7 @@ public class PropagationManager {
         SyncopeRole role = roleDataBinder.getRoleFromId(roleId);
         return getDeleteTaskIds(role, role.getResourceNames(), noPropResourceNames);
     }
-    
+
     /**
      * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
      * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
@@ -527,85 +513,6 @@ public class PropagationManager {
             propByRes.get(ResourceOperation.DELETE).removeAll(noPropResourceNames);
         }
         return createTasks(attributable, null, false, null, null, false, true, propByRes);
-    }
-
-    /**
-     * Prepare attributes for sending to a connector instance.
-     *
-     * @param <T> user / role
-     * @param attrUtil user / role
-     * @param subject given user / role
-     * @param password clear-text password
-     * @param changePwd whether password should be included for propagation attributes or not
-     * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeUpdated virtual attributes to be added
-     * @param enable whether user must be enabled or not
-     * @param resource target resource
-     * @return account link + prepared attributes
-     */
-    protected <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> prepareAttributes(
-            final AttributableUtil attrUtil, final T subject, final String password, final boolean changePwd,
-            final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated,
-            final Boolean enable, final ExternalResource resource) {
-
-        LOG.debug("Preparing resource attributes for {} on resource {} with attributes {}",
-                subject, resource, subject.getAttrs());
-
-        Set<Attribute> attributes = new HashSet<Attribute>();
-        String accountId = null;
-
-        for (AbstractMappingItem mapping : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
-            LOG.debug("Processing schema {}", mapping.getIntAttrName());
-
-            try {
-                if ((attrUtil.getType() == AttributableType.USER
-                        && mapping.getIntMappingType() == IntMappingType.UserVirtualSchema)
-                        || (attrUtil.getType() == AttributableType.ROLE
-                        && mapping.getIntMappingType() == IntMappingType.RoleVirtualSchema)) {
-
-                    LOG.debug("Expire entry cache {}-{}", subject.getId(), mapping.getIntAttrName());
-                    virAttrCache.expire(attrUtil.getType(), subject.getId(), mapping.getIntAttrName());
-                }
-
-                Map.Entry<String, Attribute> preparedAttribute = MappingUtil.prepareAttribute(
-                        resource, mapping, subject, password, passwordGenerator, vAttrsToBeRemoved, vAttrsToBeUpdated);
-
-                if (preparedAttribute != null && preparedAttribute.getKey() != null) {
-                    accountId = preparedAttribute.getKey();
-                }
-
-                if (preparedAttribute != null && preparedAttribute.getValue() != null) {
-                    Attribute alreadyAdded = AttributeUtil.find(preparedAttribute.getValue().getName(), attributes);
-
-                    if (alreadyAdded == null) {
-                        attributes.add(preparedAttribute.getValue());
-                    } else {
-                        attributes.remove(alreadyAdded);
-
-                        Set<Object> values = new HashSet<Object>(alreadyAdded.getValue());
-                        values.addAll(preparedAttribute.getValue().getValue());
-
-                        attributes.add(AttributeBuilder.build(preparedAttribute.getValue().getName(), values));
-                    }
-                }
-            } catch (Exception e) {
-                LOG.debug("Attribute '{}' processing failed", mapping.getIntAttrName(), e);
-            }
-        }
-
-        attributes.add(MappingUtil.evaluateNAME(subject, resource, accountId));
-
-        if (enable != null) {
-            attributes.add(AttributeBuilder.buildEnabled(enable));
-        }
-        if (!changePwd) {
-            Attribute pwdAttr = AttributeUtil.find(OperationalAttributes.PASSWORD_NAME, attributes);
-            if (pwdAttr != null) {
-                attributes.remove(pwdAttr);
-            }
-        }
-
-        return new SimpleEntry<String, Set<Attribute>>(accountId, attributes);
     }
 
     /**
@@ -675,7 +582,7 @@ public class PropagationManager {
                     task.setPropagationMode(resource.getPropagationMode());
                     task.setOldAccountId(propByRes.getOldAccountId(resource.getName()));
 
-                    Map.Entry<String, Set<Attribute>> preparedAttrs = prepareAttributes(attrUtil, subject,
+                    Map.Entry<String, Set<Attribute>> preparedAttrs = MappingUtil.prepareAttributes(attrUtil, subject,
                             password, changePwd, vAttrsToBeRemoved, vAttrsToBeUpdated, enable, resource);
                     task.setAccountId(preparedAttrs.getKey());
 

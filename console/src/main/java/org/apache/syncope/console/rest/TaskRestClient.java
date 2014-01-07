@@ -33,6 +33,7 @@ import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.to.PushTaskTO;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.springframework.stereotype.Component;
 
@@ -99,6 +100,8 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
             result = TaskType.SCHEDULED;
         } else if (SyncTaskTO.class.equals(reference)) {
             result = TaskType.SYNCHRONIZATION;
+        } else if (PushTaskTO.class.equals(reference)) {
+            result = TaskType.PUSH;
         }
         return result;
     }

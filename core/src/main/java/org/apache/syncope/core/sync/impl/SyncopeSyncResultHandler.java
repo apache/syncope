@@ -20,7 +20,6 @@ package org.apache.syncope.core.sync.impl;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +39,6 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
-import org.apache.syncope.common.types.ConflictResolutionAction;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.SyncPolicySpec;
@@ -53,7 +51,6 @@ import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
-import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
@@ -68,13 +65,11 @@ import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidatio
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.AttributableTransformer;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
-import org.apache.syncope.core.sync.SyncActions;
 import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.sync.SyncCorrelationRule;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -90,19 +85,11 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
-import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.quartz.JobExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class SyncopeSyncResultHandler implements SyncResultsHandler {
-
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeSyncResultHandler.class);
+public class SyncopeSyncResultHandler extends AbstractSyncopeSyncResultHandler {
 
     /**
      * Policy DAO.
@@ -197,73 +184,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
     @Autowired
     protected AttributableTransformer attrTransformer;
 
-    /**
-     * Syncing connector.
-     */
-    protected Connector connector;
-
-    /**
-     * SyncJob actions.
-     */
-    protected SyncActions actions;
-
-    protected Collection<SyncResult> results;
-
-    protected SyncTask syncTask;
-
-    protected ConflictResolutionAction resAct;
-
-    protected boolean dryRun;
-
     protected Map<Long, String> roleOwnerMap = new HashMap<Long, String>();
-
-    public Connector getConnector() {
-        return connector;
-    }
-
-    public void setConnector(final Connector connector) {
-        this.connector = connector;
-    }
-
-    public SyncActions getActions() {
-        return actions;
-    }
-
-    public void setActions(final SyncActions actions) {
-        this.actions = actions;
-    }
-
-    public Collection<SyncResult> getResults() {
-        return results;
-    }
-
-    public void setResults(final Collection<SyncResult> results) {
-        this.results = results;
-    }
-
-    public SyncTask getSyncTask() {
-        return syncTask;
-    }
-
-    public void setSyncTask(final SyncTask syncTask) {
-        this.syncTask = syncTask;
-    }
-
-    public ConflictResolutionAction getResAct() {
-        return resAct;
-    }
-
-    public void setResAct(final ConflictResolutionAction resAct) {
-        this.resAct = resAct;
-    }
-
-    public boolean isDryRun() {
-        return dryRun;
-    }
-
-    public void setDryRun(final boolean dryRun) {
-        this.dryRun = dryRun;
-    }
 
     public Map<Long, String> getRoleOwnerMap() {
         return roleOwnerMap;
@@ -472,7 +393,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         final List<ConnectorObject> found = connector.search(objectClass,
                 new EqualsFilter(new Name(name)), connector.getOperationOptions(
-                        attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
+                attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", objectClass, syncTask.getResource(), name);

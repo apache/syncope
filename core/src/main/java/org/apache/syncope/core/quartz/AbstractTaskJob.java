@@ -137,7 +137,6 @@ public abstract class AbstractTaskJob implements TaskJob {
         if (hasToBeRegistered(execution)) {
             taskExecDAO.saveAndAdd(taskId, execution);
         }
-
         task = taskDAO.save(task);
 
         notificationManager.createTasks(

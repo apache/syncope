@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.apache.syncope.core.rest.AbstractTest.taskService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -54,6 +55,7 @@ import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.to.PushTaskTO;
 import org.apache.syncope.core.sync.TestSyncActions;
 import org.apache.syncope.core.sync.TestSyncRule;
 import org.apache.syncope.core.sync.impl.SyncJob;
@@ -692,8 +694,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals("updatedSYNCOPE230@syncope.apache.org", email);
     }
 
-    private TaskExecTO execSyncTask(final Long taskId, final int maxWaitSeconds,
-            final boolean dryRun) {
+    private TaskExecTO execSyncTask(final Long taskId, final int maxWaitSeconds, final boolean dryRun) {
 
         AbstractTaskTO taskTO = taskService.read(taskId);
         assertNotNull(taskTO);
@@ -909,5 +910,21 @@ public class TaskTestITCase extends AbstractTest {
         taskService.bulk(bulkAction);
 
         assertFalse(taskService.list(TaskType.PROPAGATION).getResult().containsAll(after));
+    }
+
+    @Test
+    public void pushUsers() {
+        // Read sync task
+        PushTaskTO task = taskService.<PushTaskTO>read(13L);
+        assertNotNull(task);
+
+        execSyncTask(task.getId(), 50, false);
+
+        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
+        assertEquals("vivaldi", jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "vivaldi"));
+        assertEquals("bellini", jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "bellini"));
+        assertEquals("rossini", jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "rossini"));
+        assertEquals("puccini", jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "puccini"));
     }
 }

@@ -18,26 +18,16 @@
  */
 package org.apache.syncope.core.sync;
 
-import java.util.List;
-
 import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.core.sync.impl.AbstractSyncopeSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
-import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.quartz.JobExecutionException;
 
 /**
  * Interface for actions to be performed during SyncJob execution.
  */
-public interface SyncActions {
-
-    /**
-     * Action to be executed before to start the synchronization task execution.
-     *
-     * @param handler synchronization handler being executed.
-     * @throws JobExecutionException in case of generic failure.
-     */
-    void beforeAll(final SyncResultsHandler handler) throws JobExecutionException;
+public interface SyncActions extends AbstractSyncActions<AbstractSyncopeSyncResultHandler> {
 
     /**
      * Action to be executed before to create a synchronized user locally.
@@ -48,8 +38,10 @@ public interface SyncActions {
      * @return synchronization information used for user status evaluation and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractAttributableTO> SyncDelta beforeCreate(final SyncResultsHandler handler,
-            final SyncDelta delta, final T subject) throws JobExecutionException;
+    <T extends AbstractAttributableTO> SyncDelta beforeCreate(
+            final AbstractSyncopeSyncResultHandler handler,
+            final SyncDelta delta,
+            final T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before to update a synchronized user locally.
@@ -62,7 +54,10 @@ public interface SyncActions {
      * @throws JobExecutionException in case of generic failure.
      */
     <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
-            final SyncResultsHandler handler, final SyncDelta delta, final T subject, final K subjectMod)
+            final AbstractSyncopeSyncResultHandler handler,
+            final SyncDelta delta,
+            final T subject,
+            final K subjectMod)
             throws JobExecutionException;
 
     /**
@@ -74,8 +69,10 @@ public interface SyncActions {
      * @return synchronization information used for logging and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractAttributableTO> SyncDelta beforeDelete(final SyncResultsHandler handler,
-            final SyncDelta delta, final T subject) throws JobExecutionException;
+    <T extends AbstractAttributableTO> SyncDelta beforeDelete(
+            final AbstractSyncopeSyncResultHandler handler,
+            final SyncDelta delta,
+            final T subject) throws JobExecutionException;
 
     /**
      * Action to be executed after each local user synchronization.
@@ -86,15 +83,8 @@ public interface SyncActions {
      * @param result global synchronization results at the current synchronization step
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractAttributableTO> void after(final SyncResultsHandler handler, final SyncDelta delta,
+    <T extends AbstractAttributableTO> void after(
+            final AbstractSyncopeSyncResultHandler handler,
+            final SyncDelta delta,
             final T subject, final SyncResult result) throws JobExecutionException;
-
-    /**
-     * Action to be executed after the synchronization task completion.
-     *
-     * @param handler synchronization handler being executed.
-     * @param results synchronization result
-     * @throws JobExecutionException in case of generic failure
-     */
-    void afterAll(final SyncResultsHandler handler, final List<SyncResult> results) throws JobExecutionException;
 }

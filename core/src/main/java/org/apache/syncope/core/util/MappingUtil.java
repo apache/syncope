@@ -30,8 +30,10 @@ import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.AttributeMod;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.AttributeSchemaType;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.connid.PasswordGenerator;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
@@ -61,7 +63,9 @@ import org.apache.syncope.core.persistence.dao.VirSchemaDAO;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -116,6 +120,89 @@ public final class MappingUtil {
     }
 
     /**
+     * Prepare attributes for sending to a connector instance.
+     *
+     * @param <T> user / role
+     * @param attrUtil user / role
+     * @param subject given user / role
+     * @param password clear-text password
+     * @param changePwd whether password should be included for propagation attributes or not
+     * @param vAttrsToBeRemoved virtual attributes to be removed
+     * @param vAttrsToBeUpdated virtual attributes to be added
+     * @param enable whether user must be enabled or not
+     * @param resource target resource
+     * @return account link + prepared attributes
+     */
+    public static <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> prepareAttributes(
+            final AttributableUtil attrUtil, final T subject, final String password, final boolean changePwd,
+            final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated,
+            final Boolean enable, final ExternalResource resource) {
+
+        LOG.debug("Preparing resource attributes for {} on resource {} with attributes {}",
+                subject, resource, subject.getAttrs());
+
+        final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
+        final VirAttrCache virAttrCache = context.getBean(VirAttrCache.class);
+        final PasswordGenerator passwordGenerator = context.getBean(PasswordGenerator.class);
+
+        Set<Attribute> attributes = new HashSet<Attribute>();
+        String accountId = null;
+
+        for (AbstractMappingItem mapping : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
+            LOG.debug("Processing schema {}", mapping.getIntAttrName());
+
+            try {
+                if ((attrUtil.getType() == AttributableType.USER
+                        && mapping.getIntMappingType() == IntMappingType.UserVirtualSchema)
+                        || (attrUtil.getType() == AttributableType.ROLE
+                        && mapping.getIntMappingType() == IntMappingType.RoleVirtualSchema)) {
+
+                    LOG.debug("Expire entry cache {}-{}", subject.getId(), mapping.getIntAttrName());
+                    virAttrCache.expire(attrUtil.getType(), subject.getId(), mapping.getIntAttrName());
+                }
+
+                Map.Entry<String, Attribute> preparedAttribute = prepareAttribute(
+                        resource, mapping, subject, password, passwordGenerator, vAttrsToBeRemoved, vAttrsToBeUpdated);
+
+                if (preparedAttribute != null && preparedAttribute.getKey() != null) {
+                    accountId = preparedAttribute.getKey();
+                }
+
+                if (preparedAttribute != null && preparedAttribute.getValue() != null) {
+                    Attribute alreadyAdded = AttributeUtil.find(preparedAttribute.getValue().getName(), attributes);
+
+                    if (alreadyAdded == null) {
+                        attributes.add(preparedAttribute.getValue());
+                    } else {
+                        attributes.remove(alreadyAdded);
+
+                        Set<Object> values = new HashSet<Object>(alreadyAdded.getValue());
+                        values.addAll(preparedAttribute.getValue().getValue());
+
+                        attributes.add(AttributeBuilder.build(preparedAttribute.getValue().getName(), values));
+                    }
+                }
+            } catch (Exception e) {
+                LOG.debug("Attribute '{}' processing failed", mapping.getIntAttrName(), e);
+            }
+        }
+
+        attributes.add(MappingUtil.evaluateNAME(subject, resource, accountId));
+
+        if (enable != null) {
+            attributes.add(AttributeBuilder.buildEnabled(enable));
+        }
+        if (!changePwd) {
+            Attribute pwdAttr = AttributeUtil.find(OperationalAttributes.PASSWORD_NAME, attributes);
+            if (pwdAttr != null) {
+                attributes.remove(pwdAttr);
+            }
+        }
+
+        return new AbstractMap.SimpleEntry<String, Set<Attribute>>(accountId, attributes);
+    }
+
+    /**
      * Prepare an attribute to be sent to a connector instance.
      *
      * @param resource target resource
@@ -129,7 +216,7 @@ public final class MappingUtil {
      * @return account link + prepared attribute
      */
     @SuppressWarnings("unchecked")
-    public static <T extends AbstractAttributable> Map.Entry<String, Attribute> prepareAttribute(
+    private static <T extends AbstractAttributable> Map.Entry<String, Attribute> prepareAttribute(
             final ExternalResource resource, final AbstractMappingItem mapItem,
             final T subject, final String password, final PasswordGenerator passwordGenerator,
             final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated) {
@@ -250,16 +337,19 @@ public final class MappingUtil {
                 if (passwordAttrValue == null) {
                     result = null;
                 } else {
-                    result = new AbstractMap.SimpleEntry<String, Attribute>(null,
+                    result = new AbstractMap.SimpleEntry<String, Attribute>(
+                            null,
                             AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
                 }
             } else {
                 if ((schema != null && schema.isMultivalue()) || AttributableUtil.getInstance(subject).getType()
                         != mapItem.getIntMappingType().getAttributableType()) {
-                    result = new AbstractMap.SimpleEntry<String, Attribute>(null, AttributeBuilder.build(extAttrName,
-                            objValues));
+                    result = new AbstractMap.SimpleEntry<String, Attribute>(
+                            null,
+                            AttributeBuilder.build(extAttrName, objValues));
                 } else {
-                    result = new AbstractMap.SimpleEntry<String, Attribute>(null, objValues.isEmpty()
+                    result = new AbstractMap.SimpleEntry<String, Attribute>(
+                            null, objValues.isEmpty()
                             ? AttributeBuilder.build(extAttrName)
                             : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
                 }
@@ -378,13 +468,6 @@ public final class MappingUtil {
                 for (AbstractAttributable attributable : attributables) {
                     AbstractVirAttr virAttr = attributable.getVirAttr(mappingItem.getIntAttrName());
                     if (virAttr != null) {
-                        if (virAttr.getValues() != null) {
-                            for (String value : virAttr.getValues()) {
-                                attrValue = new UAttrValue();
-                                attrValue.setStringValue(value);
-                                values.add(attrValue);
-                            }
-                        }
                         if (vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
                             if (vAttrsToBeUpdated.containsKey(mappingItem.getIntAttrName())) {
                                 virAttr.setValues(
@@ -394,6 +477,13 @@ public final class MappingUtil {
                             } else {
                                 throw new IllegalArgumentException("Don't need to update virtual attribute '"
                                         + mappingItem.getIntAttrName() + "'");
+                            }
+                        }
+                        if (virAttr.getValues() != null) {
+                            for (String value : virAttr.getValues()) {
+                                attrValue = new UAttrValue();
+                                attrValue.setStringValue(value);
+                                values.add(attrValue);
                             }
                         }
                     }
