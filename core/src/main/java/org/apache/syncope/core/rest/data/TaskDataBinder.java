@@ -149,7 +149,7 @@ public class TaskDataBinder {
     }
 
     public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtil taskUtil) {
-        final Class<?> taskTOClass = taskUtil.taskTOClass();
+        final Class<? extends AbstractTaskTO> taskTOClass = taskUtil.taskTOClass();
 
         if (taskTOClass == null || !taskTOClass.equals(taskTO.getClass())) {
             throw new ClassCastException(
@@ -179,8 +179,9 @@ public class TaskDataBinder {
     }
 
     public void updateSchedTask(final SchedTask task, final SchedTaskTO taskTO, final TaskUtil taskUtil) {
-        Class<?> taskClass = taskUtil.taskClass();
-        Class<?> taskTOClass = taskUtil.taskTOClass();
+        Class<? extends Task> taskClass = taskUtil.taskClass();
+        Class<? extends AbstractTaskTO> taskTOClass = taskUtil.taskTOClass();
+
 
         if (taskClass == null || !taskClass.equals(task.getClass())) {
             throw new ClassCastException(
