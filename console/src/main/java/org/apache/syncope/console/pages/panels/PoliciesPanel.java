@@ -71,11 +71,11 @@ public class PoliciesPanel extends Panel {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(PoliciesPanel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PoliciesPanel.class);
 
-    private final static int MODAL_WIN_HEIGHT = 400;
+    private static final int MODAL_WIN_HEIGHT = 400;
 
-    private final static int MODAL_WIN_WIDTH = 1000;
+    private static final int MODAL_WIN_WIDTH = 1000;
 
     private static final long serialVersionUID = -6804066913177804275L;
 
@@ -88,7 +88,7 @@ public class PoliciesPanel extends Panel {
     @SpringBean
     private PreferenceManager prefMan;
 
-    final private int paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_POLICY_PAGINATOR_ROWS);
+    private final int paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_POLICY_PAGINATOR_ROWS);
 
     protected boolean modalResult = false;
 

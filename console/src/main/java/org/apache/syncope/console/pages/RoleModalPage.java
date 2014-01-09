@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.util.AttributableOperations;
@@ -84,14 +85,14 @@ public class RoleModalPage extends BaseModalPage {
 
         this.createFlag = roleTO.getId() == 0;
         if (!createFlag) {
-            originalRoleTO = AttributableOperations.clone(roleTO);
+            originalRoleTO = SerializationUtils.clone(roleTO);
         }
 
-        final Form form = new Form("RoleForm");
+        final Form<RoleTO> form = new Form<RoleTO>("RoleForm");
 
         add(new Label("displayName", roleTO.getId() == 0 ? "" : roleTO.getDisplayName()));
 
-        form.setModel(new CompoundPropertyModel(roleTO));
+        form.setModel(new CompoundPropertyModel<RoleTO>(roleTO));
 
         this.rolePanel = new RolePanel.Builder("rolePanel").form(form).roleTO(roleTO).roleModalPageMode(mode)
                 .pageRef(getPageReference()).build();

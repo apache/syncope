@@ -18,16 +18,21 @@
  */
 package org.apache.syncope.common.to;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.types.PolicyType;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 @XmlRootElement(name = "policy")
 @XmlType
-@XmlSeeAlso({AccountPolicyTO.class, PasswordPolicyTO.class, SyncPolicyTO.class})
+@XmlSeeAlso({ AccountPolicyTO.class, PasswordPolicyTO.class, SyncPolicyTO.class })
 //@JsonTypeInfo(use=Id.CLASS, include=As.PROPERTY, property="class")
 public abstract class PolicyTO extends AbstractBaseBean {
 
@@ -38,6 +43,10 @@ public abstract class PolicyTO extends AbstractBaseBean {
     private String description;
 
     private PolicyType type;
+
+    private final List<String> usedByResources = new ArrayList<String>();
+
+    private final List<Long> usedByRoles = new ArrayList<Long>();
 
     public long getId() {
         return id;
@@ -62,4 +71,19 @@ public abstract class PolicyTO extends AbstractBaseBean {
     public void setType(PolicyType type) {
         this.type = type;
     }
+
+    @XmlElementWrapper(name = "usedByResources")
+    @XmlElement(name = "resource")
+    @JsonProperty("usedByResources")
+    public List<String> getUsedByResources() {
+        return usedByResources;
+    }
+
+    @XmlElementWrapper(name = "usedByRoles")
+    @XmlElement(name = "role")
+    @JsonProperty("usedByRoles")
+    public List<Long> getUsedByRoles() {
+        return usedByRoles;
+    }
+
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.UserTO;
@@ -59,7 +60,7 @@ public class UserRequestModalPage extends UserModalPage {
         switch (userRequestTO.getType()) {
             case CREATE:
                 userTO = userRequestTO.getUserTO();
-                this.initialUserTO = AttributableOperations.clone(userTO);
+                this.initialUserTO = SerializationUtils.clone(userTO);
                 break;
 
             case UPDATE:

@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+import org.apache.commons.lang3.SerializationUtils;
 
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.MembershipTO;
@@ -212,7 +213,7 @@ public class SchemaTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserTO newUserTO = AttributableOperations.clone(userTO);
+        UserTO newUserTO = SerializationUtils.clone(userTO);
         MembershipTO membership = new MembershipTO();
         membership.setRoleId(2L);
         newUserTO.addMembership(membership);

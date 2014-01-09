@@ -59,8 +59,8 @@ public class ResourceModalPage extends BaseModalPage {
                 ? ""
                 : resourceTO.getName()));
 
-        final Form form = new Form(FORM);
-        form.setModel(new CompoundPropertyModel(resourceTO));
+        final Form<ResourceTO> form = new Form<ResourceTO>(FORM);
+        form.setModel(new CompoundPropertyModel<ResourceTO>(resourceTO));
 
         //--------------------------------
         // Resource details panel
@@ -133,7 +133,9 @@ public class ResourceModalPage extends BaseModalPage {
                             resourceRestClient.update(resourceTO);
                         }
 
-                        ((Resources) pageRef.getPage()).setModalResult(true);
+                        if (pageRef != null && pageRef.getPage() instanceof AbstractBasePage) {
+                            ((AbstractBasePage) pageRef.getPage()).setModalResult(true);
+                        }
                         window.close(target);
                     } catch (Exception e) {
                         LOG.error("Failure managing resource {}", resourceTO, e);

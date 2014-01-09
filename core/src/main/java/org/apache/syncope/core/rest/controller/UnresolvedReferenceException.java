@@ -29,7 +29,7 @@ public class UnresolvedReferenceException extends Exception {
         super();
     }
 
-    public UnresolvedReferenceException(Throwable cause) {
+    public UnresolvedReferenceException(final Throwable cause) {
         super(cause);
     }
 }

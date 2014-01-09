@@ -218,26 +218,24 @@ public class Resources extends BasePage {
             @Override
             public void populateItem(final Item<ICellPopulator<ResourceTO>> cellItem, final String componentId,
                     final IModel<ResourceTO> model) {
+
                 final ResourceTO resourceTO = model.getObject();
 
                 final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
-
                 panel.add(new ActionLink() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-
                         editResourceWin.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
-                                ResourceModalPage form = new ResourceModalPage(Resources.this.getPageReference(),
+                                return new ResourceModalPage(Resources.this.getPageReference(),
                                         editResourceWin, resourceTO, false);
-                                return form;
                             }
                         });
 
@@ -252,7 +250,6 @@ public class Resources extends BasePage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-
                             resourceRestClient.delete(resourceTO.getName());
                             info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientCompositeErrorException e) {
@@ -300,27 +297,27 @@ public class Resources extends BasePage {
         editResourceWin.setInitialWidth(WIN_WIDTH);
         editResourceWin.setCookieName("edit-res-modal");
 
-        AjaxLink createResourceLink = new ClearIndicatingAjaxLink("createResourceLink", getPageReference()) {
+        AjaxLink<Void> createResourceLink =
+                new ClearIndicatingAjaxLink<Void>("createResourceLink", getPageReference()) {
 
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            protected void onClickInternal(final AjaxRequestTarget target) {
-                createResourceWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                    private static final long serialVersionUID = -7834632442532690940L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public Page createPage() {
-                        final ResourceModalPage windows = new ResourceModalPage(Resources.this.getPageReference(),
-                                editResourceWin, new ResourceTO(), true);
-                        return windows;
-                    }
-                });
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        createResourceWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                createResourceWin.show(target);
-            }
-        };
+                            private static final long serialVersionUID = -7834632442532690940L;
+
+                            @Override
+                            public Page createPage() {
+                                return new ResourceModalPage(Resources.this.getPageReference(),
+                                        editResourceWin, new ResourceTO(), true);
+                            }
+                        });
+
+                        createResourceWin.show(target);
+                    }
+                };
 
         MetaDataRoleAuthorizationStrategy.authorize(createResourceLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
                 "Resources", "create"));

@@ -30,14 +30,25 @@ import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
+import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
+import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
+import org.apache.syncope.core.persistence.dao.ResourceDAO;
+import org.apache.syncope.core.persistence.dao.RoleDAO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PolicyDataBinder {
+
+    @Autowired
+    private ResourceDAO resourceDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
 
     private boolean isGlobalPolicy(final PolicyType policyType) {
         boolean isGlobal;
@@ -102,6 +113,23 @@ public class PolicyDataBinder {
 
         policyTO.setId(policy.getId());
         policyTO.setDescription(policy.getDescription());
+
+        for (ExternalResource resource : resourceDAO.findByPolicy(policy)) {
+            policyTO.getUsedByResources().add(resource.getName());
+        }
+        if (isGlobal) {
+            for (ExternalResource resource : resourceDAO.findWithoutPolicy(policy.getType())) {
+                policyTO.getUsedByResources().add(resource.getName());
+            }
+        }
+        for (SyncopeRole role : roleDAO.findByPolicy(policy)) {
+            policyTO.getUsedByRoles().add(role.getId());
+        }
+        if (isGlobal) {
+            for (SyncopeRole role : roleDAO.findWithoutPolicy(policy.getType())) {
+                policyTO.getUsedByRoles().add(role.getId());
+            }
+        }
 
         return (T) policyTO;
     }

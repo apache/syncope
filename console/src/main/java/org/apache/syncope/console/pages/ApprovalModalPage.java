@@ -85,108 +85,108 @@ public class ApprovalModalPage extends BaseModalPage {
         final ListView<WorkflowFormPropertyTO> propView =
                 new AltListView<WorkflowFormPropertyTO>("propView", formProps) {
 
-            private static final long serialVersionUID = 9101744072914090143L;
+                    private static final long serialVersionUID = 9101744072914090143L;
 
-            @Override
-            @SuppressWarnings("unchecked")
-            protected void populateItem(final ListItem<WorkflowFormPropertyTO> item) {
-                final WorkflowFormPropertyTO prop = item.getModelObject();
+                    @Override
+                    @SuppressWarnings("unchecked")
+                    protected void populateItem(final ListItem<WorkflowFormPropertyTO> item) {
+                        final WorkflowFormPropertyTO prop = item.getModelObject();
 
-                Label label = new Label("key", prop.getName() == null
-                        ? prop.getId()
-                        : prop.getName());
-                item.add(label);
+                        Label label = new Label("key", prop.getName() == null
+                                ? prop.getId()
+                                : prop.getName());
+                        item.add(label);
 
-                FieldPanel field;
-                switch (prop.getType()) {
-                    case Boolean:
-                        field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(),
-                                new Model(Boolean.valueOf(prop.getValue()))).setChoices(Arrays.asList(
-                                new String[]{"Yes", "No"}));
-                        break;
+                        FieldPanel field;
+                        switch (prop.getType()) {
+                            case Boolean:
+                                field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(),
+                                        new Model(Boolean.valueOf(prop.getValue()))).setChoices(Arrays.asList(
+                                                new String[] { "Yes", "No" }));
+                                break;
 
-                    case Date:
-                        SimpleDateFormat df = StringUtils.isNotBlank(prop.getDatePattern())
+                            case Date:
+                                SimpleDateFormat df = StringUtils.isNotBlank(prop.getDatePattern())
                                 ? new SimpleDateFormat(prop.getDatePattern())
                                 : new SimpleDateFormat();
-                        Date parsedDate = null;
-                        if (StringUtils.isNotBlank(prop.getValue())) {
-                            try {
-                                parsedDate = df.parse(prop.getValue());
-                            } catch (ParseException e) {
-                                LOG.error("Unparsable date: {}", prop.getValue(), e);
-                            }
-                        }
+                                Date parsedDate = null;
+                                if (StringUtils.isNotBlank(prop.getValue())) {
+                                    try {
+                                        parsedDate = df.parse(prop.getValue());
+                                    } catch (ParseException e) {
+                                        LOG.error("Unparsable date: {}", prop.getValue(), e);
+                                    }
+                                }
 
-                        field = new DateTimeFieldPanel("value", label.getDefaultModelObjectAsString(),
-                                new Model(parsedDate), df.toLocalizedPattern());
-                        break;
+                                field = new DateTimeFieldPanel("value", label.getDefaultModelObjectAsString(),
+                                        new Model(parsedDate), df.toLocalizedPattern());
+                                break;
 
-                    case Enum:
-                        MapChoiceRenderer<String, String> enumCR =
+                            case Enum:
+                                MapChoiceRenderer<String, String> enumCR =
                                 new MapChoiceRenderer<String, String>(prop.getEnumValues());
 
-                        field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(),
-                                new Model(prop.getValue())).setChoiceRenderer(enumCR).setChoices(new Model() {
+                                field = new AjaxDropDownChoicePanel("value", label.getDefaultModelObjectAsString(),
+                                        new Model(prop.getValue())).setChoiceRenderer(enumCR).setChoices(new Model() {
 
-                            private static final long serialVersionUID = -858521070366432018L;
+                                    private static final long serialVersionUID = -858521070366432018L;
 
-                            @Override
-                            public Serializable getObject() {
-                                return new ArrayList(prop.getEnumValues().keySet());
-                            }
-                        });
-                        break;
+                                    @Override
+                                    public Serializable getObject() {
+                                        return new ArrayList(prop.getEnumValues().keySet());
+                                    }
+                                });
+                                break;
 
-                    case Long:
-                        field = new AjaxNumberFieldPanel("value", label.getDefaultModelObjectAsString(),
-                                new Model(Long.valueOf(prop.getValue())), Long.class);
-                        break;
+                            case Long:
+                                field = new AjaxNumberFieldPanel("value", label.getDefaultModelObjectAsString(),
+                                        new Model(Long.valueOf(prop.getValue())), Long.class);
+                                break;
 
-                    case String:
-                    default:
-                        field = new AjaxTextFieldPanel("value", PARENT_PATH, new Model(prop.getValue()));
-                        break;
-                }
+                            case String:
+                            default:
+                                field = new AjaxTextFieldPanel("value", PARENT_PATH, new Model(prop.getValue()));
+                                break;
+                        }
 
-                field.setReadOnly(!prop.isWritable());
-                if (prop.isRequired()) {
-                    field.addRequiredLabel();
-                }
+                        field.setReadOnly(!prop.isWritable());
+                        if (prop.isRequired()) {
+                            field.addRequiredLabel();
+                        }
 
-                item.add(field);
-            }
-        };
+                        item.add(field);
+                    }
+                };
 
         final AjaxButton userDetails = new IndicatingAjaxButton("userDetails",
                 new Model<String>(getString("userDetails"))) {
 
-            private static final long serialVersionUID = -4804368561204623354L;
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                editUserWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                    private static final long serialVersionUID = -7834632442532690940L;
+                    private static final long serialVersionUID = -4804368561204623354L;
 
                     @Override
-                    public Page createPage() {
-                        return new ViewUserModalPage(ApprovalModalPage.this.getPageReference(), editUserWin,
-                                userRestClient.read(formTO.getUserId())) {
+                    protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                        editUserWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                            private static final long serialVersionUID = -2819994749866481607L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
-                            protected void closeAction(final AjaxRequestTarget target, final Form form) {
-                                setResponsePage(ApprovalModalPage.this);
-                            }
-                        };
-                    }
-                });
+                            public Page createPage() {
+                                return new ViewUserModalPage(ApprovalModalPage.this.getPageReference(), editUserWin,
+                                        userRestClient.read(formTO.getUserId())) {
 
-                editUserWin.show(target);
-            }
-        };
+                                    private static final long serialVersionUID = -2819994749866481607L;
+
+                                    @Override
+                                    protected void closeAction(final AjaxRequestTarget target, final Form form) {
+                                        setResponsePage(ApprovalModalPage.this);
+                                    }
+                                };
+                            }
+                        });
+
+                        editUserWin.show(target);
+                    }
+                };
         MetaDataRoleAuthorizationStrategy.authorize(userDetails, ENABLE,
                 xmlRolesReader.getAllAllowedRoles("Users", "read"));
 

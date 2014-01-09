@@ -21,8 +21,10 @@ package org.apache.syncope.core.persistence.dao;
 import java.util.List;
 
 import org.apache.syncope.common.services.InvalidSearchConditionException;
+import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.RAttrValue;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
@@ -39,7 +41,11 @@ public interface RoleDAO extends AttributableDAO {
 
     List<SyncopeRole> findOwned(SyncopeUser owner);
 
-    List<SyncopeRole> findByEntitlement(final Entitlement entitlement);
+    List<SyncopeRole> findByEntitlement(Entitlement entitlement);
+
+    List<SyncopeRole> findByPolicy(Policy policy);
+
+    List<SyncopeRole> findWithoutPolicy(PolicyType type);
 
     List<SyncopeRole> findAncestors(SyncopeRole role);
 

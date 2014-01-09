@@ -58,7 +58,7 @@ import org.apache.syncope.core.persistence.validation.entity.SyncopeRoleCheck;
 
 @Entity
 @Table(uniqueConstraints =
-@UniqueConstraint(columnNames = {"name", "parent_id"}))
+        @UniqueConstraint(columnNames = { "name", "parent_id" }))
 @Cacheable
 @SyncopeRoleCheck
 public class SyncopeRole extends AbstractAttributable {
@@ -82,9 +82,9 @@ public class SyncopeRole extends AbstractAttributable {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-    @JoinColumn(name = "role_id"),
-    inverseJoinColumns =
-    @JoinColumn(name = "entitlement_name"))
+            @JoinColumn(name = "role_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "entitlement_name"))
     private Set<Entitlement> entitlements;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
@@ -140,9 +140,9 @@ public class SyncopeRole extends AbstractAttributable {
      */
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-    @JoinColumn(name = "role_id"),
-    inverseJoinColumns =
-    @JoinColumn(name = "resource_name"))
+            @JoinColumn(name = "role_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "resource_name"))
     @Valid
     private Set<ExternalResource> resources;
 

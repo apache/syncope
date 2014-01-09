@@ -26,6 +26,8 @@ under the License.
           <ul>
             <li class="tabs-selected"><a href="#description"><span><wicket:message key="policyDescription"/></span></a></li>
             <li><a href="#specification"><span><wicket:message key="policySpecification"/></span></a></li>
+            <li><a href="#resources"><span><wicket:message key="resources"/></span></a></li>
+            <li><a href="#roles"><span><wicket:message key="roles"/></span></a></li>
           </ul>
 
           <div id="description">
@@ -62,6 +64,18 @@ under the License.
           <div id="specification">
             <span wicket:id="panel">[password policy panel]</span>
           </div>
+
+          <div id="resources">
+            <div id="users-contain" class="ui-widget" style="width:inherit;">
+              <table class="ui-widget ui-widget-content table-hover" wicket:id="resources"/>
+            </div>
+          </div>
+
+          <div id="roles">
+            <div id="users-contain" class="ui-widget" style="width:inherit;">
+              <table class="ui-widget ui-widget-content table-hover" wicket:id="roles"/>
+            </div>
+          </div>
         </div>
 
         <div style="margin: 20px 10px 0">
@@ -74,5 +88,7 @@ under the License.
         </div>
       </form>
     </div>
+
+    <div wicket:id="metaEditModalWin">[Show modal window for meta editing (resources, roles)]</div>    
   </wicket:extend>
 </html>
