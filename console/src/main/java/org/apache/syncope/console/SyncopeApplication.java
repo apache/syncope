@@ -97,10 +97,10 @@ public class SyncopeApplication
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
 
-        final String activitiModelerDirectory = WebApplicationContextUtils.getWebApplicationContext(
-                WebApplication.get().getServletContext()).getBean("activitiModelerDirectory", String.class);
         getRequestCycleListeners().add(new SyncopeRequestCycleListener());
 
+        final String activitiModelerDirectory = WebApplicationContextUtils.getWebApplicationContext(
+                WebApplication.get().getServletContext()).getBean("activitiModelerDirectory", String.class);
         mountResource("/" + ACTIVITI_MODELER_CONTEXT, new ResourceReference(ACTIVITI_MODELER_CONTEXT) {
 
             private static final long serialVersionUID = -128426276529456602L;

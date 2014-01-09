@@ -31,7 +31,6 @@ public class ErrorPage extends BasePage {
 
     private static final long serialVersionUID = -390761262038796657L;
 
-    @SuppressWarnings("unchecked")
     public ErrorPage(final PageParameters parameters) {
         super(parameters);
 

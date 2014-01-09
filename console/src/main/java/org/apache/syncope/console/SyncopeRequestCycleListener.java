@@ -25,7 +25,8 @@ import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.pages.ErrorPage;
 import org.apache.wicket.Page;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
-import org.apache.wicket.core.request.handler.ComponentRenderingRequestHandler;
+import org.apache.wicket.core.request.handler.PageProvider;
+import org.apache.wicket.core.request.handler.RenderPageRequestHandler;
 import org.apache.wicket.markup.html.pages.ExceptionErrorPage;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.protocol.http.PageExpiredException;
@@ -50,10 +51,10 @@ public class SyncopeRequestCycleListener extends AbstractRequestCycleListener {
     public IRequestHandler onException(final RequestCycle cycle, final Exception e) {
         LOG.error("Exception found", e);
 
-        final Page errorPage;
         PageParameters errorParameters = new PageParameters();
         errorParameters.add("errorTitle", new StringResourceModel("alert", null).getString());
 
+        final Page errorPage;
         if (e instanceof UnauthorizedInstantiationException) {
             errorParameters.add("errorMessage",
                     new StringResourceModel("unauthorizedInstantiationException", null).getString());
@@ -78,6 +79,6 @@ public class SyncopeRequestCycleListener extends AbstractRequestCycleListener {
             errorPage = new ExceptionErrorPage(e, null);
         }
 
-        return new ComponentRenderingRequestHandler(errorPage);
+        return new RenderPageRequestHandler(new PageProvider(errorPage));
     }
 }
