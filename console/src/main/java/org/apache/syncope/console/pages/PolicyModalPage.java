@@ -18,10 +18,15 @@
  */
 package org.apache.syncope.console.pages;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.AbstractPolicyTO;
+import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.AbstractPolicySpec;
 import org.apache.syncope.common.types.AccountPolicySpec;
@@ -31,16 +36,33 @@ import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.PolicyBeanPanel;
 import org.apache.syncope.console.rest.PolicyRestClient;
+import org.apache.syncope.console.rest.ResourceRestClient;
+import org.apache.syncope.console.rest.RoleRestClient;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
+import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
@@ -50,8 +72,18 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
 
     private static final long serialVersionUID = -7325772767481076679L;
 
+    private static final int WIN_HEIGHT = 600;
+
+    private static final int WIN_WIDTH = 1100;
+
     @SpringBean
     private PolicyRestClient policyRestClient;
+
+    @SpringBean
+    private ResourceRestClient resourceRestClient;
+
+    @SpringBean
+    private RoleRestClient roleRestClient;
 
     public PolicyModalPage(final ModalWindow window, final T policyTO) {
         super();
@@ -78,17 +110,17 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
         switch (policyTO.getType()) {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
-                type.setChoices(Arrays.asList(new PolicyType[] {PolicyType.GLOBAL_ACCOUNT, PolicyType.ACCOUNT}));
+                type.setChoices(Arrays.asList(new PolicyType[] { PolicyType.GLOBAL_ACCOUNT, PolicyType.ACCOUNT }));
                 break;
 
             case GLOBAL_PASSWORD:
             case PASSWORD:
-                type.setChoices(Arrays.asList(new PolicyType[] {PolicyType.GLOBAL_PASSWORD, PolicyType.PASSWORD}));
+                type.setChoices(Arrays.asList(new PolicyType[] { PolicyType.GLOBAL_PASSWORD, PolicyType.PASSWORD }));
                 break;
 
             case GLOBAL_SYNC:
             case SYNC:
-                type.setChoices(Arrays.asList(new PolicyType[] {PolicyType.GLOBAL_SYNC, PolicyType.SYNC}));
+                type.setChoices(Arrays.asList(new PolicyType[] { PolicyType.GLOBAL_SYNC, PolicyType.SYNC }));
 
             default:
         }
@@ -101,6 +133,187 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
         final AbstractPolicySpec policy = getPolicySpecification(policyTO);
 
         form.add(new PolicyBeanPanel("panel", policy));
+
+        final ModalWindow mwindow = new ModalWindow("metaEditModalWin");
+        mwindow.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        mwindow.setInitialHeight(WIN_HEIGHT);
+        mwindow.setInitialWidth(WIN_WIDTH);
+        mwindow.setCookieName("meta-edit-modal");
+        add(mwindow);
+
+        List<IColumn<String, String>> resColumns = new ArrayList<IColumn<String, String>>();
+        resColumns.add(new AbstractColumn<String, String>(new StringResourceModel("name", this, null, "")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public void populateItem(final Item<ICellPopulator<String>> cellItem,
+                    final String componentId, final IModel<String> rowModel) {
+
+                cellItem.add(new Label(componentId, rowModel.getObject()));
+            }
+        });
+        resColumns.add(new AbstractColumn<String, String>(new StringResourceModel("actions", this, null, "")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
+
+            @Override
+            public void populateItem(final Item<ICellPopulator<String>> cellItem, final String componentId,
+                    final IModel<String> model) {
+
+                final String resource = model.getObject();
+
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        mwindow.setPageCreator(new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID = -7834632442532690940L;
+
+                            @Override
+                            public Page createPage() {
+                                return new ResourceModalPage(PolicyModalPage.this.getPageReference(),
+                                        mwindow, resourceRestClient.read(resource), false);
+                            }
+                        });
+
+                        mwindow.show(target);
+                    }
+                }, ActionLink.ActionType.EDIT, "Resources");
+
+                cellItem.add(panel);
+            }
+        });
+        ISortableDataProvider<String, String> resDataProvider = new SortableDataProvider<String, String>() {
+
+            private static final long serialVersionUID = 8263758912838836438L;
+
+            @Override
+            public Iterator<? extends String> iterator(final long first, final long count) {
+                return policyTO.getId() == 0
+                        ? Collections.<String>emptyList().iterator()
+                        : policyRestClient.getPolicy(policyTO.getId()).
+                        getUsedByResources().subList((int) first, (int) first + (int) count).iterator();
+            }
+
+            @Override
+            public long size() {
+                return policyTO.getId() == 0
+                        ? 0
+                        : policyRestClient.getPolicy(policyTO.getId()).
+                        getUsedByResources().size();
+            }
+
+            @Override
+            public IModel<String> model(final String object) {
+                return new Model<String>(object);
+            }
+        };
+        final AjaxFallbackDefaultDataTable<String, String> resources =
+                new AjaxFallbackDefaultDataTable<String, String>("resources", resColumns, resDataProvider, 10);
+        form.add(resources);
+
+        List<IColumn<RoleTO, String>> roleColumns = new ArrayList<IColumn<RoleTO, String>>();
+        roleColumns.add(new PropertyColumn<RoleTO, String>(new ResourceModel("id", "id"), "id", "id"));
+        roleColumns.add(new PropertyColumn<RoleTO, String>(new ResourceModel("name", "name"), "name", "name"));
+        roleColumns.add(new AbstractColumn<RoleTO, String>(new StringResourceModel("actions", this, null, "")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
+
+            @Override
+            public void populateItem(final Item<ICellPopulator<RoleTO>> cellItem, final String componentId,
+                    final IModel<RoleTO> model) {
+
+                final RoleTO role = model.getObject();
+
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        mwindow.setPageCreator(new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID = -7834632442532690940L;
+
+                            @Override
+                            public Page createPage() {
+                                return new RoleModalPage(PolicyModalPage.this.getPageReference(), mwindow, role);
+                            }
+                        });
+
+                        mwindow.show(target);
+                    }
+                }, ActionLink.ActionType.EDIT, "Roles");
+
+                cellItem.add(panel);
+            }
+        });
+        ISortableDataProvider<RoleTO, String> roleDataProvider = new SortableDataProvider<RoleTO, String>() {
+
+            private static final long serialVersionUID = 8263758912838836438L;
+
+            @Override
+            public Iterator<? extends RoleTO> iterator(final long first, final long count) {
+                List<RoleTO> roles = new ArrayList<RoleTO>();
+
+                if (policyTO.getId() > 0) {
+                    for (Long roleId : policyRestClient.getPolicy(policyTO.getId()).
+                            getUsedByRoles().subList((int) first, (int) first + (int) count)) {
+
+                        roles.add(roleRestClient.read(roleId));
+                    }
+                }
+
+                return roles.iterator();
+            }
+
+            @Override
+            public long size() {
+                return policyTO.getId() == 0
+                        ? 0
+                        : policyRestClient.getPolicy(policyTO.getId()).
+                        getUsedByRoles().size();
+            }
+
+            @Override
+            public IModel<RoleTO> model(final RoleTO object) {
+                return new Model<RoleTO>(object);
+            }
+        };
+        final AjaxFallbackDefaultDataTable<RoleTO, String> roles =
+                new AjaxFallbackDefaultDataTable<RoleTO, String>("roles", roleColumns, roleDataProvider, 10);
+        form.add(roles);
+        mwindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                target.add(resources);
+                target.add(roles);
+                if (isModalResult()) {
+                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(feedbackPanel);
+                    setModalResult(false);
+                }
+            }
+        });
 
         final AjaxButton submit = new IndicatingAjaxButton(APPLY, new ResourceModel(APPLY)) {
 
@@ -182,7 +395,6 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
     }
 
     private void setPolicySpecification(final AbstractPolicyTO policyTO, final AbstractPolicySpec specification) {
-
         switch (policyTO.getType()) {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:

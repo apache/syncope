@@ -241,17 +241,16 @@ public class Resources extends BasePage {
             @Override
             public void populateItem(final Item<ICellPopulator<ResourceTO>> cellItem, final String componentId,
                     final IModel<ResourceTO> model) {
+
                 final ResourceTO resourceTO = model.getObject();
 
                 final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
-
                 panel.add(new ActionLink() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-
                         statusmodal.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = -7834632442532690940L;
@@ -302,9 +301,8 @@ public class Resources extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                ResourceModalPage form = new ResourceModalPage(Resources.this.getPageReference(),
+                                return new ResourceModalPage(Resources.this.getPageReference(),
                                         editResourceWin, resourceTO, false);
-                                return form;
                             }
                         });
 
@@ -319,7 +317,6 @@ public class Resources extends BasePage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-
                             resourceRestClient.delete(resourceTO.getName());
                             info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientException e) {

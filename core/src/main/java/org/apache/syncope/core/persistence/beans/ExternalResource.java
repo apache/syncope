@@ -72,7 +72,7 @@ public class ExternalResource extends AbstractSysInfo {
     /**
      * The resource type is identified by the associated connector.
      */
-    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE })
     @NotNull
     private ConnInstance connector;
 

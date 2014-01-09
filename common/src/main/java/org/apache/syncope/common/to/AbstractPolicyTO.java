@@ -18,7 +18,13 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
@@ -39,6 +45,10 @@ public abstract class AbstractPolicyTO extends AbstractBaseBean {
     private String description;
 
     private PolicyType type;
+
+    private final List<String> usedByResources = new ArrayList<String>();
+
+    private final List<Long> usedByRoles = new ArrayList<Long>();
 
     public long getId() {
         return id;
@@ -63,4 +73,19 @@ public abstract class AbstractPolicyTO extends AbstractBaseBean {
     public void setType(final PolicyType type) {
         this.type = type;
     }
+
+    @XmlElementWrapper(name = "usedByResources")
+    @XmlElement(name = "resource")
+    @JsonProperty("usedByResources")
+    public List<String> getUsedByResources() {
+        return usedByResources;
+    }
+
+    @XmlElementWrapper(name = "usedByRoles")
+    @XmlElement(name = "role")
+    @JsonProperty("usedByRoles")
+    public List<Long> getUsedByRoles() {
+        return usedByRoles;
+    }
+
 }

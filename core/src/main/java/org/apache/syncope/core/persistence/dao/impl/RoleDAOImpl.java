@@ -18,14 +18,17 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrTemplate;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
@@ -34,6 +37,7 @@ import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.membership.MAttr;
 import org.apache.syncope.core.persistence.beans.membership.MAttrTemplate;
 import org.apache.syncope.core.persistence.beans.membership.MDerAttr;
@@ -203,6 +207,77 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
         return query.getResultList();
     }
 
+    private Map.Entry<String, String> getPolicyFields(final PolicyType type) {
+        String policyField;
+        String inheritPolicyField;
+        if (type == PolicyType.GLOBAL_ACCOUNT || type == PolicyType.ACCOUNT) {
+            policyField = "accountPolicy";
+            inheritPolicyField = "inheritAccountPolicy";
+        } else {
+            policyField = "passwordPolicy";
+            inheritPolicyField = "inheritPasswordPolicy";
+        }
+
+        return new AbstractMap.SimpleEntry<String, String>(policyField, inheritPolicyField);
+    }
+
+    private List<SyncopeRole> findSamePolicyChildren(final SyncopeRole role, final PolicyType type) {
+        List<SyncopeRole> result = new ArrayList<SyncopeRole>();
+
+        for (SyncopeRole child : findChildren(role)) {
+            boolean inherit = type == PolicyType.GLOBAL_ACCOUNT || type == PolicyType.ACCOUNT
+                    ? child.isInheritAccountPolicy()
+                    : child.isInheritPasswordPolicy();
+            if (inherit) {
+                result.add(child);
+                result.addAll(findSamePolicyChildren(child, type));
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<SyncopeRole> findByPolicy(final Policy policy) {
+        if (policy.getType() == PolicyType.GLOBAL_SYNC || policy.getType() == PolicyType.SYNC) {
+            return Collections.<SyncopeRole>emptyList();
+        }
+
+        Map.Entry<String, String> policyFields = getPolicyFields(policy.getType());
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
+                append(SyncopeRole.class.getSimpleName()).append(" e WHERE e.").
+                append(policyFields.getKey()).append(" = :policy AND (e.").
+                append(policyFields.getValue()).append(" IS NULL OR e.").
+                append(policyFields.getValue()).append(" = 0)");
+
+        TypedQuery<SyncopeRole> query = entityManager.createQuery(queryString.toString(), SyncopeRole.class);
+        query.setParameter("policy", policy);
+
+        List<SyncopeRole> result = new ArrayList<SyncopeRole>();
+        for (SyncopeRole role : query.getResultList()) {
+            result.add(role);
+            result.addAll(findSamePolicyChildren(role, policy.getType()));
+        }
+        return result;
+    }
+
+    @Override
+    public List<SyncopeRole> findWithoutPolicy(final PolicyType type) {
+        if (type == PolicyType.GLOBAL_SYNC || type == PolicyType.SYNC) {
+            return Collections.<SyncopeRole>emptyList();
+        }
+
+        Map.Entry<String, String> policyFields = getPolicyFields(type);
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
+                append(SyncopeRole.class.getSimpleName()).append(" e WHERE e.").
+                append(policyFields.getKey()).append(" IS NULL AND (e.").
+                append(policyFields.getValue()).append(" IS NULL OR e.").
+                append(policyFields.getValue()).append(" = 0)");
+
+        TypedQuery<SyncopeRole> query = entityManager.createQuery(queryString.toString(), SyncopeRole.class);
+        return query.getResultList();
+    }
+
     private void findAncestors(final List<SyncopeRole> result, final SyncopeRole role) {
         if (role.getParent() != null && !result.contains(role.getParent())) {
             result.add(role.getParent());
@@ -219,8 +294,8 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
 
     @Override
     public List<SyncopeRole> findChildren(final SyncopeRole role) {
-        TypedQuery<SyncopeRole> query = entityManager.createQuery("SELECT r FROM SyncopeRole r WHERE "
-                + "r.parent=:role", SyncopeRole.class);
+        TypedQuery<SyncopeRole> query =
+                entityManager.createQuery("SELECT r FROM SyncopeRole r WHERE r.parent=:role", SyncopeRole.class);
         query.setParameter("role", role);
 
         return query.getResultList();
@@ -300,9 +375,9 @@ public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO 
 
     @Override
     public List<Membership> findMemberships(final SyncopeRole role) {
-        TypedQuery<Membership> query = entityManager.createQuery(
-                "SELECT e FROM " + Membership.class.getSimpleName() + " e" + " WHERE e.syncopeRole=:role",
-                Membership.class);
+        TypedQuery<Membership> query =
+                entityManager.createQuery("SELECT e FROM " + Membership.class.getSimpleName() + " e"
+                        + " WHERE e.syncopeRole=:role", Membership.class);
         query.setParameter("role", role);
 
         return query.getResultList();

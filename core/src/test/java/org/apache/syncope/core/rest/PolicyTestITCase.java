@@ -21,8 +21,10 @@ package org.apache.syncope.core.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
@@ -61,10 +63,37 @@ public class PolicyTestITCase extends AbstractTest {
     }
 
     @Test
-    public void read() {
+    public void getAccountPolicy() {
+        AccountPolicyTO policyTO = policyService.read(6L);
+
+        assertNotNull(policyTO);
+        assertTrue(policyTO.getUsedByResources().isEmpty());
+        assertEquals(Arrays.asList(6L, 7L, 10L, 14L), policyTO.getUsedByRoles());
+    }
+
+    @Test
+    public void getPasswordPolicy() {
+        PasswordPolicyTO policyTO = policyService.read(4L);
+
+        assertNotNull(policyTO);
+        assertTrue(policyTO.getUsedByResources().contains(RESOURCE_NAME_NOPROPAGATION));
+        assertEquals(Arrays.asList(6L, 7L, 10L, 8L), policyTO.getUsedByRoles());
+    }
+
+    @Test
+    public void getSyncPolicy() {
         SyncPolicyTO policyTO = policyService.read(1L);
 
         assertNotNull(policyTO);
+        assertTrue(policyTO.getUsedByRoles().isEmpty());
+    }
+
+    @Test
+    public void getGlobalAccountPolicy() {
+        AccountPolicyTO policyTO = policyService.readGlobal(PolicyType.ACCOUNT);
+
+        assertNotNull(policyTO);
+        assertEquals(PolicyType.GLOBAL_ACCOUNT, policyTO.getType());
     }
 
     @Test
@@ -74,14 +103,18 @@ public class PolicyTestITCase extends AbstractTest {
         assertNotNull(policyTO);
         assertEquals(PolicyType.GLOBAL_PASSWORD, policyTO.getType());
         assertEquals(8, policyTO.getSpecification().getMinLength());
+        assertFalse(policyTO.getUsedByResources().contains(RESOURCE_NAME_NOPROPAGATION));
     }
 
     @Test
-    public void getGlobalAccountPolicy() {
-        AccountPolicyTO policyTO = policyService.readGlobal(PolicyType.ACCOUNT);
+    public void getGlobalSyncPolicy() {
+        SyncPolicyTO policyTO = policyService.readGlobal(PolicyType.SYNC);
 
         assertNotNull(policyTO);
-        assertEquals(PolicyType.GLOBAL_ACCOUNT, policyTO.getType());
+        assertEquals(PolicyType.GLOBAL_SYNC, policyTO.getType());
+        assertFalse(policyTO.getUsedByResources().contains(RESOURCE_NAME_CSV));
+        assertFalse(policyTO.getUsedByResources().contains(RESOURCE_NAME_WS2));
+        assertTrue(policyTO.getUsedByRoles().isEmpty());
     }
 
     @Test

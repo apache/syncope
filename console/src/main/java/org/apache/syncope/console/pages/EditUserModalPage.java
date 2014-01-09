@@ -19,6 +19,7 @@
 package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.AttributableOperations;
@@ -51,7 +52,7 @@ public class EditUserModalPage extends UserModalPage {
     public EditUserModalPage(final PageReference pageRef, final ModalWindow window, final UserTO userTO) {
         super(pageRef, window, userTO, Mode.ADMIN, true);
 
-        this.initialUserTO = AttributableOperations.clone(userTO);
+        this.initialUserTO = SerializationUtils.clone(userTO);
 
         form = setupEditPanel();
 

@@ -47,11 +47,7 @@ import org.apache.syncope.common.to.UserTO;
 public final class AttributableOperations {
 
     private AttributableOperations() {
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends AbstractAttributableTO> T clone(final T original) {
-        return (T) SerializationUtils.clone(original);
+        // empty constructor for static utility classes
     }
 
     private static void populate(final Map<String, AttributeTO> updatedAttrs,
@@ -464,7 +460,7 @@ public final class AttributableOperations {
             throw new IllegalArgumentException("UserTO and UserMod ids must be the same");
         }
 
-        UserTO result = clone(userTO);
+        UserTO result = SerializationUtils.clone(userTO);
         apply(userTO, userMod, result);
 
         // 1. password

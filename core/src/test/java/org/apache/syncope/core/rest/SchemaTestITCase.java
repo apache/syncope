@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import java.security.AccessControlException;
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.SerializationUtils;
 
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.SchemaService;
@@ -210,7 +211,7 @@ public class SchemaTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserTO newUserTO = AttributableOperations.clone(userTO);
+        UserTO newUserTO = SerializationUtils.clone(userTO);
         MembershipTO membership = new MembershipTO();
         membership.setRoleId(2L);
         newUserTO.getMemberships().add(membership);

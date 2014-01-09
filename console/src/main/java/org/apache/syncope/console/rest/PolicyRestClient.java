@@ -44,6 +44,16 @@ public class PolicyRestClient extends BaseRestClient {
         return policy;
     }
 
+    public <T extends AbstractPolicyTO> T getPolicy(final Long id) {
+        T policy = null;
+        try {
+            policy = getService(PolicyService.class).read(id);
+        } catch (Exception e) {
+            LOG.warn("No policy found for id {}", id, e);
+        }
+        return policy;
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends AbstractPolicyTO> List<T> getPolicies(final PolicyType type, final boolean includeGlobal) {
         final List<T> res = new ArrayList<T>();

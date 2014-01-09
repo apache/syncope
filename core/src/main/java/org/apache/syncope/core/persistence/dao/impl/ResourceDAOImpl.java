@@ -24,9 +24,11 @@ import java.util.Set;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.beans.AbstractMapping;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
@@ -58,7 +60,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
 
     @Override
     public ExternalResource find(final String name) {
-        TypedQuery<ExternalResource> query = entityManager.createQuery("SELECT e " + "FROM "
+        TypedQuery<ExternalResource> query = entityManager.createQuery("SELECT e FROM "
                 + ExternalResource.class.getSimpleName() + " e " + "WHERE e.name = :name", ExternalResource.class);
         query.setParameter("name", name);
 
@@ -72,19 +74,58 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
         return result;
     }
 
+    private StringBuilder getByPolicyQuery(final PolicyType type) {
+        StringBuilder query = new StringBuilder("SELECT e FROM ").append(ExternalResource.class.getSimpleName()).
+                append(" e WHERE e.");
+        switch (type) {
+            case ACCOUNT:
+            case GLOBAL_ACCOUNT:
+                query.append("accountPolicy");
+                break;
+
+            case PASSWORD:
+            case GLOBAL_PASSWORD:
+                query.append("passwordPolicy");
+                break;
+
+            case SYNC:
+            case GLOBAL_SYNC:
+                query.append("syncPolicy");
+                break;
+
+            default:
+                break;
+        }
+        return query;
+    }
+
+    @Override
+    public List<ExternalResource> findByPolicy(final Policy policy) {
+        TypedQuery<ExternalResource> query = entityManager.createQuery(
+                getByPolicyQuery(policy.getType()).append(" = :policy").toString(), ExternalResource.class);
+        query.setParameter("policy", policy);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<ExternalResource> findWithoutPolicy(final PolicyType type) {
+        TypedQuery<ExternalResource> query = entityManager.createQuery(
+                getByPolicyQuery(type).append(" IS NULL").toString(), ExternalResource.class);
+        return query.getResultList();
+    }
+
     @Override
     public List<ExternalResource> findAll() {
-        TypedQuery<ExternalResource> query =
-                entityManager.createQuery("SELECT e " + "FROM  " + ExternalResource.class.getSimpleName() + " e",
-                ExternalResource.class);
+        TypedQuery<ExternalResource> query = entityManager.createQuery(
+                "SELECT e FROM  " + ExternalResource.class.getSimpleName() + " e", ExternalResource.class);
         return query.getResultList();
     }
 
     @Override
     public List<ExternalResource> findAllByPriority() {
-        TypedQuery<ExternalResource> query =
-                entityManager.createQuery("SELECT e " + "FROM  " + ExternalResource.class.getSimpleName() + " e "
-                + "ORDER BY e.propagationPriority", ExternalResource.class);
+        TypedQuery<ExternalResource> query = entityManager.createQuery(
+                "SELECT e FROM  " + ExternalResource.class.getSimpleName() + " e ORDER BY e.propagationPriority",
+                ExternalResource.class);
         return query.getResultList();
     }
 
@@ -97,7 +138,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
      * @return the same entity, updated
      */
     @Override
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(rollbackFor = { Throwable.class })
     public ExternalResource save(final ExternalResource resource) {
         ExternalResource merged = entityManager.merge(resource);
         try {

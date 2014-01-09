@@ -21,13 +21,19 @@ package org.apache.syncope.core.persistence.dao;
 import java.util.List;
 
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 public interface ResourceDAO extends DAO {
 
     ExternalResource find(String name);
+
+    List<ExternalResource> findByPolicy(Policy policy);
+
+    List<ExternalResource> findWithoutPolicy(PolicyType type);
 
     List<ExternalResource> findAll();
 

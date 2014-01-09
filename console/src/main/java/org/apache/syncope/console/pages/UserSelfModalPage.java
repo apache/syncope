@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.AttributableOperations;
@@ -43,7 +44,7 @@ public class UserSelfModalPage extends UserModalPage {
     public UserSelfModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO) {
         super(callerPageRef, window, userTO, Mode.SELF, userTO.getId() != 0);
 
-        this.initialUserTO = AttributableOperations.clone(userTO);
+        this.initialUserTO = SerializationUtils.clone(userTO);
         setupEditPanel();
     }
 
