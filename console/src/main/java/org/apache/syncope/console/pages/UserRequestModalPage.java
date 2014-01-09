@@ -47,7 +47,7 @@ public class UserRequestModalPage extends UserModalPage {
     public UserRequestModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO,
             final Mode mode) {
 
-        super(callerPageRef, window, userTO, mode, false);
+        super(callerPageRef, window, userTO, mode, true);
 
         setupEditPanel();
     }

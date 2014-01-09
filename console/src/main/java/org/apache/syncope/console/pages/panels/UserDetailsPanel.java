@@ -113,7 +113,6 @@ public class UserDetailsPanel extends Panel {
 
             @Override
             public void onComponentTag(final Component component, final ComponentTag tag) {
-
                 if (userTO.getId() > 0) {
                     tag.put("style", "display:none;");
                 }

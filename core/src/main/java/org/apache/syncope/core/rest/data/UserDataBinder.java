@@ -75,6 +75,15 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     @Resource(name = "adminUser")
     private String adminUser;
 
+    private void checkPermissions(final SyncopeUser user) {
+        Set<Long> roleIds = user.getRoleIds();
+        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
+        roleIds.removeAll(adminRoleIds);
+        if (!roleIds.isEmpty()) {
+            throw new UnauthorizedRoleException(roleIds);
+        }
+    }
+
     @Transactional(readOnly = true)
     public SyncopeUser getUserFromId(final Long userId) {
         if (userId == null) {
@@ -87,12 +96,25 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
 
         if (!user.getUsername().equals(EntitlementUtil.getAuthenticatedUsername())) {
-            Set<Long> roleIds = user.getRoleIds();
-            Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-            roleIds.removeAll(adminRoleIds);
-            if (!roleIds.isEmpty()) {
-                throw new UnauthorizedRoleException(roleIds);
-            }
+            checkPermissions(user);
+        }
+
+        return user;
+    }
+
+    @Transactional(readOnly = true)
+    public SyncopeUser getUserFromUsername(final String username) {
+        if (username == null) {
+            throw new NotFoundException("Null username");
+        }
+
+        SyncopeUser user = userDAO.find(username);
+        if (user == null) {
+            throw new NotFoundException("User " + username);
+        }
+
+        if (!username.equals(EntitlementUtil.getAuthenticatedUsername())) {
+            checkPermissions(user);
         }
 
         return user;
@@ -123,28 +145,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     @Transactional(readOnly = true)
     public boolean verifyPassword(final SyncopeUser user, final String password) {
         return PasswordEncoder.verify(password, user.getCipherAlgorithm(), user.getPassword());
-    }
-
-    @Transactional(readOnly = true)
-    public SyncopeUser getUserFromUsername(final String username) {
-        if (username == null) {
-            throw new NotFoundException("Null username");
-        }
-
-        SyncopeUser user = userDAO.find(username);
-        if (user == null) {
-            throw new NotFoundException("User " + username);
-        }
-
-        Set<Long> roleIds = user.getRoleIds();
-        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-        roleIds.removeAll(adminRoleIds);
-
-        if (!roleIds.isEmpty()) {
-            throw new UnauthorizedRoleException(roleIds);
-        }
-
-        return user;
     }
 
     /**
