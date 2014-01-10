@@ -305,7 +305,7 @@ under the License.
     <connid.ad.version>1.1.2</connid.ad.version>
 
     <commons-jexl.version>2.1.1</commons-jexl.version>
-    <commons-lang.version>3.2</commons-lang.version>
+    <commons-lang.version>3.2.1</commons-lang.version>
 
     <activiti.version>5.14</activiti.version>
     
@@ -314,7 +314,7 @@ under the License.
     <cxf.version>3.0.0-SNAPSHOT</cxf.version>	
     <spring.version>3.2.6.RELEASE</spring.version>
     <spring-security.version>3.1.4.RELEASE</spring-security.version>
-    <jackson.version>2.2.3</jackson.version>
+    <jackson.version>2.3.1</jackson.version>
     <xstream.version>1.4.6</xstream.version>
     <velocity.version>1.7</velocity.version>
     <quartz.version>2.2.1</quartz.version>
