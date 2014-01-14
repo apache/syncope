@@ -248,6 +248,17 @@ under the License.
       <url>http://www.liquid-reality.de/</url>
       <email>chris@die-schneider.net</email>
     </developer>
+    <developer>
+      <id>gwimmel</id>
+      <name>Guido Wimmel</name>
+      <organization>Stadtwerke München Services GmbH</organization>
+      <organizationUrl>http://www.swm.de/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <url>http://people.apache.org/~gwimmel/</url>
+      <email>gwimmel@apache.org</email>
+    </developer>
   </developers>
 
   <contributors>
@@ -276,12 +287,6 @@ under the License.
       <email>andrea.patricelli@tirasa.net</email>
       <organization>Tirasa</organization>
       <organizationUrl>http://www.tirasa.net/</organizationUrl>
-    </contributor>
-    <contributor>
-      <name>Guido Wimmel</name>
-      <email>guido.wimmel at gmx.net</email>
-      <organization>Stadtwerke München Services GmbH</organization>
-      <organizationUrl>http://www.swm.de/</organizationUrl>
     </contributor>
   </contributors>
 
