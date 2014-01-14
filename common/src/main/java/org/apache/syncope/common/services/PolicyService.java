@@ -96,8 +96,7 @@ public interface PolicyService extends JAXRSService {
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created policy
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring <tt>Location</tt> header of created policy")
+        @Description(target = DocTarget.RESPONSE, value = "Featuring <tt>Location</tt> header of created policy")
     })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

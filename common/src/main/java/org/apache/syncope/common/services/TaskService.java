@@ -172,8 +172,7 @@ public interface TaskService extends JAXRSService {
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created task
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring <tt>Location</tt> header of created task")
+        @Description(target = DocTarget.RESPONSE, value = "Featuring <tt>Location</tt> header of created task")
     })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

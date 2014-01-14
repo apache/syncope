@@ -98,8 +98,7 @@ public interface ConfigurationService extends JAXRSService {
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created configuration
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring <tt>Location</tt> header of created configuration")
+        @Description(target = DocTarget.RESPONSE, value = "Featuring <tt>Location</tt> header of created configuration")
     })
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

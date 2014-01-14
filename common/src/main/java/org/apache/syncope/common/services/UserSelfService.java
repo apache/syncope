@@ -47,9 +47,8 @@ public interface UserSelfService extends JAXRSService {
      * @see org.apache.syncope.common.types.RESTHeaders#SELFREGISTRATION_ALLOWED
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> contains special Syncope HTTP header indicating if user self registration "
-                + "is allowed")
+        @Description(target = DocTarget.RESPONSE,
+                value = "Contains special Syncope HTTP header indicating if user self registration is allowed")
     })
     @OPTIONS
     Response getOptions();
@@ -71,8 +70,8 @@ public interface UserSelfService extends JAXRSService {
      * itself - {@link UserTO} as <tt>Entity</tt>
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring <tt>Location</tt> header of self-registered user as well "
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring <tt>Location</tt> header of self-registered user as well "
                 + "as the user itself - {@link UserTO} as <tt>Entity</tt>")
     })
     @POST
@@ -88,8 +87,8 @@ public interface UserSelfService extends JAXRSService {
      * @return <tt>Response</tt> object featuring the updated user - {@link UserTO} as <tt>Entity</tt>
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring the updated user - <tt>UserTO</tt> as <tt>Entity</tt>")
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring the updated user - <tt>UserTO</tt> as <tt>Entity</tt>")
     })
     @POST
     @Path("{userId}")
@@ -103,8 +102,8 @@ public interface UserSelfService extends JAXRSService {
      * @return <tt>Response</tt> object featuring the deleted user - {@link UserTO} as <tt>Entity</tt>
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring the deleted user - <tt>UserTO</tt> as <tt>Entity</tt>")
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring the deleted user - <tt>UserTO</tt> as <tt>Entity</tt>")
     })
     @DELETE
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

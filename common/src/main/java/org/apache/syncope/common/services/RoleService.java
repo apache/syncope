@@ -207,8 +207,8 @@ public interface RoleService extends JAXRSService {
      * enriched with propagation status information - {@link RoleTO} as <tt>Entity</tt>
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring <tt>Location</tt> header of created role as well as the "
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring <tt>Location</tt> header of created role as well as the "
                 + "role itself enriched with propagation status information - <tt>RoleTO</tt> as <tt>Entity</tt>")
     })
     @POST
@@ -225,9 +225,9 @@ public interface RoleService extends JAXRSService {
      * - {@link RoleTO} as <tt>Entity</tt>
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring the updated role enriched with propagation status "
-                + "information - <tt>RoleTO</tt> as <tt>Entity</tt>")
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring the updated role enriched with propagation status information - "
+                + "<tt>RoleTO</tt> as <tt>Entity</tt>")
     })
     @POST
     @Path("{roleId}")
@@ -243,9 +243,9 @@ public interface RoleService extends JAXRSService {
      * - {@link RoleTO} as <tt>Entity</tt>
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring the deleted role enriched with propagation status "
-                + "information - <tt>RoleTO</tt> as <tt>Entity</tt>")
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring the deleted role enriched with propagation status information - "
+                + "<tt>RoleTO</tt> as <tt>Entity</tt>")
     })
     @DELETE
     @Path("{roleId}")
@@ -263,8 +263,8 @@ public interface RoleService extends JAXRSService {
      * {@link org.apache.syncope.common.reqres.BulkActionResult} as <tt>Entity</tt>
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
     })
     @POST
     @Path("{roleId}/deassociate/{type}")
@@ -283,8 +283,8 @@ public interface RoleService extends JAXRSService {
      * as <tt>Entity</tt>
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
     })
     @POST
     @Path("{roleId}/associate/{type}")

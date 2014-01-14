@@ -141,8 +141,8 @@ public interface ConnectorService extends JAXRSService {
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created connector instance
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring <tt>Location</tt> header of created connector instance")
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring <tt>Location</tt> header of created connector instance")
     })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

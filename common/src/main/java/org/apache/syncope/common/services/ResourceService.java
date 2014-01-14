@@ -110,8 +110,8 @@ public interface ResourceService extends JAXRSService {
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created resource
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring <tt>Location</tt> header of created resource")
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring <tt>Location</tt> header of created resource")
     })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -159,8 +159,8 @@ public interface ResourceService extends JAXRSService {
      * @return <tt>Response</tt> object featuring {@link BulkActionResult} as <tt>Entity</tt>
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
     })
     @POST
     @Path("{resourceName}/bulkDeassociation/{attrType}/{type}")

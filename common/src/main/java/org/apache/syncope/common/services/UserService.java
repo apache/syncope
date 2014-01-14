@@ -59,8 +59,8 @@ public interface UserService extends JAXRSService {
      * @return <tt>Response</tt> object featuring HTTP header with username matching the given userId
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring HTTP header with username matching the given userId")
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring HTTP header with username matching the given userId")
     })
     @OPTIONS
     @Path("{userId}/username")
@@ -73,8 +73,8 @@ public interface UserService extends JAXRSService {
      * @return <tt>Response</tt> object featuring HTTP header with userId matching the given username
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring HTTP header with userId matching the given username")
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring HTTP header with userId matching the given username")
     })
     @OPTIONS
     @Path("{username}/userId")
@@ -201,8 +201,8 @@ public interface UserService extends JAXRSService {
      * enriched with propagation status information - {@link UserTO} as <tt>Entity</tt>
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring <tt>Location</tt> header of created user as well as the "
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring <tt>Location</tt> header of created user as well as the "
                 + "user itself enriched with propagation status information - <tt>UserTO</tt> as <tt>Entity</tt>")
     })
     @POST
@@ -219,9 +219,9 @@ public interface UserService extends JAXRSService {
      * - {@link UserTO} as <tt>Entity</tt>
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring the updated user enriched with propagation status "
-                + "information - <tt>UserTO</tt> as <tt>Entity</tt>")
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring the updated user enriched with propagation status information - "
+                + "<tt>UserTO</tt> as <tt>Entity</tt>")
     })
     @POST
     @Path("{userId}")
@@ -238,9 +238,9 @@ public interface UserService extends JAXRSService {
      * - {@link UserTO} as <tt>Entity</tt>
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring the updated user enriched with propagation status "
-                + "information - <tt>UserTO</tt> as <tt>Entity</tt>")
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring the updated user enriched with propagation status information - "
+                + "<tt>UserTO</tt> as <tt>Entity</tt>")
     })
     @POST
     @Path("{userId}/status")
@@ -256,9 +256,9 @@ public interface UserService extends JAXRSService {
      * - {@link UserTO} as <tt>Entity</tt>
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring the deleted user enriched with propagation status "
-                + "information - <tt>UserTO</tt> as <tt>Entity</tt>")
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring the deleted user enriched with propagation status information - "
+                + "<tt>UserTO</tt> as <tt>Entity</tt>")
     })
     @DELETE
     @Path("{userId}")
@@ -274,8 +274,8 @@ public interface UserService extends JAXRSService {
      * @return <tt>Response</tt> object featuring {@link BulkActionResult} as <tt>Entity</tt>
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
     })
     @POST
     @Path("{userId}/bulkDeassociation/{type}")
@@ -293,8 +293,7 @@ public interface UserService extends JAXRSService {
      * @return <tt>Response</tt> object featuring {@link BulkActionResult} as <tt>Entity</tt>
      */
     @Descriptions({
-        @Description(target = DocTarget.RETURN,
-                value = "<tt>Response</tt> object featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
+        @Description(target = DocTarget.RESPONSE, value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
     })
     @POST
     @Path("{userId}/bulkAssociation/{type}")
