@@ -21,6 +21,7 @@ package org.apache.syncope.console.pages;
 import java.security.AccessControlException;
 import java.util.List;
 import java.util.Locale;
+import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.services.EntitlementService;
 import org.apache.syncope.common.wrap.EntitlementTO;
 import org.apache.syncope.common.to.UserTO;
@@ -137,39 +138,40 @@ public class Login extends WebPage {
         if (userSelfRestClient.isSelfRegistrationAllowed()) {
             selfRegFrag = new Fragment("selfRegistration", "selfRegAllowed", this);
 
-            final AjaxLink<Void> selfRegLink = new ClearIndicatingAjaxLink<Void>("link", getPageReference()) {
+            final AjaxLink<Void> selfRegLink = new ClearIndicatingAjaxLink<Void>("link",
+                    PageUtils.getPageReference(getPage())) {
 
-                private static final long serialVersionUID = -7978723352517770644L;
-
-                @Override
-                protected void onClickInternal(final AjaxRequestTarget target) {
-                    editProfileModalWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                        private static final long serialVersionUID = -7834632442532690940L;
+                        private static final long serialVersionUID = -7978723352517770644L;
 
                         @Override
-                        public Page createPage() {
-                            // anonymous authentication needed for self-registration
-                            authenticate(anonymousUser, anonymousKey);
+                        protected void onClickInternal(final AjaxRequestTarget target) {
+                            editProfileModalWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                            return new UserSelfModalPage(
-                                    Login.this.getPageReference(), editProfileModalWin, new UserTO());
+                                private static final long serialVersionUID = -7834632442532690940L;
+
+                                @Override
+                                public Page createPage() {
+                                    // anonymous authentication needed for self-registration
+                                    authenticate(anonymousUser, anonymousKey);
+
+                                    return new UserSelfModalPage(
+                                            PageUtils.getPageReference(Login.this), editProfileModalWin, new UserTO());
+                                }
+                            });
+
+                            editProfileModalWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+                                private static final long serialVersionUID = 251794406325329768L;
+
+                                @Override
+                                public void onClose(final AjaxRequestTarget target) {
+                                    SyncopeSession.get().invalidate();
+                                }
+                            });
+
+                            editProfileModalWin.show(target);
                         }
-                    });
-
-                    editProfileModalWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-                        private static final long serialVersionUID = 251794406325329768L;
-
-                        @Override
-                        public void onClose(final AjaxRequestTarget target) {
-                            SyncopeSession.get().invalidate();
-                        }
-                    });
-
-                    editProfileModalWin.show(target);
-                }
-            };
+                    };
             selfRegLink.add(new Label("linkTitle", getString("selfRegistration")));
 
             Panel panel = new LinkPanel("selfRegistration", new ResourceModel("selfRegistration"));

@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
@@ -54,12 +55,12 @@ public class Tasks extends BasePage {
     public Tasks() {
         super();
 
-        add(new PropagationTasks("propagation", getPageReference()));
-        add(new NotificationTasks("notification", getPageReference()));
-        add(new SchedTasks("sched", getPageReference()));
-        add(new SyncTasks("sync", getPageReference()));
+        add(new PropagationTasks("propagation", PageUtils.getPageReference(getPage())));
+        add(new NotificationTasks("notification", PageUtils.getPageReference(getPage())));
+        add(new SchedTasks("sched", PageUtils.getPageReference(getPage())));
+        add(new SyncTasks("sync", PageUtils.getPageReference(getPage())));
 
-        getPageReference();
+        PageUtils.getPageReference(getPage());
     }
 
     @Override

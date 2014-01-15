@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.NotificationTaskTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.SchedTaskTO;
@@ -117,7 +118,8 @@ public abstract class TaskModalPage extends BaseModalPage {
 
                 final TaskExecTO taskExecutionTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model,
+                        PageUtils.getPageReference(getPage()));
 
                 panel.add(new ActionLink() {
 
@@ -164,7 +166,8 @@ public abstract class TaskModalPage extends BaseModalPage {
 
             @Override
             public Component getHeader(final String componentId) {
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(), getPageReference());
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(),
+                        PageUtils.getPageReference(getPage()));
 
                 panel.add(new ActionLink() {
 
@@ -175,7 +178,7 @@ public abstract class TaskModalPage extends BaseModalPage {
                         if (target != null) {
                             final AjaxFallbackDefaultDataTable<TaskExecTO, String> currentTable =
                                     new AjaxFallbackDefaultDataTable<TaskExecTO, String>("executionsTable", columns,
-                                    new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
+                                            new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
                             currentTable.setOutputMarkupId(true);
                             target.add(currentTable);
                             executions.addOrReplace(currentTable);
