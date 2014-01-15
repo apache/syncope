@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -101,7 +102,7 @@ public class RoleDetailsPanel extends Panel {
 
                         @Override
                         public Page createPage() {
-                            return new RoleSelectModalPage(getPage().getPageReference(), parentSelectWin,
+                            return new RoleSelectModalPage(PageUtils.getPageReference(getPage()), parentSelectWin,
                                     ParentSelectPayload.class);
                         }
                     });
@@ -158,7 +159,7 @@ public class RoleDetailsPanel extends Panel {
 
                     @Override
                     public Page createPage() {
-                        return new UserOwnerSelectModalPage(getPage().getPageReference(), userOwnerSelectWin);
+                        return new UserOwnerSelectModalPage(PageUtils.getPageReference(getPage()), userOwnerSelectWin);
                     }
                 });
                 userOwnerSelectWin.show(target);
@@ -194,7 +195,7 @@ public class RoleDetailsPanel extends Panel {
 
                     @Override
                     public Page createPage() {
-                        return new RoleSelectModalPage(getPage().getPageReference(), parentSelectWin,
+                        return new RoleSelectModalPage(PageUtils.getPageReference(getPage()), parentSelectWin,
                                 RoleOwnerSelectPayload.class);
                     }
                 });

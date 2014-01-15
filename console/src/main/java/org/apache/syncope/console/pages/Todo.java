@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.UserRequestTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.UserRequestType;
@@ -132,7 +133,8 @@ public class Todo extends BasePage {
 
                 final WorkflowFormTO formTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model,
+                        PageUtils.getPageReference(getPage()));
 
                 panel.add(new ActionLink() {
 
@@ -163,7 +165,8 @@ public class Todo extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                return new ApprovalModalPage(Todo.this.getPageReference(), editApprovalWin, formTO);
+                                return new ApprovalModalPage(PageUtils.getPageReference(Todo.this),
+                                        editApprovalWin, formTO);
                             }
                         });
 
@@ -244,7 +247,8 @@ public class Todo extends BasePage {
 
                 final UserRequestTO request = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model,
+                        PageUtils.getPageReference(getPage()));
 
                 panel.add(new ActionLink() {
 
@@ -258,8 +262,8 @@ public class Todo extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                return new UserRequestModalPage(Todo.this.getPageReference(), editUserRequestWin,
-                                        model.getObject(), UserModalPage.Mode.ADMIN);
+                                return new UserRequestModalPage(PageUtils.getPageReference(Todo.this),
+                                        editUserRequestWin, model.getObject(), UserModalPage.Mode.ADMIN);
                             }
                         });
 
@@ -376,7 +380,7 @@ public class Todo extends BasePage {
 
             Collections.sort(list, comparator);
 
-            return list.subList((int)first, (int)first + (int)count).iterator();
+            return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
@@ -418,7 +422,7 @@ public class Todo extends BasePage {
 
             Collections.sort(list, comparator);
 
-            return list.subList((int)first, (int)first + (int)count).iterator();
+            return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override

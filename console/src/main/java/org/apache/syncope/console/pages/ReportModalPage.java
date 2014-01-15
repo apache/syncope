@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.report.AbstractReportletConf;
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.to.ReportExecTO;
@@ -115,7 +116,7 @@ public class ReportModalPage extends BaseModalPage {
         this.reportTO = reportTO;
 
         form = new Form<ReportTO>(FORM);
-        form.setModel(new CompoundPropertyModel(reportTO));
+        form.setModel(new CompoundPropertyModel<ReportTO>(reportTO));
         add(form);
 
         setupProfile();
@@ -126,7 +127,7 @@ public class ReportModalPage extends BaseModalPage {
         form.add(crontab);
 
         final AjaxButton submit =
-                new ClearIndicatingAjaxButton(APPLY, new ResourceModel(APPLY), getPageReference()) {
+                new ClearIndicatingAjaxButton(APPLY, new ResourceModel(APPLY), PageUtils.getPageReference(getPage())) {
 
                     private static final long serialVersionUID = -958724007591692537L;
 
@@ -170,8 +171,8 @@ public class ReportModalPage extends BaseModalPage {
 
         form.add(submit);
 
-        final AjaxButton cancel =
-                new ClearIndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL), getPageReference()) {
+        final AjaxButton cancel = new ClearIndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL),
+                PageUtils.getPageReference(getPage())) {
 
                     private static final long serialVersionUID = -958724007591692537L;
 
@@ -263,13 +264,13 @@ public class ReportModalPage extends BaseModalPage {
                     }
                 }) {
 
-            private static final long serialVersionUID = 4022366881854379834L;
+                    private static final long serialVersionUID = 4022366881854379834L;
 
-            @Override
-            protected CharSequence getDefaultChoice(String selectedValue) {
-                return null;
-            }
-        };
+                    @Override
+                    protected CharSequence getDefaultChoice(final String selectedValue) {
+                        return null;
+                    }
+                };
 
         reportlets.setNullValid(true);
         profile.add(reportlets);
@@ -283,7 +284,7 @@ public class ReportModalPage extends BaseModalPage {
             }
         });
 
-        profile.add(new AjaxLink(ADD_BUTTON_ID) {
+        profile.add(new AjaxLink<Void>(ADD_BUTTON_ID) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -298,14 +299,14 @@ public class ReportModalPage extends BaseModalPage {
                         modalReportletConfOldName = null;
                         modalReportletConf = null;
                         return new ReportletConfModalPage(null, reportletConfWin,
-                                ReportModalPage.this.getPageReference());
+                                PageUtils.getPageReference(ReportModalPage.this));
                     }
                 });
                 reportletConfWin.show(target);
             }
         });
 
-        profile.add(new AjaxLink(EDIT_BUTTON_ID) {
+        profile.add(new AjaxLink<Void>(EDIT_BUTTON_ID) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -322,7 +323,7 @@ public class ReportModalPage extends BaseModalPage {
                             modalReportletConfOldName = reportlets.getModelObject().getName();
                             modalReportletConf = null;
                             return new ReportletConfModalPage(reportlets.getModelObject(), reportletConfWin,
-                                    ReportModalPage.this.getPageReference());
+                                    PageUtils.getPageReference(ReportModalPage.this));
                         }
                     });
                     reportletConfWin.show(target);
@@ -332,7 +333,7 @@ public class ReportModalPage extends BaseModalPage {
             }
         });
 
-        profile.add(new AjaxLink(REMOVE_BUTTON_ID) {
+        profile.add(new AjaxLink<Void>(REMOVE_BUTTON_ID) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -345,7 +346,6 @@ public class ReportModalPage extends BaseModalPage {
 
             @Override
             protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
-
                 if (reportlets.getModelObject() != null) {
 
                     super.updateAjaxAttributes(attributes);
@@ -364,7 +364,7 @@ public class ReportModalPage extends BaseModalPage {
             }
         });
 
-        profile.add(new AjaxLink(UP_BUTTON_ID) {
+        profile.add(new AjaxLink<Void>(UP_BUTTON_ID) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -377,7 +377,7 @@ public class ReportModalPage extends BaseModalPage {
             }
         });
 
-        profile.add(new AjaxLink(DOWN_BUTTON_ID) {
+        profile.add(new AjaxLink<Void>(DOWN_BUTTON_ID) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -452,7 +452,8 @@ public class ReportModalPage extends BaseModalPage {
 
                 final ReportExecTO taskExecutionTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model,
+                        PageUtils.getPageReference(getPage()));
 
                 panel.add(new ActionLink() {
 
@@ -487,7 +488,7 @@ public class ReportModalPage extends BaseModalPage {
                             public Page createPage() {
                                 ReportModalPage.this.exportExecId = model.getObject().getId();
                                 return new ReportExecResultDownloadModalPage(reportExecExportWin,
-                                        ReportModalPage.this.getPageReference());
+                                        PageUtils.getPageReference(ReportModalPage.this));
                             }
                         });
                         reportExecExportWin.show(target);
@@ -521,7 +522,8 @@ public class ReportModalPage extends BaseModalPage {
 
             @Override
             public Component getHeader(final String componentId) {
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(), getPageReference());
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(),
+                        PageUtils.getPageReference(getPage()));
 
                 panel.add(new ActionLink() {
 
@@ -536,7 +538,7 @@ public class ReportModalPage extends BaseModalPage {
                             reportTO.setExecutions(currentReportTO.getExecutions());
                             final AjaxFallbackDefaultDataTable currentTable =
                                     new AjaxFallbackDefaultDataTable("executionsTable", columns,
-                                    new ReportExecutionsProvider(reportTO), 10);
+                                            new ReportExecutionsProvider(reportTO), 10);
                             currentTable.setOutputMarkupId(true);
                             target.add(currentTable);
                             executions.addOrReplace(currentTable);

@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.to.NotificationTO;
@@ -137,9 +138,9 @@ public class Configuration extends BasePage {
         add(editConfigWin = new ModalWindow("editConfigurationWin"));
         setupSyncopeConf();
 
-        add(new PoliciesPanel("passwordPoliciesPanel", getPageReference(), PolicyType.PASSWORD));
-        add(new PoliciesPanel("accountPoliciesPanel", getPageReference(), PolicyType.ACCOUNT));
-        add(new PoliciesPanel("syncPoliciesPanel", getPageReference(), PolicyType.SYNC));
+        add(new PoliciesPanel("passwordPoliciesPanel", PageUtils.getPageReference(getPage()), PolicyType.PASSWORD));
+        add(new PoliciesPanel("accountPoliciesPanel", PageUtils.getPageReference(getPage()), PolicyType.ACCOUNT));
+        add(new PoliciesPanel("syncPoliciesPanel", PageUtils.getPageReference(getPage()), PolicyType.SYNC));
 
         add(createNotificationWin = new ModalWindow("createNotificationWin"));
         add(editNotificationWin = new ModalWindow("editNotificationWin"));
@@ -156,27 +157,27 @@ public class Configuration extends BasePage {
                 new PropertyModel<WorkflowDefinitionTO>(workflowDef, "xmlDefinition"));
         wfForm.add(workflowDefArea);
 
-        AjaxButton submit =
-                new ClearIndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT)), getPageReference()) {
+        AjaxButton submit = new ClearIndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT)),
+                PageUtils.getPageReference(getPage())) {
 
-            private static final long serialVersionUID = -958724007591692537L;
+                    private static final long serialVersionUID = -958724007591692537L;
 
-            @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                try {
-                    wfRestClient.updateDefinition(workflowDef);
-                    info(getString(Constants.OPERATION_SUCCEEDED));
-                } catch (SyncopeClientCompositeErrorException scee) {
-                    error(getString(Constants.ERROR) + ":" + scee.getMessage());
-                }
-                target.add(feedbackPanel);
-            }
+                    @Override
+                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                        try {
+                            wfRestClient.updateDefinition(workflowDef);
+                            info(getString(Constants.OPERATION_SUCCEEDED));
+                        } catch (SyncopeClientCompositeErrorException scee) {
+                            error(getString(Constants.ERROR) + ":" + scee.getMessage());
+                        }
+                        target.add(feedbackPanel);
+                    }
 
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(feedbackPanel);
-            }
-        };
+                    @Override
+                    protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                        target.add(feedbackPanel);
+                    }
+                };
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Configuration",
                 "workflowDefUpdate"));
@@ -233,7 +234,8 @@ public class Configuration extends BasePage {
 
                 final ConfigurationTO configurationTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model,
+                        PageUtils.getPageReference(getPage()));
 
                 panel.add(new ActionLink() {
 
@@ -248,8 +250,8 @@ public class Configuration extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                return new ConfigurationModalPage(Configuration.this.getPageReference(), editConfigWin,
-                                        configurationTO, false);
+                                return new ConfigurationModalPage(PageUtils.getPageReference(Configuration.this),
+                                        editConfigWin, configurationTO, false);
                             }
                         });
 
@@ -284,7 +286,7 @@ public class Configuration extends BasePage {
 
         final AjaxFallbackDefaultDataTable<ConfigurationTO, String> confTable =
                 new AjaxFallbackDefaultDataTable<ConfigurationTO, String>(
-                "syncopeconf", confColumns, new SyncopeConfProvider(), confPaginatorRows);
+                        "syncopeconf", confColumns, new SyncopeConfProvider(), confPaginatorRows);
 
         confContainer = new WebMarkupContainer("confContainer");
         confContainer.add(confTable);
@@ -318,8 +320,8 @@ public class Configuration extends BasePage {
 
                     @Override
                     public Page createPage() {
-                        return new ConfigurationModalPage(Configuration.this.getPageReference(), createConfigWin,
-                                new ConfigurationTO(), true);
+                        return new ConfigurationModalPage(PageUtils.getPageReference(Configuration.this),
+                                createConfigWin, new ConfigurationTO(), true);
                     }
                 });
 
@@ -408,7 +410,8 @@ public class Configuration extends BasePage {
 
                 final NotificationTO notificationTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model,
+                        PageUtils.getPageReference(getPage()));
 
                 panel.add(new ActionLink() {
 
@@ -423,7 +426,7 @@ public class Configuration extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                return new NotificationModalPage(Configuration.this.getPageReference(),
+                                return new NotificationModalPage(PageUtils.getPageReference(Configuration.this),
                                         editNotificationWin, notificationTO, false);
                             }
                         });
@@ -459,7 +462,7 @@ public class Configuration extends BasePage {
 
         final AjaxFallbackDefaultDataTable<NotificationTO, String> notificationTable =
                 new AjaxFallbackDefaultDataTable<NotificationTO, String>(
-                "notificationTable", notificationCols, new NotificationProvider(), notificationPaginatorRows);
+                        "notificationTable", notificationCols, new NotificationProvider(), notificationPaginatorRows);
 
         notificationContainer = new WebMarkupContainer("notificationContainer");
         notificationContainer.add(notificationTable);
@@ -493,8 +496,8 @@ public class Configuration extends BasePage {
 
                     @Override
                     public Page createPage() {
-                        return new NotificationModalPage(Configuration.this.getPageReference(), createNotificationWin,
-                                new NotificationTO(), true);
+                        return new NotificationModalPage(PageUtils.getPageReference(Configuration.this),
+                                createNotificationWin, new NotificationTO(), true);
                     }
                 });
 

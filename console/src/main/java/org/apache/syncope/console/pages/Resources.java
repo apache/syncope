@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
@@ -106,7 +107,8 @@ public class Resources extends BasePage {
         add(createConnectorWin = new ModalWindow("createConnectorWin"));
         add(editConnectorWin = new ModalWindow("editConnectorWin"));
 
-        AjaxLink<Void> reloadLink = new ClearIndicatingAjaxLink<Void>("reloadLink", getPageReference()) {
+        AjaxLink<Void> reloadLink = new ClearIndicatingAjaxLink<Void>("reloadLink", PageUtils.
+                getPageReference(getPage())) {
 
             private static final long serialVersionUID = 3109256773218160485L;
 
@@ -159,47 +161,47 @@ public class Resources extends BasePage {
         columns.add(new AbstractColumn<ResourceTO, String>(
                 new StringResourceModel("connector", this, null, "connector")) {
 
-                    private static final long serialVersionUID = 8263694778917279290L;
+            private static final long serialVersionUID = 8263694778917279290L;
+
+            @Override
+            public void populateItem(final Item<ICellPopulator<ResourceTO>> cellItem, final String componentId,
+                    final IModel<ResourceTO> rowModel) {
+
+                final AjaxLink<String> editLink =
+                        new ClearIndicatingAjaxLink<String>("link", PageUtils.getPageReference(getPage())) {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void populateItem(final Item<ICellPopulator<ResourceTO>> cellItem, final String componentId,
-                            final IModel<ResourceTO> rowModel) {
+                    protected void onClickInternal(final AjaxRequestTarget target) {
 
-                        final AjaxLink<String> editLink =
-                        new ClearIndicatingAjaxLink<String>("link", getPageReference()) {
+                        editConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                            private static final long serialVersionUID = -7978723352517770644L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
-                            protected void onClickInternal(final AjaxRequestTarget target) {
-
-                                editConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                                    private static final long serialVersionUID = -7834632442532690940L;
-
-                                    @Override
-                                    public Page createPage() {
-                                        return new ConnectorModalPage(Resources.this.getPageReference(),
-                                                editConnectorWin,
-                                                connectorRestClient.read(rowModel.getObject().getConnectorId()));
-                                    }
-                                });
-
-                                editConnectorWin.show(target);
+                            public Page createPage() {
+                                return new ConnectorModalPage(PageUtils.getPageReference(Resources.this),
+                                        editConnectorWin,
+                                        connectorRestClient.read(rowModel.getObject().getConnectorId()));
                             }
-                        };
-                        editLink.add(new Label("linkTitle", rowModel.getObject().getConnectorDisplayName()));
+                        });
 
-                        LinkPanel editConnPanel = new LinkPanel(componentId);
-                        editConnPanel.add(editLink);
-
-                        cellItem.add(editConnPanel);
-
-                        MetaDataRoleAuthorizationStrategy.authorize(editConnPanel, ENABLE, xmlRolesReader.
-                                getAllAllowedRoles(
-                                        "Connectors", "read"));
+                        editConnectorWin.show(target);
                     }
-                });
+                };
+                editLink.add(new Label("linkTitle", rowModel.getObject().getConnectorDisplayName()));
+
+                LinkPanel editConnPanel = new LinkPanel(componentId);
+                editConnPanel.add(editLink);
+
+                cellItem.add(editConnPanel);
+
+                MetaDataRoleAuthorizationStrategy.authorize(editConnPanel, ENABLE, xmlRolesReader.
+                        getAllAllowedRoles(
+                        "Connectors", "read"));
+            }
+        });
 
         columns.add(new PropertyColumn<ResourceTO, String>(new StringResourceModel(
                 "propagationPrimary", this, null), "propagationPrimary", "propagationPrimary"));
@@ -221,7 +223,8 @@ public class Resources extends BasePage {
 
                 final ResourceTO resourceTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, PageUtils.getPageReference(
+                        getPage()));
                 panel.add(new ActionLink() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
@@ -234,7 +237,7 @@ public class Resources extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                return new ResourceModalPage(Resources.this.getPageReference(),
+                                return new ResourceModalPage(PageUtils.getPageReference(Resources.this),
                                         editResourceWin, resourceTO, false);
                             }
                         });
@@ -272,11 +275,11 @@ public class Resources extends BasePage {
                 columns,
                 (ISortableDataProvider<ResourceTO, String>) new ResourcesProvider(),
                 resourcePaginatorRows,
-                Arrays.asList(new ActionLink.ActionType[] { ActionLink.ActionType.DELETE }),
+                Arrays.asList(new ActionLink.ActionType[] {ActionLink.ActionType.DELETE}),
                 resourceRestClient,
                 "name",
                 "Resources",
-                getPageReference());
+                PageUtils.getPageReference(getPage()));
 
         resourceContainer = new WebMarkupContainer("resourceContainer");
         resourceContainer.add(table);
@@ -298,26 +301,26 @@ public class Resources extends BasePage {
         editResourceWin.setCookieName("edit-res-modal");
 
         AjaxLink<Void> createResourceLink =
-                new ClearIndicatingAjaxLink<Void>("createResourceLink", getPageReference()) {
+                new ClearIndicatingAjaxLink<Void>("createResourceLink", PageUtils.getPageReference(getPage())) {
 
-                    private static final long serialVersionUID = -7978723352517770644L;
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            protected void onClickInternal(final AjaxRequestTarget target) {
+                createResourceWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
-                    protected void onClickInternal(final AjaxRequestTarget target) {
-                        createResourceWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                            private static final long serialVersionUID = -7834632442532690940L;
-
-                            @Override
-                            public Page createPage() {
-                                return new ResourceModalPage(Resources.this.getPageReference(),
-                                        editResourceWin, new ResourceTO(), true);
-                            }
-                        });
-
-                        createResourceWin.show(target);
+                    public Page createPage() {
+                        return new ResourceModalPage(PageUtils.getPageReference(Resources.this),
+                                editResourceWin, new ResourceTO(), true);
                     }
-                };
+                });
+
+                createResourceWin.show(target);
+            }
+        };
 
         MetaDataRoleAuthorizationStrategy.authorize(createResourceLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
                 "Resources", "create"));
@@ -375,7 +378,8 @@ public class Resources extends BasePage {
 
                 final ConnInstanceTO connectorTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, PageUtils.getPageReference(
+                        getPage()));
 
                 panel.add(new ActionLink() {
 
@@ -389,7 +393,8 @@ public class Resources extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                return new ConnectorModalPage(Resources.this.getPageReference(), editConnectorWin,
+                                return new ConnectorModalPage(PageUtils.getPageReference(Resources.this),
+                                        editConnectorWin,
                                         connectorTO);
                             }
                         });
@@ -427,11 +432,11 @@ public class Resources extends BasePage {
                 columns,
                 (ISortableDataProvider<ConnInstanceTO, String>) new ConnectorsProvider(),
                 connectorPaginatorRows,
-                Arrays.asList(new ActionLink.ActionType[] { ActionLink.ActionType.DELETE }),
+                Arrays.asList(new ActionLink.ActionType[] {ActionLink.ActionType.DELETE}),
                 connectorRestClient,
                 "id",
                 "Connectors",
-                getPageReference());
+                PageUtils.getPageReference(getPage()));
 
         connectorContainer = new WebMarkupContainer("connectorContainer");
         connectorContainer.add(table);
@@ -455,7 +460,8 @@ public class Resources extends BasePage {
         editConnectorWin.setInitialWidth(WIN_WIDTH);
         editConnectorWin.setCookieName("edit-conn-modal");
 
-        AjaxLink createConnectorLink = new ClearIndicatingAjaxLink("createConnectorLink", getPageReference()) {
+        AjaxLink createConnectorLink = new ClearIndicatingAjaxLink("createConnectorLink", PageUtils.getPageReference(
+                getPage())) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -467,7 +473,7 @@ public class Resources extends BasePage {
 
                     @Override
                     public Page createPage() {
-                        ConnectorModalPage form = new ConnectorModalPage(Resources.this.getPageReference(),
+                        ConnectorModalPage form = new ConnectorModalPage(PageUtils.getPageReference(Resources.this),
                                 editConnectorWin, new ConnInstanceTO());
                         return form;
                     }

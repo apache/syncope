@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.mod.RoleMod;
+import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.console.commons.Constants;
@@ -95,7 +96,7 @@ public class RoleModalPage extends BaseModalPage {
         form.setModel(new CompoundPropertyModel<RoleTO>(roleTO));
 
         this.rolePanel = new RolePanel.Builder("rolePanel").form(form).roleTO(roleTO).roleModalPageMode(mode)
-                .pageRef(getPageReference()).build();
+                .pageRef(PageUtils.getPageReference(getPage())).build();
         form.add(rolePanel);
 
         final AjaxButton submit = new IndicatingAjaxButton(SUBMIT, new ResourceModel(SUBMIT)) {

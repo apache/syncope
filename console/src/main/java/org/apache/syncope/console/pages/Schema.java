@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.AbstractSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
@@ -78,7 +79,7 @@ import org.springframework.util.ReflectionUtils;
 /**
  * Schema WebPage.
  */
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class Schema extends BasePage {
 
     private static final long serialVersionUID = 8091922398776299403L;
@@ -88,41 +89,41 @@ public class Schema extends BasePage {
         private static final long serialVersionUID = 3109256773218160485L;
 
         {
-            put(SchemaType.NORMAL, Arrays.asList(new String[] {"name", "type",
-                "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly"}));
-            put(SchemaType.DERIVED, Arrays.asList(new String[] {"name", "expression"}));
-            put(SchemaType.VIRTUAL, Arrays.asList(new String[] {"name", "readonly"}));
+            put(SchemaType.NORMAL, Arrays.asList(new String[] { "name", "type",
+                "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly" }));
+            put(SchemaType.DERIVED, Arrays.asList(new String[] { "name", "expression" }));
+            put(SchemaType.VIRTUAL, Arrays.asList(new String[] { "name", "readonly" }));
         }
     };
 
     private static final Map<Map.Entry<AttributableType, SchemaType>, String> PAGINATOR_ROWS_KEYS =
             new HashMap<Map.Entry<AttributableType, SchemaType>, String>() {
 
-        private static final long serialVersionUID = 3109256773218160485L;
+                private static final long serialVersionUID = 3109256773218160485L;
 
-        {
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.USER, SchemaType.NORMAL),
-                    Constants.PREF_USER_SCHEMA_PAGINATOR_ROWS);
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.USER, SchemaType.DERIVED),
-                    Constants.PREF_USER_DER_SCHEMA_PAGINATOR_ROWS);
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.USER, SchemaType.VIRTUAL),
-                    Constants.PREF_USER_VIR_SCHEMA_PAGINATOR_ROWS);
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.MEMBERSHIP, SchemaType.NORMAL),
-                    Constants.PREF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS);
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.MEMBERSHIP,
-                    SchemaType.DERIVED),
-                    Constants.PREF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS);
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.MEMBERSHIP,
-                    SchemaType.VIRTUAL),
-                    Constants.PREF_MEMBERSHIP_VIR_SCHEMA_PAGINATOR_ROWS);
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.ROLE, SchemaType.NORMAL),
-                    Constants.PREF_ROLE_SCHEMA_PAGINATOR_ROWS);
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.ROLE, SchemaType.DERIVED),
-                    Constants.PREF_ROLE_DER_SCHEMA_PAGINATOR_ROWS);
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.ROLE, SchemaType.VIRTUAL),
-                    Constants.PREF_ROLE_VIR_SCHEMA_PAGINATOR_ROWS);
-        }
-    };
+                {
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.USER, SchemaType.NORMAL),
+                            Constants.PREF_USER_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.USER, SchemaType.DERIVED),
+                            Constants.PREF_USER_DER_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.USER, SchemaType.VIRTUAL),
+                            Constants.PREF_USER_VIR_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.MEMBERSHIP, SchemaType.NORMAL),
+                            Constants.PREF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.MEMBERSHIP,
+                                    SchemaType.DERIVED),
+                            Constants.PREF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.MEMBERSHIP,
+                                    SchemaType.VIRTUAL),
+                            Constants.PREF_MEMBERSHIP_VIR_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.ROLE, SchemaType.NORMAL),
+                            Constants.PREF_ROLE_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.ROLE, SchemaType.DERIVED),
+                            Constants.PREF_ROLE_DER_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.ROLE, SchemaType.VIRTUAL),
+                            Constants.PREF_ROLE_VIR_SCHEMA_PAGINATOR_ROWS);
+                }
+            };
 
     private static final int WIN_WIDTH = 600;
 
@@ -235,7 +236,8 @@ public class Schema extends BasePage {
 
                 final AbstractSchemaTO schemaTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model,
+                        PageUtils.getPageReference(getPage()));
 
                 panel.addWithRoles(new ActionLink() {
 
@@ -252,7 +254,8 @@ public class Schema extends BasePage {
                                 AbstractSchemaModalPage page = SchemaModalPageFactory.getSchemaModalPage(
                                         attributableType, schemaType);
 
-                                page.setSchemaModalPage(Schema.this.getPageReference(), modalWindow, schemaTO, false);
+                                page.setSchemaModalPage(PageUtils.getPageReference(Schema.this),
+                                        modalWindow, schemaTO, false);
 
                                 return page;
                             }
@@ -328,7 +331,7 @@ public class Schema extends BasePage {
     private <T extends AbstractSchemaModalPage> AjaxLink<Void> getCreateSchemaLink(final ModalWindow modalWindow,
             final AttributableType attrType, final SchemaType schemaType, final String winLinkName) {
 
-        AjaxLink<Void> link = new ClearIndicatingAjaxLink<Void>(winLinkName, getPageReference()) {
+        AjaxLink<Void> link = new ClearIndicatingAjaxLink<Void>(winLinkName, PageUtils.getPageReference(getPage())) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -341,7 +344,7 @@ public class Schema extends BasePage {
                     @Override
                     public Page createPage() {
                         T page = SchemaModalPageFactory.getSchemaModalPage(attrType, schemaType);
-                        page.setSchemaModalPage(Schema.this.getPageReference(), modalWindow, null, true);
+                        page.setSchemaModalPage(PageUtils.getPageReference(Schema.this), modalWindow, null, true);
 
                         return page;
                     }

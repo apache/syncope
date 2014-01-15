@@ -22,6 +22,7 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.SyncopeApplication;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.PageUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -116,7 +117,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
 
                     @Override
                     public Page createPage() {
-                        return new UserRequestModalPage(BasePage.this.getPageReference(), editProfileModalWin,
+                        return new UserRequestModalPage(PageUtils.getPageReference(BasePage.this), editProfileModalWin,
                                 userTO, UserModalPage.Mode.SELF);
                     }
                 });

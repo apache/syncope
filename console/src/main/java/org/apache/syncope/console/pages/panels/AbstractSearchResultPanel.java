@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.Collection;
 import java.util.List;
+import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.console.commons.AttributableDataProvider;
@@ -265,7 +266,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
                 restClient,
                 "id",
                 getPageId(),
-                page.getPageReference());
+                PageUtils.getPageReference(page));
 
         resultTable.setCurrentPage(currentPage);
 
