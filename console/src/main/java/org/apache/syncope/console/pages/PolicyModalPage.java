@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.AbstractPolicyTO;
@@ -37,6 +36,7 @@ import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.PolicyBeanPanel;
 import org.apache.syncope.console.rest.PolicyRestClient;
+import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
@@ -78,6 +78,9 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
 
     @SpringBean
     private PolicyRestClient policyRestClient;
+
+    @SpringBean
+    private ResourceRestClient resourceRestClient;
 
     @SpringBean
     private RoleRestClient roleRestClient;
@@ -165,8 +168,7 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
 
                 final String resource = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model,
-                        PageUtils.getPageReference(getPage()));
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
                 panel.add(new ActionLink() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
@@ -179,7 +181,7 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
 
                             @Override
                             public Page createPage() {
-                                return new ResourceModalPage(PageUtils.getPageReference(PolicyModalPage.this),
+                                return new ResourceModalPage(PolicyModalPage.this.getPageReference(),
                                         mwindow, resourceRestClient.read(resource), false);
                             }
                         });
@@ -238,8 +240,7 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
 
                 final RoleTO role = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model,
-                        PageUtils.getPageReference(getPage()));
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
                 panel.add(new ActionLink() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
@@ -252,8 +253,7 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
 
                             @Override
                             public Page createPage() {
-                                return new RoleModalPage(
-                                        PageUtils.getPageReference(PolicyModalPage.this), mwindow, role);
+                                return new RoleModalPage(PolicyModalPage.this.getPageReference(), mwindow, role);
                             }
                         });
 

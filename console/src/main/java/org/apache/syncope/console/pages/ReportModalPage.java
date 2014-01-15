@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.report.AbstractReportletConf;
 import org.apache.syncope.common.report.ReportletConf;
 import org.apache.syncope.common.to.ReportExecTO;
@@ -124,7 +123,7 @@ public class ReportModalPage extends BaseModalPage {
         form.add(crontab);
 
         final AjaxButton submit =
-                new ClearIndicatingAjaxButton(APPLY, new ResourceModel(APPLY), PageUtils.getPageReference(getPage())) {
+                new ClearIndicatingAjaxButton(APPLY, new ResourceModel(APPLY), getPageReference()) {
 
                     private static final long serialVersionUID = -958724007591692537L;
 
@@ -168,8 +167,8 @@ public class ReportModalPage extends BaseModalPage {
 
         form.add(submit);
 
-        final AjaxButton cancel = new ClearIndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL),
-                PageUtils.getPageReference(getPage())) {
+        final AjaxButton cancel =
+                new ClearIndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL), getPageReference()) {
 
                     private static final long serialVersionUID = -958724007591692537L;
 
@@ -296,7 +295,7 @@ public class ReportModalPage extends BaseModalPage {
                         modalReportletConfOldName = null;
                         modalReportletConf = null;
                         return new ReportletConfModalPage(null, reportletConfWin,
-                                PageUtils.getPageReference(ReportModalPage.this));
+                                ReportModalPage.this.getPageReference());
                     }
                 });
                 reportletConfWin.show(target);
@@ -319,7 +318,7 @@ public class ReportModalPage extends BaseModalPage {
                             modalReportletConfOldName = reportlets.getModelObject().getName();
                             modalReportletConf = null;
                             return new ReportletConfModalPage(reportlets.getModelObject(), reportletConfWin,
-                                    PageUtils.getPageReference(ReportModalPage.this));
+                                    ReportModalPage.this.getPageReference());
                         }
                     });
                     reportletConfWin.show(target);
@@ -447,8 +446,7 @@ public class ReportModalPage extends BaseModalPage {
 
                 final ReportExecTO taskExecutionTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model,
-                        PageUtils.getPageReference(getPage()));
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
 
                 panel.add(new ActionLink() {
 
@@ -483,7 +481,7 @@ public class ReportModalPage extends BaseModalPage {
                             public Page createPage() {
                                 ReportModalPage.this.exportExecId = model.getObject().getId();
                                 return new ReportExecResultDownloadModalPage(reportExecExportWin,
-                                        PageUtils.getPageReference(ReportModalPage.this));
+                                        ReportModalPage.this.getPageReference());
                             }
                         });
                         reportExecExportWin.show(target);
@@ -517,8 +515,7 @@ public class ReportModalPage extends BaseModalPage {
 
             @Override
             public Component getHeader(final String componentId) {
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(),
-                        PageUtils.getPageReference(getPage()));
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(), getPageReference());
 
                 panel.add(new ActionLink() {
 

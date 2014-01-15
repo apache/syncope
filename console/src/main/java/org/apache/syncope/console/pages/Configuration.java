@@ -29,7 +29,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.SyncopeConstants;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.to.NotificationTO;
@@ -138,9 +137,9 @@ public class Configuration extends BasePage {
         add(editConfigWin = new ModalWindow("editConfigurationWin"));
         setupSyncopeConf();
 
-        add(new PoliciesPanel("passwordPoliciesPanel", PageUtils.getPageReference(getPage()), PolicyType.PASSWORD));
-        add(new PoliciesPanel("accountPoliciesPanel", PageUtils.getPageReference(getPage()), PolicyType.ACCOUNT));
-        add(new PoliciesPanel("syncPoliciesPanel", PageUtils.getPageReference(getPage()), PolicyType.SYNC));
+        add(new PoliciesPanel("passwordPoliciesPanel", getPageReference(), PolicyType.PASSWORD));
+        add(new PoliciesPanel("accountPoliciesPanel", getPageReference(), PolicyType.ACCOUNT));
+        add(new PoliciesPanel("syncPoliciesPanel", getPageReference(), PolicyType.SYNC));
 
         add(createNotificationWin = new ModalWindow("createNotificationWin"));
         add(editNotificationWin = new ModalWindow("editNotificationWin"));
@@ -256,8 +255,7 @@ public class Configuration extends BasePage {
 
                 final ConfigurationTO configurationTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model,
-                        PageUtils.getPageReference(getPage()));
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
 
                 panel.add(new ActionLink() {
 
@@ -272,8 +270,8 @@ public class Configuration extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                return new ConfigurationModalPage(PageUtils.getPageReference(Configuration.this),
-                                        editConfigWin, configurationTO, false);
+                                return new ConfigurationModalPage(Configuration.this.getPageReference(), editConfigWin,
+                                        configurationTO, false);
                             }
                         });
 
@@ -342,8 +340,8 @@ public class Configuration extends BasePage {
 
                     @Override
                     public Page createPage() {
-                        return new ConfigurationModalPage(PageUtils.getPageReference(Configuration.this),
-                                createConfigWin, new ConfigurationTO(), true);
+                        return new ConfigurationModalPage(Configuration.this.getPageReference(), createConfigWin,
+                                new ConfigurationTO(), true);
                     }
                 });
 
@@ -434,8 +432,7 @@ public class Configuration extends BasePage {
 
                 final NotificationTO notificationTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model,
-                        PageUtils.getPageReference(getPage()));
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
 
                 panel.add(new ActionLink() {
 
@@ -450,7 +447,7 @@ public class Configuration extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                return new NotificationModalPage(PageUtils.getPageReference(Configuration.this),
+                                return new NotificationModalPage(Configuration.this.getPageReference(),
                                         editNotificationWin, notificationTO, false);
                             }
                         });
@@ -520,8 +517,8 @@ public class Configuration extends BasePage {
 
                     @Override
                     public Page createPage() {
-                        return new NotificationModalPage(PageUtils.getPageReference(Configuration.this),
-                                createNotificationWin, new NotificationTO(), true);
+                        return new NotificationModalPage(Configuration.this.getPageReference(), createNotificationWin,
+                                new NotificationTO(), true);
                     }
                 });
 

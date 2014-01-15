@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.SyncopeClientException;
@@ -83,8 +82,7 @@ public class RoleSearchResultPanel extends AbstractSearchResultPanel {
             public void populateItem(final Item<ICellPopulator<AbstractAttributableTO>> cellItem,
                     final String componentId, final IModel<AbstractAttributableTO> model) {
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model, PageUtils.getPageReference(page));
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, page.getPageReference());
 
                 panel.add(new ActionLink() {
 
@@ -99,7 +97,7 @@ public class RoleSearchResultPanel extends AbstractSearchResultPanel {
                             @Override
                             public Page createPage() {
                                 return new StatusModalPage<RoleTO>(
-                                        PageUtils.getPageReference(page), statusmodal, (RoleTO) model.getObject());
+                                        page.getPageReference(), statusmodal, (RoleTO) model.getObject());
                             }
                         });
 
@@ -120,7 +118,7 @@ public class RoleSearchResultPanel extends AbstractSearchResultPanel {
                             @Override
                             public Page createPage() {
                                 return new RoleModalPage(
-                                        PageUtils.getPageReference(page), editmodal, (RoleTO) model.getObject());
+                                        page.getPageReference(), editmodal, (RoleTO) model.getObject());
                             }
                         });
 

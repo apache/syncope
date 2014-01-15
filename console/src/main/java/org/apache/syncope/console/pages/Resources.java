@@ -29,7 +29,6 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel;
@@ -130,7 +129,7 @@ public class Resources extends BasePage {
         statusmodal.setCookieName("status-modal");
         add(statusmodal);
 
-        AjaxLink<Void> reloadLink = new ClearIndicatingAjaxLink<Void>("reloadLink", PageUtils.getPageReference(this)) {
+        AjaxLink<Void> reloadLink = new ClearIndicatingAjaxLink<Void>("reloadLink", getPageReference()) {
 
             private static final long serialVersionUID = 3109256773218160485L;
 
@@ -190,7 +189,7 @@ public class Resources extends BasePage {
                             final IModel<ResourceTO> rowModel) {
 
                         final AjaxLink<String> editLink =
-                        new ClearIndicatingAjaxLink<String>("link", PageUtils.getPageReference(Resources.this)) {
+                        new ClearIndicatingAjaxLink<String>("link", getPageReference()) {
 
                             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -203,7 +202,7 @@ public class Resources extends BasePage {
 
                                     @Override
                                     public Page createPage() {
-                                        return new ConnectorModalPage(PageUtils.getPageReference(Resources.this),
+                                        return new ConnectorModalPage(Resources.this.getPageReference(),
                                                 editConnectorWin,
                                                 connectorRestClient.read(rowModel.getObject().getConnectorId()));
                                     }
@@ -245,8 +244,7 @@ public class Resources extends BasePage {
 
                 final ResourceTO resourceTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model,
-                        PageUtils.getPageReference(Resources.this));
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
                 panel.add(new ActionLink() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
@@ -260,8 +258,7 @@ public class Resources extends BasePage {
                             @Override
                             public Page createPage() {
                                 return new ProvisioningModalPage<UserTO>(
-                                        PageUtils.getPageReference(Resources.this),
-                                        statusmodal, model.getObject(), UserTO.class);
+                                        getPageReference(), statusmodal, model.getObject(), UserTO.class);
                             }
                         });
 
@@ -283,8 +280,7 @@ public class Resources extends BasePage {
                             @Override
                             public Page createPage() {
                                 return new ProvisioningModalPage<RoleTO>(
-                                        PageUtils.getPageReference(Resources.this),
-                                        statusmodal, model.getObject(), RoleTO.class);
+                                        getPageReference(), statusmodal, model.getObject(), RoleTO.class);
                             }
                         });
 
@@ -305,7 +301,7 @@ public class Resources extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                return new ResourceModalPage(PageUtils.getPageReference(Resources.this),
+                                return new ResourceModalPage(Resources.this.getPageReference(),
                                         editResourceWin, resourceTO, false);
                             }
                         });
@@ -347,7 +343,7 @@ public class Resources extends BasePage {
                 resourceRestClient,
                 "name",
                 "Resources",
-                PageUtils.getPageReference(Resources.this));
+                getPageReference());
 
         resourceContainer = new WebMarkupContainer("resourceContainer");
         resourceContainer.add(table);
@@ -369,7 +365,7 @@ public class Resources extends BasePage {
         editResourceWin.setCookieName("edit-res-modal");
 
         AjaxLink<Void> createResourceLink =
-                new ClearIndicatingAjaxLink<Void>("createResourceLink", PageUtils.getPageReference(Resources.this)) {
+                new ClearIndicatingAjaxLink<Void>("createResourceLink", getPageReference()) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -381,8 +377,8 @@ public class Resources extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                final ResourceModalPage windows = new ResourceModalPage(
-                                        PageUtils.getPageReference(Resources.this),
+                                final ResourceModalPage windows = new ResourceModalPage(Resources.this.
+                                        getPageReference(),
                                         editResourceWin, new ResourceTO(), true);
                                 return windows;
                             }
@@ -450,8 +446,7 @@ public class Resources extends BasePage {
 
                 final ConnInstanceTO connectorTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model,
-                        PageUtils.getPageReference(Resources.this));
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
 
                 panel.add(new ActionLink() {
 
@@ -465,8 +460,8 @@ public class Resources extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                return new ConnectorModalPage(PageUtils.getPageReference(Resources.this),
-                                        editConnectorWin, connectorTO);
+                                return new ConnectorModalPage(Resources.this.getPageReference(), editConnectorWin,
+                                        connectorTO);
                             }
                         });
 
@@ -507,7 +502,7 @@ public class Resources extends BasePage {
                 connectorRestClient,
                 "id",
                 "Connectors",
-                PageUtils.getPageReference(Resources.this));
+                getPageReference());
 
         connectorContainer = new WebMarkupContainer("connectorContainer");
         connectorContainer.add(table);
@@ -532,7 +527,7 @@ public class Resources extends BasePage {
         editConnectorWin.setCookieName("edit-conn-modal");
 
         AjaxLink<Void> createConnectorLink =
-                new ClearIndicatingAjaxLink<Void>("createConnectorLink", PageUtils.getPageReference(Resources.this)) {
+                new ClearIndicatingAjaxLink<Void>("createConnectorLink", getPageReference()) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -544,8 +539,7 @@ public class Resources extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                ConnectorModalPage form = new ConnectorModalPage(
-                                        PageUtils.getPageReference(Resources.this),
+                                ConnectorModalPage form = new ConnectorModalPage(Resources.this.getPageReference(),
                                         editConnectorWin, new ConnInstanceTO());
                                 return form;
                             }

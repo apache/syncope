@@ -33,7 +33,6 @@ import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.MapChoiceRenderer;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.rest.ApprovalRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -175,8 +174,8 @@ public class ApprovalModalPage extends BaseModalPage {
 
                             @Override
                             public Page createPage() {
-                                return new ViewUserModalPage(PageUtils.getPageReference(ApprovalModalPage.this),
-                                        editUserWin, userRestClient.read(formTO.getUserId())) {
+                                return new ViewUserModalPage(ApprovalModalPage.this.getPageReference(), editUserWin,
+                                        userRestClient.read(formTO.getUserId())) {
 
                                     private static final long serialVersionUID = -2819994749866481607L;
 

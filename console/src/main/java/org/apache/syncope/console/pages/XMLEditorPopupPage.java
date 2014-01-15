@@ -23,7 +23,6 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.console.rest.WorkflowRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -55,8 +54,8 @@ public class XMLEditorPopupPage extends BasePopupPage {
         final TextArea<String> workflowDefArea = new TextArea<String>("workflowDefArea", new Model<String>(definition));
         wfForm.add(workflowDefArea);
 
-        AjaxButton submit = new ClearIndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT)),
-                PageUtils.getPageReference(this)) {
+        AjaxButton submit =
+                new ClearIndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT)), getPageReference()) {
 
                     private static final long serialVersionUID = -958724007591692537L;
 

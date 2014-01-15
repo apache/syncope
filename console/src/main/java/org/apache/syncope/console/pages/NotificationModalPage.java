@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
@@ -151,7 +150,7 @@ class NotificationModalPage extends BaseModalPage {
                 "eventSelection",
                 loggerRestClient.listEvents(),
                 new PropertyModel<List<String>>(notificationTO, "events"),
-                PageUtils.getPageReference(getPage()),
+                getPageReference(),
                 "Notification") {
 
                     private static final long serialVersionUID = 6429053774964787735L;

@@ -25,7 +25,6 @@ import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.console.pages.panels.RolePanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -88,7 +87,7 @@ public class RoleModalPage extends BaseModalPage {
         form.setModel(new CompoundPropertyModel<RoleTO>(roleTO));
 
         this.rolePanel = new RolePanel.Builder("rolePanel").form(form).roleTO(roleTO).
-                roleModalPageMode(mode).pageRef(PageUtils.getPageReference(this)).build();
+                roleModalPageMode(mode).pageRef(getPageReference()).build();
         form.add(rolePanel);
 
         final AjaxButton submit = new IndicatingAjaxButton(SUBMIT, new ResourceModel(SUBMIT)) {

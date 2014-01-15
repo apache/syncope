@@ -21,7 +21,6 @@ package org.apache.syncope.console.pages;
 import java.util.ArrayList;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.mod.UserMod;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.console.commons.status.StatusBean;
@@ -61,8 +60,7 @@ public class EditUserModalPage extends UserModalPage {
         if (userTO.getId() != 0) {
             form.addOrReplace(new Label("pwdChangeInfo", new ResourceModel("pwdChangeInfo")));
 
-            statusPanel = new StatusPanel("statuspanel", userTO, new ArrayList<StatusBean>(),
-                    PageUtils.getPageReference(getPage()));
+            statusPanel = new StatusPanel("statuspanel", userTO, new ArrayList<StatusBean>(), getPageReference());
             statusPanel.setOutputMarkupId(true);
             MetaDataRoleAuthorizationStrategy.authorize(
                     statusPanel, RENDER, xmlRolesReader.getAllAllowedRoles("Resources", "getConnectorObject"));
@@ -73,8 +71,7 @@ public class EditUserModalPage extends UserModalPage {
             form.addOrReplace(new ResourcesPanel.Builder("resources").attributableTO(userTO).statusPanel(
                     statusPanel).build());
 
-            form.addOrReplace(new MembershipsPanel("memberships", userTO, false, statusPanel,
-                    PageUtils.getPageReference(getPage())));
+            form.addOrReplace(new MembershipsPanel("memberships", userTO, false, statusPanel, getPageReference()));
         }
     }
 

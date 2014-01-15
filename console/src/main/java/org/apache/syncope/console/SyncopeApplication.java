@@ -21,7 +21,6 @@ package org.apache.syncope.console;
 import java.io.Serializable;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.Configuration;
 import org.apache.syncope.console.pages.InfoModalPage;
@@ -253,7 +252,7 @@ public class SyncopeApplication
 
                     @Override
                     public Page createPage() {
-                        return new UserSelfModalPage(PageUtils.getPageReference(page), editProfileModalWin, userTO);
+                        return new UserSelfModalPage(page.getPageReference(), editProfileModalWin, userTO);
                     }
                 });
 

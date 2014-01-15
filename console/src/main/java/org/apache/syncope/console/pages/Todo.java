@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.SyncopeSession;
@@ -115,8 +114,7 @@ public class Todo extends BasePage {
 
                 final WorkflowFormTO formTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model,
-                        PageUtils.getPageReference(getPage()));
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
 
                 panel.add(new ActionLink() {
 
@@ -147,7 +145,7 @@ public class Todo extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                return new ApprovalModalPage(PageUtils.getPageReference(Todo.this), window, formTO);
+                                return new ApprovalModalPage(Todo.this.getPageReference(), window, formTO);
                             }
                         });
 

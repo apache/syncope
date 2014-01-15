@@ -26,7 +26,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.syncope.console.commons.RoleUtils;
 import org.apache.syncope.console.commons.status.StatusUtils;
@@ -123,7 +122,7 @@ public class MembershipsPanel extends Panel {
 
                             @Override
                             public Page createPage() {
-                                PageReference pageRef = PageUtils.getPageReference(getPage());
+                                PageReference pageRef = getPage().getPageReference();
 
                                 for (MembershipTO membTO : membView.getList()) {
                                     if (membTO.getRoleId() == roleTO.getId()) {
@@ -152,68 +151,68 @@ public class MembershipsPanel extends Panel {
         membView = new ListView<MembershipTO>("memberships",
                 new PropertyModel<List<? extends MembershipTO>>(userTO, "memberships")) {
 
-                    private static final long serialVersionUID = 9101744072914090143L;
+            private static final long serialVersionUID = 9101744072914090143L;
+
+            @Override
+            protected void populateItem(final ListItem<MembershipTO> item) {
+                final MembershipTO membershipTO = (MembershipTO) item.getDefaultModelObject();
+
+                item.add(new Label("roleId", new Model<Long>(membershipTO.getRoleId())));
+                item.add(new Label("roleName", new Model<String>(membershipTO.getRoleName())));
+
+                AjaxLink editLink = new ClearIndicatingAjaxLink("editLink", pageRef) {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    protected void populateItem(final ListItem<MembershipTO> item) {
-                        final MembershipTO membershipTO = (MembershipTO) item.getDefaultModelObject();
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        membWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                        item.add(new Label("roleId", new Model<Long>(membershipTO.getRoleId())));
-                        item.add(new Label("roleName", new Model<String>(membershipTO.getRoleName())));
-
-                        AjaxLink editLink = new ClearIndicatingAjaxLink("editLink", pageRef) {
-
-                            private static final long serialVersionUID = -7978723352517770644L;
+                            private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
-                            protected void onClickInternal(final AjaxRequestTarget target) {
-                                membWin.setPageCreator(new ModalWindow.PageCreator() {
+                            public Page createPage() {
+                                return new MembershipModalPage(getPage().getPageReference(), membWin,
+                                        membershipTO, templateMode);
 
-                                    private static final long serialVersionUID = -7834632442532690940L;
-
-                                    @Override
-                                    public Page createPage() {
-                                        return new MembershipModalPage(PageUtils.getPageReference(getPage()), membWin,
-                                                membershipTO, templateMode);
-
-                                    }
-                                });
-                                membWin.show(target);
                             }
-                        };
-                        item.add(editLink);
-
-                        AjaxLink deleteLink = new IndicatingOnConfirmAjaxLink("deleteLink", pageRef) {
-
-                            private static final long serialVersionUID = -7978723352517770644L;
-
-                            @Override
-                            protected void onClickInternal(final AjaxRequestTarget target) {
-                                userTO.getMemberships().remove(membershipTO);
-                                target.add(membershipsContainer);
-
-                                RoleTO roleTO = RoleUtils.findRole(roleTreeBuilder, membershipTO.getRoleId());
-                                Set<String> resourcesToRemove = roleTO == null
-                                ? Collections.<String>emptySet() : roleTO.getResources();
-                                if (!resourcesToRemove.isEmpty()) {
-                                    Set<String> resourcesAssignedViaMembership = new HashSet<String>();
-                                    for (MembershipTO membTO : userTO.getMemberships()) {
-                                        roleTO = RoleUtils.findRole(roleTreeBuilder, membTO.getRoleId());
-                                        if (roleTO != null) {
-                                            resourcesAssignedViaMembership.addAll(roleTO.getResources());
-                                        }
-                                    }
-                                    resourcesToRemove.removeAll(resourcesAssignedViaMembership);
-                                    resourcesToRemove.removeAll(userTO.getResources());
-                                }
-
-                                StatusUtils.update(
-                                        userTO, statusPanel, target, Collections.<String>emptySet(), resourcesToRemove);
-                            }
-                        };
-                        item.add(deleteLink);
+                        });
+                        membWin.show(target);
                     }
                 };
+                item.add(editLink);
+
+                AjaxLink deleteLink = new IndicatingOnConfirmAjaxLink("deleteLink", pageRef) {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        userTO.getMemberships().remove(membershipTO);
+                        target.add(membershipsContainer);
+
+                        RoleTO roleTO = RoleUtils.findRole(roleTreeBuilder, membershipTO.getRoleId());
+                        Set<String> resourcesToRemove = roleTO == null
+                                ? Collections.<String>emptySet() : roleTO.getResources();
+                        if (!resourcesToRemove.isEmpty()) {
+                            Set<String> resourcesAssignedViaMembership = new HashSet<String>();
+                            for (MembershipTO membTO : userTO.getMemberships()) {
+                                roleTO = RoleUtils.findRole(roleTreeBuilder, membTO.getRoleId());
+                                if (roleTO != null) {
+                                    resourcesAssignedViaMembership.addAll(roleTO.getResources());
+                                }
+                            }
+                            resourcesToRemove.removeAll(resourcesAssignedViaMembership);
+                            resourcesToRemove.removeAll(userTO.getResources());
+                        }
+
+                        StatusUtils.update(
+                                userTO, statusPanel, target, Collections.<String>emptySet(), resourcesToRemove);
+                    }
+                };
+                item.add(deleteLink);
+            }
+        };
 
         membershipsContainer.add(membView);
 
