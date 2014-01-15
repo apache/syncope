@@ -27,7 +27,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.http.PreemptiveAuthHttpRequestFactory;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.services.EntitlementService;
 import org.apache.syncope.common.services.UserRequestService;
 import org.apache.syncope.common.to.EntitlementTO;
@@ -150,27 +149,26 @@ public class Login extends WebPage {
         if (isSelfRegistrationAllowed()) {
             selfRegFrag = new Fragment("selfRegistration", "selfRegAllowed", this);
 
-            final AjaxLink<Void> selfRegLink = new ClearIndicatingAjaxLink<Void>("link",
-                    PageUtils.getPageReference(getPage())) {
+            final AjaxLink<Void> selfRegLink = new ClearIndicatingAjaxLink<Void>("link", getPageReference()) {
 
-                        private static final long serialVersionUID = -7978723352517770644L;
+                private static final long serialVersionUID = -7978723352517770644L;
+
+                @Override
+                protected void onClickInternal(final AjaxRequestTarget target) {
+                    editProfileModalWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                        private static final long serialVersionUID = -7834632442532690940L;
 
                         @Override
-                        protected void onClickInternal(final AjaxRequestTarget target) {
-                            editProfileModalWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                                private static final long serialVersionUID = -7834632442532690940L;
-
-                                @Override
-                                public Page createPage() {
-                                    return new UserRequestModalPage(PageUtils.getPageReference(Login.this),
-                                            editProfileModalWin, new UserTO(), UserModalPage.Mode.SELF);
-                                }
-                            });
-
-                            editProfileModalWin.show(target);
+                        public Page createPage() {
+                            return new UserRequestModalPage(Login.this.getPageReference(), editProfileModalWin,
+                                    new UserTO(), UserModalPage.Mode.SELF);
                         }
-                    };
+                    });
+
+                    editProfileModalWin.show(target);
+                }
+            };
             selfRegLink.add(new Label("linkTitle", getString("selfRegistration")));
 
             Panel panel = new LinkPanel("selfRegistration", new ResourceModel("selfRegistration"));

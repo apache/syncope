@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.Constants;
@@ -63,36 +62,35 @@ public class Users extends BasePage {
         editModalWin.setCookieName("edit-modal");
         add(editModalWin);
 
-        final AbstractSearchResultPanel searchResult = new UserSearchResultPanel("searchResult", true, null,
-                PageUtils.getPageReference(getPage()), restClient);
+        final AbstractSearchResultPanel searchResult =
+                new UserSearchResultPanel("searchResult", true, null, getPageReference(), restClient);
         add(searchResult);
 
         final AbstractSearchResultPanel listResult =
-                new UserSearchResultPanel("listResult", false, null, PageUtils.getPageReference(getPage()), restClient);
+                new UserSearchResultPanel("listResult", false, null, getPageReference(), restClient);
         add(listResult);
 
-        // create new user
-        final AjaxLink<Void> createLink = new ClearIndicatingAjaxLink<Void>("createLink",
-                PageUtils.getPageReference(getPage())) {
 
-                    private static final long serialVersionUID = -7978723352517770644L;
+        // create new user
+        final AjaxLink<Void> createLink = new ClearIndicatingAjaxLink<Void>("createLink", getPageReference()) {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            protected void onClickInternal(final AjaxRequestTarget target) {
+                editModalWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID = -7834632442532690940L;
 
                     @Override
-                    protected void onClickInternal(final AjaxRequestTarget target) {
-                        editModalWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                            private static final long serialVersionUID = -7834632442532690940L;
-
-                            @Override
-                            public Page createPage() {
-                                return new EditUserModalPage(PageUtils.getPageReference(Users.this), editModalWin,
-                                        new UserTO());
-                            }
-                        });
-
-                        editModalWin.show(target);
+                    public Page createPage() {
+                        return new EditUserModalPage(Users.this.getPageReference(), editModalWin, new UserTO());
                     }
-                };
+                });
+
+                editModalWin.show(target);
+            }
+        };
         MetaDataRoleAuthorizationStrategy.authorize(
                 createLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "create"));
         add(createLink);
@@ -106,28 +104,27 @@ public class Users extends BasePage {
         searchForm.add(searchPanel);
 
         final ClearIndicatingAjaxButton searchButton =
-                new ClearIndicatingAjaxButton("search", new ResourceModel("search"),
-                        PageUtils.getPageReference(getPage())) {
+                new ClearIndicatingAjaxButton("search", new ResourceModel("search"), getPageReference()) {
 
-                    private static final long serialVersionUID = -958724007591692537L;
+            private static final long serialVersionUID = -958724007591692537L;
 
-                    @Override
-                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                        final NodeCond searchCond = searchPanel.buildSearchCond();
-                        LOG.debug("Node condition " + searchCond);
+            @Override
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                final NodeCond searchCond = searchPanel.buildSearchCond();
+                LOG.debug("Node condition " + searchCond);
 
-                        doSearch(target, searchCond, searchResult);
+                doSearch(target, searchCond, searchResult);
 
-                        Session.get().getFeedbackMessages().clear();
-                        target.add(searchPanel.getSearchFeedback());
-                    }
+                Session.get().getFeedbackMessages().clear();
+                target.add(searchPanel.getSearchFeedback());
+            }
 
-                    @Override
-                    protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
-                        target.add(searchPanel.getSearchFeedback());
-                    }
-                };
+                target.add(searchPanel.getSearchFeedback());
+            }
+        };
 
         searchForm.add(searchButton);
         searchForm.setDefaultButton(searchButton);

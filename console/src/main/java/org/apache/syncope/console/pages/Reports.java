@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.EventCategoryTO;
 import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.AuditElements.Result;
@@ -133,8 +132,7 @@ public class Reports extends BasePage {
 
                 final ReportTO reportTO = model.getObject();
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, PageUtils.getPageReference(
-                        getPage()));
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
 
                 panel.add(new ActionLink() {
 
@@ -149,7 +147,7 @@ public class Reports extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                return new ReportModalPage(window, reportTO, PageUtils.getPageReference(Reports.this));
+                                return new ReportModalPage(window, reportTO, Reports.this.getPageReference());
                             }
                         });
 
@@ -197,8 +195,7 @@ public class Reports extends BasePage {
 
             @Override
             public Component getHeader(final String componentId) {
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(),
-                        PageUtils.getPageReference(getPage()));
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(), getPageReference());
 
                 panel.add(new ActionLink() {
 
@@ -249,7 +246,7 @@ public class Reports extends BasePage {
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
 
-        AjaxLink createLink = new ClearIndicatingAjaxLink("createLink", PageUtils.getPageReference(getPage())) {
+        AjaxLink createLink = new ClearIndicatingAjaxLink("createLink", getPageReference()) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -261,7 +258,7 @@ public class Reports extends BasePage {
 
                     @Override
                     public Page createPage() {
-                        return new ReportModalPage(window, new ReportTO(), PageUtils.getPageReference(Reports.this));
+                        return new ReportModalPage(window, new ReportTO(), Reports.this.getPageReference());
                     }
                 });
 
@@ -302,7 +299,7 @@ public class Reports extends BasePage {
         final ListModel<String> model = new ListModel<String>(new ArrayList<String>(events));
 
         form.add(new LoggerCategoryPanel(
-                "events", loggerRestClient.listEvents(), model, PageUtils.getPageReference(getPage()), "Reports") {
+                "events", loggerRestClient.listEvents(), model, getPageReference(), "Reports") {
 
                     private static final long serialVersionUID = 6113164334533550277L;
 

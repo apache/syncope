@@ -330,7 +330,7 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <wicket.version>6.13.0</wicket.version>
+    <wicket.version>6.14.0-SNAPSHOT</wicket.version>
 
     <groovy.version>2.2.1</groovy.version>
 

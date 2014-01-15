@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.BulkAction;
 import org.apache.syncope.common.to.BulkActionRes;
 import org.apache.syncope.console.rest.BaseRestClient;
@@ -85,8 +84,7 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
                 dataProvider,
                 Integer.MAX_VALUE).setVisible(items != null && !items.isEmpty()));
 
-        final ActionLinksPanel actionPanel = new ActionLinksPanel("actions", new Model(),
-                PageUtils.getPageReference(getPage()));
+        final ActionLinksPanel actionPanel = new ActionLinksPanel("actions", new Model(), getPageReference());
         add(actionPanel);
 
         for (ActionLink.ActionType action : actions) {
@@ -141,16 +139,16 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
         final Form form = new Form(FORM);
         add(form);
 
-        final AjaxButton cancel = new ClearIndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL),
-                PageUtils.getPageReference(getPage())) {
+        final AjaxButton cancel =
+                new ClearIndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL), getPageReference()) {
 
-                    private static final long serialVersionUID = -958724007591692537L;
+            private static final long serialVersionUID = -958724007591692537L;
 
-                    @Override
-                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                        window.close(target);
-                    }
-                };
+            @Override
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                window.close(target);
+            }
+        };
 
         cancel.setDefaultFormProcessing(false);
         form.add(cancel);

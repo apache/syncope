@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.UserTO;
@@ -140,8 +139,7 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
             @Override
             public ActionLinksPanel getActions(final String componentId, final IModel<AbstractAttributableTO> model) {
 
-                final ActionLinksPanel panel =
-                        new ActionLinksPanel(componentId, model, PageUtils.getPageReference(page));
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, page.getPageReference());
 
                 panel.add(new ActionLink() {
 
@@ -155,8 +153,7 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
                             @Override
                             public Page createPage() {
-                                return new StatusModalPage(PageUtils.getPageReference(page),
-                                        statusmodal, model.getObject());
+                                return new StatusModalPage(page.getPageReference(), statusmodal, model.getObject());
                             }
                         });
 
@@ -178,7 +175,7 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
                             public Page createPage() {
                                 // SYNCOPE-294: re-read userTO before edit
                                 UserTO userTO = ((UserRestClient) restClient).read(model.getObject().getId());
-                                return new EditUserModalPage(PageUtils.getPageReference(page), editmodal, userTO);
+                                return new EditUserModalPage(page.getPageReference(), editmodal, userTO);
                             }
                         });
 
@@ -220,8 +217,7 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
             @Override
             public ActionLinksPanel getHeader(final String componentId) {
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(),
-                        PageUtils.getPageReference(page));
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(), page.getPageReference());
 
                 panel.add(new ActionLink() {
 
@@ -235,7 +231,7 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
                             @Override
                             public Page createPage() {
-                                return new DisplayAttributesModalPage(PageUtils.getPageReference(page), displaymodal,
+                                return new DisplayAttributesModalPage(page.getPageReference(), displaymodal,
                                         schemaNames, dSchemaNames, vSchemaNames);
                             }
                         });

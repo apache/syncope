@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.AttributesPanel;
@@ -143,8 +142,7 @@ public abstract class UserModalPage extends BaseModalPage {
         //--------------------------------
         // Roles panel
         //--------------------------------
-        form.add(new MembershipsPanel("memberships", userTO, mode == Mode.TEMPLATE, null,
-                PageUtils.getPageReference(getPage())));
+        form.add(new MembershipsPanel("memberships", userTO, mode == Mode.TEMPLATE, null, getPageReference()));
         //--------------------------------
 
         final AjaxButton submit = getOnSubmit();

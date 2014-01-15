@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.console.commons.PageUtils;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.AbstractSearchResultPanel;
@@ -68,8 +67,8 @@ public class Roles extends BasePage {
         treePanel.setOutputMarkupId(true);
         add(treePanel);
 
-        final RoleSummaryPanel summaryPanel = new RoleSummaryPanel.Builder("summaryPanel").
-                window(editRoleWin).callerPageRef(PageUtils.getPageReference(Roles.this)).build();
+        final RoleSummaryPanel summaryPanel = new RoleSummaryPanel.Builder("summaryPanel")
+                .window(editRoleWin).callerPageRef(Roles.this.getPageReference()).build();
         add(summaryPanel);
 
         editRoleWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
@@ -96,7 +95,7 @@ public class Roles extends BasePage {
         });
 
         final AbstractSearchResultPanel searchResult =
-                new RoleSearchResultPanel("searchResult", true, null, PageUtils.getPageReference(getPage()), restClient);
+                new RoleSearchResultPanel("searchResult", true, null, getPageReference(), restClient);
         add(searchResult);
 
         final Form searchForm = new Form("searchForm");
@@ -105,27 +104,26 @@ public class Roles extends BasePage {
         final RoleSearchPanel searchPanel = new RoleSearchPanel.Builder("searchPanel").build();
         searchForm.add(searchPanel);
 
-        searchForm.add(new ClearIndicatingAjaxButton("search", new ResourceModel("search"),
-                PageUtils.getPageReference(getPage())) {
+        searchForm.add(new ClearIndicatingAjaxButton("search", new ResourceModel("search"), getPageReference()) {
 
-                    private static final long serialVersionUID = -958724007591692537L;
+            private static final long serialVersionUID = -958724007591692537L;
 
-                    @Override
-                    protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                        final NodeCond searchCond = searchPanel.buildSearchCond();
-                        LOG.debug("Node condition {}", searchCond);
+            @Override
+            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                final NodeCond searchCond = searchPanel.buildSearchCond();
+                LOG.debug("Node condition {}", searchCond);
 
-                        doSearch(target, searchCond, searchResult);
+                doSearch(target, searchCond, searchResult);
 
-                        Session.get().getFeedbackMessages().clear();
-                        target.add(searchPanel.getSearchFeedback());
-                    }
+                Session.get().getFeedbackMessages().clear();
+                target.add(searchPanel.getSearchFeedback());
+            }
 
-                    @Override
-                    protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                        target.add(searchPanel.getSearchFeedback());
-                    }
-                });
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                target.add(searchPanel.getSearchFeedback());
+            }
+        });
     }
 
     private void doSearch(final AjaxRequestTarget target, final NodeCond searchCond,
@@ -147,7 +145,7 @@ public class Roles extends BasePage {
             final TreeNodeClickUpdate update = (TreeNodeClickUpdate) event.getPayload();
 
             final RoleSummaryPanel summaryPanel = new RoleSummaryPanel.Builder("summaryPanel")
-                    .window(editRoleWin).callerPageRef(PageUtils.getPageReference(Roles.this))
+                    .window(editRoleWin).callerPageRef(Roles.this.getPageReference())
                     .selectedNodeId(update.getSelectedNodeId()).build();
 
             addOrReplace(summaryPanel);
