@@ -27,7 +27,7 @@ under the License.
 <%
     String encodedAuth = new sun.misc.BASE64Encoder().encode("admin:password".getBytes());
 
-    URL url = new URL("http://localhost:9080/syncope/rest/connector/reload.json");
+    URL url = new URL("http://localhost:9080/syncope/rest/connectors/reload.json");
 
     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
     conn.setRequestMethod("POST");
