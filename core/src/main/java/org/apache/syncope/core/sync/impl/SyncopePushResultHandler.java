@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.sync.impl;
 
-import static org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler.LOG;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
