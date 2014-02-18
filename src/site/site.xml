@@ -24,18 +24,20 @@ under the License.
                              http://maven.apache.org/xsd/decoration-1.1.0.xsd" 
          name="Apache Syncope">
 
-  <publishDate position="right"/>
+  <publishDate position="none"/>
   <version position="none"/>
  
   <skin>
     <groupId>org.apache.maven.skins</groupId>
     <artifactId>maven-fluido-skin</artifactId>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
   </skin>
   <custom>
     <fluidoSkin>
       <topBarEnabled>true</topBarEnabled>
       <sideBarEnabled>false</sideBarEnabled>
+      <sourceLineNumbersEnabled>true</sourceLineNumbersEnabled>
+      <skipGenerationDate>true</skipGenerationDate>
       <twitter>
         <user>syncopeidm</user>
         <showUser>true</showUser>
@@ -47,6 +49,9 @@ under the License.
       </ohloh>
       <facebookLike/>
       <googlePlusOne/>
+      <gitHub>
+        <projectId>apache/syncope</projectId>
+      </gitHub>
     </fluidoSkin>
   </custom>
   
@@ -92,7 +97,7 @@ under the License.
     </menu>
 
     <footer>
-      <div class="row span16" style="width:100%">
+      <div class="row">
         Apache, Syncope, Apache Syncope, the Apache feather logo and the Apache Syncope project logo are trademarks of The Apache Software Foundation. All other marks mentioned may be trademarks or registered trademarks of their respective owners.
       </div>
     </footer>
