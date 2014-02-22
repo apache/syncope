@@ -2,6 +2,31 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.1.6
+================================================================================
+** Bug
+    * [SYNCOPE-452] - Generated project not starting in embedded mode
+    * [SYNCOPE-453] - Propagation problem with role virtual attribute mapped in user mapping 
+    * [SYNCOPE-454] - Update user without password specification involving resource with "Generate password if missing" enabled, sends password out anyway
+    * [SYNCOPE-455] - Role child implicit delete won't be propagated during parent delete
+    * [SYNCOPE-459] - Read-only virtual attribute cannot be added for a user by admin console
+    * [SYNCOPE-462] - Upgrade Spring to 3.2.7
+    * [SYNCOPE-465] - Selected items lost browsing paged results
+    * [SYNCOPE-466] - Server error when updating an existing policy to its global counterpart
+    * [SYNCOPE-474] - forbidden error when tried to change password
+    * [SYNCOPE-475] - After session expired, console shows split screen
+    * [SYNCOPE-476] - NPE opening Roles tab
+    * [SYNCOPE-477] - Alert popup appears through page navigation after modal window closing
+
+** Improvement
+    * [SYNCOPE-460] - Default datasource uses BasicDataSource
+    * [SYNCOPE-468] - Add information to what components refer to a certain policy
+    * [SYNCOPE-469] - Group policies and logs under configuration
+
+** Task
+    * [SYNCOPE-463] - Update notification docs after SYNCOPE-423
+    * [SYNCOPE-478] - Upgrade to Wicket 6.14.0
+
 Release Notes - Syncope - Version 1.1.5
 ================================================================================
 ** Bug
@@ -28,8 +53,6 @@ Release Notes - Syncope - Version 1.1.5
 ** Task
     * [SYNCOPE-448] - Provide build instructions
     * [SYNCOPE-449] - Fix support for Eclipse IDE
-
-
 
 Release Notes - Syncope - Version 1.1.4
 ================================================================================
