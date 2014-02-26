@@ -468,6 +468,8 @@ rm <version>/syncope-*asc.asc
 svn add <version>
 svn commit -m "Promoting the voted release artifacts to dist-dev area"
 
+svn mkdir -m "Creating root dir for new release" https://dist.apache.org/repos/dist/release/syncope/<version>
+
 svn mv -m "Moving the voted release artifacts to dist/release (source)" \
 https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip \
 https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip.asc \
@@ -481,6 +483,8 @@ https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-standalone-<ver
 https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-standalone-<version>-distribution.zip.md5 \
 https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-standalone-<version>-distribution.zip.sha1 \
 https://dist.apache.org/repos/dist/release/syncope/<version>
+
+svn rm -m "Cleaning up older releases" https://dist.apache.org/repos/dist/dev/syncope/<version>
 
 svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
 cd syncope-dist-release
