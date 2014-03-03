@@ -87,7 +87,7 @@ public class ImplementationClassNamesLoader {
 
                 try {
                     Class<?> clazz = ClassUtils.forName(metadata.getClassName(), ClassUtils.getDefaultClassLoader());
-                    Set<Class> interfaces = ClassUtils.getAllInterfacesForClassAsSet(clazz);
+                    Set<Class<?>> interfaces = ClassUtils.getAllInterfacesForClassAsSet(clazz);
 
                     if (interfaces.contains(Reportlet.class) && !metadata.isAbstract()) {
                         classNames.get(Type.REPORTLET).add(clazz.getName());

@@ -317,7 +317,7 @@ under the License.
     <aspectj.version>1.7.4</aspectj.version>
 
     <cxf.version>3.0.0-milestone2</cxf.version>	
-    <spring.version>3.2.8.RELEASE</spring.version>
+    <spring.version>4.0.2.RELEASE</spring.version>
     <spring-security.version>3.2.0.RELEASE</spring-security.version>
     <jackson.version>2.3.1</jackson.version>
     <xstream.version>1.4.6</xstream.version>
