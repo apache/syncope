@@ -228,7 +228,7 @@ public abstract class AbstractTest {
                 .getRequestFactory());
 
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(uid, pwd));
+                requestFactory.getLoginAuthScope(), new UsernamePasswordCredentials(uid, pwd));
     }
 
     private RestTemplate getAnonymousRestTemplate() {

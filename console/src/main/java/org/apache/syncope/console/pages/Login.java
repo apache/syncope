@@ -188,7 +188,7 @@ public class Login extends WebPage {
                 ((PreemptiveAuthHttpRequestFactory) restTemplate.getRequestFactory());
 
         ((DefaultHttpClient) requestFactory.getHttpClient()).getCredentialsProvider().setCredentials(
-                requestFactory.getAuthScope(), new UsernamePasswordCredentials(userId, password));
+                requestFactory.getLoginAuthScope(), new UsernamePasswordCredentials(userId, password));
 
         // 2. Search authorizations for user specified by credentials
         Set<EntitlementTO> entitlements = SyncopeSession.get().getService(EntitlementService.class).getMyEntitlements();

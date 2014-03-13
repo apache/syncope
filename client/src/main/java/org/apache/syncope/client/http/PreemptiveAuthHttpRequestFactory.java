@@ -56,6 +56,11 @@ public class PreemptiveAuthHttpRequestFactory extends HttpComponentsClientHttpRe
     }
 
     public AuthScope getAuthScope() {
+        return new AuthScope(targetHost.getHostName(), targetHost.getPort(), AuthScope.ANY_REALM, targetHost.
+                getSchemeName());
+    }
+
+    public AuthScope getLoginAuthScope() {
         return new AuthScope(targetHost.getHostName(), targetHost.getPort());
     }
 
