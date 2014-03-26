@@ -259,6 +259,17 @@ under the License.
       <url>http://people.apache.org/~gwimmel/</url>
       <email>gwimmel@apache.org</email>
     </developer>
+    <developer>
+        <id>andreapatricelli</id>
+      <name>Andrea Patricelli</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <url>http://people.apache.org/~andreapatricelli/</url>
+      <email>andreapatricelli@apache.org</email>
+    </developer>
   </developers>
 
   <contributors>
@@ -281,12 +292,6 @@ under the License.
       <organization>Exprivia</organization>
       <organizationUrl>http://www.exprivia.it/home</organizationUrl>
       <url>http://br.linkedin.com/pub/bruno-moura/1b/2a/806</url>
-    </contributor>
-    <contributor>
-      <name>Andrea Patricelli</name>
-      <email>andrea.patricelli@tirasa.net</email>
-      <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
     </contributor>
   </contributors>
 
