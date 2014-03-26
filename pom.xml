@@ -260,7 +260,7 @@ under the License.
       <email>gwimmel@apache.org</email>
     </developer>
     <developer>
-        <id>andreapatricelli</id>
+      <id>andreapatricelli</id>
       <name>Andrea Patricelli</name>
       <organization>Tirasa</organization>
       <organizationUrl>http://www.tirasa.net/</organizationUrl>
@@ -531,27 +531,27 @@ under the License.
         <artifactId>velocity-tools</artifactId>
         <version>${velocitytools.version}</version>
         <exclusions>
-  			<exclusion>
-  				<artifactId>struts-core</artifactId>
-  				<groupId>org.apache.struts</groupId>
-  			</exclusion>
-  			<exclusion>
-  				<artifactId>struts-taglib</artifactId>
-  				<groupId>org.apache.struts</groupId>
-  			</exclusion>
-  			<exclusion>
-  				<artifactId>struts-tiles</artifactId>
-  				<groupId>org.apache.struts</groupId>
-  			</exclusion>
-  			<exclusion>
-  				<artifactId>sslext</artifactId>
-  				<groupId>sslext</groupId>
-  			</exclusion>
-  			<exclusion>
-  				<artifactId>commons-beanutils</artifactId>
-  				<groupId>commons-beanutils</groupId>
-  			</exclusion>
-  		</exclusions>
+          <exclusion>
+            <artifactId>struts-core</artifactId>
+            <groupId>org.apache.struts</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>struts-taglib</artifactId>
+            <groupId>org.apache.struts</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>struts-tiles</artifactId>
+            <groupId>org.apache.struts</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>sslext</artifactId>
+            <groupId>sslext</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>commons-beanutils</artifactId>
+            <groupId>commons-beanutils</groupId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <!-- Spring -->

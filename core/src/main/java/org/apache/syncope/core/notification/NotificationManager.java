@@ -70,7 +70,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @see NotificationTask
  */
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = { Throwable.class })
 public class NotificationManager {
 
     /**
@@ -125,7 +125,7 @@ public class NotificationManager {
      */
     @Autowired
     private VelocityEngine velocityEngine;
-    
+
     /**
      * Velocity tool manager.
      */
@@ -193,47 +193,39 @@ public class NotificationManager {
 
         String htmlBody = mergeTemplateIntoString("mailTemplates/" + notification.getTemplate() + ".html.vm", model);
         String textBody = mergeTemplateIntoString("mailTemplates/" + notification.getTemplate() + ".txt.vm", model);
-        
+
         task.setHtmlBody(htmlBody);
         task.setTextBody(textBody);
-        
+
         return task;
     }
 
-    
-    
-    private String mergeTemplateIntoString(String templateLocation, Map<String, Object> model) {
-    	StringWriter result = new StringWriter();
-    	try {
-			Context velocityContext = createVelocityContext(model);
-			velocityEngine.mergeTemplate(templateLocation, SyncopeConstants.DEFAULT_ENCODING, velocityContext, result);
-		}
-		catch (VelocityException e) {
-			LOG.error("Could not get mail body", e);
-			return "";
-		}
-    	// ensure same behaviour as by using Spring VelocityEngineUtils.mergeTemplateIntoString()
-		catch (RuntimeException e) {
-			throw e;
-		}
-		catch (Exception e) {
-			LOG.error("Could not get mail body", e);
-			return "";
-		}
-    	return result.toString();
-    	
+    private String mergeTemplateIntoString(final String templateLocation, final Map<String, Object> model) {
+        StringWriter result = new StringWriter();
+        try {
+            Context velocityContext = createVelocityContext(model);
+            velocityEngine.mergeTemplate(templateLocation, SyncopeConstants.DEFAULT_ENCODING, velocityContext, result);
+        } catch (VelocityException e) {
+            LOG.error("Could not get mail body", e);
+        } catch (RuntimeException e) {
+            // ensure same behaviour as by using Spring VelocityEngineUtils.mergeTemplateIntoString()
+            throw e;
+        } catch (Exception e) {
+            LOG.error("Could not get mail body", e);
+        }
+
+        return result.toString();
     }
-    
-    
+
     /**
      * Create a Velocity Context for the given model, to be passed to the template for merging.
-     * 
+     *
      * @param model Velocity model
      * @return Velocity context
      */
     protected Context createVelocityContext(Map<String, Object> model) {
-    	Context toolContext = velocityToolManager.createContext();
-    	return new VelocityContext(model, toolContext);
+        Context toolContext = velocityToolManager.createContext();
+        return new VelocityContext(model, toolContext);
     }
 
     /**
@@ -279,7 +271,7 @@ public class NotificationManager {
                 LOG.debug("No events found about {}", attributable);
             } else if (attributableType == null || attributable == null || notification.getAbout() == null
                     || searchDAO.matches(attributable, notification.getAbout(),
-                    AttributableUtil.getInstance(attributableType))) {
+                            AttributableUtil.getInstance(attributableType))) {
 
                 LOG.debug("Creating notification task for events {} about {}", events, attributable);
 
