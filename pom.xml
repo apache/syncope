@@ -328,7 +328,7 @@ under the License.
     <xstream.version>1.4.7</xstream.version>
     <velocity.version>1.7</velocity.version>
     <velocitytools.version>2.0</velocitytools.version>
-    <quartz.version>2.1.7</quartz.version>
+    <quartz.version>2.2.1</quartz.version>
 
     <openjpa.version>2.3.0</openjpa.version>
     <bval.version>0.5</bval.version>
