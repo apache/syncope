@@ -77,4 +77,11 @@ under the License.
       </value>
     </property>
   </bean>
+  
+  <bean id="velocityToolManager" class="org.apache.velocity.tools.ToolManager">
+    <!-- autoConfigure -->
+    <constructor-arg index="0" value="true"/>
+    <!-- include default velocity tools -->
+    <constructor-arg index="1" value="true"/>
+  </bean>
 </beans>

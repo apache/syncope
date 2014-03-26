@@ -24,15 +24,18 @@ import static org.junit.Assert.assertNotNull;
 
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 import javax.annotation.Resource;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Store;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.search.MembershipCond;
 import org.apache.syncope.common.search.NodeCond;
@@ -241,14 +244,21 @@ public class NotificationTest {
         notificationJob.execute(null);
         assertTrue(verifyMail(sender, subject));
 
-        // 4. get NotificationTask id
+        // 4. get NotificationTask id and text body
         Long taskId = null;
+        String textBody = null;
         for (NotificationTask task : taskDAO.findAll(NotificationTask.class)) {
             if (sender.equals(task.getSender())) {
                 taskId = task.getId();
+                textBody = task.getTextBody();
             }
         }
         assertNotNull(taskId);
+        assertNotNull(textBody);
+        assertTrue("Notification mail text doesn't contain expected content.",
+        		textBody.contains("Your email address is notificationtest@syncope.apache.org."));
+        assertTrue("Notification mail text doesn't contain expected content.",
+        		textBody.contains("Your email address inside a link: http://localhost/?email=notificationtest%40syncope.apache.org ."));
 
         // 5. execute Notification task and verify e-mail
         taskController.execute(taskId, false);

@@ -327,6 +327,7 @@ under the License.
     <jackson.version>1.9.13</jackson.version>
     <xstream.version>1.4.7</xstream.version>
     <velocity.version>1.7</velocity.version>
+    <velocitytools.version>2.0</velocitytools.version>
     <quartz.version>2.1.7</quartz.version>
 
     <openjpa.version>2.2.2</openjpa.version>
@@ -523,6 +524,34 @@ under the License.
         <groupId>org.apache.velocity</groupId>
         <artifactId>velocity</artifactId>
         <version>${velocity.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.velocity</groupId>
+        <artifactId>velocity-tools</artifactId>
+        <version>${velocitytools.version}</version>
+        <exclusions>
+  			<exclusion>
+  				<artifactId>struts-core</artifactId>
+  				<groupId>org.apache.struts</groupId>
+  			</exclusion>
+  			<exclusion>
+  				<artifactId>struts-taglib</artifactId>
+  				<groupId>org.apache.struts</groupId>
+  			</exclusion>
+  			<exclusion>
+  				<artifactId>struts-tiles</artifactId>
+  				<groupId>org.apache.struts</groupId>
+  			</exclusion>
+  			<exclusion>
+  				<artifactId>sslext</artifactId>
+  				<groupId>sslext</groupId>
+  			</exclusion>
+  			<exclusion>
+  				<artifactId>commons-beanutils</artifactId>
+  				<groupId>commons-beanutils</groupId>
+  			</exclusion>
+  		</exclusions>
       </dependency>
 
       <!-- Spring -->
