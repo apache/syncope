@@ -251,12 +251,11 @@ public class NotificationTest {
         }
         assertNotNull(taskId);
         assertNotNull(textBody);
-        // FIXME: this fails - optin.txt.vm not correct?
-//        assertTrue("Notification mail text doesn't contain expected content.",
-//                textBody.contains("Your email address is notificationtest@syncope.apache.org."));
         assertTrue("Notification mail text doesn't contain expected content.",
-                textBody.contains(
-                        "Your email address inside a link: http://localhost/?email=notificationtest%40syncope.apache.org ."));
+		   textBody.contains("Your email address is notificationtest@syncope.apache.org."));
+        assertTrue("Notification mail text doesn't contain expected content.",
+		   textBody.contains("Your email address inside a link: " 
+				     + "http://localhost/?email=notificationtest%40syncope.apache.org ."));
 
         // 5. execute Notification task and verify e-mail
         taskController.execute(taskId, false);

@@ -19,11 +19,11 @@ under the License.
 -->
 <html>
 <body>
-<h3>Hi $user.getAttributeMap().get("firstname").getValues().get(0) $user.getAttributeMap().get("surname").getValues().get(0), welcome to Syncope!</h3>
+<h3>Hi $user.getAttrMap().get("firstname").getValues().get(0) $user.getAttrMap().get("surname").getValues().get(0), welcome to Syncope!</h3>
 
 <p>
    Your username is $user.getUsername().<br/>
-   Your email address is $user.getAttributeMap().get("email").getValues().get(0).
+   Your email address is $user.getAttrMap().get("email").getValues().get(0).
    Your email address inside a <a href="http://localhost/?email=$esc.url($user.getUsername())">link</a>.
 </p>
 
@@ -31,7 +31,7 @@ under the License.
     This message was sent to the following recipients:
 <ul>
 #foreach($recipient in $recipients)
-  <li>$recipient.getAttributeMap().get("email").getValues().get(0)</li>
+  <li>$recipient.getAttrMap().get("email").getValues().get(0)</li>
 #end
 </ul>
 
