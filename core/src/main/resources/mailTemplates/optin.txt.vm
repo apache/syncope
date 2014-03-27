@@ -13,7 +13,7 @@ Hi $user.getAttributeMap().get("firstname").getValues().get(0) $user.getAttribut
 
 Your username is $user.getUsername().
 Your email address is $user.getAttributeMap().get("email").getValues().get(0).
-Your email address inside a link: http://localhost/?email=$esc.url($user.getUsername()) .
+Your email address inside a link: http://localhost/?email=$esc.url($user.getAttributeMap().get("email").getValues().get(0)) .
 
 This message was sent to the following recipients:
 #foreach($recipient in $recipients)
