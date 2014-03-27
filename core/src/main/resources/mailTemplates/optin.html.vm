@@ -24,7 +24,7 @@ under the License.
 <p>
    Your username is $user.getUsername().<br/>
    Your email address is $user.getAttrMap().get("email").getValues().get(0).
-   Your email address inside a <a href="http://localhost/?email=$esc.url($user.getUsername())">link</a>.
+   Your email address inside a <a href="http://localhost/?email=$esc.url($user.getAttrMap().get("email").getValues().get(0))">link</a>.
 </p>
 
 <p>
