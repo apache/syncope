@@ -63,7 +63,7 @@ import org.apache.syncope.core.persistence.dao.VirAttrDAO;
 import org.apache.syncope.core.persistence.dao.VirSchemaDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.util.JexlUtil;
+import org.apache.syncope.core.util.jexl.JexlUtil;
 import org.apache.syncope.types.AttributableType;
 import org.apache.syncope.types.PropagationOperation;
 import org.apache.syncope.types.SyncopeClientExceptionType;

@@ -26,7 +26,7 @@ import javax.persistence.MappedSuperclass;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.util.ApplicationContextProvider;
-import org.apache.syncope.core.util.JexlUtil;
+import org.apache.syncope.core.util.jexl.JexlUtil;
 import org.springframework.context.ConfigurableApplicationContext;
 
 @MappedSuperclass

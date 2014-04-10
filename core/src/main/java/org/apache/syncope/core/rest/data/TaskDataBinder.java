@@ -41,7 +41,7 @@ import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.TaskExecDAO;
-import org.apache.syncope.core.util.JexlUtil;
+import org.apache.syncope.core.util.jexl.JexlUtil;
 import org.apache.syncope.core.util.TaskUtil;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.quartz.Scheduler;
