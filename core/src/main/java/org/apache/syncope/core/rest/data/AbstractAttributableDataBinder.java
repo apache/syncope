@@ -84,7 +84,7 @@ import org.apache.syncope.core.persistence.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.validation.attrvalue.InvalidAttrValueException;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.util.JexlUtil;
+import org.apache.syncope.core.util.jexl.JexlUtil;
 import org.apache.syncope.core.util.MappingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

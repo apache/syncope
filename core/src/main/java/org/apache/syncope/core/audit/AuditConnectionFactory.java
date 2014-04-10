@@ -20,7 +20,6 @@ package org.apache.syncope.core.audit;
 
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -105,14 +104,12 @@ public class AuditConnectionFactory {
 
         // 3. Initializes the chosen datasource
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.setScripts(new Resource[] {new ClassPathResource("/audit/" + initSQLScript)});
+        populator.setScripts(new Resource[] { new ClassPathResource("/audit/" + initSQLScript) });
         // forces no statement separation
         populator.setSeparator("XXXXXXXXXXXXXXXXX");
         Connection conn = DataSourceUtils.getConnection(datasource);
         try {
             populator.populate(conn);
-        } catch (SQLException e) {
-            throw new IllegalStateException("Could not init the Audit datasource", e);
         } finally {
             DataSourceUtils.releaseConnection(conn, datasource);
         }

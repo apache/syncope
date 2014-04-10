@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.util;
 
+import org.apache.syncope.core.util.jexl.JexlUtil;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
