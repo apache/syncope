@@ -48,7 +48,7 @@ import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
-import org.apache.syncope.core.util.JexlUtil;
+import org.apache.syncope.core.util.jexl.JexlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;

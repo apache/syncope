@@ -28,7 +28,7 @@ import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.util.JexlUtil;
+import org.apache.syncope.core.util.jexl.JexlUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

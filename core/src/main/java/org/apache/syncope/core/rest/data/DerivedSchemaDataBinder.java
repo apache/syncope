@@ -24,7 +24,7 @@ import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
-import org.apache.syncope.core.util.JexlUtil;
+import org.apache.syncope.core.util.jexl.JexlUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;

@@ -25,7 +25,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
-import org.apache.syncope.core.util.JexlUtil;
+import org.apache.syncope.core.util.jexl.JexlUtil;
 
 @MappedSuperclass
 public abstract class AbstractDerAttr extends AbstractBaseBean {

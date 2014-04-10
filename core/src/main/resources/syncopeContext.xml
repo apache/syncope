@@ -85,12 +85,6 @@ under the License.
   
   <task:annotation-driven executor="connectorExecutor"/>
   <task:executor id="connectorExecutor" pool-size="10"/>
-
-  <bean id="jexlEngine" class="org.apache.commons.jexl2.JexlEngine">
-    <property name="cache" value="512"/>
-    <property name="lenient" value="true"/>
-    <property name="silent" value="false"/>
-  </bean>
   
   <bean id="virAttrCache" class="org.apache.syncope.core.util.VirAttrCache" scope="singleton">
     <constructor-arg value="60"/>

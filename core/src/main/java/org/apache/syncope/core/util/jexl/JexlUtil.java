@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.util;
+package org.apache.syncope.core.util.jexl;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -36,13 +36,14 @@ import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
+import org.apache.syncope.core.util.DataFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @see http://commons.apache.org/jexl/reference/index.html
  */
-public class JexlUtil {
+public final class JexlUtil {
 
     /**
      * Logger.
@@ -57,7 +58,11 @@ public class JexlUtil {
     private static JexlEngine getEngine() {
         synchronized (LOG) {
             if (jexlEngine == null) {
-                jexlEngine = ApplicationContextProvider.getApplicationContext().getBean(JexlEngine.class);
+                jexlEngine = new JexlEngine(new ClassFreeUberspectImpl(null), null, null, null);
+                jexlEngine.setClassLoader(new EmptyClassLoader());
+                jexlEngine.setCache(512);
+                jexlEngine.setLenient(true);
+                jexlEngine.setSilent(false);
             }
         }
 

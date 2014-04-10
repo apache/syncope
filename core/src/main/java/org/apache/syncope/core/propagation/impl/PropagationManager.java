@@ -51,7 +51,7 @@ import org.apache.syncope.core.rest.data.AbstractAttributableDataBinder;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.util.JexlUtil;
+import org.apache.syncope.core.util.jexl.JexlUtil;
 import org.apache.syncope.core.util.MappingUtil;
 import org.apache.syncope.core.util.VirAttrCache;
 import org.apache.syncope.core.workflow.WorkflowResult;

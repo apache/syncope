@@ -75,12 +75,5 @@ under the License.
     </property>
   </bean>
 
-  <bean id="jexlEngine" class="org.apache.commons.jexl2.JexlEngine">
-    <property name="cache" value="512"/>
-    <property name="lenient" value="true"/>
-    <property name="silent" value="false"/>
-  </bean>
-  <bean id="jexlUtil" class="org.apache.syncope.core.util.JexlUtil"/>
-
   <import resource="persistenceContext.xml"/>
 </beans>
