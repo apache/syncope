@@ -33,7 +33,7 @@ under the License.
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>12</version>
+    <version>13</version>
     <relativePath />
   </parent>
   
@@ -98,7 +98,7 @@ under the License.
       
       <plugin>
         <artifactId>maven-release-plugin</artifactId>
-        <version>2.4</version>
+        <version>2.5</version>
         <configuration>
           <mavenExecutorId>forked-path</mavenExecutorId>
           <autoVersionSubmodules>true</autoVersionSubmodules>
