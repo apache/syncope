@@ -2,6 +2,11 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.0.9
+================================================================================
+** Bug
+    * [SYNCOPE-364] - Rejected users are anyway propagate to associated resources
+
 Release Notes - Syncope - Version 1.0.8
 ================================================================================
 ** Bug
