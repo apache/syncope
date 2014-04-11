@@ -32,6 +32,7 @@ import org.apache.syncope.types.IntMappingType;
 import org.apache.syncope.types.SyncopeClientExceptionType;
 import org.apache.syncope.types.TraceLevel;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
@@ -139,7 +140,7 @@ public class NotificationTestITCase extends AbstractTest {
         assertNotNull(exception);
     }
 
-    @Test
+    @Test @Ignore
     public void issueSYNCOPE83() {
         NotificationTO notificationTO = new NotificationTO();
         notificationTO.setTraceLevel(TraceLevel.SUMMARY);
