@@ -233,7 +233,7 @@ svn checkout https://svn.apache.org/repos/asf/syncope/tags/syncope-<version> syn
 
 cd syncope-<version>
 mvn clean install
-mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>>
+mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>
 
 cd ../site/<version>
 rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-common syncope-standalone project-reports.html apidocs/1.html
@@ -250,7 +250,7 @@ svn checkout https://svn.apache.org/repos/asf/syncope/tags/syncope-<version> syn
                   
 cd syncope-<version>
 mvn clean install
-mvn -f parent/pom.xml -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>>
+mvn -f parent/pom.xml -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>
                   
 cd ../site/<version>
 rm -rf images css syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-hibernate-enhancer syncope-quality project-reports.html apidocs/1.html
@@ -259,7 +259,7 @@ cd ../..
 svn checkout https://svn.apache.org/repos/asf/syncope/branches/1_1_X syncope-1_1_X
 
 cd syncope-1_1_X
-mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>>
+mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>
 
 cd ../site/<version>
 rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-common syncope-standalone project-reports.html apidocs/1.html apidocs/1.1
