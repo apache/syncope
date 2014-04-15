@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+
+  <properties>
+    <title>Security Advisories</title>
+    <author email="dev@syncope.apache.org">Apache Syncope Documentation Team</author>
+  </properties>
+
+  <body>
+
+    <section name="Security Advisories">
+      <p>This page lists all security vulnerabilities fixed in released versions of Apache Syncope.</p>
+      <p>Please note that binary patches are never provided. If you need to apply a source code patch, use the <a href="building.html">building instructions</a> or <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Create+a+new+Syncope+project">re-generate your Maven project</a> from published archetype.</p>
+
+      <p>If you want to report a vulnerability, please follow <a href="http://www.apache.org/security/">the procedure</a>.</p>
+
+      <subsection name="CVE-2014-0111: Remote code execution by an authenticated administrator">	
+	<p>In the various places in which Apache Commons JEXL expressions are allowed (derived schema definition, user / role templates, account links of resource mappings) a malicious administrator can inject Java code that can be executed remotely by the JEE container running the Apache Syncope core.</p>
+
+
+	<p><b>Affects</b></p>
+	<p>
+	  <ul>
+	    <li>Releases 1.0.0 to 1.0.8</li>
+	    <li>Releases 1.1.0 to 1.1.6</li>
+	  </ul>
+	</p>
+
+	<p><b>Fixed in</b></p>
+	<p>
+	  <ul>
+	    <li>Revisions <a href="http://svn.apache.org/viewvc?view=revision&amp;revision=r1586349">1586349</a> / <a href="http://svn.apache.org/viewvc?view=revision&amp;revision=r1586317">1586317</a></li>
+	    <li>Releases 1.0.9 / 1.1.7</li>
+	  </ul>
+	</p>
+
+	<p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0111">full CVE advisory</a>.</p>
+      </subsection>
+    </section>
+
+  </body>
+</document>
