@@ -320,7 +320,7 @@ under the License.
 
     <activiti.version>5.14</activiti.version>
 
-    <cxf.version>2.7.10</cxf.version>	
+    <cxf.version>2.7.11</cxf.version>	
     <spring.version>3.2.8.RELEASE</spring.version>
     <spring-security.version>3.1.6.RELEASE</spring-security.version>
     <aspectj.version>1.7.4</aspectj.version>
