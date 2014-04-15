@@ -2,6 +2,13 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.1.7
+================================================================================
+** Bug
+    * [SYNCOPE-484] - Reports and Content export fails over HTTPS connection
+** Improvement
+    * [SYNCOPE-487] - make Velocity tools available in templates for notifications
+
 Release Notes - Syncope - Version 1.1.6
 ================================================================================
 ** Bug
@@ -322,6 +329,11 @@ Release Notes - Syncope - Version 1.1.0
     * [SYNCOPE-278] - Verify export / import
     * [SYNCOPE-326] - Check console style (CSS) on Internet Explorer
     * [SYNCOPE-350] - Provide Getting started / Standalone distribution
+
+Release Notes - Syncope - Version 1.0.9
+================================================================================
+** Bug
+    * [SYNCOPE-364] - Rejected users are anyway propagate to associated resources
 
 Release Notes - Syncope - Version 1.0.8
 ================================================================================
