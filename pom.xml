@@ -32,8 +32,8 @@ under the License.
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>13</version>
-    <relativePath />
+    <version>14</version>
+    <relativePath/>
   </parent>
 
   <url>http://syncope.apache.org/</url>
