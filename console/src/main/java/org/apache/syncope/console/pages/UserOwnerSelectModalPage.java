@@ -57,12 +57,12 @@ public class UserOwnerSelectModalPage extends BaseModalPage {
                 doSearch(target, searchCond, searchResult);
 
                 Session.get().getFeedbackMessages().clear();
-                target.add(searchPanel.getSearchFeedback());
+                searchPanel.getSearchFeedback().refresh(target);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(searchPanel.getSearchFeedback());
+                searchPanel.getSearchFeedback().refresh(target);
             }
         });
 

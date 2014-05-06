@@ -177,7 +177,7 @@ public class ReportletConfModalPage extends BaseModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(feedbackPanel);
+                feedbackPanel.refresh(target);
             }
         };
         form.add(submit);

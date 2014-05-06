@@ -17,62 +17,64 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:head>
-    <style>
-      div.role-tree div.wicket-tree-table a {
-        color:black;
-      }
-    </style>
-    <script type="text/javascript">
-      $(document).ready(function() {
-        $("#roletabs").tabs();
-      });
-    </script>
-  </wicket:head>
-  <wicket:extend>
-    <div id="roletabs">
-      <ul>
-        <li class="tabs-selected">
-          <a href="#tabs-tree">
-            <span><wicket:message key="tabs-tree"/>
-            </span>
-          </a>
-        </li>
-        <li>
-          <a href="#tabs-search">
-            <span><wicket:message key="tabs-search"/>
-            </span>
-          </a>
-        </li>
-      </ul>
+    <wicket:head>
+        <style>
+            div.role-tree div.wicket-tree-table a {
+                color:black;
+            }
+        </style>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $("#roletabs").tabs();
+            });
+        </script>
+    </wicket:head>
+    <wicket:extend>
+        <div id="roletabs">
+            <ul>
+                <li class="tabs-selected">
+                    <a href="#tabs-tree">
+                        <span><wicket:message key="tabs-tree"/>
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#tabs-search">
+                        <span><wicket:message key="tabs-search"/>
+                        </span>
+                    </a>
+                </li>
+            </ul>
 
-      <div id="tabs-tree">
-        <span wicket:id="treePanel"></span>
-        <span wicket:id="summaryPanel"></span>
-        <div wicket:id="editRoleWin">[Show modal window for create/editing role]</div>
-      </div>
+            <div id="tabs-tree" >
+                <div wicket:id="roleTabsContainer">
+                    <span wicket:id="treePanel"></span>
+                    <span wicket:id="summaryPanel"></span>
+                </div>
+                <div wicket:id="editRoleWin">[Show modal window for create/editing role]</div>
+            </div>
 
-      <div id="tabs-search">
-        <div>
-          <form wicket:id="searchForm">
-            <span wicket:id="searchPanel">searchPanel</span>
+            <div id="tabs-search">
+                <div>
+                    <form wicket:id="searchForm">
+                        <span wicket:id="searchPanel">searchPanel</span>
 
-            <br/>
-            <a wicket:id="search"
-               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
-              <img src="img/search.png" alt="search"/>
-              <wicket:message key="search"/>
-            </a>
-          </form>
+                        <br/>
+                        <a wicket:id="search"
+                           class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+                            <img src="img/search.png" alt="search"/>
+                            <wicket:message key="search"/>
+                        </a>
+                    </form>
+                </div>
+
+                <div id="users-contain" class="ui-widget" style="width:auto">
+                    <span wicket:id="searchResult">[search result]</span>
+                </div>
+            </div>
+
         </div>
 
-        <div id="users-contain" class="ui-widget" style="width:auto">
-          <span wicket:id="searchResult">[search result]</span>
-        </div>
-      </div>
-
-    </div>
-
-    <wicket:child/>
-  </wicket:extend>
+        <wicket:child/>
+    </wicket:extend>
 </html>

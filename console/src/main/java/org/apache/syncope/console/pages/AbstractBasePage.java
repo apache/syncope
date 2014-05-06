@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.pages.panels.NotificationPanel;
 import org.apache.syncope.console.rest.ReportRestClient;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.rest.RoleRestClient;
@@ -32,7 +33,6 @@ import org.apache.wicket.markup.head.HeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.PriorityHeaderItem;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
@@ -85,7 +85,7 @@ public class AbstractBasePage extends WebPage {
     @SpringBean
     protected ReportRestClient reportRestClient;
 
-    protected FeedbackPanel feedbackPanel;
+    protected NotificationPanel feedbackPanel;
 
     /**
      * Response flag set by the Modal Window after the operation is completed.
@@ -102,12 +102,12 @@ public class AbstractBasePage extends WebPage {
     }
 
     protected final void setupFeedbackPanel() {
-        feedbackPanel = new FeedbackPanel(Constants.FEEDBACK);
+        feedbackPanel = new NotificationPanel(Constants.FEEDBACK);
         feedbackPanel.setOutputMarkupId(true);
         add(feedbackPanel);
     }
 
-    public FeedbackPanel getFeedbackPanel() {
+    public NotificationPanel getFeedbackPanel() {
         return feedbackPanel;
     }
 

@@ -145,7 +145,7 @@ public class SchedTasks extends AbstractTasks {
                             error(scce.getMessage());
                         }
 
-                        target.add(getPage().get(Constants.FEEDBACK));
+                        ((NotificationPanel) getPage().get(Constants.FEEDBACK)).refresh(target);
                         target.add(container);
                     }
                 }, ActionLink.ActionType.EXECUTE, TASKS);
@@ -163,7 +163,7 @@ public class SchedTasks extends AbstractTasks {
                             error(scce.getMessage());
                         }
 
-                        target.add(getPage().get(Constants.FEEDBACK));
+                        ((NotificationPanel) getPage().get(Constants.FEEDBACK)).refresh(target);
                         target.add(container);
                     }
                 }, ActionLink.ActionType.DRYRUN, TASKS);
@@ -181,7 +181,7 @@ public class SchedTasks extends AbstractTasks {
                             error(scce.getMessage());
                         }
                         target.add(container);
-                        target.add(getPage().get(Constants.FEEDBACK));
+                        ((NotificationPanel) getPage().get(Constants.FEEDBACK)).refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, TASKS);
 

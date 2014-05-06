@@ -135,7 +135,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
                 } catch (Exception e) {
                     LOG.error("Error unlinkink resources", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                 }
             }
         }, ActionLink.ActionType.UNLINK, pageId);
@@ -151,7 +151,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
                 } catch (Exception e) {
                     LOG.error("Error de-provisioning user", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                 }
             }
         }, ActionLink.ActionType.DEPROVISION, pageId);
@@ -167,7 +167,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
                 } catch (Exception e) {
                     LOG.error("Error unassigning resources", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                 }
             }
         }, ActionLink.ActionType.UNASSIGN, pageId);

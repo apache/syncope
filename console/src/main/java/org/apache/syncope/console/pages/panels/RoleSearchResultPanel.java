@@ -150,7 +150,7 @@ public class RoleSearchResultPanel extends AbstractSearchResultPanel {
                             editmodal.show(target);
                         } catch (SyncopeClientException scce) {
                             error(getString(Constants.OPERATION_ERROR) + ": " + scce.getMessage());
-                            target.add(feedbackPanel);
+                            feedbackPanel.refresh(target);
                         }
                     }
                 }, ActionLink.ActionType.DELETE, PAGEID);

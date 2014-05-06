@@ -106,13 +106,13 @@ public class RoleModalPage extends BaseModalPage {
                     closeAction(target, form);
                 } catch (Exception e) {
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                 }
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(feedbackPanel);
+                feedbackPanel.refresh(target);
             }
         };
 

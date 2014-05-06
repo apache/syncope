@@ -128,7 +128,7 @@ public class Todo extends BasePage {
                         } catch (SyncopeClientException scee) {
                             error(getString(Constants.ERROR) + ": " + scee.getMessage());
                         }
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                         target.add(container);
                     }
                 }, ActionLink.ActionType.CLAIM, "Approval");

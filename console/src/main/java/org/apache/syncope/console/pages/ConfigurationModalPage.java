@@ -58,8 +58,8 @@ public class ConfigurationModalPage extends BaseModalPage {
     public ConfigurationModalPage(final PageReference pageRef, final ModalWindow window,
             final ConfigurationTO configurationTO, final boolean createFlag) {
 
-        Form<ConfigurationTO> form =
-                new Form<ConfigurationTO>(FORM, new CompoundPropertyModel<ConfigurationTO>(configurationTO));
+        Form<ConfigurationTO> form
+                = new Form<ConfigurationTO>(FORM, new CompoundPropertyModel<ConfigurationTO>(configurationTO));
 
         final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", "key",
                 new PropertyModel<String>(configurationTO, "key"));
@@ -94,14 +94,14 @@ public class ConfigurationModalPage extends BaseModalPage {
                     } else {
                         error(getString("error_updating"));
                     }
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                     LOG.error("While creating or updating configuration {}", configurationTO, e);
                 }
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(feedbackPanel);
+                feedbackPanel.refresh(target);
             }
         };
 

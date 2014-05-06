@@ -190,7 +190,7 @@ public class SyncTasks extends AbstractTasks {
                         }
 
                         target.add(container);
-                        target.add(getPage().get(Constants.FEEDBACK));
+                        ((NotificationPanel) getPage().get(Constants.FEEDBACK)).refresh(target);
                     }
                 }, ActionLink.ActionType.EXECUTE, TASKS);
 
@@ -208,7 +208,7 @@ public class SyncTasks extends AbstractTasks {
                         }
 
                         target.add(container);
-                        target.add(getPage().get(Constants.FEEDBACK));
+                        ((NotificationPanel) getPage().get(Constants.FEEDBACK)).refresh(target);
                     }
                 }, ActionLink.ActionType.DRYRUN, TASKS);
 
@@ -225,7 +225,7 @@ public class SyncTasks extends AbstractTasks {
                             error(scce.getMessage());
                         }
                         target.add(container);
-                        target.add(getPage().get(Constants.FEEDBACK));
+                        ((NotificationPanel) getPage().get(Constants.FEEDBACK)).refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, TASKS);
 

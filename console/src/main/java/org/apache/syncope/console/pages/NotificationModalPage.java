@@ -244,13 +244,13 @@ class NotificationModalPage extends BaseModalPage {
                     window.close(target);
                 } catch (SyncopeClientException scee) {
                     error(getString(Constants.ERROR) + ": " + scee.getMessage());
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                 }
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(feedbackPanel);
+                feedbackPanel.refresh(target);
             }
         };
 

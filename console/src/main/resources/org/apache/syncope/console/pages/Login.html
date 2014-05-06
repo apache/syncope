@@ -18,49 +18,61 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta http-equiv="Content-Style-Type" content="text/css"/>
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta http-equiv="Content-Style-Type" content="text/css"/>
 
-    <title>Apache Syncope - Login</title>
+        <title>Apache Syncope - Login</title>
 
-    <link rel="shortcut icon" href="img/favicon.ico"/>
-    <link rel="stylesheet" href="css/style.css" type="text/css" media="all"/>
+        <link rel="shortcut icon" href="img/favicon.ico"/>
+        <link rel="stylesheet" href="css/style.css" type="text/css" media="all"/>
 
-  </head>
-  <body style="text-align:center">
-    <div id="splash">
-      <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
-      <p style="border: none">&nbsp;</p>
-      <div id="loginFeedbackDiv">
-        <span wicket:id="feedback">feedbackmessages will be put here</span>
-      </div>
-      <form wicket:id="login">
-        <label for="userId">
-          <wicket:message key="userId"/>
-        </label>
-        <input type="text" wicket:id="userId" id="userId" size="25" style="width: 180px" />
-        <br />
-        <label for="password" class="password">
-          <wicket:message key="password"/>
-        </label>
-        <input type="password" wicket:id="password" id="password" size="25"  style="width: 180px" />
-        <br />
-        <select wicket:id="language" id="language"/>
-        <br />
-        <br />
-        <input type="submit" wicket:id="submit"/>
-      </form>
+        <script type="text/javascript">
 
-      <span style="display: inline-table; margin-bottom: 10px;" wicket:id="selfRegistration"/>
+            var notificationShowedTimes = 0;
 
-      <wicket:fragment wicket:id="selfRegNotAllowed"/>
-      <wicket:fragment wicket:id="selfRegAllowed">
-        <span wicket:id="selfRegistration"/>
-      </wicket:fragment>
+            function showNotification(componentId, messagecount) {
+                notificationShowedTimes++;
+                timeout = 1700 + (messagecount * 500) + notificationShowedTimes * 200;
+                $('div#' + componentId).fadeTo('normal', 1.0);
+                setTimeout("$('div#" + componentId + "').fadeOut('normal')", timeout);
+            }
+        </script>
 
-      <div wicket:id="selfRegModal"></div>
-    </div>
-  </body>
+    </head>
+    <body style="text-align:center">
+        <div id="splash">
+            <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
+            <p style="border: none">&nbsp;</p>
+            <div id="loginFeedbackDiv">
+                <div wicket:id="feedback">feedbackmessages will be put here</div>
+            </div>
+            <form wicket:id="login">
+                <label for="userId">
+                    <wicket:message key="userId"/>
+                </label>
+                <input type="text" wicket:id="userId" id="userId" size="25" style="width: 180px" />
+                <br />
+                <label for="password" class="password">
+                    <wicket:message key="password"/>
+                </label>
+                <input type="password" wicket:id="password" id="password" size="25"  style="width: 180px" />
+                <br />
+                <select wicket:id="language" id="language"/>
+                <br />
+                <br />
+                <input type="submit" wicket:id="submit"/>
+            </form>
+
+            <span style="display: inline-table; margin-bottom: 10px;" wicket:id="selfRegistration"/>
+
+            <wicket:fragment wicket:id="selfRegNotAllowed"/>
+            <wicket:fragment wicket:id="selfRegAllowed">
+                <span wicket:id="selfRegistration"/>
+            </wicket:fragment>
+
+            <div wicket:id="selfRegModal"></div>
+        </div>
+    </body>
 </html>

@@ -159,8 +159,8 @@ public class Configuration extends BasePage {
             workflowDefContainer.setVisible(false);
         }
 
-        BookmarkablePageLink<Void> activitiModeler =
-                new BookmarkablePageLink<Void>("activitiModeler", ActivitiModelerPopupPage.class);
+        BookmarkablePageLink<Void> activitiModeler
+                = new BookmarkablePageLink<Void>("activitiModeler", ActivitiModelerPopupPage.class);
         activitiModeler.setPopupSettings(new VeilPopupSettings().setHeight(600).setWidth(800));
         MetaDataRoleAuthorizationStrategy.authorize(activitiModeler, ENABLE,
                 xmlRolesReader.getAllAllowedRoles("Configuration", "workflowDefRead"));
@@ -177,8 +177,8 @@ public class Configuration extends BasePage {
         }
         activitiModeler.setEnabled(activitiModelerEnabled);
 
-        BookmarkablePageLink<Void> xmlEditor =
-                new BookmarkablePageLink<Void>("xmlEditor", XMLEditorPopupPage.class);
+        BookmarkablePageLink<Void> xmlEditor
+                = new BookmarkablePageLink<Void>("xmlEditor", XMLEditorPopupPage.class);
         xmlEditor.setPopupSettings(new VeilPopupSettings().setHeight(350).setWidth(800));
         MetaDataRoleAuthorizationStrategy.authorize(xmlEditor, ENABLE,
                 xmlRolesReader.getAllAllowedRoles("Configuration", "workflowDefRead"));
@@ -211,8 +211,8 @@ public class Configuration extends BasePage {
         add(workflowDefContainer);
 
         // Logger stuff
-        PropertyListView<LoggerTO> coreLoggerList =
-                new LoggerPropertyList(null, "corelogger", loggerRestClient.listLogs());
+        PropertyListView<LoggerTO> coreLoggerList
+                = new LoggerPropertyList(null, "corelogger", loggerRestClient.listLogs());
         WebMarkupContainer coreLoggerContainer = new WebMarkupContainer("coreLoggerContainer");
         coreLoggerContainer.add(coreLoggerList);
         coreLoggerContainer.setOutputMarkupId(true);
@@ -222,8 +222,8 @@ public class Configuration extends BasePage {
         add(coreLoggerContainer);
 
         ConsoleLoggerController consoleLoggerController = new ConsoleLoggerController();
-        PropertyListView<LoggerTO> consoleLoggerList =
-                new LoggerPropertyList(consoleLoggerController, "consolelogger", consoleLoggerController.getLoggers());
+        PropertyListView<LoggerTO> consoleLoggerList
+                = new LoggerPropertyList(consoleLoggerController, "consolelogger", consoleLoggerController.getLoggers());
         WebMarkupContainer consoleLoggerContainer = new WebMarkupContainer("consoleLoggerContainer");
         consoleLoggerContainer.add(consoleLoggerList);
         consoleLoggerContainer.setOutputMarkupId(true);
@@ -294,7 +294,7 @@ public class Configuration extends BasePage {
                         }
 
                         info(getString(Constants.OPERATION_SUCCEEDED));
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
 
                         target.add(confContainer);
                     }
@@ -304,8 +304,8 @@ public class Configuration extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable<ConfigurationTO, String> confTable =
-                new AjaxFallbackDefaultDataTable<ConfigurationTO, String>(
+        final AjaxFallbackDefaultDataTable<ConfigurationTO, String> confTable
+                = new AjaxFallbackDefaultDataTable<ConfigurationTO, String>(
                         "syncopeconf", confColumns, new SyncopeConfProvider(), confPaginatorRows);
 
         confContainer = new WebMarkupContainer("confContainer");
@@ -380,7 +380,7 @@ public class Configuration extends BasePage {
         @SuppressWarnings("rawtypes")
         Form confPaginatorForm = new Form("confPaginatorForm");
 
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings({"unchecked", "rawtypes"})
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
                 new PropertyModel(this, "confPaginatorRows"), prefMan.getPaginatorChoices());
 
@@ -471,8 +471,7 @@ public class Configuration extends BasePage {
                         }
 
                         info(getString(Constants.OPERATION_SUCCEEDED));
-                        target.add(feedbackPanel);
-
+                        feedbackPanel.refresh(target);
                         target.add(notificationContainer);
                     }
                 }, ActionLink.ActionType.DELETE, "Notification");
@@ -481,8 +480,8 @@ public class Configuration extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable<NotificationTO, String> notificationTable =
-                new AjaxFallbackDefaultDataTable<NotificationTO, String>(
+        final AjaxFallbackDefaultDataTable<NotificationTO, String> notificationTable
+                = new AjaxFallbackDefaultDataTable<NotificationTO, String>(
                         "notificationTable", notificationCols, new NotificationProvider(), notificationPaginatorRows);
 
         notificationContainer = new WebMarkupContainer("notificationContainer");
@@ -533,7 +532,7 @@ public class Configuration extends BasePage {
         @SuppressWarnings("rawtypes")
         Form notificationPaginatorForm = new Form("notificationPaginatorForm");
 
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings({"unchecked", "rawtypes"})
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
                 "notificationPaginatorRows"), prefMan.getPaginatorChoices());
 
@@ -695,7 +694,7 @@ public class Configuration extends BasePage {
                         info(getString(Constants.OPERATION_ERROR));
                     }
 
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                 }
             });
 

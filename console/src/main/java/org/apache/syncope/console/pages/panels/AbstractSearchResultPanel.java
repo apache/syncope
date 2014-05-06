@@ -112,7 +112,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
     /**
      * Feedback panel specified by the caller.
      */
-    protected final FeedbackPanel feedbackPanel;
+    protected final NotificationPanel feedbackPanel;
 
     /**
      * Specify if results are about a filtered search or not. Using this attribute it is possible to use this panel to
@@ -309,7 +309,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
                     // set operation succeeded
                     getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                     // refresh feedback panel
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                 }
             }
         });

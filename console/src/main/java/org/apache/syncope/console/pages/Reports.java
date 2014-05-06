@@ -168,7 +168,7 @@ public class Reports extends BasePage {
                             error(scce.getMessage());
                         }
 
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                         target.add(reportContainer);
                     }
                 }, ActionLink.ActionType.EXECUTE, "Reports");
@@ -186,7 +186,7 @@ public class Reports extends BasePage {
                             error(scce.getMessage());
                         }
                         target.add(reportContainer);
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, "Reports");
 

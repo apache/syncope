@@ -114,13 +114,13 @@ public class Users extends BasePage {
                         doSearch(target, fiql, searchResult);
 
                         Session.get().getFeedbackMessages().clear();
-                        target.add(searchPanel.getSearchFeedback());
+                        searchPanel.getSearchFeedback().refresh(target);
                     }
 
                     @Override
                     protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
-                        target.add(searchPanel.getSearchFeedback());
+                        searchPanel.getSearchFeedback().refresh(target);
                     }
                 };
 
@@ -158,7 +158,7 @@ public class Users extends BasePage {
                     // set operation succeeded
                     getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                     // refresh feedback panel
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                 }
             }
         });

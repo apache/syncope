@@ -391,7 +391,7 @@ public class ConnectorModalPage extends BaseModalPage {
                     error(getString("error_connection"));
                 }
 
-                target.add(feedbackPanel);
+                feedbackPanel.refresh(target);
             }
         };
         connectorPropForm.add(check);
@@ -452,7 +452,7 @@ public class ConnectorModalPage extends BaseModalPage {
                     window.close(target);
                 } catch (SyncopeClientException e) {
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                     ((Resources) pageRef.getPage()).setModalResult(false);
                     LOG.error("While creating or updating connector {}", conn, e);
                 }
@@ -461,7 +461,7 @@ public class ConnectorModalPage extends BaseModalPage {
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
 
-                target.add(feedbackPanel);
+                feedbackPanel.refresh(target);
             }
         };
         String roles = connInstanceTO.getId() == 0

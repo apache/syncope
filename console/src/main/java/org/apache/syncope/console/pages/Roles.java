@@ -31,6 +31,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -52,8 +53,14 @@ public class Roles extends BasePage {
 
     private final ModalWindow editRoleWin;
 
+    private final WebMarkupContainer roleTabsContainer;
+
     public Roles(final PageParameters parameters) {
         super(parameters);
+
+        roleTabsContainer = new WebMarkupContainer("roleTabsContainer");
+        roleTabsContainer.setOutputMarkupId(true);
+        add(roleTabsContainer);
 
         editRoleWin = new ModalWindow("editRoleWin");
         editRoleWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
@@ -64,11 +71,11 @@ public class Roles extends BasePage {
 
         final TreeRolePanel treePanel = new TreeRolePanel("treePanel");
         treePanel.setOutputMarkupId(true);
-        add(treePanel);
+        roleTabsContainer.add(treePanel);
 
         final RoleSummaryPanel summaryPanel = new RoleSummaryPanel.Builder("summaryPanel")
                 .window(editRoleWin).callerPageRef(Roles.this.getPageReference()).build();
-        add(summaryPanel);
+        roleTabsContainer.add(summaryPanel);
 
         editRoleWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
@@ -76,7 +83,7 @@ public class Roles extends BasePage {
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
-                final RoleSummaryPanel summaryPanel = (RoleSummaryPanel) get("summaryPanel");
+                final RoleSummaryPanel summaryPanel = (RoleSummaryPanel) roleTabsContainer.get("summaryPanel");
 
                 final TreeNodeClickUpdate data = new TreeNodeClickUpdate(target,
                         summaryPanel == null || summaryPanel.getSelectedNode() == null
@@ -87,14 +94,15 @@ public class Roles extends BasePage {
 
                 if (modalResult) {
                     getSession().info(getString(Constants.OPERATION_SUCCEEDED));
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                     modalResult = false;
                 }
+
             }
         });
 
-        final AbstractSearchResultPanel searchResult =
-                new RoleSearchResultPanel("searchResult", true, null, getPageReference(), restClient);
+        final AbstractSearchResultPanel searchResult
+                = new RoleSearchResultPanel("searchResult", true, null, getPageReference(), restClient);
         add(searchResult);
 
         final Form searchForm = new Form("searchForm");
@@ -115,12 +123,12 @@ public class Roles extends BasePage {
                 doSearch(target, fiql, searchResult);
 
                 Session.get().getFeedbackMessages().clear();
-                target.add(searchPanel.getSearchFeedback());
+                searchPanel.getSearchFeedback().refresh(target);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(searchPanel.getSearchFeedback());
+                searchPanel.getSearchFeedback().refresh(target);
             }
         });
     }
@@ -147,8 +155,8 @@ public class Roles extends BasePage {
                     .window(editRoleWin).callerPageRef(Roles.this.getPageReference())
                     .selectedNodeId(update.getSelectedNodeId()).build();
 
-            addOrReplace(summaryPanel);
-            update.getTarget().add(this);
+            roleTabsContainer.addOrReplace(summaryPanel);
+            update.getTarget().add(roleTabsContainer);
         }
     }
 

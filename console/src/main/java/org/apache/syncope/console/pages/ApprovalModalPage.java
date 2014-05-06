@@ -237,13 +237,13 @@ public class ApprovalModalPage extends BaseModalPage {
                 } catch (SyncopeClientException e) {
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                     LOG.error("While submitting form {}", formTO, e);
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                 }
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(feedbackPanel);
+                feedbackPanel.refresh(target);
             }
         };
 

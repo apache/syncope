@@ -42,7 +42,6 @@ import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -80,7 +79,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
     protected IModel<List<String>> roleNames;
 
-    protected FeedbackPanel searchFeedback;
+    protected NotificationPanel searchFeedback;
 
     protected List<SearchClause> searchClauses;
 
@@ -108,7 +107,7 @@ public abstract class AbstractSearchPanel extends Panel {
         searchFormContainer = new WebMarkupContainer("searchFormContainer");
         searchFormContainer.setOutputMarkupId(true);
 
-        searchFeedback = new FeedbackPanel("searchFeedback", new IFeedbackMessageFilter() {
+        searchFeedback = new NotificationPanel("searchFeedback", "notificationpanel_top_right", new IFeedbackMessageFilter() {
 
             private static final long serialVersionUID = 6895024863321391672L;
 
@@ -202,7 +201,7 @@ public abstract class AbstractSearchPanel extends Panel {
         };
     }
 
-    public FeedbackPanel getSearchFeedback() {
+    public NotificationPanel getSearchFeedback() {
         return searchFeedback;
     }
 

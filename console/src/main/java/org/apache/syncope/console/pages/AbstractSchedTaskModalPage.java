@@ -106,13 +106,13 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
                 } catch (SyncopeClientException e) {
                     LOG.error("While creating or updating task", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                 }
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(feedbackPanel);
+                feedbackPanel.refresh(target);
             }
         };
 

@@ -135,7 +135,7 @@ public class NotificationTasks extends AbstractTasks {
                             error(scce.getMessage());
                         }
 
-                        target.add(getPage().get(Constants.FEEDBACK));
+                        ((NotificationPanel) getPage().get(Constants.FEEDBACK)).refresh(target);
                         target.add(container);
                     }
                 }, ActionLink.ActionType.EXECUTE, TASKS);
@@ -153,7 +153,7 @@ public class NotificationTasks extends AbstractTasks {
                             error(scce.getMessage());
                         }
                         target.add(container);
-                        target.add(getPage().get(Constants.FEEDBACK));
+                        ((NotificationPanel) getPage().get(Constants.FEEDBACK)).refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, TASKS);
 
@@ -199,7 +199,7 @@ public class NotificationTasks extends AbstractTasks {
                 target.add(container);
                 if (operationResult) {
                     info(getString(Constants.OPERATION_SUCCEEDED));
-                    target.add(getPage().get(Constants.FEEDBACK));
+                    ((NotificationPanel) getPage().get(Constants.FEEDBACK)).refresh(target);
                     operationResult = false;
                 }
             }

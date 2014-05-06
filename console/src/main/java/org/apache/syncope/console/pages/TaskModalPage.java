@@ -154,7 +154,7 @@ public abstract class TaskModalPage extends BaseModalPage {
                             error(scce.getMessage());
                         }
 
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                         target.add(executions);
                     }
                 }, ActionLink.ActionType.DELETE, TASKS);

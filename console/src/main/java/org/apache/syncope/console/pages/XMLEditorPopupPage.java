@@ -54,8 +54,8 @@ public class XMLEditorPopupPage extends BasePopupPage {
         final TextArea<String> workflowDefArea = new TextArea<String>("workflowDefArea", new Model<String>(definition));
         wfForm.add(workflowDefArea);
 
-        AjaxButton submit =
-                new ClearIndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT)), getPageReference()) {
+        AjaxButton submit
+                = new ClearIndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT)), getPageReference()) {
 
                     private static final long serialVersionUID = -958724007591692537L;
 
@@ -68,12 +68,12 @@ public class XMLEditorPopupPage extends BasePopupPage {
                         } catch (SyncopeClientException scee) {
                             error(getString(Constants.ERROR) + ": " + scee.getMessage());
                         }
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                     }
 
                     @Override
                     protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                     }
                 };
 

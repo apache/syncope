@@ -27,22 +27,22 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.pages.panels.NotificationPanel;
 import org.apache.syncope.console.rest.UserSelfRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -81,10 +81,15 @@ public class Login extends WebPage {
     private TextField<String> passwordField;
 
     private DropDownChoice<Locale> languageSelect;
+    
+    private final NotificationPanel feedbackPanel;
 
     public Login(final PageParameters parameters) {
         super(parameters);
 
+        feedbackPanel = new NotificationPanel(Constants.FEEDBACK);
+        add(feedbackPanel);
+        
         form = new Form<Void>("login");
 
         userIdField = new TextField<String>("userId", new Model<String>());
@@ -99,12 +104,12 @@ public class Login extends WebPage {
 
         form.add(languageSelect);
 
-        Button submitButton = new Button("submit", new Model<String>(getString("submit"))) {
+        AjaxButton submitButton = new AjaxButton("submit", new Model<String>(getString("submit"))) {
 
             private static final long serialVersionUID = 429178684321093953L;
 
             @Override
-            public void onSubmit() {
+            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
                 try {
                     if (anonymousUser.equals(userIdField.getRawInput())) {
                         throw new AccessControlException("Illegal username");
@@ -115,6 +120,7 @@ public class Login extends WebPage {
                     setResponsePage(WelcomePage.class, parameters);
                 } catch (AccessControlException e) {
                     error(getString("login-error"));
+                    feedbackPanel.refresh(target);
                 }
             }
         };
@@ -123,7 +129,6 @@ public class Login extends WebPage {
         form.add(submitButton);
 
         add(form);
-        add(new FeedbackPanel(Constants.FEEDBACK));
 
         // Modal window for self registration
         final ModalWindow editProfileModalWin = new ModalWindow("selfRegModal");

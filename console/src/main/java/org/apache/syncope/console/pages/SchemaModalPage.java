@@ -235,7 +235,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
 
                 if (schemaTO.isMultivalue() && schemaTO.isUniqueConstraint()) {
                     error(getString("multivalueAndUniqueConstr.validation"));
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                     return;
                 }
 
@@ -252,13 +252,13 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
                     window.close(target);
                 } catch (SyncopeClientException e) {
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                 }
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(feedbackPanel);
+                feedbackPanel.refresh(target);
             }
         };
 

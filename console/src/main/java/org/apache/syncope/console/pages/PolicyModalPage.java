@@ -34,6 +34,7 @@ import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.pages.panels.NotificationPanel;
 import org.apache.syncope.console.pages.panels.PolicyBeanPanel;
 import org.apache.syncope.console.rest.PolicyRestClient;
 import org.apache.syncope.console.rest.ResourceRestClient;
@@ -110,17 +111,17 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
         switch (policyTO.getType()) {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
-                type.setChoices(Arrays.asList(new PolicyType[] { PolicyType.GLOBAL_ACCOUNT, PolicyType.ACCOUNT }));
+                type.setChoices(Arrays.asList(new PolicyType[]{PolicyType.GLOBAL_ACCOUNT, PolicyType.ACCOUNT}));
                 break;
 
             case GLOBAL_PASSWORD:
             case PASSWORD:
-                type.setChoices(Arrays.asList(new PolicyType[] { PolicyType.GLOBAL_PASSWORD, PolicyType.PASSWORD }));
+                type.setChoices(Arrays.asList(new PolicyType[]{PolicyType.GLOBAL_PASSWORD, PolicyType.PASSWORD}));
                 break;
 
             case GLOBAL_SYNC:
             case SYNC:
-                type.setChoices(Arrays.asList(new PolicyType[] { PolicyType.GLOBAL_SYNC, PolicyType.SYNC }));
+                type.setChoices(Arrays.asList(new PolicyType[]{PolicyType.GLOBAL_SYNC, PolicyType.SYNC}));
 
             default:
         }
@@ -218,8 +219,8 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
                 return new Model<String>(object);
             }
         };
-        final AjaxFallbackDefaultDataTable<String, String> resources =
-                new AjaxFallbackDefaultDataTable<String, String>("resources", resColumns, resDataProvider, 10);
+        final AjaxFallbackDefaultDataTable<String, String> resources
+                = new AjaxFallbackDefaultDataTable<String, String>("resources", resColumns, resDataProvider, 10);
         form.add(resources);
 
         List<IColumn<RoleTO, String>> roleColumns = new ArrayList<IColumn<RoleTO, String>>();
@@ -296,8 +297,8 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
                 return new Model<RoleTO>(object);
             }
         };
-        final AjaxFallbackDefaultDataTable<RoleTO, String> roles =
-                new AjaxFallbackDefaultDataTable<RoleTO, String>("roles", roleColumns, roleDataProvider, 10);
+        final AjaxFallbackDefaultDataTable<RoleTO, String> roles
+                = new AjaxFallbackDefaultDataTable<RoleTO, String>("roles", roleColumns, roleDataProvider, 10);
         form.add(roles);
         mwindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
@@ -309,7 +310,7 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
                 target.add(roles);
                 if (isModalResult()) {
                     info(getString(Constants.OPERATION_SUCCEEDED));
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                     setModalResult(false);
                 }
             }
@@ -335,13 +336,13 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
                     LOG.error("While creating policy", e);
 
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    target.add(getPage().get(Constants.FEEDBACK));
+                    ((NotificationPanel) getPage().get(Constants.FEEDBACK)).refresh(target);
                 }
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(getPage().get(Constants.FEEDBACK));
+                ((NotificationPanel) getPage().get(Constants.FEEDBACK)).refresh(target);
             }
         };
 

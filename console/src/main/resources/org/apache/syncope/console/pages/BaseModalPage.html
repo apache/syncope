@@ -17,31 +17,40 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head>
-    <title></title>
+    <head>
+        <title></title>
 
-    <link rel="stylesheet" type="text/css" href="webjars/jquery-ui/${jquery-ui.version}/themes/base/minified/jquery-ui.min.css" media="all"/>
-    <link rel="stylesheet" type="text/css" href="css/style.css" media="all"/>
-    <link rel="stylesheet" type="text/css" href="css/fieldstyle.css" media="all"/>
+        <link rel="stylesheet" type="text/css" href="webjars/jquery-ui/${jquery-ui.version}/themes/base/minified/jquery-ui.min.css" media="all"/>
+        <link rel="stylesheet" type="text/css" href="css/style.css" media="all"/>
+        <link rel="stylesheet" type="text/css" href="css/fieldstyle.css" media="all"/>
 
-    <script type="text/javascript" src="webjars/jquery-ui/${jquery-ui.version}/ui/minified/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="webjars/jquery-ui/${jquery-ui.version}/ui/minified/jquery-ui.min.js"></script>
 
-    <script type="text/javascript">
-      $(function() {
-        $("#tabs").tabs();
-      });
-    </script>
+        <script type="text/javascript">
+            $(function() {
+                $("#tabs").tabs();
+            });
 
-    <style type="text/css">
-      table.palette td.header {
-        background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
-          repeat-x scroll 50% 50% #E6E6E6 !important;
-      }
-    </style>
-  </head>
-  <body onload="setTimeout('window.focus();', 0);">
-    <div wicket:id="feedback"/>
+            var notificationShowedTimes = 0;
 
-    <wicket:child />
-  </body>
+            function showNotification(componentId, messagecount) {
+                notificationShowedTimes++;
+                timeout = 1700 + (messagecount * 500) + notificationShowedTimes * 200;
+                $('div#' + componentId).fadeTo('normal', 1.0);
+                setTimeout("$('div#" + componentId + "').fadeOut('normal')", timeout);
+            }
+        </script>
+
+        <style type="text/css">
+            table.palette td.header {
+                background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
+                    repeat-x scroll 50% 50% #E6E6E6 !important;
+            }
+        </style>
+    </head>
+    <body onload="setTimeout('window.focus();', 0);">
+        <div wicket:id="feedback"/>
+
+        <wicket:child />
+    </body>
 </html>

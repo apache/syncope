@@ -128,7 +128,7 @@ public class ResourceModalPage extends BaseModalPage {
 
                 if (accountIdError) {
                     error(getString("accountIdValidation"));
-                    target.add(feedbackPanel);
+                    feedbackPanel.refresh(target);
                 } else {
                     try {
                         if (createFlag) {
@@ -144,14 +144,14 @@ public class ResourceModalPage extends BaseModalPage {
                     } catch (Exception e) {
                         LOG.error("Failure managing resource {}", resourceTO, e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                     }
                 }
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(feedbackPanel);
+                feedbackPanel.refresh(target);
             }
         };
 

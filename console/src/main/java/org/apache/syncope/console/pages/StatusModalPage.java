@@ -267,7 +267,7 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                     } catch (Exception e) {
                         LOG.error("Error enabling resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                     }
                 }
             }, ActionLink.ActionType.REACTIVATE, pageId);
@@ -290,7 +290,7 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                     } catch (Exception e) {
                         LOG.error("Error disabling resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                     }
                 }
             }, ActionLink.ActionType.SUSPEND, pageId);
@@ -315,7 +315,7 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                     } catch (Exception e) {
                         LOG.error("Error unlinking resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                     }
                 }
             }, ActionLink.ActionType.UNLINK, pageId);
@@ -340,7 +340,7 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                     } catch (Exception e) {
                         LOG.error("Error linking resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                     }
                 }
             }, ActionLink.ActionType.LINK, pageId);
@@ -366,7 +366,7 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                     } catch (Exception e) {
                         LOG.error("Error de-provisioning user", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                     }
                 }
             }, ActionLink.ActionType.DEPROVISION, pageId);
@@ -391,7 +391,7 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                         } catch (Exception e) {
                             LOG.error("Error provisioning user", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            target.add(feedbackPanel);
+                            feedbackPanel.refresh(target);
                         }
                     }
                 }
@@ -418,7 +418,7 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                     } catch (Exception e) {
                         LOG.error("Error unassigning resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                     }
                 }
             }, ActionLink.ActionType.UNASSIGN, pageId);
@@ -442,7 +442,7 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                         } catch (Exception e) {
                             LOG.error("Error assigning resources", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            target.add(feedbackPanel);
+                            feedbackPanel.refresh(target);
                         }
                     }
                 }
@@ -568,7 +568,7 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                         } catch (Exception e) {
                             LOG.error("Error provisioning resources", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            target.add(feedbackPanel);
+                            feedbackPanel.refresh(target);
                         }
                     }
                 }.feedbackPanelAutomaticReload(false);

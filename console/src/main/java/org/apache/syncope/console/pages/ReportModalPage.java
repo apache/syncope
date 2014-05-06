@@ -147,13 +147,13 @@ public class ReportModalPage extends BaseModalPage {
                         } catch (SyncopeClientException e) {
                             LOG.error("While creating or updating report", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            target.add(feedbackPanel);
+                            feedbackPanel.refresh(target);
                         }
                     }
 
                     @Override
                     protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                     }
                 };
 
@@ -505,7 +505,7 @@ public class ReportModalPage extends BaseModalPage {
                             error(scce.getMessage());
                         }
 
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                         target.add(executions);
                     }
                 }, ActionLink.ActionType.DELETE, "Reports");

@@ -141,7 +141,7 @@ public class Resources extends BasePage {
                 } catch (Exception e) {
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                 }
-                target.add(feedbackPanel);
+                feedbackPanel.refresh(target);
                 target.add(connectorContainer);
             }
 
@@ -325,7 +325,7 @@ public class Resources extends BasePage {
                             LOG.error("While deleting resource " + resourceTO.getName(), e);
                         }
 
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                         target.add(resourceContainer);
                     }
                 }, ActionLink.ActionType.DELETE, "Resources");
@@ -485,7 +485,7 @@ public class Resources extends BasePage {
                         }
 
                         target.add(connectorContainer);
-                        target.add(feedbackPanel);
+                        feedbackPanel.refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, "Connectors");
 

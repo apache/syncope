@@ -189,7 +189,7 @@ public class PoliciesPanel extends Panel {
                         }
 
                         target.add(container);
-                        target.add(getPage().get(Constants.FEEDBACK));
+                        ((NotificationPanel) getPage().get(Constants.FEEDBACK)).refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, "Policies");
 
