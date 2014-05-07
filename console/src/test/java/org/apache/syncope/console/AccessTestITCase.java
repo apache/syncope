@@ -27,6 +27,9 @@ public class AccessTestITCase extends AbstractTest {
         selenium.click("css=img[alt=\"Schema\"]");
         selenium.waitForPageToLoad("30000");
 
+        selenium.waitForCondition("selenium.isElementPresent(\"xpath=//div[@id='uschema']/div/div/span/ul/li[2]/a\");",
+                "30000");
+
         selenium.click("//div[@id='uschema']/div/div/span/ul/li[2]/a");
         selenium.click("//div[@id='uschema']/div/div/span/ul/li[3]/a");
 
@@ -34,7 +37,7 @@ public class AccessTestITCase extends AbstractTest {
 
         selenium.click("//div[@id='mschema']/div/div/span/ul/li[2]/a");
         selenium.click("//div[@id='mschema']/div/div/span/ul/li[3]/a");
-        
+
         selenium.click("//div[@id='tabs']/ul/li[3]/a");
 
         selenium.click("//div[@id='rschema']/div/div/span/ul/li[2]/a");
