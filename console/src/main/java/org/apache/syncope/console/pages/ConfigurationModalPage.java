@@ -58,8 +58,8 @@ public class ConfigurationModalPage extends BaseModalPage {
     public ConfigurationModalPage(final PageReference pageRef, final ModalWindow window,
             final ConfigurationTO configurationTO, final boolean createFlag) {
 
-        Form<ConfigurationTO> form
-                = new Form<ConfigurationTO>(FORM, new CompoundPropertyModel<ConfigurationTO>(configurationTO));
+        Form<ConfigurationTO> form =
+                 new Form<ConfigurationTO>(FORM, new CompoundPropertyModel<ConfigurationTO>(configurationTO));
 
         final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", "key",
                 new PropertyModel<String>(configurationTO, "key"));

@@ -49,10 +49,10 @@ under the License.
       </div>
     </form>
     <script>
-      window.onload = function(){
-              var editor = CodeMirror.fromTextArea(document.getElementById("workflowDefArea"),{lineNumbers: true});
-              editor.on("change", updateTextArea);
-      }   
+      window.onload = function() {
+        var editor = CodeMirror.fromTextArea(document.getElementById("workflowDefArea"), {lineNumbers: true});
+        editor.on("change", updateTextArea);
+      }
     </script>
   </wicket:extend>
 </html>

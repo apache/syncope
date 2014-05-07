@@ -79,7 +79,7 @@ import org.springframework.util.ReflectionUtils;
 /**
  * Schema WebPage.
  */
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class Schema extends BasePage {
 
     private static final long serialVersionUID = 8091922398776299403L;
@@ -89,41 +89,41 @@ public class Schema extends BasePage {
         private static final long serialVersionUID = 3109256773218160485L;
 
         {
-            put(SchemaType.NORMAL, Arrays.asList(new String[] {"name", "type",
-                "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly"}));
-            put(SchemaType.DERIVED, Arrays.asList(new String[] {"name", "expression"}));
-            put(SchemaType.VIRTUAL, Arrays.asList(new String[] {"name", "readonly"}));
+            put(SchemaType.NORMAL, Arrays.asList(new String[] { "name", "type",
+                "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly" }));
+            put(SchemaType.DERIVED, Arrays.asList(new String[] { "name", "expression" }));
+            put(SchemaType.VIRTUAL, Arrays.asList(new String[] { "name", "readonly" }));
         }
     };
 
     private static final Map<Map.Entry<AttributableType, SchemaType>, String> PAGINATOR_ROWS_KEYS =
             new HashMap<Map.Entry<AttributableType, SchemaType>, String>() {
 
-        private static final long serialVersionUID = 3109256773218160485L;
+                private static final long serialVersionUID = 3109256773218160485L;
 
-        {
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.USER, SchemaType.NORMAL),
-                    Constants.PREF_USER_SCHEMA_PAGINATOR_ROWS);
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.USER, SchemaType.DERIVED),
-                    Constants.PREF_USER_DER_SCHEMA_PAGINATOR_ROWS);
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.USER, SchemaType.VIRTUAL),
-                    Constants.PREF_USER_VIR_SCHEMA_PAGINATOR_ROWS);
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.MEMBERSHIP, SchemaType.NORMAL),
-                    Constants.PREF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS);
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.MEMBERSHIP,
-                    SchemaType.DERIVED),
-                    Constants.PREF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS);
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.MEMBERSHIP,
-                    SchemaType.VIRTUAL),
-                    Constants.PREF_MEMBERSHIP_VIR_SCHEMA_PAGINATOR_ROWS);
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.ROLE, SchemaType.NORMAL),
-                    Constants.PREF_ROLE_SCHEMA_PAGINATOR_ROWS);
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.ROLE, SchemaType.DERIVED),
-                    Constants.PREF_ROLE_DER_SCHEMA_PAGINATOR_ROWS);
-            put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.ROLE, SchemaType.VIRTUAL),
-                    Constants.PREF_ROLE_VIR_SCHEMA_PAGINATOR_ROWS);
-        }
-    };
+                {
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.USER, SchemaType.NORMAL),
+                            Constants.PREF_USER_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.USER, SchemaType.DERIVED),
+                            Constants.PREF_USER_DER_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.USER, SchemaType.VIRTUAL),
+                            Constants.PREF_USER_VIR_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.MEMBERSHIP, SchemaType.NORMAL),
+                            Constants.PREF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.MEMBERSHIP,
+                                    SchemaType.DERIVED),
+                            Constants.PREF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.MEMBERSHIP,
+                                    SchemaType.VIRTUAL),
+                            Constants.PREF_MEMBERSHIP_VIR_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.ROLE, SchemaType.NORMAL),
+                            Constants.PREF_ROLE_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.ROLE, SchemaType.DERIVED),
+                            Constants.PREF_ROLE_DER_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.ROLE, SchemaType.VIRTUAL),
+                            Constants.PREF_ROLE_VIR_SCHEMA_PAGINATOR_ROWS);
+                }
+            };
 
     private static final int WIN_WIDTH = 600;
 

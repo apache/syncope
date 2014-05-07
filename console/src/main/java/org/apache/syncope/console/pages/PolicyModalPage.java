@@ -111,17 +111,17 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
         switch (policyTO.getType()) {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
-                type.setChoices(Arrays.asList(new PolicyType[]{PolicyType.GLOBAL_ACCOUNT, PolicyType.ACCOUNT}));
+                type.setChoices(Arrays.asList(new PolicyType[] { PolicyType.GLOBAL_ACCOUNT, PolicyType.ACCOUNT }));
                 break;
 
             case GLOBAL_PASSWORD:
             case PASSWORD:
-                type.setChoices(Arrays.asList(new PolicyType[]{PolicyType.GLOBAL_PASSWORD, PolicyType.PASSWORD}));
+                type.setChoices(Arrays.asList(new PolicyType[] { PolicyType.GLOBAL_PASSWORD, PolicyType.PASSWORD }));
                 break;
 
             case GLOBAL_SYNC:
             case SYNC:
-                type.setChoices(Arrays.asList(new PolicyType[]{PolicyType.GLOBAL_SYNC, PolicyType.SYNC}));
+                type.setChoices(Arrays.asList(new PolicyType[] { PolicyType.GLOBAL_SYNC, PolicyType.SYNC }));
 
             default:
         }
@@ -219,8 +219,8 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
                 return new Model<String>(object);
             }
         };
-        final AjaxFallbackDefaultDataTable<String, String> resources
-                = new AjaxFallbackDefaultDataTable<String, String>("resources", resColumns, resDataProvider, 10);
+        final AjaxFallbackDefaultDataTable<String, String> resources =
+                 new AjaxFallbackDefaultDataTable<String, String>("resources", resColumns, resDataProvider, 10);
         form.add(resources);
 
         List<IColumn<RoleTO, String>> roleColumns = new ArrayList<IColumn<RoleTO, String>>();
@@ -297,8 +297,8 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
                 return new Model<RoleTO>(object);
             }
         };
-        final AjaxFallbackDefaultDataTable<RoleTO, String> roles
-                = new AjaxFallbackDefaultDataTable<RoleTO, String>("roles", roleColumns, roleDataProvider, 10);
+        final AjaxFallbackDefaultDataTable<RoleTO, String> roles =
+                 new AjaxFallbackDefaultDataTable<RoleTO, String>("roles", roleColumns, roleDataProvider, 10);
         form.add(roles);
         mwindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 

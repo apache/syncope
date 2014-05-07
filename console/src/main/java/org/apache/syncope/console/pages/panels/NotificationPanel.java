@@ -49,8 +49,8 @@ public class NotificationPanel extends FeedbackPanel {
         init(id, additionalCSSClass);
     }
 
-    public NotificationPanel(final String id, final String additionalCSSClass, final  IFeedbackMessageFilter 
-            feedbackMessageFilter) {
+    public NotificationPanel(final String id, final String additionalCSSClass,
+            final IFeedbackMessageFilter feedbackMessageFilter) {
         super(id, feedbackMessageFilter);
 
         this.additionalCSSClass = additionalCSSClass;
@@ -106,6 +106,7 @@ public class NotificationPanel extends FeedbackPanel {
 
     /**
      * Returns css class for the single rows of the panel
+     *
      * @param message
      */
     @Override

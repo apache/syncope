@@ -81,7 +81,7 @@ public class Login extends WebPage {
     private TextField<String> passwordField;
 
     private DropDownChoice<Locale> languageSelect;
-    
+
     private final NotificationPanel feedbackPanel;
 
     public Login(final PageParameters parameters) {
@@ -89,7 +89,7 @@ public class Login extends WebPage {
 
         feedbackPanel = new NotificationPanel(Constants.FEEDBACK);
         add(feedbackPanel);
-        
+
         form = new Form<Void>("login");
 
         userIdField = new TextField<String>("userId", new Model<String>());

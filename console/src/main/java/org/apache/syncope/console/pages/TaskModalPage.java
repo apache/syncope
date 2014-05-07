@@ -175,7 +175,7 @@ public abstract class TaskModalPage extends BaseModalPage {
                         if (target != null) {
                             final AjaxFallbackDefaultDataTable<TaskExecTO, String> currentTable =
                                     new AjaxFallbackDefaultDataTable<TaskExecTO, String>("executionsTable", columns,
-                                    new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
+                                            new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
                             currentTable.setOutputMarkupId(true);
                             target.add(currentTable);
                             executions.addOrReplace(currentTable);
@@ -189,7 +189,7 @@ public abstract class TaskModalPage extends BaseModalPage {
 
         final AjaxFallbackDefaultDataTable<TaskExecTO, String> table =
                 new AjaxFallbackDefaultDataTable<TaskExecTO, String>("executionsTable", columns,
-                new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
+                        new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
 
         executions.add(table);
     }

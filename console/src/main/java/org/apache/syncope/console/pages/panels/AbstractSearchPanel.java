@@ -107,25 +107,26 @@ public abstract class AbstractSearchPanel extends Panel {
         searchFormContainer = new WebMarkupContainer("searchFormContainer");
         searchFormContainer.setOutputMarkupId(true);
 
-        searchFeedback = new NotificationPanel("searchFeedback", "notificationpanel_top_right", new IFeedbackMessageFilter() {
+        searchFeedback = new NotificationPanel("searchFeedback", "notificationpanel_top_right",
+                new IFeedbackMessageFilter() {
 
-            private static final long serialVersionUID = 6895024863321391672L;
+                    private static final long serialVersionUID = 6895024863321391672L;
 
-            @Override
-            public boolean accept(final FeedbackMessage message) {
-                boolean result;
+                    @Override
+                    public boolean accept(final FeedbackMessage message) {
+                        boolean result;
 
-                // messages reported on the session have a null reporter
-                if (message.getReporter() == null) {
-                    result = false;
-                } else {
-                    // only accept messages coming from the children of the search form container
-                    result = searchFormContainer.contains(message.getReporter(), true);
-                }
+                        // messages reported on the session have a null reporter
+                        if (message.getReporter() == null) {
+                            result = false;
+                        } else {
+                            // only accept messages coming from the children of the search form container
+                            result = searchFormContainer.contains(message.getReporter(), true);
+                        }
 
-                return result;
-            }
-        });
+                        return result;
+                    }
+                });
         searchFeedback.setOutputMarkupId(true);
         add(searchFeedback);
 
