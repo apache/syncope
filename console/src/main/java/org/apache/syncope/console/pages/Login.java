@@ -22,6 +22,7 @@ import java.security.AccessControlException;
 import java.util.List;
 import java.util.Locale;
 import org.apache.syncope.common.services.EntitlementService;
+import org.apache.syncope.common.services.UserSelfService;
 import org.apache.syncope.common.wrap.EntitlementTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.CollectionWrapper;
@@ -121,6 +122,7 @@ public class Login extends WebPage {
                 } catch (AccessControlException e) {
                     error(getString("login-error"));
                     feedbackPanel.refresh(target);
+                    SyncopeSession.get().resetClients();
                 }
             }
         };

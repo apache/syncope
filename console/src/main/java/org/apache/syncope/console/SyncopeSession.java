@@ -79,6 +79,10 @@ public class SyncopeSession extends WebSession {
         anonymousKey = applicationContext.getBean("anonymousKey", String.class);
     }
 
+    public void resetClients() {
+        clients.clear();
+    }
+
     public boolean isSelfRegistrationAllowed() {
         SyncopeClient client = clients.isEmpty()
                 ? clientFactory.createAnonymous()
