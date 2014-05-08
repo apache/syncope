@@ -179,7 +179,7 @@ public class Configuration extends BasePage {
 
         BookmarkablePageLink<Void> xmlEditor =
                  new BookmarkablePageLink<Void>("xmlEditor", XMLEditorPopupPage.class);
-        xmlEditor.setPopupSettings(new VeilPopupSettings().setHeight(350).setWidth(800));
+        xmlEditor.setPopupSettings(new VeilPopupSettings().setHeight(480).setWidth(800));
         MetaDataRoleAuthorizationStrategy.authorize(xmlEditor, ENABLE,
                 xmlRolesReader.getAllAllowedRoles("Configuration", "workflowDefRead"));
         workflowDefContainer.add(xmlEditor);

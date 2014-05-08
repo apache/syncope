@@ -20,6 +20,7 @@ under the License.
   <head>
     <title></title>
 
+    <link rel="stylesheet" type="text/css" href="webjars/jquery-ui/${jquery-ui.version}/themes/base/minified/jquery-ui.min.css" media="all"/>
     <link rel="stylesheet" type="text/css" href="css/jquery-ui.css" media="all"/>
     <link rel="stylesheet" type="text/css" href="css/style.css" media="all"/>
     <link rel="stylesheet" type="text/css" href="css/fieldstyle.css" media="all"/>
@@ -30,6 +31,17 @@ under the License.
           repeat-x scroll 50% 50% #E6E6E6 !important;
       }
     </style>
+
+    <script type="text/javascript">
+      var notificationShowedTimes = 0;
+
+      function showNotification(componentId, messagecount) {
+        notificationShowedTimes++;
+        timeout = 1700 + (messagecount * 500) + notificationShowedTimes * 200;
+        $('div#' + componentId).fadeTo('normal', 1.0);
+        setTimeout("$('div#" + componentId + "').fadeOut('normal')", timeout);
+      }
+    </script>
   </head>
   <body onload="setTimeout('window.focus();', 0);">
     <div wicket:id="feedback"/>

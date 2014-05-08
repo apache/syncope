@@ -36,23 +36,47 @@ under the License.
         window.opener.location.reload();
       }
     </script>
+    <style>
+      .w_content_3 {
+        padding: 0;
+        color: #333333;
+        font-family: Verdana,Tahoma,sans-serif;
+        font-size: 100%;
+        border: 1px solid #BBBBBB;
+        padding: 1%;
+      }
+    </style>
   </wicket:head>
   <wicket:extend>
-    <form wicket:id="workflowDefForm">
-      <textarea wicket:id="workflowDefArea" id="workflowDefArea" style="width: 100%; height: 350px;">
-      </textarea>
-      <div style="margin: 10px;">
-        <input type="submit"
-               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-               wicket:id="apply"
-               onclick="window.close();"/>
+    <div style="padding: 1%;">
+      <div class="w_content_3">
+        <p class="ui-widget ui-corner-all ui-widget-header">
+          <wicket:message key="title"/>
+        </p>
+        <form wicket:id="workflowDefForm">
+          <div class="ui-tabs ui-widget ui-widget-content ui-corner-all">
+            <textarea wicket:id="workflowDefArea" id="workflowDefArea" style="width: 100%; height: 350px;">
+            </textarea>
+          </div>
+          <div style="padding-top: 1%;">
+            <input type="submit"
+                   class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                   wicket:id="apply"
+                   style="width: 50px"/>
+            <input type="submit"
+                   wicket:id="closePage"
+                   class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                   onclick="window.close();"
+                   style="width: 50px"/>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
     <script>
       window.onload = function() {
         var editor = CodeMirror.fromTextArea(document.getElementById("workflowDefArea"), {lineNumbers: true});
         editor.on("change", updateTextArea);
-      }
+      };
     </script>
   </wicket:extend>
 </html>

@@ -28,6 +28,7 @@ import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxBut
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.Model;
@@ -77,10 +78,12 @@ public class XMLEditorPopupPage extends BasePopupPage {
                     }
                 };
 
+        final Button close = new Button("closePage", new Model<String>(getString(CANCEL)));
+
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
                 xmlRolesReader.getAllAllowedRoles("Configuration", "workflowDefUpdate"));
         wfForm.add(submit);
-
+        wfForm.add(close);
         this.add(wfForm);
     }
 
