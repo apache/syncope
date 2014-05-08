@@ -53,11 +53,11 @@ under the License.
                 }
               });
 
-      var notificationShowedTimes = 0;
+      var notificationShownTimes = 0;
 
       function showNotification(componentId, messagecount) {
-        notificationShowedTimes++;
-        timeout = 1700 + (messagecount * 500) + notificationShowedTimes * 200;
+        notificationShownTimes++;
+        timeout = 1700 + (messagecount * 500) + notificationShownTimes * 200;
         $('div#' + componentId).fadeTo('normal', 1.0);
         setTimeout("$('div#" + componentId + "').fadeOut('normal')", timeout);
       }
