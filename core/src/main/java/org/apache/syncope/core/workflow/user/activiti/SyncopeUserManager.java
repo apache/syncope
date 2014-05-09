@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.activiti.engine.identity.Group;
+import org.activiti.engine.identity.Picture;
 import org.activiti.engine.identity.User;
 import org.activiti.engine.identity.UserQuery;
 import org.activiti.engine.impl.Page;
@@ -112,7 +113,22 @@ public class SyncopeUserManager implements UserIdentityManager, SyncopeSession {
     }
 
     @Override
-    public void updateUser(final UserEntity updatedUser) {
+    public boolean isNewUser(final User user) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void updateUser(final User updatedUser) {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public Picture getUserPicture(final String string) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setUserPicture(final String string, final Picture pctr) {
         throw new UnsupportedOperationException();
     }
 
