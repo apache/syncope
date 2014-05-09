@@ -69,12 +69,14 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
     public Iterator<? extends AbstractAttributableTO> iterator(final long first, final long count) {
         List<? extends AbstractAttributableTO> result;
 
+        final int page = ((int) first / paginatorRows);
+
         if (filtered) {
             result = fiql == null
                     ? Collections.<AbstractAttributableTO>emptyList()
-                    : restClient.search(fiql, ((int) first / paginatorRows) + 1, paginatorRows, getSort());
+                    : restClient.search(fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
         } else {
-            result = restClient.list(((int) first / paginatorRows) + 1, paginatorRows, getSort());
+            result = restClient.list((page < 0 ? 0 : page) + 1, paginatorRows, getSort());
         }
 
         Collections.sort(result, comparator);

@@ -384,8 +384,10 @@ public class Reports extends BasePage {
 
         @Override
         public Iterator<ReportTO> iterator(final long first, final long count) {
+            final int page = ((int) first / paginatorRows);
+            
             final List<ReportTO> list =
-                    reportRestClient.list(((int) first / paginatorRows) + 1, paginatorRows, getSort());
+                    reportRestClient.list((page < 0 ? 0 : page) + 1, paginatorRows, getSort());
             Collections.sort(list, comparator);
             return list.iterator();
         }

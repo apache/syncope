@@ -150,8 +150,10 @@ public class Tasks extends BasePage {
         @Override
         public Iterator<T> iterator(final long first, final long count) {
             final List<T> tasks = new ArrayList<T>();
-
-            for (T task : restClient.list(reference, ((int) first / paginatorRows) + 1, paginatorRows, getSort())) {
+            
+            final int page = ((int) first / paginatorRows);
+            
+            for (T task : restClient.list(reference, (page < 0 ? 0 : page)  + 1, paginatorRows, getSort())) {
                 if (task instanceof SchedTaskTO && ((SchedTaskTO) task).getLastExec() == null
                         && task.getExecutions() != null && !task.getExecutions().isEmpty()) {
 
