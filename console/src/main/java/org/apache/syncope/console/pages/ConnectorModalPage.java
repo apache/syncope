@@ -509,7 +509,9 @@ public class ConnectorModalPage extends BaseModalPage {
             for (ConnConfPropSchema key : bundleTO.getProperties()) {
                 final ConnConfProperty propertyTO = new ConnConfProperty();
                 propertyTO.setSchema(key);
-                if (connInstanceTO.getId() != 0 && connInstanceTO.getConfigurationMap().containsKey(key.getName())) {
+                if (connInstanceTO.getId() != 0 
+                        && connInstanceTO.getConfigurationMap().containsKey(key.getName())
+                        && connInstanceTO.getConfigurationMap().get(key.getName()).getValues() != null) {
                     propertyTO.getValues().addAll(connInstanceTO.getConfigurationMap().get(key.getName()).getValues());
                     propertyTO.setOverridable(connInstanceTO.getConfigurationMap().get(key.getName()).isOverridable());
                 }
