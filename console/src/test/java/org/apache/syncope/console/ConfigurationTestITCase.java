@@ -173,6 +173,9 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.click("//div[2]/form/div[3]/ul/li[4]/a/span");
 
+        selenium.type(
+                "name=staticRecipients:multiValueContainer:view:0:panel:textField", "syncope445@syncope.apache.org");
+
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//div[2]/form/div[3]/div[4]/div/div[2]/label\");", "30000");
 

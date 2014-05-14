@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.core.persistence.validation.entity;
 
+import java.util.regex.Matcher;
 import javax.validation.ConstraintValidatorContext;
-
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.Notification;
 
@@ -37,6 +38,20 @@ public class NotificationValidator extends AbstractValidator<NotificationCheck, 
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidNotification, "No events")).
                     addNode("events").addConstraintViolation();
+        }
+
+        if (!value.getStaticRecipients().isEmpty()) {
+            for (String mail : value.getStaticRecipients()) {
+                Matcher matcher = SyncopeConstants.EMAIL_PATTERN.matcher(mail);
+                if (!matcher.matches()) {
+                    LOG.error("Invalid mail address: {}", mail);
+                    isValid = false;
+
+                    context.buildConstraintViolationWithTemplate(
+                            getTemplate(EntityViolationType.InvalidNotification, "Invalid mail address: " + mail)).
+                            addNode("staticRecipients").addConstraintViolation();
+                }
+            }
         }
 
         return isValid;

@@ -28,6 +28,7 @@ import com.icegreen.greenmail.util.ServerSetup;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.mail.Flags.Flag;
@@ -35,7 +36,6 @@ import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Store;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.SyncopeConstants;
@@ -252,10 +252,10 @@ public class NotificationTest {
         assertNotNull(taskId);
         assertNotNull(textBody);
         assertTrue("Notification mail text doesn't contain expected content.",
-		   textBody.contains("Your email address is notificationtest@syncope.apache.org."));
+                textBody.contains("Your email address is notificationtest@syncope.apache.org."));
         assertTrue("Notification mail text doesn't contain expected content.",
-		   textBody.contains("Your email address inside a link: " 
-				     + "http://localhost/?email=notificationtest%40syncope.apache.org ."));
+                textBody.contains("Your email address inside a link: "
+                        + "http://localhost/?email=notificationtest%40syncope.apache.org ."));
 
         // 5. execute Notification task and verify e-mail
         taskController.execute(taskId, false);
@@ -428,5 +428,64 @@ public class NotificationTest {
         retryConf.setValue("0");
         confDAO.save(retryConf);
         confDAO.flush();
+    }
+
+    @Test
+    public void issueSYNCOPE445() throws Exception {
+        // 1. create suitable notification for subsequent tests
+        Notification notification = new Notification();
+        notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
+        notification.setAbout(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
+        notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(8L).query());
+        notification.setSelfAsRecipient(true);
+
+        notification.setRecipientAttrName("email");
+        notification.setRecipientAttrType(IntMappingType.UserSchema);
+        
+        notification.getStaticRecipients().add("syncope445@syncope.apache.org");
+
+        Random random = new Random(System.currentTimeMillis());
+        String sender = "syncopetest-" + random.nextLong() + "@syncope.apache.org";
+        notification.setSender(sender);
+        String subject = "Test notification " + random.nextLong();
+        notification.setSubject(subject);
+        notification.setTemplate("optin");
+
+        Notification actual = notificationDAO.save(notification);
+        assertNotNull(actual);
+
+        notificationDAO.flush();
+
+        // 2. create user
+        UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(7);
+        userTO.getMemberships().add(membershipTO);
+
+        userController.create(userTO);
+
+        // 3. force Quartz job execution and verify e-mail
+        notificationJob.execute(null);
+        assertTrue(verifyMail(sender, subject));
+
+        // 4. get NotificationTask id and text body
+        Long taskId = null;
+        String textBody = null;
+        Set<String> recipients = null;
+        for (NotificationTask task : taskDAO.findAll(NotificationTask.class)) {
+            if (sender.equals(task.getSender())) {
+                taskId = task.getId();
+                textBody = task.getTextBody();
+                recipients = task.getRecipients();
+            }
+        }
+        
+        assertNotNull(taskId);
+        assertNotNull(textBody);
+        assertTrue(recipients.contains("syncope445@syncope.apache.org"));
+        
+        // 5. execute Notification task and verify e-mail
+        taskController.execute(taskId, false);
+        assertTrue(verifyMail(sender, subject));
     }
 }

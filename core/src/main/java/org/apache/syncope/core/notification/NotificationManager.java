@@ -184,6 +184,10 @@ public class NotificationManager {
             }
         }
 
+        if (notification.getStaticRecipients() != null) {
+            recipientEmails.addAll(notification.getStaticRecipients());
+        }
+
         model.put("recipients", recipientTOs);
         model.put("syncopeConf", this.findAllSyncopeConfs());
         model.put("events", notification.getEvents());

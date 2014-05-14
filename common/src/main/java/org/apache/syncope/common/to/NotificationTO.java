@@ -45,6 +45,8 @@ public class NotificationTO extends AbstractBaseBean {
 
     private String recipients;
 
+    private List<String> staticRecipients = new ArrayList<String>();
+
     private IntMappingType recipientAttrType;
 
     private String recipientAttrName;
@@ -72,6 +74,13 @@ public class NotificationTO extends AbstractBaseBean {
     @JsonProperty("events")
     public List<String> getEvents() {
         return events;
+    }
+
+    @XmlElementWrapper(name = "staticRecipients")
+    @XmlElement(name = "staticRecipient")
+    @JsonProperty("staticRecipients")
+    public List<String> getStaticRecipients() {
+        return staticRecipients;
     }
 
     public Long getId() {

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
+import java.util.ArrayList;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -45,6 +46,7 @@ public class NotificationTest extends AbstractDAOTest {
         assertFalse(notification.getEvents().isEmpty());
         assertNotNull(notification.getAbout());
         assertNotNull(notification.getRecipients());
+
     }
 
     @Test
@@ -81,4 +83,31 @@ public class NotificationTest extends AbstractDAOTest {
         notificationDAO.delete(1L);
         assertNull(notificationDAO.find(1L));
     }
+
+    @Test
+    public void issueSYNCOPE445() {
+        Notification notification = new Notification();
+        notification.addEvent("save");
+
+        notification.setAbout(SyncopeClient.getUserSearchConditionBuilder().
+                is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query());
+
+        notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
+
+        notification.setRecipientAttrName("email");
+        notification.setRecipientAttrType(IntMappingType.UserSchema);
+       
+        notification.addStaticRecipient("syncope445@syncope.apache.org");
+        
+        notification.setSender("syncope@syncope.apache.org");
+        notification.setSubject("Test notification");
+        notification.setTemplate("test");
+
+        Notification actual = notificationDAO.save(notification);
+        assertNotNull(actual);
+        assertNotNull(actual.getId());
+        assertNotNull(actual.getStaticRecipients());
+        assertFalse(actual.getStaticRecipients().isEmpty());
+    }
+
 }

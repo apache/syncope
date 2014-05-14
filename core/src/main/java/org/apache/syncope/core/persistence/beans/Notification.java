@@ -54,6 +54,10 @@ public class Notification extends AbstractBaseBean {
 
     private String recipients;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = "staticRecipients")
+    private List<String> staticRecipients;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     private IntMappingType recipientAttrType;
@@ -82,6 +86,7 @@ public class Notification extends AbstractBaseBean {
 
     public Notification() {
         events = new ArrayList<String>();
+        staticRecipients = new ArrayList<String>();
         selfAsRecipient = getBooleanAsInteger(false);
         traceLevel = TraceLevel.ALL;
     }
@@ -138,6 +143,25 @@ public class Notification extends AbstractBaseBean {
         this.events.clear();
         if (events != null) {
             this.events.addAll(events);
+        }
+    }
+
+    public List<String> getStaticRecipients() {
+        return staticRecipients;
+    }
+
+    public boolean addStaticRecipient(String staticRecipient) {
+        return staticRecipient != null && !staticRecipients.contains(staticRecipient) && staticRecipients.add(staticRecipient);
+    }
+
+    public boolean removeStaticRecipient(String staticRecipient) {
+        return staticRecipient != null && staticRecipients.remove(staticRecipient);
+    }
+
+    public void setStaticRecipients(List<String> staticRecipients) {
+        this.staticRecipients.clear();
+        if (staticRecipients != null) {
+            this.staticRecipients.addAll(staticRecipients);
         }
     }
 

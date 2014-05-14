@@ -36,6 +36,7 @@ import org.apache.syncope.console.rest.NotificationRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -171,6 +172,19 @@ class NotificationModalPage extends BaseModalPage {
 
         form.add(recipientsContainer);
 
+        final AjaxTextFieldPanel staticRecipientsFieldPanel
+                = new AjaxTextFieldPanel("panel", "staticRecipients", new Model<String>(null));
+        staticRecipientsFieldPanel.addValidator(EmailAddressValidator.getInstance());
+
+        if (notificationTO.getStaticRecipients().isEmpty()) {
+            notificationTO.getStaticRecipients().add(null);
+        }
+        
+        final MultiFieldPanel staticRecipients = new MultiFieldPanel("staticRecipients",
+                new PropertyModel<List<String>>(notificationTO, "staticRecipients"), staticRecipientsFieldPanel);
+
+        form.add(staticRecipients);
+
         final AjaxCheckBoxPanel selfAsRecipient = new AjaxCheckBoxPanel("selfAsRecipient",
                 getString("selfAsRecipient"), new PropertyModel<Boolean>(notificationTO, "selfAsRecipient"));
         form.add(selfAsRecipient);
@@ -229,7 +243,8 @@ class NotificationModalPage extends BaseModalPage {
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 notificationTO.setAbout(checkAbout.getModelObject() ? null : about.buildFIQL());
                 notificationTO.setRecipients(checkRecipients.getModelObject() ? recipients.buildFIQL() : null);
-
+                notificationTO.getStaticRecipients().removeAll(Collections.singleton(null));
+                
                 try {
                     if (createFlag) {
                         restClient.createNotification(notificationTO);

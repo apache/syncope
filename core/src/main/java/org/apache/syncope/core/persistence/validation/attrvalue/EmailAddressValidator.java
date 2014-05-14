@@ -19,8 +19,7 @@
 package org.apache.syncope.core.persistence.validation.attrvalue;
 
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 
@@ -28,18 +27,13 @@ public class EmailAddressValidator extends AbstractValidator {
 
     private static final long serialVersionUID = 792457177290331518L;
 
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(
-            "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*"
-            + "@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
-            Pattern.CASE_INSENSITIVE);
-
     public EmailAddressValidator(final AbstractNormalSchema schema) {
         super(schema);
     }
 
     @Override
     protected void doValidate(final AbstractAttrValue attributeValue) throws InvalidAttrValueException {
-        Matcher matcher = EMAIL_PATTERN.matcher(attributeValue.<CharSequence>getValue());
+        Matcher matcher = SyncopeConstants.EMAIL_PATTERN.matcher(attributeValue.<CharSequence>getValue());
         if (!matcher.matches()) {
             throw new InvalidAttrValueException("\"" + attributeValue.getValue() + "\" is not a valid email address");
         }

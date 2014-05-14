@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common;
 
+import java.util.regex.Pattern;
+
 public class SyncopeConstants {
 
     public static final String NAMESPACE = "http://syncope.apache.org/1.2";
@@ -41,5 +43,10 @@ public class SyncopeConstants {
     public static final String DEFAULT_ENCODING = "UTF-8";
 
     public static final String ROOT_LOGGER = "ROOT";
+
+    public static final Pattern EMAIL_PATTERN = Pattern.compile(
+            "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*"
+            + "@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
+            Pattern.CASE_INSENSITIVE);
 
 }

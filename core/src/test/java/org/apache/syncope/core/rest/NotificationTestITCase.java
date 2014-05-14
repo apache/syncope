@@ -50,7 +50,7 @@ public class NotificationTestITCase extends AbstractTest {
 
         notificationTO.setRecipientAttrName("email");
         notificationTO.setRecipientAttrType(IntMappingType.UserSchema);
-
+        
         notificationTO.setSender("syncope@syncope.apache.org");
         notificationTO.setSubject("Test notification");
         notificationTO.setTemplate("test");
@@ -120,6 +120,24 @@ public class NotificationTestITCase extends AbstractTest {
     public void issueSYNCOPE83() {
         NotificationTO notificationTO = buildNotificationTO();
         notificationTO.setSelfAsRecipient(true);
+
+        NotificationTO actual = null;
+        try {
+            Response response = notificationService.create(notificationTO);
+            actual = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
+        } catch (SyncopeClientException e) {
+            assertNotNull(e);
+        }
+        assertNotNull(actual);
+        assertNotNull(actual.getId());
+        notificationTO.setId(actual.getId());
+        assertEquals(actual, notificationTO);
+    }
+
+    @Test
+    public void issueSYNCOPE445() {
+        NotificationTO notificationTO = buildNotificationTO();
+        notificationTO.getStaticRecipients().add("syncope445@syncope.apache.org");
 
         NotificationTO actual = null;
         try {
