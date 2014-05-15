@@ -31,6 +31,9 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.click("//a[contains(text(),'Create new user')]");
 
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//span[contains(text(),'Attributes')]\");", "30000");
 
@@ -39,6 +42,9 @@ public class UserTestITCase extends AbstractTest {
         selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[6]/a/span");
+
+        seleniumDriver.switchTo().defaultContent();
+
         selenium.click("css=a.w_close");
     }
 
@@ -52,6 +58,9 @@ public class UserTestITCase extends AbstractTest {
         //Edit vivaldi
         selenium.click("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[9]/a");
 
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='Antonio Vivaldi']\");", "30000");
 
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='Vivaldi']\");", "30000");
@@ -61,6 +70,9 @@ public class UserTestITCase extends AbstractTest {
         selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[6]/a/span");
+        
+        seleniumDriver.switchTo().defaultContent();
+        
         selenium.click("css=a.w_close");
     }
 
@@ -77,7 +89,7 @@ public class UserTestITCase extends AbstractTest {
                 + "\"//td[4]/select[option='3 citizen']\");", "30000");
 
         selenium.select("//td[4]/select", "label=3 citizen");
-        selenium.click("name=search");
+        selenium.click("//form/a");
 
         selenium.waitForCondition(
                 "selenium.isElementPresent(\"//*[@id='users-contain']//*[div=2]\");", "30000");
@@ -95,8 +107,13 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//div[@id='propagation']/span\");", "30000");
 
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+        
         selenium.click("//*[@id=\"users-contain\"]/a");
 
+        seleniumDriver.switchTo().defaultContent();
+        
         selenium.waitForCondition("selenium.isTextPresent(" + "\"Operation executed successfully\");", "30000");
     }
 }

@@ -35,9 +35,13 @@ public class SchemaTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//*[@name='name:textField']\");", "30000");
 
+        selenium.selectFrame("index=0");
+
         selenium.select("name=type:dropDownChoiceField", "value=0");
         selenium.type("name=name:textField", "newschema");
         selenium.click("name=apply");
+
+        seleniumDriver.switchTo().defaultContent();
 
         selenium.waitForCondition("selenium.isTextPresent(\"newschema\");", "30000");
     }

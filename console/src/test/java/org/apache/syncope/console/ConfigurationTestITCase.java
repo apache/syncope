@@ -32,9 +32,14 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='key:textField']\");", "30000");
 
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+
         selenium.type("name=key:textField", "test1");
         selenium.type("name=value:textField", "value1");
         selenium.click("name=apply");
+
+        seleniumDriver.switchTo().defaultContent();
 
         selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
     }
@@ -65,8 +70,13 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='id:textField']\");", "30000");
 
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+
         selenium.type("name=description:textField", "new description");
         selenium.click("//div[2]/form/div[3]/input[@type='submit']");
+
+        seleniumDriver.switchTo().defaultContent();
 
         selenium.waitForCondition("selenium.isTextPresent(\"new description\");", "30000");
     }
@@ -101,7 +111,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//div[@id='logs']/ul/li/a/span");
+        selenium.click("//div[@id='tabs']/ul/li[5]/a");
 
         selenium.select("//div[@id='core']/div/span/table/tbody/tr/td[2]/select", "label=ERROR");
 
@@ -114,10 +124,17 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
+        selenium.click("//div[@id='tabs']/ul/li[3]/a");
+
         selenium.click("//a[contains(text(),'Create new notification')]");
 
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//div[2]/form/div[3]/div/div/div/div/label\");", "30000");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='sender:textField']\");", "30000");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
 
         selenium.type("name=sender:textField", "test@syncope.it");
 
@@ -134,9 +151,9 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.select("//div[2]/form/div[3]/div/div/div[6]/div[2]/span/select", "label=ALL");
 
-        selenium.click("//div[2]/form/div[3]/ul/li[2]/a/span");
-
         selenium.click("//div[2]/form/div[3]/ul/li[3]/a/span");
+
+        selenium.click("//div[2]/form/div[3]/ul/li[2]/a/span");
 
         selenium.waitForCondition("selenium.isElementPresent(\""
                 + "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']"
@@ -177,6 +194,8 @@ public class ConfigurationTestITCase extends AbstractTest {
                 + "\"//div[2]/form/div[3]/div[4]/div/div[2]/label\");", "30000");
 
         selenium.click("//div[2]/form/div[4]/input");
+
+        seleniumDriver.switchTo().defaultContent();
     }
 
     @Test
@@ -189,6 +208,11 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='key:textField']\");", "30000");
 
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+
         selenium.keyPressNative("27");
+
+        seleniumDriver.switchTo().defaultContent();
     }
 }

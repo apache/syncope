@@ -18,28 +18,32 @@
  */
 package org.apache.syncope.console;
 
+import com.thoughtworks.selenium.webdriven.WebDriverBackedSelenium;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openqa.selenium.firefox.FirefoxDriver;
 
 public class EditProfileTestITCase extends AbstractTest {
 
     @Override
     @Before
     public void setUp() throws Exception {
-        super.setUp(BASE_URL, "*firefox");
+        seleniumDriver = new FirefoxDriver();
+        selenium = new WebDriverBackedSelenium(seleniumDriver, BASE_URL);
+
+        selenium.open("/syncope-console/");
     }
 
     @Test
     public void selfRegistration() {
-        selenium.open("/syncope-console/");
-
         selenium.click("//div/span/span/a");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//span[contains(text(),'Attributes')]\");", "30000");
 
         selenium.click("css=a.w_close");
 
-        // only to have some "Logout" availabe for @After
+        // only to have some "Logout" available for @After
         selenium.type("name=userId", "rossini");
         selenium.type("name=password", "password");
         selenium.click("name=:submit");
@@ -49,7 +53,6 @@ public class EditProfileTestITCase extends AbstractTest {
 
     @Test
     public void editUserProfile() {
-        selenium.open("/syncope-console/");
         selenium.type("name=userId", "rossini");
         selenium.type("name=password", "password");
         selenium.click("name=:submit");
@@ -64,5 +67,12 @@ public class EditProfileTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//input[@value='rossini']\");", "30000");
 
         selenium.click("css=a.w_close");
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+        selenium.stop();
     }
 }
