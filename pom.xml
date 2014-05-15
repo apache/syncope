@@ -346,7 +346,7 @@ under the License.
     <slf4j.version>1.7.7</slf4j.version>
 
     <junit.version>4.11</junit.version>
-    <selenium-version>2.41.0</selenium-version>
+    <selenium.version>2.41.0</selenium.version>
 
     <apacheds.version>1.5.7</apacheds.version>
 
@@ -856,34 +856,32 @@ under the License.
       </dependency>
         
       <!-- TEST -->
-      
-      <!-- SELENIUM INTEGRATION TEST -->
-      <dependency>
-        <groupId>org.seleniumhq.selenium</groupId>
-        <artifactId>selenium-api</artifactId>
-        <version>${selenium-version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.seleniumhq.selenium</groupId>
-        <artifactId>selenium-java</artifactId>
-        <version>${selenium-version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.seleniumhq.selenium</groupId>
-        <artifactId>selenium-support</artifactId>
-        <version>${selenium-version}</version>
-        <scope>test</scope>
-      </dependency>
-      <!-- /SELENIUM INTEGRATION TEST -->
-      
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>${junit.version}</version>
         <scope>test</scope>
       </dependency>
+      <!-- SELENIUM INTEGRATION TEST -->
+      <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-api</artifactId>
+        <version>${selenium.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-java</artifactId>
+        <version>${selenium.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-support</artifactId>
+        <version>${selenium.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <!-- /SELENIUM INTEGRATION TEST -->
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-test</artifactId>
