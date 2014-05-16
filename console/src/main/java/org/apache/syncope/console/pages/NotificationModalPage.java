@@ -172,44 +172,60 @@ class NotificationModalPage extends BaseModalPage {
 
         form.add(recipientsContainer);
 
+        final AjaxCheckBoxPanel checkStaticRecipients = new AjaxCheckBoxPanel("checkStaticRecipients",
+                "recipients", new Model<Boolean>(!notificationTO.getStaticRecipients().isEmpty()));
+        form.add(checkStaticRecipients);
+
+        if (createFlag) {
+            checkStaticRecipients.getField().setDefaultModelObject(Boolean.FALSE);
+        }
+
         final AjaxTextFieldPanel staticRecipientsFieldPanel
                 = new AjaxTextFieldPanel("panel", "staticRecipients", new Model<String>(null));
         staticRecipientsFieldPanel.addValidator(EmailAddressValidator.getInstance());
+        staticRecipientsFieldPanel.setRequired(checkStaticRecipients.getModelObject());
 
         if (notificationTO.getStaticRecipients().isEmpty()) {
             notificationTO.getStaticRecipients().add(null);
         }
-        
+
         final MultiFieldPanel staticRecipients = new MultiFieldPanel("staticRecipients",
                 new PropertyModel<List<String>>(notificationTO, "staticRecipients"), staticRecipientsFieldPanel);
-
+        staticRecipients.setEnabled(checkStaticRecipients.getModelObject());
         form.add(staticRecipients);
+
+        final AjaxCheckBoxPanel checkRecipients
+                = new AjaxCheckBoxPanel("checkRecipients", "checkRecipients",
+                        new Model<Boolean>(notificationTO.getRecipients() == null ? false : true));
+        recipientsContainer.add(checkRecipients);
+
+        if (createFlag) {
+            checkRecipients.getField().setDefaultModelObject(Boolean.TRUE);
+        }
+
+        final UserSearchPanel recipients
+                = new UserSearchPanel.Builder("recipients").fiql(notificationTO.getRecipients()).build();
+        
+        recipients.setEnabled(checkRecipients.getModelObject());
+        recipientsContainer.add(recipients);
 
         final AjaxCheckBoxPanel selfAsRecipient = new AjaxCheckBoxPanel("selfAsRecipient",
                 getString("selfAsRecipient"), new PropertyModel<Boolean>(notificationTO, "selfAsRecipient"));
         form.add(selfAsRecipient);
 
         if (createFlag) {
-            selfAsRecipient.getField().setDefaultModelObject(Boolean.TRUE);
+            selfAsRecipient.getField().setDefaultModelObject(Boolean.FALSE);
         }
-
-        final AjaxCheckBoxPanel checkRecipients =
-                new AjaxCheckBoxPanel("checkRecipients", "checkRecipients",
-                        new Model<Boolean>(notificationTO.getRecipients() == null ? false : true));
-        recipientsContainer.add(checkRecipients);
-
-        final UserSearchPanel recipients =
-                new UserSearchPanel.Builder("recipients").fiql(notificationTO.getRecipients()).build();
-        recipientsContainer.add(recipients);
-        recipients.setEnabled(checkRecipients.getModelObject());
-
+ 
         selfAsRecipient.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                if (!Boolean.valueOf(selfAsRecipient.getField().getValue())) {
+                if (!selfAsRecipient.getModelObject()
+                        && !checkRecipients.getModelObject()
+                        && !checkStaticRecipients.getModelObject()) {
                     checkRecipients.getField().setDefaultModelObject(Boolean.TRUE);
                     target.add(checkRecipients);
                     recipients.setEnabled(checkRecipients.getModelObject());
@@ -225,11 +241,40 @@ class NotificationModalPage extends BaseModalPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                if (!checkRecipients.getModelObject()) {
-                    selfAsRecipient.getField().setDefaultModelObject(Boolean.TRUE);
-                    target.add(selfAsRecipient);
+                if (!checkRecipients.getModelObject()
+                        && !selfAsRecipient.getModelObject()
+                        && !checkStaticRecipients.getModelObject()) {
+                    checkStaticRecipients.getField().setDefaultModelObject(Boolean.TRUE);
+                    target.add(checkStaticRecipients);
+                    staticRecipients.setEnabled(Boolean.TRUE);
+                    target.add(staticRecipients);
+                    staticRecipientsFieldPanel.setRequired(Boolean.TRUE);
+                    target.add(staticRecipientsFieldPanel);
                 }
                 recipients.setEnabled(checkRecipients.getModelObject());
+                target.add(recipients);
+                target.add(recipientsContainer);
+            }
+        });
+
+        checkStaticRecipients.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                if (!checkStaticRecipients.getModelObject()
+                        && !selfAsRecipient.getModelObject()
+                        && !checkRecipients.getModelObject()) {
+                    checkRecipients.getField().setDefaultModelObject(Boolean.TRUE);
+                    checkRecipients.setEnabled(Boolean.TRUE);
+                    target.add(checkRecipients);
+                }
+                staticRecipients.setEnabled(checkStaticRecipients.getModelObject());
+                staticRecipientsFieldPanel.setRequired(checkStaticRecipients.getModelObject());
+                recipients.setEnabled(checkRecipients.getModelObject());
+                target.add(staticRecipientsFieldPanel);
+                target.add(staticRecipients);
                 target.add(recipients);
                 target.add(recipientsContainer);
             }
@@ -244,7 +289,7 @@ class NotificationModalPage extends BaseModalPage {
                 notificationTO.setAbout(checkAbout.getModelObject() ? null : about.buildFIQL());
                 notificationTO.setRecipients(checkRecipients.getModelObject() ? recipients.buildFIQL() : null);
                 notificationTO.getStaticRecipients().removeAll(Collections.singleton(null));
-                
+
                 try {
                     if (createFlag) {
                         restClient.createNotification(notificationTO);

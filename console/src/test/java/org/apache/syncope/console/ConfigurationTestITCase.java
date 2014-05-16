@@ -168,7 +168,7 @@ public class ConfigurationTestITCase extends AbstractTest {
                 + "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']"
                 + "/option[text()='role']\");",
                 "30000");
-
+        
         selenium.select(
                 "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']",
                 "label=role");
@@ -189,6 +189,8 @@ public class ConfigurationTestITCase extends AbstractTest {
         selenium.click("//div[@class='eventSelectionWidzard']/div[2]/div[3]/span/div/input");
 
         selenium.click("//div[2]/form/div[3]/ul/li[4]/a/span");
+        
+        selenium.click("//div[2]/form/div[3]/div[4]/div/div/span/input");
 
         selenium.type(
                 "name=staticRecipients:multiValueContainer:view:0:panel:textField", "syncope445@syncope.apache.org");

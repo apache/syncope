@@ -146,21 +146,15 @@ under the License.
 
           <div id="recipients">
             <div class="tablerow alt">
-              <div class="tablecolumn_label medium_fixedsize">
+              <div class="tablecolumn_label medium_dynamicsize">
+                <span wicket:id="checkStaticRecipients">[checkStaticRecipients]</span>
                 <label for="recipients"><wicket:message key="recipients"/></label>
               </div>
               <div class="tablecolumn_field medium_dynamicsize">
                 <span wicket:id="staticRecipients">[staticRecipients]</span>
               </div>
             </div>
-           	<div class="tablerow" style="width: auto; display: block;">
-           	  <div class="tablecolumn_field" style="width: auto; padding-right: 5px;">
-                <span wicket:id="selfAsRecipient">[selfAsRecipient]</span>
-              </div>
-           	  <div class="tablecolumn_label" style="width: auto;">
-                <label for="selfAsRecipient"><wicket:message key="selfAsRecipient"/></label>
-              </div>
-            </div>
+
             <span wicket:id="recipientsContainer">
               <div class="tablerow" style="width: auto;">
                 <div class="tablecolumn_field" style="width: auto; padding-right: 5px;">
@@ -172,6 +166,22 @@ under the License.
               </div>
               <span wicket:id="recipients"/>
             </span>
+            <div id="userFilter">
+              <div id="title">
+                <label for="userNotifications"><wicket:message key="userNotifications"/></label>
+              </div>
+              <div id="warning">
+                <label for="userNotificationsWarning"><wicket:message key="userNotificationsWarning"/></label>
+              </div>
+              <div class="tablerow" style="width: auto;">
+                <div class="tablecolumn_field" style="width: auto; padding-right: 5px;">
+                  <span wicket:id="selfAsRecipient">[selfAsRecipient]</span>
+                </div>
+                <div class="tablecolumn_label" style="width: auto;">
+                  <label for="selfAsRecipient"><wicket:message key="selfAsRecipient"/></label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
