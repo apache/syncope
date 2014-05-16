@@ -150,11 +150,6 @@ under the License.
       <artifactId>selenium-api</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.seleniumhq.selenium</groupId>
-      <artifactId>selenium-support</artifactId>
-      <scope>test</scope>
-    </dependency>
     <!-- /SELENIUM INTEGRATION TEST -->
     <dependency>
       <groupId>org.springframework</groupId>
