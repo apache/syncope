@@ -31,6 +31,9 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.click("//a[contains(text(),'Create new user')]");
 
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//span[contains(text(),'Attributes')]\");", "30000");
 
@@ -39,6 +42,9 @@ public class UserTestITCase extends AbstractTest {
         selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[6]/a/span");
+
+        seleniumDriver.switchTo().defaultContent();
+
         selenium.click("css=a.w_close");
     }
 
@@ -52,6 +58,9 @@ public class UserTestITCase extends AbstractTest {
         //Edit vivaldi
         selenium.click("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[12]/a");
 
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='Antonio Vivaldi']\");", "30000");
 
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='Vivaldi']\");", "30000");
@@ -61,6 +70,9 @@ public class UserTestITCase extends AbstractTest {
         selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[6]/a/span");
+
+        seleniumDriver.switchTo().defaultContent();
+
         selenium.click("css=a.w_close");
     }
 
@@ -76,7 +88,7 @@ public class UserTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//td[3]/select[option='3 citizen']\");", "30000");
 
         selenium.select("//td[3]/select", "label=3 citizen");
-        selenium.click("name=search");
+        selenium.click("//form/a");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//*[@id='users-contain']//*[div=2]\");", "30000");
     }
@@ -93,13 +105,18 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//div[@id='propagation']/span\");", "30000");
 
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+
         selenium.click("//*[@id=\"users-contain\"]/a");
+
+        seleniumDriver.switchTo().defaultContent();
 
         selenium.waitForCondition("selenium.isTextPresent(" + "\"Operation executed successfully\");", "30000");
     }
 
     @Test
-    public void browsProvisioningFeatures() {
+    public void browseProvisioningFeatures() {
         selenium.click("css=img[alt=\"Users\"]");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
@@ -109,11 +126,15 @@ public class UserTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//td[div='ws-target-resource-1']\");", "30000");
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//td[div='resource-testdb']\");", "30000");
 
+        selenium.selectFrame("index=0");
+
         selenium.click("//div[@class='navigator']/div/span[4]/a");
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//td[div='resource-ldap']\");", "30000");
 
         selenium.click("//div[@class='navigator']/div/span/a");
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//td[div='ws-target-resource-1']\");", "30000");
+
+        seleniumDriver.switchTo().defaultContent();
 
         selenium.click("css=a.w_close");
     }

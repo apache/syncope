@@ -28,10 +28,16 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
+        selenium.click("//div[@id='tabs']/ul/li[2]/a");
+
         selenium.click("//div[3]/div[2]/a");
 
         selenium.waitForCondition(
                 "selenium.isElementPresent(\"//form/div[2]/div/div/div[3]/div[2]/span/select\");", "30000");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+
         selenium.select("//select[@name='location:dropDownChoiceField']", "value=0");
 
         selenium.waitForCondition(
@@ -44,6 +50,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         selenium.click("//div[2]/form/div[2]/ul/li[1]/a/span");
 
         assertTrue(selenium.isElementPresent("//form/div[2]/div/div/div[3]/div[2]/"));
+
+        seleniumDriver.switchTo().defaultContent();
 
         selenium.click("css=a.w_close");
     }
@@ -60,12 +68,18 @@ public class ConnInstanceTestITCase extends AbstractTest {
         selenium.waitForCondition(
                 "selenium.isElementPresent(\"//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select\");", "30000");
 
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+
         assertEquals("ConnInstance103", selenium.getAttribute("//input[@name='displayName:textField']/@value"));
 
         assertEquals("org.connid.bundles.soap",
                 selenium.getSelectedLabel("//select[@name='connectorName:dropDownChoiceField']"));
 
         selenium.click("//div[2]/form/div[2]/ul/li[2]/a/span");
+
+        seleniumDriver.switchTo().defaultContent();
+
         selenium.click("css=a.w_close");
     }
 
@@ -95,6 +109,9 @@ public class ConnInstanceTestITCase extends AbstractTest {
         selenium.waitForCondition(
                 "selenium.isElementPresent(\"//select[@name='version:dropDownChoiceField']\");", "30000");
 
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+
         selenium.click("//div[2]/form/div[2]/ul/li[2]/a");
 
         selenium.waitForCondition(
@@ -104,5 +121,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         selenium.waitForCondition(
                 "selenium.isElementPresent(\"//div/ul/li/span[contains(text(),'Successful connection')]\");", "30000");
+
+        seleniumDriver.switchTo().defaultContent();
     }
 }

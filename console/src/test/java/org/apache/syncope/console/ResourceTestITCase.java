@@ -43,19 +43,24 @@ public class ResourceTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//td[6]/div/span[12]/a");
-
+        
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"class=wicket_modal\");", "30000");
+        selenium.waitForFrameToLoad("class=wicket_modal", "30000");
+        selenium.selectFrame("index=0");
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//form/div[3]/div/span/div/div/div/label[text()='Name']\");", "30000");
 
         selenium.click("//li[2]/a");
 
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//tbody/tr\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//tbody/tr[2]/td/input\");", "30000");
 
         selenium.click("//tbody/tr[2]/td/input");
 
         assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
 
-        selenium.click("name=apply");
+        selenium.click("//div[4]/input");
+
+        seleniumDriver.switchTo().defaultContent();
     }
 
     @Test
@@ -80,6 +85,9 @@ public class ResourceTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//form/div[3]/div/span/div/div/div/label[text()='Name']\");", "30000");
 
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+        
         selenium.click("//li[4]/a");
 
         assertTrue(selenium.isElementPresent("//label[@for='passwordPolicy']"));
@@ -87,6 +95,8 @@ public class ResourceTestITCase extends AbstractTest {
         selenium.click("//li[1]/a");
         selenium.click("//li[2]/a");
         selenium.click("//li[3]/a");
+
+        seleniumDriver.switchTo().defaultContent();
 
         selenium.click("css=a.w_close");
     }
@@ -102,7 +112,10 @@ public class ResourceTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//form/div[3]/div/span/div/div/div/label[text()='Name']\");", "30000");
 
-        selenium.click("//li[3]/a");
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+        
+        selenium.click("//li[4]/a");
 
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//span[text()='endpoint']\");", "30000");
 
@@ -110,5 +123,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         selenium.waitForCondition(
                 "selenium.isElementPresent(\"//div/ul/li/span[contains(text(), 'Successful connection')]\");", "30000");
+
+        seleniumDriver.switchTo().defaultContent();
     }
 }

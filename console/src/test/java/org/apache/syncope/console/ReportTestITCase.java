@@ -28,6 +28,10 @@ public class ReportTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//table/tbody/tr/td[8]/div/span[12]/a");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//div[2]/form/div[2]/div/div/span/div/div/div/span\");", "30000");
 
@@ -38,13 +42,20 @@ public class ReportTestITCase extends AbstractTest {
         selenium.select("//div[2]/form/div[2]/div/div/span/div/div[5]/div[2]/div/div/select", "testUserReportlet");
         selenium.click("//div[2]/form/div[2]/div/div/span/div/div[5]/div[2]/div[2]/div[2]/a");
 
+        seleniumDriver.switchTo().defaultContent();
+
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[2]/form/div[2]/div/div/div/div/label\");", "30000");
+                + "\"name=reportletClass:dropDownChoiceField\");", "30000");
 
-        selenium.select("//form/div[2]/div/div/div[2]/div[2]/span/select",
-                "label=org.apache.syncope.common.report.UserReportletConf");
+        selenium.selectFrame("index=1");
 
-        selenium.click("css=a.w_close");
+        selenium.select("name=reportletClass:dropDownChoiceField",
+                "org.apache.syncope.common.report.StaticReportletConf");
+
+        selenium.click("//div[2]/form/div[3]/input");
+
+        seleniumDriver.switchTo().defaultContent();
+
         selenium.click("css=a.w_close");
     }
 

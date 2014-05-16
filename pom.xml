@@ -347,7 +347,7 @@ under the License.
     <disruptor.version>3.2.0</disruptor.version>
 
     <junit.version>4.11</junit.version>
-    <selenium-java-client-driver.version>1.0.2</selenium-java-client-driver.version>
+    <selenium.version>2.41.0</selenium.version>
 
     <apacheds.version>1.5.7</apacheds.version>
 
@@ -881,12 +881,20 @@ under the License.
         <version>${junit.version}</version>
         <scope>test</scope>
       </dependency>
+      <!-- SELENIUM INTEGRATION TEST -->
       <dependency>
-        <groupId>org.seleniumhq.selenium.client-drivers</groupId>
-        <artifactId>selenium-java-client-driver</artifactId>
-        <version>${selenium-java-client-driver.version}</version>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-api</artifactId>
+        <version>${selenium.version}</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-java</artifactId>
+        <version>${selenium.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <!-- /SELENIUM INTEGRATION TEST -->
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-test</artifactId>

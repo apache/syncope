@@ -18,10 +18,14 @@
  */
 package org.apache.syncope.console;
 
-import com.thoughtworks.selenium.SeleneseTestCase;
+import com.thoughtworks.selenium.Selenium;
+import com.thoughtworks.selenium.webdriven.WebDriverBackedSelenium;
+import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
@@ -29,7 +33,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:applicationContext.xml"})
-public abstract class AbstractTest extends SeleneseTestCase {
+public abstract class AbstractTest extends TestCase {
 
     /**
      * Logger.
@@ -42,10 +46,17 @@ public abstract class AbstractTest extends SeleneseTestCase {
 
     protected static final String BASE_URL = "http://localhost:9080/syncope-console/";
 
+    protected Selenium selenium;
+    
+    protected WebDriver seleniumDriver;
+
     @Override
     @Before
     public void setUp() throws Exception {
-        super.setUp(BASE_URL, "*firefox");
+        super.setUp();
+
+        seleniumDriver = new FirefoxDriver();
+        selenium = new WebDriverBackedSelenium(seleniumDriver, BASE_URL);
 
         selenium.open("/syncope-console/");
         selenium.type("name=userId", ADMIN);

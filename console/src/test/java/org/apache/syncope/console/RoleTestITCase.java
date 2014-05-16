@@ -49,13 +49,13 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.click("//div/div/span/div/div/div/div/div[2]/div/div/span/a");
 
-        selenium.waitForCondition("selenium.isElementPresent(\"css=img[title='Create']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//img[@alt='create icon']\");", "30000");
 
-        selenium.click("css=img[title='Create']");
+        selenium.click("//img[@alt='create icon']");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
 
-        selenium.selectFrame("relative=up");
+        selenium.selectFrame("index=0");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[2]/form/div[3]/div/ul/li[1]/a/span\");", "30000");
 
@@ -65,6 +65,8 @@ public class RoleTestITCase extends AbstractTest {
         selenium.click("//div[2]/form/div[3]/div/ul/li[4]/a/span");
         selenium.click("//div[2]/form/div[3]/div/ul/li[5]/a/span");
         selenium.click("//div[2]/form/div[3]/div/ul/li[6]/a/span");
+
+        seleniumDriver.switchTo().defaultContent();
 
         selenium.click("css=a.w_close");
     }
@@ -77,13 +79,13 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.click("//div/div/span/div/div/div/div/div[2]/div/div/span/a");
 
-        selenium.waitForCondition("selenium.isElementPresent(\"css=img[title='Edit']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//img[@alt='edit icon']\");", "30000");
 
-        selenium.click("css=img[title='Edit']");
+        selenium.click("//img[@alt='edit icon']");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
 
-        selenium.selectFrame("relative=up");
+        selenium.selectFrame("index=0");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[2]/form/div[3]/div/ul/li[1]/a/span\");", "30000");
 
@@ -93,6 +95,8 @@ public class RoleTestITCase extends AbstractTest {
         selenium.click("//div[2]/form/div[3]/div/ul/li[5]/a/span");
         selenium.click("//div[2]/form/div[3]/div/ul/li[6]/a/span");
         selenium.click("//div[2]/form/div[3]/div/ul/li[7]/a/span");
+
+        seleniumDriver.switchTo().defaultContent();
 
         selenium.click("css=a.w_close");
     }
@@ -122,9 +126,9 @@ public class RoleTestITCase extends AbstractTest {
         selenium.click("//div/div/span/div/div/div/div/div[2]/div/div/span/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div/div/span[2]/span/span/div/form/div[2]/ul/li[8]/a\");", "30000");
+                + "\"//div/div/span[2]/span/span/div/form/div[2]/ul/li[9]/a\");", "30000");
 
-        selenium.click("//div/div/span[2]/span/span/div/form/div[2]/ul/li[8]/a");
+        selenium.click("//div/div/span[2]/span/span/div/form/div[2]/ul/li[9]/a");
 
         selenium.click("//input[@name=\"userListContainer:search\"]");
 
@@ -148,9 +152,9 @@ public class RoleTestITCase extends AbstractTest {
         selenium.click("//div/div/span/div/div/div/div/div[2]/div/div/span/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div/div/span[2]/span/span/div/form/div[2]/ul/li[8]/a\");", "30000");
+                + "\"//div/div/span[2]/span/span/div/form/div[2]/ul/li[9]/a\");", "30000");
 
-        selenium.click("//div/div/span[2]/span/span/div/form/div[2]/ul/li[8]/a");
+        selenium.click("//div/div/span[2]/span/span/div/form/div[2]/ul/li[9]/a");
 
         selenium.click("//input[@name=\"userListContainer:search\"]");
 
@@ -166,9 +170,9 @@ public class RoleTestITCase extends AbstractTest {
         selenium.click(
                 "//div/div/span/div/div/div/div/div[2]/div[2]/div[2]/div/div[2]/div[3]/div/span[2]/a/span");
 
-        selenium.waitForCondition("selenium.isElementPresent(\"css=img[title='Delete']\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//img[@alt='delete icon']\");", "30000");
 
-        selenium.click("css=img[title='Delete']");
+        selenium.click("//img[@alt='delete icon']");
 
         assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
     }

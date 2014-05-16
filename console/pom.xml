@@ -156,11 +156,18 @@ under the License.
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- SELENIUM INTEGRATION TEST -->
     <dependency>
-      <groupId>org.seleniumhq.selenium.client-drivers</groupId>
-      <artifactId>selenium-java-client-driver</artifactId>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- /SELENIUM INTEGRATION TEST -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
@@ -668,32 +675,6 @@ under the License.
         <plugins>
 
           <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>selenium-maven-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>start-selenium</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start-server</goal>
-                </goals>
-                <configuration>
-                  <background>true</background>
-                  <logOutput>true</logOutput>
-                </configuration>
-              </execution>
-              <execution>
-                <id>stop-selenium</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop-server</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
             <inherited>true</inherited>
@@ -724,7 +705,7 @@ under the License.
               </execution>
               <execution>
                 <id>stop-container</id>
-                <phase>post-integratison-test</phase>
+                <phase>post-integration-test</phase>
                 <goals>
                   <goal>stop</goal>
                 </goals>

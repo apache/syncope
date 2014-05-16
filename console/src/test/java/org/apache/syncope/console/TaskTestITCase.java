@@ -29,16 +29,30 @@ public class TaskTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[4]/a");
-        selenium.click("//*[div=1]/../td[10]/div/span[6]/a");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//div[4]/span/div/span/span/span/form/span/table/tbody/tr/td[9]/div/span[6]/a/img\");", "30000");
+
+        selenium.click("//div[4]/span/div/span/span/span/form/span/table/tbody/tr/td[9]/div/span[6]/a/img");
 
         selenium.waitForCondition("selenium.isTextPresent(" + "\"Operation executed successfully\");", "30000");
 
-        selenium.click("//*[div=1]/../td[10]/div/span[12]/a");
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//div[4]/span/div/span/span/span/form/span/table/tbody/tr/td[9]/div/span[12]/a/img\");", "30000");
+
+        selenium.click("//div[4]/span/div/span/span/span/form/span/table/tbody/tr/td[9]/div/span[12]/a/img");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//form/div[2]/div/div/span/div/div/div[2]/span/input\");", "30000");
+                + "\"//div[2]/form/div[2]/ul/li[3]/a\");", "30000");
 
-        assertTrue(selenium.isElementPresent("//form/div[2]/div[2]/span/table/tbody/tr[2]/td"));
+        selenium.click("//div[2]/form/div[2]/ul/li[3]/a");
+
+        assertTrue(selenium.isElementPresent("//div[2]/form/div[2]/div[3]/span/table/tbody/tr/td[2]"));
+
+        seleniumDriver.switchTo().defaultContent();
 
         selenium.click("css=a.w_close");
     }
@@ -49,10 +63,11 @@ public class TaskTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
-        selenium.click("//table/tbody/tr/td[8]/div/span[14]/a");
+        selenium.click("//div[@id='tabs']/ul/li[3]/a");
 
-        assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
+        selenium.waitForCondition("selenium.isElementPresent(\"xpath=(//img[@alt='delete icon'])[6]\");", "30000");
+
+        selenium.click("xpath=(//img[@alt='delete icon'])[6]"); // 
 
         selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
     }
@@ -69,7 +84,11 @@ public class TaskTestITCase extends AbstractTest {
         selenium.waitForCondition(
                 "selenium.isElementPresent(\"//div[2]/form/div[2]/div/div/span/div/div[2]/div/label\");", "30000");
 
+        selenium.selectFrame("index=0");
+
         selenium.click("//div[2]/form/div[3]/input[2]");
+
+        seleniumDriver.switchTo().defaultContent();
 
         selenium.waitForCondition("selenium.isTextPresent(\"Id\");", "30000");
     }
