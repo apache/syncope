@@ -336,7 +336,7 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <wicket.version>6.14.0</wicket.version>
+    <wicket.version>6.15.0</wicket.version>
 
     <groovy.version>2.2.2</groovy.version>
 
@@ -352,7 +352,7 @@ under the License.
 
     <tomcat.version>7.0.53</tomcat.version>
 
-    <jasypt.version>1.9.1</jasypt.version>
+    <jasypt.version>1.9.2</jasypt.version>
  
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
     <connid.location>file:${bundles.directory}/</connid.location>
