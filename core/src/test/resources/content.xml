@@ -847,7 +847,7 @@ under the License.
   <Notification id="1" sender="test@syncope.apache.org" subject="Test subject" template="test" selfAsRecipient="0" traceLevel="ALL"
                 about="fullname==*o*;fullname==*i*"
                 recipients="$roles==7"
-                recipientAttrType="UserSchema" recipientAttrName="email"/>
+                recipientAttrType="UserSchema" recipientAttrName="email" active="1"/>
   <Notification_events Notification_id="1" events="[CUSTOM]:[]:[]:[unexisting1]:[FAILURE]"/>
   <Notification_events Notification_id="1" events="[CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]"/>
     

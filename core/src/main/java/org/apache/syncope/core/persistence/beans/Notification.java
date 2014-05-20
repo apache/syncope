@@ -83,11 +83,18 @@ public class Notification extends AbstractBaseBean {
     @NotNull
     @Enumerated(EnumType.STRING)
     private TraceLevel traceLevel;
+    
+    @Column(nullable = false)
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer active;
 
     public Notification() {
         events = new ArrayList<String>();
         staticRecipients = new ArrayList<String>();
         selfAsRecipient = getBooleanAsInteger(false);
+        active = getBooleanAsInteger(true);
         traceLevel = TraceLevel.ALL;
     }
 
@@ -203,5 +210,13 @@ public class Notification extends AbstractBaseBean {
 
     public void setTraceLevel(TraceLevel traceLevel) {
         this.traceLevel = traceLevel;
+    }
+
+    public boolean isActive() {
+        return isBooleanAsInteger(active);
+    }
+
+    public void setActive(final boolean active) {
+        this.active = getBooleanAsInteger(active);
     }
 }

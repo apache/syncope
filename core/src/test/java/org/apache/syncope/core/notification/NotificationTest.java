@@ -441,7 +441,7 @@ public class NotificationTest {
 
         notification.setRecipientAttrName("email");
         notification.setRecipientAttrType(IntMappingType.UserSchema);
-        
+
         notification.getStaticRecipients().add("syncope445@syncope.apache.org");
 
         Random random = new Random(System.currentTimeMillis());
@@ -479,13 +479,56 @@ public class NotificationTest {
                 recipients = task.getRecipients();
             }
         }
-        
+
         assertNotNull(taskId);
         assertNotNull(textBody);
         assertTrue(recipients.contains("syncope445@syncope.apache.org"));
-        
+
         // 5. execute Notification task and verify e-mail
         taskController.execute(taskId, false);
         assertTrue(verifyMail(sender, subject));
+    }
+
+    @Test
+    public void issueSYNCOPE492() throws Exception {
+        // 1. create suitable disabled notification for subsequent tests
+        Notification notification = new Notification();
+        notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
+        notification.setAbout(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
+        notification.setSelfAsRecipient(true);
+
+        notification.setRecipientAttrName("email");
+        notification.setRecipientAttrType(IntMappingType.UserSchema);
+
+        notification.getStaticRecipients().add("syncope492@syncope.apache.org");
+
+        Random random = new Random(System.currentTimeMillis());
+        String sender = "syncopetest-" + random.nextLong() + "@syncope.apache.org";
+        notification.setSender(sender);
+        String subject = "Test notification " + random.nextLong();
+        notification.setSubject(subject);
+        notification.setTemplate("optin");
+        notification.setActive(false);
+
+        Notification actual = notificationDAO.save(notification);
+        assertNotNull(actual);
+
+        notificationDAO.flush();
+
+        final int tasksNumberBefore = taskDAO.findAll(NotificationTask.class).size();
+
+        // 2. create user
+        UserTO userTO = UserTestITCase.getUniqueSampleTO(mailAddress);
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(7);
+        userTO.getMemberships().add(membershipTO);
+
+        userController.create(userTO);
+
+        // 3. force Quartz job execution
+        notificationJob.execute(null);
+
+        // 4. check if number of tasks is not incremented
+        assertEquals(tasksNumberBefore, taskDAO.findAll(NotificationTask.class).size());
     }
 }

@@ -60,6 +60,8 @@ public class NotificationTO extends AbstractBaseBean {
     private String template;
 
     private TraceLevel traceLevel;
+    
+    private boolean active;
 
     public String getAbout() {
         return about;
@@ -153,5 +155,13 @@ public class NotificationTO extends AbstractBaseBean {
 
     public void setTraceLevel(TraceLevel traceLevel) {
         this.traceLevel = traceLevel;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

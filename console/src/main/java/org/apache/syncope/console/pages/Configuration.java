@@ -416,6 +416,8 @@ public class Configuration extends BasePage {
                 new ResourceModel("template"), "template", "template"));
         notificationCols.add(new PropertyColumn<NotificationTO, String>(
                 new ResourceModel("traceLevel"), "traceLevel", "traceLevel"));
+        notificationCols.add(new PropertyColumn<NotificationTO, String>(
+                new ResourceModel("active"), "active", "active"));
 
         notificationCols.add(new AbstractColumn<NotificationTO, String>(new ResourceModel("actions", "")) {
 

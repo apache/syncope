@@ -550,6 +550,7 @@ public class TaskTestITCase extends AbstractTest {
         String subject = "Test notification";
         notification.setSubject(subject);
         notification.setTemplate("optin");
+        notification.setActive(true);
 
         Response response = notificationService.create(notification);
         notification = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);

@@ -269,35 +269,40 @@ public class NotificationManager {
 
         for (Notification notification : notificationDAO.findAll()) {
             LOG.debug("Notification available about {}", notification.getAbout());
+            if (notification.isActive()) {
 
-            final Set<String> events = new HashSet<String>(notification.getEvents());
-            events.retainAll(Collections.<String>singleton(LoggerEventUtils.buildEvent(
-                    type, category, subcategory, event, condition)));
+                final Set<String> events = new HashSet<String>(notification.getEvents());
+                events.retainAll(Collections.<String>singleton(LoggerEventUtils.buildEvent(
+                        type, category, subcategory, event, condition)));
 
-            if (events.isEmpty()) {
-                LOG.debug("No events found about {}", attributable);
-            } else if (attributableType == null || attributable == null || notification.getAbout() == null
-                    || searchDAO.matches(attributable,
-                            SearchCondConverter.convert(notification.getAbout()),
-                            AttributableUtil.getInstance(attributableType))) {
+                if (events.isEmpty()) {
+                    LOG.debug("No events found about {}", attributable);
+                } else if (attributableType == null || attributable == null || notification.
+                        getAbout() == null || searchDAO.matches(attributable,
+                                SearchCondConverter.convert(notification.getAbout()),
+                                AttributableUtil.getInstance(attributableType))) {
 
-                LOG.debug("Creating notification task for events {} about {}", events, attributable);
+                    LOG.debug("Creating notification task for events {} about {}", events, attributable);
 
-                final Map<String, Object> model = new HashMap<String, Object>();
-                model.put("type", type);
-                model.put("category", category);
-                model.put("subcategory", subcategory);
-                model.put("event", event);
-                model.put("condition", condition);
-                model.put("before", before);
-                model.put("output", output);
-                model.put("input", input);
+                    final Map<String, Object> model = new HashMap<String, Object>();
+                    model.put("type", type);
+                    model.put("category", category);
+                    model.put("subcategory", subcategory);
+                    model.put("event", event);
+                    model.put("condition", condition);
+                    model.put("before", before);
+                    model.put("output", output);
+                    model.put("input", input);
 
-                if (attributable instanceof SyncopeUser) {
-                    model.put("user", userDataBinder.getUserTO((SyncopeUser) attributable));
+                    if (attributable instanceof SyncopeUser) {
+                        model.put("user", userDataBinder.getUserTO((SyncopeUser) attributable));
+                    }
+
+                    taskDAO.save(getNotificationTask(notification, attributable, model));
                 }
-
-                taskDAO.save(getNotificationTask(notification, attributable, model));
+            } else {
+                LOG.debug("Notification {}, about {} is deactivated, notification task will not be created",
+                        notification.getId(), notification.getAbout());
             }
         }
     }

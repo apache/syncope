@@ -204,6 +204,94 @@ public class ConfigurationTestITCase extends AbstractTest {
     }
 
     @Test
+    public void createDisabledNotification() {
+        selenium.click("css=img[alt=\"Configuration\"]");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//div[@id='tabs']/ul/li[3]/a");
+
+        selenium.click("//a[contains(text(),'Create new notification')]");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//div[2]/form/div[3]/div/div/div/div/label\");", "30000");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='sender:textField']\");", "30000");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+
+        selenium.type("name=sender:textField", "test@syncope.it");
+
+        selenium.type("name=sender:textField", "test@syncope.it");
+
+        selenium.select("//div[2]/form/div[3]/div/div/div[3]/div[2]/span/select", "label=UserSchema");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//div[2]/form/div[3]/div/div/div[4]/div[2]/span/select/option[2]\");", "30000");
+
+        selenium.select("//div[2]/form/div[3]/div/div/div[4]/div[2]/span/select", "label=fullname");
+
+        selenium.select("//div[2]/form/div[3]/div/div/div[5]/div[2]/span/select", "label=optin");
+
+        selenium.select("//div[2]/form/div[3]/div/div/div[6]/div[2]/span/select", "label=ALL");
+
+        // disable notification
+        selenium.click("//div[2]/form/div[3]/div/div/div[7]/div[2]/span/input");
+        
+        selenium.click("//div[2]/form/div[3]/ul/li[3]/a/span");
+
+        selenium.click("//div[2]/form/div[3]/ul/li[2]/a/span");
+
+        selenium.waitForCondition("selenium.isElementPresent(\""
+                + "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']"
+                + "/option[text()='PROPAGATION']\");",
+                "30000");
+
+        selenium.select(
+                "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']",
+                "label=PROPAGATION");
+
+        selenium.waitForCondition("selenium.isElementPresent(\""
+                + "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']"
+                + "/option[text()='role']\");",
+                "30000");
+        
+        selenium.select(
+                "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']",
+                "label=role");
+
+        selenium.waitForCondition("selenium.isElementPresent(\""
+                + "//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']"
+                + "/option[text()='resource-db-sync']\");",
+                "30000");
+
+        selenium.select(
+                "//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']",
+                "label=resource-db-sync");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//input[@name='eventSelection:eventsContainer:eventsPanel:failureGroup']\");",
+                "30000");
+
+        selenium.click("//div[@class='eventSelectionWidzard']/div[2]/div[3]/span/div/input");
+
+        selenium.click("//div[2]/form/div[3]/ul/li[4]/a/span");
+        
+        selenium.click("//div[2]/form/div[3]/div[4]/div/div/span/input");
+
+        selenium.type(
+                "name=staticRecipients:multiValueContainer:view:0:panel:textField", "syncope492@syncope.apache.org");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//div[2]/form/div[3]/div[4]/div/div[2]/label\");", "30000");
+
+        selenium.click("//div[2]/form/div[4]/input");
+
+        seleniumDriver.switchTo().defaultContent();
+    }
+    
+    @Test
     public void issueSYNCOPE189() {
         selenium.click("css=img[alt=\"Configuration\"]");
 

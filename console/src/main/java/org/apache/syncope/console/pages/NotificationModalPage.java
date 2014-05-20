@@ -94,6 +94,13 @@ class NotificationModalPage extends BaseModalPage {
         traceLevel.addRequiredLabel();
         form.add(traceLevel);
 
+        final AjaxCheckBoxPanel isActive = new AjaxCheckBoxPanel("isActive",
+                getString("isActive"), new PropertyModel<Boolean>(notificationTO, "active"));
+        if (createFlag) {
+            isActive.getField().setDefaultModelObject(Boolean.TRUE);
+        }
+        form.add(isActive);
+
         final WebMarkupContainer aboutContainer = new WebMarkupContainer("aboutContainer");
         aboutContainer.setOutputMarkupId(true);
 
@@ -205,7 +212,7 @@ class NotificationModalPage extends BaseModalPage {
 
         final UserSearchPanel recipients
                 = new UserSearchPanel.Builder("recipients").fiql(notificationTO.getRecipients()).build();
-        
+
         recipients.setEnabled(checkRecipients.getModelObject());
         recipientsContainer.add(recipients);
 
@@ -216,7 +223,7 @@ class NotificationModalPage extends BaseModalPage {
         if (createFlag) {
             selfAsRecipient.getField().setDefaultModelObject(Boolean.FALSE);
         }
- 
+
         selfAsRecipient.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
