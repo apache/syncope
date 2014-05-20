@@ -72,7 +72,8 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         String name = getRealPropertyName(sc.getStatement().getProperty());
         SpecialAttr specialAttrName = SpecialAttr.fromString(name);
 
-        String value = SearchUtils.toSqlWildcardString(sc.getStatement().getValue().toString(), false);
+        String value = SearchUtils.toSqlWildcardString(sc.getStatement().getValue().toString(), false).
+                replaceAll("\\\\_", "_");
         SpecialAttr specialAttrValue = SpecialAttr.fromString(value);
 
         AttributeCond attributeCond = createAttributeCond(name);

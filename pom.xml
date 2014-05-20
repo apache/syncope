@@ -319,10 +319,10 @@ under the License.
 
     <activiti.version>5.15.1</activiti.version>
     
-    <aspectj.version>1.7.4</aspectj.version>
+    <aspectj.version>1.8.0</aspectj.version>
 
-    <cxf.version>3.0.0-milestone2</cxf.version>	
-    <spring.version>4.0.3.RELEASE</spring.version>
+    <cxf.version>3.0.0</cxf.version>	
+    <spring.version>4.0.4.RELEASE</spring.version>
     <spring-security.version>3.2.3.RELEASE</spring-security.version>
     <jackson.version>2.3.3</jackson.version>
     <xstream.version>1.4.7</xstream.version>
@@ -336,15 +336,15 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <wicket.version>6.14.0</wicket.version>
+    <wicket.version>6.15.0</wicket.version>
 
-    <groovy.version>2.2.2</groovy.version>
+    <groovy.version>2.3.1</groovy.version>
 
-    <h2.version>1.3.176</h2.version>
+    <h2.version>1.4.178</h2.version>
 
     <log4j.version>2.0-rc1</log4j.version>
     <slf4j.version>1.7.7</slf4j.version>
-    <disruptor.version>3.2.0</disruptor.version>
+    <disruptor.version>3.2.1</disruptor.version>
 
     <junit.version>4.11</junit.version>
     <selenium.version>2.41.0</selenium.version>
