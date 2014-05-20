@@ -20,7 +20,7 @@ This message was sent to the following recipients:
    * $recipient.getAttrMap().get("surname").getValues().get(0)
 #end
 
-becase one of the following events occurred:
+because one of the following events occurred:
 #foreach($event in $events)
   * $event
 #end
@@ -30,4 +30,17 @@ You have been provided with the following roles:
 #foreach($membership in $user.getMemberships())
   * $membership.roleName
 #end
+#end
+
+#if(${output.class.simpleName} == "TaskExec")
+Below you can read execution details of task $output.getTask().getClass().getSimpleName(), id $output.getId()
+
+Task Details:
+
+  * START DATE: $output.getStartDate() 
+
+  * MESSAGE:
+$output.getMessage()
+
+  * END DATE: $output.getEndDate()
 #end

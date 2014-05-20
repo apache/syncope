@@ -35,7 +35,7 @@ under the License.
 #end
 </ul>
 
-becase one of the following events occurred:
+because one of the following events occurred:
 <ul>
 #foreach($event in $events)
   <li>$event</i>
@@ -51,5 +51,23 @@ You have been provided with the following roles:
 #end
 </ul>
 #end
+
+#if(${output.class.simpleName} == "TaskExec")
+Below you can read execution details of task $output.getTask().getClass().getSimpleName(), id $output.getId().
+Task Details:
+<ul>
+<li>
+START DATE:&nbsp$output.getStartDate()
+</li>
+<li>
+MESSAGE:<br/>
+$output.getMessage()
+</li>
+<li>
+END DATE:&nbsp$output.getEndDate()
+</li>
+</ul>
+#end
+
 </body>
 </html>

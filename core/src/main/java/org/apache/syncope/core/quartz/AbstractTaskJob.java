@@ -141,12 +141,12 @@ public abstract class AbstractTaskJob implements TaskJob {
 
         notificationManager.createTasks(
                 AuditElements.EventCategoryType.TASK,
-                task.getClass().getSimpleName(),
+                this.getClass().getSimpleName(),
                 null,
-                null, // searching for before object is too much expensive ...
+                this.getClass().getSimpleName(), // searching for before object is too much expensive ...
                 result,
                 task,
-                (Object[]) null);
+                execution);
 
         auditManager.audit(
                 AuditElements.EventCategoryType.TASK,
