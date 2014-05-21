@@ -20,7 +20,7 @@ package org.apache.syncope.core.connid;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.RandomStringUtils;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.policy.PolicyPattern;
 import org.apache.syncope.core.util.InvalidPasswordPolicySpecException;
+import org.apache.syncope.core.util.SecureRandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +42,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PasswordGenerator {
 
-    private static final String[] SPECIAL_CHARS = {"", "!", "£", "%", "&", "(", ")", "?", "#", "_", "$"};
+    private static final char[] SPECIAL_CHARS = {'!', '£', '%', '&', '(', ')', '?', '#', '$'};
 
     @Autowired
     private PolicyDAO policyDAO;
@@ -216,7 +217,7 @@ public class PasswordGenerator {
         //filled empty chars
         for (int firstEmptyChar = firstEmptyChar(generatedPassword);
                 firstEmptyChar < generatedPassword.length - 1; firstEmptyChar++) {
-            generatedPassword[firstEmptyChar] = RandomStringUtils.randomAlphabetic(1);
+            generatedPassword[firstEmptyChar] = SecureRandomUtil.generateRandomLetter();
         }
 
         checkPrefixAndSuffix(generatedPassword, policySpec);
@@ -224,48 +225,43 @@ public class PasswordGenerator {
         return StringUtils.join(generatedPassword);
     }
 
-    private int randomNumber(final int range) {
-        int randomNumber = (int) (Math.random() * (range - 1));
-        return randomNumber == 0 ? 1 : randomNumber;
-    }
-
     private void checkStartChar(final String[] generatedPassword, final PasswordPolicySpec policySpec) {
         if (policySpec.isMustStartWithAlpha()) {
-            generatedPassword[0] = RandomStringUtils.randomAlphabetic(1);
+            generatedPassword[0] = SecureRandomUtil.generateRandomLetter();
         }
         if (policySpec.isMustStartWithNonAlpha() || policySpec.isMustStartWithDigit()) {
-            generatedPassword[0] = RandomStringUtils.randomNumeric(1);
+            generatedPassword[0] = SecureRandomUtil.generateRandomNumber();
         }
         if (policySpec.isMustntStartWithAlpha()) {
-            generatedPassword[0] = RandomStringUtils.randomNumeric(1);
+            generatedPassword[0] = SecureRandomUtil.generateRandomNumber();
 
         }
         if (policySpec.isMustntStartWithDigit()) {
-            generatedPassword[0] = RandomStringUtils.randomAlphabetic(1);
+            generatedPassword[0] = SecureRandomUtil.generateRandomLetter();
 
         }
         if (policySpec.isMustntStartWithNonAlpha()) {
-            generatedPassword[0] = RandomStringUtils.randomAlphabetic(1);
+            generatedPassword[0] = SecureRandomUtil.generateRandomLetter();
 
         }
     }
 
     private void checkEndChar(final String[] generatedPassword, final PasswordPolicySpec policySpec) {
         if (policySpec.isMustEndWithAlpha()) {
-            generatedPassword[policySpec.getMinLength() - 1] = RandomStringUtils.randomAlphabetic(1);
+            generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtil.generateRandomLetter();
         }
         if (policySpec.isMustEndWithNonAlpha() || policySpec.isMustEndWithDigit()) {
-            generatedPassword[policySpec.getMinLength() - 1] = RandomStringUtils.randomNumeric(1);
+            generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtil.generateRandomNumber();
         }
 
         if (policySpec.isMustntEndWithAlpha()) {
-            generatedPassword[policySpec.getMinLength() - 1] = RandomStringUtils.randomNumeric(1);
+            generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtil.generateRandomNumber();
         }
         if (policySpec.isMustntEndWithDigit()) {
-            generatedPassword[policySpec.getMinLength() - 1] = RandomStringUtils.randomAlphabetic(1);
+            generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtil.generateRandomLetter();
         }
         if (policySpec.isMustntEndWithNonAlpha()) {
-            generatedPassword[policySpec.getMinLength() - 1] = RandomStringUtils.randomAlphabetic(1);
+            generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtil.generateRandomLetter();
 
         }
     }
@@ -282,26 +278,26 @@ public class PasswordGenerator {
         if (policySpec.isDigitRequired()
                 && !PolicyPattern.DIGIT.matcher(StringUtils.join(generatedPassword)).matches()) {
 
-            generatedPassword[firstEmptyChar(generatedPassword)] = RandomStringUtils.randomNumeric(1);
+            generatedPassword[firstEmptyChar(generatedPassword)] = SecureRandomUtil.generateRandomNumber();
         }
 
         if (policySpec.isUppercaseRequired()
                 && !PolicyPattern.ALPHA_UPPERCASE.matcher(StringUtils.join(generatedPassword)).matches()) {
 
-            generatedPassword[firstEmptyChar(generatedPassword)] = RandomStringUtils.randomAlphabetic(1).toUpperCase();
+            generatedPassword[firstEmptyChar(generatedPassword)] = SecureRandomUtil.generateRandomLetter().toUpperCase();
         }
 
         if (policySpec.isLowercaseRequired()
                 && !PolicyPattern.ALPHA_LOWERCASE.matcher(StringUtils.join(generatedPassword)).matches()) {
 
-            generatedPassword[firstEmptyChar(generatedPassword)] = RandomStringUtils.randomAlphabetic(1).toLowerCase();
+            generatedPassword[firstEmptyChar(generatedPassword)] = SecureRandomUtil.generateRandomLetter().toLowerCase();
         }
 
         if (policySpec.isNonAlphanumericRequired()
                 && !PolicyPattern.NON_ALPHANUMERIC.matcher(StringUtils.join(generatedPassword)).matches()) {
 
-            generatedPassword[firstEmptyChar(generatedPassword)] =
-                    SPECIAL_CHARS[randomNumber(SPECIAL_CHARS.length - 1)];
+            generatedPassword[firstEmptyChar(generatedPassword)] = 
+                SecureRandomUtil.generateRandomSpecialCharacter(SPECIAL_CHARS);
         }
     }
 
@@ -318,4 +314,5 @@ public class PasswordGenerator {
             }
         }
     }
+    
 }
