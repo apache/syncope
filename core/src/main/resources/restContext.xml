@@ -89,24 +89,7 @@ under the License.
   
   <bean id="addETagFilter" class="org.apache.syncope.core.services.AddETagFilter"/>
 
-  <jaxrs:server id="restContainer" address="/" staticSubresourceResolution="true">
-    <jaxrs:serviceBeans>
-      <ref bean="connectorServiceImpl"/>
-      <ref bean="configurationServiceImpl"/>
-      <ref bean="entitlementServiceImpl"/>
-      <ref bean="loggerServiceImpl"/>
-      <ref bean="notificationServiceImpl"/>
-      <ref bean="policyServiceImpl"/>
-      <ref bean="reportServiceImpl"/>
-      <ref bean="resourceServiceImpl"/>
-      <ref bean="roleServiceImpl"/>
-      <ref bean="schemaServiceImpl"/>
-      <ref bean="taskServiceImpl"/>
-      <ref bean="userServiceImpl"/>
-      <ref bean="userSelfServiceImpl"/>
-      <ref bean="workflowServiceImpl"/>
-      <ref bean="userWorkflowServiceImpl"/>
-    </jaxrs:serviceBeans>
+  <jaxrs:server id="restContainer" address="/" basePackages="org.apache.syncope.common.services, org.apache.syncope.core.services" staticSubresourceResolution="true">
     <jaxrs:resourceComparator>
       <bean id="queryResourceInfoComparator" class="org.apache.syncope.core.rest.utils.QueryResourceInfoComparator"/>
     </jaxrs:resourceComparator>
