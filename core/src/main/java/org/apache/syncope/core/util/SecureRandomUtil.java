@@ -19,19 +19,26 @@
 package org.apache.syncope.core.util;
 
 import java.security.SecureRandom;
-import java.util.Random;
+
+import org.apache.commons.lang3.RandomStringUtils;
 
 public class SecureRandomUtil {
+    
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     public static String generateRandomPassword(final int tokenLength) {
-        Random random = new SecureRandom();
-
-        final String letters = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ0123456789";
-
-        String pw = "";
-        for (int i = 0; i < tokenLength; i++) {
-            pw += letters.charAt((int) (random.nextDouble() * letters.length()));
-        }
-        return pw;
+        return RandomStringUtils.random(tokenLength, 0, 0, true, false, null, RANDOM);
+    }
+    
+    public static String generateRandomLetter() {
+        return RandomStringUtils.random(1, 0, 0, true, false, null, RANDOM);
+    }
+    
+    public static String generateRandomNumber() {
+        return RandomStringUtils.random(1, 0, 0, false, true, null, RANDOM);
+    }
+    
+    public static String generateRandomSpecialCharacter(char[] characters) {
+        return RandomStringUtils.random(1, 0, 0, false, false, characters, RANDOM);
     }
 }
