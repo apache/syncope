@@ -23,9 +23,9 @@ import javax.xml.bind.annotation.XmlEnum;
 /**
  * Status of a propagation task execution.
  *
- * CREATED -> SUBMITTED or UBSUBMITTED (depending on the external resource to
+ * CREATED -&gt; SUBMITTED or UBSUBMITTED (depending on the external resource to
  * return success or failure).
- * SUBMITTED -> SUCCESS or FAILURE (depending on the external resource to
+ * SUBMITTED -&gt; SUCCESS or FAILURE (depending on the external resource to
  * report success or failure).
  *
  * @see org.apache.syncope.common.to.TaskExecTO

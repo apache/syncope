@@ -146,7 +146,7 @@ public class PropagationStatus extends AbstractBaseBean {
     /**
      * Propagation execution failure message setter.
      *
-     * @param failureReason
+     * @param failureReason describes why this propagation failed
      */
     public void setFailureReason(final String failureReason) {
         this.failureReason = failureReason;

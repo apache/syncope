@@ -87,7 +87,7 @@ public class AccountPolicySpec extends AbstractPolicySpec {
 
     /**
      * Number of permitted login retries.
-     * 0 disabled; >0 enabled.
+     * 0 disabled; &gt;0 enabled.
      * If the number of subsequent failed logins will be greater then this value
      * the account will be suspended (lock-out).
      */
