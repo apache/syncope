@@ -1833,9 +1833,21 @@ public class UserTestITCase extends AbstractTest {
         userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
         userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
         userTO = updateUser(userMod);
-        assertEquals(RESOURCE_NAME_WS1, userTO.getPropagationStatusTOs().get(1).getResource());
-        assertNotNull(userTO.getPropagationStatusTOs().get(1).getFailureReason());
-        assertEquals(PropagationTaskExecStatus.UNSUBMITTED, userTO.getPropagationStatusTOs().get(1).getStatus());
+        
+        List<PropagationStatus> propagationStatuses = userTO.getPropagationStatusTOs();
+        PropagationStatus ws1PropagationStatus = null;
+        if (propagationStatuses != null) {
+            for (PropagationStatus propStatus : propagationStatuses) {
+                if (RESOURCE_NAME_WS1.equals(propStatus.getResource())) {
+                    ws1PropagationStatus = propStatus;
+                    break;
+                }
+            }
+        }
+        assertNotNull(ws1PropagationStatus);
+        assertEquals(RESOURCE_NAME_WS1, ws1PropagationStatus.getResource());
+        assertNotNull(ws1PropagationStatus.getFailureReason());
+        assertEquals(PropagationTaskExecStatus.UNSUBMITTED, ws1PropagationStatus.getStatus());
     }
 
     @Test
