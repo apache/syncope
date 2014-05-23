@@ -41,6 +41,7 @@ import org.apache.syncope.core.persistence.beans.Notification;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.persistence.beans.TaskExec;
+import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttr;
 import org.apache.syncope.core.persistence.beans.user.UDerAttr;
@@ -53,6 +54,7 @@ import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
+import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.SearchCondConverter;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -72,7 +74,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @see NotificationTask
  */
-@Transactional(rollbackFor = { Throwable.class })
+@Transactional(rollbackFor = {Throwable.class})
 public class NotificationManager {
 
     /**
@@ -109,6 +111,12 @@ public class NotificationManager {
      */
     @Autowired
     private UserDataBinder userDataBinder;
+
+    /**
+     * Role data binder.
+     */
+    @Autowired
+    private RoleDataBinder roleDataBinder;
 
     /**
      * User Search DAO.
@@ -154,7 +162,9 @@ public class NotificationManager {
             final Map<String, Object> model) {
 
         if (attributable != null) {
-            connObjectUtil.retrieveVirAttrValues(attributable, AttributableUtil.getInstance(AttributableType.USER));
+            connObjectUtil.retrieveVirAttrValues(attributable,
+                    AttributableUtil.getInstance(
+                            attributable instanceof SyncopeUser ? AttributableType.USER : AttributableType.ROLE));
         }
 
         final List<SyncopeUser> recipients = new ArrayList<SyncopeUser>();
@@ -268,7 +278,8 @@ public class NotificationManager {
         LOG.debug("Search notification for [{}]{}", attributableType, attributable);
 
         for (Notification notification : notificationDAO.findAll()) {
-            LOG.debug("Notification available about {}", notification.getAbout());
+            LOG.debug("Notification available user about {}", notification.getUserAbout());
+            LOG.debug("Notification available role about {}", notification.getRoleAbout());
             if (notification.isActive()) {
 
                 final Set<String> events = new HashSet<String>(notification.getEvents());
@@ -277,9 +288,13 @@ public class NotificationManager {
 
                 if (events.isEmpty()) {
                     LOG.debug("No events found about {}", attributable);
-                } else if (attributableType == null || attributable == null || notification.
-                        getAbout() == null || searchDAO.matches(attributable,
-                                SearchCondConverter.convert(notification.getAbout()),
+                } else if (attributableType == null || attributable == null
+                        || notification.getUserAbout() == null || notification.getRoleAbout() == null
+                        || searchDAO.matches(attributable,
+                                SearchCondConverter.convert(notification.getUserAbout()),
+                                AttributableUtil.getInstance(attributableType))
+                        || searchDAO.matches(attributable,
+                                SearchCondConverter.convert(notification.getRoleAbout()),
                                 AttributableUtil.getInstance(attributableType))) {
 
                     LOG.debug("Creating notification task for events {} about {}", events, attributable);
@@ -296,13 +311,16 @@ public class NotificationManager {
 
                     if (attributable instanceof SyncopeUser) {
                         model.put("user", userDataBinder.getUserTO((SyncopeUser) attributable));
+                    } else if (attributable instanceof SyncopeRole) {
+                        model.put("role", roleDataBinder.getRoleTO((SyncopeRole) attributable));
                     }
 
                     taskDAO.save(getNotificationTask(notification, attributable, model));
                 }
             } else {
-                LOG.debug("Notification {}, about {} is deactivated, notification task will not be created",
-                        notification.getId(), notification.getAbout());
+                LOG.debug("Notification {}, userAbout {}, roleAbout {} is deactivated, "
+                        + "notification task will not be created", notification.getId(),
+                        notification.getUserAbout(), notification.getRoleAbout());
             }
         }
     }

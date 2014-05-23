@@ -538,7 +538,7 @@ public class TaskTestITCase extends AbstractTest {
         notification.setTraceLevel(TraceLevel.FAILURES);
         notification.getEvents().add("[REST]:[UserController]:[]:[create]:[SUCCESS]");
 
-        notification.setAbout(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
+        notification.setUserAbout(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
 
         notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(8L).query());
         notification.setSelfAsRecipient(true);

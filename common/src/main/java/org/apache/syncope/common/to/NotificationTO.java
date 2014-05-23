@@ -41,7 +41,9 @@ public class NotificationTO extends AbstractBaseBean {
 
     private List<String> events = new ArrayList<String>();
 
-    private String about;
+    private String userAbout;
+
+    private String roleAbout;
 
     private String recipients;
 
@@ -63,12 +65,20 @@ public class NotificationTO extends AbstractBaseBean {
     
     private boolean active;
 
-    public String getAbout() {
-        return about;
+    public String getUserAbout() {
+        return userAbout;
     }
 
-    public void setAbout(final String about) {
-        this.about = about;
+    public void setUserAbout(final String userAbout) {
+        this.userAbout = userAbout;
+    }
+
+    public String getRoleAbout() {
+        return roleAbout;
+    }
+
+    public void setRoleAbout(final String roleAbout) {
+        this.roleAbout = roleAbout;
     }
 
     @XmlElementWrapper(name = "events")

@@ -28,30 +28,30 @@ public class TaskTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//div[@id='tabs']/ul/li[4]/a");
+        selenium.click("//div[@id='tabs']/ul/li[1]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[4]/span/div/span/span/span/form/span/table/tbody/tr/td[9]/div/span[6]/a/img\");", "30000");
+                + "\"//tr[4]/td[10]/div/span[6]/a/img\");", "30000");
 
-        selenium.click("//div[4]/span/div/span/span/span/form/span/table/tbody/tr/td[9]/div/span[6]/a/img");
-
-        selenium.waitForCondition("selenium.isTextPresent(" + "\"Operation executed successfully\");", "30000");
+        selenium.click("//tr[4]/td[10]/div/span[6]/a/img");      
+        
+        selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[4]/span/div/span/span/span/form/span/table/tbody/tr/td[9]/div/span[12]/a/img\");", "30000");
-
-        selenium.click("//div[4]/span/div/span/span/span/form/span/table/tbody/tr/td[9]/div/span[12]/a/img");
+                + "\"//tr[4]/td[10]/div/span[12]/a/img\");", "30000");
+        
+        selenium.click("//tr[4]/td[10]/div/span[12]/a/img");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
         selenium.selectFrame("index=0");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[2]/form/div[2]/ul/li[3]/a\");", "30000");
+                + "\"//div[2]/form/div[2]/ul/li[2]/a\");", "30000");
 
-        selenium.click("//div[2]/form/div[2]/ul/li[3]/a");
+        selenium.click("//div[2]/form/div[2]/ul/li[2]/a");
 
-        assertTrue(selenium.isElementPresent("//div[2]/form/div[2]/div[3]/span/table/tbody/tr/td[2]"));
-
+        assertTrue(selenium.isElementPresent("//div[2]/form/div[2]/div[2]/span/table/tbody/tr/td[4]"));
+        
         seleniumDriver.switchTo().defaultContent();
 
         selenium.click("css=a.w_close");

@@ -50,7 +50,9 @@ public class Notification extends AbstractBaseBean {
     @Column(name = "events")
     private List<String> events;
 
-    private String about;
+    private String userAbout;
+
+    private String roleAbout;
 
     private String recipients;
 
@@ -102,12 +104,20 @@ public class Notification extends AbstractBaseBean {
         return id;
     }
 
-    public String getAbout() {
-        return about;
+    public String getUserAbout() {
+        return userAbout;
     }
 
-    public void setAbout(final String about) {
-        this.about = about;
+    public void setUserAbout(final String userAbout) {
+        this.userAbout = userAbout;
+    }
+
+    public String getRoleAbout() {
+        return roleAbout;
+    }
+
+    public void setRoleAbout(final String roleAbout) {
+        this.roleAbout = roleAbout;
     }
 
     public String getRecipients() {

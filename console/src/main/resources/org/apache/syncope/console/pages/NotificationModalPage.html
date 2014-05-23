@@ -134,8 +134,16 @@ under the License.
                 <div class="tablecolumn_field" style="width: auto; padding-right: 5px;">
                   <span wicket:id="checkAbout">[checkAbout]</span>
                 </div>
-                <div class="tablecolumn_label" style="width: auto;">
+                <div class="tablecolumn_label" style="width: 100%">
                   <label for="checkAbout"><wicket:message key="checkAbout"/></label>
+                </div>
+              </div>
+              <div class="tablerow" style="width: auto;">
+                <div class="tablecolumn_field" style="width: auto; padding-right: 5px;">
+                  <span wicket:id="checkUserAbout">[checkUserAbout]</span>
+                </div>
+                <div class="tablecolumn_label" style="width: auto;">
+                  <label for="checkUserAbout"><wicket:message key="checkUserAbout"/></label>
                 </div>
               </div>
               <div id="userFilter">
@@ -146,7 +154,26 @@ under the License.
                   <label for="userFilter"><wicket:message key="userFilterWarning"/></label>
                 </div>
                 <div id="condition">
-                  <span wicket:id="about"/>
+                  <span wicket:id="userAbout"/>
+                </div>
+              </div>
+              <div class="tablerow" style="width: auto;">
+                <div class="tablecolumn_field" style="width: auto; padding-right: 5px;">
+                  <span wicket:id="checkRoleAbout">[checkRoleAbout]</span>
+                </div>
+                <div class="tablecolumn_label" style="width: auto;">
+                  <label for="checkRoleAbout"><wicket:message key="checkRoleAbout"/></label>
+                </div>
+              </div>
+              <div id="userFilter">
+                <div id="title">
+                  <label for="roleFilter"><wicket:message key="roleFilter"/></label>
+                </div>
+                <div id="warning">
+                  <label for="roleFilter"><wicket:message key="roleFilterWarning"/></label>
+                </div>
+                <div id="condition">
+                  <span wicket:id="roleAbout"/>
                 </div>
               </div>
             </span>
@@ -192,7 +219,7 @@ under the License.
             </div>
           </div>
         </div>
-
+        
         <div style="margin: 20px 10px 0">
           <input type="submit"
                  class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"

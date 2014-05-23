@@ -44,13 +44,13 @@ public class NotificationTestITCase extends AbstractTest {
         NotificationTO notificationTO = new NotificationTO();
         notificationTO.setTraceLevel(TraceLevel.SUMMARY);
         notificationTO.getEvents().add("create");
-
-        notificationTO.setAbout(SyncopeClient.getUserSearchConditionBuilder().
+        
+        notificationTO.setUserAbout(SyncopeClient.getUserSearchConditionBuilder().
                 is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query());
 
         notificationTO.setRecipientAttrName("email");
         notificationTO.setRecipientAttrType(IntMappingType.UserSchema);
-        
+
         notificationTO.setSender("syncope@syncope.apache.org");
         notificationTO.setSubject("Test notification");
         notificationTO.setTemplate("test");
@@ -152,4 +152,22 @@ public class NotificationTestITCase extends AbstractTest {
         assertEquals(actual, notificationTO);
     }
 
+    @Test
+    public void issueSYNCOPE446() {
+        NotificationTO notificationTO = buildNotificationTO();
+        notificationTO.getStaticRecipients().add("syncope446@syncope.apache.org");
+        notificationTO.setRoleAbout(SyncopeClient.getRoleSearchConditionBuilder().hasEntitlements("ROLE_READ").query());
+
+        NotificationTO actual = null;
+        try {
+            Response response = notificationService.create(notificationTO);
+            actual = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
+        } catch (SyncopeClientException e) {
+            assertNotNull(e);
+        }
+        assertNotNull(actual);
+        assertNotNull(actual.getId());
+        notificationTO.setId(actual.getId());
+        assertEquals(actual, notificationTO);
+    }
 }

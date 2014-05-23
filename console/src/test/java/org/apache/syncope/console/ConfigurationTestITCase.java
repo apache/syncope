@@ -138,7 +138,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.type("name=sender:textField", "test@syncope.it");
 
-        selenium.type("name=sender:textField", "test@syncope.it");
+        selenium.type("name=subject:textField", "test@syncope.it");
 
         selenium.select("//div[2]/form/div[3]/div/div/div[3]/div[2]/span/select", "label=UserSchema");
 
@@ -168,7 +168,7 @@ public class ConfigurationTestITCase extends AbstractTest {
                 + "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']"
                 + "/option[text()='role']\");",
                 "30000");
-        
+
         selenium.select(
                 "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']",
                 "label=role");
@@ -189,7 +189,7 @@ public class ConfigurationTestITCase extends AbstractTest {
         selenium.click("//div[@class='eventSelectionWidzard']/div[2]/div[3]/span/div/input");
 
         selenium.click("//div[2]/form/div[3]/ul/li[4]/a/span");
-        
+
         selenium.click("//div[2]/form/div[3]/div[4]/div/div/span/input");
 
         selenium.type(
@@ -238,7 +238,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         // disable notification
         selenium.click("//div[2]/form/div[3]/div/div/div[7]/div[2]/span/input");
-        
+
         selenium.click("//div[2]/form/div[3]/ul/li[3]/a/span");
 
         selenium.click("//div[2]/form/div[3]/ul/li[2]/a/span");
@@ -256,7 +256,7 @@ public class ConfigurationTestITCase extends AbstractTest {
                 + "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']"
                 + "/option[text()='role']\");",
                 "30000");
-        
+
         selenium.select(
                 "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']",
                 "label=role");
@@ -277,7 +277,7 @@ public class ConfigurationTestITCase extends AbstractTest {
         selenium.click("//div[@class='eventSelectionWidzard']/div[2]/div[3]/span/div/input");
 
         selenium.click("//div[2]/form/div[3]/ul/li[4]/a/span");
-        
+
         selenium.click("//div[2]/form/div[3]/div[4]/div/div/span/input");
 
         selenium.type(
@@ -290,7 +290,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         seleniumDriver.switchTo().defaultContent();
     }
-    
+
     @Test
     public void issueSYNCOPE189() {
         selenium.click("css=img[alt=\"Configuration\"]");
@@ -305,6 +305,100 @@ public class ConfigurationTestITCase extends AbstractTest {
         selenium.selectFrame("index=0");
 
         selenium.keyPressNative("27");
+
+        seleniumDriver.switchTo().defaultContent();
+    }
+
+    @Test
+    public void issueSYNCOPE446() {
+        selenium.click("css=img[alt=\"Configuration\"]");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//div[@id='tabs']/ul/li[3]/a");
+
+        selenium.click("//a[contains(text(),'Create new notification')]");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//div[2]/form/div[3]/div/div/div/div/label\");", "30000");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='sender:textField']\");", "30000");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+
+        selenium.type("name=sender:textField", "syncope446@syncope.it");
+
+        selenium.type("name=subject:textField", "Test issue Syncope 446");
+
+        selenium.select("//div[2]/form/div[3]/div/div/div[3]/div[2]/span/select", "label=UserSchema");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//div[2]/form/div[3]/div/div/div[4]/div[2]/span/select/option[2]\");", "30000");
+
+        selenium.select("//div[2]/form/div[3]/div/div/div[4]/div[2]/span/select", "label=email");
+
+        selenium.select("//div[2]/form/div[3]/div/div/div[5]/div[2]/span/select", "label=optin");
+
+        selenium.select("//div[2]/form/div[3]/div/div/div[6]/div[2]/span/select", "label=ALL");
+
+        selenium.click("//div[2]/form/div[3]/ul/li[3]/a/span");
+
+        selenium.click("//div[2]/form/div[3]/ul/li[2]/a/span");
+
+        selenium.waitForCondition("selenium.isElementPresent(\""
+                + "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']"
+                + "/option[text()='REST']\");",
+                "30000");
+
+        selenium.select(
+                "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']",
+                "label=REST");
+
+        selenium.waitForCondition("selenium.isElementPresent(\""
+                + "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']"
+                + "/option[text()='RoleController']\");",
+                "30000");
+
+        selenium.select(
+                "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']",
+                "label=RoleController");
+
+        selenium.waitForCondition("selenium.isElementPresent("
+                + "\"//input[@name='eventSelection:eventsContainer:eventsPanel:successGroup']\");",
+                "30000");
+
+        selenium.click("//div[@class='eventSelectionWidzard']/div[2]/div[3]/span/div/input");
+
+        selenium.click("//div[2]/form/div[3]/ul/li[3]/a/span");
+        selenium.click("//div[2]/form/div[3]/div[3]/span/div[4]/div/span/input");
+
+        selenium.waitForCondition("selenium.isElementPresent(\""
+                + "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:type']"
+                + "/option[text()='ENTITLEMENT']\");",
+                "30000");
+
+        selenium.select(
+                "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:type']",
+                "label=ENTITLEMENT");
+
+        selenium.waitForCondition("selenium.isElementPresent(\""
+                + "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:property']"
+                + "/option[text()='ROLE_CREATE']\");",
+                "30000");
+
+        selenium.select(
+                "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:property']",
+                "label=ROLE_CREATE");
+        
+        selenium.click("//div[2]/form/div[3]/ul/li[4]/a/span");
+        
+        selenium.click("//input[@name='recipientsContainer:checkRecipients:checkboxField']");
+
+        selenium.type(
+                "name=staticRecipients:multiValueContainer:view:0:panel:textField", "syncope446@syncope.apache.org");
+
+        selenium.click("//div[2]/form/div[4]/input");
 
         seleniumDriver.switchTo().defaultContent();
     }

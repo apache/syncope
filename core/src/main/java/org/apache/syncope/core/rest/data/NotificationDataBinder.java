@@ -34,7 +34,8 @@ public class NotificationDataBinder {
         BeanUtils.copyProperties(notification, result, IGNORE_PROPERTIES);
 
         result.setId(notification.getId());
-        result.setAbout(notification.getAbout());
+        result.setUserAbout(notification.getUserAbout());
+        result.setRoleAbout(notification.getRoleAbout());
         result.setRecipients(notification.getRecipients());
 
         return result;
@@ -49,7 +50,8 @@ public class NotificationDataBinder {
     public void updateNotification(final Notification notification, final NotificationTO notificationTO) {
         BeanUtils.copyProperties(notificationTO, notification, IGNORE_PROPERTIES);
 
-        notification.setAbout(notificationTO.getAbout());
+        notification.setUserAbout(notificationTO.getUserAbout());
+        notification.setRoleAbout(notificationTO.getRoleAbout());
         notification.setRecipients(notificationTO.getRecipients());
     }
 }

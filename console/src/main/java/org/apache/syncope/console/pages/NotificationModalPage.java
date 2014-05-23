@@ -30,6 +30,7 @@ import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.LoggerCategoryPanel;
+import org.apache.syncope.console.pages.panels.RoleSearchPanel;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
 import org.apache.syncope.console.rest.LoggerRestClient;
 import org.apache.syncope.console.rest.NotificationRestClient;
@@ -66,8 +67,8 @@ class NotificationModalPage extends BaseModalPage {
     public NotificationModalPage(final PageReference pageRef, final ModalWindow window,
             final NotificationTO notificationTO, final boolean createFlag) {
 
-        final Form<NotificationTO> form =
-                new Form<NotificationTO>(FORM, new CompoundPropertyModel<NotificationTO>(notificationTO));
+        final Form<NotificationTO> form
+                = new Form<NotificationTO>(FORM, new CompoundPropertyModel<NotificationTO>(notificationTO));
 
         final AjaxTextFieldPanel sender = new AjaxTextFieldPanel("sender", getString("sender"),
                 new PropertyModel<String>(notificationTO, "sender"));
@@ -106,14 +107,30 @@ class NotificationModalPage extends BaseModalPage {
 
         form.add(aboutContainer);
 
-        final AjaxCheckBoxPanel checkAbout =
-                new AjaxCheckBoxPanel("checkAbout", "checkAbout",
-                        new Model<Boolean>(notificationTO.getAbout() == null));
+        final AjaxCheckBoxPanel checkAbout
+                = new AjaxCheckBoxPanel("checkAbout", "checkAbout",
+                        new Model<Boolean>(notificationTO.getUserAbout() == null && notificationTO.getRoleAbout() == null));
         aboutContainer.add(checkAbout);
 
-        final UserSearchPanel about = new UserSearchPanel.Builder("about").fiql(notificationTO.getAbout()).build();
-        aboutContainer.add(about);
-        about.setEnabled(!checkAbout.getModelObject());
+        final AjaxCheckBoxPanel checkUserAbout
+                = new AjaxCheckBoxPanel("checkUserAbout", "checkUserAbout",
+                        new Model<Boolean>(notificationTO.getUserAbout() != null));
+        aboutContainer.add(checkUserAbout);
+
+        final AjaxCheckBoxPanel checkRoleAbout
+                = new AjaxCheckBoxPanel("checkRoleAbout", "checkRoleAbout",
+                        new Model<Boolean>(notificationTO.getRoleAbout() != null));
+        aboutContainer.add(checkRoleAbout);
+
+        final UserSearchPanel userAbout
+                = new UserSearchPanel.Builder("userAbout").fiql(notificationTO.getUserAbout()).build();
+        aboutContainer.add(userAbout);
+        userAbout.setEnabled(checkUserAbout.getModelObject());
+
+        final RoleSearchPanel roleAbout
+                = new RoleSearchPanel.Builder("roleAbout").fiql(notificationTO.getRoleAbout()).build();
+        aboutContainer.add(roleAbout);
+        roleAbout.setEnabled(checkRoleAbout.getModelObject());
 
         checkAbout.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -121,8 +138,50 @@ class NotificationModalPage extends BaseModalPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                about.setEnabled(!checkAbout.getModelObject());
-                target.add(about);
+                if (checkAbout.getModelObject()) {
+                    checkUserAbout.setModelObject(Boolean.FALSE);
+                    checkRoleAbout.setModelObject(Boolean.FALSE);
+                    userAbout.setEnabled(Boolean.FALSE);
+                    roleAbout.setEnabled(Boolean.FALSE);
+                } else {
+                    checkAbout.setModelObject(Boolean.TRUE);
+                }
+                target.add(aboutContainer);
+            }
+        });
+
+        checkUserAbout.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                if (checkUserAbout.getModelObject()) {
+                    checkAbout.setModelObject(!checkUserAbout.getModelObject());
+                    checkRoleAbout.setModelObject(!checkUserAbout.getModelObject());
+                    roleAbout.setEnabled(Boolean.FALSE);
+                } else {
+                    checkUserAbout.setModelObject(Boolean.TRUE);
+                }
+                userAbout.setEnabled(Boolean.TRUE);
+                target.add(aboutContainer);
+            }
+        });
+
+        checkRoleAbout.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                if (checkRoleAbout.getModelObject()) {
+                    checkAbout.setModelObject(Boolean.FALSE);
+                    checkUserAbout.setModelObject(Boolean.FALSE);
+                    userAbout.setEnabled(Boolean.FALSE);
+                } else {
+                    checkRoleAbout.setModelObject(Boolean.TRUE);
+                }
+                roleAbout.setEnabled(Boolean.TRUE);
                 target.add(aboutContainer);
             }
         });
@@ -165,12 +224,12 @@ class NotificationModalPage extends BaseModalPage {
 
                     @Override
                     protected String[] getListRoles() {
-                        return new String[] {};
+                        return new String[]{};
                     }
 
                     @Override
                     protected String[] getChangeRoles() {
-                        return new String[] {};
+                        return new String[]{};
                     }
                 });
 
@@ -293,7 +352,11 @@ class NotificationModalPage extends BaseModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                notificationTO.setAbout(checkAbout.getModelObject() ? null : about.buildFIQL());
+                notificationTO.setUserAbout(
+                        !checkAbout.getModelObject() && checkUserAbout.getModelObject() ? userAbout.buildFIQL() : null);
+                notificationTO.setRoleAbout(
+                        !checkAbout.getModelObject()
+                        && checkRoleAbout.getModelObject() ? roleAbout.buildFIQL() : null);
                 notificationTO.setRecipients(checkRecipients.getModelObject() ? recipients.buildFIQL() : null);
                 notificationTO.getStaticRecipients().removeAll(Collections.singleton(null));
 

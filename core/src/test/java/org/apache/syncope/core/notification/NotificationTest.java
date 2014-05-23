@@ -41,6 +41,7 @@ import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.NotificationTaskTO;
+import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.TraceLevel;
@@ -53,6 +54,7 @@ import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.rest.UserTestITCase;
+import org.apache.syncope.core.rest.controller.RoleController;
 import org.apache.syncope.core.rest.controller.TaskController;
 import org.apache.syncope.core.rest.controller.UserController;
 import org.junit.AfterClass;
@@ -123,6 +125,9 @@ public class NotificationTest {
 
     @Autowired
     private UserController userController;
+
+    @Autowired
+    private RoleController roleController;
 
     @Autowired
     private TaskController taskController;
@@ -209,7 +214,7 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
         notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
-        notification.setAbout(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
+        notification.setUserAbout(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
         notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(8L).query());
         notification.setSelfAsRecipient(true);
 
@@ -267,7 +272,7 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
         notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
-        notification.setAbout(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
+        notification.setUserAbout(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
         notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(8L).query());
         notification.setSelfAsRecipient(true);
 
@@ -319,7 +324,7 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
         notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
-        notification.setAbout(null);
+        notification.setUserAbout(null);
         notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(8L).query());
         notification.setSelfAsRecipient(true);
 
@@ -369,7 +374,7 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
         notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
-        notification.setAbout(null);
+        notification.setUserAbout(null);
         notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(8L).query());
         notification.setSelfAsRecipient(true);
 
@@ -435,7 +440,7 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = new Notification();
         notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
-        notification.setAbout(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
+        notification.setUserAbout(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
         notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(8L).query());
         notification.setSelfAsRecipient(true);
 
@@ -494,7 +499,7 @@ public class NotificationTest {
         // 1. create suitable disabled notification for subsequent tests
         Notification notification = new Notification();
         notification.addEvent("[REST]:[UserController]:[]:[create]:[SUCCESS]");
-        notification.setAbout(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
+        notification.setUserAbout(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
@@ -530,5 +535,64 @@ public class NotificationTest {
 
         // 4. check if number of tasks is not incremented
         assertEquals(tasksNumberBefore, taskDAO.findAll(NotificationTask.class).size());
+    }
+
+    @Test
+    public void issueSYNCOPE446() throws Exception {
+
+        // 1. create suitable notification for subsequent tests
+        Notification notification = new Notification();
+        notification.addEvent("[REST]:[RoleController]:[]:[create]:[SUCCESS]");
+        notification.setRoleAbout(SyncopeClient.getRoleSearchConditionBuilder().is("name").equalTo("role446").query());
+        notification.setSelfAsRecipient(false);
+
+        notification.setRecipientAttrName("email");
+        notification.setRecipientAttrType(IntMappingType.UserSchema);
+
+        notification.getStaticRecipients().add(mailAddress);
+
+        Random random = new Random(System.currentTimeMillis());
+        String sender = "syncopetest-" + random.nextLong() + "@syncope.apache.org";
+        notification.setSender(sender);
+        String subject = "Test notification " + random.nextLong();
+        notification.setSubject(subject);
+        notification.setTemplate("optin");
+
+        Notification actual = notificationDAO.save(notification);
+        assertNotNull(actual);
+
+        notificationDAO.flush();
+
+        // 2. create role
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName("role446");
+        roleTO.setParent(1L);
+
+        RoleTO createdRole = roleController.create(roleTO);
+        assertNotNull(createdRole);
+
+        // 3. force Quartz job execution and verify e-mail
+        notificationJob.execute(null);
+        assertTrue(verifyMail(sender, subject));
+
+        // 4. get NotificationTask id and text body
+        Long taskId = null;
+        String textBody = null;
+        Set<String> recipients = null;
+        for (NotificationTask task : taskDAO.findAll(NotificationTask.class)) {
+            if (sender.equals(task.getSender())) {
+                taskId = task.getId();
+                textBody = task.getTextBody();
+                recipients = task.getRecipients();
+            }
+        }
+
+        assertNotNull(taskId);
+        assertNotNull(textBody);
+        assertTrue(recipients.contains(mailAddress));
+
+        // 5. execute Notification task and verify e-mail
+        taskController.execute(taskId, false);
+        assertTrue(verifyMail(sender, subject));
     }
 }
