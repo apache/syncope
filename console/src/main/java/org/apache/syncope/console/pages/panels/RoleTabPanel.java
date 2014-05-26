@@ -155,7 +155,7 @@ public class RoleTabPanel extends Panel {
                     window.show(target);
                 } catch (SyncopeClientException e) {
                     error(getString(Constants.OPERATION_ERROR) + ": " + e.getMessage());
-                    target.add(((Roles) pageRef.getPage()).getFeedbackPanel());
+                    ((Roles) pageRef.getPage()).getFeedbackPanel().refresh(target);
                 }
             }
         }, ActionLink.ActionType.DELETE, xmlRolesReader.getAllAllowedRoles("Roles", "delete"));
