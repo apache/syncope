@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessControlException;
+import java.util.Collection;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
@@ -48,7 +49,12 @@ import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.common.to.MappingItemTO;
+import org.apache.syncope.common.to.MappingTO;
+import org.apache.syncope.common.to.ResourceTO;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.types.ResourceDeassociationActionType;
 import org.identityconnectors.framework.common.objects.Name;
@@ -718,5 +724,84 @@ public class RoleTestITCase extends AbstractTest {
 
         assertNull(getLdapRemoteObject(parentRemoteObject.getAttrMap().get(Name.NAME).getValues().get(0)));
         assertNull(getLdapRemoteObject(childRemoteObject.getAttrMap().get(Name.NAME).getValues().get(0)));
+    }
+
+    @Test
+    public void issueSYNCOPE493() {
+        // 1.  create role and check that title is propagated on resource with mapping for title set to BOTH
+        RoleTO roleTO = buildBasicRoleTO("issueSYNCOPE493-Role");
+        roleTO.getResources().add(RESOURCE_NAME_LDAP);
+        roleTO.getRAttrTemplates().add("title");
+        roleTO.getAttrs().add(attributeTO("title", "TITLE"));
+
+        roleTO = createRole(roleTO);
+        assertTrue(roleTO.getResources().contains(RESOURCE_NAME_LDAP));
+
+        ConnObjectTO actual = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE,
+                roleTO.getId());
+        assertNotNull(actual);
+
+        // check if mapping attribute with purpose BOTH has really been propagated
+        assertNotNull(actual.getAttrMap().get("description"));
+        assertEquals("TITLE", actual.getAttrMap().get("description").getValues().get(0));
+
+        // 2.  update resource LDAP
+        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        assertNotNull(ldap);
+
+        MappingTO ldapNewRMapping = ldap.getRmapping();
+        // change purpose from BOTH to NONE
+        for (MappingItemTO itemTO : ldapNewRMapping.getItems()) {
+            if ("title".equals(itemTO.getIntAttrName())) {
+                itemTO.setPurpose(MappingPurpose.NONE);
+            }
+        }
+
+        ldap.setRmapping(ldapNewRMapping);
+        ldap.setUmapping(ldap.getUmapping());
+
+        resourceService.update(RESOURCE_NAME_LDAP, ldap);
+        ResourceTO newLdap = resourceService.read(ldap.getName());
+        assertNotNull(newLdap);
+
+        // check for existence
+        Collection<MappingItemTO> mapItems = newLdap.getRmapping().getItems();
+        assertNotNull(mapItems);
+        assertEquals(4, mapItems.size());
+
+        // 3.  update role and check that title han not been propagated, external attribute description must not be present
+        // in role mapping
+        RoleMod roleMod = new RoleMod();
+        roleMod.setId(roleTO.getId());
+
+        AttributeMod attr = attributeMod("title", "TITLENEW");
+        attr.getValuesToBeRemoved().add("TITLE");
+        roleMod.getAttrsToUpdate().add(attr);
+        roleTO = updateRole(roleMod);
+        assertNotNull(roleTO);
+        assertEquals(1, roleTO.getPropagationStatusTOs().size());
+        assertTrue(roleTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+        // check update on Syncope
+        assertEquals("TITLENEW", roleTO.getAttrMap().get("title").getValues().get(0));
+
+        final ConnObjectTO newRole = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE,
+                roleTO.getId());
+
+        // due to NONE mapping for attribute title external attribute description must not be present
+        assertNull(newRole.getAttrMap().get("description"));
+
+        // 4.  restore resource LDAP mapping
+        ldapNewRMapping = newLdap.getRmapping();
+        // restore purpose from NONE to BOTH
+        for (MappingItemTO itemTO : ldapNewRMapping.getItems()) {
+            if ("title".equals(itemTO.getIntAttrName())) {
+                itemTO.setPurpose(MappingPurpose.BOTH);
+            }
+        }
+
+        newLdap.setRmapping(ldapNewRMapping);
+        newLdap.setUmapping(newLdap.getUmapping());
+
+        resourceService.update(RESOURCE_NAME_LDAP, newLdap);
     }
 }

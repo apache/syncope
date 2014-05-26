@@ -600,7 +600,10 @@ under the License.
   <UMappingItem id="336" mapping_id="15"
                 extAttrName="type" intAttrName="type" intMappingType="UserSchema" mandatoryCondition="true"
                 accountid="0" password="0" purpose="PROPAGATION"/>
-
+  <UMappingItem id="337" mapping_id="15"
+                extAttrName="name" intAttrName="firstname" intMappingType="UserSchema" mandatoryCondition="false"
+                accountid="0" password="0" purpose="NONE"/>
+  
   <UMapping id="12" resource_name="ws-target-resource-list-mappings-1"/>
   <UMappingItem id="103" mapping_id="12"
                 extAttrName="__NAME__" intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"

@@ -22,6 +22,7 @@ public enum MappingPurpose {
 
     BOTH,
     SYNCHRONIZATION,
-    PROPAGATION
+    PROPAGATION,
+    NONE
 
 }

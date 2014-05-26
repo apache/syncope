@@ -72,6 +72,7 @@ import org.identityconnectors.framework.common.objects.OperationalAttributes;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import javax.naming.NamingException;
 import javax.ws.rs.core.EntityTag;
 import javax.xml.ws.WebServiceException;
@@ -81,6 +82,8 @@ import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.mod.ResourceAssociationMod;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.reqres.PagedResult;
+import org.apache.syncope.common.to.MappingTO;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.Preference;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
@@ -1833,7 +1836,7 @@ public class UserTestITCase extends AbstractTest {
         userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
         userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
         userTO = updateUser(userMod);
-        
+
         List<PropagationStatus> propagationStatuses = userTO.getPropagationStatusTOs();
         PropagationStatus ws1PropagationStatus = null;
         if (propagationStatuses != null) {
@@ -2215,5 +2218,77 @@ public class UserTestITCase extends AbstractTest {
                 connObject.getAttrMap().get(Name.NAME).getValues().get(0),
                 "password123",
                 connObject.getAttrMap().get(Name.NAME).getValues().get(0)));
+    }
+
+    @Test
+    public void issueSYNCOPE493() {
+        // 1.  create user and check that firstname is not propagated on resource with mapping for firstname set to NONE
+        UserTO userTO = getUniqueSampleTO("issueSYNCOPE493@test.org");
+        userTO.getResources().add(RESOURCE_NAME_WS1);
+        userTO = createUser(userTO);
+        assertNotNull(userTO);
+        assertEquals(1, userTO.getPropagationStatusTOs().size());
+        assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+
+        final ConnObjectTO actual = resourceService.getConnectorObject(RESOURCE_NAME_WS1, AttributableType.USER, userTO.
+                getId());
+        assertNotNull(actual);
+        // check if mapping attribute with purpose NONE really hasn't been propagated
+        assertNull(actual.getAttrMap().get("NAME"));
+
+        // 2.  update resource ws-target-resource-1
+        ResourceTO ws1 = resourceService.read(RESOURCE_NAME_WS1);
+        assertNotNull(ws1);
+
+        MappingTO ws1NewUMapping = ws1.getUmapping();
+        // change purpose from NONE to BOTH
+        for (MappingItemTO itemTO : ws1NewUMapping.getItems()) {
+            if ("firstname".equals(itemTO.getIntAttrName())) {
+                itemTO.setPurpose(MappingPurpose.BOTH);
+            }
+        }
+
+        ws1.setUmapping(ws1NewUMapping);
+        ws1.setRmapping(ws1.getRmapping());
+
+        resourceService.update(RESOURCE_NAME_WS1, ws1);
+        ResourceTO newWs1 = resourceService.read(ws1.getName());
+        assertNotNull(newWs1);
+
+        // check for existence
+        Collection<MappingItemTO> mapItems = newWs1.getUmapping().getItems();
+        assertNotNull(mapItems);
+        assertEquals(7, mapItems.size());
+
+        // 3.  update user and check firstname propagation        
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPwdPropRequest(new StatusMod());
+        userMod.getAttrsToUpdate().add(attributeMod("firstname", "firstnameNew"));
+
+        userTO = updateUser(userMod);
+        assertNotNull(userTO);
+        assertEquals(1, userTO.getPropagationStatusTOs().size());
+        assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+
+        final ConnObjectTO newUser = resourceService.getConnectorObject(RESOURCE_NAME_WS1, AttributableType.USER,
+                userTO.getId());
+
+        assertNotNull(newUser.getAttrMap().get("NAME"));
+        assertEquals("firstnameNew", newUser.getAttrMap().get("NAME").getValues().get(0));
+
+        // 4.  restore resource ws-target-resource-1 mapping
+        ws1NewUMapping = newWs1.getUmapping();
+        // restore purpose from BOTH to NONE
+        for (MappingItemTO itemTO : ws1NewUMapping.getItems()) {
+            if ("firstname".equals(itemTO.getIntAttrName())) {
+                itemTO.setPurpose(MappingPurpose.NONE);
+            }
+        }
+
+        newWs1.setUmapping(ws1NewUMapping);
+        newWs1.setRmapping(newWs1.getRmapping());
+
+        resourceService.update(RESOURCE_NAME_WS1, newWs1);
     }
 }

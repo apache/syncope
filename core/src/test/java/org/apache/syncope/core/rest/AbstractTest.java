@@ -133,6 +133,8 @@ public abstract class AbstractTest {
     protected static final String RESOURCE_NAME_DELETE = "ws-target-resource-delete";
 
     protected static final String RESOURCE_NAME_UPDATE = "ws-target-resource-update";
+    
+    protected static final String RESOURCE_NAME_CREATE_NONE = "ws-target-resource-create-none";
 
     protected static String ANONYMOUS_UNAME;
 

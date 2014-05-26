@@ -235,7 +235,7 @@ public final class AttributableUtil {
         switch (purpose) {
             case SYNCHRONIZATION:
                 for (T item : items) {
-                    if (MappingPurpose.PROPAGATION != item.getPurpose()) {
+                    if (MappingPurpose.PROPAGATION != item.getPurpose() && MappingPurpose.NONE != item.getPurpose()) {
                         result.add(item);
                     }
                 }
@@ -243,13 +243,21 @@ public final class AttributableUtil {
 
             case PROPAGATION:
                 for (T item : items) {
-                    if (MappingPurpose.SYNCHRONIZATION != item.getPurpose()) {
+                    if (MappingPurpose.SYNCHRONIZATION != item.getPurpose() && MappingPurpose.NONE != item.getPurpose()) {
                         result.add(item);
                     }
                 }
                 break;
 
             case BOTH:
+                for (T item : items) {
+                    if (MappingPurpose.NONE != item.getPurpose()) {
+                        result.add(item);
+                    }
+                }
+                break;
+
+            case NONE:
             default:
                 result.addAll(items);
         }

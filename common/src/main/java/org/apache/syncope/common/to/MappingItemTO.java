@@ -65,7 +65,7 @@ public class MappingItemTO extends AbstractBaseBean {
     private String mandatoryCondition = "false";
 
     /**
-     * Mapping purposes: SYNCHRONIZATION, PROPAGATION, BOTH.
+     * Mapping purposes: SYNCHRONIZATION, PROPAGATION, BOTH, NONE.
      */
     private MappingPurpose purpose;
 

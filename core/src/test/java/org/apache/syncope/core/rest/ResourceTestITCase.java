@@ -543,4 +543,44 @@ public class ResourceTestITCase extends AbstractTest {
                 getService(ResourceService.class);
         assertFalse(anonymous.list().isEmpty());
     }
+
+    @Test
+    public void issueSYNCOPE493() {
+        // create resource with attribute mapping set to NONE and check its propagation
+        String resourceName = RESOURCE_NAME_CREATE_NONE;
+        ResourceTO resourceTO = new ResourceTO();
+        resourceTO.setName(resourceName);
+        resourceTO.setConnectorId(102L);
+
+        MappingTO umapping = new MappingTO();
+
+        MappingItemTO item = new MappingItemTO();
+        item.setIntMappingType(IntMappingType.UserId);
+        item.setAccountid(true);
+        item.setPurpose(MappingPurpose.PROPAGATION);
+        umapping.setAccountIdItem(item);
+
+        MappingItemTO item2 = new MappingItemTO();
+        item2.setIntMappingType(IntMappingType.UserSchema);
+        item2.setAccountid(false);
+        item2.setIntAttrName("gender");
+        item2.setExtAttrName("gender");
+        item2.setPurpose(MappingPurpose.NONE);
+        umapping.addItem(item2);
+
+        resourceTO.setUmapping(umapping);
+
+        Response response = resourceService.create(resourceTO);
+        ResourceTO actual = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
+
+        assertNotNull(actual);
+        assertNotNull(actual.getUmapping());
+        assertNotNull(actual.getUmapping().getItems());
+        assertEquals(MappingPurpose.PROPAGATION, actual.getUmapping().getAccountIdItem().getPurpose());
+        for (MappingItemTO itemTO : actual.getUmapping().getItems()) {
+            if ("gender".equals(itemTO.getIntAttrName())) {
+                assertEquals(MappingPurpose.NONE, itemTO.getPurpose());
+            }
+        }
+    }
 }

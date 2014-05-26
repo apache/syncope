@@ -44,6 +44,7 @@ import org.apache.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.MappingPurposePanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
@@ -212,10 +213,17 @@ public class ResourceMappingPanel extends Panel {
                 } else if (left.getPurpose() != MappingPurpose.BOTH && right.getPurpose() == MappingPurpose.BOTH) {
                     compared = 1;
                 } else if (left.getPurpose() == MappingPurpose.PROPAGATION
-                        && right.getPurpose() == MappingPurpose.SYNCHRONIZATION) {
+                        && (right.getPurpose() == MappingPurpose.SYNCHRONIZATION || right.getPurpose()
+                        == MappingPurpose.NONE)) {
                     compared = -1;
                 } else if (left.getPurpose() == MappingPurpose.SYNCHRONIZATION
                         && right.getPurpose() == MappingPurpose.PROPAGATION) {
+                    compared = 1;
+                } else if (left.getPurpose() == MappingPurpose.SYNCHRONIZATION
+                        && right.getPurpose() == MappingPurpose.NONE) {
+                    compared = -1;
+                } else if (left.getPurpose() == MappingPurpose.NONE
+                        && right.getPurpose() != MappingPurpose.NONE) {
                     compared = 1;
                 } else if (left.isAccountid()) {
                     compared = -1;
@@ -411,22 +419,13 @@ public class ResourceMappingPanel extends Panel {
                     password.setVisible(false);
                 }
 
-                final AjaxDropDownChoicePanel<MappingPurpose> purpose =
-                        new AjaxDropDownChoicePanel<MappingPurpose>("purpose",
-                                new ResourceModel("purpose", "purpose").getObject(),
-                                new PropertyModel<MappingPurpose>(mapItem, "purpose"),
-                                false);
-                purpose.setChoices(Arrays.asList(MappingPurpose.values()));
-                purpose.setStyleSheet(FIELD_STYLE);
-                purpose.setRequired(true);
-                purpose.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                final WebMarkupContainer purpose = new WebMarkupContainer("purpose");
+                purpose.setOutputMarkupId(Boolean.TRUE);
 
-                    private static final long serialVersionUID = -1107858522700306810L;
+                final MappingPurposePanel panel = new MappingPurposePanel("purposeActions",
+                        new PropertyModel<MappingPurpose>(mapItem, "purpose"), purpose);
 
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                    }
-                });
+                purpose.add(panel);
 
                 item.add(purpose);
 
