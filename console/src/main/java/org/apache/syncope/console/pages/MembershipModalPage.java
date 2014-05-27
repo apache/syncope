@@ -76,6 +76,7 @@ public class MembershipModalPage extends BaseModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                ((UserModalPage) pageRef.getPage()).setUserTO(userTO);
                 window.close(target);
             }
 

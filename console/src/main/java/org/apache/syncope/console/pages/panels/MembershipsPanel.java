@@ -78,7 +78,7 @@ public class MembershipsPanel extends Panel {
         super(id);
         this.userTO = userTO;
         this.statusPanel = statusPanel;
-
+        
         final WebMarkupContainer membershipsContainer = new WebMarkupContainer("membershipsContainer");
         membershipsContainer.setOutputMarkupId(true);
         add(membershipsContainer);
@@ -189,6 +189,7 @@ public class MembershipsPanel extends Panel {
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         userTO.getMemberships().remove(membershipTO);
+                        ((UserModalPage) getPage()).getUserTO().getMemberships().remove(membershipTO);
                         target.add(membershipsContainer);
 
                         RoleTO roleTO = RoleUtils.findRole(roleTreeBuilder, membershipTO.getRoleId());
@@ -243,7 +244,7 @@ public class MembershipsPanel extends Panel {
                 }
 
                 MembershipsPanel.this.userTO.getMemberships().clear();
-                MembershipsPanel.this.userTO.getMemberships().addAll(updatedUserTO.getMemberships());
+                MembershipsPanel.this.userTO.getMemberships().addAll(updatedUserTO.getMemberships());         
                 target.add(container);
             }
         });
