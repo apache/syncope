@@ -300,10 +300,9 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
         final SyncopeRole syncopeRole = roleDAO.find(roleId);
 
         if (syncopeRole != null) {
-            toBeDeprovisioned.add(syncopeRole);
-
-            final List<SyncopeRole> descendants = roleDAO.findDescendants(toBeDeprovisioned.get(0));
+            final List<SyncopeRole> descendants = roleDAO.findDescendants(syncopeRole);
             if (descendants != null) {
+                // among descendants there is also parent role syncopeRole (to delete)
                 toBeDeprovisioned.addAll(descendants);
             }
         }
