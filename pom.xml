@@ -322,8 +322,8 @@ under the License.
     <aspectj.version>1.8.0</aspectj.version>
 
     <cxf.version>3.0.0</cxf.version>	
-    <spring.version>4.0.4.RELEASE</spring.version>
-    <spring-security.version>3.2.3.RELEASE</spring-security.version>
+    <spring.version>4.0.5.RELEASE</spring.version>
+    <spring-security.version>3.2.4.RELEASE</spring-security.version>
     <jackson.version>2.3.3</jackson.version>
     <xstream.version>1.4.7</xstream.version>
     <velocity.version>1.7</velocity.version>
@@ -338,7 +338,7 @@ under the License.
 
     <wicket.version>6.15.0</wicket.version>
 
-    <groovy.version>2.3.1</groovy.version>
+    <groovy.version>2.3.2</groovy.version>
 
     <h2.version>1.4.178</h2.version>
 
@@ -347,7 +347,7 @@ under the License.
     <disruptor.version>3.2.1</disruptor.version>
 
     <junit.version>4.11</junit.version>
-    <selenium.version>2.41.0</selenium.version>
+    <selenium.version>2.42.0</selenium.version>
 
     <apacheds.version>1.5.7</apacheds.version>
 
