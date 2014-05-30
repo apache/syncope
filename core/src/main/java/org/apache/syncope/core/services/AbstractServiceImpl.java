@@ -147,8 +147,8 @@ abstract class AbstractServiceImpl implements JAXRSService {
             LOG.error("Invalid page / size specified: {},{}", page, size);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPageOrSize);
-            sce.getElements().add(page);
-            sce.getElements().add(size);
+            sce.getElements().add(String.valueOf(page));
+            sce.getElements().add(String.valueOf(size));
             throw sce;
         }
     }

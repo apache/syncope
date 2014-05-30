@@ -27,6 +27,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import javax.xml.ws.WebServiceException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.RESTHeaders;
@@ -75,9 +76,9 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
     }
 
     private SyncopeClientCompositeException checkSyncopeClientCompositeException(final Response response) {
-        List<Object> exTypesInHeaders = response.getHeaders().get(RESTHeaders.EXCEPTION_TYPE.toString());
+        List<Object> exTypesInHeaders = response.getHeaders().get(RESTHeaders.ERROR_CODE);
         if (exTypesInHeaders == null) {
-            LOG.debug("No " + RESTHeaders.EXCEPTION_TYPE + " provided");
+            LOG.debug("No " + RESTHeaders.ERROR_CODE + " provided");
             return null;
         }
 
@@ -90,18 +91,22 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
             try {
                 exceptionType = ClientExceptionType.fromHeaderValue(exTypeAsString);
             } catch (IllegalArgumentException e) {
-                LOG.error("Unexpected value of " + RESTHeaders.EXCEPTION_TYPE + ": " + exTypeAsString, e);
+                LOG.error("Unexpected value of " + RESTHeaders.ERROR_CODE + ": " + exTypeAsString, e);
             }
             if (exceptionType != null) {
                 handledExceptions.add(exTypeAsString);
 
                 final SyncopeClientException clientException = SyncopeClientException.build(exceptionType);
 
-                if (response.getHeaders().get(exceptionType.getElementHeaderName()) != null
-                        && !response.getHeaders().get(exceptionType.getElementHeaderName()).isEmpty()) {
+                if (response.getHeaders().get(RESTHeaders.ERROR_INFO) != null
+                        && !response.getHeaders().get(RESTHeaders.ERROR_INFO).isEmpty()) {
 
-                    clientException.getElements().addAll(
-                            response.getHeaders().get(exceptionType.getElementHeaderName()));
+                    for (Object value : response.getHeaders().get(RESTHeaders.ERROR_INFO)) {
+                        final String element = value.toString();
+                        if (element.startsWith(exceptionType.getHeaderValue())) {
+                            clientException.getElements().add(StringUtils.substringAfter(value.toString(), ":"));
+                        }
+                    }
                 }
                 compException.addException(clientException);
             }

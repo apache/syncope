@@ -55,8 +55,15 @@ public final class RESTHeaders {
 
     /**
      * Declares the type of exception being raised.
+     *
+     * @see ClientExceptionType
      */
-    public static final String EXCEPTION_TYPE = "Syncope.ExceptionType";
+    public static final String ERROR_CODE = "X-Application-Error-Code";
+
+    /**
+     * Declares additional information for the exception being raised.
+     */
+    public static final String ERROR_INFO = "X-Application-Error-Info";
 
     /**
      * Mediatype for PNG images, not defined in <tt>javax.ws.rs.core.MediaType</tt>.

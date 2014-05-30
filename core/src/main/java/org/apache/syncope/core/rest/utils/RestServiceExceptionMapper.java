@@ -100,7 +100,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                 // ...or just report as InternalServerError
                 if (builder == null) {
                     builder = Response.status(Response.Status.INTERNAL_SERVER_ERROR).
-                            header(ClientExceptionType.Unknown.getElementHeaderName(), getExMessage(ex));
+                            header(RESTHeaders.ERROR_INFO,
+                                    ClientExceptionType.Unknown.getInfoHeaderValue(getExMessage(ex)));
 
                     ErrorTO error = new ErrorTO();
                     error.setStatus(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
@@ -122,14 +123,14 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
     private ResponseBuilder getSyncopeClientExceptionResponse(final SyncopeClientException ex) {
         ResponseBuilder builder = Response.status(ex.getType().getResponseStatus());
-        builder.header(RESTHeaders.EXCEPTION_TYPE, ex.getType().getHeaderValue());
+        builder.header(RESTHeaders.ERROR_CODE, ex.getType().getHeaderValue());
 
         ErrorTO error = new ErrorTO();
         error.setStatus(ex.getType().getResponseStatus().getStatusCode());
         error.setType(ex.getType());
 
-        for (Object element : ex.getElements()) {
-            builder.header(ex.getType().getElementHeaderName(), element);
+        for (String element : ex.getElements()) {
+            builder.header(RESTHeaders.ERROR_INFO, ex.getType().getInfoHeaderValue(element));
             error.getElements().add(element);
         }
 
@@ -145,14 +146,14 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
         List<ErrorTO> errors = new ArrayList<ErrorTO>();
         for (SyncopeClientException sce : ex.getExceptions()) {
-            builder.header(RESTHeaders.EXCEPTION_TYPE, sce.getType().getHeaderValue());
+            builder.header(RESTHeaders.ERROR_CODE, sce.getType().getHeaderValue());
 
             ErrorTO error = new ErrorTO();
             error.setStatus(sce.getType().getResponseStatus().getStatusCode());
             error.setType(sce.getType());
 
-            for (Object element : sce.getElements()) {
-                builder.header(sce.getType().getElementHeaderName(), element);
+            for (String element : sce.getElements()) {
+                builder.header(RESTHeaders.ERROR_INFO, ex.getType().getInfoHeaderValue(element));
                 error.getElements().add(element);
             }
 
@@ -192,7 +193,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                     : ClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
 
             ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
-            builder.header(RESTHeaders.EXCEPTION_TYPE, exType.getHeaderValue());
+            builder.header(RESTHeaders.ERROR_CODE, exType.getHeaderValue());
 
             ErrorTO error = new ErrorTO();
             error.setStatus(exType.getResponseStatus().getStatusCode());
@@ -200,8 +201,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
             for (Map.Entry<Class<?>, Set<EntityViolationType>> violation : iee.getViolations().entrySet()) {
                 for (EntityViolationType violationType : violation.getValue()) {
-                    builder.header(exType.getElementHeaderName(),
-                            violationType.name() + ": " + violationType.getMessage());
+                    builder.header(RESTHeaders.ERROR_INFO,
+                            exType.getInfoHeaderValue(violationType.name() + ": " + violationType.getMessage()));
                     error.getElements().add(violationType.name() + ": " + violationType.getMessage());
                 }
             }
@@ -241,8 +242,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
     private ResponseBuilder builder(final Response.Status status, final ClientExceptionType hType, final String msg) {
         ResponseBuilder builder = Response.status(status).
-                header(RESTHeaders.EXCEPTION_TYPE, hType.getHeaderValue()).
-                header(hType.getElementHeaderName(), msg);
+                header(RESTHeaders.ERROR_CODE, hType.getHeaderValue()).
+                header(RESTHeaders.ERROR_INFO, hType.getInfoHeaderValue(msg));
 
         ErrorTO error = new ErrorTO();
         error.setStatus(status.getStatusCode());

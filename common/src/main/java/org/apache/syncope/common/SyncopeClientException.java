@@ -28,7 +28,7 @@ public class SyncopeClientException extends RuntimeException {
 
     private ClientExceptionType type;
 
-    private final List<Object> elements = new ArrayList<Object>();
+    private final List<String> elements = new ArrayList<String>();
 
     public static SyncopeClientException build(final ClientExceptionType type) {
         if (type == ClientExceptionType.Composite) {
@@ -66,7 +66,7 @@ public class SyncopeClientException extends RuntimeException {
         this.type = type;
     }
 
-    public List<Object> getElements() {
+    public List<String> getElements() {
         return elements;
     }
 

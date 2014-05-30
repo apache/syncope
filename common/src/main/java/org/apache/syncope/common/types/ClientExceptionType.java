@@ -91,8 +91,8 @@ public enum ClientExceptionType {
         return name();
     }
 
-    public String getElementHeaderName() {
-        return getHeaderValue() + ".element";
+    public String getInfoHeaderValue(final String value) {
+        return getHeaderValue() + ":" + value;
     }
 
     public Response.Status getResponseStatus() {
