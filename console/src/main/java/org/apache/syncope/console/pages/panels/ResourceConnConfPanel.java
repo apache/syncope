@@ -155,7 +155,6 @@ public class ResourceConnConfPanel extends Panel {
                             }
 
                             if (ClassUtils.isAssignable(Number.class, propertySchemaClass)) {
-                                @SuppressWarnings("unchecked")
                                 Class<Number> numberClass = (Class<Number>) propertySchemaClass;
                                 field = new SpinnerFieldPanel<Number>("panel", label.getDefaultModelObjectAsString(),
                                         numberClass, new Model<Number>(), null, null, false);
@@ -263,7 +262,7 @@ public class ResourceConnConfPanel extends Panel {
     @Override
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof DetailsModEvent) {
-            // connectro change: update properties and forward event
+            // connector change: update properties and forward event
             final AjaxRequestTarget target = ((ResourceEvent) event.getPayload()).getTarget();
 
             connConfProperties = getConnConfProperties();

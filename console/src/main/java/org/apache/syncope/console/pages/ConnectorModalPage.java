@@ -147,7 +147,7 @@ public class ConnectorModalPage extends BaseModalPage {
         final AjaxDropDownChoicePanel<String> location =
                 new AjaxDropDownChoicePanel<String>("location", "location",
                         new Model<String>(bundleTO == null ? null : bundleTO.getLocation()));
-        ((DropDownChoice) location.getField()).setNullValid(true);
+        ((DropDownChoice<String>) location.getField()).setNullValid(true);
         location.setStyleSheet("long_dynamicsize");
         location.setChoices(new ArrayList<String>(mapConnBundleTOs.keySet()));
         location.setRequired(true);
@@ -160,7 +160,7 @@ public class ConnectorModalPage extends BaseModalPage {
         final AjaxDropDownChoicePanel<String> connectorName =
                 new AjaxDropDownChoicePanel<String>("connectorName", "connectorName",
                         new Model<String>(bundleTO == null ? null : bundleTO.getBundleName()));
-        ((DropDownChoice) connectorName.getField()).setNullValid(true);
+        ((DropDownChoice<String>) connectorName.getField()).setNullValid(true);
         connectorName.setStyleSheet("long_dynamicsize");
         connectorName.setChoices(bundleTO == null
                 ? new ArrayList<String>()
@@ -232,7 +232,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                ((DropDownChoice) location.getField()).setNullValid(false);
+                ((DropDownChoice<String>) location.getField()).setNullValid(false);
                 connInstanceTO.setLocation(location.getModelObject());
                 target.add(location);
 
@@ -257,7 +257,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                ((DropDownChoice) connectorName.getField()).setNullValid(false);
+                ((DropDownChoice<String>) connectorName.getField()).setNullValid(false);
                 connInstanceTO.setBundleName(connectorName.getModelObject());
                 target.add(connectorName);
 
@@ -426,7 +426,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 conn.setVersion(bundleTO.getVersion());
                 conn.getConfiguration().addAll(connPropView.getModelObject());
 
-                // Set the model object's capabilites to capabilitiesPalette's converted Set
+                // Set the model object's capabilities to capabilitiesPalette's converted Set
                 conn.getCapabilities().addAll(selectedCapabilities.isEmpty()
                         ? EnumSet.noneOf(ConnectorCapability.class)
                         : EnumSet.copyOf(selectedCapabilities));
