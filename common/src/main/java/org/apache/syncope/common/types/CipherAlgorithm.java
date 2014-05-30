@@ -25,10 +25,12 @@ public enum CipherAlgorithm {
 
     SHA1("SHA-1", false),
     SHA256("SHA-256", false),
+    SHA512("SHA-512", false),
     AES("AES", true),
     SMD5("S-MD5", false),
     SSHA1("S-SHA-1", false),
     SSHA256("S-SHA-256", false),
+    SSHA512("S-SHA-512", false),
     BCRYPT("BCRYPT", false);
 
     final private String algorithm;
