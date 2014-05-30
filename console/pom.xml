@@ -214,7 +214,7 @@ under the License.
         <executions>
           <execution>
             <id>setupActivitiModeler</id>
-            <phase>process-test-resources</phase>
+            <phase>process-resources</phase>
             <configuration>
               <target>
                 <unzip src="${settings.localRepository}/org/activiti/activiti-webapp-explorer2/${activiti.version}/activiti-webapp-explorer2-${activiti.version}.war"

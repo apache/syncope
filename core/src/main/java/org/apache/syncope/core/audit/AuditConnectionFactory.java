@@ -37,6 +37,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSInput;
@@ -47,7 +48,7 @@ import org.w3c.dom.ls.LSParser;
  * configured in Spring or, when not found, builds a new {@link javax.sql.DataSource DataSource} via Commons DBCP; if
  * any datasource if found, the SQL init script is used to populate the database.
  */
-public class AuditConnectionFactory {
+public final class AuditConnectionFactory {
 
     private static DataSource datasource;
 
@@ -106,7 +107,7 @@ public class AuditConnectionFactory {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.setScripts(new Resource[] { new ClassPathResource("/audit/" + initSQLScript) });
         // forces no statement separation
-        populator.setSeparator("XXXXXXXXXXXXXXXXX");
+        populator.setSeparator(ScriptUtils.EOF_STATEMENT_SEPARATOR);
         Connection conn = DataSourceUtils.getConnection(datasource);
         try {
             populator.populate(conn);
@@ -121,5 +122,9 @@ public class AuditConnectionFactory {
         }
 
         throw new IllegalStateException("Audit dataSource init failed: check logs");
+    }
+
+    private AuditConnectionFactory() {
+        // empty constructor for static utility class
     }
 }

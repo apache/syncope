@@ -67,8 +67,8 @@ class NotificationModalPage extends BaseModalPage {
     public NotificationModalPage(final PageReference pageRef, final ModalWindow window,
             final NotificationTO notificationTO, final boolean createFlag) {
 
-        final Form<NotificationTO> form
-                = new Form<NotificationTO>(FORM, new CompoundPropertyModel<NotificationTO>(notificationTO));
+        final Form<NotificationTO> form =
+                new Form<NotificationTO>(FORM, new CompoundPropertyModel<NotificationTO>(notificationTO));
 
         final AjaxTextFieldPanel sender = new AjaxTextFieldPanel("sender", getString("sender"),
                 new PropertyModel<String>(notificationTO, "sender"));
@@ -107,28 +107,25 @@ class NotificationModalPage extends BaseModalPage {
 
         form.add(aboutContainer);
 
-        final AjaxCheckBoxPanel checkAbout
-                = new AjaxCheckBoxPanel("checkAbout", "checkAbout",
-                        new Model<Boolean>(notificationTO.getUserAbout() == null && notificationTO.getRoleAbout() == null));
+        final AjaxCheckBoxPanel checkAbout = new AjaxCheckBoxPanel("checkAbout", "checkAbout", new Model<Boolean>(
+                notificationTO.getUserAbout() == null && notificationTO.getRoleAbout() == null));
         aboutContainer.add(checkAbout);
 
-        final AjaxCheckBoxPanel checkUserAbout
-                = new AjaxCheckBoxPanel("checkUserAbout", "checkUserAbout",
-                        new Model<Boolean>(notificationTO.getUserAbout() != null));
+        final AjaxCheckBoxPanel checkUserAbout = new AjaxCheckBoxPanel("checkUserAbout", "checkUserAbout",
+                new Model<Boolean>(notificationTO.getUserAbout() != null));
         aboutContainer.add(checkUserAbout);
 
-        final AjaxCheckBoxPanel checkRoleAbout
-                = new AjaxCheckBoxPanel("checkRoleAbout", "checkRoleAbout",
-                        new Model<Boolean>(notificationTO.getRoleAbout() != null));
+        final AjaxCheckBoxPanel checkRoleAbout = new AjaxCheckBoxPanel("checkRoleAbout", "checkRoleAbout",
+                new Model<Boolean>(notificationTO.getRoleAbout() != null));
         aboutContainer.add(checkRoleAbout);
 
-        final UserSearchPanel userAbout
-                = new UserSearchPanel.Builder("userAbout").fiql(notificationTO.getUserAbout()).build();
+        final UserSearchPanel userAbout =
+                new UserSearchPanel.Builder("userAbout").fiql(notificationTO.getUserAbout()).build();
         aboutContainer.add(userAbout);
         userAbout.setEnabled(checkUserAbout.getModelObject());
 
-        final RoleSearchPanel roleAbout
-                = new RoleSearchPanel.Builder("roleAbout").fiql(notificationTO.getRoleAbout()).build();
+        final RoleSearchPanel roleAbout =
+                new RoleSearchPanel.Builder("roleAbout").fiql(notificationTO.getRoleAbout()).build();
         aboutContainer.add(roleAbout);
         roleAbout.setEnabled(checkRoleAbout.getModelObject());
 
@@ -224,12 +221,12 @@ class NotificationModalPage extends BaseModalPage {
 
                     @Override
                     protected String[] getListRoles() {
-                        return new String[]{};
+                        return new String[] {};
                     }
 
                     @Override
                     protected String[] getChangeRoles() {
-                        return new String[]{};
+                        return new String[] {};
                     }
                 });
 
@@ -246,8 +243,8 @@ class NotificationModalPage extends BaseModalPage {
             checkStaticRecipients.getField().setDefaultModelObject(Boolean.FALSE);
         }
 
-        final AjaxTextFieldPanel staticRecipientsFieldPanel
-                = new AjaxTextFieldPanel("panel", "staticRecipients", new Model<String>(null));
+        final AjaxTextFieldPanel staticRecipientsFieldPanel =
+                new AjaxTextFieldPanel("panel", "staticRecipients", new Model<String>(null));
         staticRecipientsFieldPanel.addValidator(EmailAddressValidator.getInstance());
         staticRecipientsFieldPanel.setRequired(checkStaticRecipients.getModelObject());
 
@@ -255,13 +252,13 @@ class NotificationModalPage extends BaseModalPage {
             notificationTO.getStaticRecipients().add(null);
         }
 
-        final MultiFieldPanel staticRecipients = new MultiFieldPanel("staticRecipients",
+        final MultiFieldPanel<String> staticRecipients = new MultiFieldPanel<String>("staticRecipients",
                 new PropertyModel<List<String>>(notificationTO, "staticRecipients"), staticRecipientsFieldPanel);
         staticRecipients.setEnabled(checkStaticRecipients.getModelObject());
         form.add(staticRecipients);
 
-        final AjaxCheckBoxPanel checkRecipients
-                = new AjaxCheckBoxPanel("checkRecipients", "checkRecipients",
+        final AjaxCheckBoxPanel checkRecipients =
+                new AjaxCheckBoxPanel("checkRecipients", "checkRecipients",
                         new Model<Boolean>(notificationTO.getRecipients() == null ? false : true));
         recipientsContainer.add(checkRecipients);
 
@@ -269,8 +266,8 @@ class NotificationModalPage extends BaseModalPage {
             checkRecipients.getField().setDefaultModelObject(Boolean.TRUE);
         }
 
-        final UserSearchPanel recipients
-                = new UserSearchPanel.Builder("recipients").fiql(notificationTO.getRecipients()).build();
+        final UserSearchPanel recipients =
+                new UserSearchPanel.Builder("recipients").fiql(notificationTO.getRecipients()).build();
 
         recipients.setEnabled(checkRecipients.getModelObject());
         recipientsContainer.add(recipients);

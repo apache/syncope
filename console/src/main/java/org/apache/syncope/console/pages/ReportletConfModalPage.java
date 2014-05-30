@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.SyncopeConstants;
@@ -63,6 +62,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.util.visit.IVisit;
+import org.apache.wicket.util.visit.IVisitor;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.util.ClassUtils;
@@ -154,21 +155,24 @@ public class ReportletConfModalPage extends BaseModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                final BeanWrapper wrapper = PropertyAccessorFactory
-                        .forBeanPropertyAccess(ReportletConfModalPage.this.reportletConf);
+                final BeanWrapper wrapper = PropertyAccessorFactory.
+                        forBeanPropertyAccess(ReportletConfModalPage.this.reportletConf);
                 wrapper.setPropertyValue("name", name.getField().getInput());
 
                 // Iterate over properties in order to find UserSearchPanel instances and manually update
                 // this.reportletConf with select search criteria - this is needed because UserSearchPanel
                 // does not comply with usual Wicket model paradigm.
-                for (Iterator<Component> itor = ReportletConfModalPage.this.propView.visitChildren(); itor.hasNext();) {
-                    Component component = itor.next();
-                    if (component instanceof UserSearchPanel) {
-                        // using component.getDefaultModelObjectAsString() to fetch field name (set above)
-                        wrapper.setPropertyValue(component.getDefaultModelObjectAsString(),
-                                ((UserSearchPanel) component).buildFIQL());
+                ReportletConfModalPage.this.propView.visitChildren(new IVisitor<Component, Void>() {
+
+                    @Override
+                    public void component(final Component component, final IVisit<Void> ivisit) {
+                        if (component instanceof UserSearchPanel) {
+                            // using component.getDefaultModelObjectAsString() to fetch field name (set above)
+                            wrapper.setPropertyValue(component.getDefaultModelObjectAsString(),
+                                    ((UserSearchPanel) component).buildFIQL());
+                        }
                     }
-                }
+                });
 
                 ((ReportModalPage) pageRef.getPage())
                         .setModalReportletConf(ReportletConfModalPage.this.reportletConf);
