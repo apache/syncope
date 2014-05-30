@@ -174,8 +174,7 @@ public class ReportletConfModalPage extends BaseModalPage {
                     }
                 });
 
-                ((ReportModalPage) pageRef.getPage())
-                        .setModalReportletConf(ReportletConfModalPage.this.reportletConf);
+                ((ReportModalPage) pageRef.getPage()).setModalReportletConf(ReportletConfModalPage.this.reportletConf);
                 window.close(target);
             }
 
