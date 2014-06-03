@@ -133,9 +133,38 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.click("//div[@class='navigator']/div/span/a");
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//td[div='ws-target-resource-1']\");", "30000");
-
+        
         seleniumDriver.switchTo().defaultContent();
 
+        selenium.click("css=a.w_close");
+    }
+
+    @Test
+    @SuppressWarnings("SleepWhileHoldingLock")
+    public void issueSyncope495() {
+        selenium.click("css=img[alt=\"Users\"]");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[12]/a");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='Antonio Vivaldi']\");", "30000");
+
+        selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='Vivaldi']\");", "30000");
+
+        selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
+        selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
+        selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
+        selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
+        selenium.click("//div[@id='tabs']/ul/li[6]/a/span");
+
+        selenium.click("//span[2]/a/span");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@class='infolabel']\");", "30000");
+        selenium.selectFrame("relative=up");
         selenium.click("css=a.w_close");
     }
 }

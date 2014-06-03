@@ -78,7 +78,7 @@ public class MembershipsPanel extends Panel {
         super(id);
         this.userTO = userTO;
         this.statusPanel = statusPanel;
-        
+
         final WebMarkupContainer membershipsContainer = new WebMarkupContainer("membershipsContainer");
         membershipsContainer.setOutputMarkupId(true);
         add(membershipsContainer);
@@ -151,69 +151,69 @@ public class MembershipsPanel extends Panel {
         membView = new ListView<MembershipTO>("memberships",
                 new PropertyModel<List<? extends MembershipTO>>(userTO, "memberships")) {
 
-            private static final long serialVersionUID = 9101744072914090143L;
-
-            @Override
-            protected void populateItem(final ListItem<MembershipTO> item) {
-                final MembershipTO membershipTO = (MembershipTO) item.getDefaultModelObject();
-
-                item.add(new Label("roleId", new Model<Long>(membershipTO.getRoleId())));
-                item.add(new Label("roleName", new Model<String>(membershipTO.getRoleName())));
-
-                AjaxLink editLink = new ClearIndicatingAjaxLink("editLink", pageRef) {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
+                    private static final long serialVersionUID = 9101744072914090143L;
 
                     @Override
-                    protected void onClickInternal(final AjaxRequestTarget target) {
-                        membWin.setPageCreator(new ModalWindow.PageCreator() {
+                    protected void populateItem(final ListItem<MembershipTO> item) {
+                        final MembershipTO membershipTO = (MembershipTO) item.getDefaultModelObject();
 
-                            private static final long serialVersionUID = -7834632442532690940L;
+                        item.add(new Label("roleId", new Model<Long>(membershipTO.getRoleId())));
+                        item.add(new Label("roleName", new Model<String>(membershipTO.getRoleName())));
+
+                        AjaxLink editLink = new ClearIndicatingAjaxLink("editLink", pageRef) {
+
+                            private static final long serialVersionUID = -7978723352517770644L;
 
                             @Override
-                            public Page createPage() {
-                                return new MembershipModalPage(getPage().getPageReference(), membWin,
-                                        membershipTO, templateMode);
+                            protected void onClickInternal(final AjaxRequestTarget target) {
+                                membWin.setPageCreator(new ModalWindow.PageCreator() {
 
+                                    private static final long serialVersionUID = -7834632442532690940L;
+
+                                    @Override
+                                    public Page createPage() {
+                                        return new MembershipModalPage(getPage().getPageReference(), membWin,
+                                                membershipTO, templateMode);
+
+                                    }
+                                });
+                                membWin.show(target);
                             }
-                        });
-                        membWin.show(target);
-                    }
-                };
-                item.add(editLink);
+                        };
+                        item.add(editLink);
 
-                AjaxLink deleteLink = new IndicatingOnConfirmAjaxLink("deleteLink", pageRef) {
+                        AjaxLink deleteLink = new IndicatingOnConfirmAjaxLink("deleteLink", pageRef) {
 
-                    private static final long serialVersionUID = -7978723352517770644L;
+                            private static final long serialVersionUID = -7978723352517770644L;
 
-                    @Override
-                    protected void onClickInternal(final AjaxRequestTarget target) {
-                        userTO.getMemberships().remove(membershipTO);
-                        ((UserModalPage) getPage()).getUserTO().getMemberships().remove(membershipTO);
-                        target.add(membershipsContainer);
+                            @Override
+                            protected void onClickInternal(final AjaxRequestTarget target) {
+                                userTO.getMemberships().remove(membershipTO);
+                                ((UserModalPage) getPage()).getUserTO().getMemberships().remove(membershipTO);
+                                target.add(membershipsContainer);
 
-                        RoleTO roleTO = RoleUtils.findRole(roleTreeBuilder, membershipTO.getRoleId());
-                        Set<String> resourcesToRemove = roleTO == null
+                                RoleTO roleTO = RoleUtils.findRole(roleTreeBuilder, membershipTO.getRoleId());
+                                Set<String> resourcesToRemove = roleTO == null
                                 ? Collections.<String>emptySet() : roleTO.getResources();
-                        if (!resourcesToRemove.isEmpty()) {
-                            Set<String> resourcesAssignedViaMembership = new HashSet<String>();
-                            for (MembershipTO membTO : userTO.getMemberships()) {
-                                roleTO = RoleUtils.findRole(roleTreeBuilder, membTO.getRoleId());
-                                if (roleTO != null) {
-                                    resourcesAssignedViaMembership.addAll(roleTO.getResources());
+                                if (!resourcesToRemove.isEmpty()) {
+                                    Set<String> resourcesAssignedViaMembership = new HashSet<String>();
+                                    for (MembershipTO membTO : userTO.getMemberships()) {
+                                        roleTO = RoleUtils.findRole(roleTreeBuilder, membTO.getRoleId());
+                                        if (roleTO != null) {
+                                            resourcesAssignedViaMembership.addAll(roleTO.getResources());
+                                        }
+                                    }
+                                    resourcesToRemove.removeAll(resourcesAssignedViaMembership);
+                                    resourcesToRemove.removeAll(userTO.getResources());
                                 }
-                            }
-                            resourcesToRemove.removeAll(resourcesAssignedViaMembership);
-                            resourcesToRemove.removeAll(userTO.getResources());
-                        }
 
-                        StatusUtils.update(
-                                userTO, statusPanel, target, Collections.<String>emptySet(), resourcesToRemove);
+                                StatusUtils.update(
+                                        userTO, statusPanel, target, Collections.<String>emptySet(), resourcesToRemove);
+                            }
+                        };
+                        item.add(deleteLink);
                     }
                 };
-                item.add(deleteLink);
-            }
-        };
 
         membershipsContainer.add(membView);
 
@@ -228,24 +228,25 @@ public class MembershipsPanel extends Panel {
             @Override
             public void onClose(final AjaxRequestTarget target) {
                 final UserTO updatedUserTO = ((UserModalPage) getPage()).getUserTO();
+                if (!userTO.equals(updatedUserTO)) {
+                    if (updatedUserTO.getMemberships().size() > userTO.getMemberships().size()) {
+                        Set<Long> diff = new HashSet<Long>(updatedUserTO.getMembershipMap().keySet());
+                        diff.removeAll(userTO.getMembershipMap().keySet());
 
-                if (updatedUserTO.getMemberships().size() > userTO.getMemberships().size()) {
-                    Set<Long> diff = new HashSet<Long>(updatedUserTO.getMembershipMap().keySet());
-                    diff.removeAll(userTO.getMembershipMap().keySet());
-
-                    Set<String> resourcesToAdd = new HashSet<String>();
-                    for (Long diffMembId : diff) {
-                        long roleId = updatedUserTO.getMembershipMap().get(diffMembId).getRoleId();
-                        RoleTO roleTO = RoleUtils.findRole(roleTreeBuilder, roleId);
-                        resourcesToAdd.addAll(roleTO.getResources());
-                        StatusUtils.update(
-                                userTO, statusPanel, target, resourcesToAdd, Collections.<String>emptySet());
+                        Set<String> resourcesToAdd = new HashSet<String>();
+                        for (Long diffMembId : diff) {
+                            long roleId = updatedUserTO.getMembershipMap().get(diffMembId).getRoleId();
+                            RoleTO roleTO = RoleUtils.findRole(roleTreeBuilder, roleId);
+                            resourcesToAdd.addAll(roleTO.getResources());
+                            StatusUtils.update(
+                                    userTO, statusPanel, target, resourcesToAdd, Collections.<String>emptySet());
+                        }
                     }
-                }
 
-                MembershipsPanel.this.userTO.getMemberships().clear();
-                MembershipsPanel.this.userTO.getMemberships().addAll(updatedUserTO.getMemberships());         
-                target.add(container);
+                    MembershipsPanel.this.userTO.getMemberships().clear();
+                    MembershipsPanel.this.userTO.getMemberships().addAll(updatedUserTO.getMemberships());
+                    target.add(container);
+                }
             }
         });
     }
