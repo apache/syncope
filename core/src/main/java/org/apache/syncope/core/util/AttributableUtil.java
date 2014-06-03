@@ -258,8 +258,13 @@ public final class AttributableUtil {
                 break;
 
             case NONE:
+                for (T item : items) {
+                    if (MappingPurpose.NONE == item.getPurpose()) {
+                        result.add(item);
+                    }
+                }
+                break;
             default:
-                result.addAll(items);
         }
 
         return result;
