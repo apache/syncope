@@ -266,10 +266,10 @@ public class AttributesPanel extends Panel {
                     panel.addRequiredLabel();
                 }
                 break;
-                
+
             case Long:
                 panel = new SpinnerFieldPanel<Long>("panel", schemaTO.getName(),
-                        Long.class, new Model<Long>(), null, null, false);
+                        Long.class, new Model<Long>(), null, null);
 
                 if (required) {
                     panel.addRequiredLabel();
@@ -278,15 +278,16 @@ public class AttributesPanel extends Panel {
 
             case Double:
                 panel = new SpinnerFieldPanel<Double>("panel", schemaTO.getName(),
-                        Double.class, new Model<Double>(), null, null, false);
+                        Double.class, new Model<Double>(), null, null);
 
                 if (required) {
                     panel.addRequiredLabel();
                 }
                 break;
-                
+
             default:
                 panel = new AjaxTextFieldPanel("panel", schemaTO.getName(), new Model<String>());
+
                 if (required) {
                     panel.addRequiredLabel();
                 }

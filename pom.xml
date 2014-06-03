@@ -356,7 +356,7 @@ under the License.
 
     <jasypt.version>1.9.2</jasypt.version>
  
-    <jquery.version>1.11.0-1</jquery.version>
+    <jquery.version>1.11.1</jquery.version>
     <jquery-ui.version>1.10.4</jquery-ui.version>
     <highlightjs.version>7.3-1</highlightjs.version>
     <codemirror.version>3.23</codemirror.version>

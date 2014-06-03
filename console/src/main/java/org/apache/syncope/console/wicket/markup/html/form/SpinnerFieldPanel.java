@@ -25,12 +25,12 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.springframework.util.StringUtils;
 
 public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
 
@@ -44,8 +44,9 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
 
     private final T max;
 
+    @SuppressWarnings("unchecked")
     public SpinnerFieldPanel(final String id, final String name, final Class<T> reference, final IModel<T> model,
-            final T min, final T max, final boolean disableVisible) {
+            final T min, final T max) {
 
         super(id, name, model);
         this.reference = reference;
@@ -70,21 +71,6 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
             });
         }
 
-        AjaxLink<Void> spinnerFieldDisable = new AjaxLink<Void>("spinnerFieldDisable") {
-
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                // nothing to do
-            }
-
-        };
-        spinnerFieldDisable.setMarkupId("spinnerFieldDisable-" + uuid);
-        spinnerFieldDisable.setOutputMarkupPlaceholderTag(true);
-        spinnerFieldDisable.setVisible(disableVisible);
-        add(spinnerFieldDisable);
-
         final StringBuilder statements = new StringBuilder();
         statements.append("jQuery(function() {").
                 append("var spinner = $('#").append(uuid).append("').spinner();").
@@ -100,16 +86,7 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
                     append("$('#").append(uuid).append("').spinner(").
                     append("'option', 'max', ").append(this.max).append(");");
         }
-        statements.
-                append("$('#spinnerFieldDisable-").append(uuid).append("').click(function() {").
-                append("if (spinner.spinner('option', 'disabled')) {").
-                append("spinner.spinner('enable');").
-                append("} else {").
-                append("spinner.spinner('disable');").
-                append("spinner.spinner('value', null)").
-                append("}").
-                append("});").
-                append("});");
+        statements.append("});");
         Label spinnerFieldJS = new Label("spinnerFieldJS", statements.toString());
         spinnerFieldJS.setEscapeModelStrings(false);
         add(spinnerFieldJS);
@@ -122,22 +99,21 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
             private static final long serialVersionUID = 527651414610325237L;
 
             @Override
-            @SuppressWarnings("unchecked")
             public T getObject() {
                 T value = null;
 
-                if (list != null && !list.isEmpty()) {
+                if (list != null && !list.isEmpty() && StringUtils.hasText(list.get(0).toString())) {
                     value = reference.equals(Integer.class)
-                            ? (T) Integer.valueOf(NumberUtils.toInt(list.get(0).toString()))
+                            ? reference.cast(NumberUtils.toInt(list.get(0).toString()))
                             : reference.equals(Long.class)
-                            ? (T) Short.valueOf(NumberUtils.toShort(list.get(0).toString()))
+                            ? reference.cast(NumberUtils.toLong(list.get(0).toString()))
                             : reference.equals(Short.class)
-                            ? (T) Long.valueOf(NumberUtils.toLong(list.get(0).toString()))
+                            ? reference.cast(NumberUtils.toShort(list.get(0).toString()))
                             : reference.equals(Float.class)
-                            ? (T) Float.valueOf(NumberUtils.toFloat(list.get(0).toString()))
-                            : reference.equals(Byte.class)
-                            ? (T) Byte.valueOf(NumberUtils.toByte(list.get(0).toString()))
-                            : (T) Double.valueOf(NumberUtils.toDouble(list.get(0).toString()));
+                            ? reference.cast(NumberUtils.toFloat(list.get(0).toString()))
+                            : reference.equals(byte.class)
+                            ? reference.cast(NumberUtils.toByte(list.get(0).toString()))
+                            : reference.cast(NumberUtils.toDouble(list.get(0).toString()));
                 }
 
                 return value;
@@ -163,7 +139,6 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
             private static final long serialVersionUID = 6799404673615637845L;
 
             @Override
-            @SuppressWarnings("unchecked")
             public T getObject() {
                 T number = null;
 
@@ -172,20 +147,19 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
                 if (obj != null && !obj.toString().isEmpty()) {
                     if (obj instanceof String) {
                         number = reference.equals(Integer.class)
-                                ? (T) Integer.valueOf((String) obj)
+                                ? reference.cast(Integer.valueOf((String) obj))
                                 : reference.equals(Long.class)
-                                ? (T) Short.valueOf((String) obj)
+                                ? reference.cast(Short.valueOf((String) obj))
                                 : reference.equals(Short.class)
-                                ? (T) Long.valueOf((String) obj)
+                                ? reference.cast(Long.valueOf((String) obj))
                                 : reference.equals(Float.class)
-                                ? (T) Float.valueOf((String) obj)
-                                : reference.equals(Byte.class)
-                                ? (T) Byte.valueOf((String) obj)
-                                : (T) Double.valueOf((String) obj);
-
+                                ? reference.cast(Float.valueOf((String) obj))
+                                : reference.equals(byte.class)
+                                ? reference.cast(Byte.valueOf((String) obj))
+                                : reference.cast(Double.valueOf((String) obj));
                     } else if (obj instanceof Number) {
                         // Don't parse anything
-                        number = (T) obj;
+                        number = reference.cast(obj);
                     }
                 }
 
@@ -204,8 +178,7 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
 
     @Override
     public SpinnerFieldPanel<T> clone() {
-        SpinnerFieldPanel<T> panel = new SpinnerFieldPanel<T>(
-                id, name, reference, model, min, max, isRequiredLabelAdded);
+        SpinnerFieldPanel<T> panel = new SpinnerFieldPanel<T>(id, name, reference, model, min, max);
 
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());

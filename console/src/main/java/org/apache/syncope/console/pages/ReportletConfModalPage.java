@@ -206,7 +206,7 @@ public class ReportletConfModalPage extends BaseModalPage {
         if (ClassUtils.isAssignable(Boolean.class, type)) {
             result = new AjaxCheckBoxPanel(id, fieldName, model);
         } else if (ClassUtils.isAssignable(Number.class, type)) {
-            result = new SpinnerFieldPanel<Number>(id, fieldName, (Class<Number>) type, model, null, null, false);
+            result = new SpinnerFieldPanel<Number>(id, fieldName, (Class<Number>) type, model, null, null);
         } else if (Date.class.equals(type)) {
             result = new DateTimeFieldPanel(id, fieldName, model, SyncopeConstants.DEFAULT_DATE_PATTERN);
         } else if (type.isEnum()) {

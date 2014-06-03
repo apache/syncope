@@ -98,10 +98,7 @@ public class AbstractBasePage extends WebPage {
 
     public AbstractBasePage(final PageParameters parameters) {
         super(parameters);
-        setupFeedbackPanel();
-    }
 
-    protected final void setupFeedbackPanel() {
         feedbackPanel = new NotificationPanel(Constants.FEEDBACK);
         feedbackPanel.setOutputMarkupId(true);
         add(feedbackPanel);

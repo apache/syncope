@@ -157,7 +157,7 @@ public class ResourceConnConfPanel extends Panel {
                             if (ClassUtils.isAssignable(Number.class, propertySchemaClass)) {
                                 Class<Number> numberClass = (Class<Number>) propertySchemaClass;
                                 field = new SpinnerFieldPanel<Number>("panel", label.getDefaultModelObjectAsString(),
-                                        numberClass, new Model<Number>(), null, null, false);
+                                        numberClass, new Model<Number>(), null, null);
 
                                 required = property.getSchema().isRequired();
                             } else if (ClassUtils.isAssignable(Boolean.class, propertySchemaClass)) {

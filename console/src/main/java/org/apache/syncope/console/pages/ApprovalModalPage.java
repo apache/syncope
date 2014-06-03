@@ -142,7 +142,7 @@ public class ApprovalModalPage extends BaseModalPage {
                             case Long:
                                 field = new SpinnerFieldPanel<Long>("value", label.getDefaultModelObjectAsString(),
                                         Long.class, new Model<Long>(NumberUtils.toLong(prop.getValue())),
-                                        null, null, false);
+                                        null, null);
                                 break;
 
                             case String:

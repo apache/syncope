@@ -127,7 +127,7 @@ public abstract class FieldPanel<T> extends AbstractFieldPanel<T> implements Clo
     }
 
     @Override
-    public FieldPanel<T> setModelObject(T object) {
+    public FieldPanel<T> setModelObject(final T object) {
         field.setModelObject(object);
         return this;
     }

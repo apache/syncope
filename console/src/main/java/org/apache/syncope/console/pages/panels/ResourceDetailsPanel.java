@@ -84,7 +84,7 @@ public class ResourceDetailsPanel extends Panel {
 
         final SpinnerFieldPanel<Integer> propagationPriority =
                 new SpinnerFieldPanel<Integer>("propagationPriority", "propagationPriority", Integer.class,
-                        new PropertyModel<Integer>(resourceTO, "propagationPriority"), null, null, false);
+                        new PropertyModel<Integer>(resourceTO, "propagationPriority"), null, null);
         add(propagationPriority);
 
         final AjaxDropDownChoicePanel<PropagationMode> propagationMode = new AjaxDropDownChoicePanel<PropagationMode>(

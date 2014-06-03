@@ -227,7 +227,7 @@ public class PolicyBeanPanel extends Panel {
                     } else if (ClassUtils.isAssignable(Number.class, field.getType())) {
                         component = new SpinnerFieldPanel<Number>("field", field.getName(),
                                 (Class<Number>) field.getType(), new PropertyModel<Number>(policy, field.getName()),
-                                null, null, false);
+                                null, null);
                         item.add(component);
 
                         item.add(getActivationControl(component,

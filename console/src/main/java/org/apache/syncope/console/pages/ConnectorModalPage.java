@@ -191,7 +191,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
         final SpinnerFieldPanel<Integer> connRequestTimeout =
                 new SpinnerFieldPanel<Integer>("connRequestTimeout", "connRequestTimeout", Integer.class,
-                        new PropertyModel<Integer>(connInstanceTO, "connRequestTimeout"), 0, null, true);
+                        new PropertyModel<Integer>(connInstanceTO, "connRequestTimeout"), 0, null);
         connRequestTimeout.getField().add(new RangeValidator<Integer>(0, Integer.MAX_VALUE));
         connectorForm.add(connRequestTimeout);
 
@@ -200,28 +200,28 @@ public class ConnectorModalPage extends BaseModalPage {
         }
         final SpinnerFieldPanel<Integer> poolMaxObjects =
                 new SpinnerFieldPanel<Integer>("poolMaxObjects", "poolMaxObjects", Integer.class,
-                        new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "maxObjects"), 0, null, true);
+                        new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "maxObjects"), 0, null);
         poolMaxObjects.getField().add(new RangeValidator<Integer>(0, Integer.MAX_VALUE));
         connectorForm.add(poolMaxObjects);
         final SpinnerFieldPanel<Integer> poolMinIdle =
                 new SpinnerFieldPanel<Integer>("poolMinIdle", "poolMinIdle", Integer.class,
-                        new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "minIdle"), 0, null, true);
+                        new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "minIdle"), 0, null);
         poolMinIdle.getField().add(new RangeValidator<Integer>(0, Integer.MAX_VALUE));
         connectorForm.add(poolMinIdle);
         final SpinnerFieldPanel<Integer> poolMaxIdle =
                 new SpinnerFieldPanel<Integer>("poolMaxIdle", "poolMaxIdle", Integer.class,
-                        new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "maxIdle"), 0, null, true);
+                        new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "maxIdle"), 0, null);
         poolMaxIdle.getField().add(new RangeValidator<Integer>(0, Integer.MAX_VALUE));
         connectorForm.add(poolMaxIdle);
         final SpinnerFieldPanel<Long> poolMaxWait =
                 new SpinnerFieldPanel<Long>("poolMaxWait", "poolMaxWait", Long.class,
-                        new PropertyModel<Long>(connInstanceTO.getPoolConf(), "maxWait"), 0L, null, true);
+                        new PropertyModel<Long>(connInstanceTO.getPoolConf(), "maxWait"), 0L, null);
         poolMaxWait.getField().add(new RangeValidator<Long>(0L, Long.MAX_VALUE));
         connectorForm.add(poolMaxWait);
         final SpinnerFieldPanel<Long> poolMinEvictableIdleTime =
                 new SpinnerFieldPanel<Long>("poolMinEvictableIdleTime", "poolMinEvictableIdleTime", Long.class,
                         new PropertyModel<Long>(connInstanceTO.getPoolConf(), "minEvictableIdleTimeMillis"),
-                        0L, null, true);
+                        0L, null);
         poolMinEvictableIdleTime.getField().add(new RangeValidator<Long>(0L, Long.MAX_VALUE));
         connectorForm.add(poolMinEvictableIdleTime);
 
@@ -323,13 +323,17 @@ public class ConnectorModalPage extends BaseModalPage {
                             try {
                                 propertySchemaClass =
                                 ClassUtils.forName(property.getSchema().getType(), ClassUtils.getDefaultClassLoader());
+                                if (ClassUtils.isPrimitiveOrWrapper(propertySchemaClass)) {
+                                    propertySchemaClass =
+                                    org.apache.commons.lang3.ClassUtils.primitiveToWrapper(propertySchemaClass);
+                                }
                             } catch (Exception e) {
                                 LOG.error("Error parsing attribute type", e);
                                 propertySchemaClass = String.class;
                             }
                             if (ClassUtils.isAssignable(Number.class, propertySchemaClass)) {
                                 field = new SpinnerFieldPanel<Number>("panel", label.getDefaultModelObjectAsString(),
-                                        (Class<Number>) propertySchemaClass, new Model<Number>(), null, null, false);
+                                        (Class<Number>) propertySchemaClass, new Model<Number>(), null, null);
 
                                 required = property.getSchema().isRequired();
                             } else if (ClassUtils.isAssignable(Boolean.class, propertySchemaClass)) {
@@ -509,7 +513,7 @@ public class ConnectorModalPage extends BaseModalPage {
             for (ConnConfPropSchema key : bundleTO.getProperties()) {
                 final ConnConfProperty propertyTO = new ConnConfProperty();
                 propertyTO.setSchema(key);
-                if (connInstanceTO.getId() != 0 
+                if (connInstanceTO.getId() != 0
                         && connInstanceTO.getConfigurationMap().containsKey(key.getName())
                         && connInstanceTO.getConfigurationMap().get(key.getName()).getValues() != null) {
                     propertyTO.getValues().addAll(connInstanceTO.getConfigurationMap().get(key.getName()).getValues());
