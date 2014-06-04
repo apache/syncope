@@ -54,7 +54,7 @@ under the License.
         <entry key="openjpa.RemoteCommitProvider" value="sjvm"/>
         
         <entry key="openjpa.MetaDataFactory"
-               value="jpa(URLs=vfs:${project.build.directory}/cargo/configurations/jboss72x/deployments/${project.build.finalName}.war/WEB-INF/classes/, Resources=META-INF/orm.xml)"/>
+               value="jpa(URLs=vfs:${project.build.directory}/cargo/configurations/wildfly8x/deployments/${project.build.finalName}.war/WEB-INF/classes/, Resources=META-INF/orm.xml)"/>
       </map>
     </property>
   </bean>
