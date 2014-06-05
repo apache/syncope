@@ -98,8 +98,7 @@ public class RolePanel extends Panel {
     private RolePanel(final Builder builder) {
         super(builder.id);
 
-        this.add(new RoleDetailsPanel(
-                "details", builder.roleTO, builder.mode == RoleModalPage.Mode.TEMPLATE));
+        this.add(new RoleDetailsPanel("details", builder.roleTO, builder.mode == RoleModalPage.Mode.TEMPLATE));
 
         if (builder.pageReference == null || builder.roleTO.getId() == 0) {
             this.add(new Label("statuspanel", ""));
@@ -151,16 +150,14 @@ public class RolePanel extends Panel {
         //--------------------------------
         // Security container
         //--------------------------------
-
         this.add(new RoleSecurityPanel("security", builder.roleTO).setOutputMarkupId(true));
         //--------------------------------
 
         //--------------------------------
         // Resources container
         //--------------------------------
-
-        this.add(new ResourcesPanel.Builder("resources").attributableTO(builder.roleTO).build()
-                .setOutputMarkupId(true));
+        this.add(new ResourcesPanel.Builder("resources").attributableTO(builder.roleTO).build().
+                setOutputMarkupId(true));
         //--------------------------------
 
         ListModel<String> selectedEntitlements = new ListModel<String>(builder.roleTO.getEntitlements());

@@ -27,6 +27,7 @@ import javax.validation.constraints.Min;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.core.persistence.validation.entity.SyncTaskCheck;
+import org.apache.syncope.core.sync.impl.SyncJob;
 import org.apache.syncope.core.util.XMLSerializer;
 
 @Entity
@@ -80,7 +81,7 @@ public class SyncTask extends SchedTask {
     public SyncTask() {
         super();
 
-        super.setJobClassName("org.apache.syncope.core.sync.impl.SyncJob");
+        super.setJobClassName(SyncJob.class.getName());
     }
 
     @Override
@@ -92,7 +93,7 @@ public class SyncTask extends SchedTask {
         return resource;
     }
 
-    public void setResource(ExternalResource resource) {
+    public void setResource(final ExternalResource resource) {
         this.resource = resource;
     }
 
