@@ -25,6 +25,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.core.sync.impl.SyncJob;
 import org.apache.syncope.core.util.XMLSerializer;
 
 @Entity
@@ -47,7 +48,7 @@ public class SyncTask extends AbstractSyncTask {
      * Default constructor.
      */
     public SyncTask() {
-        super("org.apache.syncope.core.sync.impl.SyncJob");
+        super(SyncJob.class.getName());
     }
 
     public UserTO getUserTemplate() {

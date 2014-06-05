@@ -52,6 +52,7 @@ import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
+import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
@@ -94,6 +95,9 @@ public class ConnObjectUtil {
 
     @Autowired
     private PolicyDAO policyDAO;
+
+    @Autowired
+    private UserDAO userDAO;
 
     @Autowired
     private RoleDAO roleDAO;
@@ -379,10 +383,25 @@ public class ConnObjectUtil {
                     }
                 }
 
-                ((RoleTO) attributableTO).setParent(((RoleTO) template).getParent());
+                if (((RoleTO) template).getParent() != 0) {
+                    final SyncopeRole parentRole = roleDAO.find(((RoleTO) template).getParent());
+                    if (parentRole != null) {
+                        ((RoleTO) attributableTO).setParent(parentRole.getId());
+                    }
+                }
 
-                ((RoleTO) attributableTO).setUserOwner(((RoleTO) template).getUserOwner());
-                ((RoleTO) attributableTO).setRoleOwner(((RoleTO) template).getRoleOwner());
+                if (((RoleTO) template).getUserOwner() != null) {
+                    final SyncopeUser userOwner = userDAO.find(((RoleTO) template).getUserOwner());
+                    if (userOwner != null) {
+                        ((RoleTO) attributableTO).setUserOwner(userOwner.getId());
+                    }
+                }
+                if (((RoleTO) template).getRoleOwner() != null) {
+                    final SyncopeRole roleOwner = roleDAO.find(((RoleTO) template).getRoleOwner());
+                    if (roleOwner != null) {
+                        ((RoleTO) attributableTO).setRoleOwner(roleOwner.getId());
+                    }
+                }
 
                 ((RoleTO) attributableTO).getEntitlements().addAll(((RoleTO) template).getEntitlements());
 

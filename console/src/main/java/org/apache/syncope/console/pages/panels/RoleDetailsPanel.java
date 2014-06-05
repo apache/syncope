@@ -45,10 +45,17 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RoleDetailsPanel extends Panel {
 
     private static final long serialVersionUID = 855618618337931784L;
+
+    /**
+     * Logger.
+     */
+    protected static final Logger LOG = LoggerFactory.getLogger(RoleDetailsPanel.class);
 
     @SpringBean
     private UserRestClient userRestClient;
@@ -288,9 +295,14 @@ public class RoleDetailsPanel extends Panel {
             switch (type) {
                 case USER:
                     if (roleTO.getUserOwner() != null) {
-                        UserTO user = userRestClient.read(roleTO.getUserOwner());
+                        UserTO user = null;
+                        try {
+                            user = userRestClient.read(roleTO.getUserOwner());
+                        } catch (Exception e) {
+                            LOG.warn("Could not find user with id {}, ignoring", roleTO.getUserOwner(), e);
+                        }
                         if (user == null) {
-                            object = String.valueOf(roleTO.getUserOwner());
+                            roleTO.setUserOwner(null);
                         } else {
                             object = user.getId() + " " + user.getUsername();
                         }
@@ -298,10 +310,15 @@ public class RoleDetailsPanel extends Panel {
                     break;
 
                 case ROLE:
+                    RoleTO role = null;
                     if (roleTO.getRoleOwner() != null) {
-                        RoleTO role = roleRestClient.read(roleTO.getRoleOwner());
+                        try {
+                            role = roleRestClient.read(roleTO.getRoleOwner());
+                        } catch (Exception e) {
+                            LOG.warn("Could not find role with id {}, ignoring", roleTO.getRoleOwner(), e);
+                        }
                         if (role == null) {
-                            object = String.valueOf(roleTO.getRoleOwner());
+                            roleTO.setRoleOwner(null);
                         } else {
                             object = role.getDisplayName();
                         }
@@ -351,9 +368,14 @@ public class RoleDetailsPanel extends Panel {
         public Object getObject() {
             Object object = null;
             if (roleTO.getParent() != 0) {
-                RoleTO parent = roleRestClient.read(roleTO.getParent());
+                RoleTO parent = null;
+                try {
+                    parent = roleRestClient.read(roleTO.getParent());
+                } catch (Exception e) {
+                    LOG.warn("Could not find role with id {}, ignoring", roleTO.getParent(), e);
+                }
                 if (parent == null) {
-                    object = String.valueOf(roleTO.getParent());
+                    roleTO.setParent(0);
                 } else {
                     object = parent.getDisplayName();
                 }
@@ -363,9 +385,7 @@ public class RoleDetailsPanel extends Panel {
 
         @Override
         public void setObject(final Object object) {
-            long parentId = (object instanceof Long)
-                    ? ((Long) object).longValue() : 0;
-            roleTO.setParent(parentId);
+            roleTO.setParent((object instanceof Long) ? ((Long) object) : 0);
         }
 
         @Override
