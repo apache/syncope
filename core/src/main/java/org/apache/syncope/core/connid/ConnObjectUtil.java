@@ -649,7 +649,7 @@ public class ConnObjectUtil {
         }
 
         currentAttrMap = attributableTO.getVirtualAttributeMap();
-        for (AttributeTO templateVirAttr : template.getDerivedAttributes()) {
+        for (AttributeTO templateVirAttr : template.getVirtualAttributes()) {
             if (templateVirAttr.getValues() != null && !templateVirAttr.getValues().isEmpty()
                     && (!currentAttrMap.containsKey(templateVirAttr.getSchema())
                     || currentAttrMap.get(templateVirAttr.getSchema()).getValues().isEmpty())) {
