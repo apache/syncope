@@ -68,6 +68,7 @@ public class MembershipModalPage extends BaseModalPage {
         };
 
         form.add(submit);
+	form.setDefaultButton(submit);
 
         final IndicatingAjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
