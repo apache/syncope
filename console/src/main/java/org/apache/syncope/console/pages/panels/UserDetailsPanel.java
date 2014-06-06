@@ -53,10 +53,10 @@ public class UserDetailsPanel extends Panel {
                 new PropertyModel<String>(userTO, "username"));
 
         final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("usernameJexlHelp");
-        add(jexlHelp);
 
         final AjaxLink<?> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "usernameQuestionMarkJexlHelp");
         add(questionMarkJexlHelp);
+        questionMarkJexlHelp.add(jexlHelp);
 
         if (!templateMode) {
             username.addRequiredLabel();
@@ -69,10 +69,10 @@ public class UserDetailsPanel extends Panel {
         // Password
         // ------------------------
         final WebMarkupContainer pwdJexlHelp = JexlHelpUtil.getJexlHelpWebContainer("pwdJexlHelp");
-        add(pwdJexlHelp);
 
         final AjaxLink<?> pwdQuestionMarkJexlHelp = JexlHelpUtil.getAjaxLink(pwdJexlHelp, "pwdQuestionMarkJexlHelp");
         add(pwdQuestionMarkJexlHelp);
+        pwdQuestionMarkJexlHelp.add(pwdJexlHelp);
 
         FieldPanel<String> password;
         Label confirmPasswordLabel = new Label("confirmPasswordLabel", new ResourceModel("confirmPassword"));

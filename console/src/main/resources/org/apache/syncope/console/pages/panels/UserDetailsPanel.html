@@ -25,17 +25,16 @@ under the License.
         </div>
         <div class="tablecolumn_field medium_dynamicsize">
           <span wicket:id="username" />
-          <a wicket:id="usernameQuestionMarkJexlHelp" href="#" alt="Click to help" title="Click to help"><img src="img/help.png"/></a>
-          <div class="help">
-            <div wicket:id="usernameJexlHelp" class="tooltip">
+          <a class="tooltips" wicket:id="usernameQuestionMarkJexlHelp" href="#" alt="Click to help" title="Click to help"><img src="img/help.png"/>
+            <span wicket:id="usernameJexlHelp" class="tooltips">
               <wicket:message key="jexl_info"/>
               <ul>
                 <li><wicket:message key="jexl_ex1"/></li>
                 <li><wicket:message key="jexl_ex2"/></li>
               </ul>
               <a href="#" wicket:id="jexlLink" target="_blank"><wicket:message key="jexl_syntax_url"/></a>
-            </div>
-          </div>
+            </span>
+          </a>
         </div>
       </div>
 
@@ -46,17 +45,17 @@ under the License.
         <div class="tablecolumn_field medium_dynamicsize">
           <span wicket:id="password" />
           <span wicket:id="mandatory_pwd"></span>
-          <a wicket:id="pwdQuestionMarkJexlHelp" href="#" alt="Click to help" title="Click to help"><img src="img/help.png"/></a>
-          <div class="help">
-            <div wicket:id="pwdJexlHelp" class="tooltip">
+          <a class="tooltips" wicket:id="pwdQuestionMarkJexlHelp" href="#" alt="Click to help" title="Click to help">
+            <img src="img/help.png"/>
+            <span wicket:id="pwdJexlHelp" class="tooltips">
               <wicket:message key="jexl_info"/>
               <ul>
                 <li><wicket:message key="jexl_ex1"/></li>
                 <li><wicket:message key="jexl_ex2"/></li>
               </ul>
               <a href="#" wicket:id="jexlLink" target="_blank"><wicket:message key="jexl_syntax_url"/></a>
-            </div>
-          </div>
+            </span>
+          </a>
         </div>
       </div>
       <div class="tablerow">

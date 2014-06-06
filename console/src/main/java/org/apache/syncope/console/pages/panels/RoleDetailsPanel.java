@@ -143,10 +143,10 @@ public class RoleDetailsPanel extends Panel {
                 new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(roleTO, "name"));
 
         final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
-        this.add(jexlHelp);
 
         final AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
         this.add(questionMarkJexlHelp);
+        questionMarkJexlHelp.add(jexlHelp);
 
         if (!templateMode) {
             name.addRequiredLabel();

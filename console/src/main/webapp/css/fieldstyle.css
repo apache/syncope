@@ -77,6 +77,17 @@ div.tablerow {
   width: 99%;
 }
 
+div.tablerow.connectorProp {
+  height:22px;
+  vertical-align: middle; 
+  font-size: 12px;
+}
+
+div.tablecolumn_connPropAttr {
+  display: table-cell;
+  vertical-align: middle; 
+}
+
 div.tablerow2 {
   display: inline-table;
   padding: 5px 0px 5px 0px;

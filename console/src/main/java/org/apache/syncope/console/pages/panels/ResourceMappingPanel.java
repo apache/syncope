@@ -186,10 +186,10 @@ public class ResourceMappingPanel extends Panel {
         }
 
         final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
-        mappingContainer.add(jexlHelp);
 
         AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
         mappingContainer.add(questionMarkJexlHelp);
+        questionMarkJexlHelp.add(jexlHelp);
 
         final Label passwordLabel = new Label("passwordLabel", new ResourceModel("password"));
         mappingContainer.add(passwordLabel);

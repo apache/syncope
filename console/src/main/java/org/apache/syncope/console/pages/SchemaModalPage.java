@@ -208,10 +208,10 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
         });
 
         final WebMarkupContainer pwdJexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
-        schemaForm.add(pwdJexlHelp);
 
         final AjaxLink<Void> pwdQuestionMarkJexlHelp = JexlHelpUtil.getAjaxLink(pwdJexlHelp, "questionMarkJexlHelp");
         schemaForm.add(pwdQuestionMarkJexlHelp);
+        pwdQuestionMarkJexlHelp.add(pwdJexlHelp);
 
         final AjaxCheckBoxPanel multivalue = new AjaxCheckBoxPanel("multivalue", getString("multivalue"),
                 new PropertyModel<Boolean>(schema, "multivalue"));

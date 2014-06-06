@@ -69,10 +69,10 @@ public class DerSchemaModalPage extends AbstractSchemaModalPage<DerSchemaTO> {
         expression.addRequiredLabel();
 
         final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
-        schemaForm.add(jexlHelp);
 
         final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
         schemaForm.add(questionMarkJexlHelp);
+        questionMarkJexlHelp.add(jexlHelp);
 
         name.setEnabled(createFlag);
 
