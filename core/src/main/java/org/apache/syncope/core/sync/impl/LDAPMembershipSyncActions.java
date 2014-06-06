@@ -121,8 +121,10 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     @Transactional(readOnly = true)
     @Override
     public <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
-            final AbstractSyncopeSyncResultHandler handler, final SyncDelta delta, final T subject, final K subjectMod)
-            throws JobExecutionException {
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncDelta delta,
+            final T subject,
+            final K subjectMod) throws JobExecutionException {
 
         if (subject instanceof RoleTO) {
             // search for all users assigned to given role
@@ -283,7 +285,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      */
     @Override
     public <T extends AbstractAttributableTO> void after(
-            final AbstractSyncopeSyncResultHandler handler,
+            final AbstractSyncopeResultHandler<?, ?> handler,
             final SyncDelta delta,
             final T subject,
             final SyncResult result) throws JobExecutionException {

@@ -29,18 +29,21 @@ public enum PolicyType {
      */
     ACCOUNT("Account Policy"),
     GLOBAL_ACCOUNT("Account Global Policy"),
-
     /**
      * Password policy regarding password syntax.
      */
     PASSWORD("Password Policy"),
     GLOBAL_PASSWORD("Password Global Policy"),
-
     /**
      * SYNC policy regarding account conflicts resolution.
      */
     SYNC("Synchronization Policy"),
-    GLOBAL_SYNC("Synchronization Global Policy");
+    GLOBAL_SYNC("Synchronization Global Policy"),
+    /**
+     * PUSH policy regarding account conflicts resolution.
+     */
+    PUSH("Push Policy"),
+    GLOBAL_PUSH("Push Global Policy");
 
     private String description;
 

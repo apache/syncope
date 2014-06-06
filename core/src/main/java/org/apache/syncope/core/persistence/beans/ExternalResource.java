@@ -141,6 +141,9 @@ public class ExternalResource extends AbstractSysInfo {
     @ManyToOne(fetch = FetchType.EAGER, optional = true)
     private SyncPolicy syncPolicy;
 
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    private PushPolicy pushPolicy;
+
     /**
      * Configuration properties that are overridden from the connector instance.
      */
@@ -310,6 +313,14 @@ public class ExternalResource extends AbstractSysInfo {
 
     public void setSyncPolicy(final SyncPolicy syncPolicy) {
         this.syncPolicy = syncPolicy;
+    }
+
+    public PushPolicy getPushPolicy() {
+        return pushPolicy;
+    }
+
+    public void setPushPolicy(PushPolicy pushPolicy) {
+        this.pushPolicy = pushPolicy;
     }
 
     public Set<ConnConfProperty> getConnInstanceConfiguration() {

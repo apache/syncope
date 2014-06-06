@@ -16,34 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.dao;
+package org.apache.syncope.core.persistence.beans;
 
-import java.util.List;
-
+import javax.persistence.Entity;
 import org.apache.syncope.common.types.PolicyType;
-import org.apache.syncope.core.persistence.beans.AccountPolicy;
-import org.apache.syncope.core.persistence.beans.PasswordPolicy;
-import org.apache.syncope.core.persistence.beans.Policy;
-import org.apache.syncope.core.persistence.beans.PushPolicy;
-import org.apache.syncope.core.persistence.beans.SyncPolicy;
 
-public interface PolicyDAO extends DAO {
+@Entity
+public class PushPolicy extends Policy {
 
-    Policy find(Long id);
+    private static final long serialVersionUID = -6090413855809521279L;
 
-    List<? extends Policy> find(PolicyType type);
+    public PushPolicy() {
+        this(false);
+    }
 
-    PasswordPolicy getGlobalPasswordPolicy();
+    public PushPolicy(boolean global) {
+        super();
 
-    AccountPolicy getGlobalAccountPolicy();
-
-    SyncPolicy getGlobalSyncPolicy();
-
-    PushPolicy getGlobalPushPolicy();
-
-    List<Policy> findAll();
-
-    <T extends Policy> T save(T policy);
-
-    <T extends Policy> void delete(T policy);
+        this.type = global
+                ? PolicyType.GLOBAL_SYNC
+                : PolicyType.SYNC;
+    }
 }

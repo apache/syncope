@@ -28,9 +28,6 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.ResourceOperation;
-import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.connid.ConnObjectUtil;
-import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.PushTask;
@@ -38,8 +35,6 @@ import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.TimeoutException;
 import org.apache.syncope.core.propagation.impl.AbstractPropagationTaskExecutor;
-import org.apache.syncope.core.rest.data.RoleDataBinder;
-import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.sync.PushActions;
 import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -49,65 +44,11 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-public class SyncopePushResultHandler extends AbstractSyncopeResultHandler {
-
-    /**
-     * User data binder.
-     */
-    @Autowired
-    protected UserDataBinder userDataBinder;
-
-    /**
-     * Role data binder.
-     */
-    @Autowired
-    protected RoleDataBinder roleDataBinder;
-
-    /**
-     * ConnectorObject util.
-     */
-    @Autowired
-    protected ConnObjectUtil connObjectUtil;
-
-    /**
-     * Notification Manager.
-     */
-    @Autowired
-    protected NotificationManager notificationManager;
-
-    /**
-     * Audit Manager.
-     */
-    @Autowired
-    protected AuditManager auditManager;
+public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions> {
 
     protected Map<Long, String> roleOwnerMap = new HashMap<Long, String>();
-
-    /**
-     * SyncJob actions.
-     */
-    protected PushActions actions;
-
-    protected PushTask syncTask;
-
-    public PushActions getActions() {
-        return actions;
-    }
-
-    public void setActions(final PushActions actions) {
-        this.actions = actions;
-    }
-
-    public PushTask getSyncTask() {
-        return syncTask;
-    }
-
-    public void setSyncTask(final PushTask syncTask) {
-        this.syncTask = syncTask;
-    }
 
     public Map<Long, String> getRoleOwnerMap() {
         return roleOwnerMap;
@@ -187,10 +128,10 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler {
 
             if (beforeObj == null) {
                 result.setOperation(ResourceOperation.CREATE);
-                actions.beforeCreate(this, toBeHandled, values);
+                actions.beforeCreate(this, values, toBeHandled);
             } else {
                 result.setOperation(ResourceOperation.UPDATE);
-                actions.beforeUpdate(this, toBeHandled, values);
+                actions.beforeUpdate(this, values, toBeHandled);
             }
 
             AbstractPropagationTaskExecutor.createOrUpdate(
@@ -216,7 +157,7 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler {
             throw new JobExecutionException(e);
         } finally {
 
-            actions.after(this, toBeHandled, values, result);
+            actions.after(this, values, toBeHandled, result);
 
             notificationManager.createTasks(
                     AuditElements.EventCategoryType.PUSH,

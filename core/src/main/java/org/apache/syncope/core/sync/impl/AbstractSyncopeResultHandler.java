@@ -20,17 +20,55 @@ package org.apache.syncope.core.sync.impl;
 
 import java.util.Collection;
 import org.apache.syncope.common.types.ConflictResolutionAction;
+import org.apache.syncope.core.audit.AuditManager;
+import org.apache.syncope.core.connid.ConnObjectUtil;
+import org.apache.syncope.core.notification.NotificationManager;
+import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
 import org.apache.syncope.core.propagation.Connector;
+import org.apache.syncope.core.rest.data.RoleDataBinder;
+import org.apache.syncope.core.rest.data.UserDataBinder;
+import org.apache.syncope.core.sync.AbstractSyncActions;
 import org.apache.syncope.core.sync.SyncResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractSyncopeResultHandler {
+public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A extends AbstractSyncActions<?>> {
 
     /**
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSyncopeResultHandler.class);
+
+    /**
+     * User data binder.
+     */
+    @Autowired
+    protected UserDataBinder userDataBinder;
+
+    /**
+     * Role data binder.
+     */
+    @Autowired
+    protected RoleDataBinder roleDataBinder;
+
+    /**
+     * ConnectorObject util.
+     */
+    @Autowired
+    protected ConnObjectUtil connObjectUtil;
+
+    /**
+     * Notification Manager.
+     */
+    @Autowired
+    protected NotificationManager notificationManager;
+
+    /**
+     * Audit Manager.
+     */
+    @Autowired
+    protected AuditManager auditManager;
 
     /**
      * Syncing connector.
@@ -42,6 +80,26 @@ public abstract class AbstractSyncopeResultHandler {
     protected boolean dryRun;
 
     protected ConflictResolutionAction resAct;
+
+    protected A actions;
+
+    protected T syncTask;
+
+    public A getActions() {
+        return actions;
+    }
+
+    public void setActions(A actions) {
+        this.actions = actions;
+    }
+
+    public T getSyncTask() {
+        return syncTask;
+    }
+
+    public void setSyncTask(T syncTask) {
+        this.syncTask = syncTask;
+    }
 
     public Connector getConnector() {
         return connector;

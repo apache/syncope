@@ -28,48 +28,48 @@ import org.quartz.JobExecutionException;
 /**
  * Interface for actions to be performed during PushJob execution.
  */
-public interface PushActions extends AbstractSyncActions<AbstractSyncopeResultHandler> {
+public interface PushActions extends AbstractSyncActions<AbstractSyncopeResultHandler<?, ?>> {
 
     /**
      * Action to be executed before to create a synchronized user locally.
      *
      * @param handler synchronization handler being executed.
-     * @param subject user / role to be created
-     * @param delta info to be pushed out (accountId, attributes)
+     * @param delta info to be pushed out (accountId, attributes).
+     * @param subject user / role to be created.
      * @return info to be pushed out (accountId, attributes).
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeCreate(
-            final AbstractSyncopeResultHandler handler,
-            final T subject,
-            final Map.Entry<String, Set<Attribute>> delta) throws JobExecutionException;
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
+            final T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before to update a synchronized user locally.
      *
      * @param handler synchronization handler being executed.
-     * @param subject user / role to be created
-     * @param delta info to be pushed out (accountId, attributes)
+     * @param delta info to be pushed out (accountId, attributes).
+     * @param subject user / role to be updated.
      * @return info to be pushed out (accountId, attributes).
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeUpdate(
-            final AbstractSyncopeResultHandler handler,
-            final T subject,
-            final Map.Entry<String, Set<Attribute>> delta) throws JobExecutionException;
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
+            final T subject) throws JobExecutionException;
 
     /**
      * Action to be executed after each local user synchronization.
      *
      * @param handler synchronization handler being executed.
-     * @param subject user / role to be created
      * @param delta info pushed out (accountId, attributes)
+     * @param subject synchronized user / role.
      * @param result operation result.
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractAttributable> void after(
-            final AbstractSyncopeResultHandler handler,
-            final T subject,
+            final AbstractSyncopeResultHandler<?, ?> handler,
             final Map.Entry<String, Set<Attribute>> delta,
+            final T subject,
             final SyncResult result) throws JobExecutionException;
 }

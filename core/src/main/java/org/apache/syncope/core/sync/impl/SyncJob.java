@@ -24,10 +24,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.ReferenceMod;
 import org.apache.syncope.common.mod.RoleMod;
-import org.apache.syncope.common.types.ConflictResolutionAction;
 import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.role.RMapping;
 import org.apache.syncope.core.persistence.beans.user.UMapping;
@@ -51,7 +49,7 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
  * @see AbstractSyncJob
  * @see SyncTask
  */
-public class SyncJob extends AbstractSyncJob<AbstractSyncopeSyncResultHandler, SyncActions> {
+public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
 
     /**
      * Role workflow adapter.
@@ -86,42 +84,16 @@ public class SyncJob extends AbstractSyncJob<AbstractSyncopeSyncResultHandler, S
     }
 
     @Override
-    protected String executeWithSecurityContext(final boolean dryRun) throws JobExecutionException {
-        if (!(task instanceof SyncTask)) {
-            throw new JobExecutionException("Task " + taskId + " isn't a SyncTask");
-        }
-        final SyncTask syncTask = (SyncTask) this.task;
-
-        Connector connector;
-        try {
-            connector = connFactory.getConnector(syncTask.getResource());
-        } catch (Exception e) {
-            final String msg = String.format("Connector instance bean for resource %s and connInstance %s not found",
-                    syncTask.getResource(), syncTask.getResource().getConnector());
-
-            throw new JobExecutionException(msg, e);
-        }
-
-        UMapping uMapping = syncTask.getResource().getUmapping();
-        if (uMapping != null && uMapping.getAccountIdItem() == null) {
-            throw new JobExecutionException("Invalid user account id mapping for resource " + syncTask.getResource());
-        }
-        RMapping rMapping = syncTask.getResource().getRmapping();
-        if (rMapping != null && rMapping.getAccountIdItem() == null) {
-            throw new JobExecutionException("Invalid role account id mapping for resource " + syncTask.getResource());
-        }
-        if (uMapping == null && rMapping == null) {
-            return "No mapping configured for both users and roles: aborting...";
-        }
-
+    protected String executeWithSecurityContext(
+            final SyncTask syncTask,
+            final SyncPolicySpec syncPolicySpec,
+            final Connector connector,
+            final UMapping uMapping,
+            final RMapping rMapping,
+            final boolean dryRun) throws JobExecutionException {
         LOG.debug("Execute synchronization with token {}", syncTask.getResource().getUsyncToken());
 
         final List<SyncResult> results = new ArrayList<SyncResult>();
-
-        final SyncPolicy syncPolicy = syncTask.getResource().getSyncPolicy();
-        final ConflictResolutionAction resAct = syncPolicy == null || syncPolicy.getSpecification() == null
-                ? ConflictResolutionAction.IGNORE
-                : ((SyncPolicySpec) syncPolicy.getSpecification()).getConflictResolutionAction();
 
         // Prepare handler for SyncDelta objects
         final SyncopeSyncResultHandler handler =
@@ -131,7 +103,7 @@ public class SyncJob extends AbstractSyncJob<AbstractSyncopeSyncResultHandler, S
         handler.setConnector(connector);
         handler.setActions(actions);
         handler.setDryRun(dryRun);
-        handler.setResAct(resAct);
+        handler.setResAct(syncPolicySpec.getConflictResolutionAction());
         handler.setResults(results);
         handler.setSyncTask(syncTask);
 

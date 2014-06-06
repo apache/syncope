@@ -42,15 +42,13 @@ import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.SyncPolicySpec;
-import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.connid.ConnObjectUtil;
-import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
+import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
@@ -68,8 +66,7 @@ import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.AttributableTransformer;
-import org.apache.syncope.core.rest.data.RoleDataBinder;
-import org.apache.syncope.core.rest.data.UserDataBinder;
+import org.apache.syncope.core.sync.SyncActions;
 import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.sync.SyncCorrelationRule;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -85,11 +82,13 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
+import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class SyncopeSyncResultHandler extends AbstractSyncopeSyncResultHandler {
+public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncTask, SyncActions>
+        implements SyncResultsHandler {
 
     /**
      * Policy DAO.
@@ -128,12 +127,6 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeSyncResultHandler {
     protected AttributableSearchDAO searchDAO;
 
     /**
-     * ConnectorObject util.
-     */
-    @Autowired
-    protected ConnObjectUtil connObjectUtil;
-
-    /**
      * User workflow adapter.
      */
     @Autowired
@@ -156,30 +149,6 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeSyncResultHandler {
      */
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
-
-    /**
-     * User data binder.
-     */
-    @Autowired
-    protected UserDataBinder userDataBinder;
-
-    /**
-     * Role data binder.
-     */
-    @Autowired
-    protected RoleDataBinder roleDataBinder;
-
-    /**
-     * Notification Manager.
-     */
-    @Autowired
-    protected NotificationManager notificationManager;
-
-    /**
-     * Audit Manager.
-     */
-    @Autowired
-    protected AuditManager auditManager;
 
     @Autowired
     protected AttributableTransformer attrTransformer;

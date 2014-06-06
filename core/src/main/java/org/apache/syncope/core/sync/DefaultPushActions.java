@@ -33,36 +33,37 @@ import org.quartz.JobExecutionException;
 public class DefaultPushActions implements PushActions {
 
     @Override
-    public void beforeAll(final AbstractSyncopeResultHandler handler) throws JobExecutionException {
+    public void beforeAll(final AbstractSyncopeResultHandler<?, ?> handler) throws JobExecutionException {
     }
 
     @Override
     public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeCreate(
-            final AbstractSyncopeResultHandler handler,
-            final T subject,
-            final Map.Entry<String, Set<Attribute>> delta) throws JobExecutionException {
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
+            final T subject) throws JobExecutionException {
         return delta;
     }
 
     @Override
     public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeUpdate(
-            final AbstractSyncopeResultHandler handler,
-            final T subject,
-            final Map.Entry<String, Set<Attribute>> delta) throws JobExecutionException {
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
+            final T subject) throws JobExecutionException {
 
         return delta;
     }
 
     @Override
     public <T extends AbstractAttributable> void after(
-            final AbstractSyncopeResultHandler handler,
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
             final T subject,
-            final Map.Entry<String, Set<Attribute>> delta, SyncResult result) throws JobExecutionException {
+            SyncResult result) throws JobExecutionException {
     }
 
     @Override
     public void afterAll(
-            final AbstractSyncopeResultHandler handler,
+            final AbstractSyncopeResultHandler<?, ?> handler,
             final List<SyncResult> results)
             throws JobExecutionException {
     }

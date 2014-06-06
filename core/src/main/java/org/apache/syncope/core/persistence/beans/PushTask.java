@@ -25,10 +25,30 @@ public class PushTask extends AbstractSyncTask {
 
     private static final long serialVersionUID = -4141057723006682564L;
 
+    private String userFilter;
+
+    private String roleFilter;
+
     /**
      * Default constructor.
      */
     public PushTask() {
         super("org.apache.syncope.core.sync.impl.PushJob");
+    }
+
+    public String getUserFilter() {
+        return userFilter;
+    }
+
+    public void setUserFilter(final String filter) {
+        this.userFilter = filter;
+    }
+
+    public String getRoleFilter() {
+        return roleFilter;
+    }
+
+    public void setRoleFilter(String roleFilter) {
+        this.roleFilter = roleFilter;
     }
 }

@@ -33,6 +33,7 @@ import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.reqres.PagedResult;
+import org.apache.syncope.common.to.PushTaskTO;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
@@ -52,7 +53,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     @Override
     public <T extends SchedTaskTO> Response create(final T taskTO) {
         T createdTask;
-        if (taskTO instanceof SyncTaskTO || taskTO instanceof SchedTaskTO) {
+        if (taskTO instanceof SyncTaskTO || taskTO instanceof PushTaskTO || taskTO instanceof SchedTaskTO) {
             createdTask = controller.createSchedTask(taskTO);
         } else {
             throw new BadRequestException();

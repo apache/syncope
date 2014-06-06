@@ -55,6 +55,7 @@ import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.to.PushTaskTO;
+import org.apache.syncope.common.wrap.PushActionClass;
 import org.apache.syncope.core.sync.TestSyncActions;
 import org.apache.syncope.core.sync.TestSyncRule;
 import org.apache.syncope.core.sync.impl.SyncJob;
@@ -102,7 +103,14 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public void create() {
+    public void getPushActionsClasses() {
+        List<PushActionClass> actions = taskService.getPushActionsClasses();
+        assertNotNull(actions);
+        assertFalse(actions.isEmpty());
+    }
+
+    @Test
+    public void createSyncTask() {
         SyncTaskTO task = new SyncTaskTO();
         task.setName("Test create Sync");
         task.setResource(RESOURCE_NAME_WS2);
@@ -132,11 +140,33 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
+    public void createPushTask() {
+        PushTaskTO task = new PushTaskTO();
+        task.setName("Test create Push");
+        task.setResource(RESOURCE_NAME_WS2);
+        task.setUserFilter(
+                SyncopeClient.getUserSearchConditionBuilder().hasNotResources(RESOURCE_NAME_TESTDB2).query());
+        task.setRoleFilter(
+                SyncopeClient.getRoleSearchConditionBuilder().isNotNull("cool").query());
+
+        final Response response = taskService.create(task);
+        final PushTaskTO actual = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
+        assertNotNull(actual);
+
+        task = taskService.read(actual.getId());
+        assertNotNull(task);
+        assertEquals(task.getId(), actual.getId());
+        assertEquals(task.getJobClassName(), actual.getJobClassName());
+        assertEquals(task.getUserFilter(), actual.getUserFilter());
+        assertEquals(task.getRoleFilter(), actual.getRoleFilter());
+    }
+
+    @Test
     public void update() {
         SchedTaskTO task = taskService.read(SCHED_TASK_ID);
         assertNotNull(task);
 
-        SchedTaskTO taskMod = new SchedTaskTO();
+        final SchedTaskTO taskMod = new SchedTaskTO();
         taskMod.setId(5);
         taskMod.setCronExpression(null);
 
@@ -148,13 +178,35 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public void list() {
-        PagedResult<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION);
-
-        assertNotNull(tasks);
+    public void listSchedTask() {
+        final PagedResult<SchedTaskTO> tasks = taskService.list(TaskType.SCHEDULED);
         assertFalse(tasks.getResult().isEmpty());
         for (AbstractTaskTO task : tasks.getResult()) {
-            assertNotNull(task);
+            if (!(task instanceof SchedTaskTO) || task instanceof SyncTaskTO || task instanceof PushTaskTO) {
+                fail();
+            }
+        }
+    }
+
+    @Test
+    public void listSyncTask() {
+        final PagedResult<SyncTaskTO> tasks = taskService.list(TaskType.SYNCHRONIZATION);
+        assertFalse(tasks.getResult().isEmpty());
+        for (AbstractTaskTO task : tasks.getResult()) {
+            if (!(task instanceof SyncTaskTO)) {
+                fail();
+            }
+        }
+    }
+
+    @Test
+    public void list() {
+        final PagedResult<PushTaskTO> tasks = taskService.list(TaskType.PUSH);
+        assertFalse(tasks.getResult().isEmpty());
+        for (AbstractTaskTO task : tasks.getResult()) {
+            if (!(task instanceof PushTaskTO)) {
+                fail();
+            }
         }
     }
 
@@ -917,14 +969,39 @@ public class TaskTestITCase extends AbstractTest {
         // Read sync task
         PushTaskTO task = taskService.<PushTaskTO>read(13L);
         assertNotNull(task);
+        
+        assertEquals("Vivaldi", userService.read(3L).getAttrMap().get("surname").getValues().get(0));
+        
+        task.setUserFilter(SyncopeClient.getUserSearchConditionBuilder().is("surname").equalTo("Vivaldi").query());
+        taskService.update(13L, task);
+        assertEquals(task.getUserFilter(), taskService.<PushTaskTO>read(13L).getUserFilter());
 
         execSyncTask(task.getId(), 50, false);
 
         final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID<>'vivaldi'").size());
+        assertEquals(0, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='bellini'").size());
+        assertEquals(0, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='rossini'").size());
+        assertEquals(0, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='puccini'").size());
+        
+        assertEquals("vivaldi",
+                jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "vivaldi"));
+        
+        jdbcTemplate.execute("DELETE FROM test2 WHERE ID='vivaldi'");
 
-        assertEquals("vivaldi", jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "vivaldi"));
-        assertEquals("bellini", jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "bellini"));
-        assertEquals("rossini", jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "rossini"));
-        assertEquals("puccini", jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "puccini"));
+        task.setUserFilter(null);
+        taskService.update(13L, task);
+        assertNull(taskService.<PushTaskTO>read(13L).getUserFilter());
+
+        execSyncTask(task.getId(), 50, false);
+
+        assertEquals("vivaldi",
+                jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "vivaldi"));
+        assertEquals("bellini",
+                jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "bellini"));
+        assertEquals("rossini",
+                jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "rossini"));
+        assertEquals("puccini",
+                jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "puccini"));
     }
 }

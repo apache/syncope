@@ -34,6 +34,7 @@ import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.persistence.beans.PushTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -146,6 +147,29 @@ public class TaskTest extends AbstractDAOTest {
         taskDAO.flush();
 
         task = taskDAO.find(4L);
+        assertNotNull(task);
+
+        assertEquals(executionNumber + 1, task.getExecs().size());
+    }
+
+    @Test
+    public void addPushTaskExecution() {
+        PushTask task = taskDAO.find(13L);
+        assertNotNull(task);
+
+        int executionNumber = task.getExecs().size();
+
+        TaskExec execution = new TaskExec();
+        execution.setStatus("Text-free status");
+        execution.setTask(task);
+        task.addExec(execution);
+        execution.setMessage("A message");
+
+        task = taskDAO.save(task);
+
+        taskDAO.flush();
+
+        task = taskDAO.find(13L);
         assertNotNull(task);
 
         assertEquals(executionNumber + 1, task.getExecs().size());

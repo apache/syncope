@@ -20,14 +20,14 @@ package org.apache.syncope.core.sync;
 
 import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
-import org.apache.syncope.core.sync.impl.AbstractSyncopeSyncResultHandler;
+import org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 
 /**
  * Interface for actions to be performed during SyncJob execution.
  */
-public interface SyncActions extends AbstractSyncActions<AbstractSyncopeSyncResultHandler> {
+public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHandler<?, ?>> {
 
     /**
      * Action to be executed before to create a synchronized user locally.
@@ -39,7 +39,7 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeSyncResu
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractAttributableTO> SyncDelta beforeCreate(
-            final AbstractSyncopeSyncResultHandler handler,
+            final AbstractSyncopeResultHandler<?, ?> handler,
             final SyncDelta delta,
             final T subject) throws JobExecutionException;
 
@@ -54,7 +54,7 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeSyncResu
      * @throws JobExecutionException in case of generic failure.
      */
     <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
-            final AbstractSyncopeSyncResultHandler handler,
+            final AbstractSyncopeResultHandler<?, ?> handler,
             final SyncDelta delta,
             final T subject,
             final K subjectMod)
@@ -65,12 +65,12 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeSyncResu
      *
      * @param handler synchronization handler being executed.
      * @param delta retrieved synchronization information
-     * @param subject lcao user / role to be deleted
+     * @param subject local user / role to be deleted
      * @return synchronization information used for logging and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractAttributableTO> SyncDelta beforeDelete(
-            final AbstractSyncopeSyncResultHandler handler,
+            final AbstractSyncopeResultHandler<?, ?> handler,
             final SyncDelta delta,
             final T subject) throws JobExecutionException;
 
@@ -84,7 +84,8 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeSyncResu
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractAttributableTO> void after(
-            final AbstractSyncopeSyncResultHandler handler,
+            final AbstractSyncopeResultHandler<?, ?> handler,
             final SyncDelta delta,
-            final T subject, final SyncResult result) throws JobExecutionException;
+            final T subject,
+            final SyncResult result) throws JobExecutionException;
 }

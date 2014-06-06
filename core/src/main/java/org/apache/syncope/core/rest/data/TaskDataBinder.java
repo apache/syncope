@@ -34,11 +34,13 @@ import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.to.AbstractSyncTaskTO;
+import org.apache.syncope.common.to.PushTaskTO;
 import org.apache.syncope.core.init.JobInstanceLoader;
 import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.persistence.beans.PushTask;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
@@ -96,7 +98,13 @@ public class TaskDataBinder {
     private void fill(final AbstractSyncTask task, final AbstractSyncTaskTO taskTO) {
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSyncTask);
 
-        if (task instanceof SyncTask && taskTO instanceof SyncTaskTO) {
+        if (task instanceof PushTask && taskTO instanceof PushTaskTO) {
+            final PushTask pushTask = (PushTask) task;
+            final PushTaskTO pushTaskTO = (PushTaskTO) taskTO;
+
+            pushTask.setUserFilter(pushTaskTO.getUserFilter());
+
+        } else if (task instanceof SyncTask && taskTO instanceof SyncTaskTO) {
             final SyncTask syncTask = (SyncTask) task;
             final SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
 
@@ -170,7 +178,7 @@ public class TaskDataBinder {
             if (resource == null) {
                 throw new NotFoundException("Resource " + syncTaskTO.getResource());
             }
-            ((SyncTask) task).setResource(resource);
+            ((AbstractSyncTask) task).setResource(resource);
 
             fill((AbstractSyncTask) task, syncTaskTO);
         }
@@ -286,6 +294,16 @@ public class TaskDataBinder {
                 ((SyncTaskTO) taskTO).setName(((SyncTask) task).getName());
                 ((SyncTaskTO) taskTO).setDescription(((SyncTask) task).getDescription());
                 ((SyncTaskTO) taskTO).setResource(((SyncTask) task).getResource().getName());
+                break;
+            case PUSH:
+                if (!(task instanceof PushTask)) {
+                    throw new ClassCastException("taskUtil is type Push but task is not PushTask: "
+                            + task.getClass().getName());
+                }
+                setExecTime((SchedTaskTO) taskTO, task);
+                ((PushTaskTO) taskTO).setName(((PushTask) task).getName());
+                ((PushTaskTO) taskTO).setDescription(((PushTask) task).getDescription());
+                ((PushTaskTO) taskTO).setResource(((PushTask) task).getResource().getName());
                 break;
 
             case NOTIFICATION:

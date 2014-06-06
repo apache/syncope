@@ -19,19 +19,27 @@
 package org.apache.syncope.core.sync.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.beans.PushTask;
 import org.apache.syncope.core.persistence.beans.role.RMapping;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UMapping;
+import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.propagation.Connector;
+import org.apache.syncope.core.rest.data.SearchCondConverter;
 import org.apache.syncope.core.sync.PushActions;
 import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.ApplicationContextProvider;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,13 +52,19 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
  * @see AbstractSyncJob
  * @see PushTask
  */
-public class PushJob extends AbstractSyncJob<AbstractSyncopeResultHandler, PushActions> {
+public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
 
     /**
      * User DAO.
      */
     @Autowired
     private UserDAO userDAO;
+
+    /**
+     * Search DAO.
+     */
+    @Autowired
+    private AttributableSearchDAO searchDAO;
 
     /**
      * Role DAO.
@@ -61,42 +75,19 @@ public class PushJob extends AbstractSyncJob<AbstractSyncopeResultHandler, PushA
     private final int PAGE_SIZE = 1000;
 
     @Override
-    protected String executeWithSecurityContext(final boolean dryRun) throws JobExecutionException {
-        if (!(task instanceof PushTask)) {
-            throw new JobExecutionException("Task " + taskId + " isn't a PushTask");
-        }
-
-        final PushTask pushTask = (PushTask) this.task;
-
-        Connector connector;
-        try {
-            connector = connFactory.getConnector(pushTask.getResource());
-        } catch (Exception e) {
-            final String msg = String.format("Connector instance bean for resource %s and connInstance %s not found",
-                    pushTask.getResource(), pushTask.getResource().getConnector());
-
-            throw new JobExecutionException(msg, e);
-        }
-
-        UMapping uMapping = pushTask.getResource().getUmapping();
-        if (uMapping != null && uMapping.getAccountIdItem() == null) {
-            throw new JobExecutionException("Invalid user account id mapping for resource " + pushTask.getResource());
-        }
-        RMapping rMapping = pushTask.getResource().getRmapping();
-        if (rMapping != null && rMapping.getAccountIdItem() == null) {
-            throw new JobExecutionException("Invalid role account id mapping for resource " + pushTask.getResource());
-        }
-        if (uMapping == null && rMapping == null) {
-            return "No mapping configured for both users and roles: aborting...";
-        }
-
+    protected String executeWithSecurityContext(
+            final PushTask pushTask,
+            final SyncPolicySpec syncPolicySpec,
+            final Connector connector,
+            final UMapping uMapping,
+            final RMapping rMapping,
+            final boolean dryRun) throws JobExecutionException {
         LOG.debug("Execute synchronization (push) with resource {}", pushTask.getResource());
 
         final List<SyncResult> results = new ArrayList<SyncResult>();
 
         final Set<Long> authorizations = EntitlementUtil.getRoleIds(entitlementDAO.findAll());
 
-        // Prepare handler for SyncDelta objects
         final SyncopePushResultHandler handler =
                 (SyncopePushResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
                 getApplicationContext().getBeanFactory()).createBean(
@@ -112,7 +103,7 @@ public class PushJob extends AbstractSyncJob<AbstractSyncopeResultHandler, PushA
         if (uMapping != null) {
             final int count = userDAO.count(authorizations);
             for (int page = 1; page <= (count / PAGE_SIZE) + 1; page++) {
-                final List<SyncopeUser> localUsers = userDAO.findAll(authorizations, page, PAGE_SIZE);
+                final List<SyncopeUser> localUsers = getUsers(authorizations, pushTask, page);
 
                 for (SyncopeUser localUser : localUsers) {
                     try {
@@ -129,7 +120,7 @@ public class PushJob extends AbstractSyncJob<AbstractSyncopeResultHandler, PushA
         }
 
         if (rMapping != null) {
-            final List<SyncopeRole> localRoles = roleDAO.findAll();
+            final List<SyncopeRole> localRoles = getRoles(authorizations, pushTask, PAGE_SIZE);
 
             for (SyncopeRole localRole : localRoles) {
                 try {
@@ -155,5 +146,27 @@ public class PushJob extends AbstractSyncJob<AbstractSyncopeResultHandler, PushA
 
     protected boolean continueOnError() {
         return true;
+    }
+
+    private List<SyncopeUser> getUsers(final Set<Long> authorizations, final PushTask pushTask, final int page) {
+        final String filter = pushTask.getUserFilter();
+        if (StringUtils.isBlank(filter)) {
+            return userDAO.findAll(authorizations, page, PAGE_SIZE);
+        } else {
+            return searchDAO.<SyncopeUser>search(
+                    authorizations, SearchCondConverter.convert(filter),
+                    Collections.<OrderByClause>emptyList(), AttributableUtil.getInstance(AttributableType.USER));
+        }
+    }
+
+    private List<SyncopeRole> getRoles(final Set<Long> authorizations, final PushTask pushTask, final int page) {
+        final String filter = pushTask.getRoleFilter();
+        if (StringUtils.isBlank(filter)) {
+            return roleDAO.findAll();
+        } else {
+            return searchDAO.<SyncopeRole>search(
+                    authorizations, SearchCondConverter.convert(filter),
+                    Collections.<OrderByClause>emptyList(), AttributableUtil.getInstance(AttributableType.ROLE));
+        }
     }
 }

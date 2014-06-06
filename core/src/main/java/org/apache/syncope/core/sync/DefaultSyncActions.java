@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
-import org.apache.syncope.core.sync.impl.AbstractSyncopeSyncResultHandler;
+import org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 
@@ -32,12 +32,12 @@ import org.quartz.JobExecutionException;
 public class DefaultSyncActions implements SyncActions {
 
     @Override
-    public void beforeAll(final AbstractSyncopeSyncResultHandler handler) throws JobExecutionException {
+    public void beforeAll(final AbstractSyncopeResultHandler<?, ?> handler) throws JobExecutionException {
     }
 
     @Override
     public <T extends AbstractAttributableTO> SyncDelta beforeCreate(
-            final AbstractSyncopeSyncResultHandler handler,
+            final AbstractSyncopeResultHandler<?, ?> handler,
             final SyncDelta delta,
             final T subject) throws JobExecutionException {
 
@@ -46,7 +46,7 @@ public class DefaultSyncActions implements SyncActions {
 
     @Override
     public <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
-            final AbstractSyncopeSyncResultHandler handler,
+            final AbstractSyncopeResultHandler<?, ?> handler,
             final SyncDelta delta,
             final T subject,
             final K subjectMod)
@@ -57,7 +57,7 @@ public class DefaultSyncActions implements SyncActions {
 
     @Override
     public <T extends AbstractAttributableTO> SyncDelta beforeDelete(
-            final AbstractSyncopeSyncResultHandler handler,
+            final AbstractSyncopeResultHandler<?, ?> handler,
             final SyncDelta delta,
             final T subject) throws JobExecutionException {
 
@@ -66,7 +66,7 @@ public class DefaultSyncActions implements SyncActions {
 
     @Override
     public <T extends AbstractAttributableTO> void after(
-            final AbstractSyncopeSyncResultHandler handler,
+            final AbstractSyncopeResultHandler<?, ?> handler,
             final SyncDelta delta,
             final T subject,
             final SyncResult result) throws JobExecutionException {
@@ -74,7 +74,7 @@ public class DefaultSyncActions implements SyncActions {
 
     @Override
     public void afterAll(
-            final AbstractSyncopeSyncResultHandler handler,
+            final AbstractSyncopeResultHandler<?, ?> handler,
             final List<SyncResult> results)
             throws JobExecutionException {
     }

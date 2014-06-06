@@ -25,6 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.notification.NotificationJob;
+import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
 import org.apache.syncope.core.persistence.beans.PushTask;
 import org.apache.syncope.core.persistence.beans.Report;
 import org.apache.syncope.core.persistence.beans.SchedTask;
@@ -36,12 +37,10 @@ import org.apache.syncope.core.persistence.dao.ReportDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.quartz.TaskJob;
 import org.apache.syncope.core.report.ReportJob;
+import org.apache.syncope.core.sync.AbstractSyncActions;
 import org.apache.syncope.core.sync.DefaultPushActions;
 import org.apache.syncope.core.sync.DefaultSyncActions;
-import org.apache.syncope.core.sync.PushActions;
-import org.apache.syncope.core.sync.SyncActions;
-import org.apache.syncope.core.sync.impl.PushJob;
-import org.apache.syncope.core.sync.impl.SyncJob;
+import org.apache.syncope.core.sync.impl.AbstractSyncJob;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -159,45 +158,48 @@ public class JobInstanceLoader {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void registerJob(final Task task, final String jobClassName, final String cronExpression)
             throws ClassNotFoundException, SchedulerException, ParseException {
 
-        Class<?> jobClass = Class.forName(jobClassName);
+        final Class<?> jobClass = Class.forName(jobClassName);
         Job jobInstance = (Job) ApplicationContextProvider.getBeanFactory().
                 createBean(jobClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
         if (jobInstance instanceof TaskJob) {
             ((TaskJob) jobInstance).setTaskId(task.getId());
         }
-        if (jobInstance instanceof SyncJob && task instanceof SyncTask) {
-            String jobActionsClassName = ((SyncTask) task).getActionsClassName();
-            Class<?> syncActionsClass = DefaultSyncActions.class;
-            if (StringUtils.isNotBlank(jobActionsClassName)) {
+
+        // In case of synchronization job/task retrieve and set synchronization actions:
+        // actions cannot be changed at runtime but connector and synchronization policies (reloaded at execution time).
+        if (jobInstance instanceof AbstractSyncJob && task instanceof AbstractSyncTask) {
+            final String jobActionsClassName = ((AbstractSyncTask) task).getActionsClassName();
+
+            try {
+
+                Class<?> syncActionsClass = Class.forName(jobActionsClassName);
+
+                final AbstractSyncActions<?> syncActions =
+                        (AbstractSyncActions<?>) ApplicationContextProvider.getBeanFactory().
+                        createBean(syncActionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+
+                // Assume that syncActions object implements the right interface: 
+                // * SyncActions for a SyncJob; 
+                // * PushActions for a PushJob.
+                ((AbstractSyncJob) jobInstance).setActions(syncActions);
+
+            } catch (Exception e) {
+                final Class<? extends AbstractSyncActions<?>> defaultSyncActions =
+                        task instanceof SyncTask ? DefaultSyncActions.class : DefaultPushActions.class;
+
+                LOG.info("Class '{}' not found, reverting to {}", jobActionsClassName, defaultSyncActions.getName());
+
                 try {
-                    syncActionsClass = Class.forName(jobActionsClassName);
-                } catch (Exception e) {
-                    LOG.error("Class {} not found, reverting to {}", jobActionsClassName,
-                            syncActionsClass.getName(), e);
+                    ((AbstractSyncJob) jobInstance).setActions(defaultSyncActions.newInstance());
+                } catch (Exception ie) {
+                    // Shouldn't happen, BTW ...
+                    LOG.error("Default action class {} instantiation failed", defaultSyncActions.getName(), ie);
                 }
             }
-            SyncActions syncActions = (SyncActions) ApplicationContextProvider.getBeanFactory().
-                    createBean(syncActionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-
-            ((SyncJob) jobInstance).setActions(syncActions);
-        } else if (jobInstance instanceof PushJob && task instanceof PushTask) {
-            String jobActionsClassName = ((PushTask) task).getActionsClassName();
-            Class<?> syncActionsClass = DefaultPushActions.class;
-            if (StringUtils.isNotBlank(jobActionsClassName)) {
-                try {
-                    syncActionsClass = Class.forName(jobActionsClassName);
-                } catch (Exception e) {
-                    LOG.error("Class {} not found, reverting to {}", jobActionsClassName,
-                            syncActionsClass.getName(), e);
-                }
-            }
-            PushActions pushActions = (PushActions) ApplicationContextProvider.getBeanFactory().
-                    createBean(syncActionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-
-            ((PushJob) jobInstance).setActions(pushActions);
         }
 
         registerJob(getJobName(task), jobInstance, cronExpression);

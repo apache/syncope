@@ -18,16 +18,24 @@
  */
 package org.apache.syncope.core.sync.impl;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
 import org.apache.syncope.core.persistence.beans.Entitlement;
+import org.apache.syncope.core.persistence.beans.PushPolicy;
 import org.apache.syncope.core.persistence.beans.PushTask;
+import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
+import org.apache.syncope.core.persistence.beans.role.RMapping;
+import org.apache.syncope.core.persistence.beans.user.UMapping;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
+import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
+import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.quartz.AbstractTaskJob;
 import org.apache.syncope.core.sync.AbstractSyncActions;
@@ -48,7 +56,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @see SyncTask
  * @see PushTask
  */
-public abstract class AbstractSyncJob<H extends AbstractSyncopeResultHandler, A extends AbstractSyncActions<?>>
+public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends AbstractSyncActions<?>>
         extends AbstractTaskJob {
 
     /**
@@ -68,6 +76,12 @@ public abstract class AbstractSyncJob<H extends AbstractSyncopeResultHandler, A 
      */
     @Autowired
     protected EntitlementDAO entitlementDAO;
+
+    /**
+     * Policy DAO.
+     */
+    @Autowired
+    protected PolicyDAO policyDAO;
 
     /**
      * SyncJob actions.
@@ -292,14 +306,57 @@ public abstract class AbstractSyncJob<H extends AbstractSyncopeResultHandler, A 
                 new UsernamePasswordAuthenticationToken(userDetails, "FAKE_PASSWORD", authorities));
 
         try {
-            return executeWithSecurityContext(dryRun);
+            final Class<T> clazz = getTaskClassReference();
+            if (!clazz.isAssignableFrom(task.getClass())) {
+                throw new JobExecutionException("Task " + taskId + " isn't a SyncTask");
+            }
+
+            final T syncTask = clazz.cast(this.task);
+
+            final Connector connector;
+            try {
+                connector = connFactory.getConnector(syncTask.getResource());
+            } catch (Exception e) {
+                final String msg = String.
+                        format("Connector instance bean for resource %s and connInstance %s not found",
+                        syncTask.getResource(), syncTask.getResource().getConnector());
+
+                throw new JobExecutionException(msg, e);
+            }
+
+            final UMapping uMapping = syncTask.getResource().getUmapping();
+            if (uMapping != null && uMapping.getAccountIdItem() == null) {
+                throw new JobExecutionException("Invalid user account id mapping for resource " + syncTask.getResource());
+            }
+            final RMapping rMapping = syncTask.getResource().getRmapping();
+            if (rMapping != null && rMapping.getAccountIdItem() == null) {
+                throw new JobExecutionException("Invalid role account id mapping for resource " + syncTask.getResource());
+            }
+            if (uMapping == null && rMapping == null) {
+                return "No mapping configured for both users and roles: aborting...";
+            }
+
+            return executeWithSecurityContext(
+                    syncTask,
+                    getSyncPolicySpec(syncTask),
+                    connector,
+                    uMapping,
+                    rMapping,
+                    dryRun);
+
         } finally {
             // POST: clean up the SecurityContextHolder
             SecurityContextHolder.clearContext();
         }
     }
 
-    protected abstract String executeWithSecurityContext(final boolean dryRun) throws JobExecutionException;
+    protected abstract String executeWithSecurityContext(
+            final T task,
+            final SyncPolicySpec syncPolicySpec,
+            final Connector connector,
+            final UMapping uMapping,
+            final RMapping rMapping,
+            final boolean dryRun) throws JobExecutionException;
 
     @Override
     protected boolean hasToBeRegistered(final TaskExec execution) {
@@ -309,5 +366,33 @@ public abstract class AbstractSyncJob<H extends AbstractSyncopeResultHandler, A 
         return (Status.valueOf(execution.getStatus()) == Status.FAILURE
                 && syncTask.getResource().getSyncTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
                 || syncTask.getResource().getSyncTraceLevel().ordinal() >= TraceLevel.SUMMARY.ordinal();
+    }
+
+    private SyncPolicySpec getSyncPolicySpec(final AbstractSyncTask syncTask) {
+        SyncPolicySpec syncPolicySpec;
+
+        if (syncTask instanceof SyncTask) {
+            final SyncPolicy syncPolicy = syncTask.getResource().getSyncPolicy() == null
+                    ? policyDAO.getGlobalSyncPolicy()
+                    : syncTask.getResource().getSyncPolicy();
+
+            syncPolicySpec = syncPolicy == null ? null : (SyncPolicySpec) syncPolicy.getSpecification();
+        } else if (syncTask instanceof PushTask) {
+            final PushPolicy pushPolicy = syncTask.getResource().getPushPolicy() == null
+                    ? policyDAO.getGlobalPushPolicy()
+                    : syncTask.getResource().getPushPolicy();
+
+            syncPolicySpec = pushPolicy == null ? null : (SyncPolicySpec) pushPolicy.getSpecification();
+        } else {
+            syncPolicySpec = null;
+        }
+
+        // step required because the call <policy>.getSpecification() could return a null value
+        return syncPolicySpec == null ? new SyncPolicySpec() : syncPolicySpec;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Class<T> getTaskClassReference() {
+        return (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
 }

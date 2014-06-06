@@ -31,7 +31,9 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.persistence.beans.PushTask;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -62,14 +64,11 @@ public class TaskTest extends AbstractDAOTest {
 
     @Test
     public void findAll() {
-        List<PropagationTask> plist = taskDAO.findAll(PropagationTask.class);
-        assertEquals(4, plist.size());
-
-        List<SchedTask> sclist = taskDAO.findAll(SchedTask.class);
-        assertEquals(1, sclist.size());
-
-        List<SyncTask> sylist = taskDAO.findAll(SyncTask.class);
-        assertEquals(6, sylist.size());
+        assertEquals(4, taskDAO.findAll(PropagationTask.class).size());
+        assertEquals(1, taskDAO.findAll(NotificationTask.class).size());
+        assertEquals(1, taskDAO.findAll(SchedTask.class).size());
+        assertEquals(6, taskDAO.findAll(SyncTask.class).size());
+        assertEquals(1, taskDAO.findAll(PushTask.class).size());
     }
 
     @Test

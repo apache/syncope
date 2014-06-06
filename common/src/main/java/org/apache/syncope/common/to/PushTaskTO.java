@@ -27,4 +27,23 @@ public class PushTaskTO extends AbstractSyncTaskTO {
 
     private static final long serialVersionUID = -2143537546915809018L;
 
+    private String userFilter;
+
+    private String roleFilter;
+
+    public String getUserFilter() {
+        return userFilter;
+    }
+
+    public void setUserFilter(String filter) {
+        this.userFilter = filter;
+    }
+
+    public String getRoleFilter() {
+        return roleFilter;
+    }
+
+    public void setRoleFilter(String roleFilter) {
+        this.roleFilter = roleFilter;
+    }
 }
