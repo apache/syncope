@@ -190,17 +190,17 @@ public final class AttributableUtil {
 
         if (resource != null) {
             switch (type) {
-                case USER:
-                    if (resource.getUmapping() != null) {
-                        result = resource.getUmapping().getAccountIdItem();
-                    }
-                    break;
                 case ROLE:
                     if (resource.getRmapping() != null) {
                         result = resource.getRmapping().getAccountIdItem();
                     }
                     break;
                 case MEMBERSHIP:
+                case USER:
+                    if (resource.getUmapping() != null) {
+                        result = resource.getUmapping().getAccountIdItem();
+                    }
+                    break;
                 default:
             }
         }
@@ -215,17 +215,17 @@ public final class AttributableUtil {
 
         if (resource != null) {
             switch (type) {
-                case USER:
-                    if (resource.getUmapping() != null) {
-                        items = resource.getUmapping().getItems();
-                    }
-                    break;
                 case ROLE:
                     if (resource.getRmapping() != null) {
                         items = resource.getRmapping().getItems();
                     }
                     break;
                 case MEMBERSHIP:
+                case USER:
+                    if (resource.getUmapping() != null) {
+                        items = resource.getUmapping().getItems();
+                    }
+                    break;
                 default:
             }
         }
@@ -265,6 +265,7 @@ public final class AttributableUtil {
                 }
                 break;
             default:
+                LOG.error("You requested not existing purpose {}", purpose);
         }
 
         return result;

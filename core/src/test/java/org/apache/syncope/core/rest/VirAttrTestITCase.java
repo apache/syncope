@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import org.apache.commons.lang3.SerializationUtils;
 import java.util.Map;
 import org.apache.syncope.common.mod.AttributeMod;
+import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.ResourceService;
@@ -554,5 +555,170 @@ public class VirAttrTestITCase extends AbstractTest {
 
         userTO = updateUser(userMod);
         assertNotNull(userTO.getVirAttrMap().get("virtualdata"));
+    }
+
+    @Test
+    public void issueSYNCOPE458() {
+        // -------------------------------------------
+        // Create a role ad-hoc
+        // -------------------------------------------
+        final String roleName = "issueSYNCOPE458-Role-" + getUUIDString();
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName(roleName);
+        roleTO.setParent(2L);
+        roleTO.setInheritTemplates(true);
+        roleTO = createRole(roleTO);
+        // -------------------------------------------
+
+        // -------------------------------------------
+        // Update resource-db-virattr mapping adding new membership virtual schema mapping
+        // -------------------------------------------
+        ResourceTO resourceDBVirAttr = resourceService.read(RESOURCE_NAME_DBVIRATTR);
+        assertNotNull(resourceDBVirAttr);
+
+        final MappingTO resourceUMapping = resourceDBVirAttr.getUmapping();
+
+        MappingItemTO item = new MappingItemTO();
+        item.setIntAttrName("mvirtualdata");
+        item.setIntMappingType(IntMappingType.MembershipVirtualSchema);
+        item.setExtAttrName("EMAIL");
+        item.setPurpose(MappingPurpose.BOTH);
+
+        resourceUMapping.addItem(item);
+
+        resourceDBVirAttr.setUmapping(resourceUMapping);
+
+        resourceService.update(RESOURCE_NAME_DBVIRATTR, resourceDBVirAttr);
+        // -------------------------------------------
+
+        // -------------------------------------------
+        // Create new user
+        // -------------------------------------------
+        UserTO userTO = getUniqueSampleTO("syncope458@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getResources().add(RESOURCE_NAME_DBVIRATTR);
+        userTO.getVirAttrs().clear();
+        userTO.getDerAttrs().clear();
+        userTO.getMemberships().clear();
+
+        // add membership, with virtual attribute populated, to user
+        MembershipTO membership = new MembershipTO();
+        membership.setRoleId(roleTO.getId());
+        membership.getVirAttrs().add(attributeTO("mvirtualdata", "syncope458@syncope.apache.org"));
+        userTO.getMemberships().add(membership);
+
+        //propagate user
+        userTO = createUser(userTO);
+        assertEquals(1, userTO.getPropagationStatusTOs().size());
+        assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+       // -------------------------------------------
+
+        // 1. check if membership has virtual attribute populated
+        assertNotNull(userTO.getMemberships().get(0).getVirAttrMap().get("mvirtualdata"));
+        assertEquals("syncope458@syncope.apache.org",
+                userTO.getMemberships().get(0).getVirAttrMap().get("mvirtualdata").getValues().get(0));
+        // -------------------------------------------
+
+        // 2. update membership virtual attribute
+        MembershipMod membershipMod = new MembershipMod();
+        membershipMod.setRole(roleTO.getId());
+        membershipMod.getVirAttrsToUpdate().add(attributeMod("mvirtualdata", "syncope458_NEW@syncope.apache.org"));
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.getMembershipsToAdd().add(membershipMod);
+        userMod.getMembershipsToRemove().add(userTO.getMemberships().iterator().next().getId());
+
+        userTO = updateUser(userMod);
+        assertNotNull(userTO);
+        // 3. check again after update if membership has virtual attribute populated with new value
+        assertNotNull(userTO.getMemberships().get(0).getVirAttrMap().get("mvirtualdata"));
+        assertEquals("syncope458_NEW@syncope.apache.org", userTO.getMemberships().get(0).getVirAttrMap().get(
+                "mvirtualdata").getValues().get(0));
+
+        // ----------------------------------------
+        // force cache expiring without any modification
+        // ----------------------------------------
+        String jdbcURL = null;
+        ConnInstanceTO connInstanceBean = connectorService.readByResource(RESOURCE_NAME_DBVIRATTR);
+        for (ConnConfProperty prop : connInstanceBean.getConfiguration()) {
+            if ("jdbcUrlTemplate".equals(prop.getSchema().getName())) {
+                jdbcURL = prop.getValues().iterator().next().toString();
+                prop.getValues().clear();
+                prop.getValues().add("jdbc:h2:tcp://localhost:9092/xxx");
+            }
+        }
+
+        connectorService.update(connInstanceBean.getId(), connInstanceBean);
+
+        membershipMod = new MembershipMod();
+        membershipMod.setRole(roleTO.getId());
+        membershipMod.getVirAttrsToUpdate().add(attributeMod("mvirtualdata", "syncope458_updated@syncope.apache.org"));
+
+        userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.getMembershipsToAdd().add(membershipMod);
+        userMod.getMembershipsToRemove().add(userTO.getMemberships().iterator().next().getId());
+
+        userTO = updateUser(userMod);
+        assertNotNull(userTO);
+        // ----------------------------------
+
+        // change attribute value directly on resource
+        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
+        String value = jdbcTemplate.queryForObject(
+                "SELECT EMAIL FROM testsync WHERE ID=?", String.class, userTO.getId());
+        assertEquals("syncope458_NEW@syncope.apache.org", value);
+
+        jdbcTemplate.update("UPDATE testsync set EMAIL='syncope458_NEW_TWO@syncope.apache.org' WHERE ID=?", userTO.
+                getId());
+
+        value = jdbcTemplate.queryForObject("SELECT EMAIL FROM testsync WHERE ID=?", String.class, userTO.getId());
+        assertEquals("syncope458_NEW_TWO@syncope.apache.org", value);
+        // ----------------------------------------
+
+        // ----------------------------------------
+        // restore connector
+        // ----------------------------------------
+        for (ConnConfProperty prop : connInstanceBean.getConfiguration()) {
+            if ("jdbcUrlTemplate".equals(prop.getSchema().getName())) {
+                prop.getValues().clear();
+                prop.getValues().add(jdbcURL);
+            }
+        }
+        connectorService.update(connInstanceBean.getId(), connInstanceBean);
+        // ----------------------------------------
+
+        userTO = userService.read(userTO.getId());
+        assertNotNull(userTO);
+        // 4. check virtual attribute synchronization after direct update on resource
+        assertEquals("syncope458_NEW_TWO@syncope.apache.org", userTO.getMemberships().get(0).getVirAttrMap().get(
+                "mvirtualdata").getValues().get(0));
+
+        // 5. remove membership virtual attribute
+        membershipMod = new MembershipMod();
+        membershipMod.setRole(roleTO.getId());
+        membershipMod.getVirAttrsToRemove().add("mvirtualdata");
+
+        userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.getMembershipsToAdd().add(membershipMod);
+        userMod.getMembershipsToRemove().add(userTO.getMemberships().iterator().next().getId());
+
+        userTO = updateUser(userMod);
+        assertNotNull(userTO);
+        // check again after update if membership hasn't any virtual attribute
+        assertTrue(userTO.getMemberships().get(0).getVirAttrMap().isEmpty());
+
+        // -------------------------------------------
+        // Delete role ad-hoc and restore resource mapping
+        // -------------------------------------------
+        roleService.delete(roleTO.getId());
+
+        resourceUMapping.removeItem(item);
+        resourceDBVirAttr.setUmapping(resourceUMapping);
+        resourceService.update(RESOURCE_NAME_DBVIRATTR, resourceDBVirAttr);
+        // -------------------------------------------
     }
 }

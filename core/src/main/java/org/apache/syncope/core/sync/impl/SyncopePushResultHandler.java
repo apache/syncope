@@ -117,6 +117,8 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
                     true, // propagate password (if required)
                     null, // no vir attrs to be removed
                     null, // propagate current vir attr values
+                    null, // no membership vir attrs to be removed
+                    null, // propagate current membership vir attr values
                     enabled, // propagate status (suspended or not) if required
                     getSyncTask().getResource()); // target external resource
 

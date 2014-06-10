@@ -38,6 +38,7 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -207,7 +208,7 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
         WorkflowResult<Map.Entry<Long, Boolean>> created = uwfAdapter.create(actual);
 
         List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(
-                created, actual.getPassword(), actual.getVirAttrs());
+                created, actual.getPassword(), actual.getVirAttrs(), actual.getMemberships());
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
                 getBean(PropagationReporter.class);
         try {

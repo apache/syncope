@@ -550,7 +550,15 @@ public class ConnObjectUtil {
 
             final VirAttrCacheValue toBeCached = new VirAttrCacheValue();
 
-            for (ExternalResource resource : getTargetResource(virAttr, type, attrUtil)) {
+            // SYNCOPE-458 if virattr owner is a Membership, owner must become user involved in membership because 
+            // membership mapping is contained in user mapping
+            final AbstractAttributable realOwner = owner instanceof Membership ? ((Membership) owner).getSyncopeUser()
+                    : owner;
+
+            final Set<ExternalResource> targetResources = owner instanceof Membership ? getTargetResource(virAttr, type,
+                    attrUtil, realOwner.getResources()) : getTargetResource(virAttr, type, attrUtil);
+
+            for (ExternalResource resource : targetResources) {
                 LOG.debug("Search values into {}", resource.getName());
                 try {
                     final List<AbstractMappingItem> mappings = attrUtil.getMappingItems(resource, MappingPurpose.BOTH);
@@ -564,7 +572,7 @@ public class ConnObjectUtil {
                         final String accountId = attrUtil.getAccountIdItem(resource) == null
                                 ? null
                                 : MappingUtil.getAccountIdValue(
-                                        owner, resource, attrUtil.getAccountIdItem(resource));
+                                        realOwner, resource, attrUtil.getAccountIdItem(resource));
 
                         if (StringUtils.isBlank(accountId)) {
                             throw new IllegalArgumentException("No AccountId found for " + resource.getName());
@@ -575,7 +583,7 @@ public class ConnObjectUtil {
                         final OperationOptions oo =
                                 connector.getOperationOptions(MappingUtil.getMatchingMappingItems(mappings, type));
 
-                        connectorObject = connector.getObject(fromAttributable(owner), new Uid(accountId), oo);
+                        connectorObject = connector.getObject(fromAttributable(realOwner), new Uid(accountId), oo);
                         externalResources.put(resource.getName(), connectorObject);
                     }
 
@@ -617,9 +625,9 @@ public class ConnObjectUtil {
                 }
             }
 
-            virAttrCache.put(attrUtil.getType(), owner.getId(), schemaName, toBeCached);
+                virAttrCache.put(attrUtil.getType(), owner.getId(), schemaName, toBeCached);
+            }
         }
-    }
 
     private Set<ExternalResource> getTargetResource(
             final AbstractVirAttr attr, final IntMappingType type, final AttributableUtil attrUtil) {
@@ -627,6 +635,23 @@ public class ConnObjectUtil {
         final Set<ExternalResource> resources = new HashSet<ExternalResource>();
 
         for (ExternalResource res : attr.getOwner().getResources()) {
+            if (!MappingUtil.getMatchingMappingItems(
+                    attrUtil.getMappingItems(res, MappingPurpose.BOTH),
+                    attr.getSchema().getName(), type).isEmpty()) {
+
+                resources.add(res);
+            }
+        }
+
+        return resources;
+    }
+
+    private Set<ExternalResource> getTargetResource(final AbstractVirAttr attr, final IntMappingType type,
+            final AttributableUtil attrUtil, final Set<ExternalResource> ownerResources) {
+
+        final Set<ExternalResource> resources = new HashSet<ExternalResource>();
+
+        for (ExternalResource res : ownerResources) {
             if (!MappingUtil.getMatchingMappingItems(
                     attrUtil.getMappingItems(res, MappingPurpose.BOTH),
                     attr.getSchema().getName(), type).isEmpty()) {
@@ -657,7 +682,7 @@ public class ConnObjectUtil {
         }
 
         currentAttrMap = attributableTO.getVirAttrMap();
-        for (AttributeTO templateVirAttr : template.getDerAttrs()) {
+        for (AttributeTO templateVirAttr : template.getVirAttrs()) {
             if (templateVirAttr.getValues() != null && !templateVirAttr.getValues().isEmpty()
                     && (!currentAttrMap.containsKey(templateVirAttr.getSchema())
                     || currentAttrMap.get(templateVirAttr.getSchema()).getValues().isEmpty())) {

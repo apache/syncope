@@ -104,7 +104,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         return user;
     }
-
+    
     @Transactional(readOnly = true)
     public Set<String> getResourceNamesForUserId(final Long userId) {
         return getUserFromId(userId).getResourceNames();
@@ -412,6 +412,9 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             membershipTO.setRoleId(membership.getSyncopeRole().getId());
             membershipTO.setRoleName(membership.getSyncopeRole().getName());
 
+            // SYNCOPE-458 retrieve also membership virtual attributes
+            connObjectUtil.retrieveVirAttrValues(membership, AttributableUtil.getInstance(AttributableType.MEMBERSHIP));
+            
             fillTO(membershipTO,
                     membership.getAttrs(), membership.getDerAttrs(), membership.getVirAttrs(),
                     membership.getResources());

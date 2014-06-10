@@ -362,7 +362,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
 
         final List<ConnectorObject> found = connector.search(objectClass,
                 new EqualsFilter(new Name(name)), connector.getOperationOptions(
-                attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
+                        attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", objectClass, syncTask.getResource(), name);
@@ -441,7 +441,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
 
                     List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(created,
                             ((UserTO) actual).getPassword(), actual.getVirAttrs(),
-                            Collections.singleton(syncTask.getResource().getName()));
+                            Collections.singleton(syncTask.getResource().getName()), ((UserTO) actual).getMemberships());
 
                     taskExecutor.execute(tasks);
 

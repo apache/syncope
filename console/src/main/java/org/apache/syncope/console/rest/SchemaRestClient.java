@@ -140,16 +140,16 @@ public class SchemaRestClient extends BaseRestClient {
                 userDerSchemasNames.add(schemaTO.getName());
             }
         } catch (SyncopeClientException e) {
-            LOG.error("While getting all user derived schema names", e);
+            LOG.error("While getting all {} derived schema names", type, e);
         }
 
         return userDerSchemasNames;
     }
 
     /**
-     * Get derived schemas.
+     * Get virtual schemas.
      *
-     * @return List of derived schemas.
+     * @return List of virtual schemas.
      */
     @SuppressWarnings("unchecked")
     public List<VirSchemaTO> getVirSchemas(final AttributableType type) {
@@ -158,7 +158,7 @@ public class SchemaRestClient extends BaseRestClient {
         try {
             userVirSchemas = getService(SchemaService.class).list(type, SchemaType.VIRTUAL);
         } catch (SyncopeClientException e) {
-            LOG.error("While getting all user derived schemas", e);
+            LOG.error("While getting all {} virtual schemas", type, e);
         }
 
         return userVirSchemas;

@@ -27,8 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.mod.AttributeMod;
+import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ResourceOperation;
@@ -38,6 +40,7 @@ import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
@@ -101,15 +104,16 @@ public class PropagationManager {
      * @param wfResult user to be propagated (and info associated), as per result from workflow
      * @param password to be set
      * @param vAttrs virtual attributes to be set
+     * @param membershipTOs user memberships
      * @return list of propagation tasks
      * @throws NotFoundException if user is not found
      * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given user
      */
     public List<PropagationTask> getUserCreateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password, final List<AttributeTO> vAttrs)
+            final String password, final List<AttributeTO> vAttrs, final List<MembershipTO> membershipTOs)
             throws NotFoundException, UnauthorizedRoleException {
 
-        return getUserCreateTaskIds(wfResult, password, vAttrs, null);
+        return getUserCreateTaskIds(wfResult, password, vAttrs, null, membershipTOs);
     }
 
     /**
@@ -119,17 +123,30 @@ public class PropagationManager {
      * @param password to be set
      * @param vAttrs virtual attributes to be set
      * @param noPropResourceNames external resources not to be considered for propagation
+     * @param membershipTOs user memberships
      * @return list of propagation tasks
      * @throws NotFoundException if user is not found
      * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given user
      */
     public List<PropagationTask> getUserCreateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password, final Collection<AttributeTO> vAttrs, final Set<String> noPropResourceNames)
+            final String password, final Collection<AttributeTO> vAttrs,
+            final Set<String> noPropResourceNames, final List<MembershipTO> membershipTOs)
             throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeUser user = userDataBinder.getUserFromId(wfResult.getResult().getKey());
         if (vAttrs != null && !vAttrs.isEmpty()) {
             userDataBinder.fillVirtual(user, vAttrs, AttributableUtil.getInstance(AttributableType.USER));
+
+        }
+        for (Membership membership : user.getMemberships()) {
+            MembershipTO membershipTO;
+            if (membership.getVirAttrs() != null && !membership.getVirAttrs().isEmpty()) {
+                membershipTO = findMembershipTO(membership, membershipTOs);
+                if (membershipTO != null) {
+                    userDataBinder.fillVirtual(membership, membershipTO.getVirAttrs(), AttributableUtil.getInstance(
+                            AttributableType.MEMBERSHIP));
+                }
+            }
         }
         return getCreateTaskIds(user, password,
                 wfResult.getResult().getValue(), wfResult.getPropByRes(), noPropResourceNames);
@@ -185,7 +202,7 @@ public class PropagationManager {
             propByRes.get(ResourceOperation.CREATE).removeAll(noPropResourceNames);
         }
 
-        return createTasks(attributable, password, true, null, null, enable, false, propByRes);
+        return createTasks(attributable, password, true, null, null, null, null, enable, false, propByRes);
     }
 
     /**
@@ -209,7 +226,8 @@ public class PropagationManager {
                 Collections.<String>emptySet(), // no virtual attributes to be managed
                 Collections.<AttributeMod>emptySet(), // no virtual attributes to be managed
                 null, // no propagation by resources
-                noPropResourceNames);
+                noPropResourceNames,
+                Collections.<MembershipMod>emptySet());
     }
 
     /**
@@ -234,7 +252,8 @@ public class PropagationManager {
                 wfResult.getResult().getKey().getVirAttrsToRemove(),
                 wfResult.getResult().getKey().getVirAttrsToUpdate(),
                 wfResult.getPropByRes(),
-                noPropResourceNames);
+                noPropResourceNames,
+                wfResult.getResult().getKey().getMembershipsToAdd());
     }
 
     public List<PropagationTask> getUserUpdateTaskIds(final WorkflowResult<Map.Entry<UserMod, Boolean>> wfResult) {
@@ -310,13 +329,15 @@ public class PropagationManager {
 
         SyncopeRole role = roleDataBinder.getRoleFromId(wfResult.getResult());
         return getUpdateTaskIds(role, null, false, null,
-                vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.getPropByRes(), noPropResourceNames);
+                vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.getPropByRes(), noPropResourceNames,
+                Collections.<MembershipMod>emptySet());
     }
 
     protected List<PropagationTask> getUpdateTaskIds(final AbstractAttributable attributable,
             final String password, final boolean changePwd, final Boolean enable,
             final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
-            final PropagationByResource propByRes, final Collection<String> noPropResourceNames)
+            final PropagationByResource propByRes, final Collection<String> noPropResourceNames,
+            final Set<MembershipMod> membershipsToAdd)
             throws NotFoundException {
 
         AbstractAttributableDataBinder binder = attributable instanceof SyncopeUser
@@ -327,6 +348,24 @@ public class PropagationManager {
                 : vAttrsToBeRemoved, vAttrsToBeUpdated == null
                 ? Collections.<AttributeMod>emptySet()
                 : vAttrsToBeUpdated, AttributableUtil.getInstance(attributable));
+
+        // SYNCOPE-458 fill membership virtual attributes
+        if (attributable instanceof SyncopeUser) {
+            final SyncopeUser user = (SyncopeUser) attributable;
+            for (Membership membership : user.getMemberships()) {
+                if (membership.getVirAttrs() != null && !membership.getVirAttrs().isEmpty()) {
+                    final MembershipMod membershipMod = findMembershipMod(membership, membershipsToAdd);
+                    if (membershipMod != null) {
+                        binder.fillVirtual(membership, membershipMod.getVirAttrsToRemove() == null
+                                ? Collections.<String>emptySet()
+                                : membershipMod.getVirAttrsToRemove(),
+                                membershipMod.getVirAttrsToUpdate() == null ? Collections.<AttributeMod>emptySet()
+                                : membershipMod.getVirAttrsToUpdate(), AttributableUtil.getInstance(
+                                        AttributableType.MEMBERSHIP));
+                    }
+                }
+            }
+        }
 
         if (propByRes == null || propByRes.isEmpty()) {
             localPropByRes.addAll(ResourceOperation.UPDATE, attributable.getResourceNames());
@@ -346,8 +385,23 @@ public class PropagationManager {
             }
         }
 
+        // SYNCOPE-458 fill membership virtual attributes to be updated map
+        Map<String, AttributeMod> membVAttrsToBeUpdatedMap = new HashMap<String, AttributeMod>();
+        for (MembershipMod membershipMod : membershipsToAdd) {
+            for (AttributeMod attrMod : membershipMod.getVirAttrsToUpdate()) {
+                membVAttrsToBeUpdatedMap.put(attrMod.getSchema(), attrMod);
+            }
+        }
+
+        // SYNCOPE-458 fill membership virtual attributes to be removed set
+        final Set<String> membVAttrsToBeRemoved = new HashSet<String>();
+        for (MembershipMod membershipMod : membershipsToAdd) {
+            membVAttrsToBeRemoved.addAll(membershipMod.getVirAttrsToRemove());
+        }
+
         return createTasks(attributable, password, changePwd,
-                vAttrsToBeRemoved, vAttrsToBeUpdatedMap, enable, false, localPropByRes);
+                vAttrsToBeRemoved, vAttrsToBeUpdatedMap, membVAttrsToBeRemoved, membVAttrsToBeUpdatedMap, enable, false,
+                localPropByRes);
     }
 
     /**
@@ -429,7 +483,7 @@ public class PropagationManager {
      */
     public List<PropagationTask> getUserDeleteTaskIds(final WorkflowResult<Long> wfResult) {
         SyncopeUser user = userDataBinder.getUserFromId(wfResult.getResult());
-        return createTasks(user, null, false, null, null, false, true, wfResult.getPropByRes());
+        return createTasks(user, null, false, null, null, null, null, false, true, wfResult.getPropByRes());
     }
 
     /**
@@ -512,7 +566,7 @@ public class PropagationManager {
         if (noPropResourceNames != null && !noPropResourceNames.isEmpty()) {
             propByRes.get(ResourceOperation.DELETE).removeAll(noPropResourceNames);
         }
-        return createTasks(attributable, null, false, null, null, false, true, propByRes);
+        return createTasks(attributable, null, false, null, null, null, null, false, true, propByRes);
     }
 
     /**
@@ -524,6 +578,8 @@ public class PropagationManager {
      * @param changePwd whether password should be included for propagation attributes or not
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
+     * @param membVAttrsToBeRemoved membership virtual attributes to be removed
+     * @param membVAttrsToBeUpdatedMap membership virtual attributes to be added
      * @param enable whether user must be enabled or not
      * @param deleteOnResource whether user / role must be deleted anyway from external resource or not
      * @param propByRes operation to be performed per resource
@@ -532,8 +588,8 @@ public class PropagationManager {
     protected <T extends AbstractAttributable> List<PropagationTask> createTasks(final T subject,
             final String password, final boolean changePwd,
             final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated,
-            final Boolean enable, final boolean deleteOnResource,
-            final PropagationByResource propByRes) {
+            final Set<String> membVAttrsToBeRemoved, final Map<String, AttributeMod> membVAttrsToBeUpdatedMap,
+            final Boolean enable, final boolean deleteOnResource, final PropagationByResource propByRes) {
 
         LOG.debug("Provisioning subject {}:\n{}", subject, propByRes);
 
@@ -583,7 +639,8 @@ public class PropagationManager {
                     task.setOldAccountId(propByRes.getOldAccountId(resource.getName()));
 
                     Map.Entry<String, Set<Attribute>> preparedAttrs = MappingUtil.prepareAttributes(attrUtil, subject,
-                            password, changePwd, vAttrsToBeRemoved, vAttrsToBeUpdated, enable, resource);
+                            password, changePwd, vAttrsToBeRemoved, vAttrsToBeUpdated, membVAttrsToBeRemoved,
+                            membVAttrsToBeUpdatedMap, enable, resource);
                     task.setAccountId(preparedAttrs.getKey());
 
                     // Check if any of mandatory attributes (in the mapping) is missing or not received any value: 
@@ -620,5 +677,25 @@ public class PropagationManager {
         }
 
         return tasks;
+    }
+
+    private MembershipTO findMembershipTO(final Membership membership, final List<MembershipTO> memberships) {
+        for (MembershipTO membershipTO : memberships) {
+            if (membershipTO.getRoleId() == membership.getSyncopeRole().getId()) {
+                return membershipTO;
+            }
+        }
+        LOG.error("No MembershipTO found for membership {}", membership);
+        return null;
+    }
+
+    private MembershipMod findMembershipMod(final Membership membership, final Set<MembershipMod> membershipMods) {
+        for (MembershipMod membershipMod : membershipMods) {
+            if (membershipMod.getRole() == membership.getSyncopeRole().getId()) {
+                return membershipMod;
+            }
+        }
+        LOG.error("No MembershipMod found for membership {}", membership);
+        return null;
     }
 }

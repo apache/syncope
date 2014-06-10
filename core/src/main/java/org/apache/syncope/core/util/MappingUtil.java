@@ -49,6 +49,7 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
 import org.apache.syncope.core.persistence.beans.membership.MSchema;
 import org.apache.syncope.core.persistence.beans.membership.MVirSchema;
+import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.RAttrValue;
 import org.apache.syncope.core.persistence.beans.role.RDerSchema;
 import org.apache.syncope.core.persistence.beans.role.RSchema;
@@ -130,6 +131,8 @@ public final class MappingUtil {
      * @param changePwd whether password should be included for propagation attributes or not
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
+     * @param membVAttrsToBeRemoved membership virtual attributes to be removed
+     * @param membVAttrsToBeUpdated membership virtual attributes to be added
      * @param enable whether user must be enabled or not
      * @param resource target resource
      * @return account link + prepared attributes
@@ -137,6 +140,7 @@ public final class MappingUtil {
     public static <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> prepareAttributes(
             final AttributableUtil attrUtil, final T subject, final String password, final boolean changePwd,
             final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated,
+            final Set<String> membVAttrsToBeRemoved, final Map<String, AttributeMod> membVAttrsToBeUpdated,
             final Boolean enable, final ExternalResource resource) {
 
         LOG.debug("Preparing resource attributes for {} on resource {} with attributes {}",
@@ -162,8 +166,21 @@ public final class MappingUtil {
                     virAttrCache.expire(attrUtil.getType(), subject.getId(), mapping.getIntAttrName());
                 }
 
+                // SYNCOPE-458 expire cache also for membership virtual schemas
+                if (attrUtil.getType() == AttributableType.USER && mapping.getIntMappingType()
+                        == IntMappingType.MembershipVirtualSchema && (subject instanceof SyncopeUser)) {
+                    final SyncopeUser user = (SyncopeUser) subject;
+                    for (Membership membership : user.getMemberships()) {
+                        LOG.debug("Expire entry cache {}-{} for membership {}", subject.getId(), mapping.
+                                getIntAttrName(), membership);
+                        virAttrCache.expire(AttributableType.MEMBERSHIP, membership.getId(), mapping.
+                                getIntAttrName());
+                    }
+                }
+
                 Map.Entry<String, Attribute> preparedAttribute = prepareAttribute(
-                        resource, mapping, subject, password, passwordGenerator, vAttrsToBeRemoved, vAttrsToBeUpdated);
+                        resource, mapping, subject, password, passwordGenerator, vAttrsToBeRemoved, vAttrsToBeUpdated,
+                        membVAttrsToBeRemoved, membVAttrsToBeUpdated);
 
                 if (preparedAttribute != null && preparedAttribute.getKey() != null) {
                     accountId = preparedAttribute.getKey();
@@ -220,7 +237,8 @@ public final class MappingUtil {
     private static <T extends AbstractAttributable> Map.Entry<String, Attribute> prepareAttribute(
             final ExternalResource resource, final AbstractMappingItem mapItem,
             final T subject, final String password, final PasswordGenerator passwordGenerator,
-            final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated) {
+            final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated,
+            final Set<String> membVAttrsToBeRemoved, final Map<String, AttributeMod> membVAttrsToBeUpdated) {
 
         final List<AbstractAttributable> attributables = new ArrayList<AbstractAttributable>();
 
@@ -256,7 +274,8 @@ public final class MappingUtil {
         }
 
         List<AbstractAttrValue> values = getIntValues(
-                resource, mapItem, attributables, vAttrsToBeRemoved, vAttrsToBeUpdated);
+                resource, mapItem, attributables, vAttrsToBeRemoved, vAttrsToBeUpdated, membVAttrsToBeRemoved,
+                membVAttrsToBeUpdated);
 
         AbstractNormalSchema schema = null;
         boolean readOnlyVirSchema = false;
@@ -415,7 +434,8 @@ public final class MappingUtil {
 
         Map.Entry<String, Attribute> preparedAttr = prepareAttribute(
                 resource, attrUtil.getAccountIdItem(resource), subject, null, null,
-                Collections.<String>emptySet(), Collections.<String, AttributeMod>emptyMap());
+                Collections.<String>emptySet(), Collections.<String, AttributeMod>emptyMap(), Collections.
+                <String>emptySet(), Collections.<String, AttributeMod>emptyMap());
         String accountId = preparedAttr.getKey();
 
         final Name roleOwnerName = evaluateNAME(subject, resource, accountId);
@@ -430,11 +450,14 @@ public final class MappingUtil {
      * @param attributables list of attributables
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
+     * @param membVAttrsToBeRemoved membership virtual attributes to be removed
+     * @param membVAttrsToBeUpdated membership virtual attributes to be added
      * @return attribute values.
      */
     public static List<AbstractAttrValue> getIntValues(final ExternalResource resource,
             final AbstractMappingItem mappingItem, final List<AbstractAttributable> attributables,
-            final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated) {
+            final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated,
+            final Set<String> membVAttrsToBeRemoved, final Map<String, AttributeMod> membVAttrsToBeUpdated) {
 
         LOG.debug("Get attributes for '{}' and mapping type '{}'", attributables, mappingItem.getIntMappingType());
 
@@ -465,7 +488,6 @@ public final class MappingUtil {
 
             case UserVirtualSchema:
             case RoleVirtualSchema:
-            case MembershipVirtualSchema:
                 for (AbstractAttributable attributable : attributables) {
                     AbstractVirAttr virAttr = attributable.getVirAttr(mappingItem.getIntAttrName());
                     if (virAttr != null) {
@@ -489,10 +511,44 @@ public final class MappingUtil {
                         }
                     }
 
-                    LOG.debug("Retrieved virtual attribute {}"
+                    LOG.debug("Retrieved {} virtual attribute {}"
                             + "\n* IntAttrName {}"
                             + "\n* IntMappingType {}"
                             + "\n* Attribute values {}",
+                            attributable.getClass().getSimpleName(),
+                            virAttr, mappingItem.getIntAttrName(), mappingItem.getIntMappingType(), values);
+                }
+                break;
+
+            case MembershipVirtualSchema:
+                for (AbstractAttributable attributable : attributables) {
+                    AbstractVirAttr virAttr = attributable.getVirAttr(mappingItem.getIntAttrName());
+                    if (virAttr != null) {
+                        if (membVAttrsToBeRemoved != null && membVAttrsToBeUpdated != null) {
+                            if (membVAttrsToBeUpdated.containsKey(mappingItem.getIntAttrName())) {
+                                virAttr.setValues(
+                                        membVAttrsToBeUpdated.get(mappingItem.getIntAttrName()).getValuesToBeAdded());
+                            } else if (membVAttrsToBeRemoved.contains(mappingItem.getIntAttrName())) {
+                                virAttr.getValues().clear();
+                            } else {
+                                throw new IllegalArgumentException("Don't need to update membership virtual attribute '"
+                                        + mappingItem.getIntAttrName() + "'");
+                            }
+                        }
+                        if (virAttr.getValues() != null) {
+                            for (String value : virAttr.getValues()) {
+                                attrValue = new UAttrValue();
+                                attrValue.setStringValue(value);
+                                values.add(attrValue);
+                            }
+                        }
+                    }
+
+                    LOG.debug("Retrieved {} virtual attribute {}"
+                            + "\n* IntAttrName {}"
+                            + "\n* IntMappingType {}"
+                            + "\n* Attribute values {}",
+                            attributable.getClass().getSimpleName(),
                             virAttr, mappingItem.getIntAttrName(), mappingItem.getIntMappingType(), values);
                 }
                 break;
@@ -580,6 +636,7 @@ public final class MappingUtil {
      * Get accountId internal value.
      *
      * @param attributable attributable
+     * @param resource external resource
      * @param accountIdItem accountid mapping item
      * @return accountId internal value
      */
@@ -587,7 +644,7 @@ public final class MappingUtil {
             final AbstractMappingItem accountIdItem) {
 
         List<AbstractAttrValue> values = getIntValues(resource, accountIdItem,
-                Collections.<AbstractAttributable>singletonList(attributable), null, null);
+                Collections.<AbstractAttributable>singletonList(attributable), null, null, null, null);
         return values == null || values.isEmpty()
                 ? null
                 : values.get(0).getValueAsString();

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.beans.membership;
 
-import java.util.Collections;
-import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -68,25 +66,5 @@ public class MVirAttr extends AbstractVirAttr {
     @Override
     public <T extends AbstractVirSchema> T getSchema() {
         return template == null ? null : (T) template.getSchema();
-    }
-
-    @Override
-    public List<String> getValues() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public boolean addValue(final String value) {
-        return false;
-    }
-
-    @Override
-    public boolean removeValue(final String value) {
-        return false;
-    }
-
-    @Override
-    public void setValues(final List<String> values) {
-        // do nothing
     }
 }
