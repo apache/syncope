@@ -83,7 +83,7 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
     public Map<String, AttributeTO> getVirtualAttributeMap() {
         Map<String, AttributeTO> result;
 
-        if (derivedAttributes == null) {
+        if (virtualAttributes == null) {
             result = Collections.emptyMap();
         } else {
             result = new HashMap<String, AttributeTO>(virtualAttributes.size());
