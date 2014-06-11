@@ -259,6 +259,13 @@ public class SyncopeUser extends AbstractAttributable {
         clearPassword = null;
     }
 
+    public void setEncodedPassword(final String password, final CipherAlgorithm cipherAlgoritm, final int historySize) {
+        // clear password
+        this.clearPassword = null;
+        this.password = password;
+        this.cipherAlgorithm = cipherAlgoritm;
+    }
+    
     public void setPassword(final String password, final CipherAlgorithm cipherAlgoritm, final int historySize) {
         // clear password
         this.clearPassword = password;
