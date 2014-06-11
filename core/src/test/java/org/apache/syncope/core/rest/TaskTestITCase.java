@@ -55,6 +55,8 @@ import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.to.PushTaskTO;
+import org.apache.syncope.common.types.MatchingRule;
+import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.common.wrap.PushActionClass;
 import org.apache.syncope.core.sync.TestSyncActions;
 import org.apache.syncope.core.sync.TestSyncRule;
@@ -148,6 +150,7 @@ public class TaskTestITCase extends AbstractTest {
                 SyncopeClient.getUserSearchConditionBuilder().hasNotResources(RESOURCE_NAME_TESTDB2).query());
         task.setRoleFilter(
                 SyncopeClient.getRoleSearchConditionBuilder().isNotNull("cool").query());
+        task.setMatchigRule(MatchingRule.LINK);
 
         final Response response = taskService.create(task);
         final PushTaskTO actual = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
@@ -159,6 +162,8 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(task.getJobClassName(), actual.getJobClassName());
         assertEquals(task.getUserFilter(), actual.getUserFilter());
         assertEquals(task.getRoleFilter(), actual.getRoleFilter());
+        assertEquals(UnmatchingRule.ASSIGN, actual.getUnmatchigRule());
+        assertEquals(MatchingRule.LINK, actual.getMatchigRule());
     }
 
     @Test
@@ -239,11 +244,15 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        PropagationTaskTO taskTO = taskService.read(3L);
+        final PropagationTaskTO taskTO = taskService.read(3L);
 
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
         assertTrue(taskTO.getExecutions().isEmpty());
+        
+        final PushTaskTO pushTaskTO = taskService.<PushTaskTO>read(13L);
+        assertEquals(UnmatchingRule.ASSIGN, pushTaskTO.getUnmatchigRule());
+        assertEquals(MatchingRule.UPDATE, pushTaskTO.getMatchigRule());
     }
 
     @Test
@@ -969,9 +978,9 @@ public class TaskTestITCase extends AbstractTest {
         // Read sync task
         PushTaskTO task = taskService.<PushTaskTO>read(13L);
         assertNotNull(task);
-        
+
         assertEquals("Vivaldi", userService.read(3L).getAttrMap().get("surname").getValues().get(0));
-        
+
         task.setUserFilter(SyncopeClient.getUserSearchConditionBuilder().is("surname").equalTo("Vivaldi").query());
         taskService.update(13L, task);
         assertEquals(task.getUserFilter(), taskService.<PushTaskTO>read(13L).getUserFilter());
@@ -983,10 +992,10 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(0, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='bellini'").size());
         assertEquals(0, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='rossini'").size());
         assertEquals(0, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='puccini'").size());
-        
+
         assertEquals("vivaldi",
                 jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "vivaldi"));
-        
+
         jdbcTemplate.execute("DELETE FROM test2 WHERE ID='vivaldi'");
 
         task.setUserFilter(null);

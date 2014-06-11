@@ -73,6 +73,51 @@ public class DefaultSyncActions implements SyncActions {
     }
 
     @Override
+    public <T extends AbstractAttributableTO> SyncDelta beforeAssign(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncDelta delta,
+            final T subject) throws JobExecutionException {
+
+        return delta;
+    }
+
+    @Override
+    public <T extends AbstractAttributableTO> SyncDelta beforeUnassign(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncDelta delta,
+            final T subject) throws JobExecutionException {
+
+        return delta;
+    }
+
+    @Override
+    public <T extends AbstractAttributableTO> SyncDelta beforeDeprovision(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncDelta delta,
+            final T subject) throws JobExecutionException {
+
+        return delta;
+    }
+
+    @Override
+    public <T extends AbstractAttributableTO> SyncDelta beforeUnlink(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncDelta delta,
+            final T subject) throws JobExecutionException {
+
+        return delta;
+    }
+
+    @Override
+    public <T extends AbstractAttributableTO> SyncDelta beforeLink(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncDelta delta,
+            final T subject) throws JobExecutionException {
+
+        return delta;
+    }
+
+    @Override
     public void afterAll(
             final AbstractSyncopeResultHandler<?, ?> handler,
             final List<SyncResult> results)

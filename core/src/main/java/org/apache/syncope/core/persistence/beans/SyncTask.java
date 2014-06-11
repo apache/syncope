@@ -21,10 +21,13 @@ package org.apache.syncope.core.persistence.beans;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
+import javax.persistence.Transient;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.MatchingRule;
+import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.core.sync.impl.SyncJob;
 import org.apache.syncope.core.util.XMLSerializer;
 
@@ -32,6 +35,12 @@ import org.apache.syncope.core.util.XMLSerializer;
 public class SyncTask extends AbstractSyncTask {
 
     private static final long serialVersionUID = -4141057723006682563L;
+
+    @Transient
+    private static UnmatchingRule DEF_UNMATCHIG_RULE = UnmatchingRule.PROVISION;
+
+    @Transient
+    private static MatchingRule DEF_MATCHIG_RULE = MatchingRule.UPDATE;
 
     @Lob
     private String userTemplate;
@@ -77,5 +86,15 @@ public class SyncTask extends AbstractSyncTask {
 
     public void setFullReconciliation(final boolean fullReconciliation) {
         this.fullReconciliation = getBooleanAsInteger(fullReconciliation);
+    }
+
+    @Override
+    public UnmatchingRule getUnmatchigRule() {
+        return this.unmatchigRule == null ? DEF_UNMATCHIG_RULE : unmatchigRule;
+    }
+
+    @Override
+    public MatchingRule getMatchigRule() {
+        return this.matchigRule == null ? DEF_MATCHIG_RULE : this.matchigRule;
     }
 }

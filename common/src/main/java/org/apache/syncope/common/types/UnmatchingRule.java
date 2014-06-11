@@ -20,12 +20,28 @@ package org.apache.syncope.common.types;
 
 import javax.xml.bind.annotation.XmlEnum;
 
+/**
+ * Sync/Push task un-matching rule.
+ */
 @XmlEnum
-public enum ResourceOperation {
+public enum UnmatchingRule {
 
-    CREATE,
-    UPDATE,
-    DELETE,
-    NONE
+    /**
+     * Do not perform any action.
+     */
+    IGNORE,
+    /**
+     * Link the resource and create entity.
+     */
+    ASSIGN,
+    /**
+     * Create entity without linking the resource.
+     */
+    PROVISION,
+    /**
+     * Just unlink resource without performing any (de-)provisioning operation.
+     * In case of sync task UNLINK and IGNORE will coincide.
+     */
+    UNLINK
 
 }

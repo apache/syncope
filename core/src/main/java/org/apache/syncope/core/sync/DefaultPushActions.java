@@ -37,7 +37,7 @@ public class DefaultPushActions implements PushActions {
     }
 
     @Override
-    public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeCreate(
+    public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeAssign(
             final AbstractSyncopeResultHandler<?, ?> handler,
             final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException {
@@ -59,6 +59,54 @@ public class DefaultPushActions implements PushActions {
             final Map.Entry<String, Set<Attribute>> delta,
             final T subject,
             SyncResult result) throws JobExecutionException {
+    }
+
+    @Override
+    public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeProvision(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
+            final T subject) throws JobExecutionException {
+        return delta;
+    }
+
+    @Override
+    public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeLink(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
+            final T subject) throws JobExecutionException {
+        return delta;
+    }
+
+    @Override
+    public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeUnlink(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
+            final T subject) throws JobExecutionException {
+        return delta;
+    }
+
+    @Override
+    public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeUnassign(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
+            final T subject) throws JobExecutionException {
+        return delta;
+    }
+
+    @Override
+    public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeDeprovision(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
+            final T subject) throws JobExecutionException {
+        return delta;
+    }
+
+    @Override
+    public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeDelete(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
+            final T subject) throws JobExecutionException {
+        return delta;
     }
 
     @Override

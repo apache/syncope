@@ -38,7 +38,6 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
-import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -71,7 +70,7 @@ import org.springframework.transaction.interceptor.TransactionInterceptor;
  * @see AbstractTransactionalController
  */
 @Component
-public class UserController extends AbstractResourceAssociator<UserTO> {
+public class UserController extends AbstractAttributableController<UserTO, UserMod> {
 
     @Autowired
     protected UserDAO userDAO;
@@ -116,12 +115,14 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
     @PreAuthorize("hasRole('USER_LIST')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Override
     public int count() {
         return userDAO.count(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()));
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Override
     public int searchCount(final SearchCond searchCondition) {
         return searchDAO.count(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()),
                 searchCondition, AttributableUtil.getInstance(AttributableType.USER));
@@ -129,6 +130,7 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
     @PreAuthorize("hasRole('USER_LIST')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Override
     public List<UserTO> list(final int page, final int size, final List<OrderByClause> orderBy) {
         Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
 
@@ -150,12 +152,14 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
 
     @PreAuthorize("hasRole('USER_READ')")
     @Transactional(readOnly = true)
+    @Override
     public UserTO read(final Long userId) {
         return binder.getUserTO(userId);
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
     @Transactional(readOnly = true)
+    @Override
     public List<UserTO> search(final SearchCond searchCondition, final int page, final int size,
             final List<OrderByClause> orderBy) {
 
@@ -183,6 +187,7 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_CREATE')")
+    @Override
     public UserTO create(final UserTO userTO) {
         Set<Long> requestRoleIds = new HashSet<Long>(userTO.getMemberships().size());
         for (MembershipTO membership : userTO.getMemberships()) {
@@ -236,6 +241,7 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
+    @Override
     public UserTO update(final UserMod userMod) {
         // AttributableMod transformation (if configured)
         UserMod actual = attrTransformer.transform(userMod);
@@ -332,6 +338,7 @@ public class UserController extends AbstractResourceAssociator<UserTO> {
     }
 
     @PreAuthorize("hasRole('USER_DELETE')")
+    @Override
     public UserTO delete(final Long userId) {
         List<SyncopeRole> ownedRoles = roleDAO.findOwnedByUser(userId);
         if (!ownedRoles.isEmpty()) {

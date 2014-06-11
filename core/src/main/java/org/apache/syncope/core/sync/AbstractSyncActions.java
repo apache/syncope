@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler;
 import org.quartz.JobExecutionException;
 
-public interface AbstractSyncActions<T extends AbstractSyncopeResultHandler> {
+public interface AbstractSyncActions<T extends AbstractSyncopeResultHandler<?, ?>> {
 
     /**
      * Action to be executed before to start the synchronization task execution.

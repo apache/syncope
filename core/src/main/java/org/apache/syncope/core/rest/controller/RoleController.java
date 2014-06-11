@@ -66,7 +66,7 @@ import org.springframework.transaction.interceptor.TransactionInterceptor;
  * @see AbstractTransactionalController
  */
 @Component
-public class RoleController extends AbstractResourceAssociator<RoleTO> {
+public class RoleController extends AbstractAttributableController<RoleTO, RoleMod> {
 
     @Autowired
     protected RoleDAO roleDAO;
@@ -97,6 +97,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
 
     @PreAuthorize("hasAnyRole('ROLE_READ', T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
     @Transactional(readOnly = true)
+    @Override
     public RoleTO read(final Long roleId) {
         SyncopeRole role;
         // bypass role entitlements check
@@ -177,12 +178,14 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Override
     public int count() {
         return roleDAO.count();
     }
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
+    @Override
     public List<RoleTO> list(final int page, final int size, final List<OrderByClause> orderBy) {
         List<SyncopeRole> roles = roleDAO.findAll(page, size, orderBy);
 
@@ -196,6 +199,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Override
     public int searchCount(final SearchCond searchCondition) {
         final Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
         return searchDAO.count(adminRoleIds, searchCondition, AttributableUtil.getInstance(AttributableType.ROLE));
@@ -203,6 +207,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Override
     public List<RoleTO> search(final SearchCond searchCondition, final int page, final int size,
             final List<OrderByClause> orderBy) {
 
@@ -219,6 +224,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     }
 
     @PreAuthorize("hasRole('ROLE_CREATE')")
+    @Override
     public RoleTO create(final RoleTO roleTO) {
         // Check that this operation is allowed to be performed by caller
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
@@ -253,6 +259,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
+    @Override
     public RoleTO update(final RoleMod roleMod) {
         // Check that this operation is allowed to be performed by caller
         binder.getRoleFromId(roleMod.getId());
@@ -282,6 +289,7 @@ public class RoleController extends AbstractResourceAssociator<RoleTO> {
     }
 
     @PreAuthorize("hasRole('ROLE_DELETE')")
+    @Override
     public RoleTO delete(final Long roleId) {
         List<SyncopeRole> ownedRoles = roleDAO.findOwnedByRole(roleId);
         if (!ownedRoles.isEmpty()) {

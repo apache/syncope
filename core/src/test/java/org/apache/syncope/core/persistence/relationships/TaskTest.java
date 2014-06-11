@@ -119,8 +119,7 @@ public class TaskTest extends AbstractDAOTest {
         task.addExec(execution);
         execution.setStartDate(new Date());
 
-        task = taskDAO.save(task);
-
+        taskDAO.save(task);
         taskDAO.flush();
 
         task = taskDAO.find(1L);
@@ -142,8 +141,7 @@ public class TaskTest extends AbstractDAOTest {
         task.addExec(execution);
         execution.setMessage("A message");
 
-        task = taskDAO.save(task);
-
+        taskDAO.save(task);
         taskDAO.flush();
 
         task = taskDAO.find(4L);
@@ -165,8 +163,7 @@ public class TaskTest extends AbstractDAOTest {
         task.addExec(execution);
         execution.setMessage("A message");
 
-        task = taskDAO.save(task);
-
+        taskDAO.save(task);
         taskDAO.flush();
 
         task = taskDAO.find(13L);

@@ -19,10 +19,14 @@
 package org.apache.syncope.core.persistence.beans;
 
 import javax.persistence.Basic;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import org.apache.syncope.common.types.MatchingRule;
+import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.validation.entity.SyncTaskCheck;
 
 @MappedSuperclass
@@ -58,6 +62,18 @@ public abstract class AbstractSyncTask extends SchedTask {
     private Integer syncStatus;
 
     private String actionsClassName;
+
+    /**
+     * @see UnmatchingRule
+     */
+    @Enumerated(EnumType.STRING)
+    protected UnmatchingRule unmatchigRule;
+
+    /**
+     * @see MatchingRule
+     */
+    @Enumerated(EnumType.STRING)
+    protected MatchingRule matchigRule;
 
     public AbstractSyncTask(final String jobClassName) {
         super();
@@ -115,5 +131,17 @@ public abstract class AbstractSyncTask extends SchedTask {
 
     public void setActionsClassName(final String actionsClassName) {
         this.actionsClassName = actionsClassName;
+    }
+
+    public abstract UnmatchingRule getUnmatchigRule();
+
+    public void setUnmatchigRule(final UnmatchingRule unmatchigRule) {
+        this.unmatchigRule = unmatchigRule;
+    }
+
+    public abstract MatchingRule getMatchigRule();
+
+    public void setMatchigRule(final MatchingRule matchigRule) {
+        this.matchigRule = matchigRule;
     }
 }

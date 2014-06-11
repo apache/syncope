@@ -25,10 +25,14 @@ import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
 import org.apache.syncope.core.propagation.Connector;
+import org.apache.syncope.core.rest.controller.RoleController;
+import org.apache.syncope.core.rest.controller.UserController;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.sync.AbstractSyncActions;
 import org.apache.syncope.core.sync.SyncResult;
+import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
+import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +44,13 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSyncopeResultHandler.class);
 
+    
+    @Autowired
+    protected UserController userController;
+
+    @Autowired
+    protected RoleController roleController;
+    
     /**
      * User data binder.
      */
@@ -69,6 +80,18 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
      */
     @Autowired
     protected AuditManager auditManager;
+
+    /**
+     * User workflow adapter.
+     */
+    @Autowired
+    protected UserWorkflowAdapter uwfAdapter;
+
+    /**
+     * Role workflow adapter.
+     */
+    @Autowired
+    protected RoleWorkflowAdapter rwfAdapter;
 
     /**
      * Syncing connector.

@@ -31,7 +31,7 @@ import org.quartz.JobExecutionException;
 public interface PushActions extends AbstractSyncActions<AbstractSyncopeResultHandler<?, ?>> {
 
     /**
-     * Action to be executed before to create a synchronized user locally.
+     * Action to be executed before to assign (link & provision) a synchronized user to the resource.
      *
      * @param handler synchronization handler being executed.
      * @param delta info to be pushed out (accountId, attributes).
@@ -39,13 +39,27 @@ public interface PushActions extends AbstractSyncActions<AbstractSyncopeResultHa
      * @return info to be pushed out (accountId, attributes).
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeCreate(
+    <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeAssign(
             final AbstractSyncopeResultHandler<?, ?> handler,
             final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before to update a synchronized user locally.
+     * Action to be executed before to provision a synchronized user to the resource.
+     *
+     * @param handler synchronization handler being executed.
+     * @param delta info to be pushed out (accountId, attributes).
+     * @param subject user / role to be created.
+     * @return info to be pushed out (accountId, attributes).
+     * @throws JobExecutionException in case of generic failure
+     */
+    <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeProvision(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
+            final T subject) throws JobExecutionException;
+
+    /**
+     * Action to be executed before to update a synchronized user on the resource.
      *
      * @param handler synchronization handler being executed.
      * @param delta info to be pushed out (accountId, attributes).
@@ -54,6 +68,76 @@ public interface PushActions extends AbstractSyncActions<AbstractSyncopeResultHa
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeUpdate(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
+            final T subject) throws JobExecutionException;
+
+    /**
+     * Action to be executed before to link a synchronized user to the resource.
+     *
+     * @param handler synchronization handler being executed.
+     * @param delta info to be pushed out (accountId, attributes).
+     * @param subject user / role to be created.
+     * @return info to be pushed out (accountId, attributes).
+     * @throws JobExecutionException in case of generic failure
+     */
+    <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeLink(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
+            final T subject) throws JobExecutionException;
+
+    /**
+     * Action to be executed before to unlink a synchronized user from the resource.
+     *
+     * @param handler synchronization handler being executed.
+     * @param delta info to be pushed out (accountId, attributes).
+     * @param subject user / role to be created.
+     * @return info to be pushed out (accountId, attributes).
+     * @throws JobExecutionException in case of generic failure
+     */
+    <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeUnlink(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
+            final T subject) throws JobExecutionException;
+
+    /**
+     * Action to be executed before to unassign a synchronized user from the resource.
+     *
+     * @param handler synchronization handler being executed.
+     * @param delta info to be pushed out (accountId, attributes).
+     * @param subject user / role to be created.
+     * @return info to be pushed out (accountId, attributes).
+     * @throws JobExecutionException in case of generic failure
+     */
+    <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeUnassign(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
+            final T subject) throws JobExecutionException;
+
+    /**
+     * Action to be executed before to unassign a synchronized user from the resource.
+     *
+     * @param handler synchronization handler being executed.
+     * @param delta info to be pushed out (accountId, attributes).
+     * @param subject user / role to be created.
+     * @return info to be pushed out (accountId, attributes).
+     * @throws JobExecutionException in case of generic failure
+     */
+    <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeDeprovision(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final Map.Entry<String, Set<Attribute>> delta,
+            final T subject) throws JobExecutionException;
+
+    /**
+     * Action to be executed before delete a synchronized user locally and from the resource.
+     *
+     * @param handler synchronization handler being executed.
+     * @param delta info to be pushed out (accountId, attributes).
+     * @param subject user / role to be created.
+     * @return info to be pushed out (accountId, attributes).
+     * @throws JobExecutionException in case of generic failure
+     */
+    <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeDelete(
             final AbstractSyncopeResultHandler<?, ?> handler,
             final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException;

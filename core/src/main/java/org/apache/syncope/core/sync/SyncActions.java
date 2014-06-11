@@ -44,6 +44,76 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
             final T subject) throws JobExecutionException;
 
     /**
+     * Action to be executed before creating (and linking to the resource) a synchronized user locally.
+     *
+     * @param handler synchronization handler being executed.
+     * @param delta retrieved synchronization information
+     * @param subject user / role to be created
+     * @return synchronization information used for user status evaluation and to be passed to the 'after' method.
+     * @throws JobExecutionException in case of generic failure
+     */
+    <T extends AbstractAttributableTO> SyncDelta beforeAssign(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncDelta delta,
+            final T subject) throws JobExecutionException;
+
+    /**
+     * Action to be executed before unlinking resource from the synchronized user and de-provisioning.
+     *
+     * @param handler synchronization handler being executed.
+     * @param delta retrieved synchronization information
+     * @param subject user / role to be created
+     * @return synchronization information used for user status evaluation and to be passed to the 'after' method.
+     * @throws JobExecutionException in case of generic failure
+     */
+    <T extends AbstractAttributableTO> SyncDelta beforeUnassign(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncDelta delta,
+            final T subject) throws JobExecutionException;
+
+    /**
+     * Action to be executed before de-provisioning action only.
+     *
+     * @param handler synchronization handler being executed.
+     * @param delta retrieved synchronization information
+     * @param subject user / role to be created
+     * @return synchronization information used for user status evaluation and to be passed to the 'after' method.
+     * @throws JobExecutionException in case of generic failure
+     */
+    <T extends AbstractAttributableTO> SyncDelta beforeDeprovision(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncDelta delta,
+            final T subject) throws JobExecutionException;
+
+    /**
+     * Action to be executed before unlinking resource from the synchronized user.
+     *
+     * @param handler synchronization handler being executed.
+     * @param delta retrieved synchronization information
+     * @param subject user / role to be created
+     * @return synchronization information used for user status evaluation and to be passed to the 'after' method.
+     * @throws JobExecutionException in case of generic failure
+     */
+    <T extends AbstractAttributableTO> SyncDelta beforeUnlink(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncDelta delta,
+            final T subject) throws JobExecutionException;
+
+    /**
+     * Action to be executed before linking resource to the synchronized user.
+     *
+     * @param handler synchronization handler being executed.
+     * @param delta retrieved synchronization information
+     * @param subject user / role to be created
+     * @return synchronization information used for user status evaluation and to be passed to the 'after' method.
+     * @throws JobExecutionException in case of generic failure
+     */
+    <T extends AbstractAttributableTO> SyncDelta beforeLink(
+            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncDelta delta,
+            final T subject) throws JobExecutionException;
+
+    /**
      * Action to be executed before to update a synchronized user locally.
      *
      * @param handler synchronization handler being executed.

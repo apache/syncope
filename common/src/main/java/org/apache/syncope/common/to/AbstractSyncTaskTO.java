@@ -21,6 +21,8 @@ package org.apache.syncope.common.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.types.MatchingRule;
+import org.apache.syncope.common.types.UnmatchingRule;
 
 @XmlRootElement(name = "abstractSyncTask")
 @XmlType
@@ -40,6 +42,10 @@ public class AbstractSyncTaskTO extends SchedTaskTO {
     private boolean syncStatus;
 
     private String actionsClassName;
+
+    private UnmatchingRule unmatchigRule;
+
+    private MatchingRule matchigRule;
 
     public String getResource() {
         return resource;
@@ -87,5 +93,21 @@ public class AbstractSyncTaskTO extends SchedTaskTO {
 
     public void setActionsClassName(final String actionsClassName) {
         this.actionsClassName = actionsClassName;
+    }
+
+    public UnmatchingRule getUnmatchigRule() {
+        return unmatchigRule;
+    }
+
+    public void setUnmatchigRule(final UnmatchingRule unmatchigRule) {
+        this.unmatchigRule = unmatchigRule;
+    }
+
+    public MatchingRule getMatchigRule() {
+        return matchigRule;
+    }
+
+    public void setMatchigRule(final MatchingRule matchigRule) {
+        this.matchigRule = matchigRule;
     }
 }

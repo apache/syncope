@@ -103,6 +103,7 @@ public class TaskDataBinder {
             final PushTaskTO pushTaskTO = (PushTaskTO) taskTO;
 
             pushTask.setUserFilter(pushTaskTO.getUserFilter());
+            pushTask.setRoleFilter(pushTaskTO.getRoleFilter());
 
         } else if (task instanceof SyncTask && taskTO instanceof SyncTaskTO) {
             final SyncTask syncTask = (SyncTask) task;
@@ -152,7 +153,8 @@ public class TaskDataBinder {
         task.setPerformUpdate(taskTO.isPerformUpdate());
         task.setPerformDelete(taskTO.isPerformDelete());
         task.setSyncStatus(taskTO.isSyncStatus());
-
+        task.setMatchigRule(taskTO.getMatchigRule());
+        task.setUnmatchigRule(taskTO.getUnmatchigRule());
         task.setActionsClassName(taskTO.getActionsClassName());
     }
 

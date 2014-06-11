@@ -35,6 +35,7 @@ import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.TimeoutException;
 import org.apache.syncope.core.propagation.impl.AbstractPropagationTaskExecutor;
+import org.apache.syncope.core.rest.controller.AbstractAttributableController;
 import org.apache.syncope.core.sync.PushActions;
 import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -86,6 +87,7 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
         result.setId(attributable.getId());
         result.setSubjectType(attrUtil.getType());
 
+        final AbstractAttributableController<?, ?> controller;
         final AbstractAttributable toBeHandled;
         final Boolean enabled;
 
@@ -95,10 +97,12 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
             enabled = getSyncTask().isSyncStatus()
                     ? ((SyncopeUser) toBeHandled).isSuspended() ? Boolean.FALSE : Boolean.TRUE
                     : null;
+            controller = userController;
         } else {
             toBeHandled = roleDataBinder.getRoleFromId(attributable.getId());
             result.setName(((SyncopeRole) toBeHandled).getName());
             enabled = null;
+            controller = roleController;
         }
 
         LOG.debug("Propagating {} with ID {} towards {}",
@@ -108,6 +112,8 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
         Result resultStatus = null;
         ConnectorObject beforeObj = null;
         Map.Entry<String, Set<Attribute>> values = null;
+
+        String operation = null;
 
         try {
             values = MappingUtil.prepareAttributes(
@@ -129,26 +135,84 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
             beforeObj = getRemoteObject(oclass, values.getKey(), getSyncTask().getResource().getName());
 
             if (beforeObj == null) {
-                result.setOperation(ResourceOperation.CREATE);
-                actions.beforeCreate(this, values, toBeHandled);
-            } else {
-                result.setOperation(ResourceOperation.UPDATE);
-                actions.beforeUpdate(this, values, toBeHandled);
-            }
+                operation = getSyncTask().getUnmatchigRule().name().toLowerCase();
+                switch (getSyncTask().getUnmatchigRule()) {
+                    case ASSIGN:
+                        result.setOperation(ResourceOperation.CREATE);
+                        actions.beforeAssign(this, values, toBeHandled);
+                        controller.assign(
+                                toBeHandled.getId(),
+                                Collections.singleton(getSyncTask().getResource().getName()), true, null);
+                        break;
+                    case PROVISION:
+                        result.setOperation(ResourceOperation.CREATE);
+                        actions.beforeProvision(this, values, toBeHandled);
+                        controller.provision(
+                                toBeHandled.getId(),
+                                Collections.singleton(getSyncTask().getResource().getName()), true, null);
+                        break;
+                    case UNLINK:
+                        result.setOperation(ResourceOperation.NONE);
+                        actions.beforeUnlink(this, values, toBeHandled);
+                        controller.unlink(
+                                toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
+                        break;
+                    default:
+                    // do nothing
+                }
 
-            AbstractPropagationTaskExecutor.createOrUpdate(
-                    oclass,
-                    values.getKey(),
-                    values.getValue(),
-                    getSyncTask().getResource().getName(),
-                    getSyncTask().getResource().getPropagationMode(),
-                    beforeObj,
-                    connector,
-                    new HashSet<String>(),
-                    connObjectUtil);
+            } else {
+                operation = getSyncTask().getMatchigRule().name().toLowerCase();
+                switch (getSyncTask().getMatchigRule()) {
+                    case UPDATE:
+                        result.setOperation(ResourceOperation.UPDATE);
+                        actions.beforeUpdate(this, values, toBeHandled);
+
+                        AbstractPropagationTaskExecutor.createOrUpdate(
+                                oclass,
+                                values.getKey(),
+                                values.getValue(),
+                                getSyncTask().getResource().getName(),
+                                getSyncTask().getResource().getPropagationMode(),
+                                beforeObj,
+                                connector,
+                                new HashSet<String>(),
+                                connObjectUtil);
+                        break;
+                    case DEPROVISION:
+                        result.setOperation(ResourceOperation.DELETE);
+                        actions.beforeDeprovision(this, values, toBeHandled);
+                        controller.deprovision(
+                                toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
+                        break;
+                    case UNASSIGN:
+                        result.setOperation(ResourceOperation.DELETE);
+                        actions.beforeUnassign(this, values, toBeHandled);
+                        controller.unlink(
+                                toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
+                        controller.deprovision(
+                                toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
+                        break;
+                    case LINK:
+                        result.setOperation(ResourceOperation.NONE);
+                        actions.beforeLink(this, values, toBeHandled);
+                        controller.link(
+                                toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
+                        break;
+                    case UNLINK:
+                        result.setOperation(ResourceOperation.NONE);
+                        actions.beforeUnlink(this, values, toBeHandled);
+                        controller.unlink(
+                                toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
+                        break;
+                    default:
+                    // do nothing
+                }
+            }
 
             result.setStatus(SyncResult.Status.SUCCESS);
             resultStatus = AuditElements.Result.SUCCESS;
+            output = getRemoteObject(oclass, values.getKey(), getSyncTask().getResource().getName());
         } catch (Exception e) {
             result.setStatus(SyncResult.Status.FAILURE);
             result.setMessage(e.getMessage());
@@ -158,24 +222,21 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
             LOG.warn("Error pushing {} towards {}", toBeHandled, getSyncTask().getResource(), e);
             throw new JobExecutionException(e);
         } finally {
-
             actions.after(this, values, toBeHandled, result);
-
             notificationManager.createTasks(
                     AuditElements.EventCategoryType.PUSH,
                     AttributableType.USER.name().toLowerCase(),
                     syncTask.getResource().getName(),
-                    result.getOperation() == null ? null : result.getOperation().name().toLowerCase(),
+                    operation,
                     resultStatus,
                     beforeObj,
                     output,
                     toBeHandled);
-
             auditManager.audit(
                     AuditElements.EventCategoryType.PUSH,
                     AttributableType.USER.name().toLowerCase(),
                     syncTask.getResource().getName(),
-                    result.getOperation() == null ? null : result.getOperation().name().toLowerCase(),
+                    operation,
                     resultStatus,
                     beforeObj,
                     output,
