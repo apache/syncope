@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlEnum;
 @XmlEnum
 public enum CipherAlgorithm {
 
+    SHA("SHA-1"),
     SHA1("SHA-1"),
     SHA256("SHA-256"),
     AES("AES"),
