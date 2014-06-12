@@ -419,11 +419,11 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
      * @param vAttrsToBeRemoved virtual attribute to be removed.
      * @param vAttrsToBeUpdated virtyal attribute to be updated.
      */
-    public void forceVirtualAttributes(
+    public PropagationByResource forceVirtualAttributes(
             final Long id, final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated) {
         final SyncopeUser syncopeUser = getUserFromId(id);
 
-        fillVirtual(
+        return fillVirtual(
                 syncopeUser,
                 vAttrsToBeRemoved,
                 vAttrsToBeUpdated,

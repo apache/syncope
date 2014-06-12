@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest.controller;
 import java.lang.reflect.Method;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -350,12 +351,17 @@ public class UserController extends AbstractController<UserTO> {
 
         if (tasks.isEmpty()) {
             // SYNCOPE-459: take care of user virtual attributes ...
-            binder.forceVirtualAttributes(
+            final PropagationByResource propByResVirAttr = binder.forceVirtualAttributes(
                     updated.getResult().getKey(),
                     actual.getVirtualAttributesToBeRemoved(),
                     actual.getVirtualAttributesToBeUpdated());
+            // SYNCOPE-501: update only virtual attributes (if any of them changed), change password must be null
+            tasks.addAll(propByResVirAttr.isEmpty() ? Collections.<PropagationTask>emptyList()
+                    : propagationManager.getUserUpdateTaskIds(updated, null, actual.
+                            getVirtualAttributesToBeRemoved(), actual.getVirtualAttributesToBeUpdated()));
+        }
 
-        } else {
+        if (!tasks.isEmpty()) {
             try {
                 taskExecutor.execute(tasks, propagationReporter);
             } catch (PropagationException e) {

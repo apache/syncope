@@ -547,4 +547,49 @@ public class VirAttrTestITCase extends AbstractTest {
         userTO = userService.update(userTO.getId(), userMod);
         assertNotNull(userTO.getVirtualAttributeMap().get("virtualdata"));
     }
+
+    @Test
+    public void issueSYNCOPE501() {
+        // 1. create user and propagate him on resource-db-virattr
+        UserTO userTO = getUniqueSampleTO("syncope501@apache.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getVirtualAttributes().clear();
+        
+        userTO.getResources().add(RESOURCE_NAME_DBVIRATTR);
+
+        // virtualdata is mapped with username
+        final AttributeTO virtualData = attributeTO("virtualdata", "syncope501@apache.org");
+        userTO.getVirtualAttributes().add(virtualData);
+
+        userTO = createUser(userTO);
+
+        assertNotNull(userTO.getVirtualAttributeMap().get("virtualdata"));
+        assertEquals("syncope501@apache.org", userTO.getVirtualAttributeMap().get("virtualdata").getValues().get(0));
+
+        // 2. update virtual attribute
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+
+        PropagationRequestTO propagationRequestTO = new PropagationRequestTO();
+        propagationRequestTO.setResources(Collections.<String>emptySet());
+        propagationRequestTO.setOnSyncope(Boolean.FALSE);
+
+        userMod.setPwdPropRequest(propagationRequestTO);
+
+        // change virtual attribute value
+        final AttributeMod virtualDataMod = new AttributeMod();
+        virtualDataMod.setSchema("virtualdata");
+        virtualDataMod.addValueToBeAdded("syncope501_updated@apache.org");
+        virtualDataMod.addValueToBeRemoved("syncope501@apache.org");
+        userMod.addVirtualAttributeToBeUpdated(virtualDataMod);
+
+        userTO = userService.update(userMod.getId(), userMod);
+        assertNotNull(userTO);
+        
+        // 3. check that user virtual attribute has been really updated 
+        assertFalse(userTO.getVirtualAttributeMap().get("virtualdata").getValues().isEmpty());
+        assertEquals("syncope501_updated@apache.org", userTO.getVirtualAttributeMap().get("virtualdata").getValues().
+                get(0));
+    }
 }
