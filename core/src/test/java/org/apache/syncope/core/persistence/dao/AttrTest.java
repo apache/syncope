@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import javax.validation.ValidationException;
-
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -33,6 +33,7 @@ import org.apache.syncope.core.persistence.beans.user.UAttrUniqueValue;
 import org.apache.syncope.core.persistence.beans.user.USchema;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.util.AttributableUtil;
+import org.apache.syncope.core.util.Encryptor;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,7 +97,7 @@ public class AttrTest extends AbstractDAOTest {
     }
 
     @Test
-    public void checkForEnumType() throws ClassNotFoundException {
+    public void saveWithEnum() throws ClassNotFoundException {
         SyncopeUser user = userDAO.find(1L);
 
         USchema gender = userSchemaDAO.find("gender", USchema.class);
@@ -122,7 +123,7 @@ public class AttrTest extends AbstractDAOTest {
 
         InvalidEntityException iee = null;
         try {
-            user = userDAO.save(user);
+            userDAO.save(user);
         } catch (InvalidEntityException e) {
             iee = e;
         }
@@ -163,6 +164,30 @@ public class AttrTest extends AbstractDAOTest {
         assertTrue(iee.hasViolation(EntityViolationType.InvalidValueList));
         // for uauv
         assertTrue(iee.hasViolation(EntityViolationType.InvalidUSchema));
+    }
+
+    @Test
+    public void saveWithEncrypted() throws Exception {
+        SyncopeUser user = userDAO.find(1L);
+
+        final USchema obscureSchema = userSchemaDAO.find("obscure", USchema.class);
+        assertNotNull(obscureSchema);
+        assertNotNull(obscureSchema.getSecretKey());
+        assertNotNull(obscureSchema.getCipherAlgorithm());
+
+        UAttr attribute = new UAttr();
+        attribute.setSchema(obscureSchema);
+        attribute.addValue("testvalue", AttributableUtil.getInstance(AttributableType.USER));
+        attribute.setOwner(user);
+        user.addAttr(attribute);
+
+        userDAO.save(user);
+
+        UAttr obscure = user.getAttr("obscure");
+        assertNotNull(obscure);
+        assertEquals(1, obscure.getValues().size());
+        assertEquals(Encryptor.getInstance(obscureSchema.getSecretKey()).
+                encode("testvalue", obscureSchema.getCipherAlgorithm()), obscure.getValues().get(0).getStringValue());
     }
 
     @Test

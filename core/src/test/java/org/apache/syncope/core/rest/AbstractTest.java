@@ -64,7 +64,7 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.SchemaType;
-import org.apache.syncope.core.util.PasswordEncoder;
+import org.apache.syncope.core.util.Encryptor;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -179,7 +179,7 @@ public abstract class AbstractTest {
     public static void securitySetup() {
         InputStream propStream = null;
         try {
-            propStream = PasswordEncoder.class.getResourceAsStream("/security.properties");
+            propStream = Encryptor.class.getResourceAsStream("/security.properties");
             Properties props = new Properties();
             props.load(propStream);
 

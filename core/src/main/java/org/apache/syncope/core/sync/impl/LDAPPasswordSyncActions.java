@@ -39,13 +39,14 @@ import org.springframework.transaction.annotation.Transactional;
  * that are hashed.
  */
 public class LDAPPasswordSyncActions extends DefaultSyncActions {
-    
+
     protected static final Logger LOG = LoggerFactory.getLogger(LDAPPasswordSyncActions.class);
 
     @Autowired
-    protected UserDAO userDAO;
+    private UserDAO userDAO;
 
     private String encodedPassword;
+
     private CipherAlgorithm cipher;
 
     @Transactional(readOnly = true)
@@ -54,22 +55,24 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
             final AbstractSyncopeResultHandler<?, ?> handler,
             final SyncDelta delta,
             final T subject) throws JobExecutionException {
+
         if (subject instanceof UserTO) {
-            String password = ((UserTO)subject).getPassword();
+            String password = ((UserTO) subject).getPassword();
             if (password != null && password.startsWith("{")) {
                 int closingBracketIndex = password.indexOf('}');
                 String digest = password.substring(1, password.indexOf('}'));
-                CipherAlgorithm cipherAlgorithm = CipherAlgorithm.fromString(digest);
-                if (cipherAlgorithm != null) {
+                try {
                     encodedPassword = password.substring(closingBracketIndex + 1);
-                    cipher = cipherAlgorithm;
+                    cipher = CipherAlgorithm.valueOf(digest);
+                } catch (IllegalArgumentException e) {
+                    LOG.error("Cipher algorithm not allowed: {}", digest, e);
                 }
             }
         }
-        
+
         return delta;
     }
-    
+
     @Transactional(readOnly = true)
     @Override
     public <T extends AbstractAttributableTO> void after(
@@ -84,16 +87,12 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
                 byte[] encodedPasswordBytes = Base64.decode(encodedPassword.getBytes());
                 char[] encodedHex = Hex.encode(encodedPasswordBytes);
                 String encodedHexStr = new String(encodedHex).toUpperCase();
-                
-                /*UserMod userMod = new UserMod();
-                userMod.setId(subject.getId());
-                userMod.setPassword(encodedHexStr);
-                uwfAdapter.update(userMod);*/
-                syncopeUser.setEncodedPassword(encodedHexStr, cipher, 0);
+
+                syncopeUser.setEncodedPassword(encodedHexStr, cipher);
             }
             encodedPassword = null;
             cipher = null;
         }
     }
-    
+
 }

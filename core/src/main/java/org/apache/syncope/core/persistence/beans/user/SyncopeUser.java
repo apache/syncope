@@ -56,7 +56,7 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.validation.entity.SyncopeUserCheck;
-import org.apache.syncope.core.util.PasswordEncoder;
+import org.apache.syncope.core.util.Encryptor;
 import org.apache.syncope.core.util.SecureRandomUtil;
 
 /**
@@ -259,19 +259,20 @@ public class SyncopeUser extends AbstractAttributable {
         clearPassword = null;
     }
 
-    public void setEncodedPassword(final String password, final CipherAlgorithm cipherAlgoritm, final int historySize) {
+    public void setEncodedPassword(final String password, final CipherAlgorithm cipherAlgoritm) {
         // clear password
         this.clearPassword = null;
+
         this.password = password;
         this.cipherAlgorithm = cipherAlgoritm;
     }
-    
+
     public void setPassword(final String password, final CipherAlgorithm cipherAlgoritm, final int historySize) {
         // clear password
         this.clearPassword = password;
 
         try {
-            this.password = PasswordEncoder.encode(password, cipherAlgoritm);
+            this.password = Encryptor.getInstance().encode(password, cipherAlgoritm);
             this.cipherAlgorithm = cipherAlgoritm;
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
@@ -495,8 +496,8 @@ public class SyncopeUser extends AbstractAttributable {
                 res = passwordHistory.subList(size >= passwordHistory.size()
                         ? 0
                         : passwordHistory.size() - size, passwordHistory.size()).contains(cipherAlgorithm == null
-                        ? password
-                        : PasswordEncoder.encode(password, cipherAlgorithm));
+                                ? password
+                                : Encryptor.getInstance().encode(password, cipherAlgorithm));
             } catch (Exception e) {
                 LOG.error("Error evaluating password history", e);
             }

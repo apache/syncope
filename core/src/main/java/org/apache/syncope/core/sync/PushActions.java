@@ -31,7 +31,7 @@ import org.quartz.JobExecutionException;
 public interface PushActions extends AbstractSyncActions<AbstractSyncopeResultHandler<?, ?>> {
 
     /**
-     * Action to be executed before to assign (link & provision) a synchronized user to the resource.
+     * Action to be executed before to assign (link & provision) a synchronized user / role to the resource.
      *
      * @param handler synchronization handler being executed.
      * @param delta info to be pushed out (accountId, attributes).
@@ -45,7 +45,7 @@ public interface PushActions extends AbstractSyncActions<AbstractSyncopeResultHa
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before to provision a synchronized user to the resource.
+     * Action to be executed before to provision a synchronized user / role to the resource.
      *
      * @param handler synchronization handler being executed.
      * @param delta info to be pushed out (accountId, attributes).
@@ -59,7 +59,7 @@ public interface PushActions extends AbstractSyncActions<AbstractSyncopeResultHa
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before to update a synchronized user on the resource.
+     * Action to be executed before to update a synchronized user / role on the resource.
      *
      * @param handler synchronization handler being executed.
      * @param delta info to be pushed out (accountId, attributes).
@@ -73,7 +73,7 @@ public interface PushActions extends AbstractSyncActions<AbstractSyncopeResultHa
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before to link a synchronized user to the resource.
+     * Action to be executed before to link a synchronized user / role to the resource.
      *
      * @param handler synchronization handler being executed.
      * @param delta info to be pushed out (accountId, attributes).
@@ -87,7 +87,7 @@ public interface PushActions extends AbstractSyncActions<AbstractSyncopeResultHa
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before to unlink a synchronized user from the resource.
+     * Action to be executed before to unlink a synchronized user / role from the resource.
      *
      * @param handler synchronization handler being executed.
      * @param delta info to be pushed out (accountId, attributes).
@@ -101,7 +101,7 @@ public interface PushActions extends AbstractSyncActions<AbstractSyncopeResultHa
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before to unassign a synchronized user from the resource.
+     * Action to be executed before to unassign a synchronized user / role from the resource.
      *
      * @param handler synchronization handler being executed.
      * @param delta info to be pushed out (accountId, attributes).
@@ -115,7 +115,7 @@ public interface PushActions extends AbstractSyncActions<AbstractSyncopeResultHa
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before to unassign a synchronized user from the resource.
+     * Action to be executed before to unassign a synchronized user / role from the resource.
      *
      * @param handler synchronization handler being executed.
      * @param delta info to be pushed out (accountId, attributes).
@@ -129,7 +129,7 @@ public interface PushActions extends AbstractSyncActions<AbstractSyncopeResultHa
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before delete a synchronized user locally and from the resource.
+     * Action to be executed before delete a synchronized user / role locally and from the resource.
      *
      * @param handler synchronization handler being executed.
      * @param delta info to be pushed out (accountId, attributes).
@@ -143,7 +143,7 @@ public interface PushActions extends AbstractSyncActions<AbstractSyncopeResultHa
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed after each local user synchronization.
+     * Action to be executed after each local user / role synchronization.
      *
      * @param handler synchronization handler being executed.
      * @param delta info pushed out (accountId, attributes)

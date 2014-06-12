@@ -73,7 +73,7 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
             fail(ex.getMessage());
         }
         assertNotNull(password);
-        user.setPassword(password, CipherAlgorithm.SHA1, 0);
+        user.setPassword(password, CipherAlgorithm.SHA, 0);
         userDAO.save(user);
     }
 

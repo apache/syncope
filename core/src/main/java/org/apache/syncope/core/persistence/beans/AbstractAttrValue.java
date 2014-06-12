@@ -31,6 +31,7 @@ import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.persistence.validation.entity.AttrValueCheck;
 import org.apache.syncope.core.util.DataFormat;
+import org.apache.syncope.core.util.Encryptor;
 
 @MappedSuperclass
 @AttrValueCheck
@@ -143,6 +144,14 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
                 }
                 break;
 
+            case Encrypted:
+                try {
+                    this.setStringValue(Encryptor.getInstance(schema.getSecretKey()).
+                            encode(value, schema.getCipherAlgorithm()));
+                } catch (Exception pe) {
+                    exception = pe;
+                }
+                break;
 
             case String:
             case Enum:
@@ -201,8 +210,10 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
                         : DataFormat.format(getDateValue(), false, getAttribute().getSchema().getConversionPattern());
                 break;
 
+            case String:
+            case Enum:
+            case Encrypted:
             default:
-                // applied to String and Enum SchemaType
                 result = getStringValue();
                 break;
         }

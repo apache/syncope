@@ -79,6 +79,8 @@ public final class MappingUtil {
      */
     private static final Logger LOG = LoggerFactory.getLogger(MappingUtil.class);
 
+    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+
     public static <T extends AbstractMappingItem> List<T> getMatchingMappingItems(
             final Collection<T> items, final IntMappingType type) {
 
@@ -339,7 +341,7 @@ public final class MappingUtil {
                     SyncopeUser user = (SyncopeUser) subject;
                     if (user.canDecodePassword()) {
                         try {
-                            passwordAttrValue = PasswordEncoder.decode(user.getPassword(), user.getCipherAlgorithm());
+                            passwordAttrValue = ENCRYPTOR.decode(user.getPassword(), user.getCipherAlgorithm());
                         } catch (Exception e) {
                             LOG.error("Could not decode password for {}", user, e);
                         }
@@ -636,6 +638,7 @@ public final class MappingUtil {
      * Get accountId internal value.
      *
      * @param attributable attributable
+     * @param accountIdItem accountId mapping item
      * @param resource external resource
      * @param accountIdItem accountid mapping item
      * @return accountId internal value

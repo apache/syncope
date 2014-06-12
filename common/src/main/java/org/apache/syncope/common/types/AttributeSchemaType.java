@@ -29,7 +29,8 @@ public enum AttributeSchemaType {
     Double(Double.class),
     Boolean(Boolean.class),
     Date(Date.class),
-    Enum(Enum.class);
+    Enum(Enum.class),
+    Encrypted(byte[].class);
 
     final private Class<?> type;
 

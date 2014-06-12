@@ -36,16 +36,15 @@ public abstract class AbstractAttr extends AbstractBaseBean {
 
     public abstract Long getId();
 
-    @SuppressWarnings("unchecked")
-    public <T extends AbstractAttrValue> T addValue(final String value, final AttributableUtil attributableUtil)
+    public void addValue(final String value, final AttributableUtil attributableUtil)
             throws InvalidAttrValueException {
 
-        T attrValue;
+        AbstractAttrValue attrValue;
         if (getSchema().isUniqueConstraint()) {
-            attrValue = (T) attributableUtil.newAttrUniqueValue();
+            attrValue = attributableUtil.newAttrUniqueValue();
             ((AbstractAttrUniqueValue) attrValue).setSchema(getSchema());
         } else {
-            attrValue = (T) attributableUtil.newAttrValue();
+            attrValue = attributableUtil.newAttrValue();
         }
 
         attrValue.setAttribute(this);
@@ -59,8 +58,6 @@ public abstract class AbstractAttr extends AbstractBaseBean {
             }
             addValue(attrValue);
         }
-
-        return attrValue;
     }
 
     public abstract <T extends AbstractAttributable> T getOwner();
@@ -69,7 +66,7 @@ public abstract class AbstractAttr extends AbstractBaseBean {
 
     public abstract <T extends AbstractNormalSchema> T getSchema();
 
-    public abstract <T extends AbstractAttrValue> boolean addValue(T attrValue);
+    protected abstract <T extends AbstractAttrValue> boolean addValue(T attrValue);
 
     public abstract <T extends AbstractAttrValue> boolean removeValue(T attrValue);
 
@@ -88,8 +85,6 @@ public abstract class AbstractAttr extends AbstractBaseBean {
     }
 
     public abstract <T extends AbstractAttrValue> List<T> getValues();
-
-    public abstract <T extends AbstractAttrValue> void setValues(List<T> attributeValues);
 
     public abstract <T extends AbstractAttrValue> T getUniqueValue();
 

@@ -249,7 +249,7 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
         assertTrue(taskTO.getExecutions().isEmpty());
-        
+
         final PushTaskTO pushTaskTO = taskService.<PushTaskTO>read(13L);
         assertEquals(UnmatchingRule.ASSIGN, pushTaskTO.getUnmatchigRule());
         assertEquals(MatchingRule.UPDATE, pushTaskTO.getMatchigRule());
@@ -484,8 +484,10 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(1, matchingUsers.getResult().size());
 
         // Check for SYNCOPE-436
-        assertEquals("syncFromLDAP", matchingUsers.getResult().get(0).getVirAttrMap().
-                get("virtualReadOnly").getValues().get(0));
+        assertEquals("syncFromLDAP",
+                matchingUsers.getResult().get(0).getVirAttrMap().get("virtualReadOnly").getValues().get(0));
+        // Check for SYNCOPE-270
+        assertNotNull(matchingUsers.getResult().get(0).getAttrMap().get("obscure"));
 
         final RoleTO roleTO = matchingRoles.getResult().iterator().next();
         assertNotNull(roleTO);

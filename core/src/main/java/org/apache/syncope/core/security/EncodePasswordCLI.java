@@ -21,7 +21,7 @@ package org.apache.syncope.core.security;
 import java.util.Arrays;
 
 import org.apache.syncope.common.types.CipherAlgorithm;
-import org.apache.syncope.core.util.PasswordEncoder;
+import org.apache.syncope.core.util.Encryptor;
 
 /**
  * Command line version of encoder to encode the admin password.
@@ -36,14 +36,17 @@ public final class EncodePasswordCLI {
             System.exit(1);
         }
 
-        if (CipherAlgorithm.valueOf(args[1]).getAlgorithm().isEmpty()) {
+        CipherAlgorithm cipherAlgorithm = null;
+        try {
+            cipherAlgorithm = CipherAlgorithm.valueOf(args[1]);
+        } catch (IllegalArgumentException e) {
             System.err.println("Unsupported algorithm " + args[1]);
             usage();
             System.exit(2);
         }
 
         System.out.println("Encoding password '" + args[0] + "' with " + args[1]);
-        System.out.println(PasswordEncoder.encode(args[0], CipherAlgorithm.valueOf(args[1])));
+        System.out.println(Encryptor.getInstance().encode(args[0], cipherAlgorithm));
     }
 
     private static void usage() {

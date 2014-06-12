@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.AttributeSchemaType;
+import org.apache.syncope.common.types.CipherAlgorithm;
 
 @XmlRootElement(name = "schema")
 @XmlType
@@ -37,6 +38,10 @@ public class SchemaTO extends AbstractSchemaTO {
     private String enumerationValues;
 
     private String enumerationKeys;
+
+    private String secretKey;
+
+    private CipherAlgorithm cipherAlgorithm;
 
     private boolean multivalue;
 
@@ -80,6 +85,22 @@ public class SchemaTO extends AbstractSchemaTO {
 
     public void setEnumerationKeys(final String enumerationKeys) {
         this.enumerationKeys = enumerationKeys;
+    }
+
+    public String getSecretKey() {
+        return secretKey;
+    }
+
+    public void setSecretKey(final String secretKey) {
+        this.secretKey = secretKey;
+    }
+
+    public CipherAlgorithm getCipherAlgorithm() {
+        return cipherAlgorithm;
+    }
+
+    public void setCipherAlgorithm(final CipherAlgorithm cipherAlgorithm) {
+        this.cipherAlgorithm = cipherAlgorithm;
     }
 
     public boolean isMultivalue() {

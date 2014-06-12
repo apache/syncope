@@ -29,7 +29,7 @@ import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.util.PasswordEncoder;
+import org.apache.syncope.core.util.Encryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +72,8 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     private String anonymousKey;
 
     private SyncopeUserDetailsService userDetailsService;
+
+    private final Encryptor encryptor = Encryptor.getInstance();
 
     /**
      * @param adminPassword the adminPassword to set
@@ -194,7 +196,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     protected boolean authenticate(final String password, final CipherAlgorithm cipherAlgorithm,
             final String digestedPassword) {
 
-        return PasswordEncoder.verify(password, cipherAlgorithm, digestedPassword);
+        return encryptor.verify(password, cipherAlgorithm, digestedPassword);
     }
 
     @Override

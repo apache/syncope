@@ -55,7 +55,7 @@ import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
-import org.apache.syncope.core.util.PasswordEncoder;
+import org.apache.syncope.core.util.Encryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -77,6 +77,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
     @Resource(name = "anonymousUser")
     private String anonymousUser;
+
+    private final Encryptor encryptor = Encryptor.getInstance();
 
     @Transactional(readOnly = true)
     public SyncopeUser getUserFromId(final Long userId) {
@@ -138,7 +140,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
     @Transactional(readOnly = true)
     public boolean verifyPassword(final SyncopeUser user, final String password) {
-        return PasswordEncoder.verify(password, user.getCipherAlgorithm(), user.getPassword());
+        return encryptor.verify(password, user.getCipherAlgorithm(), user.getPassword());
     }
 
     @Transactional(readOnly = true)

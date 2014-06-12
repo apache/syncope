@@ -42,6 +42,7 @@ import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.types.CipherAlgorithm;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -114,9 +115,19 @@ public class SchemaTestITCase extends AbstractTest {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidUSchema, e.getType());
 
-            assertTrue(e.getElements().iterator().next().toString().
-                    contains(EntityViolationType.InvalidSchemaEnum.name()));
+            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidSchemaEnum.name()));
         }
+    }
+
+    @Test
+    public void createEncrypted() {
+        SchemaTO schemaTO = new SchemaTO();
+        schemaTO.setName("encrypted");
+        schemaTO.setType(AttributeSchemaType.Encrypted);
+        schemaTO.setCipherAlgorithm(CipherAlgorithm.AES);
+        schemaTO.setSecretKey("huhadfhsjfsfsdkj!####");
+
+        createSchema(AttributableType.MEMBERSHIP, SchemaType.NORMAL, schemaTO);
     }
 
     @Test
@@ -277,9 +288,7 @@ public class SchemaTestITCase extends AbstractTest {
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidRSchema, e.getType());
-
-            assertTrue(e.getElements().iterator().next().toString().
-                    contains(EntityViolationType.InvalidName.name()));
+            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
         }
     }
 

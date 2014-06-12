@@ -24,11 +24,11 @@ import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 
 public class InvalidAttrValueException extends ValidationException {
     
-    public InvalidAttrValueException(String errorMessage) {
+    public InvalidAttrValueException(final String errorMessage) {
         super(errorMessage);
     }
     
-    public InvalidAttrValueException(String errorMessage, Throwable t) {
+    public InvalidAttrValueException(final String errorMessage, final Throwable t) {
         super(errorMessage, t);
     }
 

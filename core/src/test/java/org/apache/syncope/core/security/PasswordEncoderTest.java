@@ -23,38 +23,37 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.syncope.common.types.CipherAlgorithm;
-import org.apache.syncope.core.util.PasswordEncoder;
+import org.apache.syncope.core.util.Encryptor;
 import org.junit.Test;
 
 /**
- * Testclass to test all encryption algorithms.
+ * Test class to test all encryption algorithms.
  */
 public class PasswordEncoderTest {
 
     private final String password = "password";
-    
+
+    private final Encryptor encryptor = Encryptor.getInstance();
+
     /**
-     * Verify all algorithms
+     * Verify all algorithms.
      */
     @Test
-    public void testEncoder()
-            throws Exception {
-
+    public void testEncoder() throws Exception {
         for (CipherAlgorithm cipherAlgorithm : CipherAlgorithm.values()) {
-            final String encPassword = PasswordEncoder.encode(password, cipherAlgorithm);
+            final String encPassword = encryptor.encode(password, cipherAlgorithm);
 
             assertNotNull(encPassword);
-            assertTrue(PasswordEncoder.verify(password, cipherAlgorithm, encPassword));
-            assertFalse(PasswordEncoder.verify("pass", cipherAlgorithm, encPassword));
+            assertTrue(encryptor.verify(password, cipherAlgorithm, encPassword));
+            assertFalse(encryptor.verify("pass", cipherAlgorithm, encPassword));
 
             // check that same password encoded with BCRYPT or Salted versions results in different digest
             if (cipherAlgorithm.equals(CipherAlgorithm.BCRYPT) || cipherAlgorithm.getAlgorithm().startsWith("S-")) {
-                final String encSamePassword = PasswordEncoder.encode(password, cipherAlgorithm);
+                final String encSamePassword = encryptor.encode(password, cipherAlgorithm);
                 assertNotNull(encSamePassword);
                 assertFalse(encSamePassword.equals(encPassword));
-                assertTrue(PasswordEncoder.verify(password, cipherAlgorithm, encSamePassword));
+                assertTrue(encryptor.verify(password, cipherAlgorithm, encSamePassword));
             }
         }
-
     }
 }

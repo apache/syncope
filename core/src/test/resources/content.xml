@@ -173,6 +173,9 @@ under the License.
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <USchema name="makeItDouble" type="Long"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <USchema name="obscure" type="Encrypted"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+           secretKey="7abcdefghilmnopqrstuvz9#" cipherAlgorithm="SHA"/>
 
   <UDerSchema name="csvuserid" expression="firstname + ',' + surname"/>
   <UDerSchema name="cn" expression="surname + ', ' + firstname"/>
@@ -752,6 +755,9 @@ under the License.
                 mandatoryCondition="false" purpose="BOTH"/>
   <UMappingItem id="319" accountid="0" password="0" mapping_id="11"
                 extAttrName="givenname" intAttrName="virtualReadOnly" intMappingType="UserVirtualSchema"
+                mandatoryCondition="false" purpose="BOTH"/>
+  <UMappingItem id="320" accountid="0" password="0" mapping_id="11"
+                extAttrName="registeredAddress" intAttrName="obscure" intMappingType="UserSchema"
                 mandatoryCondition="false" purpose="BOTH"/>
   
   <RMapping id="1" resource_name="resource-ldap"

@@ -30,6 +30,7 @@ import javax.persistence.Transient;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.syncope.common.types.AttributeSchemaType;
+import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.validation.attrvalue.AbstractValidator;
 import org.apache.syncope.core.persistence.validation.attrvalue.BasicValidator;
 import org.apache.syncope.core.persistence.validation.entity.SchemaCheck;
@@ -80,6 +81,13 @@ public abstract class AbstractNormalSchema extends AbstractSchema {
     @Column(nullable = true)
     @Lob
     private String enumerationKeys;
+
+    @Column(nullable = true)
+    private String secretKey;
+
+    @Column(nullable = true)
+    @Enumerated(EnumType.STRING)
+    private CipherAlgorithm cipherAlgorithm;
 
     @Transient
     private AbstractValidator validator;
@@ -152,7 +160,7 @@ public abstract class AbstractNormalSchema extends AbstractSchema {
         if (getValidatorClass() != null && getValidatorClass().length() > 0) {
             try {
                 Constructor<?> validatorConstructor = Class.forName(getValidatorClass()).
-                        getConstructor(new Class<?>[] {getClass().getSuperclass()});
+                        getConstructor(new Class<?>[] { getClass().getSuperclass() });
                 validator = (AbstractValidator) validatorConstructor.newInstance(this);
             } catch (Exception e) {
                 LOG.error("Could not instantiate validator of type {}, reverting to {}",
@@ -206,4 +214,21 @@ public abstract class AbstractNormalSchema extends AbstractSchema {
 
         this.conversionPattern = conversionPattern;
     }
+
+    public String getSecretKey() {
+        return secretKey;
+    }
+
+    public void setSecretKey(final String secretKey) {
+        this.secretKey = secretKey;
+    }
+
+    public CipherAlgorithm getCipherAlgorithm() {
+        return cipherAlgorithm;
+    }
+
+    public void setCipherAlgorithm(final CipherAlgorithm cipherAlgorithm) {
+        this.cipherAlgorithm = cipherAlgorithm;
+    }
+
 }

@@ -27,7 +27,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -133,8 +132,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.getAttrs().add(attributeTO("type", "a type"));
         userTO.getAttrs().add(attributeTO("userId", uid));
         userTO.getAttrs().add(attributeTO("email", uid));
-        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        userTO.getAttrs().add(attributeTO("loginDate", sdf.format(new Date())));
+        userTO.getAttrs().add(attributeTO("loginDate", new SimpleDateFormat("yyyy-MM-dd").format(new Date())));
         userTO.getDerAttrs().add(attributeTO("cn", null));
         userTO.getVirAttrs().add(attributeTO("virtualdata", "virtualvalue"));
         return userTO;
@@ -712,7 +710,7 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(userTO.getCreationDate().before(userTO.getLastChangeDate()));
 
         SyncopeUser passwordTestUser = new SyncopeUser();
-        passwordTestUser.setPassword("new2Password", CipherAlgorithm.SHA1, 0);
+        passwordTestUser.setPassword("new2Password", CipherAlgorithm.SHA, 0);
         assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
 
         assertEquals(1, userTO.getMemberships().size());
@@ -1757,17 +1755,22 @@ public class UserTestITCase extends AbstractTest {
 
         // 2. create user with membership of the above role
         UserTO userTO = getUniqueSampleTO("syncope357@syncope.apache.org");
+        userTO.getAttrs().add(attributeTO("obscure", "valueToBeObscured"));
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(roleTO.getId());
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
+        assertNotNull(userTO.getAttrMap().get("obscure"));
 
         // 3. read user on resource
         ConnObjectTO connObj = resourceService.getConnectorObject(
                 RESOURCE_NAME_LDAP, AttributableType.USER, userTO.getId());
         assertNotNull(connObj);
+        AttributeTO registeredAddress = connObj.getAttrMap().get("registeredAddress");
+        assertNotNull(registeredAddress);
+        assertEquals(userTO.getAttrMap().get("obscure").getValues(), registeredAddress.getValues());
 
         // 4. remove role
         roleService.delete(roleTO.getId());

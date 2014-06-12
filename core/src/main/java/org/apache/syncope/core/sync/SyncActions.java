@@ -30,7 +30,7 @@ import org.quartz.JobExecutionException;
 public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHandler<?, ?>> {
 
     /**
-     * Action to be executed before to create a synchronized user locally.
+     * Action to be executed before to create a synchronized user / role locally.
      *
      * @param handler synchronization handler being executed.
      * @param delta retrieved synchronization information
@@ -44,7 +44,7 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before creating (and linking to the resource) a synchronized user locally.
+     * Action to be executed before creating (and linking to the resource) a synchronized user / role locally.
      *
      * @param handler synchronization handler being executed.
      * @param delta retrieved synchronization information
@@ -58,7 +58,7 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before unlinking resource from the synchronized user and de-provisioning.
+     * Action to be executed before unlinking resource from the synchronized user / role and de-provisioning.
      *
      * @param handler synchronization handler being executed.
      * @param delta retrieved synchronization information
@@ -86,7 +86,7 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before unlinking resource from the synchronized user.
+     * Action to be executed before unlinking resource from the synchronized user / role.
      *
      * @param handler synchronization handler being executed.
      * @param delta retrieved synchronization information
@@ -100,7 +100,7 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before linking resource to the synchronized user.
+     * Action to be executed before linking resource to the synchronized user / role.
      *
      * @param handler synchronization handler being executed.
      * @param delta retrieved synchronization information
@@ -114,7 +114,7 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before to update a synchronized user locally.
+     * Action to be executed before to update a synchronized user / role locally.
      *
      * @param handler synchronization handler being executed.
      * @param delta retrieved synchronization information
@@ -131,7 +131,7 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
             throws JobExecutionException;
 
     /**
-     * Action to be executed before to delete a synchronized user locally.
+     * Action to be executed before to delete a synchronized user / role locally.
      *
      * @param handler synchronization handler being executed.
      * @param delta retrieved synchronization information
@@ -145,7 +145,7 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed after each local user synchronization.
+     * Action to be executed after each local user / role synchronization.
      *
      * @param handler synchronization handler being executed.
      * @param delta retrieved synchronization information (may be modified by 'beforeCreate/beforeUpdate/beforeDelete')

@@ -138,19 +138,6 @@ public class UAttr extends AbstractAttr {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractAttrValue> void setValues(final List<T> attributeValues) {
-
-        this.values.clear();
-        if (attributeValues != null && !attributeValues.isEmpty()) {
-            for (T mav : attributeValues) {
-                mav.setAttribute(this);
-            }
-            this.values.addAll((List<UAttrValue>) attributeValues);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
     public <T extends AbstractAttrValue> T getUniqueValue() {
         return (T) uniqueValue;
     }

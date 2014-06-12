@@ -51,8 +51,4 @@ public enum CipherAlgorithm {
     public boolean isInvertible() {
         return invertible;
     }
-
-    public static CipherAlgorithm fromString(final String value) {
-        return CipherAlgorithm.valueOf(value.toUpperCase());
-    }
 }

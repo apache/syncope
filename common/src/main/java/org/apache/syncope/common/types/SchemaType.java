@@ -42,7 +42,7 @@ public enum SchemaType {
 
     private final Class<? extends AbstractSchemaTO> toClass;
 
-    private SchemaType(final Class<? extends AbstractSchemaTO> toClass) {
+    SchemaType(final Class<? extends AbstractSchemaTO> toClass) {
         this.toClass = toClass;
     }
 

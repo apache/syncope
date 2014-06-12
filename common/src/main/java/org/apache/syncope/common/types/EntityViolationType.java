@@ -43,6 +43,7 @@ public enum EntityViolationType {
     InvalidReport("org.apache.syncope.core.validation.report"),
     InvalidResource("org.apache.syncope.core.validation.externalresource"),
     InvalidRoleOwner("org.apache.syncope.core.validation.syncoperole.owner"),
+    InvalidSchemaEncrypted("org.apache.syncope.core.validation.schema.encrypted"),
     InvalidSchemaEnum("org.apache.syncope.core.validation.schema.enum"),
     InvalidSchemaMultivalueUnique("org.apache.syncope.core.validation.schema.multivalueUnique"),
     InvalidSchedTask("org.apache.syncope.core.validation.schedtask"),
