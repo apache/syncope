@@ -61,11 +61,15 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
             if (password != null && password.startsWith("{")) {
                 int closingBracketIndex = password.indexOf('}');
                 String digest = password.substring(1, password.indexOf('}'));
+                if (digest != null) {
+                    digest = digest.toUpperCase();
+                }
                 try {
                     encodedPassword = password.substring(closingBracketIndex + 1);
                     cipher = CipherAlgorithm.valueOf(digest);
                 } catch (IllegalArgumentException e) {
                     LOG.error("Cipher algorithm not allowed: {}", digest, e);
+                    encodedPassword = null;
                 }
             }
         }
