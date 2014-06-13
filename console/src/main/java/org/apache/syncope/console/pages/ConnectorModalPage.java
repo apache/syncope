@@ -428,7 +428,8 @@ public class ConnectorModalPage extends BaseModalPage {
                 conn.setConnectorName(bundleTO.getConnectorName());
                 conn.setBundleName(bundleTO.getBundleName());
                 conn.setVersion(bundleTO.getVersion());
-                conn.getConfiguration().addAll(connPropView.getModelObject());
+                conn.getConfiguration().clear();
+                conn.getConfiguration().addAll(connPropView.getModelObject());                
 
                 // Set the model object's capabilities to capabilitiesPalette's converted Set
                 conn.getCapabilities().addAll(selectedCapabilities.isEmpty()

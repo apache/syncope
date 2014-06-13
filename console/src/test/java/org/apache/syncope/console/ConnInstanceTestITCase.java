@@ -124,4 +124,52 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         seleniumDriver.switchTo().defaultContent();
     }
+
+    @Test
+    public void issueSyncope506() {
+        selenium.click("css=img[alt=\"Resources\"]");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//tr[4]/td[3]/div/a/span");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//select[@name='version:dropDownChoiceField']\");", "30000");
+
+        selenium.selectFrame("index=0");
+
+        selenium.click("//div[2]/form/div[2]/ul/li[2]/a");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select\");", "30000");
+
+        selenium.click("//div[2]/form/div[2]/div[2]/div/span/div[2]/div[30]/div[3]/span/div/div/span/a[2]/span/span");
+
+        selenium.click("//div[2]/form/div[3]/input");
+
+        seleniumDriver.switchTo().defaultContent();
+
+        selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
+
+        selenium.click("//tr[4]/td[3]/div/a/span");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//select[@name='version:dropDownChoiceField']\");", "30000");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.selectFrame("index=0");
+
+        selenium.click("//div[2]/form/div[2]/ul/li[2]/a");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select\");", "30000");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//input[@value='99']\");","3000");
+
+        selenium.click("//div[2]/form/div[2]/ul/li[2]/a/span");
+
+        seleniumDriver.switchTo().defaultContent();
+
+        selenium.click("css=a.w_close");
+    }
 }
