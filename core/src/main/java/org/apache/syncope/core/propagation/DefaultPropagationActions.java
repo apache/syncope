@@ -25,7 +25,7 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 /**
  * Default (empty) implementation of PropagationActions.
  */
-public class DefaultPropagationActions implements PropagationActions {
+public abstract class DefaultPropagationActions implements PropagationActions {
 
     @Override
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {

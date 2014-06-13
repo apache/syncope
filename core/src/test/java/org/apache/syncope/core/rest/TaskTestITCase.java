@@ -108,7 +108,6 @@ public class TaskTestITCase extends AbstractTest {
     public void getPushActionsClasses() {
         List<PushActionClass> actions = taskService.getPushActionsClasses();
         assertNotNull(actions);
-        assertFalse(actions.isEmpty());
     }
 
     @Test

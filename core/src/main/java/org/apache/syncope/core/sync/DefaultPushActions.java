@@ -30,7 +30,7 @@ import org.quartz.JobExecutionException;
 /**
  * Default (empty) implementation of PushActions.
  */
-public class DefaultPushActions implements PushActions {
+public abstract class DefaultPushActions implements PushActions {
 
     @Override
     public void beforeAll(final AbstractSyncopeResultHandler<?, ?> handler) throws JobExecutionException {

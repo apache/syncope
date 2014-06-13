@@ -29,7 +29,7 @@ import org.quartz.JobExecutionException;
 /**
  * Default (empty) implementation of SyncActions.
  */
-public class DefaultSyncActions implements SyncActions {
+public abstract class DefaultSyncActions implements SyncActions {
 
     @Override
     public void beforeAll(final AbstractSyncopeResultHandler<?, ?> handler) throws JobExecutionException {
