@@ -104,10 +104,10 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         public int compare(final PropagationTask task1, final PropagationTask task2) {
             int prop1 = task1.getResource().getPropagationPriority() == null
                     ? Integer.MIN_VALUE
-                    : task1.getResource().getPropagationPriority().intValue();
+                    : task1.getResource().getPropagationPriority();
             int prop2 = task2.getResource().getPropagationPriority() == null
                     ? Integer.MIN_VALUE
-                    : task2.getResource().getPropagationPriority().intValue();
+                    : task2.getResource().getPropagationPriority();
 
             return prop1 > prop2
                     ? 1

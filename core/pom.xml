@@ -742,6 +742,11 @@ under the License.
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
         </dependency>
+        <dependency>
+          <groupId>org.apache.openjpa</groupId>
+          <artifactId>openjpa</artifactId>
+          <version>${openjpa.version}</version>
+        </dependency>        
       </dependencies>
 
       <build>
@@ -772,7 +777,7 @@ under the License.
                   <dependency>org.apache.geronimo.specs:geronimo-jpa_2.0_spec</dependency>
                   <dependency>org.apache.geronimo.specs:geronimo-jms_1.1_spec</dependency>
                   <dependency>org.apache.geronimo.specs:geronimo-jta_1.1_spec</dependency>
-                  <dependency>javax.validation:validation-api</dependency>
+                  <dependency>org.apache.geronimo.specs:geronimo-validation_1.0_spec</dependency>
                   <dependency>net.sourceforge.serp:serp</dependency>
                   <dependency>commons-pool:commons-pool</dependency>
                   <dependency>commons-dbcp:commons-dbcp</dependency>

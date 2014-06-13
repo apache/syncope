@@ -19,6 +19,7 @@
 package org.apache.syncope.core.sync.impl;
 
 import java.util.Collection;
+import java.util.List;
 import org.apache.syncope.common.types.ConflictResolutionAction;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
@@ -104,15 +105,15 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
 
     protected ConflictResolutionAction resAct;
 
-    protected A actions;
+    protected List<A> actions;
 
     protected T syncTask;
 
-    public A getActions() {
+    public List<A> getActions() {
         return actions;
     }
 
-    public void setActions(A actions) {
+    public void setActions(final List<A> actions) {
         this.actions = actions;
     }
 

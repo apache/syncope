@@ -91,14 +91,16 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
         final SyncopePushResultHandler handler =
                 (SyncopePushResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
                 getApplicationContext().getBeanFactory()).createBean(
-                SyncopePushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                        SyncopePushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         handler.setConnector(connector);
         handler.setDryRun(dryRun);
         handler.setResults(results);
         handler.setSyncTask(pushTask);
         handler.setActions(actions);
 
-        actions.beforeAll(handler);
+        for (PushActions action : actions) {
+            action.beforeAll(handler);
+        }
 
         if (uMapping != null) {
             final int count = userDAO.count(authorizations);
@@ -135,7 +137,9 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
             }
         }
 
-        actions.afterAll(handler, results);
+        for (PushActions action : actions) {
+            action.afterAll(handler, results);
+        }
 
         final String result = createReport(results, pushTask.getResource().getSyncTraceLevel(), dryRun);
 

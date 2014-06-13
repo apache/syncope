@@ -84,11 +84,17 @@ under the License.
 
       <div class="tablerow">
         <div class="tablecolumn_label short_dynamicsize">
-          <label for="propagationActionsClassName"><wicket:message key="actionsClass"/></label>
+          <label for="propagationActionsClassNames"><wicket:message key="actionsClasses"/></label>
         </div>
-        <div class="tablecolumn_field medium_dynamicsize">
-          <span wicket:id="propagationActionsClassName">[propagationActionsClassName]</span>
-        </div>
+        <span wicket:id="propagationActionsClassNames">
+          <span wicket:id="actionsClasses">
+            <select class="text ui-widget-content ui-corner-all" wicket:id="actionsClass"/>
+            <a wicket:id="drop"><img src="img/minus-icon.png" alt="remove icon" class="drop_button"/></a>
+            <a wicket:id="add"><img src="img/plus-icon.png" alt="add icon" class="add_button"/></a>
+            <br/>
+          </span>
+          <a wicket:id="first"><img src="img/plus-icon.png" alt="add icon" class="add_button"/></a>
+        </span>        
       </div>
 
       <div class="tablerow alt">

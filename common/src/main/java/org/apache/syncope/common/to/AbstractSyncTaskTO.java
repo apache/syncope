@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.to;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
@@ -41,11 +43,11 @@ public class AbstractSyncTaskTO extends SchedTaskTO {
 
     private boolean syncStatus;
 
-    private String actionsClassName;
-
     private UnmatchingRule unmatchigRule;
 
     private MatchingRule matchigRule;
+
+    private List<String> actionsClassNames = new ArrayList<String>();
 
     public String getResource() {
         return resource;
@@ -87,12 +89,8 @@ public class AbstractSyncTaskTO extends SchedTaskTO {
         this.syncStatus = syncStatus;
     }
 
-    public String getActionsClassName() {
-        return actionsClassName;
-    }
-
-    public void setActionsClassName(final String actionsClassName) {
-        this.actionsClassName = actionsClassName;
+    public List<String> getActionsClassNames() {
+        return actionsClassNames;
     }
 
     public UnmatchingRule getUnmatchigRule() {

@@ -68,7 +68,7 @@ public class TaskDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
-    private static final String[] IGNORE_TASK_PROPERTIES = { "executions", "resource", };
+    private static final String[] IGNORE_TASK_PROPERTIES = { "executions", "resource" };
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = { "id", "task" };
 
@@ -113,12 +113,14 @@ public class TaskDataBinder {
             if (syncTaskTO.getUserTemplate() != null) {
                 UserTO template = syncTaskTO.getUserTemplate();
 
-                if (StringUtils.isNotBlank(template.getUsername()) && !JexlUtil.
-                        isExpressionValid(template.getUsername())) {
+                if (StringUtils.isNotBlank(template.getUsername())
+                        && !JexlUtil.isExpressionValid(template.getUsername())) {
+
                     sce.getElements().add("Invalid JEXL: " + template.getUsername());
                 }
-                if (StringUtils.isNotBlank(template.getPassword()) && !JexlUtil.
-                        isExpressionValid(template.getPassword())) {
+                if (StringUtils.isNotBlank(template.getPassword())
+                        && !JexlUtil.isExpressionValid(template.getPassword())) {
+
                     sce.getElements().add("Invalid JEXL: " + template.getPassword());
                 }
 
@@ -155,7 +157,8 @@ public class TaskDataBinder {
         task.setSyncStatus(taskTO.isSyncStatus());
         task.setMatchigRule(taskTO.getMatchigRule());
         task.setUnmatchigRule(taskTO.getUnmatchigRule());
-        task.setActionsClassName(taskTO.getActionsClassName());
+        task.getActionsClassNames().clear();
+        task.getActionsClassNames().addAll(taskTO.getActionsClassNames());
     }
 
     public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtil taskUtil) {
@@ -191,7 +194,6 @@ public class TaskDataBinder {
     public void updateSchedTask(final SchedTask task, final SchedTaskTO taskTO, final TaskUtil taskUtil) {
         Class<? extends Task> taskClass = taskUtil.taskClass();
         Class<? extends AbstractTaskTO> taskTOClass = taskUtil.taskTOClass();
-
 
         if (taskClass == null || !taskClass.equals(task.getClass())) {
             throw new ClassCastException(
@@ -297,6 +299,7 @@ public class TaskDataBinder {
                 ((SyncTaskTO) taskTO).setDescription(((SyncTask) task).getDescription());
                 ((SyncTaskTO) taskTO).setResource(((SyncTask) task).getResource().getName());
                 break;
+
             case PUSH:
                 if (!(task instanceof PushTask)) {
                     throw new ClassCastException("taskUtil is type Push but task is not PushTask: "

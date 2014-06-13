@@ -40,30 +40,52 @@ under the License.
             </div>
           </div>
 
-          <div class="tablerow alt">
-            <div class="tablecolumn_label short_dynamicsize">
-              <label for="conversionPattern"><wicket:message key="conversionPattern"/></label>
-            </div>
-            <div class="tablecolumn_field medium_dynamicsize">
-              <span wicket:id="conversionPattern">[conversionPattern]</span>
-            </div>
-          </div>
-
-          <div class="tablerow">
-            <div class="tablecolumn_label short_dynamicsize">
-              <label for="enumerationValues"><wicket:message key="enumerationValues"/></label>
-            </div>
-            <div class="tablecolumn_field medium_dynamicsize">
-              <span wicket:id="enumerationValues">[enumerationValues]</span>
+          <div wicket:id="conversionParams">
+            <div class="tablerow alt">
+              <div class="tablecolumn_label short_dynamicsize">
+                <label for="conversionPattern"><wicket:message key="conversionPattern"/></label>
+              </div>
+              <div class="tablecolumn_field medium_dynamicsize">
+                <span wicket:id="conversionPattern">[conversionPattern]</span>
+              </div>
             </div>
           </div>
 
-          <div class="tablerow alt">
-            <div class="tablecolumn_label short_dynamicsize">
-              <label for="enumerationKeys"><wicket:message key="enumerationKeys"/></label>
+          <div wicket:id="enumParams">
+            <div class="tablerow">
+              <div class="tablecolumn_label short_dynamicsize">
+                <label for="enumerationValues"><wicket:message key="enumerationValues"/></label>
+              </div>
+              <div class="tablecolumn_field medium_dynamicsize">
+                <span wicket:id="enumerationValues">[enumerationValues]</span>
+              </div>
             </div>
-            <div class="tablecolumn_field medium_dynamicsize">
-              <span wicket:id="enumerationKeys">[enumerationValues]</span>
+            <div class="tablerow alt">
+              <div class="tablecolumn_label short_dynamicsize">
+                <label for="enumerationKeys"><wicket:message key="enumerationKeys"/></label>
+              </div>
+              <div class="tablecolumn_field medium_dynamicsize">
+                <span wicket:id="enumerationKeys">[enumerationKeys]</span>
+              </div>
+            </div>
+          </div>
+
+          <div wicket:id="encryptedParams">
+            <div class="tablerow">
+              <div class="tablecolumn_label short_dynamicsize">
+                <label for="secretKey"><wicket:message key="secretKey"/></label>
+              </div>
+              <div class="tablecolumn_field medium_dynamicsize">
+                <span wicket:id="secretKey">[secretKey]</span>
+              </div>
+            </div>
+            <div class="tablerow alt">
+              <div class="tablecolumn_label short_dynamicsize">
+                <label for="cipherAlgorithm"><wicket:message key="cipherAlgorithm"/></label>
+              </div>
+              <div class="tablecolumn_field medium_dynamicsize">
+                <span wicket:id="cipherAlgorithm">[cipherAlgorithm]</span>
+              </div>
             </div>
           </div>
 

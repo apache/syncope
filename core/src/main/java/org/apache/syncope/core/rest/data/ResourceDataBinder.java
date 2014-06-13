@@ -141,7 +141,8 @@ public class ResourceDataBinder {
             resource.setRserializedSyncToken(null);
         }
 
-        resource.setPropagationActionsClassName(resourceTO.getPropagationActionsClassName());
+        resource.getPropagationActionsClassNames().clear();
+        resource.getPropagationActionsClassNames().addAll(resourceTO.getPropagationActionsClassNames());
 
         return resource;
     }
@@ -337,7 +338,7 @@ public class ResourceDataBinder {
         resourceTO.setUsyncToken(resource.getUserializedSyncToken());
         resourceTO.setRsyncToken(resource.getRserializedSyncToken());
 
-        resourceTO.setPropagationActionsClassName(resource.getPropagationActionsClassName());
+        resourceTO.getPropagationActionsClassNames().addAll(resource.getPropagationActionsClassNames());
 
         return resourceTO;
     }

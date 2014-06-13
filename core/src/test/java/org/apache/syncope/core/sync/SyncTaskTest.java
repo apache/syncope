@@ -72,7 +72,7 @@ public class SyncTaskTest extends AbstractDAOTest {
         assertNotNull(exception);
 
         task.setResource(resource);
-        task.setActionsClassName(getClass().getName());
+        task.getActionsClassNames().add(getClass().getName());
 
         // this save() fails because jobActionsClassName does not implement 
         // the right interface
@@ -84,7 +84,8 @@ public class SyncTaskTest extends AbstractDAOTest {
         }
         assertNotNull(exception);
 
-        task.setActionsClassName(TestSyncActions.class.getName());
+        task.getActionsClassNames().clear();
+        task.getActionsClassNames().add(TestSyncActions.class.getName());
         // this save() finally works
         task = taskDAO.save(task);
         assertNotNull(task);
@@ -103,7 +104,7 @@ public class SyncTaskTest extends AbstractDAOTest {
         task.setResource(resource);
         task.setName("issueSYNCOPE144");
         task.setDescription("issueSYNCOPE144 Description");
-        task.setActionsClassName(TestSyncActions.class.getName());
+        task.getActionsClassNames().add(TestSyncActions.class.getName());
 
         task = taskDAO.save(task);
         assertNotNull(task);

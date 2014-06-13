@@ -20,15 +20,26 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.SyncTaskTO;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.SelectChoiceRenderer;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
 /**
@@ -68,11 +79,82 @@ public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
 
         profile.add(resource);
 
-        final AjaxDropDownChoicePanel<String> actionsClassName = new AjaxDropDownChoicePanel<String>(
-                "actionsClassName", getString("actionsClass"), new PropertyModel<String>(taskTO, "actionsClassName"));
-        actionsClassName.setChoices(taskRestClient.getSyncActionsClasses());
-        actionsClassName.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
-        profile.add(actionsClassName);
+        final WebMarkupContainer syncActionsClassNames = new WebMarkupContainer("syncActionsClassNames");
+        syncActionsClassNames.setOutputMarkupId(true);
+        profile.add(syncActionsClassNames);
+
+        final AjaxLink<Void> first = new IndicatingAjaxLink<Void>("first") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                taskTO.getActionsClassNames().add(StringUtils.EMPTY);
+                setVisible(false);
+                target.add(syncActionsClassNames);
+            }
+        };
+        first.setOutputMarkupPlaceholderTag(true);
+        first.setVisible(taskTO.getActionsClassNames().isEmpty());
+        syncActionsClassNames.add(first);
+
+        final ListView<String> actionsClasses = new ListView<String>("actionsClasses",
+                new PropertyModel<List<String>>(taskTO, "actionsClassNames")) {
+
+                    private static final long serialVersionUID = 9101744072914090143L;
+
+                    @Override
+                    protected void populateItem(final ListItem<String> item) {
+                        final String className = item.getModelObject();
+
+                        final DropDownChoice<String> actionsClass = new DropDownChoice<String>(
+                                "actionsClass", new Model<String>(className), taskRestClient.getSyncActionsClasses());
+                        actionsClass.setNullValid(true);
+                        actionsClass.setRequired(true);
+                        actionsClass.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
+
+                            private static final long serialVersionUID = -1107858522700306810L;
+
+                            @Override
+                            protected void onUpdate(final AjaxRequestTarget target) {
+                                taskTO.getActionsClassNames().
+                                set(item.getIndex(), actionsClass.getModelObject());
+                            }
+                        });
+                        actionsClass.setRequired(true);
+                        actionsClass.setOutputMarkupId(true);
+                        actionsClass.setRequired(true);
+                        item.add(actionsClass);
+
+                        AjaxLink<Void> minus = new IndicatingAjaxLink<Void>("drop") {
+
+                            private static final long serialVersionUID = -7978723352517770644L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target) {
+                                taskTO.getActionsClassNames().remove(className);
+                                first.setVisible(taskTO.getActionsClassNames().isEmpty());
+                                target.add(syncActionsClassNames);
+                            }
+                        };
+                        item.add(minus);
+
+                        final AjaxLink<Void> plus = new IndicatingAjaxLink<Void>("add") {
+
+                            private static final long serialVersionUID = -7978723352517770644L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target) {
+                                taskTO.getActionsClassNames().add(StringUtils.EMPTY);
+                                target.add(syncActionsClassNames);
+                            }
+                        };
+                        plus.setOutputMarkupPlaceholderTag(true);
+                        plus.setVisible(item.getIndex() == taskTO.getActionsClassNames().size() - 1);
+                        item.add(plus);
+                    }
+                };
+        syncActionsClassNames.add(actionsClasses);
 
         final AjaxCheckBoxPanel creates = new AjaxCheckBoxPanel("performCreate", getString("creates"),
                 new PropertyModel<Boolean>(taskTO, "performCreate"));

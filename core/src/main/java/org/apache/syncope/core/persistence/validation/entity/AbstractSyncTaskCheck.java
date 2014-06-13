@@ -29,11 +29,11 @@ import javax.validation.Payload;
 
 @Target( { ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = SyncTaskValidator.class)
+@Constraint(validatedBy = AbstractSyncTaskValidator.class)
 @Documented
-public @interface SyncTaskCheck {
+public @interface AbstractSyncTaskCheck {
 
-    String message() default "{org.apache.syncope.core.validation.synctask}";
+    String message() default "{org.apache.syncope.core.validation.abstractsynctask}";
 
     Class<?>[] groups() default {};
 

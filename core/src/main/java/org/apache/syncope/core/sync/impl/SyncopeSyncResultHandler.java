@@ -350,7 +350,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
 
         final List<ConnectorObject> found = connector.search(objectClass,
                 new EqualsFilter(new Name(name)), connector.getOperationOptions(
-                attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
+                        attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", objectClass, syncTask.getResource(), name);
@@ -397,7 +397,12 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
 
         subjectTO.getResources().add(getSyncTask().getResource().getName());
 
-        return create(subjectTO, actions.beforeAssign(this, delta, subjectTO), attrUtil, "assign", dryRun);
+        SyncDelta _delta = delta;
+        for (SyncActions action : actions) {
+            _delta = action.beforeAssign(this, _delta, subjectTO);
+        }
+
+        return create(subjectTO, _delta, attrUtil, "assign", dryRun);
     }
 
     protected List<SyncResult> create(
@@ -407,12 +412,17 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
         final AbstractAttributableTO subjectTO =
                 connObjectUtil.getAttributableTO(delta.getObject(), syncTask, attrUtil);
 
-        return create(subjectTO, actions.beforeCreate(this, delta, subjectTO), attrUtil, "provision", dryRun);
+        SyncDelta _delta = delta;
+        for (SyncActions action : actions) {
+            _delta = action.beforeCreate(this, _delta, subjectTO);
+        }
+
+        return create(subjectTO, _delta, attrUtil, "provision", dryRun);
     }
 
     private List<SyncResult> create(
             final AbstractAttributableTO subjectTO,
-            SyncDelta delta,
+            final SyncDelta delta,
             final AttributableUtil attrUtil,
             final String operation,
             final boolean dryRun)
@@ -517,7 +527,9 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
                     delta);
         }
 
-        actions.after(this, delta, actual, result);
+        for (SyncActions action : actions) {
+            action.after(this, delta, actual, result);
+        }
         return Collections.singletonList(result);
     }
 
@@ -529,7 +541,9 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
         UserMod userMod = connObjectUtil.getAttributableMod(
                 id, delta.getObject(), before, syncTask, AttributableUtil.getInstance(AttributableType.USER));
 
-        delta = actions.beforeUpdate(this, delta, before, userMod);
+        for (SyncActions action : actions) {
+            delta = action.beforeUpdate(this, delta, before, userMod);
+        }
 
         if (dryRun) {
             return new AbstractMap.SimpleEntry<UserTO, UserTO>(before, before);
@@ -582,7 +596,9 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
         taskExecutor.execute(tasks);
 
         final UserTO after = userDataBinder.getUserTO(updated.getResult().getKey().getId());
-        actions.after(this, delta, after, result);
+        for (SyncActions action : actions) {
+            action.after(this, delta, after, result);
+        }
 
         return new AbstractMap.SimpleEntry<UserTO, UserTO>(before, after);
     }
@@ -595,7 +611,9 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
         RoleMod roleMod = connObjectUtil.getAttributableMod(
                 id, delta.getObject(), before, syncTask, AttributableUtil.getInstance(AttributableType.ROLE));
 
-        delta = actions.beforeUpdate(this, delta, before, roleMod);
+        for (SyncActions action : actions) {
+            delta = action.beforeUpdate(this, delta, before, roleMod);
+        }
 
         if (dryRun) {
             return new AbstractMap.SimpleEntry<RoleTO, RoleTO>(before, before);
@@ -625,7 +643,9 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
 
         final RoleTO after = roleDataBinder.getRoleTO(updated.getResult());
 
-        actions.after(this, delta, after, result);
+        for (SyncActions action : actions) {
+            action.after(this, delta, after, result);
+        }
 
         return new AbstractMap.SimpleEntry<RoleTO, RoleTO>(before, after);
     }
@@ -759,16 +779,22 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
             try {
                 if (!dryRun) {
                     if (unlink) {
-                        actions.beforeUnassign(this, delta, before);
+                        for (SyncActions action : actions) {
+                            action.beforeUnassign(this, delta, before);
+                        }
                         controller.unlink(id, Collections.<String>singleton(getSyncTask().getResource().getName()));
                     } else {
-                        actions.beforeDeprovision(this, delta, before);
+                        for (SyncActions action : actions) {
+                            action.beforeDeprovision(this, delta, before);
+                        }
                     }
 
                     controller.deprovision(id, Collections.<String>singleton(getSyncTask().getResource().getName()));
 
                     output = controller.read(id);
-                    actions.after(this, delta, AbstractAttributableTO.class.cast(output), result);
+                    for (SyncActions action : actions) {
+                        action.after(this, delta, AbstractAttributableTO.class.cast(output), result);
+                    }
                 } else {
                     output = before;
                 }
@@ -860,15 +886,21 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
             try {
                 if (!dryRun) {
                     if (unlink) {
-                        actions.beforeUnlink(this, delta, before);
+                        for (SyncActions action : actions) {
+                            action.beforeUnlink(this, delta, before);
+                        }
                         controller.unlink(id, Collections.<String>singleton(getSyncTask().getResource().getName()));
                     } else {
-                        actions.beforeLink(this, delta, before);
+                        for (SyncActions action : actions) {
+                            action.beforeLink(this, delta, before);
+                        }
                         controller.link(id, Collections.<String>singleton(getSyncTask().getResource().getName()));
                     }
 
                     output = controller.read(id);
-                    actions.after(this, delta, AbstractAttributableTO.class.cast(output), result);
+                    for (SyncActions action : actions) {
+                        action.after(this, delta, AbstractAttributableTO.class.cast(output), result);
+                    }
                 } else {
                     output = before;
                 }
@@ -941,7 +973,9 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
                         ? userDataBinder.getUserTO(id)
                         : roleDataBinder.getRoleTO(id);
 
-                delta = actions.beforeDelete(this, delta, before);
+                for (SyncActions action : actions) {
+                    delta = action.beforeDelete(this, delta, before);
+                }
 
                 final SyncResult result = new SyncResult();
                 result.setId(id);
@@ -986,7 +1020,9 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
                     }
                 }
 
-                actions.after(this, delta, before, result);
+                for (SyncActions action : actions) {
+                    action.after(this, delta, before, result);
+                }
                 delResults.add(result);
 
             } catch (NotFoundException e) {

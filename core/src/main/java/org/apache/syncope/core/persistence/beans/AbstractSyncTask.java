@@ -18,19 +18,23 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.ElementCollection;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.syncope.common.types.MatchingRule;
 import org.apache.syncope.common.types.UnmatchingRule;
-import org.apache.syncope.core.persistence.validation.entity.SyncTaskCheck;
+import org.apache.syncope.core.persistence.validation.entity.AbstractSyncTaskCheck;
 
 @MappedSuperclass
-@SyncTaskCheck
+@AbstractSyncTaskCheck
 public abstract class AbstractSyncTask extends SchedTask {
 
     private static final long serialVersionUID = -4141057723006682562L;
@@ -61,8 +65,6 @@ public abstract class AbstractSyncTask extends SchedTask {
     @Max(1)
     private Integer syncStatus;
 
-    private String actionsClassName;
-
     /**
      * @see UnmatchingRule
      */
@@ -74,6 +76,9 @@ public abstract class AbstractSyncTask extends SchedTask {
      */
     @Enumerated(EnumType.STRING)
     protected MatchingRule matchigRule;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> actionsClassNames = new ArrayList<String>();
 
     public AbstractSyncTask(final String jobClassName) {
         super();
@@ -125,14 +130,6 @@ public abstract class AbstractSyncTask extends SchedTask {
         this.syncStatus = getBooleanAsInteger(syncStatus);
     }
 
-    public String getActionsClassName() {
-        return actionsClassName;
-    }
-
-    public void setActionsClassName(final String actionsClassName) {
-        this.actionsClassName = actionsClassName;
-    }
-
     public abstract UnmatchingRule getUnmatchigRule();
 
     public void setUnmatchigRule(final UnmatchingRule unmatchigRule) {
@@ -143,5 +140,9 @@ public abstract class AbstractSyncTask extends SchedTask {
 
     public void setMatchigRule(final MatchingRule matchigRule) {
         this.matchigRule = matchigRule;
+    }
+
+    public List<String> getActionsClassNames() {
+        return actionsClassNames;
     }
 }

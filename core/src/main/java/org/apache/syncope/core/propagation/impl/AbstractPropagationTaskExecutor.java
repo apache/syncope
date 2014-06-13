@@ -42,7 +42,6 @@ import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.propagation.ConnectorFactory;
-import org.apache.syncope.core.propagation.DefaultPropagationActions;
 import org.apache.syncope.core.propagation.PropagationActions;
 import org.apache.syncope.core.propagation.PropagationReporter;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
@@ -116,22 +115,19 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return execute(task, null);
     }
 
-    protected PropagationActions getPropagationActions(final ExternalResource resource) {
-        PropagationActions result = null;
+    protected List<PropagationActions> getPropagationActions(final ExternalResource resource) {
+        List<PropagationActions> result = new ArrayList<PropagationActions>();
 
-        if (StringUtils.isNotBlank(resource.getPropagationActionsClassName())) {
-            try {
-                Class<?> actionsClass = Class.forName(resource.getPropagationActionsClassName());
-                result = (PropagationActions) ApplicationContextProvider.getBeanFactory().
-                        createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-            } catch (ClassNotFoundException e) {
-                LOG.error("Invalid PropagationAction class name '{}' for resource {}",
-                        resource, resource.getPropagationActionsClassName(), e);
+        if (!resource.getPropagationActionsClassNames().isEmpty()) {
+            for (String className : resource.getPropagationActionsClassNames()) {
+                try {
+                    Class<?> actionsClass = Class.forName(className);
+                    result.add((PropagationActions) ApplicationContextProvider.getBeanFactory().
+                            createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true));
+                } catch (ClassNotFoundException e) {
+                    LOG.error("Invalid PropagationAction class name '{}' for resource {}", resource, className, e);
+                }
             }
-        }
-
-        if (result == null) {
-            result = new DefaultPropagationActions();
         }
 
         return result;
@@ -327,7 +323,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     @Override
     public TaskExec execute(final PropagationTask task, final PropagationReporter reporter) {
-        final PropagationActions actions = getPropagationActions(task.getResource());
+        final List<PropagationActions> actions = getPropagationActions(task.getResource());
 
         final Date startDate = new Date();
 
@@ -351,7 +347,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             // Try to read remote object (user / group) BEFORE any actual operation
             beforeObj = getRemoteObject(task, connector, false);
 
-            actions.before(task, beforeObj);
+            for (PropagationActions action : actions) {
+                action.before(task, beforeObj);
+            }
 
             switch (task.getPropagationOperation()) {
                 case CREATE:
@@ -440,7 +438,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             }
         }
 
-        actions.after(task, execution, afterObj);
+        for (PropagationActions action : actions) {
+            action.after(task, execution, afterObj);
+        }
 
         notificationManager.createTasks(
                 AuditElements.EventCategoryType.PROPAGATION,
@@ -531,7 +531,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     new ObjectClass(task.getObjectClassName()),
                     new Uid(accountId),
                     connector.getOperationOptions(AttributableUtil.getInstance(task.getSubjectType()).
-                    getMappingItems(task.getResource(), MappingPurpose.PROPAGATION)));
+                            getMappingItems(task.getResource(), MappingPurpose.PROPAGATION)));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;

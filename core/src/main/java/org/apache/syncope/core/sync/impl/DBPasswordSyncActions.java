@@ -38,13 +38,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * A SyncActions implementation which allows the ability to import passwords from a Database 
+ * A SyncActions implementation which allows the ability to import passwords from a Database
  * backend, where the passwords are hashed according to the password cipher algorithm property
  * of the (DB) Connector and HEX-encoded.
  */
 public class DBPasswordSyncActions extends DefaultSyncActions {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(DBPasswordSyncActions.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DBPasswordSyncActions.class);
+
+    private static final String CLEARTEXT = "CLEARTEXT";
 
     @Autowired
     private UserDAO userDAO;
@@ -64,19 +66,21 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
             String password = ((UserTO) subject).getPassword();
             if (password != null) {
                 Connector connector = handler.getConnector();
-                
                 ConnInstance connInstance = connector.getActiveConnInstance();
-                Iterator<ConnConfProperty> propertyIterator = connInstance.getConfiguration().iterator();
-                String cipherAlgorithm = "CLEARTEXT";
-                while (propertyIterator.hasNext()) {
+                
+                String cipherAlgorithm = CLEARTEXT;
+                boolean found = false;
+                for (Iterator<ConnConfProperty> propertyIterator = connInstance.getConfiguration().iterator();
+                        propertyIterator.hasNext() && !found;) {
+
                     ConnConfProperty property = propertyIterator.next();
                     if ("cipherAlgorithm".equals(property.getSchema().getName())
                             && property.getValues() != null && !property.getValues().isEmpty()) {
+
                         cipherAlgorithm = (String) property.getValues().get(0);
-                        break;
                     }
                 }
-                if (!"CLEARTEXT".equals(cipherAlgorithm)) {
+                if (!CLEARTEXT.equals(cipherAlgorithm)) {
                     try {
                         encodedPassword = password;
                         cipher = CipherAlgorithm.valueOf(cipherAlgorithm);

@@ -127,75 +127,70 @@ public class DerivedAttributesPanel extends Panel {
                 target.add(attributesContainer);
             }
         };
-
-        add(addAttributeBtn.setDefaultFormProcessing(Boolean.FALSE));
+        add(addAttributeBtn.setDefaultFormProcessing(false));
 
         ListView<AttributeTO> attributes = new ListView<AttributeTO>("attrs",
                 new PropertyModel<List<? extends AttributeTO>>(entityTO, "derAttrs")) {
 
-            private static final long serialVersionUID = 9101744072914090143L;
-
-            @Override
-            protected void populateItem(final ListItem<AttributeTO> item) {
-                final AttributeTO attributeTO = item.getModelObject();
-
-                item.add(new AjaxDecoratedCheckbox("toRemove", new Model<Boolean>(Boolean.FALSE)) {
-
-                    private static final long serialVersionUID = 7170946748485726506L;
+                    private static final long serialVersionUID = 9101744072914090143L;
 
                     @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                        entityTO.getDerAttrs().remove(attributeTO);
-                        target.add(attributesContainer);
-                    }
+                    protected void populateItem(final ListItem<AttributeTO> item) {
+                        final AttributeTO attributeTO = item.getModelObject();
 
-                    @Override
-                    protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
-                        super.updateAjaxAttributes(attributes);
+                        item.add(new AjaxDecoratedCheckbox("toRemove", new Model<Boolean>(Boolean.FALSE)) {
 
-                        IAjaxCallListener ajaxCallListener = new AjaxCallListener() {
-
-                            private static final long serialVersionUID = 7160235486520935153L;
+                            private static final long serialVersionUID = 7170946748485726506L;
 
                             @Override
-                            public CharSequence getPrecondition(final Component component) {
-                                return "if (!confirm('" + getString("confirmDelete") + "')) return false;";
+                            protected void onUpdate(final AjaxRequestTarget target) {
+                                entityTO.getDerAttrs().remove(attributeTO);
+                                target.add(attributesContainer);
                             }
-                        };
-                        attributes.getAjaxCallListeners().add(ajaxCallListener);
+
+                            @Override
+                            protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
+                                super.updateAjaxAttributes(attributes);
+
+                                IAjaxCallListener ajaxCallListener = new AjaxCallListener() {
+
+                                    private static final long serialVersionUID = 7160235486520935153L;
+
+                                    @Override
+                                    public CharSequence getPrecondition(final Component component) {
+                                        return "if (!confirm('" + getString("confirmDelete") + "')) return false;";
+                                    }
+                                };
+                                attributes.getAjaxCallListeners().add(ajaxCallListener);
+                            }
+                        });
+
+                        final DropDownChoice<String> schemaChoice = new DropDownChoice<String>("schema",
+                                new PropertyModel<String>(attributeTO, "schema"), derSchemas);
+                        schemaChoice.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
+
+                            private static final long serialVersionUID = -1107858522700306810L;
+
+                            @Override
+                            protected void onUpdate(final AjaxRequestTarget target) {
+                                attributeTO.setSchema(schemaChoice.getModelObject());
+                            }
+                        });
+                        schemaChoice.setRequired(true);
+                        schemaChoice.setOutputMarkupId(true);
+                        schemaChoice.setRequired(true);
+                        item.add(schemaChoice);
+
+                        final List<String> values = attributeTO.getValues();
+                        if (values == null || values.isEmpty()) {
+                            item.add(new TextField<String>("value",
+                                            new Model<String>(null)).setVisible(false));
+                        } else {
+                            item.add(new TextField<String>("value",
+                                            new Model<String>(values.get(0))).setEnabled(false));
+                        }
                     }
-                });
-
-                final DropDownChoice<String> schemaChoice = new DropDownChoice<String>("schema",
-                        new PropertyModel<String>(attributeTO, "schema"), derSchemas);
-
-                schemaChoice.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
-
-                    private static final long serialVersionUID = -1107858522700306810L;
-
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                        attributeTO.setSchema(schemaChoice.getModelObject());
-                    }
-                });
-
-                item.add(schemaChoice.setRequired(true));
-
-                schemaChoice.setOutputMarkupId(true);
-                schemaChoice.setRequired(true);
-                item.add(schemaChoice);
-
-                final List<String> values = attributeTO.getValues();
-                if (values == null || values.isEmpty()) {
-                    item.add(new TextField<String>("value",
-                            new Model<String>(null)).setVisible(Boolean.FALSE));
-                } else {
-                    item.add(new TextField<String>("value",
-                            new Model<String>(values.get(0))).setEnabled(Boolean.FALSE));
-                }
-            }
-        };
-
+                };
         attributesContainer.add(attributes);
     }
 

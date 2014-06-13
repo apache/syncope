@@ -139,21 +139,27 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
                 switch (getSyncTask().getUnmatchigRule()) {
                     case ASSIGN:
                         result.setOperation(ResourceOperation.CREATE);
-                        actions.beforeAssign(this, values, toBeHandled);
+                        for (PushActions action : actions) {
+                            action.beforeAssign(this, values, toBeHandled);
+                        }
                         controller.assign(
                                 toBeHandled.getId(),
                                 Collections.singleton(getSyncTask().getResource().getName()), true, null);
                         break;
                     case PROVISION:
                         result.setOperation(ResourceOperation.CREATE);
-                        actions.beforeProvision(this, values, toBeHandled);
+                        for (PushActions action : actions) {
+                            action.beforeProvision(this, values, toBeHandled);
+                        }
                         controller.provision(
                                 toBeHandled.getId(),
                                 Collections.singleton(getSyncTask().getResource().getName()), true, null);
                         break;
                     case UNLINK:
                         result.setOperation(ResourceOperation.NONE);
-                        actions.beforeUnlink(this, values, toBeHandled);
+                        for (PushActions action : actions) {
+                            action.beforeUnlink(this, values, toBeHandled);
+                        }
                         controller.unlink(
                                 toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
                         break;
@@ -166,7 +172,9 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
                 switch (getSyncTask().getMatchigRule()) {
                     case UPDATE:
                         result.setOperation(ResourceOperation.UPDATE);
-                        actions.beforeUpdate(this, values, toBeHandled);
+                        for (PushActions action : actions) {
+                            action.beforeUpdate(this, values, toBeHandled);
+                        }
 
                         AbstractPropagationTaskExecutor.createOrUpdate(
                                 oclass,
@@ -181,13 +189,17 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
                         break;
                     case DEPROVISION:
                         result.setOperation(ResourceOperation.DELETE);
-                        actions.beforeDeprovision(this, values, toBeHandled);
+                        for (PushActions action : actions) {
+                            action.beforeDeprovision(this, values, toBeHandled);
+                        }
                         controller.deprovision(
                                 toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
                         break;
                     case UNASSIGN:
                         result.setOperation(ResourceOperation.DELETE);
-                        actions.beforeUnassign(this, values, toBeHandled);
+                        for (PushActions action : actions) {
+                            action.beforeUnassign(this, values, toBeHandled);
+                        }
                         controller.unlink(
                                 toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
                         controller.deprovision(
@@ -195,13 +207,17 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
                         break;
                     case LINK:
                         result.setOperation(ResourceOperation.NONE);
-                        actions.beforeLink(this, values, toBeHandled);
+                        for (PushActions action : actions) {
+                            action.beforeLink(this, values, toBeHandled);
+                        }
                         controller.link(
                                 toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
                         break;
                     case UNLINK:
                         result.setOperation(ResourceOperation.NONE);
-                        actions.beforeUnlink(this, values, toBeHandled);
+                        for (PushActions action : actions) {
+                            action.beforeUnlink(this, values, toBeHandled);
+                        }
                         controller.unlink(
                                 toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
                         break;
@@ -222,7 +238,9 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
             LOG.warn("Error pushing {} towards {}", toBeHandled, getSyncTask().getResource(), e);
             throw new JobExecutionException(e);
         } finally {
-            actions.after(this, values, toBeHandled, result);
+            for (PushActions action : actions) {
+                action.after(this, values, toBeHandled, result);
+            }
             notificationManager.createTasks(
                     AuditElements.EventCategoryType.PUSH,
                     AttributableType.USER.name().toLowerCase(),

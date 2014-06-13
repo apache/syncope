@@ -30,7 +30,7 @@ under the License.
             <li><a href="#executions"><span><wicket:message key="executions"/></span></a></li>
           </ul>
           <div id="profile">
-            <div id="users-contain" class="ui-widget">
+            <div class="ui-widget">
               <span wicket:id="profile">
                 <div id="formtable">
 
@@ -90,11 +90,17 @@ under the License.
 
                   <div class="tablerow alt">
                     <div class="tablecolumn_label short_dynamicsize">
-                      <label for="actionsClassName"><wicket:message key="actionsClass"/></label>
+                      <label for="actionsClassNames"><wicket:message key="actionsClasses"/></label>
                     </div>
-                    <div class="tablecolumn_field medium_dynamicsize">
-                      <span wicket:id="actionsClassName">[actionsClassName]</span>
-                    </div>
+                    <span wicket:id="syncActionsClassNames">
+                      <span wicket:id="actionsClasses">
+                        <select class="text ui-widget-content ui-corner-all" wicket:id="actionsClass"/>
+                        <a wicket:id="drop"><img src="img/minus-icon.png" alt="remove icon" class="drop_button"/></a>
+                        <a wicket:id="add"><img src="img/plus-icon.png" alt="add icon" class="add_button"/></a>
+                        <br/>
+                      </span>
+                      <a wicket:id="first"><img src="img/plus-icon.png" alt="add icon" class="add_button"/></a>
+                    </span>                         
                   </div>
 
                   <div class="tablerow">

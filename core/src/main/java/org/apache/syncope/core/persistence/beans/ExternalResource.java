@@ -18,12 +18,15 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -36,6 +39,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.openjpa.persistence.PersistentCollection;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.TraceLevel;
@@ -163,9 +167,10 @@ public class ExternalResource extends AbstractSysInfo {
     private String rserializedSyncToken;
 
     /**
-     * (Optional) class for PropagationAction.
+     * (Optional) classes for PropagationAction.
      */
-    private String propagationActionsClassName;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> propagationActionsClassNames = new ArrayList<String>();
 
     /**
      * Default constructor.
@@ -319,7 +324,7 @@ public class ExternalResource extends AbstractSysInfo {
         return pushPolicy;
     }
 
-    public void setPushPolicy(PushPolicy pushPolicy) {
+    public void setPushPolicy(final PushPolicy pushPolicy) {
         this.pushPolicy = pushPolicy;
     }
 
@@ -375,11 +380,8 @@ public class ExternalResource extends AbstractSysInfo {
         this.rserializedSyncToken = XMLSerializer.serialize(syncToken);
     }
 
-    public String getPropagationActionsClassName() {
-        return propagationActionsClassName;
+    public List<String> getPropagationActionsClassNames() {
+        return propagationActionsClassNames;
     }
 
-    public void setPropagationActionsClassName(final String propagationActionsClassName) {
-        this.propagationActionsClassName = propagationActionsClassName;
-    }
 }

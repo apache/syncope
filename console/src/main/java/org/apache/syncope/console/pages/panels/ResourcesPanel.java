@@ -110,14 +110,10 @@ public class ResourcesPanel extends Panel {
                     new PropertyModel<List<String>>(attributableTO, "resources"),
                     new ListModel<String>(allResources), builder.statusPanel);
         } else if (attributableTO instanceof RoleTO) {
-            List<String> selectedResources = new ArrayList<String>(((RoleTO) attributableTO).getResources());
-            Collections.sort(selectedResources);
-
             resourcesPalette = new AjaxPalettePanel<String>("resourcesPalette",
                     new PropertyModel<List<String>>(attributableTO, "resources"), new ListModel<String>(allResources));
         }
         add(resourcesPalette);
-
     }
 
     private class AjaxRecordingPalettePanel<T> extends AjaxPalettePanel<T> {

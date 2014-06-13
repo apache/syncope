@@ -99,7 +99,7 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
         final SyncopeSyncResultHandler handler =
                 (SyncopeSyncResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
                 getApplicationContext().getBeanFactory()).createBean(
-                SyncopeSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                        SyncopeSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         handler.setConnector(connector);
         handler.setActions(actions);
         handler.setDryRun(dryRun);
@@ -107,7 +107,9 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
         handler.setResults(results);
         handler.setSyncTask(syncTask);
 
-        actions.beforeAll(handler);
+        for (SyncActions action : actions) {
+            action.beforeAll(handler);
+        }
         try {
             SyncToken latestUSyncToken = null;
             if (uMapping != null && !syncTask.isFullReconciliation()) {
@@ -162,7 +164,9 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
             LOG.error("While setting role owners", e);
         }
 
-        actions.afterAll(handler, results);
+        for (SyncActions action : actions) {
+            action.afterAll(handler, results);
+        }
 
         final String result = createReport(results, syncTask.getResource().getSyncTraceLevel(), dryRun);
 

@@ -86,9 +86,9 @@ public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends Abst
     /**
      * SyncJob actions.
      */
-    protected A actions;
+    protected List<A> actions;
 
-    public void setActions(final A actions) {
+    public void setActions(final List<A> actions) {
         this.actions = actions;
     }
 
@@ -326,11 +326,13 @@ public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends Abst
 
             final UMapping uMapping = syncTask.getResource().getUmapping();
             if (uMapping != null && uMapping.getAccountIdItem() == null) {
-                throw new JobExecutionException("Invalid user account id mapping for resource " + syncTask.getResource());
+                throw new JobExecutionException(
+                        "Invalid user account id mapping for resource " + syncTask.getResource());
             }
             final RMapping rMapping = syncTask.getResource().getRmapping();
             if (rMapping != null && rMapping.getAccountIdItem() == null) {
-                throw new JobExecutionException("Invalid role account id mapping for resource " + syncTask.getResource());
+                throw new JobExecutionException(
+                        "Invalid role account id mapping for resource " + syncTask.getResource());
             }
             if (uMapping == null && rMapping == null) {
                 return "No mapping configured for both users and roles: aborting...";

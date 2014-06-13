@@ -105,21 +105,23 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             return false;
         }
 
-        if (StringUtils.isNotBlank(resource.getPropagationActionsClassName())) {
-            Class<?> actionsClass = null;
-            boolean isAssignable = false;
-            try {
-                actionsClass = Class.forName(resource.getPropagationActionsClassName());
-                isAssignable = PropagationActions.class.isAssignableFrom(actionsClass);
-            } catch (Exception e) {
-                LOG.error("Invalid PropagationActions specified: {}", resource.getPropagationActionsClassName(), e);
-            }
+        if (!resource.getPropagationActionsClassNames().isEmpty()) {
+            for (String className : resource.getPropagationActionsClassNames()) {
+                Class<?> actionsClass = null;
+                boolean isAssignable = false;
+                try {
+                    actionsClass = Class.forName(className);
+                    isAssignable = PropagationActions.class.isAssignableFrom(actionsClass);
+                } catch (Exception e) {
+                    LOG.error("Invalid PropagationActions specified: {}", className, e);
+                }
 
-            if (actionsClass == null || !isAssignable) {
-                context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidResource, "Ivalid actions class name")).
-                        addNode("actionsClassName").addConstraintViolation();
-                return false;
+                if (actionsClass == null || !isAssignable) {
+                    context.buildConstraintViolationWithTemplate(
+                            getTemplate(EntityViolationType.InvalidResource, "Invalid actions class name")).
+                            addNode("actionsClassName").addConstraintViolation();
+                    return false;
+                }
             }
         }
 

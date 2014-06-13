@@ -19,7 +19,9 @@
 package org.apache.syncope.common.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -84,7 +86,7 @@ public class ResourceTO extends AbstractSysInfoTO {
 
     private String rsyncToken;
 
-    private String propagationActionsClassName;
+    private List<String> propagationActionsClassNames = new ArrayList<String>();
 
     public ResourceTO() {
         super();
@@ -258,11 +260,8 @@ public class ResourceTO extends AbstractSysInfoTO {
         this.rsyncToken = syncToken;
     }
 
-    public String getPropagationActionsClassName() {
-        return propagationActionsClassName;
+    public List<String> getPropagationActionsClassNames() {
+        return propagationActionsClassNames;
     }
 
-    public void setPropagationActionsClassName(final String propagationActionsClassName) {
-        this.propagationActionsClassName = propagationActionsClassName;
-    }
 }

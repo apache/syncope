@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.PropagationMode;
@@ -33,8 +34,14 @@ import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -52,7 +59,7 @@ public class ResourceDetailsPanel extends Panel {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(ResourceDetailsPanel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ResourceDetailsPanel.class);
 
     @SpringBean
     private ConnectorRestClient connRestClient;
@@ -98,12 +105,82 @@ public class ResourceDetailsPanel extends Panel {
                 new PropertyModel<Boolean>(resourceTO, "randomPwdIfNotProvided"));
         add(randomPwdIfNotProvided);
 
-        final AjaxDropDownChoicePanel<String> actionsClassName = new AjaxDropDownChoicePanel<String>(
-                "propagationActionsClassName", new ResourceModel("actionsClass", "actionsClass").getObject(),
-                new PropertyModel<String>(resourceTO, "propagationActionsClassName"));
-        actionsClassName.setChoices(actionClassNames);
-        actionsClassName.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
-        add(actionsClassName);
+        final WebMarkupContainer propagationActionsClassNames = new WebMarkupContainer("propagationActionsClassNames");
+        propagationActionsClassNames.setOutputMarkupId(true);
+        add(propagationActionsClassNames);
+
+        final AjaxLink<Void> first = new IndicatingAjaxLink<Void>("first") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                resourceTO.getPropagationActionsClassNames().add(StringUtils.EMPTY);
+                setVisible(false);
+                target.add(propagationActionsClassNames);
+            }
+        };
+        first.setOutputMarkupPlaceholderTag(true);
+        first.setVisible(resourceTO.getPropagationActionsClassNames().isEmpty());
+        propagationActionsClassNames.add(first);
+
+        final ListView<String> actionsClasses = new ListView<String>("actionsClasses",
+                new PropertyModel<List<String>>(resourceTO, "propagationActionsClassNames")) {
+
+                    private static final long serialVersionUID = 9101744072914090143L;
+
+                    @Override
+                    protected void populateItem(final ListItem<String> item) {
+                        final String className = item.getModelObject();
+
+                        final DropDownChoice<String> actionsClass = new DropDownChoice<String>(
+                                "actionsClass", new Model<String>(className), actionClassNames);
+                        actionsClass.setNullValid(true);
+                        actionsClass.setRequired(true);
+                        actionsClass.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
+
+                            private static final long serialVersionUID = -1107858522700306810L;
+
+                            @Override
+                            protected void onUpdate(final AjaxRequestTarget target) {
+                                resourceTO.getPropagationActionsClassNames().
+                                set(item.getIndex(), actionsClass.getModelObject());
+                            }
+                        });
+                        actionsClass.setRequired(true);
+                        actionsClass.setOutputMarkupId(true);
+                        actionsClass.setRequired(true);
+                        item.add(actionsClass);
+
+                        AjaxLink<Void> minus = new IndicatingAjaxLink<Void>("drop") {
+
+                            private static final long serialVersionUID = -7978723352517770644L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target) {
+                                resourceTO.getPropagationActionsClassNames().remove(className);
+                                first.setVisible(resourceTO.getPropagationActionsClassNames().isEmpty());
+                                target.add(propagationActionsClassNames);
+                            }
+                        };
+                        item.add(minus);
+
+                        final AjaxLink<Void> plus = new IndicatingAjaxLink<Void>("add") {
+
+                            private static final long serialVersionUID = -7978723352517770644L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target) {
+                                resourceTO.getPropagationActionsClassNames().add(StringUtils.EMPTY);
+                                target.add(propagationActionsClassNames);
+                            }
+                        };
+                        plus.setOutputMarkupPlaceholderTag(true);
+                        plus.setVisible(item.getIndex() == resourceTO.getPropagationActionsClassNames().size() - 1);
+                        item.add(plus);
+                    }
+                };
+        propagationActionsClassNames.add(actionsClasses);
 
         final AjaxDropDownChoicePanel<TraceLevel> createTraceLevel = new AjaxDropDownChoicePanel<TraceLevel>(
                 "createTraceLevel", new ResourceModel("createTraceLevel", "createTraceLevel").getObject(),

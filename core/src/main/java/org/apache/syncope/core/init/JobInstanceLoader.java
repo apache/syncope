@@ -19,7 +19,9 @@
 package org.apache.syncope.core.init;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,8 +40,6 @@ import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.quartz.TaskJob;
 import org.apache.syncope.core.report.ReportJob;
 import org.apache.syncope.core.sync.AbstractSyncActions;
-import org.apache.syncope.core.sync.DefaultPushActions;
-import org.apache.syncope.core.sync.DefaultSyncActions;
 import org.apache.syncope.core.sync.impl.AbstractSyncJob;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.quartz.Job;
@@ -172,34 +172,22 @@ public class JobInstanceLoader {
         // In case of synchronization job/task retrieve and set synchronization actions:
         // actions cannot be changed at runtime but connector and synchronization policies (reloaded at execution time).
         if (jobInstance instanceof AbstractSyncJob && task instanceof AbstractSyncTask) {
-            final String jobActionsClassName = ((AbstractSyncTask) task).getActionsClassName();
-
-            try {
-
-                Class<?> syncActionsClass = Class.forName(jobActionsClassName);
-
-                final AbstractSyncActions<?> syncActions =
-                        (AbstractSyncActions<?>) ApplicationContextProvider.getBeanFactory().
-                        createBean(syncActionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-
-                // Assume that syncActions object implements the right interface: 
-                // * SyncActions for a SyncJob; 
-                // * PushActions for a PushJob.
-                ((AbstractSyncJob) jobInstance).setActions(syncActions);
-
-            } catch (Exception e) {
-                final Class<? extends AbstractSyncActions<?>> defaultSyncActions =
-                        task instanceof SyncTask ? DefaultSyncActions.class : DefaultPushActions.class;
-
-                LOG.info("Class '{}' not found, reverting to {}", jobActionsClassName, defaultSyncActions.getName());
-
+            final List<AbstractSyncActions<?>> actions = new ArrayList<AbstractSyncActions<?>>();
+            for (String className : ((AbstractSyncTask) task).getActionsClassNames()) {
                 try {
-                    ((AbstractSyncJob) jobInstance).setActions(defaultSyncActions.newInstance());
-                } catch (Exception ie) {
-                    // Shouldn't happen, BTW ...
-                    LOG.error("Default action class {} instantiation failed", defaultSyncActions.getName(), ie);
+                    Class<?> actionsClass = Class.forName(className);
+
+                    final AbstractSyncActions<?> syncActions =
+                            (AbstractSyncActions<?>) ApplicationContextProvider.getBeanFactory().
+                            createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+
+                    actions.add(syncActions);
+                } catch (Exception e) {
+                    LOG.info("Class '{}' not found", className, e);
                 }
             }
+
+            ((AbstractSyncJob) jobInstance).setActions(actions);
         }
 
         registerJob(getJobName(task), jobInstance, cronExpression);

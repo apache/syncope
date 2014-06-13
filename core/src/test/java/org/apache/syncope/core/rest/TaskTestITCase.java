@@ -321,7 +321,7 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(task);
 
             // add custom SyncJob actions
-            task.setActionsClassName(TestSyncActions.class.getName());
+            task.getActionsClassNames().add(TestSyncActions.class.getName());
 
             // add user template
             UserTO template = new UserTO();
@@ -341,7 +341,7 @@ public class TaskTestITCase extends AbstractTest {
             SyncTaskTO actual = taskService.read(task.getId());
             assertNotNull(actual);
             assertEquals(task.getId(), actual.getId());
-            assertEquals(TestSyncActions.class.getName(), actual.getActionsClassName());
+            assertEquals(TestSyncActions.class.getName(), actual.getActionsClassNames().get(0));
 
             execSyncTask(SYNC_TASK_ID, 50, false);
 

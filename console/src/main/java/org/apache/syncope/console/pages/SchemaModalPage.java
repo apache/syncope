@@ -29,6 +29,7 @@ import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.JexlHelpUtil;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -77,16 +78,83 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
         final Form<SchemaTO> schemaForm = new Form<SchemaTO>(FORM);
 
         schemaForm.setModel(new CompoundPropertyModel<SchemaTO>(schema));
-        schemaForm.setOutputMarkupId(Boolean.TRUE);
+        schemaForm.setOutputMarkupId(true);
 
         final AjaxTextFieldPanel name =
                 new AjaxTextFieldPanel("name", getString("name"), new PropertyModel<String>(schema, "name"));
-
         name.addRequiredLabel();
         name.setEnabled(createFlag);
+        schemaForm.add(name);
 
+        final AjaxDropDownChoicePanel<AttributeSchemaType> type = new AjaxDropDownChoicePanel<AttributeSchemaType>(
+                "type", getString("type"), new PropertyModel<AttributeSchemaType>(schema, "type"));
+        type.setChoices(Arrays.asList(AttributeSchemaType.values()));
+        type.addRequiredLabel();
+        schemaForm.add(type);
+
+        // -- long, double, date
         final AjaxTextFieldPanel conversionPattern = new AjaxTextFieldPanel("conversionPattern",
                 getString("conversionPattern"), new PropertyModel<String>(schema, "conversionPattern"));
+        schemaForm.add(conversionPattern);
+
+        final WebMarkupContainer conversionParams = new WebMarkupContainer("conversionParams");
+        conversionParams.setOutputMarkupPlaceholderTag(true);
+        conversionParams.add(conversionPattern);
+        schemaForm.add(conversionParams);
+
+        // -- enum
+        final AjaxTextFieldPanel enumerationValuesPanel =
+                new AjaxTextFieldPanel("panel", "enumerationValues", new Model<String>(null));
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        final MultiFieldPanel<String> enumerationValues = new MultiFieldPanel<String>("enumerationValues",
+                new Model(),
+                enumerationValuesPanel);
+        enumerationValues.setModelObject(getEnumValuesAsList(schema.getEnumerationValues()));
+
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        final MultiFieldPanel<String> enumerationKeys = new MultiFieldPanel<String>("enumerationKeys",
+                new Model(),
+                new AjaxTextFieldPanel("panel", "enumerationKeys", new Model<String>(null)));
+        enumerationKeys.setModelObject(getEnumValuesAsList(schema.getEnumerationKeys()));
+
+        final WebMarkupContainer enumParams = new WebMarkupContainer("enumParams");
+        enumParams.setOutputMarkupPlaceholderTag(true);
+        enumParams.add(enumerationValues);
+        enumParams.add(enumerationKeys);
+        schemaForm.add(enumParams);
+
+        // -- encrypted
+        final AjaxTextFieldPanel secretKey = new AjaxTextFieldPanel("secretKey",
+                getString("secretKey"), new PropertyModel<String>(schema, "secretKey"));
+
+        final AjaxDropDownChoicePanel<CipherAlgorithm> cipherAlgorithm = new AjaxDropDownChoicePanel<CipherAlgorithm>(
+                "cipherAlgorithm", getString("cipherAlgorithm"),
+                new PropertyModel<CipherAlgorithm>(schema, "cipherAlgorithm"));
+        cipherAlgorithm.setChoices(Arrays.asList(CipherAlgorithm.values()));
+
+        final WebMarkupContainer encryptedParams = new WebMarkupContainer("encryptedParams");
+        encryptedParams.setOutputMarkupPlaceholderTag(true);
+        encryptedParams.add(secretKey);
+        encryptedParams.add(cipherAlgorithm);
+        schemaForm.add(encryptedParams);
+
+        showHide(schema, type,
+                conversionParams, conversionPattern,
+                enumParams, enumerationValuesPanel, enumerationValues, enumerationKeys,
+                encryptedParams, secretKey, cipherAlgorithm);
+        type.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                SchemaModalPage.this.showHide(schema, type,
+                        conversionParams, conversionPattern,
+                        enumParams, enumerationValuesPanel, enumerationValues, enumerationKeys,
+                        encryptedParams, secretKey, cipherAlgorithm);
+                target.add(schemaForm);
+            }
+        });
 
         final IModel<List<String>> validatorsList = new LoadableDetachableModel<List<String>>() {
 
@@ -97,82 +165,11 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
                 return schemaRestClient.getAllValidatorClasses();
             }
         };
-
         final AjaxDropDownChoicePanel<String> validatorClass = new AjaxDropDownChoicePanel<String>("validatorClass",
                 getString("validatorClass"), new PropertyModel<String>(schema, "validatorClass"));
-
         ((DropDownChoice) validatorClass.getField()).setNullValid(true);
         validatorClass.setChoices(validatorsList.getObject());
-
-        final AjaxDropDownChoicePanel<AttributeSchemaType> type = new AjaxDropDownChoicePanel<AttributeSchemaType>(
-                "type", getString("type"), new PropertyModel<AttributeSchemaType>(schema, "type"));
-        type.setChoices(Arrays.asList(AttributeSchemaType.values()));
-        type.addRequiredLabel();
-
-        final AjaxTextFieldPanel enumerationValuesPanel =
-                new AjaxTextFieldPanel("panel", "enumerationValues", new Model<String>(null));
-        @SuppressWarnings({ "unchecked", "rawtypes" })
-        final MultiFieldPanel<String> enumerationValues =
-                new MultiFieldPanel<String>("enumerationValues",
-                        new Model(),
-                        enumerationValuesPanel);
-        schemaForm.add(enumerationValues);
-
-        enumerationValues.setModelObject(getEnumValuesAsList(schema.getEnumerationValues()));
-
-        @SuppressWarnings({ "unchecked", "rawtypes" })
-        final MultiFieldPanel<String> enumerationKeys =
-                new MultiFieldPanel<String>("enumerationKeys",
-                        new Model(),
-                        new AjaxTextFieldPanel("panel", "enumerationKeys", new Model<String>(null)));
-        schemaForm.add(enumerationKeys);
-
-        enumerationKeys.setModelObject(getEnumValuesAsList(schema.getEnumerationKeys()));
-
-        if (AttributeSchemaType.Enum == schema.getType()) {
-            enumerationValues.setEnabled(Boolean.TRUE);
-            enumerationKeys.setEnabled(Boolean.TRUE);
-            enumerationValuesPanel.addRequiredLabel();
-        } else {
-            enumerationValues.setEnabled(Boolean.FALSE);
-            enumerationKeys.setEnabled(Boolean.FALSE);
-        }
-
-        type.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                if (AttributeSchemaType.Enum.ordinal() == Integer.parseInt(type.getField().getValue())) {
-                    if (!enumerationValuesPanel.isRequired()) {
-                        enumerationValuesPanel.addRequiredLabel();
-                    }
-                    enumerationValues.setEnabled(Boolean.TRUE);
-                    enumerationValues.setModelObject(getEnumValuesAsList(schema.getEnumerationValues()));
-
-                    enumerationKeys.setEnabled(Boolean.TRUE);
-                    enumerationKeys.setModelObject(getEnumValuesAsList(schema.getEnumerationKeys()));
-                } else {
-                    if (enumerationValuesPanel.isRequired()) {
-                        enumerationValuesPanel.removeRequiredLabel();
-                    }
-                    final List<String> values = new ArrayList<String>();
-                    values.add("");
-
-                    enumerationValues.setEnabled(Boolean.FALSE);
-                    enumerationValues.setModelObject(values);
-
-                    final List<String> keys = new ArrayList<String>();
-                    keys.add("");
-
-                    enumerationKeys.setEnabled(Boolean.FALSE);
-                    enumerationKeys.setModelObject(keys);
-                }
-
-                target.add(schemaForm);
-            }
-        });
+        schemaForm.add(validatorClass);
 
         final AutoCompleteTextField<String> mandatoryCondition =
                 new AutoCompleteTextField<String>("mandatoryCondition") {
@@ -185,10 +182,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
 
                         if (Strings.isEmpty(input)) {
                             choices = Collections.emptyList();
-                            return choices.iterator();
-                        }
-
-                        if ("true".startsWith(input.toLowerCase())) {
+                        } else if ("true".startsWith(input.toLowerCase())) {
                             choices.add("true");
                         } else if ("false".startsWith(input.toLowerCase())) {
                             choices.add("false");
@@ -197,7 +191,6 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
                         return choices.iterator();
                     }
                 };
-
         mandatoryCondition.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
@@ -206,6 +199,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
             protected void onUpdate(final AjaxRequestTarget target) {
             }
         });
+        schemaForm.add(mandatoryCondition);
 
         final WebMarkupContainer pwdJexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
 
@@ -215,12 +209,15 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
 
         final AjaxCheckBoxPanel multivalue = new AjaxCheckBoxPanel("multivalue", getString("multivalue"),
                 new PropertyModel<Boolean>(schema, "multivalue"));
+        schemaForm.add(multivalue);
 
         final AjaxCheckBoxPanel readonly = new AjaxCheckBoxPanel("readonly", getString("readonly"),
                 new PropertyModel<Boolean>(schema, "readonly"));
+        schemaForm.add(readonly);
 
         final AjaxCheckBoxPanel uniqueConstraint = new AjaxCheckBoxPanel("uniqueConstraint",
                 getString("uniqueConstraint"), new PropertyModel<Boolean>(schema, "uniqueConstraint"));
+        schemaForm.add(uniqueConstraint);
 
         final AjaxButton submit = new IndicatingAjaxButton(APPLY, new ResourceModel(SUBMIT)) {
 
@@ -261,6 +258,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
                 feedbackPanel.refresh(target);
             }
         };
+        schemaForm.add(submit);
 
         final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
@@ -271,8 +269,8 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
                 window.close(target);
             }
         };
-
         cancel.setDefaultFormProcessing(false);
+        schemaForm.add(cancel);
 
         String allowedRoles = createFlag
                 ? xmlRolesReader.getAllAllowedRoles("Schema", "create")
@@ -280,19 +278,97 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 
-        schemaForm.add(name);
-        schemaForm.add(conversionPattern);
-        schemaForm.add(validatorClass);
-        schemaForm.add(type);
-        schemaForm.add(mandatoryCondition);
-        schemaForm.add(multivalue);
-        schemaForm.add(readonly);
-        schemaForm.add(uniqueConstraint);
-
-        schemaForm.add(submit);
-        schemaForm.add(cancel);
-
         add(schemaForm);
+    }
+
+    private void showHide(final SchemaTO schema, final AjaxDropDownChoicePanel<AttributeSchemaType> type,
+            final WebMarkupContainer conversionParams, final AjaxTextFieldPanel conversionPattern,
+            final WebMarkupContainer enumParams, final AjaxTextFieldPanel enumerationValuesPanel,
+            final MultiFieldPanel<String> enumerationValues, final MultiFieldPanel<String> enumerationKeys,
+            final WebMarkupContainer encryptedParams,
+            final AjaxTextFieldPanel secretKey, final AjaxDropDownChoicePanel<CipherAlgorithm> cipherAlgorithm) {
+
+        final int typeOrdinal = Integer.parseInt(type.getField().getValue());
+        if (AttributeSchemaType.Long.ordinal() == typeOrdinal || AttributeSchemaType.Double.ordinal() == typeOrdinal
+                || AttributeSchemaType.Date.ordinal() == typeOrdinal) {
+
+            conversionParams.setVisible(true);
+
+            enumParams.setVisible(false);
+            if (enumerationValuesPanel.isRequired()) {
+                enumerationValuesPanel.removeRequiredLabel();
+            }
+            enumerationValues.setModelObject(getEnumValuesAsList(null));
+            enumerationKeys.setModelObject(getEnumValuesAsList(null));
+
+            encryptedParams.setVisible(false);
+            if (secretKey.isRequired()) {
+                secretKey.removeRequiredLabel();
+            }
+            secretKey.setModelObject(null);
+            if (cipherAlgorithm.isRequired()) {
+                cipherAlgorithm.removeRequiredLabel();
+            }
+            cipherAlgorithm.setModelObject(null);
+        } else if (AttributeSchemaType.Enum.ordinal() == typeOrdinal) {
+            conversionParams.setVisible(false);
+            conversionPattern.setModelObject(null);
+
+            enumParams.setVisible(true);
+            if (!enumerationValuesPanel.isRequired()) {
+                enumerationValuesPanel.addRequiredLabel();
+            }
+            enumerationValues.setModelObject(getEnumValuesAsList(schema.getEnumerationValues()));
+            enumerationKeys.setModelObject(getEnumValuesAsList(schema.getEnumerationKeys()));
+
+            encryptedParams.setVisible(false);
+            if (secretKey.isRequired()) {
+                secretKey.removeRequiredLabel();
+            }
+            secretKey.setModelObject(null);
+            if (cipherAlgorithm.isRequired()) {
+                cipherAlgorithm.removeRequiredLabel();
+            }
+            cipherAlgorithm.setModelObject(null);
+        } else if (AttributeSchemaType.Encrypted.ordinal() == typeOrdinal) {
+            conversionParams.setVisible(false);
+            conversionPattern.setModelObject(null);
+
+            enumParams.setVisible(false);
+            if (enumerationValuesPanel.isRequired()) {
+                enumerationValuesPanel.removeRequiredLabel();
+            }
+            enumerationValues.setModelObject(getEnumValuesAsList(null));
+            enumerationKeys.setModelObject(getEnumValuesAsList(null));
+
+            encryptedParams.setVisible(true);
+            if (!secretKey.isRequired()) {
+                secretKey.addRequiredLabel();
+            }
+            if (cipherAlgorithm.isRequired()) {
+                cipherAlgorithm.addRequiredLabel();
+            }
+        } else {
+            conversionParams.setVisible(false);
+            conversionPattern.setModelObject(null);
+
+            enumParams.setVisible(false);
+            if (enumerationValuesPanel.isRequired()) {
+                enumerationValuesPanel.removeRequiredLabel();
+            }
+            enumerationValues.setModelObject(getEnumValuesAsList(null));
+            enumerationKeys.setModelObject(getEnumValuesAsList(null));
+
+            encryptedParams.setVisible(false);
+            if (secretKey.isRequired()) {
+                secretKey.removeRequiredLabel();
+            }
+            secretKey.setModelObject(null);
+            if (cipherAlgorithm.isRequired()) {
+                cipherAlgorithm.removeRequiredLabel();
+            }
+            cipherAlgorithm.setModelObject(null);
+        }
     }
 
     private String getEnumValuesAsString(final List<String> enumerationValues) {
@@ -319,7 +395,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
                 values.add(value.trim());
             }
         } else {
-            values.add("");
+            values.add(StringUtils.EMPTY);
         }
 
         return values;

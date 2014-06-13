@@ -19,17 +19,18 @@
 package org.apache.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
+import org.apache.syncope.core.persistence.beans.PushTask;
+import org.apache.syncope.core.persistence.beans.SyncTask;
+import org.apache.syncope.core.sync.PushActions;
 import org.apache.syncope.core.sync.SyncActions;
 
-public class SyncTaskValidator extends AbstractValidator<SyncTaskCheck, AbstractSyncTask> {
+public class AbstractSyncTaskValidator extends AbstractValidator<AbstractSyncTaskCheck, AbstractSyncTask> {
 
     private final SchedTaskValidator schedV;
 
-    public SyncTaskValidator() {
+    public AbstractSyncTaskValidator() {
         super();
 
         schedV = new SchedTaskValidator();
@@ -50,24 +51,30 @@ public class SyncTaskValidator extends AbstractValidator<SyncTaskCheck, Abstract
                         addNode("resource").addConstraintViolation();
             }
 
-            if (StringUtils.isNotBlank(object.getActionsClassName())) {
-                Class<?> actionsClass = null;
-                boolean isAssignable = false;
-                try {
-                    actionsClass = Class.forName(object.getActionsClassName());
-                    isAssignable = SyncActions.class.isAssignableFrom(actionsClass);
-                } catch (Exception e) {
-                    LOG.error("Invalid SyncActions specified", e);
-                    isValid = false;
-                }
+            if (!object.getActionsClassNames().isEmpty()) {
+                for (String className : object.getActionsClassNames()) {
+                    Class<?> actionsClass = null;
+                    boolean isAssignable = false;
+                    try {
+                        actionsClass = Class.forName(className);
+                        isAssignable = object instanceof SyncTask
+                                ? SyncActions.class.isAssignableFrom(actionsClass)
+                                : object instanceof PushTask
+                                ? PushActions.class.isAssignableFrom(actionsClass)
+                                : false;
+                    } catch (Exception e) {
+                        LOG.error("Invalid SyncActions specified", e);
+                        isValid = false;
+                    }
 
-                if (actionsClass == null || !isAssignable) {
-                    isValid = false;
+                    if (actionsClass == null || !isAssignable) {
+                        isValid = false;
 
-                    context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate(
-                            getTemplate(EntityViolationType.InvalidSyncTask, "Invalid class name")).
-                            addNode("actionsClassName").addConstraintViolation();
+                        context.disableDefaultConstraintViolation();
+                        context.buildConstraintViolationWithTemplate(
+                                getTemplate(EntityViolationType.InvalidSyncTask, "Invalid class name")).
+                                addNode("actionsClassName").addConstraintViolation();
+                    }
                 }
             }
         }
