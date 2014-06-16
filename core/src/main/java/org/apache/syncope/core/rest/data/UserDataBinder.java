@@ -106,7 +106,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         return user;
     }
-    
+
     @Transactional(readOnly = true)
     public Set<String> getResourceNamesForUserId(final Long userId) {
         return getUserFromId(userId).getResourceNames();
@@ -416,7 +416,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
             // SYNCOPE-458 retrieve also membership virtual attributes
             connObjectUtil.retrieveVirAttrValues(membership, AttributableUtil.getInstance(AttributableType.MEMBERSHIP));
-            
+
             fillTO(membershipTO,
                     membership.getAttrs(), membership.getDerAttrs(), membership.getVirAttrs(),
                     membership.getResources());
@@ -443,14 +443,14 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
      * To be used in case of no propagation task defined.
      *
      * @param id attributable id
-     * @param vAttrsToBeRemoved virtual attribute to be removed.
-     * @param vAttrsToBeUpdated virtyal attribute to be updated.
+     * @param vAttrsToBeRemoved virtual attributes to be removed.
+     * @param vAttrsToBeUpdated virtual attributes to be updated.
      */
-    public void forceVirtualAttributes(
+    public PropagationByResource forceVirtualAttributes(
             final Long id, final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated) {
         final SyncopeUser syncopeUser = getUserFromId(id);
 
-        fillVirtual(
+        return fillVirtual(
                 syncopeUser,
                 vAttrsToBeRemoved,
                 vAttrsToBeUpdated,

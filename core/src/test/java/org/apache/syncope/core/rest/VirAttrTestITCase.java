@@ -24,6 +24,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collections;
 import org.apache.commons.lang3.SerializationUtils;
 import java.util.Map;
 import org.apache.syncope.common.mod.AttributeMod;
@@ -720,5 +721,52 @@ public class VirAttrTestITCase extends AbstractTest {
         resourceDBVirAttr.setUmapping(resourceUMapping);
         resourceService.update(RESOURCE_NAME_DBVIRATTR, resourceDBVirAttr);
         // -------------------------------------------
+    }
+
+    @Test
+    public void issueSYNCOPE501() {
+        // PHASE 1: update only user virtual attributes
+
+        // 1. create user and propagate him on resource-db-virattr
+        UserTO userTO = getUniqueSampleTO("syncope501@apache.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getVirAttrs().clear();
+
+        userTO.getResources().add(RESOURCE_NAME_DBVIRATTR);
+
+        // virtualdata is mapped with username
+        final AttributeTO virtualData = attributeTO("virtualdata", "syncope501@apache.org");
+        userTO.getVirAttrs().add(virtualData);
+
+        userTO = createUser(userTO);
+
+        assertNotNull(userTO.getVirAttrMap().get("virtualdata"));
+        assertEquals("syncope501@apache.org", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
+
+        // 2. update virtual attribute
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+
+        final StatusMod statusMod = new StatusMod();
+        statusMod.getResourceNames().addAll(Collections.<String>emptySet());
+        statusMod.setOnSyncope(Boolean.FALSE);
+
+        userMod.setPwdPropRequest(statusMod);
+        // change virtual attribute value
+        final AttributeMod virtualDataMod = new AttributeMod();
+        virtualDataMod.setSchema("virtualdata");
+        virtualDataMod.getValuesToBeAdded().add("syncope501_updated@apache.org");
+        virtualDataMod.getValuesToBeRemoved().add("syncope501@apache.org");
+        userMod.getVirAttrsToUpdate().add(virtualDataMod);
+        userMod.getVirAttrsToRemove().add("virtualdata");
+
+        userTO = updateUser(userMod);
+        assertNotNull(userTO);
+
+        // 3. check that user virtual attribute has really been updated 
+        assertFalse(userTO.getVirAttrMap().get("virtualdata").getValues().isEmpty());
+        assertEquals("syncope501_updated@apache.org", userTO.getVirAttrMap().get("virtualdata").getValues().
+                get(0));
     }
 }

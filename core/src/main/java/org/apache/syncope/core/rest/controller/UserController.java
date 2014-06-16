@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
+import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationReporter;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
@@ -257,11 +259,18 @@ public class UserController extends AbstractAttributableController<UserTO, UserM
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated);
         if (tasks.isEmpty()) {
             // SYNCOPE-459: take care of user virtual attributes ...
-            binder.forceVirtualAttributes(
+            final PropagationByResource propByResVirAttr = binder.forceVirtualAttributes(
                     updated.getResult().getKey().getId(),
                     actual.getVirAttrsToRemove(),
                     actual.getVirAttrsToUpdate());
-        } else {
+            // SYNCOPE-501: update only virtual attributes (if any of them changed), password propagation is 
+            // not required
+            tasks.addAll(propByResVirAttr.isEmpty() ? Collections.<PropagationTask>emptyList()
+                    : propagationManager.
+                    getUserUpdateTaskIds(updated, false, null));
+        }
+
+        if (!tasks.isEmpty()) {
             try {
                 taskExecutor.execute(tasks, propagationReporter);
             } catch (PropagationException e) {
