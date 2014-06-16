@@ -88,7 +88,7 @@ under the License.
 
   <build>
     <plugins>
-      <!-- Generating javadoc JAR artifact for usage with CXF's WADL generator -->
+      <!-- Generating javadoc JAR artifact for usage with CXF's WADL generator (for core) -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
@@ -145,4 +145,169 @@ under the License.
       </resource>
     </resources>
   </build>
+  
+  <profiles>
+    <profile>
+      <id>offline-doc</id>
+      
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+        
+        <plugins>
+          <!-- 1. Generate offline WADL -->
+          <plugin>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-java2wadl-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>parsejavadoc</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>parsejavadoc</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>process-classes</id>
+                <phase>process-classes</phase>
+                <goals>
+                  <goal>java2wadl</goal>
+                </goals>
+                <configuration>
+                  <applicationTitle>Apache Syncope ${project.version}</applicationTitle>
+                  <namespacePrefix>syncope</namespacePrefix>
+                  <addResourceAndMethodIds>true</addResourceAndMethodIds>
+                  <linkAnyMediaTypeToXmlSchema>true</linkAnyMediaTypeToXmlSchema>
+                  <classResourceNames/>
+                  <basePackages>org.apache.syncope.common.services</basePackages>
+                  <docProvider>org.apache.cxf.maven_plugin.javatowadl.ResourceMapJavaDocProvider</docProvider>
+                  <attachWadl>true</attachWadl>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- 2. Transform WADL into 2 HTML pages -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>xml-maven-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>transform</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <transformationSets>
+                <transformationSet>
+                  <dir>${project.build.directory}/generated/wadl/</dir>
+                  <includes>
+                    <include>application.wadl</include>
+                  </includes>
+                  <outputDir>${project.build.directory}/generated/wadl</outputDir>
+                  <stylesheet>${basedir}/../core/src/main/resources/wadl2html/index.xsl</stylesheet>
+                  <parameters>
+                    <parameter>
+                      <name>contextPath</name>
+                      <value>/restdocs/${project.version}</value>
+                    </parameter>
+                  </parameters>
+                  <outputProperties>
+                    <outputProperty>
+                      <name>indent</name>
+                      <value>yes</value>
+                    </outputProperty>
+                  </outputProperties>
+                  <fileMappers>
+                    <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
+                      <pattern>^.*$</pattern>
+                      <replacement>index.html</replacement>
+                    </fileMapper>
+                  </fileMappers>
+                </transformationSet>
+                <transformationSet>
+                  <dir>${project.build.directory}/generated/wadl/</dir>
+                  <includes>
+                    <include>application.wadl</include>
+                  </includes>
+                  <outputDir>${project.build.directory}/generated/wadl</outputDir>
+                  <stylesheet>${basedir}/../core/src/main/resources/wadl2html/schema.xsl</stylesheet>
+                  <parameters>
+                    <parameter>
+                      <name>contextPath</name>
+                      <value>/restdocs/${project.version}</value>
+                    </parameter>
+                    <parameter>
+                      <name>schema-position</name>
+                      <value>1</value>
+                    </parameter>
+                    <parameter>
+                      <name>schema-prefix</name>
+                      <value>syncope1</value>
+                    </parameter>
+                  </parameters>
+                  <outputProperties>
+                    <outputProperty>
+                      <name>indent</name>
+                      <value>yes</value>
+                    </outputProperty>
+                  </outputProperties>
+                  <fileMappers>
+                    <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
+                      <pattern>^.*$</pattern>
+                      <replacement>schema_1_syncope1.html</replacement>
+                    </fileMapper>
+                  </fileMappers>
+                </transformationSet>
+              </transformationSets>
+            </configuration>
+          </plugin>   
+          <!-- 3. Replace CSS and JS local includes with hosted -->
+          <plugin>
+            <groupId>com.google.code.maven-replacer-plugin</groupId>
+            <artifactId>replacer</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>replace</goal>
+                </goals>                   
+              </execution>
+            </executions>
+            <configuration>
+              <regex>false</regex>
+              <includes>
+                <include>${project.build.directory}/generated/wadl/*.html</include>
+              </includes>              
+              <replacements>
+                <replacement>
+                  <token>/restdocs/${project.version}/webjars/highlightjs/$/styles/default.min.css</token>
+                  <value>http://yandex.st/highlightjs/${highlightjs.version}/styles/default.min.css</value>
+                </replacement>         
+                <replacement>
+                  <token>/restdocs/${project.version}/webjars/highlightjs/$/highlight.min.js</token>
+                  <value>http://yandex.st/highlightjs/${highlightjs.version}/highlight.min.js"</value>
+                </replacement>         
+                <replacement>
+                  <token>/restdocs/${project.version}/webjars/jquery-ui/$/themes/base/minified/jquery-ui.min.css</token>
+                  <value>http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/base/minified/jquery-ui.min.css</value>
+                </replacement>  
+                <replacement>
+                  <token>/restdocs/${project.version}/webjars/jquery-ui/$/ui/minified/jquery-ui.min.js</token>
+                  <value>http://ajax.googleapis.com/ajax/libs/jqueryui/${jquery-ui.version}/jquery-ui.min.js</value>
+                </replacement>  
+                <replacement>
+                  <token>/restdocs/${project.version}/webjars/jquery/$/jquery.min.js</token>
+                  <value>http://ajax.googleapis.com/ajax/libs/jquery/${jquery.version}/jquery.min.js</value>
+                </replacement>  
+              </replacements>
+            </configuration>
+          </plugin>                 
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

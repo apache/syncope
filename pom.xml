@@ -321,7 +321,7 @@ under the License.
     
     <aspectj.version>1.8.0</aspectj.version>
 
-    <cxf.version>3.0.0</cxf.version>	
+    <cxf.version>3.0.1-SNAPSHOT</cxf.version>	
     <spring.version>4.0.5.RELEASE</spring.version>
     <spring-security.version>3.2.4.RELEASE</spring-security.version>
     <jackson.version>2.4.0</jackson.version>
@@ -339,7 +339,7 @@ under the License.
 
     <wicket.version>6.15.0</wicket.version>
 
-    <groovy.version>2.3.2</groovy.version>
+    <groovy.version>2.3.3</groovy.version>
 
     <h2.version>1.4.178</h2.version>
 
@@ -348,7 +348,7 @@ under the License.
     <disruptor.version>3.2.1</disruptor.version>
 
     <junit.version>4.11</junit.version>
-    <selenium.version>2.42.1</selenium.version>
+    <selenium.version>2.42.2</selenium.version>
 
     <apacheds.version>1.5.7</apacheds.version>
 
@@ -358,7 +358,7 @@ under the License.
  
     <jquery.version>1.11.1</jquery.version>
     <jquery-ui.version>1.10.4</jquery-ui.version>
-    <highlightjs.version>7.3-1</highlightjs.version>
+    <highlightjs.version>8.0</highlightjs.version>
     <codemirror.version>3.23</codemirror.version>
  
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -867,7 +867,7 @@ under the License.
       <dependency>
         <groupId>org.webjars</groupId>
         <artifactId>highlightjs</artifactId>
-        <version>${highlightjs.version}</version>
+        <version>${highlightjs.version}-3</version>
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>
@@ -922,7 +922,6 @@ under the License.
   </dependencyManagement>
 
   <repositories>
-
     <repository>
       <id>sonatype</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -932,9 +931,15 @@ under the License.
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-    </repository>
-    
+    </repository>    
   </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>apache.snapshots</id>
+      <url>http://repository.apache.org/snapshots</url>
+    </pluginRepository>
+  </pluginRepositories>
 
   <build>
     <defaultGoal>clean verify</defaultGoal>
@@ -968,6 +973,16 @@ under the License.
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>2.9.1</version>          
+        </plugin>
+        <plugin>
+          <groupId>org.apache.cxf</groupId>
+          <artifactId>cxf-java2wadl-plugin</artifactId>
+          <version>${cxf.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>com.google.code.maven-replacer-plugin</groupId>
+          <artifactId>replacer</artifactId>
+          <version>1.5.3</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>

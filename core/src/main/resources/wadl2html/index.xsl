@@ -47,8 +47,53 @@
         </title>
 
         <link rel="stylesheet" href="{$contextPath}/webjars/jquery-ui/${jquery-ui.version}/themes/base/minified/jquery-ui.min.css"/>
-        <link rel="stylesheet" href="{$contextPath}/css/style.css"/>
+        <style>
+body {
+  font-family: "Verdana,Arial,sans-serif";
+  font-size: 0.9em;
+}
 
+table {
+  font-family: "Verdana,Arial,sans-serif";
+  font-size: 0.9em;
+  border-width: 1px;
+  border-color: #666666;
+  border-collapse: collapse;
+}
+table th {
+  border-width: 1px;
+  padding: 8px;
+  border-style: solid;
+  border-color: #666666;
+  background-color: #dedede;
+}
+td {
+  border-width: 1px;
+  padding: 8px;
+  border-style: solid;
+  border-color: #666666;
+  background-color: #ffffff;
+  vertical-align: top;
+}
+
+.methods {
+  padding: 5px;
+}
+
+.representation-label {
+  font-weight: bold;
+  width: 80px;
+}
+
+.ui-widget { font-size: 0.9em; }
+.ui-tabs-vertical { width: 60em; }
+.ui-tabs-vertical .ui-tabs-nav { padding: .2em .1em .2em .2em; float: left; width: 15em; }
+.ui-tabs-vertical .ui-tabs-nav li { clear: left; width: 100%; border-bottom-width: 1px !important; border-right-width: 0 !important; margin: 0 -1px .2em 0; }
+.ui-tabs-vertical .ui-tabs-nav li a { display:block; }
+.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-right: .1em; border-right-width: 1px; border-right-width: 1px; }
+.ui-tabs-vertical .ui-tabs-panel { padding: 1em; float: right; width: 40em;}
+        </style>
+        
         <script src="{$contextPath}/webjars/jquery/${jquery.version}/jquery.min.js">
         </script>
         <script src="{$contextPath}/webjars/jquery-ui/${jquery-ui.version}/ui/minified/jquery-ui.min.js">          
