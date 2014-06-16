@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.MembershipTO;
@@ -37,6 +36,7 @@ import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.common.SyncopeClientCompositeException;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
@@ -438,22 +438,20 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     }
 
     /**
-     * SYNCOPE-459: force virtual attribute changes.
-     * <br />
-     * To be used in case of no propagation task defined.
+     * SYNCOPE-459: build virtual attribute changes in case no other changes were made.
      *
-     * @param id attributable id
+     * @param id user id
      * @param vAttrsToBeRemoved virtual attributes to be removed.
      * @param vAttrsToBeUpdated virtual attributes to be updated.
+     * @return operations to be performed on external resources for virtual attributes changes
      */
-    public PropagationByResource forceVirtualAttributes(
+    public PropagationByResource fillVirtual(
             final Long id, final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated) {
-        final SyncopeUser syncopeUser = getUserFromId(id);
 
         return fillVirtual(
-                syncopeUser,
+                getUserFromId(id),
                 vAttrsToBeRemoved,
                 vAttrsToBeUpdated,
-                AttributableUtil.getInstance(syncopeUser));
+                AttributableUtil.getInstance(AttributableType.USER));
     }
 }

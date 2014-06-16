@@ -248,27 +248,26 @@ public class UserController extends AbstractAttributableController<UserTO, UserM
         // AttributableMod transformation (if configured)
         UserMod actual = attrTransformer.transform(userMod);
         LOG.debug("Transformed: {}", actual);
-        /*
-         * Actual operations: workflow, propagation, notification
-         */
-        WorkflowResult<Map.Entry<UserMod, Boolean>> updated = uwfAdapter.update(actual);
 
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
-                getBean(PropagationReporter.class);
+        //Actual operations: workflow, propagation, notification
+        WorkflowResult<Map.Entry<UserMod, Boolean>> updated = uwfAdapter.update(actual);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated);
         if (tasks.isEmpty()) {
             // SYNCOPE-459: take care of user virtual attributes ...
-            final PropagationByResource propByResVirAttr = binder.forceVirtualAttributes(
+            final PropagationByResource propByResVirAttr = binder.fillVirtual(
                     updated.getResult().getKey().getId(),
                     actual.getVirAttrsToRemove(),
                     actual.getVirAttrsToUpdate());
             // SYNCOPE-501: update only virtual attributes (if any of them changed), password propagation is 
             // not required
-            tasks.addAll(propByResVirAttr.isEmpty() ? Collections.<PropagationTask>emptyList()
-                    : propagationManager.
-                    getUserUpdateTaskIds(updated, false, null));
+            tasks.addAll(propByResVirAttr.isEmpty()
+                    ? Collections.<PropagationTask>emptyList()
+                    : propagationManager.getUserUpdateTaskIds(updated, false, null));
         }
+
+        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
+                getBean(PropagationReporter.class);
 
         if (!tasks.isEmpty()) {
             try {
