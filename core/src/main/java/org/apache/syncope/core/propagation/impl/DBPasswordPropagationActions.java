@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.core.propagation.impl;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.syncope.common.types.AttributableType;
@@ -28,11 +26,13 @@ import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.propagation.DefaultPropagationActions;
+import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,34 +44,33 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class DBPasswordPropagationActions extends DefaultPropagationActions {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(DBPasswordPropagationActions.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DBPasswordPropagationActions.class);
 
     @Autowired
-    protected UserDAO userDAO;
+    private UserDAO userDAO;
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {
         super.before(task, beforeObj);
 
         if (AttributableType.USER == task.getSubjectType()) {
             SyncopeUser user = userDAO.find(task.getSubjectId());
-            
             if (user != null && user.getPassword() != null) {
-                Attribute missing = AttributeUtil.find("__MANDATORY_MISSING__", task.getAttributes());
+                Attribute missing = AttributeUtil.find(
+                        AttributeUtil.createSpecialName(PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME),
+                        task.getAttributes());
                 if (missing != null && missing.getValue() != null && missing.getValue().size() == 1
-                    && missing.getValue().get(0).equals("__PASSWORD__")) {
-                    List<Object> values = new ArrayList<Object>(1);
-                    values.add(new GuardedString(user.getPassword().toCharArray()));
-                    
-                    Attribute passwordAttribute = AttributeBuilder.build("__PASSWORD__", values);
-                    
+                        && missing.getValue().get(0).equals(OperationalAttributes.PASSWORD_NAME)) {
+
+                    Attribute passwordAttribute = AttributeBuilder.buildPassword(
+                            new GuardedString(user.getPassword().toCharArray()));
+
                     Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
                     attributes.add(passwordAttribute);
                     attributes.remove(missing);
                     task.setAttributes(attributes);
                 }
-                
             }
         }
     }
