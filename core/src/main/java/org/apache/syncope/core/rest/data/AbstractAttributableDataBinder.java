@@ -420,6 +420,14 @@ public abstract class AbstractAttributableDataBinder {
 
         PropagationByResource propByRes = new PropagationByResource();
 
+        final Set<ExternalResource> externalResources = new HashSet<ExternalResource>();
+        externalResources.addAll(attributable.getResources());
+
+        if (attributable instanceof Membership) {
+            externalResources.clear();
+            externalResources.addAll(((Membership) attributable).getSyncopeUser().getResources());
+        }
+
         // 1. virtual attributes to be removed
         for (String vAttrToBeRemoved : vAttrsToBeRemoved) {
             AbstractVirSchema virSchema = getVirSchema(vAttrToBeRemoved, attrUtil.virSchemaClass());
@@ -436,7 +444,7 @@ public abstract class AbstractAttributableDataBinder {
                     for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
                         if (virSchema.getName().equals(mapItem.getIntAttrName())
                                 && mapItem.getIntMappingType() == attrUtil.virIntMappingType()
-                                && attributable.getResources().contains(resource)) {
+                                && externalResources.contains(resource)) {
 
                             propByRes.add(ResourceOperation.UPDATE, resource.getName());
 
@@ -474,7 +482,7 @@ public abstract class AbstractAttributableDataBinder {
                     for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
                         if (virSchema.getName().equals(mapItem.getIntAttrName())
                                 && mapItem.getIntMappingType() == attrUtil.virIntMappingType()
-                                && attributable.getResources().contains(resource)) {
+                                && externalResources.contains(resource)) {
 
                             propByRes.add(ResourceOperation.UPDATE, resource.getName());
                         }

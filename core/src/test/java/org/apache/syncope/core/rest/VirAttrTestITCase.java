@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import org.apache.commons.lang3.SerializationUtils;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.StatusMod;
@@ -768,5 +769,103 @@ public class VirAttrTestITCase extends AbstractTest {
         assertFalse(userTO.getVirAttrMap().get("virtualdata").getValues().isEmpty());
         assertEquals("syncope501_updated@apache.org", userTO.getVirAttrMap().get("virtualdata").getValues().
                 get(0));
+
+        // ----------------------------------------------------------
+        
+        // PHASE 2: update only membership virtual attributes
+        // -------------------------------------------
+        // Update resource-db-virattr mapping adding new membership virtual schema mapping
+        // -------------------------------------------
+        ResourceTO resourceDBVirAttr = resourceService.read(RESOURCE_NAME_DBVIRATTR);
+        assertNotNull(resourceDBVirAttr);
+
+        final MappingTO resourceUMapping = resourceDBVirAttr.getUmapping();
+
+        MappingItemTO item = new MappingItemTO();
+        item.setIntAttrName("mvirtualdata");
+        item.setIntMappingType(IntMappingType.MembershipVirtualSchema);
+        item.setExtAttrName("EMAIL");
+        item.setPurpose(MappingPurpose.BOTH);
+
+        resourceUMapping.addItem(item);
+
+        resourceDBVirAttr.setUmapping(resourceUMapping);
+
+        resourceService.update(RESOURCE_NAME_DBVIRATTR, resourceDBVirAttr);
+        // -------------------------------------------
+
+        // -------------------------------------------
+        // Create a role ad-hoc
+        // -------------------------------------------
+        final String roleName = "issueSYNCOPE501-Role-" + getUUIDString();
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName(roleName);
+        roleTO.setParent(2L);
+        roleTO.setInheritTemplates(true);
+        roleTO = createRole(roleTO);
+        // -------------------------------------------
+
+        // 1. add membership, with virtual attribute populated, to user
+        MembershipMod membershipMod = new MembershipMod();
+        membershipMod.setRole(roleTO.getId());
+        membershipMod.getVirAttrsToUpdate().add(attributeMod("mvirtualdata", "syncope501membership@test.org"));
+
+        userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.getMembershipsToAdd().add(membershipMod);
+        userMod.setPwdPropRequest(statusMod);
+
+        userTO = updateUser(userMod);
+        assertNotNull(userTO);
+        assertEquals("syncope501membership@test.org",
+                userTO.getMemberships().get(0).getVirAttrMap().get("mvirtualdata").getValues().get(0));
+
+        // 2. update only membership virtual attribute and propagate user
+        membershipMod = new MembershipMod();
+        membershipMod.setRole(roleTO.getId());
+        membershipMod.getVirAttrsToUpdate().add(attributeMod("mvirtualdata",
+                "syncope501membership_updated@test.org"));
+        membershipMod.getVirAttrsToRemove().add("syncope501membership@test.org");
+
+        userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.getMembershipsToAdd().add(membershipMod);
+        userMod.getMembershipsToRemove().add(userTO.getMemberships().iterator().next().getId());
+        userMod.setPwdPropRequest(statusMod);
+
+        userTO = updateUser(userMod);
+        assertNotNull(userTO);
+
+        // 3. check if change has been propagated
+        assertEquals("syncope501membership_updated@test.org", userTO.getMemberships().get(0).getVirAttrMap().
+                get("mvirtualdata").getValues().get(0));
+
+        // 4. delete membership and check on resource attribute deletion
+        userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.getMembershipsToRemove().add(userTO.getMemberships().get(0).getId());
+        userMod.setPwdPropRequest(statusMod);
+
+        userTO = updateUser(userMod);
+        assertNotNull(userTO);
+        assertTrue(userTO.getMemberships().isEmpty());
+
+        // read attribute value directly on resource
+        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
+        final String emailValue = jdbcTemplate.queryForObject(
+                "SELECT EMAIL FROM testsync WHERE ID=?", String.class, userTO.getId());
+        assertTrue(StringUtils.isBlank(emailValue));
+        // ----------------------------------------
+
+        // -------------------------------------------
+        // Delete role ad-hoc and restore resource mapping
+        // -------------------------------------------
+        roleService.delete(roleTO.getId());
+
+        resourceUMapping.removeItem(item);
+        resourceDBVirAttr.setUmapping(resourceUMapping);
+        resourceService.update(RESOURCE_NAME_DBVIRATTR, resourceDBVirAttr);
+        // -------------------------------------------
     }
 }

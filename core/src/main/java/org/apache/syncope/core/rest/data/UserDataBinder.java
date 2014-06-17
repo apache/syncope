@@ -18,8 +18,10 @@
  */
 package org.apache.syncope.core.rest.data;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -105,6 +107,20 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
 
         return user;
+    }
+
+    @Transactional(readOnly = true)
+    public Membership getMembershipFromId(final Long membershipId) {
+        if (membershipId == null) {
+            throw new NotFoundException("Null membership id");
+        }
+
+        Membership membership = membershipDAO.find(membershipId);
+        if (membership == null) {
+            throw new NotFoundException("Membership " + membershipId);
+        }
+
+        return membership;
     }
 
     @Transactional(readOnly = true)
@@ -453,5 +469,46 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 vAttrsToBeRemoved,
                 vAttrsToBeUpdated,
                 AttributableUtil.getInstance(AttributableType.USER));
+    }
+
+    /**
+     * SYNCOPE-501: build membership virtual attribute changes in case no other changes were made.
+     *
+     * @param userId user id
+     * @param roleId role id
+     * @param membershipId membership id
+     * @param vAttrsToBeRemoved virtual attributes to be removed.
+     * @param vAttrsToBeUpdated virtual attributes to be updated.
+     * @param isRemoval flag to check if fill is on removed or added membership
+     * @return operations to be performed on external resources formembership virtual attributes changes
+     */
+    public PropagationByResource fillMembershipVirtual(
+            final Long userId, final Long roleId, final Long membershipId, final Set<String> vAttrsToBeRemoved,
+            final Set<AttributeMod> vAttrsToBeUpdated, final Boolean isRemoval) {
+        final Membership membership = membershipId == null
+                ? getUserFromId(userId).getMembership(roleId)
+                : getMembershipFromId(membershipId);
+
+        return membership == null ? new PropagationByResource() : isRemoval
+                ? fillVirtual(
+                        membership,
+                        membership.getVirAttrs() == null
+                        ? Collections.<String>emptySet()
+                        : getAttributeNames(membership.getVirAttrs()),
+                        vAttrsToBeUpdated,
+                        AttributableUtil.getInstance(AttributableType.MEMBERSHIP))
+                : fillVirtual(
+                        membership,
+                        vAttrsToBeRemoved,
+                        vAttrsToBeUpdated,
+                        AttributableUtil.getInstance(AttributableType.MEMBERSHIP));
+    }
+
+    private Set<String> getAttributeNames(final List<? extends AbstractVirAttr> virAttrs) {
+        final HashSet<String> virAttrNames = new HashSet<String>();
+        for (AbstractVirAttr attr : virAttrs) {
+            virAttrNames.add(attr.getSchema().getName());
+        }
+        return virAttrNames;
     }
 }

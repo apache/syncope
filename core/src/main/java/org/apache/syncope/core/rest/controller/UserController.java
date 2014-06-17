@@ -39,6 +39,8 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.mod.AttributeMod;
+import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -249,6 +251,20 @@ public class UserController extends AbstractAttributableController<UserTO, UserM
         UserMod actual = attrTransformer.transform(userMod);
         LOG.debug("Transformed: {}", actual);
 
+        // SYNCOPE-501: check if there are memberships to be removed with virtual attributes assigned
+        Boolean removeMemberships = Boolean.FALSE;
+
+        for (Long membershipId : actual.getMembershipsToRemove()) {
+            if (!binder.fillMembershipVirtual(
+                    null,
+                    null,
+                    membershipId,
+                    Collections.<String>emptySet(),
+                    Collections.<AttributeMod>emptySet(),
+                    Boolean.TRUE).isEmpty()) {
+                removeMemberships = Boolean.TRUE;
+            }
+        }
         //Actual operations: workflow, propagation, notification
         WorkflowResult<Map.Entry<UserMod, Boolean>> updated = uwfAdapter.update(actual);
 
@@ -259,11 +275,23 @@ public class UserController extends AbstractAttributableController<UserTO, UserM
                     updated.getResult().getKey().getId(),
                     actual.getVirAttrsToRemove(),
                     actual.getVirAttrsToUpdate());
-            // SYNCOPE-501: update only virtual attributes (if any of them changed), password propagation is 
-            // not required
-            tasks.addAll(propByResVirAttr.isEmpty()
-                    ? Collections.<PropagationTask>emptyList()
-                    : propagationManager.getUserUpdateTaskIds(updated, false, null));
+            // SYNCOPE-501: update only virtual attributes (if any of them changed), password propagation is
+            // not required, take care also of membership virtual attributes
+            Boolean addOrUpdateMemberships = Boolean.FALSE;
+            for (MembershipMod membershipMod : actual.getMembershipsToAdd()) {
+                if (!binder.fillMembershipVirtual(
+                        updated.getResult().getKey().getId(),
+                        membershipMod.getRole(),
+                        null,
+                        membershipMod.getVirAttrsToRemove(),
+                        membershipMod.getVirAttrsToUpdate(),
+                        Boolean.FALSE).isEmpty()) {
+                    addOrUpdateMemberships = Boolean.TRUE;
+                }
+            }
+            tasks.addAll(!propByResVirAttr.isEmpty() || addOrUpdateMemberships || removeMemberships
+                    ? propagationManager.getUserUpdateTaskIds(updated, false, null)
+                    : Collections.<PropagationTask>emptyList());
         }
 
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
