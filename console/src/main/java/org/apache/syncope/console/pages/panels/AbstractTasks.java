@@ -21,6 +21,7 @@ package org.apache.syncope.console.pages.panels;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.rest.TaskRestClient;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -35,6 +36,8 @@ public abstract class AbstractTasks extends Panel {
     protected static final int WIN_WIDTH = 700;
 
     protected static final String TASKS = "Tasks";
+    
+    protected PageReference pageRef;
 
     @SpringBean
     protected TaskRestClient restClient;
@@ -45,7 +48,8 @@ public abstract class AbstractTasks extends Panel {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
-    public AbstractTasks(final String id) {
+    public AbstractTasks(final String id, final PageReference pageRef) {
         super(id);
+        this.pageRef = pageRef;
     }
 }

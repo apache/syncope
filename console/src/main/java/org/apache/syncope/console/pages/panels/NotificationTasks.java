@@ -60,13 +60,11 @@ public class NotificationTasks extends AbstractTasks {
 
     private ModalWindow window;
 
-    private final List<IColumn<TaskTO, String>> columns;
-
     private AjaxDataTablePanel<TaskTO, String> table;
-
+    
     public NotificationTasks(final String id, final PageReference pageRef) {
-        super(id);
-
+        super(id, pageRef);
+        
         container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         add(container);
@@ -75,7 +73,69 @@ public class NotificationTasks extends AbstractTasks {
 
         paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS);
 
-        columns = new ArrayList<IColumn<TaskTO, String>>();
+        table = Tasks.updateTaskTable(
+                getColumns(),
+                new TasksProvider<NotificationTaskTO>(restClient, paginatorRows, getId(), NotificationTaskTO.class),
+                container,
+                0,
+                pageRef,
+                restClient);
+
+        container.add(table);
+
+        window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                target.add(container);
+                if (operationResult) {
+                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(getPage().get(Constants.FEEDBACK));
+                    operationResult = false;
+                }
+            }
+        });
+
+        window.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        window.setInitialHeight(WIN_HEIGHT);
+        window.setInitialWidth(WIN_WIDTH);
+        window.setCookieName(VIEW_TASK_WIN_COOKIE_NAME);
+
+        final Form paginatorForm = new Form("PaginatorForm");
+
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
+                prefMan.getPaginatorChoices());
+
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                prefMan.set(getWebRequest(), (WebResponse) getResponse(),
+                        Constants.PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS, String.valueOf(paginatorRows));
+
+                table = Tasks.updateTaskTable(
+                        getColumns(),
+                        new TasksProvider<NotificationTaskTO>(restClient, paginatorRows, getId(),
+                                NotificationTaskTO.class),
+                        container,
+                        table == null ? 0 : (int) table.getCurrentPage(),
+                        pageRef,
+                        restClient);
+
+                target.add(container);
+            }
+        });
+
+        paginatorForm.add(rowsChooser);
+        add(paginatorForm);
+    }
+
+    private List<IColumn<TaskTO, String>> getColumns() {
+        final List<IColumn<TaskTO, String>> columns = new ArrayList<IColumn<TaskTO, String>>();
 
         columns.add(new PropertyColumn<TaskTO, String>(
                 new StringResourceModel("id", this, null), "id", "id"));
@@ -179,66 +239,8 @@ public class NotificationTasks extends AbstractTasks {
                 return panel;
             }
         });
-
-        table = Tasks.updateTaskTable(
-                columns,
-                new TasksProvider<NotificationTaskTO>(restClient, paginatorRows, getId(), NotificationTaskTO.class),
-                container,
-                0,
-                pageRef,
-                restClient);
-
-        container.add(table);
-
-        window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                target.add(container);
-                if (operationResult) {
-                    info(getString(Constants.OPERATION_SUCCEEDED));
-                    target.add(getPage().get(Constants.FEEDBACK));
-                    operationResult = false;
-                }
-            }
-        });
-
-        window.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        window.setInitialHeight(WIN_HEIGHT);
-        window.setInitialWidth(WIN_WIDTH);
-        window.setCookieName(VIEW_TASK_WIN_COOKIE_NAME);
-
-        Form paginatorForm = new Form("PaginatorForm");
-
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
-                prefMan.getPaginatorChoices());
-
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getWebRequest(), (WebResponse) getResponse(),
-                        Constants.PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS, String.valueOf(paginatorRows));
-
-                table = Tasks.updateTaskTable(
-                        columns,
-                        new TasksProvider<NotificationTaskTO>(restClient, paginatorRows, getId(),
-                        NotificationTaskTO.class),
-                        container,
-                        table == null ? 0 : (int) table.getCurrentPage(),
-                        pageRef,
-                        restClient);
-
-                target.add(container);
-            }
-        });
-
-        paginatorForm.add(rowsChooser);
-        add(paginatorForm);
+        
+        return columns;
     }
 
     @Override
