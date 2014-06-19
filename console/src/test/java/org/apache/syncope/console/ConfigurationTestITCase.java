@@ -98,7 +98,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//tr[6]/td[3]/div/span[14]/a");
+        selenium.click("//tr[3]/td[3]/div/span[14]/a");
 
         assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
 

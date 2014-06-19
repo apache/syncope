@@ -62,13 +62,11 @@ public class SchedTasks extends AbstractTasks {
 
     private ModalWindow window;
 
-    private final List<IColumn<AbstractTaskTO, String>> columns;
-
     private AjaxDataTablePanel<AbstractTaskTO, String> table;
-
+    
     public SchedTasks(final String id, final PageReference pageRef) {
-        super(id);
-
+        super(id, pageRef);
+        
         container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         add(container);
@@ -84,7 +82,73 @@ public class SchedTasks extends AbstractTasks {
 
         paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_SCHED_TASKS_PAGINATOR_ROWS);
 
-        columns = new ArrayList<IColumn<AbstractTaskTO, String>>();
+        table = Tasks.updateTaskTable(
+                getColumns(),
+                new TasksProvider<SchedTaskTO>(restClient, paginatorRows, getId(), SchedTaskTO.class),
+                container,
+                0,
+                pageRef,
+                restClient);
+
+        container.add(table);
+
+        Form paginatorForm = new Form("PaginatorForm");
+
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
+                prefMan.getPaginatorChoices());
+
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                prefMan.set(getWebRequest(), (WebResponse) getResponse(), Constants.PREF_SCHED_TASKS_PAGINATOR_ROWS,
+                        String.valueOf(paginatorRows));
+
+                table = Tasks.updateTaskTable(
+                        getColumns(),
+                        new TasksProvider<SchedTaskTO>(restClient, paginatorRows, getId(), SchedTaskTO.class),
+                        container,
+                        table == null ? 0 : (int) table.getCurrentPage(),
+                        pageRef,
+                        restClient);
+
+                target.add(container);
+            }
+        });
+
+        paginatorForm.add(rowsChooser);
+        add(paginatorForm);
+
+        AjaxLink createLink = new ClearIndicatingAjaxLink("createLink", pageRef) {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            protected void onClickInternal(final AjaxRequestTarget target) {
+                window.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID = -7834632442532690940L;
+
+                    @Override
+                    public Page createPage() {
+                        return new SchedTaskModalPage(window, new SchedTaskTO(), pageRef);
+                    }
+                });
+
+                window.show(target);
+            }
+        };
+
+        MetaDataRoleAuthorizationStrategy.authorize(
+                createLink, RENDER, xmlRolesReader.getAllAllowedRoles(TASKS, "create"));
+
+        add(createLink);
+    }
+    
+    private List<IColumn<AbstractTaskTO, String>> getColumns() {
+        final List<IColumn<AbstractTaskTO, String>> columns = new ArrayList<IColumn<AbstractTaskTO, String>>();
 
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("id", this, null), "id", "id"));
@@ -208,72 +272,7 @@ public class SchedTasks extends AbstractTasks {
                 return panel;
             }
         });
-
-        table = Tasks.updateTaskTable(
-                columns,
-                new TasksProvider<SchedTaskTO>(restClient, paginatorRows, getId(), SchedTaskTO.class),
-                container,
-                0,
-                pageRef,
-                restClient);
-
-        container.add(table);
-
-        @SuppressWarnings("rawtypes")
-        Form paginatorForm = new Form("PaginatorForm");
-
-        @SuppressWarnings({ "unchecked", "rawtypes" })
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
-                prefMan.getPaginatorChoices());
-
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getWebRequest(), (WebResponse) getResponse(), Constants.PREF_SCHED_TASKS_PAGINATOR_ROWS,
-                        String.valueOf(paginatorRows));
-
-                table = Tasks.updateTaskTable(
-                        columns,
-                        new TasksProvider<SchedTaskTO>(restClient, paginatorRows, getId(), SchedTaskTO.class),
-                        container,
-                        table == null ? 0 : (int) table.getCurrentPage(),
-                        pageRef,
-                        restClient);
-
-                target.add(container);
-            }
-        });
-
-        paginatorForm.add(rowsChooser);
-        add(paginatorForm);
-
-        AjaxLink<Void> createLink = new ClearIndicatingAjaxLink<Void>("createLink", pageRef) {
-
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            protected void onClickInternal(final AjaxRequestTarget target) {
-                window.setPageCreator(new ModalWindow.PageCreator() {
-
-                    private static final long serialVersionUID = -7834632442532690940L;
-
-                    @Override
-                    public Page createPage() {
-                        return new SchedTaskModalPage(window, new SchedTaskTO(), pageRef);
-                    }
-                });
-
-                window.show(target);
-            }
-        };
-
-        MetaDataRoleAuthorizationStrategy.authorize(
-                createLink, RENDER, xmlRolesReader.getAllAllowedRoles(TASKS, "create"));
-
-        add(createLink);
+        return columns;
     }
 
     @Override
