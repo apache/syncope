@@ -163,7 +163,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             LOG.debug("User {} successfully authenticated, with roles {}",
                     authentication.getPrincipal(), token.getAuthorities());
 
-            if (user != null) {
+            if (user != null && Boolean.valueOf(confDAO.find("log.lastlogindate", Boolean.toString(true)).getValue())) {
                 user.setLastLoginDate(new Date());
                 user.setFailedLogins(0);
                 userDAO.save(user);
