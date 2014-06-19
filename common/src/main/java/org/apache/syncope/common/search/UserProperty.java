@@ -26,8 +26,4 @@ public interface UserProperty extends SyncopeProperty {
 
     CompleteCondition hasNotRoles(Long role, Long... moreRoles);
 
-    CompleteCondition hasResources(String resource, String... moreResources);
-
-    CompleteCondition hasNotResources(String resource, String... moreResources);
-
 }

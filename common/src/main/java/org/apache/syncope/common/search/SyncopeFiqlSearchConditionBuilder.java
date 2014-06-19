@@ -59,6 +59,14 @@ public abstract class SyncopeFiqlSearchConditionBuilder extends FiqlSearchCondit
         return newBuilderInstance().is(property).notNullValue();
     }
 
+    public CompleteCondition hasResources(final String resource, final String... moreResources) {
+        return newBuilderInstance().is(SpecialAttr.RESOURCES.toString()).hasResources(resource, moreResources);
+    }
+
+    public CompleteCondition hasNotResources(final String resource, final String... moreResources) {
+        return newBuilderInstance().is(SpecialAttr.RESOURCES.toString()).hasNotResources(resource, moreResources);
+    }
+
     protected static class Builder extends FiqlSearchConditionBuilder.Builder
             implements SyncopeProperty, CompleteCondition {
 
@@ -87,5 +95,16 @@ public abstract class SyncopeFiqlSearchConditionBuilder extends FiqlSearchCondit
             return condition(FiqlParser.NEQ, SpecialAttr.NULL);
         }
 
+        @Override
+        public CompleteCondition hasResources(final String resource, final String... moreResources) {
+            this.result = SpecialAttr.RESOURCES.toString();
+            return condition(FiqlParser.EQ, resource, (Object[]) moreResources);
+        }
+
+        @Override
+        public CompleteCondition hasNotResources(final String resource, final String... moreResources) {
+            this.result = SpecialAttr.RESOURCES.toString();
+            return condition(FiqlParser.NEQ, resource, (Object[]) moreResources);
+        }
     }
 }

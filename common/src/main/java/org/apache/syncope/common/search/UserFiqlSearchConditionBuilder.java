@@ -91,19 +91,5 @@ public class UserFiqlSearchConditionBuilder extends SyncopeFiqlSearchConditionBu
             this.result = SpecialAttr.ROLES.toString();
             return condition(FiqlParser.NEQ, role, (Object[]) moreRoles);
         }
-
-        @Override
-        public CompleteCondition hasResources(final String resource, final String... moreResources) {
-            this.result = SpecialAttr.RESOURCES.toString();
-            return condition(FiqlParser.EQ, resource, (Object[]) moreResources);
-        }
-
-        @Override
-        public CompleteCondition hasNotResources(final String resource, final String... moreResources) {
-            this.result = SpecialAttr.RESOURCES.toString();
-            return condition(FiqlParser.NEQ, resource, (Object[]) moreResources);
-        }
-
     }
-
 }

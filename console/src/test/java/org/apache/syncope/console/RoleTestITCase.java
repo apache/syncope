@@ -176,4 +176,24 @@ public class RoleTestITCase extends AbstractTest {
 
         assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
     }
+
+    @Test
+    public void issueSYNCOPE510() {
+        selenium.click("css=img[alt=\"Roles\"]");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"link=Search\");", "30000");
+
+        selenium.click("link=Search");
+        selenium.select("//td[2]/select", "label=RESOURCE");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//td[3]/select[option='ws-target-resource-2']\");",
+                "30000");
+
+        selenium.select("//td[3]/select", "label=ws-target-resource-2");
+        selenium.click("//form/a");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//div[3]/div[2]/div[2]/span/div[1]/span[1]/span/form/span/table/tbody/"
+                + "tr/td[3]/div\");", "30000");
+    }
 }

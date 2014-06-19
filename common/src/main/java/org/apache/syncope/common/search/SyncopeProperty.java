@@ -29,5 +29,9 @@ public abstract interface SyncopeProperty extends Property {
     CompleteCondition nullValue();
 
     CompleteCondition notNullValue();
+    
+    CompleteCondition hasResources(String resource, String... moreResources);
+
+    CompleteCondition hasNotResources(String resource, String... moreResources);
 
 }

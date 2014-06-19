@@ -330,10 +330,8 @@ public abstract class AbstractSearchPanel extends Panel {
 
                 case RESOURCE:
                     condition = searchClauses.get(i).getComparator() == SearchClause.Comparator.EQUALS
-                            ? ((UserFiqlSearchConditionBuilder) builder).
-                            hasResources(searchClauses.get(i).getProperty())
-                            : ((UserFiqlSearchConditionBuilder) builder).
-                            hasNotResources(searchClauses.get(i).getProperty());
+                            ? builder.hasResources(searchClauses.get(i).getProperty())
+                            : builder.hasNotResources(searchClauses.get(i).getProperty());
                     break;
 
                 case ATTRIBUTE:
