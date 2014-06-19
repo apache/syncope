@@ -32,6 +32,8 @@ under the License.
   <SyncopeConf confKey="notification.maxRetries" confValue="0"/>
   <!-- when needing to provide more values, use '|' as separator and no spaces -->
   <SyncopeConf confKey="authentication.statuses" confValue="active"/>
+  <!-- Save user login date upon successful authentication -->
+  <SyncopeConf confKey="log.lastlogindate" confValue="true"/>
     
   <!-- Authentication and authorization -->
   <Entitlement name="SCHEMA_CREATE"/>
