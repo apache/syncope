@@ -30,7 +30,8 @@ public enum AttributeSchemaType {
     Boolean(Boolean.class),
     Date(Date.class),
     Enum(Enum.class),
-    Encrypted(byte[].class);
+    Encrypted(byte[].class),
+    Binary(byte[].class);
 
     final private Class<?> type;
 

@@ -76,6 +76,7 @@ import javax.naming.NamingException;
 import javax.ws.rs.core.EntityTag;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.mod.ResourceAssociationMod;
@@ -1743,7 +1744,7 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE357() {
+    public void issueSYNCOPE357() throws IOException {
         // 1. create role with LDAP resource
         RoleTO roleTO = new RoleTO();
         roleTO.setName("SYNCOPE357-" + getUUIDString());
@@ -1756,6 +1757,8 @@ public class UserTestITCase extends AbstractTest {
         // 2. create user with membership of the above role
         UserTO userTO = getUniqueSampleTO("syncope357@syncope.apache.org");
         userTO.getAttrs().add(attributeTO("obscure", "valueToBeObscured"));
+        userTO.getAttrs().add(attributeTO("photo",
+                Base64Utility.encode(IOUtils.readBytesFromStream(getClass().getResourceAsStream("/favicon.jpg")))));
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(roleTO.getId());
         userTO.getMemberships().add(membershipTO);
@@ -1763,6 +1766,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
         assertNotNull(userTO.getAttrMap().get("obscure"));
+        assertNotNull(userTO.getAttrMap().get("photo"));
 
         // 3. read user on resource
         ConnObjectTO connObj = resourceService.getConnectorObject(
@@ -1771,6 +1775,9 @@ public class UserTestITCase extends AbstractTest {
         AttributeTO registeredAddress = connObj.getAttrMap().get("registeredAddress");
         assertNotNull(registeredAddress);
         assertEquals(userTO.getAttrMap().get("obscure").getValues(), registeredAddress.getValues());
+        AttributeTO jpegPhoto = connObj.getAttrMap().get("jpegPhoto");
+        assertNotNull(jpegPhoto);
+        assertEquals(userTO.getAttrMap().get("photo").getValues(), jpegPhoto.getValues());
 
         // 4. remove role
         roleService.delete(roleTO.getId());

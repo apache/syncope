@@ -252,8 +252,7 @@ public class UserController extends AbstractAttributableController<UserTO, UserM
         LOG.debug("Transformed: {}", actual);
 
         // SYNCOPE-501: check if there are memberships to be removed with virtual attributes assigned
-        Boolean removeMemberships = Boolean.FALSE;
-
+        boolean removeMemberships = false;
         for (Long membershipId : actual.getMembershipsToRemove()) {
             if (!binder.fillMembershipVirtual(
                     null,
@@ -261,8 +260,9 @@ public class UserController extends AbstractAttributableController<UserTO, UserM
                     membershipId,
                     Collections.<String>emptySet(),
                     Collections.<AttributeMod>emptySet(),
-                    Boolean.TRUE).isEmpty()) {
-                removeMemberships = Boolean.TRUE;
+                    true).isEmpty()) {
+
+                removeMemberships = true;
             }
         }
         //Actual operations: workflow, propagation, notification
@@ -277,7 +277,7 @@ public class UserController extends AbstractAttributableController<UserTO, UserM
                     actual.getVirAttrsToUpdate());
             // SYNCOPE-501: update only virtual attributes (if any of them changed), password propagation is
             // not required, take care also of membership virtual attributes
-            Boolean addOrUpdateMemberships = Boolean.FALSE;
+            boolean addOrUpdateMemberships = false;
             for (MembershipMod membershipMod : actual.getMembershipsToAdd()) {
                 if (!binder.fillMembershipVirtual(
                         updated.getResult().getKey().getId(),
@@ -285,8 +285,9 @@ public class UserController extends AbstractAttributableController<UserTO, UserM
                         null,
                         membershipMod.getVirAttrsToRemove(),
                         membershipMod.getVirAttrsToUpdate(),
-                        Boolean.FALSE).isEmpty()) {
-                    addOrUpdateMemberships = Boolean.TRUE;
+                        false).isEmpty()) {
+
+                    addOrUpdateMemberships = true;
                 }
             }
             tasks.addAll(!propByResVirAttr.isEmpty() || addOrUpdateMemberships || removeMemberships

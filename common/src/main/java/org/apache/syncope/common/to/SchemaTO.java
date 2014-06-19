@@ -35,14 +35,6 @@ public class SchemaTO extends AbstractSchemaTO {
 
     private String mandatoryCondition;
 
-    private String enumerationValues;
-
-    private String enumerationKeys;
-
-    private String secretKey;
-
-    private CipherAlgorithm cipherAlgorithm;
-
     private boolean multivalue;
 
     private boolean uniqueConstraint;
@@ -52,6 +44,16 @@ public class SchemaTO extends AbstractSchemaTO {
     private String conversionPattern;
 
     private String validatorClass;
+
+    private String enumerationValues;
+
+    private String enumerationKeys;
+
+    private String secretKey;
+
+    private CipherAlgorithm cipherAlgorithm;
+
+    private String mimeType;
 
     public String getConversionPattern() {
         return conversionPattern;
@@ -69,38 +71,6 @@ public class SchemaTO extends AbstractSchemaTO {
 
     public void setMandatoryCondition(final String mandatoryCondition) {
         this.mandatoryCondition = mandatoryCondition;
-    }
-
-    public String getEnumerationValues() {
-        return enumerationValues;
-    }
-
-    public void setEnumerationValues(final String enumerationValues) {
-        this.enumerationValues = enumerationValues;
-    }
-
-    public String getEnumerationKeys() {
-        return enumerationKeys;
-    }
-
-    public void setEnumerationKeys(final String enumerationKeys) {
-        this.enumerationKeys = enumerationKeys;
-    }
-
-    public String getSecretKey() {
-        return secretKey;
-    }
-
-    public void setSecretKey(final String secretKey) {
-        this.secretKey = secretKey;
-    }
-
-    public CipherAlgorithm getCipherAlgorithm() {
-        return cipherAlgorithm;
-    }
-
-    public void setCipherAlgorithm(final CipherAlgorithm cipherAlgorithm) {
-        this.cipherAlgorithm = cipherAlgorithm;
     }
 
     public boolean isMultivalue() {
@@ -142,4 +112,45 @@ public class SchemaTO extends AbstractSchemaTO {
     public void setValidatorClass(final String validatorClass) {
         this.validatorClass = validatorClass;
     }
+
+    public String getEnumerationValues() {
+        return enumerationValues;
+    }
+
+    public void setEnumerationValues(final String enumerationValues) {
+        this.enumerationValues = enumerationValues;
+    }
+
+    public String getEnumerationKeys() {
+        return enumerationKeys;
+    }
+
+    public void setEnumerationKeys(final String enumerationKeys) {
+        this.enumerationKeys = enumerationKeys;
+    }
+
+    public String getSecretKey() {
+        return secretKey;
+    }
+
+    public void setSecretKey(final String secretKey) {
+        this.secretKey = secretKey;
+    }
+
+    public CipherAlgorithm getCipherAlgorithm() {
+        return cipherAlgorithm;
+    }
+
+    public void setCipherAlgorithm(final CipherAlgorithm cipherAlgorithm) {
+        this.cipherAlgorithm = cipherAlgorithm;
+    }
+
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public void setMimeType(final String mimeType) {
+        this.mimeType = mimeType;
+    }
+
 }

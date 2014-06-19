@@ -89,6 +89,9 @@ public abstract class AbstractNormalSchema extends AbstractSchema {
     @Enumerated(EnumType.STRING)
     private CipherAlgorithm cipherAlgorithm;
 
+    @Column(nullable = true)
+    private String mimeType;
+
     @Transient
     private AbstractValidator validator;
 
@@ -229,6 +232,14 @@ public abstract class AbstractNormalSchema extends AbstractSchema {
 
     public void setCipherAlgorithm(final CipherAlgorithm cipherAlgorithm) {
         this.cipherAlgorithm = cipherAlgorithm;
+    }
+
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public void setMimeType(final String mimeType) {
+        this.mimeType = mimeType;
     }
 
 }

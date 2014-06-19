@@ -46,6 +46,9 @@ public class AttrValueValidator extends AbstractValidator<AttrValueCheck, Abstra
             if (object.getLongValue() != null) {
                 nonNullVales++;
             }
+            if (object.getBinaryValue()!= null) {
+                nonNullVales++;
+            }
             if (object.getStringValue() != null) {
                 nonNullVales++;
             }

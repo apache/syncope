@@ -45,6 +45,7 @@ import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.BinaryFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.DateTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
@@ -110,7 +111,7 @@ public class AttributesPanel extends Panel {
                         final AttributeTO attributeTO = (AttributeTO) item.getDefaultModelObject();
 
                         final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
-                        
+
                         final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp,
                                 "questionMarkJexlHelp");
                         item.add(questionMarkJexlHelp);
@@ -279,6 +280,17 @@ public class AttributesPanel extends Panel {
             case Double:
                 panel = new SpinnerFieldPanel<Double>("panel", schemaTO.getName(),
                         Double.class, new Model<Double>(), null, null);
+
+                if (required) {
+                    panel.addRequiredLabel();
+                }
+                break;
+
+            case Binary:
+                panel = new BinaryFieldPanel("panel", schemaTO.getName(), new Model<String>(),
+                        schemas.containsKey(schemaTO.getName())
+                        ? schemas.get(schemaTO.getName()).getMimeType()
+                        : null);
 
                 if (required) {
                     panel.addRequiredLabel();

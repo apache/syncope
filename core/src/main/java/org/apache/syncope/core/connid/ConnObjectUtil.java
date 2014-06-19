@@ -35,12 +35,15 @@ import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.common.util.AttributableOperations;
+import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
+import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
@@ -52,19 +55,22 @@ import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
+import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.propagation.ConnectorFactory;
+import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.propagation.Connector;
+import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.InvalidPasswordPolicySpecException;
-import org.apache.syncope.core.util.jexl.JexlUtil;
 import org.apache.syncope.core.util.MappingUtil;
 import org.apache.syncope.core.util.SecureRandomUtil;
 import org.apache.syncope.core.util.VirAttrCache;
 import org.apache.syncope.core.util.VirAttrCacheValue;
+import org.apache.syncope.core.util.jexl.JexlUtil;
+import org.identityconnectors.common.Base64;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -104,6 +110,9 @@ public class ConnObjectUtil {
 
     @Autowired
     private ResourceDAO resourceDAO;
+
+    @Autowired
+    private SchemaDAO schemaDAO;
 
     @Autowired
     private PasswordGenerator pwdGen;
@@ -303,11 +312,28 @@ public class ConnObjectUtil {
                     attributeTO = new AttributeTO();
                     attributeTO.setSchema(item.getIntAttrName());
 
+                    AbstractNormalSchema schema = schemaDAO.find(item.getIntAttrName(), attrUtil.schemaClass());
+
                     for (Object value : attribute == null || attribute.getValue() == null
                             ? Collections.emptyList()
                             : attribute.getValue()) {
+
                         if (value != null) {
-                            attributeTO.getValues().add(value.toString());
+                            final AbstractAttrValue attrValue = attrUtil.newAttrValue();
+                            if (schema == null) {
+                                attrValue.setStringValue(value.toString());
+                            } else if (schema.getType() == AttributeSchemaType.Binary) {
+                                attrValue.setBinaryValue((byte[]) value);
+                            } else {
+                                try {
+                                    attrValue.parseValue(schema, value.toString());
+                                } catch (ParsingValidationException e) {
+                                    LOG.error("While parsing provided value {}", value, e);
+                                    attrValue.setStringValue(value.toString());
+                                }
+                            }
+                            attributeTO.getValues().add(attrValue.getValueAsString(
+                                    schema == null ? AttributeSchemaType.String : schema.getType()));
                         }
                     }
 
@@ -486,6 +512,8 @@ public class ConnObjectUtil {
                     if (value != null) {
                         if (value instanceof GuardedString || value instanceof GuardedByteArray) {
                             attrTO.getValues().add(getPassword(value));
+                        } else if (value instanceof byte[]) {
+                            attrTO.getValues().add(Base64.encode((byte[]) value));
                         } else {
                             attrTO.getValues().add(value.toString());
                         }
@@ -625,9 +653,9 @@ public class ConnObjectUtil {
                 }
             }
 
-                virAttrCache.put(attrUtil.getType(), owner.getId(), schemaName, toBeCached);
-            }
+            virAttrCache.put(attrUtil.getType(), owner.getId(), schemaName, toBeCached);
         }
+    }
 
     private Set<ExternalResource> getTargetResource(
             final AbstractVirAttr attr, final IntMappingType type, final AttributableUtil attrUtil) {

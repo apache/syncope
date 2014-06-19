@@ -96,8 +96,6 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
     }
 
     public String getFilename() {
-        return filename == null
-                ? Constants.ERROR
-                : filename;
+        return filename;
     }
 }

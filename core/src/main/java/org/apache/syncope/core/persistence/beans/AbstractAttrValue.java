@@ -18,20 +18,26 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import javax.persistence.Basic;
+import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.types.AttributeSchemaType;
+import org.apache.syncope.core.persistence.validation.attrvalue.InvalidAttrValueException;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.persistence.validation.entity.AttrValueCheck;
 import org.apache.syncope.core.util.DataFormat;
 import org.apache.syncope.core.util.Encryptor;
+import org.springframework.security.crypto.codec.Base64;
 
 @MappedSuperclass
 @AttrValueCheck
@@ -52,6 +58,9 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
     private Long longValue;
 
     private Double doubleValue;
+
+    @Lob
+    private byte[] binaryValue;
 
     public abstract Long getId();
 
@@ -103,7 +112,15 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
         this.stringValue = stringValue;
     }
 
-    public <T extends AbstractAttrValue> void parseValue(final AbstractNormalSchema schema, final String value)
+    public byte[] getBinaryValue() {
+        return binaryValue;
+    }
+
+    public void setBinaryValue(final byte[] binaryValue) {
+        this.binaryValue = ArrayUtils.clone(binaryValue);
+    }
+
+    public void parseValue(final AbstractNormalSchema schema, final String value)
             throws ParsingValidationException {
 
         Exception exception = null;
@@ -153,6 +170,14 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
                 }
                 break;
 
+            case Binary:
+                try {
+                    this.setBinaryValue(Base64.decode(value.getBytes(SyncopeConstants.DEFAULT_ENCODING)));
+                } catch (UnsupportedEncodingException pe) {
+                    exception = pe;
+                }
+                break;
+
             case String:
             case Enum:
             default:
@@ -169,22 +194,30 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
     public <T> T getValue() {
         return (T) (booleanValue != null
                 ? getBooleanValue()
-                : (dateValue != null
+                : dateValue != null
                 ? getDateValue()
-                : (doubleValue != null
+                : doubleValue != null
                 ? getDoubleValue()
-                : (longValue != null
+                : longValue != null
                 ? getLongValue()
-                : stringValue))));
+                : binaryValue != null
+                ? getBinaryValue()
+                : stringValue);
     }
 
     public String getValueAsString() {
-        String result = null;
-
         final AttributeSchemaType type = getAttribute() == null || getAttribute().getSchema() == null
                 || getAttribute().getSchema().getType() == null
                 ? AttributeSchemaType.String
                 : getAttribute().getSchema().getType();
+
+        return getValueAsString(type);
+    }
+
+    public String getValueAsString(final AttributeSchemaType type) {
+        Exception exception = null;
+
+        String result = null;
 
         switch (type) {
 
@@ -193,21 +226,32 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
                 break;
 
             case Long:
-                result = getAttribute().getSchema().getConversionPattern() == null
+                result = getAttribute() == null || getAttribute().getSchema() == null
+                        || getAttribute().getSchema().getConversionPattern() == null
                         ? getLongValue().toString()
                         : DataFormat.format(getLongValue(), getAttribute().getSchema().getConversionPattern());
                 break;
 
             case Double:
-                result = getAttribute().getSchema().getConversionPattern() == null
+                result = getAttribute() == null || getAttribute().getSchema() == null
+                        || getAttribute().getSchema().getConversionPattern() == null
                         ? getDoubleValue().toString()
                         : DataFormat.format(getDoubleValue(), getAttribute().getSchema().getConversionPattern());
                 break;
 
             case Date:
-                result = getAttribute().getSchema().getConversionPattern() == null
+                result = getAttribute() == null || getAttribute().getSchema() == null
+                        || getAttribute().getSchema().getConversionPattern() == null
                         ? DataFormat.format(getDateValue())
                         : DataFormat.format(getDateValue(), false, getAttribute().getSchema().getConversionPattern());
+                break;
+
+            case Binary:
+                try {
+                    result = new String(Base64.encode(getBinaryValue()), SyncopeConstants.DEFAULT_ENCODING);
+                } catch (UnsupportedEncodingException fe) {
+                    exception = fe;
+                }
                 break;
 
             case String:
@@ -216,6 +260,11 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
             default:
                 result = getStringValue();
                 break;
+        }
+
+        if (exception != null) {
+            throw new InvalidAttrValueException("While trying to format '" + getValue() + "' as " + type,
+                    exception);
         }
 
         return result;

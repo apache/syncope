@@ -176,6 +176,9 @@ under the License.
   <USchema name="obscure" type="Encrypted"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
            secretKey="7abcdefghilmnopqrstuvz9#" cipherAlgorithm="SHA"/>
+  <USchema name="photo" type="Binary"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+           mimeType="application/jpg"/>
 
   <UDerSchema name="csvuserid" expression="firstname + ',' + surname"/>
   <UDerSchema name="cn" expression="surname + ', ' + firstname"/>
@@ -760,6 +763,9 @@ under the License.
   <UMappingItem id="320" accountid="0" password="0" mapping_id="11"
                 extAttrName="registeredAddress" intAttrName="obscure" intMappingType="UserSchema"
                 mandatoryCondition="false" purpose="BOTH"/>
+  <UMappingItem id="321" accountid="0" password="0" mapping_id="11"
+                extAttrName="jpegPhoto" intAttrName="photo" intMappingType="UserSchema"
+                mandatoryCondition="false" purpose="BOTH"/>
   
   <RMapping id="1" resource_name="resource-ldap"
             accountlink="&apos;cn=&apos; + name + &apos;,ou=groups,o=isp&apos;"/>
@@ -777,22 +783,22 @@ under the License.
                 accountid="0" password="0" purpose="BOTH"/>
         
   <UMapping id="16" resource_name="resource-db-sync"/>
-  <UMappingItem id="321" accountid="0" mapping_id="16"
+  <UMappingItem id="322" accountid="0" mapping_id="16"
                 extAttrName="EMAIL" intAttrName="email" intMappingType="UserSchema" 
                 mandatoryCondition="false" password="0" purpose="BOTH"/>
-  <UMappingItem id="322" accountid="0" mapping_id="16"
+  <UMappingItem id="323" accountid="0" mapping_id="16"
                 extAttrName="SURNAME" intAttrName="fullname" intMappingType="UserSchema" 
                 mandatoryCondition="false" password="0" purpose="BOTH"/>
-  <UMappingItem id="323" accountid="1" mapping_id="16"
+  <UMappingItem id="324" accountid="1" mapping_id="16"
                 extAttrName="__NAME__" intAttrName="aLong" intMappingType="UserSchema" 
                 mandatoryCondition="false" password="0" purpose="BOTH"/>
-  <UMappingItem id="324" accountid="0" mapping_id="16"
+  <UMappingItem id="325" accountid="0" mapping_id="16"
                 extAttrName="SURNAME" intAttrName="surname" intMappingType="UserSchema" 
                 mandatoryCondition="false" password="0" purpose="BOTH"/>
-  <UMappingItem id="325" accountid="0" mapping_id="16"
+  <UMappingItem id="326" accountid="0" mapping_id="16"
                 extAttrName="USERNAME" intAttrName="Username" intMappingType="Username" 
                 mandatoryCondition="false" password="0" purpose="BOTH"/>
-  <UMappingItem id="326" accountid="0" mapping_id="16"
+  <UMappingItem id="327" accountid="0" mapping_id="16"
                 extAttrName="EMAIL" intAttrName="userId" intMappingType="UserSchema" 
                 mandatoryCondition="false" password="0" purpose="BOTH"/>
               

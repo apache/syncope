@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
@@ -89,6 +92,9 @@ public class AbstractSyncTaskTO extends SchedTaskTO {
         this.syncStatus = syncStatus;
     }
 
+    @XmlElementWrapper(name = "actionsClassNames")
+    @XmlElement(name = "actionsClassName")
+    @JsonProperty("actionsClassNames")
     public List<String> getActionsClassNames() {
         return actionsClassNames;
     }

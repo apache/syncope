@@ -36,6 +36,8 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
 
     private static final long serialVersionUID = 6413819574530703577L;
 
+    private final String name;
+
     private final Class<T> reference;
 
     private final IModel<T> model;
@@ -48,7 +50,8 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
     public SpinnerFieldPanel(final String id, final String name, final Class<T> reference, final IModel<T> model,
             final T min, final T max) {
 
-        super(id, name, model);
+        super(id, model);
+        this.name = name;
         this.reference = reference;
         this.model = model;
         this.min = min;
@@ -178,7 +181,7 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
 
     @Override
     public SpinnerFieldPanel<T> clone() {
-        SpinnerFieldPanel<T> panel = new SpinnerFieldPanel<T>(id, name, reference, model, min, max);
+        SpinnerFieldPanel<T> panel = new SpinnerFieldPanel<T>(getId(), name, reference, model, min, max);
 
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());

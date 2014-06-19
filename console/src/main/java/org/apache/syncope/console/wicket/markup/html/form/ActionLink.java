@@ -75,7 +75,7 @@ public abstract class ActionLink implements Serializable {
         return reloadFeedbackPanel;
     }
 
-    public ActionLink feedbackPanelAutomaticReload(boolean reloadFeedbackPanel) {
+    public ActionLink feedbackPanelAutomaticReload(final boolean reloadFeedbackPanel) {
         this.reloadFeedbackPanel = reloadFeedbackPanel;
         return this;
     }

@@ -131,6 +131,16 @@ public class SchemaTestITCase extends AbstractTest {
     }
 
     @Test
+    public void createBinary() {
+        SchemaTO schemaTO = new SchemaTO();
+        schemaTO.setName("x509certificate");
+        schemaTO.setType(AttributeSchemaType.Binary);
+        schemaTO.setMimeType("application/x-x509-ca-cert");
+
+        createSchema(AttributableType.ROLE, SchemaType.NORMAL, schemaTO);
+    }
+
+    @Test
     public void delete() {
         SchemaTO schemaTO = buildSchemaTO("todelete", AttributeSchemaType.String);
         schemaTO.setMandatoryCondition("false");

@@ -31,7 +31,6 @@ import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.EntityViolationType;
-import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.role.RAttr;
 import org.apache.syncope.core.persistence.beans.role.RSchema;
 import org.apache.syncope.core.persistence.beans.user.USchema;
@@ -50,7 +49,7 @@ public class SchemaTest extends AbstractDAOTest {
     @Test
     public void findAll() {
         List<USchema> userList = schemaDAO.findAll(USchema.class);
-        assertEquals(14, userList.size());
+        assertEquals(15, userList.size());
 
         List<RSchema> roleList = schemaDAO.findAll(RSchema.class);
         assertEquals(5, roleList.size());

@@ -480,11 +480,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
      * @param vAttrsToBeRemoved virtual attributes to be removed.
      * @param vAttrsToBeUpdated virtual attributes to be updated.
      * @param isRemoval flag to check if fill is on removed or added membership
-     * @return operations to be performed on external resources formembership virtual attributes changes
+     * @return operations to be performed on external resources for membership virtual attributes changes
      */
     public PropagationByResource fillMembershipVirtual(
             final Long userId, final Long roleId, final Long membershipId, final Set<String> vAttrsToBeRemoved,
-            final Set<AttributeMod> vAttrsToBeUpdated, final Boolean isRemoval) {
+            final Set<AttributeMod> vAttrsToBeUpdated, final boolean isRemoval) {
+
         final Membership membership = membershipId == null
                 ? getUserFromId(userId).getMembership(roleId)
                 : getMembershipFromId(membershipId);
@@ -505,7 +506,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     }
 
     private Set<String> getAttributeNames(final List<? extends AbstractVirAttr> virAttrs) {
-        final HashSet<String> virAttrNames = new HashSet<String>();
+        final Set<String> virAttrNames = new HashSet<String>();
         for (AbstractVirAttr attr : virAttrs) {
             virAttrNames.add(attr.getSchema().getName());
         }

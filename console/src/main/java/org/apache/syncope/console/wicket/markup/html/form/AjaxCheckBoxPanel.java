@@ -33,8 +33,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
     private static final long serialVersionUID = 5664138233103884310L;
 
     public AjaxCheckBoxPanel(final String id, final String name, final IModel<Boolean> model) {
-
-        super(id, name, model);
+        super(id, model);
 
         field = new CheckBox("checkboxField", model);
         add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));

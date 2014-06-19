@@ -33,7 +33,6 @@ public class DateTextFieldPanel extends DateFieldPanel {
     private static final long serialVersionUID = 1919852712185883648L;
 
     public DateTextFieldPanel(final String id, final String name, final IModel<Date> model, final String datePattern) {
-
         super(id, name, model, datePattern);
 
         field = DateTextField.forDatePattern("field", model, datePattern);
@@ -76,7 +75,7 @@ public class DateTextFieldPanel extends DateFieldPanel {
 
     @Override
     public FieldPanel<Date> clone() {
-        final FieldPanel<Date> panel = new DateTextFieldPanel(id, name, new Model<Date>(), datePattern);
+        final FieldPanel<Date> panel = new DateTextFieldPanel(getId(), name, new Model<Date>(), datePattern);
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());
         panel.setTitle(title);

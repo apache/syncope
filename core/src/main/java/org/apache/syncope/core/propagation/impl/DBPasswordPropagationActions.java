@@ -49,7 +49,7 @@ public class DBPasswordPropagationActions extends DefaultPropagationActions {
     @Autowired
     private UserDAO userDAO;
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {
         super.before(task, beforeObj);

@@ -353,7 +353,7 @@ public class Configuration extends BasePage {
                 "Configuration", "create"));
         add(createConfigurationLink);
 
-        Link dbExportLink = new Link<Void>("dbExportLink") {
+        Link<Void> dbExportLink = new Link<Void>("dbExportLink") {
 
             private static final long serialVersionUID = -4331619903296515985L;
 

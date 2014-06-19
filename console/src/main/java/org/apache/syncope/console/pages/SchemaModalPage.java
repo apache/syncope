@@ -138,10 +138,21 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
         encryptedParams.add(cipherAlgorithm);
         schemaForm.add(encryptedParams);
 
+        // -- binary
+        final AjaxTextFieldPanel mimeType = new AjaxTextFieldPanel("mimeType",
+                getString("mimeType"), new PropertyModel<String>(schema, "mimeType"));
+
+        final WebMarkupContainer binaryParams = new WebMarkupContainer("binaryParams");
+        binaryParams.setOutputMarkupPlaceholderTag(true);
+        binaryParams.add(mimeType);
+        schemaForm.add(binaryParams);
+
+        // -- show or hide
         showHide(schema, type,
                 conversionParams, conversionPattern,
                 enumParams, enumerationValuesPanel, enumerationValues, enumerationKeys,
-                encryptedParams, secretKey, cipherAlgorithm);
+                encryptedParams, secretKey, cipherAlgorithm,
+                binaryParams, mimeType);
         type.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
@@ -151,7 +162,8 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
                 SchemaModalPage.this.showHide(schema, type,
                         conversionParams, conversionPattern,
                         enumParams, enumerationValuesPanel, enumerationValues, enumerationKeys,
-                        encryptedParams, secretKey, cipherAlgorithm);
+                        encryptedParams, secretKey, cipherAlgorithm,
+                        binaryParams, mimeType);
                 target.add(schemaForm);
             }
         });
@@ -286,10 +298,12 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
             final WebMarkupContainer enumParams, final AjaxTextFieldPanel enumerationValuesPanel,
             final MultiFieldPanel<String> enumerationValues, final MultiFieldPanel<String> enumerationKeys,
             final WebMarkupContainer encryptedParams,
-            final AjaxTextFieldPanel secretKey, final AjaxDropDownChoicePanel<CipherAlgorithm> cipherAlgorithm) {
+            final AjaxTextFieldPanel secretKey, final AjaxDropDownChoicePanel<CipherAlgorithm> cipherAlgorithm,
+            final WebMarkupContainer binaryParams, final AjaxTextFieldPanel mimeType) {
 
         final int typeOrdinal = Integer.parseInt(type.getField().getValue());
-        if (AttributeSchemaType.Long.ordinal() == typeOrdinal || AttributeSchemaType.Double.ordinal() == typeOrdinal
+        if (AttributeSchemaType.Long.ordinal() == typeOrdinal
+                || AttributeSchemaType.Double.ordinal() == typeOrdinal
                 || AttributeSchemaType.Date.ordinal() == typeOrdinal) {
 
             conversionParams.setVisible(true);
@@ -310,6 +324,9 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
                 cipherAlgorithm.removeRequiredLabel();
             }
             cipherAlgorithm.setModelObject(null);
+
+            binaryParams.setVisible(false);
+            mimeType.setModelObject(null);
         } else if (AttributeSchemaType.Enum.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -330,6 +347,9 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
                 cipherAlgorithm.removeRequiredLabel();
             }
             cipherAlgorithm.setModelObject(null);
+
+            binaryParams.setVisible(false);
+            mimeType.setModelObject(null);
         } else if (AttributeSchemaType.Encrypted.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -348,6 +368,31 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
             if (cipherAlgorithm.isRequired()) {
                 cipherAlgorithm.addRequiredLabel();
             }
+
+            binaryParams.setVisible(false);
+            mimeType.setModelObject(null);
+        } else if (AttributeSchemaType.Binary.ordinal() == typeOrdinal) {
+            conversionParams.setVisible(false);
+            conversionPattern.setModelObject(null);
+
+            enumParams.setVisible(false);
+            if (enumerationValuesPanel.isRequired()) {
+                enumerationValuesPanel.removeRequiredLabel();
+            }
+            enumerationValues.setModelObject(getEnumValuesAsList(null));
+            enumerationKeys.setModelObject(getEnumValuesAsList(null));
+
+            encryptedParams.setVisible(false);
+            if (secretKey.isRequired()) {
+                secretKey.removeRequiredLabel();
+            }
+            secretKey.setModelObject(null);
+            if (cipherAlgorithm.isRequired()) {
+                cipherAlgorithm.removeRequiredLabel();
+            }
+            cipherAlgorithm.setModelObject(null);
+
+            binaryParams.setVisible(true);
         } else {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -368,6 +413,9 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
                 cipherAlgorithm.removeRequiredLabel();
             }
             cipherAlgorithm.setModelObject(null);
+
+            binaryParams.setVisible(false);
+            mimeType.setModelObject(null);
         }
     }
 

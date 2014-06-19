@@ -35,10 +35,13 @@ public class DateFieldPanel extends FieldPanel<Date> {
 
     private static final long serialVersionUID = -428975732068281726L;
 
+    protected final String name;
+    
     protected final String datePattern;
 
     protected DateFieldPanel(final String id, final String name, final IModel<Date> model, final String datePattern) {
-        super(id, name, model);
+        super(id, model);
+        this.name = name;
         this.datePattern = datePattern;
     }
 

@@ -23,11 +23,13 @@ import javax.validation.ValidationException;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 
 public class InvalidAttrValueException extends ValidationException {
-    
+
+    private static final long serialVersionUID = -5023202610580202148L;
+
     public InvalidAttrValueException(final String errorMessage) {
         super(errorMessage);
     }
-    
+
     public InvalidAttrValueException(final String errorMessage, final Throwable t) {
         super(errorMessage, t);
     }

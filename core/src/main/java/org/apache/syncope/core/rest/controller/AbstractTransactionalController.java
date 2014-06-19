@@ -22,10 +22,9 @@ import org.apache.syncope.common.AbstractBaseBean;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Adds Spring's transactional support to <tt>AbstractController</tt>.
+ * Adds Spring's transactional support to {@link AbstractController}.
  *
  * @param <T> transfer object used for input / output
- * @see AbstractController
  */
 @Transactional(rollbackFor = { Throwable.class })
 abstract class AbstractTransactionalController<T extends AbstractBaseBean> extends AbstractController<T> {

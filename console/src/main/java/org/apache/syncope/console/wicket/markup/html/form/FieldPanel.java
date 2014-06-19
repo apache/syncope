@@ -35,19 +35,12 @@ public abstract class FieldPanel<T> extends AbstractFieldPanel<T> implements Clo
 
     protected FormComponent<T> field = null;
 
-    protected final String id;
-
-    protected final String name;
-
     protected String title = null;
 
     protected boolean isRequiredLabelAdded = false;
 
-    public FieldPanel(final String id, final String name, final IModel<T> model) {
+    public FieldPanel(final String id, final IModel<T> model) {
         super(id, model);
-
-        this.id = id;
-        this.name = name;
 
         final Fragment fragment = new Fragment("required", "notRequiredFragment", this);
         add(fragment);

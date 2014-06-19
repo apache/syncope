@@ -39,11 +39,10 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
     }
 
     public AjaxDropDownChoicePanel(final String id, final String name, final IModel<T> model, boolean enableOnBlur) {
-        super(id, name, model);
+        super(id, model);
 
         field = new DropDownChoice<T>(
                 "dropDownChoiceField", model, Collections.<T>emptyList(), new ChoiceRenderer<T>());
-
         add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));
 
         if (enableOnBlur) {

@@ -352,15 +352,16 @@ public class ResultStatusModalPage extends BaseModalPage {
             }
         }
 
-        Component label = new Label("value", value).add(new Behavior() {
+        Component label = new Label("value", value.length() > 50 ? value.substring(0, 50) + "..." : value).
+                add(new Behavior() {
 
-            private static final long serialVersionUID = 1469628524240283489L;
+                    private static final long serialVersionUID = 1469628524240283489L;
 
-            @Override
-            public void onComponentTag(final Component component, final ComponentTag tag) {
-                tag.put("title", value);
-            }
-        });
+                    @Override
+                    public void onComponentTag(final Component component, final ComponentTag tag) {
+                        tag.put("title", value);
+                    }
+                });
 
         final Fragment frag = new Fragment(id, "attrValueFrag", this);
         frag.add(label);

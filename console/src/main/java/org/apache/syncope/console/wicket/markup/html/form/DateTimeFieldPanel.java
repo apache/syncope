@@ -40,7 +40,6 @@ public class DateTimeFieldPanel extends DateFieldPanel {
     private Form form = null;
 
     public DateTimeFieldPanel(final String id, final String name, final IModel<Date> model, final String datePattern) {
-
         super(id, name, model, datePattern);
 
         field = new DateTimeField("field", model);
@@ -179,7 +178,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
 
     @Override
     public FieldPanel<Date> clone() {
-        final FieldPanel<Date> panel = new DateTimeFieldPanel(id, name, new Model<Date>(null), datePattern);
+        final FieldPanel<Date> panel = new DateTimeFieldPanel(getId(), name, new Model<Date>(null), datePattern);
 
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());

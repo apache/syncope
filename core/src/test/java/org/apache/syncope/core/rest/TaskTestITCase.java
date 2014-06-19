@@ -487,6 +487,8 @@ public class TaskTestITCase extends AbstractTest {
                 matchingUsers.getResult().get(0).getVirAttrMap().get("virtualReadOnly").getValues().get(0));
         // Check for SYNCOPE-270
         assertNotNull(matchingUsers.getResult().get(0).getAttrMap().get("obscure"));
+        // Check for SYNCOPE-123
+        assertNotNull(matchingUsers.getResult().get(0).getAttrMap().get("photo"));
 
         final RoleTO roleTO = matchingRoles.getResult().iterator().next();
         assertNotNull(roleTO);

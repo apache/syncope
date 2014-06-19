@@ -260,6 +260,9 @@ public class ResourceTO extends AbstractSysInfoTO {
         this.rsyncToken = syncToken;
     }
 
+    @XmlElementWrapper(name = "propagationActionsClassNames")
+    @XmlElement(name = "propagationActionsClassName")
+    @JsonProperty("propagationActionsClassNames")
     public List<String> getPropagationActionsClassNames() {
         return propagationActionsClassNames;
     }

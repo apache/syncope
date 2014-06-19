@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.syncope.console.commons.Constants;
-
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
@@ -40,7 +39,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
     private List<String> choices = Collections.emptyList();
 
     public AjaxTextFieldPanel(final String id, final String name, final IModel<String> model) {
-        super(id, name, model);
+        super(id, model);
 
         final AutoCompleteSettings settings = new AutoCompleteSettings();
         settings.setShowCompleteListOnFocusGain(true);
@@ -65,7 +64,6 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
                 return result.iterator();
             }
         };
-
         add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));
 
         if (!isReadOnly()) {

@@ -24,7 +24,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.Random;
 import javax.validation.ValidationException;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -36,6 +40,7 @@ import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.Encryptor;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -188,6 +193,32 @@ public class AttrTest extends AbstractDAOTest {
         assertEquals(1, obscure.getValues().size());
         assertEquals(Encryptor.getInstance(obscureSchema.getSecretKey()).
                 encode("testvalue", obscureSchema.getCipherAlgorithm()), obscure.getValues().get(0).getStringValue());
+    }
+
+    @Test
+    public void saveWithBinary() throws UnsupportedEncodingException {
+        SyncopeUser user = userDAO.find(1L);
+
+        final USchema photoSchema = userSchemaDAO.find("photo", USchema.class);
+        assertNotNull(photoSchema);
+        assertNotNull(photoSchema.getMimeType());
+
+        final byte[] bytes = new byte[20];
+        new Random().nextBytes(bytes);
+        final String photoB64Value = new String(Base64.encode(bytes), SyncopeConstants.DEFAULT_ENCODING);
+
+        UAttr attribute = new UAttr();
+        attribute.setSchema(photoSchema);
+        attribute.addValue(photoB64Value, AttributableUtil.getInstance(AttributableType.USER));
+        attribute.setOwner(user);
+        user.addAttr(attribute);
+
+        userDAO.save(user);
+
+        UAttr obscure = user.getAttr("photo");
+        assertNotNull(obscure);
+        assertEquals(1, obscure.getValues().size());
+        assertTrue(Arrays.equals(bytes, obscure.getValues().get(0).getBinaryValue()));
     }
 
     @Test
