@@ -33,18 +33,14 @@ import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Propagate a non-cleartext password out to a resource, if the PropagationManager has not already
- * added a password.
+ * added a password. 
  */
 public class DBPasswordPropagationActions extends DefaultPropagationActions {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DBPasswordPropagationActions.class);
 
     @Autowired
     private UserDAO userDAO;
@@ -53,12 +49,12 @@ public class DBPasswordPropagationActions extends DefaultPropagationActions {
     @Override
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {
         super.before(task, beforeObj);
-
+        
         if (AttributableType.USER == task.getSubjectType()) {
             SyncopeUser user = userDAO.find(task.getSubjectId());
             if (user != null && user.getPassword() != null) {
                 Attribute missing = AttributeUtil.find(
-                        AttributeUtil.createSpecialName(PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME),
+                        PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME,
                         task.getAttributes());
                 if (missing != null && missing.getValue() != null && missing.getValue().size() == 1
                         && missing.getValue().get(0).equals(OperationalAttributes.PASSWORD_NAME)) {
@@ -69,9 +65,16 @@ public class DBPasswordPropagationActions extends DefaultPropagationActions {
                     Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
                     attributes.add(passwordAttribute);
                     attributes.remove(missing);
+                    
+                    Attribute hashedPasswordAttribute = 
+                        AttributeBuilder.build(
+                            AttributeUtil.createSpecialName("HASHED_PASSWORD"), Boolean.TRUE);
+                    attributes.add(hashedPasswordAttribute);
+                    
                     task.setAttributes(attributes);
                 }
             }
         }
     }
+    
 }
