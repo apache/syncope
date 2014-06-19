@@ -324,7 +324,7 @@ under the License.
     <cxf.version>3.0.1-SNAPSHOT</cxf.version>	
     <spring.version>4.0.5.RELEASE</spring.version>
     <spring-security.version>3.2.4.RELEASE</spring-security.version>
-    <jackson.version>2.4.0</jackson.version>
+    <jackson.version>2.4.1</jackson.version>
     <xstream.version>1.4.7</xstream.version>
     <velocity.version>1.7</velocity.version>
     <velocitytools.version>2.0</velocitytools.version>
@@ -685,7 +685,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}</version>
+        <version>${jackson.version}.1</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.jaxrs</groupId>
