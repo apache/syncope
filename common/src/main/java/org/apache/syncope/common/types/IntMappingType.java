@@ -102,6 +102,7 @@ public enum IntMappingType {
                 enumset = EnumSet.allOf(MembershipMappingType.class);
                 break;
 
+            case USER:
             default:
                 enumset = EnumSet.allOf(UserMappingType.class);
         }

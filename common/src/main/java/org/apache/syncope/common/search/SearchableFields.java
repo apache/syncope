@@ -26,7 +26,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SubjectType;
 
 public class SearchableFields {
 
@@ -36,8 +36,8 @@ public class SearchableFields {
         "propagationTOs", "propagationStatusMap"
     };
 
-    public static final List<String> get(final AttributableType attributableType) {
-        return get(attributableType == AttributableType.USER
+    public static final List<String> get(final SubjectType subjectType) {
+        return get(subjectType == SubjectType.USER
                 ? UserTO.class
                 : RoleTO.class);
     }

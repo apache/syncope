@@ -25,10 +25,9 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-
 import org.apache.syncope.common.services.WorkflowService;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.RESTHeaders;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.rest.controller.WorkflowController;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,11 +40,12 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
     private WorkflowController controller;
 
     @Override
-    public Response getOptions(final AttributableType kind) {
+    public Response getOptions(final SubjectType kind) {
         String key = null;
         String value = null;
         switch (kind) {
             case USER:
+            default:
                 key = RESTHeaders.ACTIVITI_USER_ENABLED;
                 value = Boolean.toString(ActivitiDetector.isActivitiEnabledForUsers());
                 break;
@@ -54,9 +54,6 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
                 key = RESTHeaders.ACTIVITI_ROLE_ENABLED;
                 value = Boolean.toString(ActivitiDetector.isActivitiEnabledForRoles());
                 break;
-
-            case MEMBERSHIP:
-            default:
         }
 
         Response.ResponseBuilder builder = Response.ok().header(HttpHeaders.ALLOW, OPTIONS_ALLOW);
@@ -67,7 +64,7 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
     }
 
     @Override
-    public Response exportDefinition(final AttributableType kind) {
+    public Response exportDefinition(final SubjectType kind) {
         final MediaType accept =
                 messageContext.getHttpHeaders().getAcceptableMediaTypes().contains(MediaType.APPLICATION_JSON_TYPE)
                 ? MediaType.APPLICATION_JSON_TYPE
@@ -98,22 +95,20 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
     }
 
     @Override
-    public Response exportDiagram(final AttributableType kind) {
+    public Response exportDiagram(final SubjectType kind) {
         StreamingOutput sout = new StreamingOutput() {
 
             @Override
             public void write(final OutputStream os) throws IOException {
                 switch (kind) {
                     case USER:
+                    default:
                         controller.exportUserDiagram(os);
                         break;
 
                     case ROLE:
                         controller.exportRoleDiagram(os);
                         break;
-
-                    default:
-                        throw new BadRequestException();
                 }
             }
         };
@@ -124,7 +119,7 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
     }
 
     @Override
-    public void importDefinition(final AttributableType kind, final String definition) {
+    public void importDefinition(final SubjectType kind, final String definition) {
         final MediaType contentType =
                 messageContext.getHttpHeaders().getMediaType().equals(MediaType.APPLICATION_JSON_TYPE)
                 ? MediaType.APPLICATION_JSON_TYPE
@@ -132,15 +127,13 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
 
         switch (kind) {
             case USER:
+            default:
                 controller.importUserDefinition(contentType, definition);
                 break;
 
             case ROLE:
                 controller.importRoleDefinition(contentType, definition);
                 break;
-
-            default:
-                throw new BadRequestException();
         }
     }
 }

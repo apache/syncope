@@ -49,8 +49,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
-import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
+import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
@@ -65,7 +65,7 @@ import org.apache.syncope.core.util.SecureRandomUtil;
 @Entity
 @Cacheable
 @SyncopeUserCheck
-public class SyncopeUser extends AbstractAttributable {
+public class SyncopeUser extends AbstractSubject {
 
     private static final long serialVersionUID = -3905046855521446823L;
 

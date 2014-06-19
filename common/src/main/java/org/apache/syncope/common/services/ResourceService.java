@@ -33,13 +33,12 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.model.wadl.Description;
 import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
-
 import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.ResourceTO;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ResourceDeassociationActionType;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.common.wrap.PropagationActionClass;
 import org.apache.syncope.common.wrap.SubjectId;
 
@@ -61,7 +60,7 @@ public interface ResourceService extends JAXRSService {
     @Path("{resourceName}/{type}/{id}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     ConnObjectTO getConnectorObject(@PathParam("resourceName") String resourceName,
-            @PathParam("type") AttributableType type, @PathParam("id") Long id);
+            @PathParam("type") SubjectType type, @PathParam("id") Long id);
 
     /**
      * Returns a list of classes that can be used to customize the propagation process.
@@ -150,10 +149,10 @@ public interface ResourceService extends JAXRSService {
     boolean check(ResourceTO resourceTO);
 
     /**
-     * De-associate users or roles (depending on the provided attributable type) from the given resource.
+     * De-associate users or roles (depending on the provided subject type) from the given resource.
      *
      * @param resourceName name of resource
-     * @param attrType attributable type (user or role)
+     * @param subjectType subject type (user or role)
      * @param type resource de-association action type
      * @param subjectIds users or roles against which the bulk action will be performed
      * @return <tt>Response</tt> object featuring {@link BulkActionResult} as <tt>Entity</tt>
@@ -167,7 +166,7 @@ public interface ResourceService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     BulkActionResult bulkDeassociation(@PathParam("resourceName") String resourceName,
-            @PathParam("attrType") AttributableType attrType,
+            @PathParam("attrType") SubjectType subjectType,
             @PathParam("type") ResourceDeassociationActionType type, List<SubjectId> subjectIds);
 
     /**

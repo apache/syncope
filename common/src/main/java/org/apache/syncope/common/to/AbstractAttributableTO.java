@@ -23,10 +23,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
@@ -38,22 +36,9 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     private long id;
 
-    private List<AttributeTO> derAttrs;
+    private final List<AttributeTO> derAttrs = new ArrayList<AttributeTO>();
 
-    private List<AttributeTO> virAttrs;
-
-    private Set<String> resources;
-
-    private final List<PropagationStatus> propagationStatusTOs;
-
-    protected AbstractAttributableTO() {
-        super();
-
-        derAttrs = new ArrayList<AttributeTO>();
-        virAttrs = new ArrayList<AttributeTO>();
-        resources = new HashSet<String>();
-        propagationStatusTOs = new ArrayList<PropagationStatus>();
-    }
+    private final List<AttributeTO> virAttrs = new ArrayList<AttributeTO>();
 
     public long getId() {
         return id;
@@ -97,34 +82,5 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
     @JsonProperty("virtualAttributes")
     public List<AttributeTO> getVirAttrs() {
         return virAttrs;
-    }
-
-    @XmlElementWrapper(name = "resources")
-    @XmlElement(name = "resource")
-    @JsonProperty("resources")
-    public Set<String> getResources() {
-        return resources;
-    }
-
-    public boolean removePropagationTO(final String resource) {
-        if (resource != null && getPropagationStatusTOs().isEmpty()) {
-            final List<PropagationStatus> toBeRemoved = new ArrayList<PropagationStatus>();
-
-            for (PropagationStatus propagationTO : getPropagationStatusTOs()) {
-                if (resource.equals(propagationTO.getResource())) {
-                    toBeRemoved.add(propagationTO);
-                }
-            }
-
-            return propagationStatusTOs.removeAll(toBeRemoved);
-        }
-        return false;
-    }
-
-    @XmlElementWrapper(name = "propagationStatuses")
-    @XmlElement(name = "propagationStatus")
-    @JsonProperty("propagationStatuses")
-    public List<PropagationStatus> getPropagationStatusTOs() {
-        return propagationStatusTOs;
     }
 }

@@ -36,7 +36,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 @XmlRootElement(name = "user")
 @XmlType
-public class UserTO extends AbstractAttributableTO {
+public class UserTO extends AbstractSubjectTO {
 
     private static final long serialVersionUID = 7791304495192615740L;
 

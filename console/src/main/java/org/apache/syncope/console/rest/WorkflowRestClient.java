@@ -24,9 +24,9 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.services.WorkflowService;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.console.SyncopeSession;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +40,7 @@ public class WorkflowRestClient extends BaseRestClient {
     }
 
     public InputStream getDefinition(final MediaType mediaType) {
-        Response response = getService(mediaType).exportDefinition(AttributableType.USER);
+        Response response = getService(mediaType).exportDefinition(SubjectType.USER);
 
         return (InputStream) response.getEntity();
     }
@@ -48,7 +48,7 @@ public class WorkflowRestClient extends BaseRestClient {
     public byte[] getDiagram() {
         WorkflowService service = getService(WorkflowService.class);
         WebClient.client(service).accept(RESTHeaders.MEDIATYPE_IMAGE_PNG);
-        Response response = service.exportDiagram(AttributableType.USER);
+        Response response = service.exportDiagram(SubjectType.USER);
 
         byte[] diagram;
         try {
@@ -63,7 +63,7 @@ public class WorkflowRestClient extends BaseRestClient {
     public boolean isActivitiEnabledForUsers() {
         Boolean result = null;
         try {
-            result = SyncopeSession.get().isActivitiEnabledFor(AttributableType.USER);
+            result = SyncopeSession.get().isActivitiEnabledFor(SubjectType.USER);
         } catch (SyncopeClientException e) {
             LOG.error("While seeking if Activiti is enabled for users", e);
         }
@@ -74,6 +74,6 @@ public class WorkflowRestClient extends BaseRestClient {
     }
 
     public void updateDefinition(final MediaType mediaType, final String definition) {
-        getService(mediaType).importDefinition(AttributableType.USER, definition);
+        getService(mediaType).importDefinition(SubjectType.USER, definition);
     }
 }

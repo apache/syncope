@@ -106,8 +106,10 @@ public class PropagationTasks extends AbstractTasks {
         window.setInitialWidth(WIN_WIDTH);
         window.setCookieName(VIEW_TASK_WIN_COOKIE_NAME);
 
+        @SuppressWarnings("rawtypes")
         Form paginatorForm = new Form("PaginatorForm");
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         final DropDownChoice rowsChooser = new DropDownChoice(
                 "rowsChooser", new PropertyModel(this, "paginatorRows"), prefMan.getPaginatorChoices());
 
@@ -258,7 +260,7 @@ public class PropagationTasks extends AbstractTasks {
                 return panel;
             }
         });
-        
+
         return columns;
     }
 

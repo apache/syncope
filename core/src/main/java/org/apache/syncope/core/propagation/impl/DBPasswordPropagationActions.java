@@ -38,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Propagate a non-cleartext password out to a resource, if the PropagationManager has not already
- * added a password. 
+ * added a password.
  */
 public class DBPasswordPropagationActions extends DefaultPropagationActions {
 
@@ -49,7 +49,7 @@ public class DBPasswordPropagationActions extends DefaultPropagationActions {
     @Override
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {
         super.before(task, beforeObj);
-        
+
         if (AttributableType.USER == task.getSubjectType()) {
             SyncopeUser user = userDAO.find(task.getSubjectId());
             if (user != null && user.getPassword() != null) {
@@ -65,16 +65,15 @@ public class DBPasswordPropagationActions extends DefaultPropagationActions {
                     Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
                     attributes.add(passwordAttribute);
                     attributes.remove(missing);
-                    
-                    Attribute hashedPasswordAttribute = 
-                        AttributeBuilder.build(
+
+                    Attribute hashedPasswordAttribute = AttributeBuilder.build(
                             AttributeUtil.createSpecialName("HASHED_PASSWORD"), Boolean.TRUE);
                     attributes.add(hashedPasswordAttribute);
-                    
+
                     task.setAttributes(attributes);
                 }
             }
         }
     }
-    
+
 }

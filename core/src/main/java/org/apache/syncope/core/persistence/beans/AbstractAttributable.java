@@ -19,11 +19,9 @@
 package org.apache.syncope.core.persistence.beans;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public abstract class AbstractAttributable extends AbstractSysInfo {
 
@@ -130,36 +128,4 @@ public abstract class AbstractAttributable extends AbstractSysInfo {
     public abstract List<? extends AbstractVirAttr> getVirAttrs();
 
     public abstract void setVirAttrs(List<? extends AbstractVirAttr> virtualAttributes);
-
-    protected abstract Set<ExternalResource> internalGetResources();
-
-    public boolean addResource(final ExternalResource resource) {
-        return internalGetResources().add(resource);
-    }
-
-    public boolean removeResource(final ExternalResource resource) {
-        return internalGetResources().remove(resource);
-    }
-
-    public Set<ExternalResource> getResources() {
-        return internalGetResources();
-    }
-
-    public Set<String> getResourceNames() {
-        Set<ExternalResource> ownResources = getResources();
-
-        Set<String> result = new HashSet<String>(ownResources.size());
-        for (ExternalResource resource : ownResources) {
-            result.add(resource.getName());
-        }
-
-        return result;
-    }
-
-    public void setResources(final Set<ExternalResource> resources) {
-        internalGetResources().clear();
-        if (resources != null) {
-            internalGetResources().addAll(resources);
-        }
-    }
 }

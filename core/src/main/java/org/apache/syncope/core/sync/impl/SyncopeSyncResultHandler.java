@@ -19,6 +19,7 @@
 package org.apache.syncope.core.sync.impl;
 
 import static org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler.LOG;
+
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +35,7 @@ import org.apache.syncope.core.persistence.dao.search.AttributableCond;
 import org.apache.syncope.core.persistence.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
@@ -392,8 +394,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
             final SyncDelta delta, final AttributableUtil attrUtil, final boolean dryRun)
             throws JobExecutionException {
 
-        final AbstractAttributableTO subjectTO =
-                connObjectUtil.getAttributableTO(delta.getObject(), syncTask, attrUtil);
+        final AbstractSubjectTO subjectTO = connObjectUtil.getSubjectTO(delta.getObject(), syncTask, attrUtil);
 
         subjectTO.getResources().add(getSyncTask().getResource().getName());
 
@@ -410,7 +411,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
             throws JobExecutionException {
 
         final AbstractAttributableTO subjectTO =
-                connObjectUtil.getAttributableTO(delta.getObject(), syncTask, attrUtil);
+                connObjectUtil.getSubjectTO(delta.getObject(), syncTask, attrUtil);
 
         SyncDelta _delta = delta;
         for (SyncActions action : actions) {

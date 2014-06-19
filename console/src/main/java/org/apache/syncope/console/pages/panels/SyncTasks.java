@@ -94,8 +94,10 @@ public class SyncTasks extends AbstractTasks {
 
         container.add(table);
 
+        @SuppressWarnings("rawtypes")
         Form paginatorForm = new Form("PaginatorForm");
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
 

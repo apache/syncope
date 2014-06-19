@@ -23,20 +23,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.BadRequestException;
-
 import javax.ws.rs.core.Response;
-
-import org.apache.syncope.common.services.ResourceService;
-import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.common.services.ResourceService;
+import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.ConnObjectTO;
-import org.apache.syncope.common.wrap.PropagationActionClass;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ResourceDeassociationActionType;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.common.wrap.PropagationActionClass;
 import org.apache.syncope.common.wrap.SubjectId;
 import org.apache.syncope.core.rest.controller.AbstractResourceAssociator;
 import org.apache.syncope.core.rest.controller.ResourceController;
@@ -97,7 +96,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public ConnObjectTO getConnectorObject(final String resourceName, final AttributableType type, final Long id) {
+    public ConnObjectTO getConnectorObject(final String resourceName, final SubjectType type, final Long id) {
         return controller.getConnectorObject(resourceName, type, id);
     }
 
@@ -112,14 +111,10 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public BulkActionResult bulkDeassociation(final String resourceName, final AttributableType attrType,
+    public BulkActionResult bulkDeassociation(final String resourceName, final SubjectType subjectType,
             final ResourceDeassociationActionType type, final List<SubjectId> subjectIds) {
 
-        if (attrType == AttributableType.MEMBERSHIP) {
-            throw new BadRequestException();
-        }
-
-        AbstractResourceAssociator<? extends AbstractAttributableTO> associator = attrType == AttributableType.USER
+        AbstractResourceAssociator<? extends AbstractAttributableTO> associator = subjectType == SubjectType.USER
                 ? userController
                 : roleController;
 
@@ -146,7 +141,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
 
                 res.add(id, BulkActionResult.Status.SUCCESS);
             } catch (Exception e) {
-                LOG.warn("While executing {} on {} {}", type, attrType, id.getElement(), e);
+                LOG.warn("While executing {} on {} {}", type, subjectType, id.getElement(), e);
                 res.add(id, BulkActionResult.Status.FAILURE);
             }
         }

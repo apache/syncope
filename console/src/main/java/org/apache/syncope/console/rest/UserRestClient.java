@@ -29,12 +29,12 @@ import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.mod.ResourceAssociationMod;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.types.ResourceDeassociationActionType;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.console.commons.status.StatusBean;
 import org.apache.syncope.console.commons.status.StatusUtils;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -94,7 +94,7 @@ public class UserRestClient extends AbstractAttributableRestClient {
 
     @Override
     public ConnObjectTO getConnectorObject(final String resourceName, final Long id) {
-        return getService(ResourceService.class).getConnectorObject(resourceName, AttributableType.USER, id);
+        return getService(ResourceService.class).getConnectorObject(resourceName, SubjectType.USER, id);
     }
 
     public void suspend(final long userId, final List<StatusBean> statuses) {

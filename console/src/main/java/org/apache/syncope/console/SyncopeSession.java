@@ -28,7 +28,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.client.SyncopeClientFactoryBean;
-import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -90,7 +90,7 @@ public class SyncopeSession extends WebSession {
         return client.isSelfRegistrationAllowed();
     }
 
-    public boolean isActivitiEnabledFor(final AttributableType type) {
+    public boolean isActivitiEnabledFor(final SubjectType type) {
         SyncopeClient client = clients.isEmpty()
                 ? clientFactory.createAnonymous()
                 : clients.values().iterator().next();

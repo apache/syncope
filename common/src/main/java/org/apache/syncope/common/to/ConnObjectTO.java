@@ -36,7 +36,7 @@ public class ConnObjectTO extends AbstractSysInfoTO {
 
     private static final long serialVersionUID = 5139554911265442497L;
 
-    private List<AttributeTO> attrs = new ArrayList<AttributeTO>();
+    private final List<AttributeTO> attrs = new ArrayList<AttributeTO>();
 
     @XmlElementWrapper(name = "attributes")
     @XmlElement(name = "attribute")

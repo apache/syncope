@@ -24,17 +24,17 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.reqres.BulkActionResult;
-import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.commons.status.StatusBean;
-import org.apache.syncope.console.commons.status.StatusUtils;
+import org.apache.syncope.console.commons.status.AbstractStatusBeanProvider;
 import org.apache.syncope.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.console.commons.status.Status;
-import org.apache.syncope.console.commons.status.AbstractStatusBeanProvider;
+import org.apache.syncope.console.commons.status.StatusBean;
+import org.apache.syncope.console.commons.status.StatusUtils;
 import org.apache.syncope.console.pages.panels.ActionDataTablePanel;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
@@ -60,11 +60,11 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractStatusModalPage {
+public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatusModalPage {
 
     private static final long serialVersionUID = -9148734710505211261L;
 
-    private final AbstractAttributableTO attributableTO;
+    private final AbstractSubjectTO subjectTO;
 
     private int rowsPerPage = 10;
 
@@ -99,14 +99,15 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
     public StatusModalPage(
             final PageReference pageRef,
             final ModalWindow window,
-            final AbstractAttributableTO attributableTO) {
+            final AbstractSubjectTO attributableTO) {
+
         this(pageRef, window, attributableTO, false);
     }
 
     public StatusModalPage(
             final PageReference pageRef,
             final ModalWindow window,
-            final AbstractAttributableTO attributableTO,
+            final AbstractSubjectTO subjectTO,
             final boolean statusOnly) {
 
         super();
@@ -114,9 +115,9 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
         this.pageRef = pageRef;
         this.window = window;
         this.statusOnly = statusOnly;
-        this.attributableTO = attributableTO;
+        this.subjectTO = subjectTO;
 
-        statusUtils = new StatusUtils(attributableTO instanceof UserTO ? userRestClient : roleRestClient);
+        statusUtils = new StatusUtils(subjectTO instanceof UserTO ? userRestClient : roleRestClient);
 
         columns = new ArrayList<IColumn<StatusBean, String>>();
         columns.add(new AbstractColumn<StatusBean, String>(
@@ -190,7 +191,7 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                 };
         table.setOutputMarkupId(true);
 
-        final String pageId = attributableTO instanceof RoleTO ? "Roles" : "Users";
+        final String pageId = subjectTO instanceof RoleTO ? "Roles" : "Users";
 
         final Fragment pwdMgtFragment = new Fragment("pwdMgtFields", "pwdMgtFragment", this);
         addOrReplace(pwdMgtFragment);
@@ -259,7 +260,7 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                 public void onClick(final AjaxRequestTarget target) {
                     try {
                         userRestClient.reactivate(
-                                attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
 
                         ((BasePage) pageRef.getPage()).setModalResult(true);
 
@@ -280,7 +281,7 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                 public void onClick(final AjaxRequestTarget target) {
                     try {
                         userRestClient.suspend(
-                                attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
 
                         if (pageRef.getPage() instanceof BasePage) {
                             ((BasePage) pageRef.getPage()).setModalResult(true);
@@ -302,12 +303,12 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
                     try {
-                        if (attributableTO instanceof UserTO) {
+                        if (subjectTO instanceof UserTO) {
                             userRestClient.unlink(
-                                    attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
                         } else {
                             roleRestClient.unlink(
-                                    attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
                         }
 
                         ((BasePage) pageRef.getPage()).setModalResult(true);
@@ -327,12 +328,12 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
                     try {
-                        if (attributableTO instanceof UserTO) {
+                        if (subjectTO instanceof UserTO) {
                             userRestClient.link(
-                                    attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
                         } else {
                             roleRestClient.link(
-                                    attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
                         }
 
                         ((BasePage) pageRef.getPage()).setModalResult(true);
@@ -353,12 +354,12 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                 public void onClick(final AjaxRequestTarget target) {
                     try {
                         final BulkActionResult bulkActionResult;
-                        if (attributableTO instanceof UserTO) {
+                        if (subjectTO instanceof UserTO) {
                             bulkActionResult = userRestClient.deprovision(
-                                    attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
                         } else {
                             bulkActionResult = roleRestClient.deprovision(
-                                    attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
                         }
 
                         ((BasePage) pageRef.getPage()).setModalResult(true);
@@ -378,13 +379,13 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
 
-                    if (attributableTO instanceof UserTO) {
+                    if (subjectTO instanceof UserTO) {
                         StatusModalPage.this.passwordManagement(
                                 target, ResourceAssociationActionType.PROVISION, table.getModelObject());
                     } else {
                         try {
                             final BulkActionResult bulkActionResult = roleRestClient.provision(
-                                    attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
 
                             ((BasePage) pageRef.getPage()).setModalResult(true);
                             loadBulkActionResultPage(table.getModelObject(), bulkActionResult);
@@ -395,7 +396,7 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                         }
                     }
                 }
-            }.feedbackPanelAutomaticReload(!(attributableTO instanceof UserTO)), ActionLink.ActionType.PROVISION, pageId);
+            }.feedbackPanelAutomaticReload(!(subjectTO instanceof UserTO)), ActionLink.ActionType.PROVISION, pageId);
 
             table.addAction(new ActionLink() {
 
@@ -405,12 +406,12 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                 public void onClick(final AjaxRequestTarget target) {
                     try {
                         final BulkActionResult bulkActionResult;
-                        if (attributableTO instanceof UserTO) {
+                        if (subjectTO instanceof UserTO) {
                             bulkActionResult = userRestClient.unassign(
-                                    attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
                         } else {
                             bulkActionResult = roleRestClient.unassign(
-                                    attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
                         }
 
                         ((BasePage) pageRef.getPage()).setModalResult(true);
@@ -429,13 +430,13 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
 
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
-                    if (attributableTO instanceof UserTO) {
+                    if (subjectTO instanceof UserTO) {
                         StatusModalPage.this.passwordManagement(
                                 target, ResourceAssociationActionType.ASSIGN, table.getModelObject());
                     } else {
                         try {
                             final BulkActionResult bulkActionResult = roleRestClient.assign(
-                                    attributableTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
 
                             ((BasePage) pageRef.getPage()).setModalResult(true);
                             loadBulkActionResultPage(table.getModelObject(), bulkActionResult);
@@ -446,7 +447,7 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                         }
                     }
                 }
-            }.feedbackPanelAutomaticReload(!(attributableTO instanceof UserTO)), ActionLink.ActionType.ASSIGN, pageId);
+            }.feedbackPanelAutomaticReload(!(subjectTO instanceof UserTO)), ActionLink.ActionType.ASSIGN, pageId);
         }
 
         table.addCancelButton(window);
@@ -469,32 +470,32 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                 resources.add(resourceTO.getName());
             }
 
-            final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(attributableTO);
+            final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(subjectTO);
 
             final List<StatusBean> statusBeans = new ArrayList<StatusBean>(connObjects.size() + 1);
 
             for (ConnObjectWrapper entry : connObjects) {
                 final StatusBean statusBean = statusUtils.getStatusBean(
-                        attributableTO,
+                        subjectTO,
                         entry.getResourceName(),
                         entry.getConnObjectTO(),
-                        attributableTO instanceof RoleTO);
+                        subjectTO instanceof RoleTO);
 
                 statusBeans.add(statusBean);
                 resources.remove(entry.getResourceName());
             }
 
             if (statusOnly) {
-                final StatusBean syncope = new StatusBean(attributableTO, "Syncope");
+                final StatusBean syncope = new StatusBean(subjectTO, "Syncope");
 
-                syncope.setAccountLink(((UserTO) attributableTO).getUsername());
+                syncope.setAccountLink(((UserTO) subjectTO).getUsername());
 
                 Status syncopeStatus = Status.UNDEFINED;
-                if (((UserTO) attributableTO).getStatus() != null) {
+                if (((UserTO) subjectTO).getStatus() != null) {
                     try {
-                        syncopeStatus = Status.valueOf(((UserTO) attributableTO).getStatus().toUpperCase());
+                        syncopeStatus = Status.valueOf(((UserTO) subjectTO).getStatus().toUpperCase());
                     } catch (IllegalArgumentException e) {
-                        LOG.warn("Unexpected status found: {}", ((UserTO) attributableTO).getStatus(), e);
+                        LOG.warn("Unexpected status found: {}", ((UserTO) subjectTO).getStatus(), e);
                     }
                 }
                 syncope.setStatus(syncopeStatus);
@@ -503,10 +504,10 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
             } else {
                 for (String resource : resources) {
                     final StatusBean statusBean = statusUtils.getStatusBean(
-                            attributableTO,
+                            subjectTO,
                             resource,
                             null,
-                            attributableTO instanceof RoleTO);
+                            subjectTO instanceof RoleTO);
 
                     statusBean.setLinked(false);
                     statusBeans.add(statusBean);
@@ -539,14 +540,14 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
                             switch (type) {
                                 case ASSIGN:
                                     bulkActionResult = userRestClient.assign(
-                                            attributableTO.getId(),
+                                            subjectTO.getId(),
                                             new ArrayList<StatusBean>(selection),
                                             changepwd.getModelObject(),
                                             password.getModelObject());
                                     break;
                                 case PROVISION:
                                     bulkActionResult = userRestClient.provision(
-                                            attributableTO.getId(),
+                                            subjectTO.getId(),
                                             new ArrayList<StatusBean>(selection),
                                             changepwd.getModelObject(),
                                             password.getModelObject());
@@ -590,16 +591,16 @@ public class StatusModalPage<T extends AbstractAttributableTO> extends AbstractS
         }
 
         final List<ConnObjectWrapper> connObjects =
-                statusUtils.getConnectorObjects(Collections.singletonList(attributableTO), resources);
+                statusUtils.getConnectorObjects(Collections.singletonList(subjectTO), resources);
 
         final List<StatusBean> statusBeans = new ArrayList<StatusBean>(connObjects.size());
 
         for (ConnObjectWrapper entry : connObjects) {
             final StatusBean statusBean = statusUtils.getStatusBean(
-                    attributableTO,
+                    subjectTO,
                     entry.getResourceName(),
                     entry.getConnObjectTO(),
-                    attributableTO instanceof RoleTO);
+                    subjectTO instanceof RoleTO);
 
             statusBeans.add(statusBean);
         }

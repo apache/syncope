@@ -36,7 +36,7 @@ import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.notification.NotificationManager;
-import org.apache.syncope.core.persistence.beans.AbstractAttributable;
+import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
@@ -255,8 +255,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 connObjectUtil);
     }
 
-    protected AbstractAttributable getSubject(final PropagationTask task) {
-        AbstractAttributable subject = null;
+    protected AbstractSubject getSubject(final PropagationTask task) {
+        AbstractSubject subject = null;
 
         if (task.getSubjectId() != null) {
             switch (task.getSubjectType()) {
@@ -305,7 +305,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
              * update, this user / role used to have the current resource assigned by more than one mean (for example,
              * two different memberships with the same resource).
              */
-            AbstractAttributable subject = getSubject(task);
+            AbstractSubject subject = getSubject(task);
             if (subject == null || !subject.getResourceNames().contains(task.getResource().getName())) {
                 LOG.debug("Delete {} on {}", beforeObj.getUid(), task.getResource().getName());
 

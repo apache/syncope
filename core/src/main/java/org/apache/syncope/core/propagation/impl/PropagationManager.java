@@ -37,6 +37,7 @@ import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
+import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
@@ -333,25 +334,25 @@ public class PropagationManager {
                 Collections.<MembershipMod>emptySet());
     }
 
-    protected List<PropagationTask> getUpdateTaskIds(final AbstractAttributable attributable,
+    protected List<PropagationTask> getUpdateTaskIds(final AbstractSubject subject,
             final String password, final boolean changePwd, final Boolean enable,
             final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
             final PropagationByResource propByRes, final Collection<String> noPropResourceNames,
             final Set<MembershipMod> membershipsToAdd)
             throws NotFoundException {
 
-        AbstractAttributableDataBinder binder = attributable instanceof SyncopeUser
+        AbstractAttributableDataBinder binder = subject instanceof SyncopeUser
                 ? userDataBinder : roleDataBinder;
 
-        PropagationByResource localPropByRes = binder.fillVirtual(attributable, vAttrsToBeRemoved == null
+        PropagationByResource localPropByRes = binder.fillVirtual(subject, vAttrsToBeRemoved == null
                 ? Collections.<String>emptySet()
                 : vAttrsToBeRemoved, vAttrsToBeUpdated == null
                 ? Collections.<AttributeMod>emptySet()
-                : vAttrsToBeUpdated, AttributableUtil.getInstance(attributable));
+                : vAttrsToBeUpdated, AttributableUtil.getInstance(subject));
 
         // SYNCOPE-458 fill membership virtual attributes
-        if (attributable instanceof SyncopeUser) {
-            final SyncopeUser user = (SyncopeUser) attributable;
+        if (subject instanceof SyncopeUser) {
+            final SyncopeUser user = (SyncopeUser) subject;
             for (Membership membership : user.getMemberships()) {
                 if (membership.getVirAttrs() != null && !membership.getVirAttrs().isEmpty()) {
                     final MembershipMod membershipMod = findMembershipMod(membership, membershipsToAdd);
@@ -368,7 +369,7 @@ public class PropagationManager {
         }
 
         if (propByRes == null || propByRes.isEmpty()) {
-            localPropByRes.addAll(ResourceOperation.UPDATE, attributable.getResourceNames());
+            localPropByRes.addAll(ResourceOperation.UPDATE, subject.getResourceNames());
         } else {
             localPropByRes.merge(propByRes);
         }
@@ -399,7 +400,7 @@ public class PropagationManager {
             membVAttrsToBeRemoved.addAll(membershipMod.getVirAttrsToRemove());
         }
 
-        return createTasks(attributable, password, changePwd,
+        return createTasks(subject, password, changePwd,
                 vAttrsToBeRemoved, vAttrsToBeUpdatedMap, membVAttrsToBeRemoved, membVAttrsToBeUpdatedMap, enable, false,
                 localPropByRes);
     }

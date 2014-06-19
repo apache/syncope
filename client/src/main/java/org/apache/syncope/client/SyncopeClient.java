@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client;
 
-import org.apache.syncope.common.search.UserFiqlSearchConditionBuilder;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -26,11 +25,12 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.rest.RestClientFactoryBean;
 import org.apache.syncope.common.search.OrderByClauseBuilder;
 import org.apache.syncope.common.search.RoleFiqlSearchConditionBuilder;
+import org.apache.syncope.common.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.common.services.UserSelfService;
 import org.apache.syncope.common.services.WorkflowService;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.Preference;
 import org.apache.syncope.common.types.RESTHeaders;
+import org.apache.syncope.common.types.SubjectType;
 
 /**
  * Entry point for client access to all REST services exposed by Syncope core; obtain instances via
@@ -222,26 +222,23 @@ public class SyncopeClient {
     /**
      * Checks whether Activiti workflow is enabled for users / roles, by calling <tt>WorkflowService</tt>'s options.
      *
-     * @param attributableType user / role
+     * @param subjectType user / role
      * @return whether Activiti workflow is enabled for given attributable type
      * @see WorkflowService#getOptions(org.apache.syncope.common.types.AttributableType)
      */
-    public boolean isActivitiEnabledFor(final AttributableType attributableType) {
-        Response options = getService(WorkflowService.class).getOptions(attributableType);
+    public boolean isActivitiEnabledFor(final SubjectType subjectType) {
+        Response options = getService(WorkflowService.class).getOptions(subjectType);
 
         boolean result;
-        switch (attributableType) {
+        switch (subjectType) {
             case USER:
+            default:
                 result = Boolean.valueOf(options.getHeaderString(RESTHeaders.ACTIVITI_USER_ENABLED));
                 break;
 
             case ROLE:
                 result = Boolean.valueOf(options.getHeaderString(RESTHeaders.ACTIVITI_ROLE_ENABLED));
                 break;
-
-            case MEMBERSHIP:
-            default:
-                result = false;
         }
 
         return result;

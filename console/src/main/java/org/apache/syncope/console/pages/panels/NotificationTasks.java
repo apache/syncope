@@ -61,10 +61,10 @@ public class NotificationTasks extends AbstractTasks {
     private ModalWindow window;
 
     private AjaxDataTablePanel<AbstractTaskTO, String> table;
-    
+
     public NotificationTasks(final String id, final PageReference pageRef) {
         super(id, pageRef);
-        
+
         container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         add(container);
@@ -103,8 +103,10 @@ public class NotificationTasks extends AbstractTasks {
         window.setInitialWidth(WIN_WIDTH);
         window.setCookieName(VIEW_TASK_WIN_COOKIE_NAME);
 
+        @SuppressWarnings("rawtypes")
         final Form paginatorForm = new Form("PaginatorForm");
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
 
@@ -239,7 +241,7 @@ public class NotificationTasks extends AbstractTasks {
                 return panel;
             }
         });
-        
+
         return columns;
     }
 

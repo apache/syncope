@@ -435,7 +435,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
             fillTO(membershipTO,
                     membership.getAttrs(), membership.getDerAttrs(), membership.getVirAttrs(),
-                    membership.getResources());
+                    Collections.<ExternalResource>emptyList());
 
             userTO.getMemberships().add(membershipTO);
         }

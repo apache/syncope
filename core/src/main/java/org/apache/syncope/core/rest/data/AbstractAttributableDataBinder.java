@@ -26,17 +26,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.SyncopeClientCompositeException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.mod.AbstractAttributableMod;
+import org.apache.syncope.common.mod.AbstractSubjectMod;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ResourceOperation;
-import org.apache.syncope.common.types.ClientExceptionType;
-import org.apache.syncope.common.SyncopeClientCompositeException;
-import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
@@ -45,6 +47,7 @@ import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -84,8 +87,8 @@ import org.apache.syncope.core.persistence.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.validation.attrvalue.InvalidAttrValueException;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.util.jexl.JexlUtil;
 import org.apache.syncope.core.util.MappingUtil;
+import org.apache.syncope.core.util.jexl.JexlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -250,10 +253,14 @@ public abstract class AbstractAttributableDataBinder {
 
         boolean result = false;
 
-        for (Iterator<ExternalResource> itor = attributable.getResources().iterator(); itor.hasNext() && !result;) {
-            final ExternalResource resource = itor.next();
-            if (resource.isEnforceMandatoryCondition()) {
-                result |= evaluateMandatoryCondition(attrUtil, resource, attributable, intAttrName, intMappingType);
+        if (attributable instanceof AbstractSubject) {
+            for (Iterator<ExternalResource> itor = ((AbstractSubject) attributable).getResources().iterator();
+                    itor.hasNext() && !result;) {
+
+                final ExternalResource resource = itor.next();
+                if (resource.isEnforceMandatoryCondition()) {
+                    result |= evaluateMandatoryCondition(attrUtil, resource, attributable, intAttrName, intMappingType);
+                }
             }
         }
 
@@ -263,10 +270,7 @@ public abstract class AbstractAttributableDataBinder {
     private SyncopeClientException checkMandatory(final AttributableUtil attrUtil,
             final AbstractAttributable attributable) {
 
-        SyncopeClientException reqValMissing = SyncopeClientException.build(
-                ClientExceptionType.RequiredValuesMissing);
-
-        LOG.debug("Check mandatory constraint among resources {}", attributable.getResources());
+        SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         // Check if there is some mandatory schema defined for which no value has been provided
         List<? extends AbstractNormalSchema> normalSchemas;
@@ -421,7 +425,9 @@ public abstract class AbstractAttributableDataBinder {
         PropagationByResource propByRes = new PropagationByResource();
 
         final Set<ExternalResource> externalResources = new HashSet<ExternalResource>();
-        externalResources.addAll(attributable.getResources());
+        if (attributable instanceof AbstractSubject) {
+            externalResources.addAll(((AbstractSubject) attributable).getResources());
+        }
 
         if (attributable instanceof Membership) {
             externalResources.clear();
@@ -513,27 +519,29 @@ public abstract class AbstractAttributableDataBinder {
 
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
-        // 1. resources to be removed
-        for (String resourceToBeRemoved : attributableMod.getResourcesToRemove()) {
-            ExternalResource resource = getResource(resourceToBeRemoved);
-            if (resource != null) {
-                propByRes.add(ResourceOperation.DELETE, resource.getName());
-                attributable.removeResource(resource);
+        if (attributable instanceof AbstractSubject && attributableMod instanceof AbstractSubjectMod) {
+            // 1. resources to be removed
+            for (String resourceToBeRemoved : ((AbstractSubjectMod) attributableMod).getResourcesToRemove()) {
+                ExternalResource resource = getResource(resourceToBeRemoved);
+                if (resource != null) {
+                    propByRes.add(ResourceOperation.DELETE, resource.getName());
+                    ((AbstractSubject) attributable).removeResource(resource);
+                }
             }
-        }
 
-        LOG.debug("Resources to be removed:\n{}", propByRes);
+            LOG.debug("Resources to be removed:\n{}", propByRes);
 
-        // 2. resources to be added
-        for (String resourceToBeAdded : attributableMod.getResourcesToAdd()) {
-            ExternalResource resource = getResource(resourceToBeAdded);
-            if (resource != null) {
-                propByRes.add(ResourceOperation.CREATE, resource.getName());
-                attributable.addResource(resource);
+            // 2. resources to be added
+            for (String resourceToBeAdded : ((AbstractSubjectMod) attributableMod).getResourcesToAdd()) {
+                ExternalResource resource = getResource(resourceToBeAdded);
+                if (resource != null) {
+                    propByRes.add(ResourceOperation.CREATE, resource.getName());
+                    ((AbstractSubject) attributable).addResource(resource);
+                }
             }
-        }
 
-        LOG.debug("Resources to be added:\n{}", propByRes);
+            LOG.debug("Resources to be added:\n{}", propByRes);
+        }
 
         // 3. attributes to be removed
         for (String attributeToBeRemoved : attributableMod.getAttrsToRemove()) {
@@ -558,19 +566,22 @@ public abstract class AbstractAttributableDataBinder {
                     }
                 }
 
-                for (ExternalResource resource : resourceDAO.findAll()) {
-                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
-                        if (schema.getName().equals(mapItem.getIntAttrName())
-                                && mapItem.getIntMappingType() == attrUtil.intMappingType()
-                                && attributable.getResources().contains(resource)) {
+                if (attributable instanceof AbstractSubject) {
+                    for (ExternalResource resource : resourceDAO.findAll()) {
+                        for (AbstractMappingItem mapItem : attrUtil.
+                                getMappingItems(resource, MappingPurpose.PROPAGATION)) {
+                            if (schema.getName().equals(mapItem.getIntAttrName())
+                                    && mapItem.getIntMappingType() == attrUtil.intMappingType()
+                                    && ((AbstractSubject) attributable).getResources().contains(resource)) {
 
-                            propByRes.add(ResourceOperation.UPDATE, resource.getName());
+                                propByRes.add(ResourceOperation.UPDATE, resource.getName());
 
-                            if (mapItem.isAccountid() && attr != null
-                                    && !attr.getValuesAsStrings().isEmpty()) {
+                                if (mapItem.isAccountid() && attr != null
+                                        && !attr.getValuesAsStrings().isEmpty()) {
 
-                                propByRes.addOldAccountId(resource.getName(),
-                                        attr.getValuesAsStrings().iterator().next());
+                                    propByRes.addOldAccountId(resource.getName(),
+                                            attr.getValuesAsStrings().iterator().next());
+                                }
                             }
                         }
                     }
@@ -599,13 +610,16 @@ public abstract class AbstractAttributableDataBinder {
             }
 
             if (schema != null && attr != null && attr.getSchema() != null) {
-                for (ExternalResource resource : resourceDAO.findAll()) {
-                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
-                        if (schema.getName().equals(mapItem.getIntAttrName())
-                                && mapItem.getIntMappingType() == attrUtil.intMappingType()
-                                && attributable.getResources().contains(resource)) {
+                if (attributable instanceof AbstractSubject) {
+                    for (ExternalResource resource : resourceDAO.findAll()) {
+                        for (AbstractMappingItem mapItem : attrUtil.
+                                getMappingItems(resource, MappingPurpose.PROPAGATION)) {
+                            if (schema.getName().equals(mapItem.getIntAttrName())
+                                    && mapItem.getIntMappingType() == attrUtil.intMappingType()
+                                    && ((AbstractSubject) attributable).getResources().contains(resource)) {
 
-                            propByRes.add(ResourceOperation.UPDATE, resource.getName());
+                                propByRes.add(ResourceOperation.UPDATE, resource.getName());
+                            }
                         }
                     }
                 }
@@ -664,19 +678,22 @@ public abstract class AbstractAttributableDataBinder {
                     derAttrDAO.delete(derAttr);
                 }
 
-                for (ExternalResource resource : resourceDAO.findAll()) {
-                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
-                        if (derSchema.getName().equals(mapItem.getIntAttrName())
-                                && mapItem.getIntMappingType() == attrUtil.derIntMappingType()
-                                && attributable.getResources().contains(resource)) {
+                if (attributable instanceof AbstractSubject) {
+                    for (ExternalResource resource : resourceDAO.findAll()) {
+                        for (AbstractMappingItem mapItem : attrUtil.
+                                getMappingItems(resource, MappingPurpose.PROPAGATION)) {
+                            if (derSchema.getName().equals(mapItem.getIntAttrName())
+                                    && mapItem.getIntMappingType() == attrUtil.derIntMappingType()
+                                    && ((AbstractSubject) attributable).getResources().contains(resource)) {
 
-                            propByRes.add(ResourceOperation.UPDATE, resource.getName());
+                                propByRes.add(ResourceOperation.UPDATE, resource.getName());
 
-                            if (mapItem.isAccountid() && derAttr != null
-                                    && !derAttr.getValue(attributable.getAttrs()).isEmpty()) {
+                                if (mapItem.isAccountid() && derAttr != null
+                                        && !derAttr.getValue(attributable.getAttrs()).isEmpty()) {
 
-                                propByRes.addOldAccountId(resource.getName(),
-                                        derAttr.getValue(attributable.getAttrs()));
+                                    propByRes.addOldAccountId(resource.getName(),
+                                            derAttr.getValue(attributable.getAttrs()));
+                                }
                             }
                         }
                     }
@@ -690,13 +707,16 @@ public abstract class AbstractAttributableDataBinder {
         for (String derAttrToBeAdded : attributableMod.getDerAttrsToAdd()) {
             AbstractDerSchema derSchema = getDerSchema(derAttrToBeAdded, attrUtil.derSchemaClass());
             if (derSchema != null) {
-                for (ExternalResource resource : resourceDAO.findAll()) {
-                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
-                        if (derSchema.getName().equals(mapItem.getIntAttrName())
-                                && mapItem.getIntMappingType() == attrUtil.derIntMappingType()
-                                && attributable.getResources().contains(resource)) {
+                if (attributable instanceof AbstractSubject) {
+                    for (ExternalResource resource : resourceDAO.findAll()) {
+                        for (AbstractMappingItem mapItem : attrUtil.
+                                getMappingItems(resource, MappingPurpose.PROPAGATION)) {
+                            if (derSchema.getName().equals(mapItem.getIntAttrName())
+                                    && mapItem.getIntMappingType() == attrUtil.derIntMappingType()
+                                    && ((AbstractSubject) attributable).getResources().contains(resource)) {
 
-                            propByRes.add(ResourceOperation.UPDATE, resource.getName());
+                                propByRes.add(ResourceOperation.UPDATE, resource.getName());
+                            }
                         }
                     }
                 }
@@ -839,11 +859,13 @@ public abstract class AbstractAttributableDataBinder {
         fillVirtual(attributable, attributableTO.getVirAttrs(), attributableUtil);
 
         // 4. resources
-        for (String resourceName : attributableTO.getResources()) {
-            ExternalResource resource = getResource(resourceName);
+        if (attributable instanceof AbstractSubject && attributableTO instanceof AbstractSubjectTO) {
+            for (String resourceName : ((AbstractSubjectTO) attributableTO).getResources()) {
+                ExternalResource resource = getResource(resourceName);
 
-            if (resource != null) {
-                attributable.addResource(resource);
+                if (resource != null) {
+                    ((AbstractSubject) attributable).addResource(resource);
+                }
             }
         }
 
@@ -892,8 +914,10 @@ public abstract class AbstractAttributableDataBinder {
             attributableTO.getVirAttrs().add(attributeTO);
         }
 
-        for (ExternalResource resource : resources) {
-            attributableTO.getResources().add(resource.getName());
+        if (attributableTO instanceof AbstractSubjectTO) {
+            for (ExternalResource resource : resources) {
+                ((AbstractSubjectTO) attributableTO).getResources().add(resource.getName());
+            }
         }
     }
 }

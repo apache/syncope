@@ -19,9 +19,7 @@
 package org.apache.syncope.core.persistence.beans.membership;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -34,7 +32,6 @@ import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
-import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 
@@ -77,11 +74,6 @@ public class Membership extends AbstractAttributable {
     @Override
     public Long getId() {
         return id;
-    }
-
-    @Override
-    protected Set<ExternalResource> internalGetResources() {
-        return Collections.emptySet();
     }
 
     public SyncopeRole getSyncopeRole() {
@@ -228,31 +220,6 @@ public class Membership extends AbstractAttributable {
                 addVirAttr(attr);
             }
         }
-    }
-
-    @Override
-    public boolean addResource(final ExternalResource resource) {
-        return false;
-    }
-
-    @Override
-    public boolean removeResource(final ExternalResource resource) {
-        return false;
-    }
-
-    @Override
-    public Set<ExternalResource> getResources() {
-        return Collections.emptySet();
-    }
-
-    @Override
-    public Set<String> getResourceNames() {
-        return Collections.emptySet();
-    }
-
-    @Override
-    public void setResources(final Set<ExternalResource> resources) {
-        // Memberships cannot be directly associated to resources.
     }
 
     @Override

@@ -36,6 +36,7 @@ import org.apache.syncope.common.search.SyncopeProperty;
 import org.apache.syncope.common.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.console.rest.AuthRestClient;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
@@ -157,7 +158,8 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                return SearchableFields.get(attributableType);
+                return SearchableFields.get(attributableType == AttributableType.USER
+                        ? SubjectType.USER : SubjectType.ROLE);
             }
         };
 

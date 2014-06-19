@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "roleMod")
 @XmlType
-public class RoleMod extends AbstractAttributableMod {
+public class RoleMod extends AbstractSubjectMod {
 
     private static final long serialVersionUID = 7455805264680210747L;
 

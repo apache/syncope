@@ -30,8 +30,8 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "role")
 @XmlType
-@JsonIgnoreProperties({"displayName"})
-public class RoleTO extends AbstractAttributableTO {
+@JsonIgnoreProperties({ "displayName" })
+public class RoleTO extends AbstractSubjectTO {
 
     private static final long serialVersionUID = -7785920258290147542L;
 

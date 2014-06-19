@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
@@ -190,17 +191,17 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
         public List<StatusBean> getStatusBeans() {
             final String fiql = SyncopeClient.getUserSearchConditionBuilder().hasResources(resourceTO.getName()).query();
 
-            final List<T> attributables = new ArrayList<T>();
+            final List<T> subjects = new ArrayList<T>();
             if (UserTO.class.isAssignableFrom(typeRef)) {
-                attributables.addAll((List<T>) userRestClient.search(fiql, 1, ROWS_PER_PAGE,
+                subjects.addAll((List<T>) userRestClient.search(fiql, 1, ROWS_PER_PAGE,
                         new SortParam<String>("id", true)));
             } else {
-                attributables.addAll((List<T>) roleRestClient.search(fiql, 1, ROWS_PER_PAGE,
+                subjects.addAll((List<T>) roleRestClient.search(fiql, 1, ROWS_PER_PAGE,
                         new SortParam<String>("id", true)));
             }
 
             final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(
-                    (List<AbstractAttributableTO>) attributables, Collections.<String>singleton(resourceTO.getName()));
+                    (List<AbstractSubjectTO>) subjects, Collections.<String>singleton(resourceTO.getName()));
 
             final List<StatusBean> statusBeans = new ArrayList<StatusBean>(connObjects.size() + 1);
             final LinkedHashMap<String, StatusBean> initialStatusBeanMap = new LinkedHashMap<String, StatusBean>(

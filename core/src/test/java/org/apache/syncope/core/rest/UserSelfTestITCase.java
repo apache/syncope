@@ -33,6 +33,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.SyncopeClient;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.StatusMod;
@@ -43,11 +44,10 @@ import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.Preference;
 import org.apache.syncope.common.types.RESTHeaders;
-import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
@@ -104,7 +104,7 @@ public class UserSelfTestITCase extends AbstractTest {
         assertFalse(userTO.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, AttributableType.USER, userTO.getId());
+            resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, SubjectType.USER, userTO.getId());
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -119,7 +119,7 @@ public class UserSelfTestITCase extends AbstractTest {
         userTO = userWorkflowService.submitForm(form);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, AttributableType.USER, userTO.getId()));
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, SubjectType.USER, userTO.getId()));
     }
 
     @Test
@@ -195,7 +195,7 @@ public class UserSelfTestITCase extends AbstractTest {
         // no propagation happened
         assertTrue(updated.getResources().isEmpty());
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, AttributableType.USER, updated.getId());
+            resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, SubjectType.USER, updated.getId());
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -215,7 +215,7 @@ public class UserSelfTestITCase extends AbstractTest {
 
         // check that propagation also happened
         assertTrue(updated.getResources().contains(RESOURCE_NAME_TESTDB));
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, AttributableType.USER, updated.getId()));
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, SubjectType.USER, updated.getId()));
     }
 
     @Test

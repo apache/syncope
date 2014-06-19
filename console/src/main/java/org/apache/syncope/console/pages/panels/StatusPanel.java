@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
@@ -93,7 +94,7 @@ public class StatusPanel extends Panel implements IHeaderContributor {
 
     public <T extends AbstractAttributableTO> StatusPanel(
             final String id,
-            final AbstractAttributableTO attributable,
+            final AbstractSubjectTO subject,
             final List<StatusBean> selectedResources,
             final PageReference pageref) {
 
@@ -106,29 +107,29 @@ public class StatusPanel extends Panel implements IHeaderContributor {
         connObjectWin.setCookieName("connobject-modal");
         add(connObjectWin);
 
-        statusUtils = new StatusUtils(attributable instanceof RoleTO ? roleRestClient : userRestClient);
+        statusUtils = new StatusUtils(subject instanceof RoleTO ? roleRestClient : userRestClient);
 
-        connObjects = statusUtils.getConnectorObjects(attributable);
+        connObjects = statusUtils.getConnectorObjects(subject);
 
         final List<StatusBean> statusBeans = new ArrayList<StatusBean>(connObjects.size() + 1);
         initialStatusBeanMap = new LinkedHashMap<String, StatusBean>(connObjects.size() + 1);
 
-        final StatusBean syncope = new StatusBean(attributable, "syncope");
+        final StatusBean syncope = new StatusBean(subject, "syncope");
 
-        if (attributable instanceof UserTO) {
-            syncope.setAccountLink(((UserTO) attributable).getUsername());
+        if (subject instanceof UserTO) {
+            syncope.setAccountLink(((UserTO) subject).getUsername());
 
             Status syncopeStatus = Status.UNDEFINED;
-            if (((UserTO) attributable).getStatus() != null) {
+            if (((UserTO) subject).getStatus() != null) {
                 try {
-                    syncopeStatus = Status.valueOf(((UserTO) attributable).getStatus().toUpperCase());
+                    syncopeStatus = Status.valueOf(((UserTO) subject).getStatus().toUpperCase());
                 } catch (IllegalArgumentException e) {
-                    LOG.warn("Unexpected status found: {}", ((UserTO) attributable).getStatus(), e);
+                    LOG.warn("Unexpected status found: {}", ((UserTO) subject).getStatus(), e);
                 }
             }
             syncope.setStatus(syncopeStatus);
-        } else if (attributable instanceof RoleTO) {
-            syncope.setAccountLink(((RoleTO) attributable).getDisplayName());
+        } else if (subject instanceof RoleTO) {
+            syncope.setAccountLink(((RoleTO) subject).getDisplayName());
             syncope.setStatus(Status.ACTIVE);
         }
 
@@ -140,7 +141,7 @@ public class StatusPanel extends Panel implements IHeaderContributor {
                     entry.getAttributable(),
                     entry.getResourceName(),
                     entry.getConnObjectTO(),
-                    attributable instanceof RoleTO);
+                    subject instanceof RoleTO);
 
             initialStatusBeanMap.put(entry.getResourceName(), statusBean);
             statusBeans.add(statusBean);
@@ -160,7 +161,7 @@ public class StatusPanel extends Panel implements IHeaderContributor {
         add(checkGroup);
 
         CheckGroupSelector groupSelector = new CheckGroupSelector("groupselector", checkGroup);
-        if (attributable instanceof RoleTO) {
+        if (subject instanceof RoleTO) {
             groupSelector.setVisible(false);
         }
         add(groupSelector);
@@ -174,7 +175,7 @@ public class StatusPanel extends Panel implements IHeaderContributor {
                 item.add(statusUtils.getStatusImage("icon", item.getModelObject().getStatus()));
 
                 final Check<StatusBean> check = new Check<StatusBean>("check", item.getModel(), checkGroup);
-                if (attributable instanceof RoleTO) {
+                if (subject instanceof RoleTO) {
                     check.setVisible(false);
                 }
                 item.add(check);

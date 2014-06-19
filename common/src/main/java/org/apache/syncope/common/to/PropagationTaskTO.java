@@ -20,10 +20,9 @@ package org.apache.syncope.common.to;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.ResourceOperation;
+import org.apache.syncope.common.types.SubjectType;
 
 @XmlRootElement(name = "propagationTask")
 @XmlType
@@ -45,7 +44,7 @@ public class PropagationTaskTO extends AbstractTaskTO {
 
     private String objectClassName;
 
-    private AttributableType subjectType;
+    private SubjectType subjectType;
 
     private Long subjectId;
 
@@ -53,7 +52,7 @@ public class PropagationTaskTO extends AbstractTaskTO {
         return accountId;
     }
 
-    public void setAccountId(String accountId) {
+    public void setAccountId(final String accountId) {
         this.accountId = accountId;
     }
 
@@ -61,7 +60,7 @@ public class PropagationTaskTO extends AbstractTaskTO {
         return oldAccountId;
     }
 
-    public void setOldAccountId(String oldAccountId) {
+    public void setOldAccountId(final String oldAccountId) {
         this.oldAccountId = oldAccountId;
     }
 
@@ -69,7 +68,7 @@ public class PropagationTaskTO extends AbstractTaskTO {
         return propagationMode;
     }
 
-    public void setPropagationMode(PropagationMode propagationMode) {
+    public void setPropagationMode(final PropagationMode propagationMode) {
         this.propagationMode = propagationMode;
     }
 
@@ -77,7 +76,7 @@ public class PropagationTaskTO extends AbstractTaskTO {
         return resource;
     }
 
-    public void setResource(String resource) {
+    public void setResource(final String resource) {
         this.resource = resource;
     }
 
@@ -85,7 +84,7 @@ public class PropagationTaskTO extends AbstractTaskTO {
         return propagationOperation;
     }
 
-    public void setPropagationOperation(ResourceOperation propagationOperation) {
+    public void setPropagationOperation(final ResourceOperation propagationOperation) {
 
         this.propagationOperation = propagationOperation;
     }
@@ -94,7 +93,7 @@ public class PropagationTaskTO extends AbstractTaskTO {
         return xmlAttributes;
     }
 
-    public void setXmlAttributes(String xmlAttributes) {
+    public void setXmlAttributes(final String xmlAttributes) {
         this.xmlAttributes = xmlAttributes;
     }
 
@@ -102,15 +101,15 @@ public class PropagationTaskTO extends AbstractTaskTO {
         return objectClassName;
     }
 
-    public void setObjectClassName(String objectClassName) {
+    public void setObjectClassName(final String objectClassName) {
         this.objectClassName = objectClassName;
     }
 
-    public AttributableType getSubjectType() {
+    public SubjectType getSubjectType() {
         return subjectType;
     }
 
-    public void setSubjectType(AttributableType subjectType) {
+    public void setSubjectType(final SubjectType subjectType) {
         this.subjectType = subjectType;
     }
 
@@ -118,7 +117,7 @@ public class PropagationTaskTO extends AbstractTaskTO {
         return subjectId;
     }
 
-    public void setSubjectId(Long subjectId) {
+    public void setSubjectId(final Long subjectId) {
         this.subjectId = subjectId;
     }
 }

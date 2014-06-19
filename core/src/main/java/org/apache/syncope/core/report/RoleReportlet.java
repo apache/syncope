@@ -26,6 +26,7 @@ import java.util.Set;
 import org.apache.syncope.common.report.RoleReportletConf;
 import org.apache.syncope.common.report.RoleReportletConf.Feature;
 import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
@@ -84,17 +85,16 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
                         AttributableUtil.getInstance(AttributableType.ROLE));
     }
 
-    private void doExtractResources(final ContentHandler handler, final AbstractAttributableTO attributableTO)
+    private void doExtractResources(final ContentHandler handler, final AbstractSubjectTO subjectTO)
             throws SAXException {
 
-        if (attributableTO.getResources().isEmpty()) {
-            LOG.debug("No resources found for {}[{}]", attributableTO.getClass().getSimpleName(), attributableTO
-                    .getId());
+        if (subjectTO.getResources().isEmpty()) {
+            LOG.debug("No resources found for {}[{}]", subjectTO.getClass().getSimpleName(), subjectTO.getId());
         } else {
             AttributesImpl atts = new AttributesImpl();
             handler.startElement("", "", "resources", null);
 
-            for (String resourceName : attributableTO.getResources()) {
+            for (String resourceName : subjectTO.getResources()) {
                 atts.clear();
 
                 atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, resourceName);

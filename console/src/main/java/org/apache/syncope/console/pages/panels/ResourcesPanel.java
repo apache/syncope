@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
@@ -58,7 +58,7 @@ public class ResourcesPanel extends Panel {
     @SpringBean
     private RoleTreeBuilder roleTreeBuilder;
 
-    private final AbstractAttributableTO attributableTO;
+    private final AbstractSubjectTO subjectTO;
 
     private final Set<String> previousResources;
 
@@ -95,8 +95,8 @@ public class ResourcesPanel extends Panel {
 
     private ResourcesPanel(final Builder builder) {
         super(builder.id);
-        attributableTO = (AbstractAttributableTO) builder.to;
-        previousResources = new HashSet<String>(attributableTO.getResources());
+        subjectTO = (AbstractSubjectTO) builder.to;
+        previousResources = new HashSet<String>(subjectTO.getResources());
         allResources = new ArrayList<String>();
         for (ResourceTO resourceTO : resourceRestClient.getAllResources()) {
             allResources.add(resourceTO.getName());
@@ -105,13 +105,13 @@ public class ResourcesPanel extends Panel {
 
         AjaxPalettePanel<String> resourcesPalette = null;
 
-        if (attributableTO instanceof UserTO) {
+        if (subjectTO instanceof UserTO) {
             resourcesPalette = new AjaxRecordingPalettePanel<String>("resourcesPalette",
-                    new PropertyModel<List<String>>(attributableTO, "resources"),
+                    new PropertyModel<List<String>>(subjectTO, "resources"),
                     new ListModel<String>(allResources), builder.statusPanel);
-        } else if (attributableTO instanceof RoleTO) {
+        } else if (subjectTO instanceof RoleTO) {
             resourcesPalette = new AjaxPalettePanel<String>("resourcesPalette",
-                    new PropertyModel<List<String>>(attributableTO, "resources"), new ListModel<String>(allResources));
+                    new PropertyModel<List<String>>(subjectTO, "resources"), new ListModel<String>(allResources));
         }
         add(resourcesPalette);
     }
@@ -146,8 +146,8 @@ public class ResourcesPanel extends Panel {
 
                         @Override
                         protected void onUpdate(final AjaxRequestTarget target) {
-                            if (attributableTO instanceof UserTO) {
-                                UserTO userTO = (UserTO) attributableTO;
+                            if (subjectTO instanceof UserTO) {
+                                UserTO userTO = (UserTO) subjectTO;
 
                                 Set<String> resourcesToRemove = new HashSet<String>(previousResources);
                                 resourcesToRemove.removeAll(userTO.getResources());

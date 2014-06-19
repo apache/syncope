@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.console.commons.ConnIdSpecialAttributeName;
@@ -59,38 +60,38 @@ public class StatusUtils implements Serializable {
         this.restClient = restClient;
     }
 
-    public List<ConnObjectWrapper> getConnectorObjects(final AbstractAttributableTO attributable) {
+    public List<ConnObjectWrapper> getConnectorObjects(final AbstractSubjectTO subject) {
         final List<ConnObjectWrapper> objects = new ArrayList<ConnObjectWrapper>();
-        objects.addAll(getConnectorObjects(attributable, attributable.getResources()));
+        objects.addAll(getConnectorObjects(subject, subject.getResources()));
         return objects;
     }
 
     public List<ConnObjectWrapper> getConnectorObjects(
-            final Collection<AbstractAttributableTO> attributables, final Collection<String> resources) {
+            final Collection<AbstractSubjectTO> subjects, final Collection<String> resources) {
 
         final List<ConnObjectWrapper> objects = new ArrayList<ConnObjectWrapper>();
 
-        for (AbstractAttributableTO attributableTO : attributables) {
-            objects.addAll(getConnectorObjects(attributableTO, resources));
+        for (AbstractSubjectTO subject : subjects) {
+            objects.addAll(getConnectorObjects(subject, resources));
         }
 
         return objects;
     }
 
     private List<ConnObjectWrapper> getConnectorObjects(
-            final AbstractAttributableTO attributable, final Collection<String> resources) {
+            final AbstractSubjectTO subject, final Collection<String> resources) {
 
         final List<ConnObjectWrapper> objects = new ArrayList<ConnObjectWrapper>();
 
         for (String resourceName : resources) {
             ConnObjectTO objectTO = null;
             try {
-                objectTO = restClient.getConnectorObject(resourceName, attributable.getId());
+                objectTO = restClient.getConnectorObject(resourceName, subject.getId());
             } catch (Exception e) {
-                LOG.warn("ConnObject '{}' not found on resource '{}'", attributable.getId(), resourceName);
+                LOG.warn("ConnObject '{}' not found on resource '{}'", subject.getId(), resourceName);
             }
 
-            objects.add(new ConnObjectWrapper(attributable, resourceName, objectTO));
+            objects.add(new ConnObjectWrapper(subject, resourceName, objectTO));
         }
 
         return objects;

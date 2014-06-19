@@ -44,11 +44,11 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrTemplate;
-import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
+import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
@@ -66,7 +66,7 @@ import org.apache.syncope.core.persistence.validation.entity.SyncopeRoleCheck;
         @UniqueConstraint(columnNames = { "name", "parent_id" }))
 @Cacheable
 @SyncopeRoleCheck
-public class SyncopeRole extends AbstractAttributable {
+public class SyncopeRole extends AbstractSubject {
 
     private static final long serialVersionUID = -5281258853142421875L;
 

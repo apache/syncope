@@ -27,12 +27,14 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.mod.AbstractAttributableMod;
+import org.apache.syncope.common.mod.AbstractSubjectMod;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.ReferenceMod;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.RoleTO;
@@ -178,18 +180,22 @@ public final class AttributableOperations {
         populate(updatedAttrs, originalAttrs, result, true);
 
         // 5. resources
-        Set<String> updatedRes = new HashSet<String>(updated.getResources());
-        Set<String> originalRes = new HashSet<String>(original.getResources());
+        if (original instanceof AbstractSubjectTO && updated instanceof AbstractSubjectTO
+                && result instanceof AbstractSubjectMod) {
 
-        updatedRes.removeAll(originalRes);
-        result.getResourcesToAdd().clear();
-        result.getResourcesToAdd().addAll(updatedRes);
+            Set<String> updatedRes = new HashSet<String>(((AbstractSubjectTO) updated).getResources());
+            Set<String> originalRes = new HashSet<String>(((AbstractSubjectTO) original).getResources());
 
-        originalRes.removeAll(updated.getResources());
+            updatedRes.removeAll(originalRes);
+            ((AbstractSubjectMod) result).getResourcesToAdd().clear();
+            ((AbstractSubjectMod) result).getResourcesToAdd().addAll(updatedRes);
 
-        if (!incremental) {
-            result.getResourcesToRemove().clear();
-            result.getResourcesToRemove().addAll(originalRes);
+            originalRes.removeAll(((AbstractSubjectTO) updated).getResources());
+
+            if (!incremental) {
+                ((AbstractSubjectMod) result).getResourcesToRemove().clear();
+                ((AbstractSubjectMod) result).getResourcesToRemove().addAll(originalRes);
+            }
         }
     }
 
@@ -266,7 +272,6 @@ public final class AttributableOperations {
                         membMod.getAttrsToRemove().add(attrMod.getSchema());
                     }
                 }
-                membMod.getResourcesToAdd().addAll(entry.getValue().getResources());
             }
 
             if (!membMod.isEmpty()) {
@@ -450,8 +455,10 @@ public final class AttributableOperations {
                 mod.getVirAttrsToRemove(), mod.getVirAttrsToUpdate()));
 
         // 4. resources
-        result.getResources().removeAll(mod.getResourcesToRemove());
-        result.getResources().addAll(mod.getResourcesToAdd());
+        if (result instanceof AbstractSubjectTO && mod instanceof AbstractSubjectMod) {
+            ((AbstractSubjectTO) result).getResources().removeAll(((AbstractSubjectMod) mod).getResourcesToRemove());
+            ((AbstractSubjectTO) result).getResources().addAll(((AbstractSubjectMod) mod).getResourcesToAdd());
+        }
     }
 
     public static UserTO apply(final UserTO userTO, final UserMod userMod) {

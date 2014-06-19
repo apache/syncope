@@ -28,10 +28,10 @@ import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.ResourceTO;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
@@ -169,7 +169,7 @@ public class ResourceController extends AbstractTransactionalController<Resource
 
     @PreAuthorize("hasRole('RESOURCE_GETCONNECTOROBJECT')")
     @Transactional(readOnly = true)
-    public ConnObjectTO getConnectorObject(final String resourceName, final AttributableType type, final Long id) {
+    public ConnObjectTO getConnectorObject(final String resourceName, final SubjectType type, final Long id) {
         ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceName + "'");
@@ -178,22 +178,19 @@ public class ResourceController extends AbstractTransactionalController<Resource
         AbstractAttributable attributable = null;
         switch (type) {
             case USER:
+            default:
                 attributable = userDAO.find(id);
                 break;
 
             case ROLE:
                 attributable = roleDAO.find(id);
                 break;
-
-            case MEMBERSHIP:
-            default:
-                throw new IllegalArgumentException("Not supported for MEMBERSHIP");
         }
         if (attributable == null) {
             throw new NotFoundException(type + " " + id);
         }
 
-        final AttributableUtil attrUtil = AttributableUtil.getInstance(type);
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(type.asAttributableType());
 
         AbstractMappingItem accountIdItem = attrUtil.getAccountIdItem(resource);
         if (accountIdItem == null) {
@@ -203,7 +200,7 @@ public class ResourceController extends AbstractTransactionalController<Resource
         final String accountIdValue = MappingUtil.getAccountIdValue(
                 attributable, resource, attrUtil.getAccountIdItem(resource));
 
-        final ObjectClass objectClass = AttributableType.USER == type ? ObjectClass.ACCOUNT : ObjectClass.GROUP;
+        final ObjectClass objectClass = SubjectType.USER == type ? ObjectClass.ACCOUNT : ObjectClass.GROUP;
 
         final Connector connector = connFactory.getConnector(resource);
         final ConnectorObject connectorObject = connector.getObject(objectClass, new Uid(accountIdValue),

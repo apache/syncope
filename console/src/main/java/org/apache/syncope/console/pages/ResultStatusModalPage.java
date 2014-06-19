@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.PropagationStatus;
@@ -67,7 +67,7 @@ public class ResultStatusModalPage extends BaseModalPage {
     @SpringBean(name = "anonymousUser")
     private String anonymousUser;
 
-    private final AbstractAttributableTO attributable;
+    private final AbstractSubjectTO subject;
 
     private final UserModalPage.Mode mode;
 
@@ -84,11 +84,11 @@ public class ResultStatusModalPage extends BaseModalPage {
 
         private UserModalPage.Mode mode;
 
-        private AbstractAttributableTO attributable;
+        private AbstractSubjectTO subject;
 
-        public Builder(final ModalWindow window, final AbstractAttributableTO attributable) {
+        public Builder(final ModalWindow window, final AbstractSubjectTO attributable) {
             this.window = window;
-            this.attributable = attributable;
+            this.subject = attributable;
         }
 
         public ResultStatusModalPage.Builder mode(final UserModalPage.Mode mode) {
@@ -103,7 +103,7 @@ public class ResultStatusModalPage extends BaseModalPage {
 
     private ResultStatusModalPage(final Builder builder) {
         super();
-        this.attributable = builder.attributable;
+        this.subject = builder.subject;
         statusUtils = new StatusUtils(this.userRestClient);
         if (builder.mode == null) {
             this.mode = UserModalPage.Mode.ADMIN;
@@ -131,14 +131,14 @@ public class ResultStatusModalPage extends BaseModalPage {
 
             List<PropagationStatus> propagations = new ArrayList<PropagationStatus>();
             propagations.add(syncope);
-            propagations.addAll(attributable.getPropagationStatusTOs());
+            propagations.addAll(subject.getPropagationStatusTOs());
 
             fragment.add(new Label("info",
-                    ((attributable instanceof UserTO) && ((UserTO) attributable).getUsername() != null)
-                    ? ((UserTO) attributable).getUsername()
-                    : ((attributable instanceof RoleTO) && ((RoleTO) attributable).getName() != null)
-                    ? ((RoleTO) attributable).getName()
-                    : String.valueOf(attributable.getId())));
+                    ((subject instanceof UserTO) && ((UserTO) subject).getUsername() != null)
+                    ? ((UserTO) subject).getUsername()
+                    : ((subject instanceof RoleTO) && ((RoleTO) subject).getName() != null)
+                    ? ((RoleTO) subject).getName()
+                    : String.valueOf(subject.getId())));
 
             final ListView<PropagationStatus> propRes = new ListView<PropagationStatus>("resources",
                     propagations) {
@@ -266,7 +266,7 @@ public class ResultStatusModalPage extends BaseModalPage {
 
         // sorted in reversed presentation order
         final List<String> head = new ArrayList<String>();
-        if (attributable instanceof UserTO) {
+        if (subject instanceof UserTO) {
             head.add(ConnIdSpecialAttributeName.PASSWORD);
             head.add(ConnIdSpecialAttributeName.ENABLE);
         }
@@ -285,7 +285,7 @@ public class ResultStatusModalPage extends BaseModalPage {
         attributes.addAll(beforeAttrMap.keySet());
         attributes.addAll(afterAttrMap.keySet());
 
-        if (!(attributable instanceof UserTO)) {
+        if (!(subject instanceof UserTO)) {
             attributes.remove(ConnIdSpecialAttributeName.PASSWORD);
             attributes.remove(ConnIdSpecialAttributeName.ENABLE);
         }
@@ -381,7 +381,7 @@ public class ResultStatusModalPage extends BaseModalPage {
         final Image image;
         final String alt, title;
         switch (statusUtils.getStatusBean(
-                attributable, resourceName, objectTO, this.attributable instanceof RoleTO).getStatus()) {
+                subject, resourceName, objectTO, this.subject instanceof RoleTO).getStatus()) {
 
             case ACTIVE:
                 image = new Image("status", IMG_STATUSES + Status.ACTIVE.toString()

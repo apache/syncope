@@ -63,10 +63,10 @@ public class SchedTasks extends AbstractTasks {
     private ModalWindow window;
 
     private AjaxDataTablePanel<AbstractTaskTO, String> table;
-    
+
     public SchedTasks(final String id, final PageReference pageRef) {
         super(id, pageRef);
-        
+
         container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         add(container);
@@ -92,8 +92,10 @@ public class SchedTasks extends AbstractTasks {
 
         container.add(table);
 
+        @SuppressWarnings("rawtypes")
         Form paginatorForm = new Form("PaginatorForm");
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
 
@@ -146,7 +148,7 @@ public class SchedTasks extends AbstractTasks {
 
         add(createLink);
     }
-    
+
     private List<IColumn<AbstractTaskTO, String>> getColumns() {
         final List<IColumn<AbstractTaskTO, String>> columns = new ArrayList<IColumn<AbstractTaskTO, String>>();
 

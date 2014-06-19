@@ -18,13 +18,6 @@
  */
 package org.apache.syncope.common.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -52,18 +45,5 @@ public class MembershipTO extends AbstractAttributableTO {
 
     public void setRoleName(String roleName) {
         this.roleName = roleName;
-    }
-
-    @Override
-    @XmlElementWrapper(name = "resources")
-    @XmlElement(name = "resource")
-    @JsonProperty("resources")
-    public Set<String> getResources() {
-        return Collections.<String>emptySet();
-    }
-
-    @Override
-    public List<PropagationStatus> getPropagationStatusTOs() {
-        return Collections.<PropagationStatus>emptyList();
     }
 }

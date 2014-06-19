@@ -16,31 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.mod;
+package org.apache.syncope.common.types;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlEnum;
 
-@XmlRootElement
-@XmlType
-public class MembershipMod extends AbstractAttributableMod {
+@XmlEnum
+public enum SubjectType {
 
-    private static final long serialVersionUID = 2511869129977331525L;
+    USER,
+    ROLE;
 
-    private long role;
-
-    public long getRole() {
-        return role;
-    }
-
-    public void setRole(long role) {
-        this.role = role;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isEmpty() {
-        return super.isEmpty() && role == 0;
+    public AttributableType asAttributableType() {
+        return this == USER
+                ? AttributableType.USER
+                : AttributableType.ROLE;
     }
 }

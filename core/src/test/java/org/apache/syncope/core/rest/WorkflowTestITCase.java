@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.junit.Assume;
 import org.junit.Test;
@@ -37,14 +37,12 @@ public class WorkflowTestITCase extends AbstractTest {
     @Test
     public void isActivitiEnabled() {
         assertEquals(ActivitiDetector.isActivitiEnabledForUsers(),
-                adminClient.isActivitiEnabledFor(AttributableType.USER));
+                adminClient.isActivitiEnabledFor(SubjectType.USER));
         assertEquals(ActivitiDetector.isActivitiEnabledForRoles(),
-                adminClient.isActivitiEnabledFor(AttributableType.ROLE));
-        assertEquals(false,
-                adminClient.isActivitiEnabledFor(AttributableType.MEMBERSHIP));
+                adminClient.isActivitiEnabledFor(SubjectType.ROLE));
     }
 
-    private void exportDefinition(final AttributableType type) throws IOException {
+    private void exportDefinition(final SubjectType type) throws IOException {
         Response response = workflowService.exportDefinition(type);
         assertTrue(response.getMediaType().toString().
                 startsWith(clientFactory.getContentType().getMediaType().toString()));
@@ -57,16 +55,16 @@ public class WorkflowTestITCase extends AbstractTest {
     @Test
     public void exportUserDefinition() throws IOException {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
-        exportDefinition(AttributableType.USER);
+        exportDefinition(SubjectType.USER);
     }
 
     @Test
     public void getRoleDefinition() throws IOException {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForRoles());
-        exportDefinition(AttributableType.ROLE);
+        exportDefinition(SubjectType.ROLE);
     }
 
-    private void importDefinition(final AttributableType type) throws IOException {
+    private void importDefinition(final SubjectType type) throws IOException {
         Response response = workflowService.exportDefinition(type);
         String definition = IOUtils.toString((InputStream) response.getEntity());
 
@@ -77,13 +75,13 @@ public class WorkflowTestITCase extends AbstractTest {
     public void updateUserDefinition() throws IOException {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
 
-        importDefinition(AttributableType.USER);
+        importDefinition(SubjectType.USER);
     }
 
     @Test
     public void updateRoleDefinition() throws IOException {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForRoles());
 
-        importDefinition(AttributableType.ROLE);
+        importDefinition(SubjectType.ROLE);
     }
 }

@@ -34,29 +34,30 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.SyncopeClient;
+import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.RoleMod;
+import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.to.ConnObjectTO;
-import org.apache.syncope.common.reqres.PagedResult;
-import org.apache.syncope.common.wrap.ResourceName;
+import org.apache.syncope.common.to.MappingItemTO;
+import org.apache.syncope.common.to.MappingTO;
+import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ClientExceptionType;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.Preference;
 import org.apache.syncope.common.types.RESTHeaders;
-import org.apache.syncope.common.types.SchemaType;
-import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.SyncopeClientException;
-import org.apache.syncope.common.mod.AttributeMod;
-import org.apache.syncope.common.reqres.BulkActionResult;
-import org.apache.syncope.common.to.MappingItemTO;
-import org.apache.syncope.common.to.MappingTO;
-import org.apache.syncope.common.to.ResourceTO;
-import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.types.ResourceDeassociationActionType;
+import org.apache.syncope.common.types.SchemaType;
+import org.apache.syncope.common.types.SubjectType;
+import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.common.wrap.ResourceName;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -128,7 +129,7 @@ public class RoleTestITCase extends AbstractTest {
         assertTrue(roleTO.getResources().contains(RESOURCE_NAME_LDAP));
 
         ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, roleTO.getId());
+                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, roleTO.getId());
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getAttrMap().get("owner"));
     }
@@ -408,7 +409,7 @@ public class RoleTestITCase extends AbstractTest {
         RoleTO actual = createRole(buildRoleTO("unlink"));
         assertNotNull(actual);
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, actual.getId()));
 
         assertNotNull(roleService.bulkDeassociation(actual.getId(),
                 ResourceDeassociationActionType.UNLINK,
@@ -419,7 +420,7 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, actual.getId()));
     }
 
     @Test
@@ -431,7 +432,7 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(actual);
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, actual.getId());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -446,7 +447,7 @@ public class RoleTestITCase extends AbstractTest {
         assertFalse(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, actual.getId());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -458,7 +459,7 @@ public class RoleTestITCase extends AbstractTest {
         RoleTO actual = createRole(buildRoleTO("unassign"));
         assertNotNull(actual);
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, actual.getId()));
 
         assertNotNull(roleService.bulkDeassociation(actual.getId(),
                 ResourceDeassociationActionType.UNASSIGN,
@@ -470,7 +471,7 @@ public class RoleTestITCase extends AbstractTest {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, actual.getId());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -486,7 +487,7 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(actual);
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, actual.getId());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -499,7 +500,7 @@ public class RoleTestITCase extends AbstractTest {
 
         actual = roleService.read(actual.getId());
         assertFalse(actual.getResources().isEmpty());
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, actual.getId()));
     }
 
     @Test
@@ -507,7 +508,7 @@ public class RoleTestITCase extends AbstractTest {
         RoleTO actual = createRole(buildRoleTO("deprovision"));
         assertNotNull(actual);
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, actual.getId()));
 
         assertNotNull(roleService.bulkDeassociation(actual.getId(),
                 ResourceDeassociationActionType.DEPROVISION,
@@ -519,7 +520,7 @@ public class RoleTestITCase extends AbstractTest {
         assertFalse(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, actual.getId());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -535,7 +536,7 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(actual);
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, actual.getId());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -549,7 +550,7 @@ public class RoleTestITCase extends AbstractTest {
         actual = roleService.read(actual.getId());
         assertTrue(actual.getResources().isEmpty());
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, actual.getId()));
     }
 
     @Test
@@ -561,7 +562,7 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(actual);
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, actual.getId());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -575,7 +576,7 @@ public class RoleTestITCase extends AbstractTest {
         actual = roleService.read(actual.getId());
         assertTrue(actual.getResources().isEmpty());
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId()));
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, actual.getId()));
 
         assertNotNull(roleService.bulkDeassociation(actual.getId(),
                 ResourceDeassociationActionType.DEPROVISION,
@@ -587,7 +588,7 @@ public class RoleTestITCase extends AbstractTest {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, actual.getId());
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, actual.getId());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -687,7 +688,7 @@ public class RoleTestITCase extends AbstractTest {
         assertTrue(parent.getResources().contains(RESOURCE_NAME_LDAP));
 
         final ConnObjectTO parentRemoteObject =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, parent.getId());
+                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, parent.getId());
         assertNotNull(parentRemoteObject);
         assertNotNull(getLdapRemoteObject(parentRemoteObject.getAttrMap().get(Name.NAME).getValues().get(0)));
 
@@ -700,7 +701,7 @@ public class RoleTestITCase extends AbstractTest {
         assertTrue(child.getResources().contains(RESOURCE_NAME_LDAP));
 
         final ConnObjectTO childRemoteObject =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, child.getId());
+                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, child.getId());
         assertNotNull(childRemoteObject);
         assertNotNull(getLdapRemoteObject(childRemoteObject.getAttrMap().get(Name.NAME).getValues().get(0)));
 
@@ -737,7 +738,7 @@ public class RoleTestITCase extends AbstractTest {
         roleTO = createRole(roleTO);
         assertTrue(roleTO.getResources().contains(RESOURCE_NAME_LDAP));
 
-        ConnObjectTO actual = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE,
+        ConnObjectTO actual = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE,
                 roleTO.getId());
         assertNotNull(actual);
 
@@ -784,7 +785,7 @@ public class RoleTestITCase extends AbstractTest {
         // check update on Syncope
         assertEquals("TITLENEW", roleTO.getAttrMap().get("title").getValues().get(0));
 
-        final ConnObjectTO newRole = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE,
+        final ConnObjectTO newRole = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE,
                 roleTO.getId());
 
         // due to NONE mapping for attribute title external attribute description must not be present

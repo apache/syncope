@@ -30,9 +30,9 @@ import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.types.ResourceDeassociationActionType;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.console.commons.status.StatusBean;
 import org.apache.syncope.console.commons.status.StatusUtils;
@@ -73,7 +73,7 @@ public class RoleRestClient extends AbstractAttributableRestClient {
 
     @Override
     public ConnObjectTO getConnectorObject(final String resourceName, final Long id) {
-        return getService(ResourceService.class).getConnectorObject(resourceName, AttributableType.ROLE, id);
+        return getService(ResourceService.class).getConnectorObject(resourceName, SubjectType.ROLE, id);
     }
 
     public RoleTO create(final RoleTO roleTO) {

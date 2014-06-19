@@ -25,8 +25,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
-import org.apache.commons.lang3.SerializationUtils;
 import java.util.Map;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
@@ -42,11 +42,11 @@ import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.types.SubjectType;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -102,7 +102,7 @@ public class VirAttrTestITCase extends AbstractTest {
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_WS2, AttributableType.USER, userTO.getId());
+                resourceService.getConnectorObject(RESOURCE_NAME_WS2, SubjectType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
         // ----------------------------------
@@ -126,7 +126,7 @@ public class VirAttrTestITCase extends AbstractTest {
         assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, AttributableType.USER, userTO.getId());
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, SubjectType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
         // ----------------------------------
@@ -139,7 +139,7 @@ public class VirAttrTestITCase extends AbstractTest {
         userTO = userService.status(userTO.getId(), statusMod).readEntity(UserTO.class);
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, AttributableType.USER, userTO.getId());
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, SubjectType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertFalse(connObjectTO.getAttrMap().get("NAME").getValues().isEmpty());
         assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
@@ -149,7 +149,7 @@ public class VirAttrTestITCase extends AbstractTest {
         userTO = userService.status(userTO.getId(), statusMod).readEntity(UserTO.class);
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, AttributableType.USER, userTO.getId());
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, SubjectType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertFalse(connObjectTO.getAttrMap().get("NAME").getValues().isEmpty());
         assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("NAME").getValues().get(0));
@@ -174,7 +174,7 @@ public class VirAttrTestITCase extends AbstractTest {
         assertEquals(RESOURCE_NAME_WS2, userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, AttributableType.USER, userTO.getId());
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, SubjectType.USER, userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("Surname2", connObjectTO.getAttrMap().get("SURNAME").getValues().get(0));
 
@@ -197,7 +197,7 @@ public class VirAttrTestITCase extends AbstractTest {
         assertEquals(RESOURCE_NAME_WS2, userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, AttributableType.USER, userTO.getId());
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, SubjectType.USER, userTO.getId());
         assertNotNull(connObjectTO);
 
         // attribute "name" mapped on virtual attribute "virtualdata" should be reset
@@ -771,7 +771,6 @@ public class VirAttrTestITCase extends AbstractTest {
                 get(0));
 
         // ----------------------------------------------------------
-        
         // PHASE 2: update only membership virtual attributes
         // -------------------------------------------
         // Update resource-db-virattr mapping adding new membership virtual schema mapping

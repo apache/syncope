@@ -23,12 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrTemplate;
@@ -87,7 +89,7 @@ public final class AttributableUtil {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(AttributableUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AttributableUtil.class);
 
     private final AttributableType type;
 
@@ -235,7 +237,9 @@ public final class AttributableUtil {
         switch (purpose) {
             case SYNCHRONIZATION:
                 for (T item : items) {
-                    if (MappingPurpose.PROPAGATION != item.getPurpose() && MappingPurpose.NONE != item.getPurpose()) {
+                    if (MappingPurpose.PROPAGATION != item.getPurpose()
+                            && MappingPurpose.NONE != item.getPurpose()) {
+
                         result.add(item);
                     }
                 }
@@ -243,7 +247,9 @@ public final class AttributableUtil {
 
             case PROPAGATION:
                 for (T item : items) {
-                    if (MappingPurpose.SYNCHRONIZATION != item.getPurpose() && MappingPurpose.NONE != item.getPurpose()) {
+                    if (MappingPurpose.SYNCHRONIZATION != item.getPurpose()
+                            && MappingPurpose.NONE != item.getPurpose()) {
+
                         result.add(item);
                     }
                 }
@@ -708,7 +714,6 @@ public final class AttributableUtil {
     }
 
     public SyncCorrelationRule getCorrelationRule(final SyncPolicySpec policySpec) {
-
         String clazz;
 
         switch (type) {
@@ -748,6 +753,23 @@ public final class AttributableUtil {
                 break;
             case MEMBERSHIP:
                 result = (T) new MembershipTO();
+                break;
+        }
+
+        return result;
+    }
+
+    public <T extends AbstractSubjectTO> T newSubjectTO() {
+        T result = null;
+
+        switch (type) {
+            case USER:
+                result = (T) new UserTO();
+                break;
+            case ROLE:
+                result = (T) new RoleTO();
+                break;
+            case MEMBERSHIP:
                 break;
         }
 

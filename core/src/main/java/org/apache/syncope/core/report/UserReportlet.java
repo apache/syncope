@@ -23,10 +23,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.syncope.common.report.UserReportletConf;
 import org.apache.syncope.common.report.UserReportletConf.Feature;
 import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.UserTO;
@@ -38,8 +38,8 @@ import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
-import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.rest.data.SearchCondConverter;
+import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.DataFormat;
 import org.apache.syncope.core.util.EntitlementUtil;
@@ -92,17 +92,16 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                         AttributableUtil.getInstance(AttributableType.USER));
     }
 
-    private void doExtractResources(final ContentHandler handler, final AbstractAttributableTO attributableTO)
+    private void doExtractResources(final ContentHandler handler, final AbstractSubjectTO subjectTO)
             throws SAXException {
 
-        if (attributableTO.getResources().isEmpty()) {
-            LOG.debug("No resources found for {}[{}]", attributableTO.getClass().getSimpleName(), attributableTO
-                    .getId());
+        if (subjectTO.getResources().isEmpty()) {
+            LOG.debug("No resources found for {}[{}]", subjectTO.getClass().getSimpleName(), subjectTO.getId());
         } else {
             AttributesImpl atts = new AttributesImpl();
             handler.startElement("", "", "resources", null);
 
-            for (String resourceName : attributableTO.getResources()) {
+            for (String resourceName : subjectTO.getResources()) {
                 atts.clear();
 
                 atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, resourceName);

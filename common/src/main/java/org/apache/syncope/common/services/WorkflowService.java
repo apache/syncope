@@ -30,9 +30,8 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.model.wadl.Description;
 import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
-
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.RESTHeaders;
+import org.apache.syncope.common.types.SubjectType;
 
 /**
  * REST operations for workflow definition management.
@@ -43,7 +42,7 @@ public interface WorkflowService extends JAXRSService {
     /**
      * Checks whether Activiti is enabled (for users or roles).
      *
-     * @param kind can be USER or ROLE only!
+     * @param kind user or role
      * @return <tt>Response</tt> contains special syncope HTTP header indicating if Activiti is enabled for
      * users / roles
      * @see org.apache.syncope.common.types.RESTHeaders#ACTIVITI_USER_ENABLED
@@ -54,36 +53,36 @@ public interface WorkflowService extends JAXRSService {
                 value = "Contains special syncope HTTP header indicating if Activiti is enabled for users / roles")
     })
     @OPTIONS
-    Response getOptions(@PathParam("kind") AttributableType kind);
+    Response getOptions(@PathParam("kind") SubjectType kind);
 
     /**
      * Exports workflow definition for matching kind.
      *
-     * @param kind can be USER or ROLE only!
+     * @param kind user or role
      * @return workflow definition for matching kind
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response exportDefinition(@PathParam("kind") AttributableType kind);
+    Response exportDefinition(@PathParam("kind") SubjectType kind);
 
     /**
      * Exports workflow diagram representation.
      *
-     * @param kind can be USER or ROLE only!
+     * @param kind user or role
      * @return workflow diagram representation
      */
     @GET
     @Path("diagram.png")
     @Produces({ RESTHeaders.MEDIATYPE_IMAGE_PNG })
-    Response exportDiagram(@PathParam("kind") AttributableType kind);
+    Response exportDiagram(@PathParam("kind") SubjectType kind);
 
     /**
      * Imports workflow definition for matching kind.
      *
-     * @param kind can be USER or ROLE only!
+     * @param kind user or role
      * @param definition workflow definition for matching kind
      */
     @PUT
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void importDefinition(@PathParam("kind") AttributableType kind, String definition);
+    void importDefinition(@PathParam("kind") SubjectType kind, String definition);
 }
