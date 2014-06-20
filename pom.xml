@@ -300,6 +300,7 @@ under the License.
   </prerequisites>
     
   <properties>         
+    <syncope.version>${project.version}</syncope.version>
     <targetJdk>1.6</targetJdk>
         
     <servlet-api.version>3.0.1</servlet-api.version>

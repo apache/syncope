@@ -78,13 +78,13 @@ under the License.
   <bean id="searchContextProvider" class="org.apache.cxf.jaxrs.ext.search.SearchContextProvider"/>
   
   <bean id="wadlGenerator" class="org.apache.cxf.jaxrs.model.wadl.WadlGenerator">
-    <property name="applicationTitle" value="Apache Syncope ${project.version}"/>
+    <property name="applicationTitle" value="Apache Syncope ${syncope.version}"/>
     <property name="namespacePrefix" value="syncope"/>
     <property name="linkJsonToXmlSchema" value="true"/>
     <property name="useJaxbContextForQnames" value="true"/>
     <property name="ignoreMessageWriters" value="true"/>
     <property name="addResourceAndMethodIds" value="true"/>
-    <property name="javaDocPath" value="/WEB-INF/lib/syncope-common-${project.version}-javadoc.jar"/>
+    <property name="javaDocPath" value="/WEB-INF/lib/syncope-common-${syncope.version}-javadoc.jar"/>
   </bean>
   
   <bean id="addETagFilter" class="org.apache.syncope.core.services.AddETagFilter"/>
