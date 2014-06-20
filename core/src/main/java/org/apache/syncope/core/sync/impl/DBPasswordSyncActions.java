@@ -68,18 +68,7 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
                 Connector connector = handler.getConnector();
                 ConnInstance connInstance = connector.getActiveConnInstance();
                 
-                String cipherAlgorithm = CLEARTEXT;
-                boolean found = false;
-                for (Iterator<ConnConfProperty> propertyIterator = connInstance.getConfiguration().iterator();
-                        propertyIterator.hasNext() && !found;) {
-
-                    ConnConfProperty property = propertyIterator.next();
-                    if ("cipherAlgorithm".equals(property.getSchema().getName())
-                            && property.getValues() != null && !property.getValues().isEmpty()) {
-
-                        cipherAlgorithm = (String) property.getValues().get(0);
-                    }
-                }
+                String cipherAlgorithm = getCipherAlgorithm(connInstance);
                 if (!CLEARTEXT.equals(cipherAlgorithm)) {
                     try {
                         encodedPassword = password;
@@ -93,6 +82,21 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
         }
 
         return delta;
+    }
+    
+    private String getCipherAlgorithm(ConnInstance connInstance) {
+        String cipherAlgorithm = CLEARTEXT;
+        for (Iterator<ConnConfProperty> propertyIterator = connInstance.getConfiguration().iterator();
+                propertyIterator.hasNext();) {
+
+            ConnConfProperty property = propertyIterator.next();
+            if ("cipherAlgorithm".equals(property.getSchema().getName())
+                    && property.getValues() != null && !property.getValues().isEmpty()) {
+
+                return (String) property.getValues().get(0);
+            }
+        }
+        return cipherAlgorithm;
     }
 
     @Transactional(readOnly = true)
