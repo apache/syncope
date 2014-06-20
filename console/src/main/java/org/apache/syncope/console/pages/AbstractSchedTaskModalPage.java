@@ -19,7 +19,6 @@
 package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.to.SchedTaskTO;
-import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.DateFormatROModel;
@@ -84,21 +83,9 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
                 taskTO.setCronExpression(StringUtils.hasText(taskTO.getCronExpression())
                         ? crontab.getCronExpression()
                         : null);
-
+                
                 try {
-                    if (taskTO.getId() > 0) {
-                        if (taskTO instanceof SyncTaskTO) {
-                            taskRestClient.updateSyncTask((SyncTaskTO) taskTO);
-                        } else {
-                            taskRestClient.updateSchedTask(taskTO);
-                        }
-                    } else {
-                        if (taskTO instanceof SyncTaskTO) {
-                            taskRestClient.createSyncTask((SyncTaskTO) taskTO);
-                        } else {
-                            taskRestClient.createSchedTask(taskTO);
-                        }
-                    }
+                    submitAction(taskTO);
 
                     ((BasePage) pageRef.getPage()).setModalResult(true);
 
@@ -139,4 +126,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
         form.add(submit);
         form.add(cancel);
     }
+
+    protected abstract void submitAction(SchedTaskTO taskTO);
+
 }

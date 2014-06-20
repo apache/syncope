@@ -32,7 +32,8 @@ import org.apache.syncope.console.pages.panels.AjaxDataTablePanel;
 import org.apache.syncope.console.pages.panels.NotificationTasks;
 import org.apache.syncope.console.pages.panels.PropagationTasks;
 import org.apache.syncope.console.pages.panels.SchedTasks;
-import org.apache.syncope.console.pages.panels.SyncTasks;
+import org.apache.syncope.console.pages.panels.PushTasksPanel;
+import org.apache.syncope.console.pages.panels.SyncTasksPanel;
 import org.apache.syncope.console.rest.BaseRestClient;
 import org.apache.syncope.console.rest.TaskRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
@@ -57,7 +58,8 @@ public class Tasks extends BasePage {
         add(new PropagationTasks("propagation", getPageReference()));
         add(new NotificationTasks("notification", getPageReference()));
         add(new SchedTasks("sched", getPageReference()));
-        add(new SyncTasks("sync", getPageReference()));
+        add(new SyncTasksPanel("sync", getPageReference()));
+        add(new PushTasksPanel("push", getPageReference()));
 
         getPageReference();
     }
@@ -193,6 +195,8 @@ public class Tasks extends BasePage {
      * @param dataProvider data provider.
      * @param container container.
      * @param currentPage current page index.
+     * @param pageRef page reference
+     * @param restClient syncope base rest client
      * @return data table.
      */
     public static AjaxDataTablePanel<AbstractTaskTO, String> updateTaskTable(

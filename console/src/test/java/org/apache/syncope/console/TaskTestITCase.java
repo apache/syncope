@@ -33,13 +33,13 @@ public class TaskTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//tr[4]/td[10]/div/span[6]/a/img\");", "30000");
 
-        selenium.click("//tr[4]/td[10]/div/span[6]/a/img");      
-        
+        selenium.click("//tr[4]/td[10]/div/span[6]/a/img");
+
         selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
 
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//tr[4]/td[10]/div/span[12]/a/img\");", "30000");
-        
+
         selenium.click("//tr[4]/td[10]/div/span[12]/a/img");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
@@ -51,7 +51,7 @@ public class TaskTestITCase extends AbstractTest {
         selenium.click("//div[2]/form/div[2]/ul/li[2]/a");
 
         assertTrue(selenium.isElementPresent("//div[2]/form/div[2]/div[2]/span/table/tbody/tr/td[4]"));
-        
+
         seleniumDriver.switchTo().defaultContent();
 
         selenium.click("css=a.w_close");
@@ -91,5 +91,26 @@ public class TaskTestITCase extends AbstractTest {
         seleniumDriver.switchTo().defaultContent();
 
         selenium.waitForCondition("selenium.isTextPresent(\"Id\");", "30000");
+    }
+
+    @Test
+    public void issueSYNCOPE473() {
+        selenium.click("css=img[alt=\"Tasks\"]");
+
+        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+
+        selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
+        selenium.click("//div[5]/span/a");
+
+        selenium.waitForCondition(
+                "selenium.isElementPresent(\"//iframe\");", "30000");
+
+        selenium.selectFrame("index=0");
+
+        selenium.isElementPresent("//div[@id='userFilter']");
+
+        seleniumDriver.switchTo().defaultContent();
+
+        selenium.click("css=a.w_close");
     }
 }

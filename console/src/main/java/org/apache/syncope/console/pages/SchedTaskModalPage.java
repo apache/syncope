@@ -56,4 +56,13 @@ public class SchedTaskModalPage extends AbstractSchedTaskModalPage {
         className.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
         profile.add(className);
     }
+
+    @Override
+    public void submitAction(final SchedTaskTO taskTO) {
+        if (taskTO.getId() > 0) {
+            taskRestClient.updateSchedTask(taskTO);
+        } else {
+            taskRestClient.createSchedTask(taskTO);
+        }
+    }
 }

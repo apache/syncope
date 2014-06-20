@@ -137,27 +137,50 @@ under the License.
                   </div>
                   <div class="tablerow">
                     <div class="tablecolumn_label short_dynamicsize">
-                      <label for="fullReconciliation"><wicket:message key="fullReconciliation"/></label>
-                    </div>
-                    <div class="tablecolumn_field medium_dynamicsize">
-                      <span wicket:id="fullReconciliation">[fullReconciliation]</span>
-                    </div>
-                  </div>
-                  <div class="tablerow alt">
-                    <div class="tablecolumn_label short_dynamicsize">
                       <label for="matchingRule"><wicket:message key="matchingRule"/></label>
                     </div>
                     <div class="tablecolumn_field medium_dynamicsize">
                       <span wicket:id="matchingRule">[matchingRule]</span>
                     </div>
                   </div>
-                  <div class="tablerow">
+                  <div class="tablerow alt">
                     <div class="tablecolumn_label short_dynamicsize">
                       <label for="unmatchingRule"><wicket:message key="unmatchingRule"/></label>
                     </div>
                     <div class="tablecolumn_field medium_dynamicsize">
                       <span wicket:id="unmatchingRule">[unmatchingRule]</span>
                     </div>
+                  </div>
+                  <div id="filters">
+                    <span wicket:id="filterContainer">
+                      <div class="tablerow" style="width: auto;">
+                        <div class="tablecolumn_field" style="width: auto; padding-right: 5px;">
+                          <span wicket:id="checkUserFilter">[checkUserFilter]</span>
+                        </div>
+                        <div class="tablecolumn_label" style="width: auto;">
+                          <label for="checkUserFilter"><wicket:message key="checkUserFilter"/></label>
+                        </div>
+                      </div>
+
+                      <div id="userFilter" style="border: 1px solid #dddddd; padding-bottom: 2%; padding-top: 2%;">
+                        <div id="condition">
+                          <span wicket:id="userFilter"/>
+                        </div>
+                      </div>
+                      <div class="tablerow" style="width: auto;">
+                        <div class="tablecolumn_field" style="width: auto; padding-right: 5px;">
+                          <span wicket:id="checkRoleFilter">[checkRoleFilter]</span>
+                        </div>
+                        <div class="tablecolumn_label" style="width: auto;">
+                          <label for="checkRoleFilter"><wicket:message key="checkRoleFilter"/></label>
+                        </div>
+                      </div>
+                      <div id="roleFilter" style="border: 1px solid #dddddd; padding-bottom: 2%; padding-top: 2%;">
+                        <div id="condition">
+                          <span wicket:id="roleFilter"/>
+                        </div>
+                      </div>
+                    </span>
                   </div>
                   <wicket:child/>
                 </div>

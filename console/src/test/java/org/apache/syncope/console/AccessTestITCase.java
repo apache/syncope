@@ -74,5 +74,7 @@ public class AccessTestITCase extends AbstractTest {
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
+        selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
+        selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
     }
 }

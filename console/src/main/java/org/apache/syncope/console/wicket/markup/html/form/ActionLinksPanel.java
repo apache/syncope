@@ -461,7 +461,7 @@ public class ActionLinksPanel extends Panel {
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
             default:
-            // do nothink
+            // do nothing
         }
 
         if (fragment != null) {
