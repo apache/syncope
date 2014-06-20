@@ -116,27 +116,29 @@ public class MembershipsPanel extends Panel {
 
                     @Override
                     protected void onClick(final AjaxRequestTarget target) {
-                        membWin.setPageCreator(new ModalWindow.PageCreator() {
+                        if (roleTO.getId() > 0) {
+                            membWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                            private static final long serialVersionUID = 7661763358801821185L;
+                                private static final long serialVersionUID = 7661763358801821185L;
 
-                            @Override
-                            public Page createPage() {
-                                PageReference pageRef = getPage().getPageReference();
+                                @Override
+                                public Page createPage() {
+                                    PageReference pageRef = getPage().getPageReference();
 
-                                for (MembershipTO membTO : membView.getList()) {
-                                    if (membTO.getRoleId() == roleTO.getId()) {
-                                        return new MembershipModalPage(pageRef, membWin, membTO, templateMode);
+                                    for (MembershipTO membTO : membView.getList()) {
+                                        if (membTO.getRoleId() == roleTO.getId()) {
+                                            return new MembershipModalPage(pageRef, membWin, membTO, templateMode);
+                                        }
                                     }
-                                }
-                                MembershipTO membTO = new MembershipTO();
-                                membTO.setRoleId(roleTO.getId());
-                                membTO.setRoleName(roleTO.getName());
+                                    MembershipTO membTO = new MembershipTO();
+                                    membTO.setRoleId(roleTO.getId());
+                                    membTO.setRoleName(roleTO.getName());
 
-                                return new MembershipModalPage(pageRef, membWin, membTO, templateMode);
-                            }
-                        });
-                        membWin.show(target);
+                                    return new MembershipModalPage(pageRef, membWin, membTO, templateMode);
+                                }
+                            });
+                            membWin.show(target);
+                        }
                     }
                 };
             }
