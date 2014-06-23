@@ -475,7 +475,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         final List<ConnectorObject> found = connector.search(objectClass,
                 new EqualsFilter(new Name(name)), connector.getOperationOptions(
-                        attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
+                attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", objectClass, syncTask.getResource(), name);
@@ -528,8 +528,6 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         AbstractAttributableTO subjectTO = connObjectUtil.getAttributableTO(delta.getObject(), syncTask, attrUtil);
 
-        delta = actions.beforeCreate(this, delta, subjectTO);
-
         // Attributable transformation (if configured)
         AbstractAttributableTO actual = attrTransformer.transform(subjectTO);
         LOG.debug("Transformed: {}", actual);
@@ -543,7 +541,9 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 result.setName(((RoleTO) actual).getName());
             }
         } else {
-            Object output = null;
+            delta = actions.beforeCreate(this, delta, actual);
+
+            Object output;
             Result resultStatus;
 
             try {
@@ -599,6 +599,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 resultStatus = Result.FAILURE;
             }
 
+            actions.after(this, delta, actual, result);
+
             notificationManager.createTasks(
                     AuditElements.EventCategoryType.SYNCHRONIZATION,
                     AttributableType.USER.name().toLowerCase(),
@@ -620,7 +622,6 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                     delta);
         }
 
-        actions.after(this, delta, actual, result);
         return Collections.singletonList(result);
     }
 
@@ -632,8 +633,6 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         UserMod userMod = connObjectUtil.getAttributableMod(
                 id, delta.getObject(), before, syncTask, AttributableUtil.getInstance(AttributableType.USER));
 
-        delta = actions.beforeUpdate(this, delta, before, userMod);
-
         if (dryRun) {
             return new AbstractMap.SimpleEntry<UserTO, UserTO>(before, before);
         }
@@ -641,6 +640,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         // Attribute value transformation (if configured)
         UserMod actual = attrTransformer.transform(userMod);
         LOG.debug("Transformed: {}", actual);
+
+        delta = actions.beforeUpdate(this, delta, before, userMod);
 
         WorkflowResult<Map.Entry<Long, Boolean>> updated;
         try {
@@ -702,8 +703,6 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         RoleMod roleMod = connObjectUtil.getAttributableMod(
                 id, delta.getObject(), before, syncTask, AttributableUtil.getInstance(AttributableType.ROLE));
 
-        delta = actions.beforeUpdate(this, delta, before, roleMod);
-
         if (dryRun) {
             return new AbstractMap.SimpleEntry<RoleTO, RoleTO>(before, before);
         }
@@ -711,6 +710,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         // Attribute value transformation (if configured)
         RoleMod actual = attrTransformer.transform(roleMod);
         LOG.debug("Transformed: {}", actual);
+
+        delta = actions.beforeUpdate(this, delta, before, roleMod);
 
         WorkflowResult<Long> updated = rwfAdapter.update(actual);
         String roleOwner = null;
@@ -753,7 +754,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         for (Long id : subjects) {
             LOG.debug("About to update {}", id);
 
-            Object output = null;
+            Object output;
             AbstractAttributableTO before = null;
             Result resultStatus;
 
@@ -837,16 +838,16 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         List<SyncResult> delResults = new ArrayList<SyncResult>();
 
         for (Long id : subjects) {
-            Object output = null;
+            Object output;
             Result resultStatus = Result.FAILURE;
+
+            final SyncResult result = new SyncResult();
 
             try {
                 AbstractAttributableTO subjectTO = AttributableType.USER == attrUtil.getType()
                         ? userDataBinder.getUserTO(id)
                         : roleDataBinder.getRoleTO(id);
-                delta = actions.beforeDelete(this, delta, subjectTO);
 
-                final SyncResult result = new SyncResult();
                 result.setId(id);
                 if (subjectTO instanceof UserTO) {
                     result.setName(((UserTO) subjectTO).getUsername());
@@ -859,6 +860,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 result.setStatus(SyncResult.Status.SUCCESS);
 
                 if (!dryRun) {
+                    delta = actions.beforeDelete(this, delta, subjectTO);
+
                     try {
                         List<PropagationTask> tasks = Collections.<PropagationTask>emptyList();
                         if (AttributableType.USER == attrUtil.getType()) {
@@ -887,37 +890,38 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                         LOG.error("Could not delete {} {}", attrUtil.getType(), id, e);
                         output = e;
                     }
+
+                    actions.after(this, delta, subjectTO, result);
+
+                    notificationManager.createTasks(
+                            AuditElements.EventCategoryType.SYNCHRONIZATION,
+                            attrUtil.getType().name().toLowerCase(),
+                            syncTask.getResource().getName(),
+                            "delete",
+                            resultStatus,
+                            subjectTO,
+                            output,
+                            delta);
+
+                    auditManager.audit(
+                            AuditElements.EventCategoryType.SYNCHRONIZATION,
+                            attrUtil.getType().name().toLowerCase(),
+                            syncTask.getResource().getName(),
+                            "delete",
+                            resultStatus,
+                            subjectTO,
+                            output,
+                            delta);
                 }
 
-                actions.after(this, delta, subjectTO, result);
                 delResults.add(result);
 
             } catch (NotFoundException e) {
                 LOG.error("Could not find {} {}", attrUtil.getType(), id, e);
             } catch (UnauthorizedRoleException e) {
                 LOG.error("Not allowed to read {} {}", attrUtil.getType(), id, e);
-            }
-
-            if (!dryRun) {
-                notificationManager.createTasks(
-                        AuditElements.EventCategoryType.SYNCHRONIZATION,
-                        attrUtil.getType().name().toLowerCase(),
-                        syncTask.getResource().getName(),
-                        "delete",
-                        resultStatus,
-                        null, // searching for before object is too much expensive ... 
-                        output,
-                        delta);
-
-                auditManager.audit(
-                        AuditElements.EventCategoryType.SYNCHRONIZATION,
-                        attrUtil.getType().name().toLowerCase(),
-                        syncTask.getResource().getName(),
-                        "delete",
-                        resultStatus,
-                        null, // searching for before object is too much expensive ... 
-                        output,
-                        delta);
+            } catch (Exception e) {
+                LOG.error("Could not delete {} {}", attrUtil.getType(), id, e);
             }
         }
 
