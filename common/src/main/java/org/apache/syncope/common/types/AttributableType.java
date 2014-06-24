@@ -25,6 +25,7 @@ public enum AttributableType {
 
     USER,
     ROLE,
-    MEMBERSHIP
+    MEMBERSHIP,
+    CONFIGURATION;
 
 }

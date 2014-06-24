@@ -201,16 +201,16 @@ under the License.
       <entitlement>CONFIGURATION_LIST</entitlement>
     </action>
 
-    <action id="create">
-      <entitlement>CONFIGURATION_CREATE</entitlement>
+    <action id="export">
+      <entitlement>CONFIGURATION_EXPORT</entitlement>
     </action>
 
     <action id="read">
       <entitlement>CONFIGURATION_READ</entitlement>
     </action>
 
-    <action id="update">
-      <entitlement>CONFIGURATION_UPDATE</entitlement>
+    <action id="set">
+      <entitlement>CONFIGURATION_SET</entitlement>
     </action>
 
     <action id="delete">

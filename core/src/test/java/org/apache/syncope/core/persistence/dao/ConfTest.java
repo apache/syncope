@@ -18,12 +18,19 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.EntityViolationType;
-import org.apache.syncope.core.persistence.beans.SyncopeConf;
+import org.apache.syncope.core.persistence.beans.conf.CAttr;
+import org.apache.syncope.core.persistence.beans.conf.CSchema;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,13 +41,62 @@ public class ConfTest extends AbstractDAOTest {
     @Autowired
     private ConfDAO confDAO;
 
+    @Autowired
+    private SchemaDAO schemaDAO;
+
+    @Test
+    public void read() {
+        CAttr conf = confDAO.find("selfRegistration.allowed");
+        assertNotNull(conf);
+        assertTrue(conf.getValues().get(0).getBooleanValue());
+
+        conf = confDAO.find("authentication.statuses");
+        assertNotNull(conf);
+        assertEquals(2, conf.getValues().size());
+
+        conf = confDAO.find("non.existing");
+        assertNull(conf);
+    }
+
+    @Test
+    public void setAndDelete() {
+        // 1. create CSChema
+        CSchema useless = new CSchema();
+        useless.setName("useless");
+        useless.setType(AttributeSchemaType.Date);
+        useless.setConversionPattern("yyyy-MM-dd");
+        useless = schemaDAO.save(useless);
+
+        // 2. create conf
+        CAttr newConf = new CAttr();
+        newConf.setSchema(useless);
+        newConf.addValue("2014-06-20", AttributableUtil.getInstance(AttributableType.CONFIGURATION));
+        confDAO.save(newConf);
+
+        CAttr actual = confDAO.find("useless");
+        assertEquals(actual.getValuesAsStrings(), newConf.getValuesAsStrings());
+
+        // 3. update conf
+        newConf.getValues().clear();
+        newConf.addValue("2014-06-20", AttributableUtil.getInstance(AttributableType.CONFIGURATION));
+        confDAO.save(newConf);
+
+        actual = confDAO.find("useless");
+        assertEquals(actual.getValuesAsStrings(), newConf.getValuesAsStrings());
+
+        // 4. delete conf
+        confDAO.delete("useless");
+        assertNull(confDAO.find("useless"));
+    }
+
     @Test
     public void issueSYNCOPE418() {
-        SyncopeConf conf = new SyncopeConf();
-        conf.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
-
         try {
-            confDAO.save(conf);
+            CSchema failing = new CSchema();
+            failing.setName("http://schemas.examples.org/security/authorization/organizationUnit");
+            failing.setType(AttributeSchemaType.String);
+            schemaDAO.save(failing);
+
             fail();
         } catch (InvalidEntityException e) {
             assertTrue(e.hasViolation(EntityViolationType.InvalidName));

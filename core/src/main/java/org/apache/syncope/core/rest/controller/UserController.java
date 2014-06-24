@@ -36,15 +36,15 @@ import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.reqres.BulkActionResult.Status;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
+import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
@@ -57,7 +57,6 @@ import org.apache.syncope.core.propagation.impl.PropagationManager;
 import org.apache.syncope.core.rest.data.AttributableTransformer;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
-import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
@@ -74,7 +73,7 @@ import org.springframework.transaction.interceptor.TransactionInterceptor;
  * @see AbstractTransactionalController
  */
 @Component
-public class UserController extends AbstractAttributableController<UserTO, UserMod> {
+public class UserController extends AbstractSubjectController<UserTO, UserMod> {
 
     @Autowired
     protected UserDAO userDAO;
@@ -83,7 +82,7 @@ public class UserController extends AbstractAttributableController<UserTO, UserM
     protected RoleDAO roleDAO;
 
     @Autowired
-    protected AttributableSearchDAO searchDAO;
+    protected SubjectSearchDAO searchDAO;
 
     @Autowired
     protected ConfDAO confDAO;
@@ -103,8 +102,9 @@ public class UserController extends AbstractAttributableController<UserTO, UserM
     @Autowired
     protected AttributableTransformer attrTransformer;
 
+    @Transactional(readOnly = true)
     public boolean isSelfRegistrationAllowed() {
-        return Boolean.valueOf(confDAO.find("selfRegistration.allowed", "false").getValue());
+        return confDAO.find("selfRegistration.allowed", "false").getValues().get(0).getBooleanValue();
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -129,7 +129,7 @@ public class UserController extends AbstractAttributableController<UserTO, UserM
     @Override
     public int searchCount(final SearchCond searchCondition) {
         return searchDAO.count(EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()),
-                searchCondition, AttributableUtil.getInstance(AttributableType.USER));
+                searchCondition, SubjectType.USER);
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
@@ -169,8 +169,7 @@ public class UserController extends AbstractAttributableController<UserTO, UserM
 
         final List<SyncopeUser> matchingUsers = searchDAO.search(
                 EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()),
-                searchCondition, page, size, orderBy,
-                AttributableUtil.getInstance(AttributableType.USER));
+                searchCondition, page, size, orderBy, SubjectType.USER);
 
         final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
@@ -182,11 +181,6 @@ public class UserController extends AbstractAttributableController<UserTO, UserM
 
     @PreAuthorize("isAnonymous() or hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
     public UserTO createSelf(final UserTO userTO) {
-        if (!isSelfRegistrationAllowed()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unauthorized);
-            sce.getElements().add("SelfRegistration forbidden by configuration");
-        }
-
         return doCreate(userTO);
     }
 

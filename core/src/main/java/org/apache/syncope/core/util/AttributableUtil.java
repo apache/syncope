@@ -24,13 +24,13 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AbstractSubjectTO;
+import org.apache.syncope.common.to.ConfTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
-import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrTemplate;
@@ -43,6 +43,11 @@ import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.conf.CAttr;
+import org.apache.syncope.core.persistence.beans.conf.CAttrUniqueValue;
+import org.apache.syncope.core.persistence.beans.conf.CAttrValue;
+import org.apache.syncope.core.persistence.beans.conf.CSchema;
+import org.apache.syncope.core.persistence.beans.conf.SyncopeConf;
 import org.apache.syncope.core.persistence.beans.membership.MAttr;
 import org.apache.syncope.core.persistence.beans.membership.MAttrTemplate;
 import org.apache.syncope.core.persistence.beans.membership.MAttrUniqueValue;
@@ -128,6 +133,9 @@ public final class AttributableUtil {
         if (attributable instanceof Membership) {
             type = AttributableType.MEMBERSHIP;
         }
+        if (attributable instanceof SyncopeConf) {
+            type = AttributableType.CONFIGURATION;
+        }
 
         if (type == null) {
             throw new IllegalArgumentException("Attributable type not supported: " + attributable.getClass().getName());
@@ -151,6 +159,9 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = Membership.class;
                 break;
+
+            case CONFIGURATION:
+                result = SyncopeConf.class;
 
             case USER:
             default:
@@ -180,6 +191,7 @@ public final class AttributableUtil {
                     }
                     break;
                 case MEMBERSHIP:
+                case CONFIGURATION:
                 default:
             }
         }
@@ -278,7 +290,7 @@ public final class AttributableUtil {
     }
 
     public <T extends AbstractMappingItem> Class<T> mappingItemClass() {
-        Class result;
+        Class result = null;
 
         switch (type) {
             case USER:
@@ -288,15 +300,16 @@ public final class AttributableUtil {
                 result = RMappingItem.class;
                 break;
             case MEMBERSHIP:
-            default:
                 result = AbstractMappingItem.class;
+            case CONFIGURATION:
+            default:
         }
 
         return result;
     }
 
     public IntMappingType intMappingType() {
-        IntMappingType result;
+        IntMappingType result = null;
 
         switch (type) {
             case ROLE:
@@ -306,16 +319,17 @@ public final class AttributableUtil {
                 result = IntMappingType.MembershipSchema;
                 break;
             case USER:
-            default:
                 result = IntMappingType.UserSchema;
                 break;
+            case CONFIGURATION:
+            default:
         }
 
         return result;
     }
 
     public IntMappingType derIntMappingType() {
-        IntMappingType result;
+        IntMappingType result = null;
 
         switch (type) {
             case ROLE:
@@ -325,16 +339,17 @@ public final class AttributableUtil {
                 result = IntMappingType.MembershipDerivedSchema;
                 break;
             case USER:
-            default:
                 result = IntMappingType.UserDerivedSchema;
                 break;
+            case CONFIGURATION:
+            default:
         }
 
         return result;
     }
 
     public IntMappingType virIntMappingType() {
-        IntMappingType result;
+        IntMappingType result = null;
 
         switch (type) {
             case ROLE:
@@ -344,9 +359,10 @@ public final class AttributableUtil {
                 result = IntMappingType.MembershipVirtualSchema;
                 break;
             case USER:
-            default:
                 result = IntMappingType.UserVirtualSchema;
                 break;
+            case CONFIGURATION:
+            default:
         }
 
         return result;
@@ -365,6 +381,10 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = MSchema.class;
                 break;
+            case CONFIGURATION:
+                result = CSchema.class;
+                break;
+            default:
         }
 
         return result;
@@ -385,6 +405,12 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = (T) new MSchema();
                 break;
+
+            case CONFIGURATION:
+                result = (T) new CSchema();
+                break;
+
+            default:
         }
 
         return result;
@@ -403,6 +429,8 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = MDerSchema.class;
                 break;
+            case CONFIGURATION:
+            default:
         }
 
         return result;
@@ -421,6 +449,8 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = MVirSchema.class;
                 break;
+            case CONFIGURATION:
+            default:
         }
 
         return result;
@@ -439,6 +469,8 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = (T) new MDerSchema();
                 break;
+            case CONFIGURATION:
+            default:
         }
 
         return result;
@@ -457,6 +489,8 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = MAttrTemplate.class;
                 break;
+            case CONFIGURATION:
+            default:
         }
 
         return result;
@@ -475,6 +509,9 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = MAttr.class;
                 break;
+            case CONFIGURATION:
+                result = CAttr.class;
+            default:
         }
 
         return result;
@@ -493,6 +530,9 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = (T) new MAttr();
                 break;
+            case CONFIGURATION:
+                result = (T) new CAttr();
+            default:
         }
 
         return result;
@@ -511,6 +551,8 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = MDerAttrTemplate.class;
                 break;
+            case CONFIGURATION:
+            default:
         }
 
         return result;
@@ -529,6 +571,8 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = MDerAttr.class;
                 break;
+            case CONFIGURATION:
+            default:
         }
 
         return result;
@@ -547,6 +591,8 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = MVirAttrTemplate.class;
                 break;
+            case CONFIGURATION:
+            default:
         }
 
         return result;
@@ -565,6 +611,8 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = MVirAttr.class;
                 break;
+            case CONFIGURATION:
+            default:
         }
 
         return result;
@@ -583,6 +631,8 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = (T) new MDerAttr();
                 break;
+            case CONFIGURATION:
+            default:
         }
 
         return result;
@@ -601,6 +651,8 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = (T) new MVirAttr();
                 break;
+            case CONFIGURATION:
+            default:
         }
 
         return result;
@@ -619,6 +671,8 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = (T) new MVirSchema();
                 break;
+            case CONFIGURATION:
+            default:
         }
 
         return result;
@@ -637,6 +691,10 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = MAttrValue.class;
                 break;
+            case CONFIGURATION:
+                result = CAttrValue.class;
+                break;
+            default:
         }
 
         return result;
@@ -655,6 +713,10 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = (T) new MAttrValue();
                 break;
+            case CONFIGURATION:
+                result = (T) new CAttrValue();
+                break;
+            default:
         }
 
         return result;
@@ -673,6 +735,10 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = MAttrUniqueValue.class;
                 break;
+            case CONFIGURATION:
+                result = CAttrUniqueValue.class;
+                break;
+            default:
         }
 
         return result;
@@ -691,6 +757,10 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = (T) new MAttrUniqueValue();
                 break;
+            case CONFIGURATION:
+                result = (T) new CAttrUniqueValue();
+                break;
+            default:
         }
 
         return result;
@@ -707,6 +777,7 @@ public final class AttributableUtil {
                 result = policySpec.getrAltSearchSchemas();
                 break;
             case MEMBERSHIP:
+            case CONFIGURATION:
             default:
         }
 
@@ -724,6 +795,7 @@ public final class AttributableUtil {
                 clazz = policySpec.getRoleJavaRule();
                 break;
             case MEMBERSHIP:
+            case CONFIGURATION:
             default:
                 clazz = null;
         }
@@ -754,6 +826,10 @@ public final class AttributableUtil {
             case MEMBERSHIP:
                 result = (T) new MembershipTO();
                 break;
+            case CONFIGURATION:
+                result = (T) new ConfTO();
+                break;
+            default:
         }
 
         return result;
@@ -770,6 +846,8 @@ public final class AttributableUtil {
                 result = (T) new RoleTO();
                 break;
             case MEMBERSHIP:
+            case CONFIGURATION:
+            default:
                 break;
         }
 

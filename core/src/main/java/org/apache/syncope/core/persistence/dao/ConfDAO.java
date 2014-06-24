@@ -18,20 +18,18 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-import java.util.List;
-
-import org.apache.syncope.core.persistence.beans.SyncopeConf;
-import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.apache.syncope.core.persistence.beans.conf.CAttr;
+import org.apache.syncope.core.persistence.beans.conf.SyncopeConf;
 
 public interface ConfDAO extends DAO {
 
-    SyncopeConf find(String name) throws MissingConfKeyException;
+    CAttr find(String key);
 
-    SyncopeConf find(String name, String defaultValue);
+    CAttr find(String key, String defaultValue);
 
-    List<SyncopeConf> findAll();
+    SyncopeConf get();
 
-    SyncopeConf save(SyncopeConf syncopeConfiguration) throws InvalidEntityException;
+    SyncopeConf save(CAttr attr);
 
-    void delete(String name);
+    SyncopeConf delete(String key);
 }

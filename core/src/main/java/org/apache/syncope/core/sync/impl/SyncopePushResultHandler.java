@@ -28,14 +28,14 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.ResourceOperation;
-import org.apache.syncope.core.persistence.beans.AbstractAttributable;
+import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.PushTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.TimeoutException;
 import org.apache.syncope.core.propagation.impl.AbstractPropagationTaskExecutor;
-import org.apache.syncope.core.rest.controller.AbstractAttributableController;
+import org.apache.syncope.core.rest.controller.AbstractSubjectController;
 import org.apache.syncope.core.sync.PushActions;
 import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -56,9 +56,9 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
     }
 
     @Transactional
-    public boolean handle(final AbstractAttributable attributable) {
+    public boolean handle(final AbstractSubject subject) {
         try {
-            doHandle(attributable);
+            doHandle(subject);
             return true;
         } catch (JobExecutionException e) {
             LOG.error("Synchronization failed", e);
@@ -66,40 +66,34 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
         }
     }
 
-    /**
-     * Look into SyncDelta and take necessary actions (create / update / delete) on user(s).
-     *
-     * @param delta returned by the underlying connector
-     * @throws JobExecutionException in case of synchronization failure.
-     */
-    protected final void doHandle(final AbstractAttributable attributable)
+    protected final void doHandle(final AbstractSubject subject)
             throws JobExecutionException {
 
         if (results == null) {
             results = new ArrayList<SyncResult>();
         }
 
-        final AttributableUtil attrUtil = AttributableUtil.getInstance(attributable);
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(subject);
 
         final SyncResult result = new SyncResult();
         results.add(result);
 
-        result.setId(attributable.getId());
+        result.setId(subject.getId());
         result.setSubjectType(attrUtil.getType());
 
-        final AbstractAttributableController<?, ?> controller;
-        final AbstractAttributable toBeHandled;
+        final AbstractSubjectController<?, ?> controller;
+        final AbstractSubject toBeHandled;
         final Boolean enabled;
 
         if (attrUtil.getType() == AttributableType.USER) {
-            toBeHandled = userDataBinder.getUserFromId(attributable.getId());
+            toBeHandled = userDataBinder.getUserFromId(subject.getId());
             result.setName(((SyncopeUser) toBeHandled).getUsername());
             enabled = getSyncTask().isSyncStatus()
                     ? ((SyncopeUser) toBeHandled).isSuspended() ? Boolean.FALSE : Boolean.TRUE
                     : null;
             controller = userController;
         } else {
-            toBeHandled = roleDataBinder.getRoleFromId(attributable.getId());
+            toBeHandled = roleDataBinder.getRoleFromId(subject.getId());
             result.setName(((SyncopeRole) toBeHandled).getName());
             enabled = null;
             controller = roleController;

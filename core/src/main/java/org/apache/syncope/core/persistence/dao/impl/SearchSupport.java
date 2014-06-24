@@ -20,9 +20,8 @@ package org.apache.syncope.core.persistence.dao.impl;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
-import org.apache.syncope.core.util.AttributableUtil;
+import org.apache.syncope.common.types.SubjectType;
 
 class SearchSupport {
 
@@ -48,10 +47,10 @@ class SearchSupport {
         }
     }
 
-    private final AttributableType type;
+    private final SubjectType type;
 
-    public SearchSupport(final AttributableUtil attrUtil) {
-        this.type = attrUtil.getType();
+    public SearchSupport(final SubjectType type) {
+        this.type = type;
     }
 
     public String fieldName(final AttributeSchemaType type) {
@@ -91,15 +90,13 @@ class SearchSupport {
 
         switch (type) {
             case USER:
+            default:
                 result = "user_search";
                 break;
 
             case ROLE:
                 result = "role_search";
                 break;
-
-            case MEMBERSHIP:
-            default:
         }
 
         return new SearchView("sv", result);

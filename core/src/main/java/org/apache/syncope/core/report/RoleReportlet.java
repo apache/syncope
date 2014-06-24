@@ -29,16 +29,15 @@ import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
-import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
+import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.SearchCondConverter;
-import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.ContentHandler;
@@ -57,7 +56,7 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
     private RoleDAO roleDAO;
 
     @Autowired
-    private AttributableSearchDAO searchDAO;
+    private SubjectSearchDAO searchDAO;
 
     @Autowired
     private RoleDataBinder roleDataBinder;
@@ -69,8 +68,7 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
             result = roleDAO.findAll();
         } else {
             result = searchDAO.search(adminRoleIds, SearchCondConverter.convert(conf.getMatchingCond()),
-                    page, PAGE_SIZE, Collections.<OrderByClause>emptyList(),
-                    AttributableUtil.getInstance(AttributableType.ROLE));
+                    page, PAGE_SIZE, Collections.<OrderByClause>emptyList(), SubjectType.ROLE);
         }
 
         return result;
@@ -81,8 +79,7 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
 
         return conf.getMatchingCond() == null
                 ? roleDAO.findAll().size()
-                : searchDAO.count(adminRoleIds, SearchCondConverter.convert(conf.getMatchingCond()),
-                        AttributableUtil.getInstance(AttributableType.ROLE));
+                : searchDAO.count(adminRoleIds, SearchCondConverter.convert(conf.getMatchingCond()), SubjectType.ROLE);
     }
 
     private void doExtractResources(final ContentHandler handler, final AbstractSubjectTO subjectTO)

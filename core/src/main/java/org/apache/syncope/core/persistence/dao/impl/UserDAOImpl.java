@@ -25,6 +25,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
@@ -32,10 +33,10 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
-import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
+import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.persistence.dao.search.AttributableCond;
+import org.apache.syncope.core.persistence.dao.search.SubjectCond;
 import org.apache.syncope.core.persistence.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.dao.search.SearchCond;
@@ -44,10 +45,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO {
+public class UserDAOImpl extends AbstractSubjectDAOImpl implements UserDAO {
 
     @Autowired
-    private AttributableSearchDAO searchDAO;
+    private SubjectSearchDAO searchDAO;
 
     @Autowired
     private RoleDAO roleDAO;
@@ -145,7 +146,7 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
     }
 
     private SearchCond getAllMatchingCond() {
-        AttributableCond idCond = new AttributableCond(AttributeCond.Type.ISNOTNULL);
+        SubjectCond idCond = new SubjectCond(AttributeCond.Type.ISNOTNULL);
         idCond.setSchema("id");
         return SearchCond.getLeafCond(idCond);
     }
@@ -154,13 +155,12 @@ public class UserDAOImpl extends AbstractAttributableDAOImpl implements UserDAO 
     public List<SyncopeUser> findAll(final Set<Long> adminRoles,
             final int page, final int itemsPerPage, final List<OrderByClause> orderBy) {
 
-        return searchDAO.search(adminRoles, getAllMatchingCond(), page, itemsPerPage, orderBy,
-                AttributableUtil.getInstance(AttributableType.USER));
+        return searchDAO.search(adminRoles, getAllMatchingCond(), page, itemsPerPage, orderBy, SubjectType.USER);
     }
 
     @Override
     public final int count(final Set<Long> adminRoles) {
-        return searchDAO.count(adminRoles, getAllMatchingCond(), AttributableUtil.getInstance(AttributableType.USER));
+        return searchDAO.count(adminRoles, getAllMatchingCond(), SubjectType.USER);
     }
 
     @Override

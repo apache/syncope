@@ -40,7 +40,6 @@ import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.SyncopeClientCompositeException;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.reqres.ErrorTO;
-import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
@@ -166,9 +165,6 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
     private ResponseBuilder processNotFoundExceptions(final Exception ex) {
         if (ex instanceof javax.ws.rs.NotFoundException || ex instanceof NotFoundException) {
             return builder(Response.Status.NOT_FOUND, ClientExceptionType.NotFound, getExMessage(ex));
-        } else if (ex instanceof MissingConfKeyException) {
-            return builder(Response.Status.NOT_FOUND, ClientExceptionType.NotFound,
-                    getMessage(ex, ((MissingConfKeyException) ex).getConfKey()));
         }
 
         return null;

@@ -23,15 +23,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
-import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.beans.PushTask;
 import org.apache.syncope.core.persistence.beans.role.RMapping;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UMapping;
-import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
+import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.propagation.Connector;
@@ -39,7 +39,6 @@ import org.apache.syncope.core.rest.data.SearchCondConverter;
 import org.apache.syncope.core.sync.PushActions;
 import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.ApplicationContextProvider;
-import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +63,7 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
      * Search DAO.
      */
     @Autowired
-    private AttributableSearchDAO searchDAO;
+    private SubjectSearchDAO searchDAO;
 
     /**
      * Role DAO.
@@ -159,7 +158,7 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
         } else {
             return searchDAO.<SyncopeUser>search(
                     authorizations, SearchCondConverter.convert(filter),
-                    Collections.<OrderByClause>emptyList(), AttributableUtil.getInstance(AttributableType.USER));
+                    Collections.<OrderByClause>emptyList(), SubjectType.USER);
         }
     }
 
@@ -170,7 +169,7 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
         } else {
             return searchDAO.<SyncopeRole>search(
                     authorizations, SearchCondConverter.convert(filter),
-                    Collections.<OrderByClause>emptyList(), AttributableUtil.getInstance(AttributableType.ROLE));
+                    Collections.<OrderByClause>emptyList(), SubjectType.ROLE);
         }
     }
 }

@@ -18,17 +18,23 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
-public class MissingConfKeyException extends RuntimeException {
-	private static final long serialVersionUID = -3257107672657462752L;
-	
-	private String confKey;
+import java.util.List;
 
-    public MissingConfKeyException(final String confKey) {
-        super();
-        this.confKey = confKey;
-    }
+import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
+import org.apache.syncope.core.persistence.beans.AbstractSubject;
+import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.util.AttributableUtil;
 
-    public String getConfKey() {
-        return confKey;
-    }
+public interface SubjectDAO extends DAO {
+
+    <T extends AbstractSubject> List<T> findByAttrValue(String schemaName,
+            AbstractAttrValue attrValue, AttributableUtil attrUtil);
+
+    <T extends AbstractSubject> T findByAttrUniqueValue(String schemaName,
+            AbstractAttrValue attrUniqueValue, AttributableUtil attrUtil);
+
+    <T extends AbstractSubject> List<T> findByDerAttrValue(String schemaName, String value,
+            AttributableUtil attrUtil);
+
+    <T extends AbstractSubject> List<T> findByResource(ExternalResource resource, Class<T> reference);
 }

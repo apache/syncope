@@ -23,40 +23,15 @@ import org.junit.Test;
 public class ConfigurationTestITCase extends AbstractTest {
 
     @Test
-    public void browseCreateModal() {
+    public void editParameters() {
         selenium.click("css=img[alt=\"Configuration\"]");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//a[contains(text(),'Create new configuration')]");
-
-        selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='key:textField']\");", "30000");
-
-        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
-        selenium.selectFrame("index=0");
-
-        selenium.type("name=key:textField", "test1");
-        selenium.type("name=value:textField", "value1");
-        selenium.click("name=apply");
-
-        seleniumDriver.switchTo().defaultContent();
+        selenium.click("//span[contains(text(), 'log.lastlogindate')]/../../div[2]/span/input");
+        selenium.click("//div[@id='parameters']/form/a");
 
         selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
-    }
-
-    @Test
-    public void browseEditModal() {
-        selenium.click("css=img[alt=\"Configuration\"]");
-
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
-
-        selenium.click("//tr/td[3]/div/span[12]/a");
-
-        selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='key:textField']\");", "30000");
-
-        assertEquals("authentication.statuses", selenium.getAttribute("//input[@name='key:textField']@value"));
-
-        selenium.click("css=a.w_close");
     }
 
     @Test
@@ -93,19 +68,6 @@ public class ConfigurationTestITCase extends AbstractTest {
     }
 
     @Test
-    public void delete() {
-        selenium.click("css=img[alt=\"Configuration\"]");
-
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
-
-        selenium.click("//tr[3]/td[3]/div/span[14]/a");
-
-        assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
-
-        selenium.waitForCondition("selenium.isTextPresent(" + "\"Operation executed successfully\");", "30000");
-    }
-
-    @Test
     public void setLogLevel() {
         selenium.click("css=img[alt=\"Configuration\"]");
 
@@ -126,7 +88,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.click("//div[@id='tabs']/ul/li[3]/a");
 
-        selenium.click("//a[contains(text(),'Create new notification')]");
+        selenium.click("//div[@id='notifications']/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//div[2]/form/div[3]/div/div/div/div/label\");", "30000");
@@ -211,7 +173,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.click("//div[@id='tabs']/ul/li[3]/a");
 
-        selenium.click("//a[contains(text(),'Create new notification')]");
+        selenium.click("//div[@id='notifications']/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//div[2]/form/div[3]/div/div/div/div/label\");", "30000");
@@ -292,24 +254,6 @@ public class ConfigurationTestITCase extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE189() {
-        selenium.click("css=img[alt=\"Configuration\"]");
-
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
-
-        selenium.click("//a[contains(text(),'Create new configuration')]");
-
-        selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='key:textField']\");", "30000");
-
-        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
-        selenium.selectFrame("index=0");
-
-        selenium.keyPressNative("27");
-
-        seleniumDriver.switchTo().defaultContent();
-    }
-
-    @Test
     public void issueSYNCOPE446() {
         selenium.click("css=img[alt=\"Configuration\"]");
 
@@ -317,7 +261,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.click("//div[@id='tabs']/ul/li[3]/a");
 
-        selenium.click("//a[contains(text(),'Create new notification')]");
+        selenium.click("//div[@id='notifications']/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//div[2]/form/div[3]/div/div/div/div/label\");", "30000");
@@ -390,9 +334,9 @@ public class ConfigurationTestITCase extends AbstractTest {
         selenium.select(
                 "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:property']",
                 "label=ROLE_CREATE");
-        
+
         selenium.click("//div[2]/form/div[3]/ul/li[4]/a/span");
-        
+
         selenium.click("//input[@name='recipientsContainer:checkRecipients:checkboxField']");
 
         selenium.type(

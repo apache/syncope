@@ -21,17 +21,15 @@ package org.apache.syncope.core.rest.controller;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.syncope.common.to.ConfigurationTO;
+import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.ConfTO;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.init.WorkflowAdapterLoader;
-import org.apache.syncope.core.persistence.beans.SyncopeConf;
+import org.apache.syncope.core.persistence.beans.conf.CAttr;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
-import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
+import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.validation.attrvalue.Validator;
 import org.apache.syncope.core.rest.data.ConfigurationDataBinder;
 import org.apache.syncope.core.util.ContentExporter;
@@ -43,7 +41,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class ConfigurationController extends AbstractTransactionalController<ConfigurationTO> {
+public class ConfigurationController extends AbstractTransactionalController<ConfTO> {
 
     @Autowired
     private ConfDAO confDAO;
@@ -63,56 +61,29 @@ public class ConfigurationController extends AbstractTransactionalController<Con
     @Autowired
     private WorkflowAdapterLoader wfAdapterLoader;
 
-    @PreAuthorize("hasRole('CONFIGURATION_CREATE')")
-    public ConfigurationTO create(final ConfigurationTO configurationTO) {
-
-        SyncopeConf conf = binder.create(configurationTO);
-        conf = confDAO.save(conf);
-
-        return binder.getConfigurationTO(conf);
-    }
-
     @PreAuthorize("hasRole('CONFIGURATION_DELETE')")
-    public ConfigurationTO delete(final String key) {
-        SyncopeConf conf = confDAO.find(key);
-        ConfigurationTO confToDelete = binder.getConfigurationTO(conf);
+    public void delete(final String key) {
         confDAO.delete(key);
-        return confToDelete;
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_LIST')")
-    public List<ConfigurationTO> list() {
-        List<SyncopeConf> configurations = confDAO.findAll();
-        List<ConfigurationTO> configurationTOs = new ArrayList<ConfigurationTO>(configurations.size());
-
-        for (SyncopeConf configuration : configurations) {
-            configurationTOs.add(binder.getConfigurationTO(configuration));
-        }
-
-        return configurationTOs;
+    public ConfTO list() {
+        return binder.getConfTO(confDAO.get());
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_READ')")
-    public ConfigurationTO read(final String key) {
-        ConfigurationTO result;
-        try {
-            SyncopeConf conf = confDAO.find(key);
-            result = binder.getConfigurationTO(conf);
-        } catch (MissingConfKeyException e) {
-            LOG.error("Could not find configuration key '" + key + "', returning null");
-
-            result = new ConfigurationTO();
-            result.setKey(key);
+    public AttributeTO read(final String key) {
+        CAttr conf = confDAO.find(key);
+        if (conf == null) {
+            throw new NotFoundException("Configuration key " + key);
         }
 
-        return result;
+        return binder.getAttributeTO(conf);
     }
 
-    @PreAuthorize("hasRole('CONFIGURATION_UPDATE')")
-    public ConfigurationTO update(final ConfigurationTO configurationTO) {
-        SyncopeConf conf = confDAO.find(configurationTO.getKey());
-        conf.setValue(configurationTO.getValue());
-        return binder.getConfigurationTO(conf);
+    @PreAuthorize("hasRole('CONFIGURATION_SET')")
+    public void set(final AttributeTO value) {
+        confDAO.save(binder.getAttribute(value));
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_LIST')")
@@ -148,7 +119,7 @@ public class ConfigurationController extends AbstractTransactionalController<Con
         return htmlTemplates;
     }
 
-    @PreAuthorize("hasRole('CONFIGURATION_READ')")
+    @PreAuthorize("hasRole('CONFIGURATION_EXPORT')")
     @Transactional(readOnly = true)
     public void export(final OutputStream os) {
         try {
@@ -163,28 +134,8 @@ public class ConfigurationController extends AbstractTransactionalController<Con
      * {@inheritDoc}
      */
     @Override
-    protected ConfigurationTO resolveReference(final Method method, final Object... args)
+    protected ConfTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
-        String key = null;
-
-        if (ArrayUtils.isNotEmpty(args)) {
-            for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof ConfigurationTO) {
-                    key = ((ConfigurationTO) args[i]).getKey();
-                }
-            }
-        }
-
-        if (key != null) {
-            try {
-                return binder.getConfigurationTO(confDAO.find(key));
-            } catch (Throwable ignore) {
-                LOG.debug("Unresolved reference", ignore);
-                throw new UnresolvedReferenceException(ignore);
-            }
-        }
 
         throw new UnresolvedReferenceException();
     }

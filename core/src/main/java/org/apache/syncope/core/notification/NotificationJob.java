@@ -89,7 +89,7 @@ public class NotificationJob implements Job {
 
     private void init() {
         try {
-            maxRetries = Long.valueOf(confDAO.find("notification.maxRetries", "0").getValue());
+            maxRetries = confDAO.find("notification.maxRetries", "0").getValues().get(0).getLongValue();
         } catch (NumberFormatException e) {
             LOG.error("Invalid maximum number of retries, retries disabled", e);
             maxRetries = 0;
@@ -106,7 +106,7 @@ public class NotificationJob implements Job {
         boolean retryPossible = true;
 
         if (StringUtils.isBlank(task.getSubject()) || task.getRecipients().isEmpty()
-            || StringUtils.isBlank(task.getHtmlBody()) || StringUtils.isBlank(task.getTextBody())) {
+                || StringUtils.isBlank(task.getHtmlBody()) || StringUtils.isBlank(task.getTextBody())) {
 
             String message = "Could not fetch all required information for sending e-mails:\n"
                     + task.getRecipients() + "\n"
@@ -149,10 +149,10 @@ public class NotificationJob implements Job {
                     switch (task.getTraceLevel()) {
                         case ALL:
                             report.append("FROM: ").append(task.getSender()).append('\n').
-                                append("TO: ").append(to).append('\n').
-                                append("SUBJECT: ").append(task.getSubject()).append('\n').append('\n').
-                                append(task.getTextBody()).append('\n').append('\n').
-                                append(task.getHtmlBody()).append('\n');
+                                    append("TO: ").append(to).append('\n').
+                                    append("SUBJECT: ").append(task.getSubject()).append('\n').append('\n').
+                                    append(task.getTextBody()).append('\n').append('\n').
+                                    append(task.getHtmlBody()).append('\n');
                             break;
 
                         case SUMMARY:

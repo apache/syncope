@@ -28,13 +28,12 @@ import java.util.Set;
 
 import org.apache.syncope.core.persistence.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.dao.search.SearchCond;
-import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
+import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
-import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,8 +43,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:syncopeContext.xml", "classpath:persistenceContext.xml",
-    "classpath:schedulingContext.xml", "classpath:workflowContext.xml"})
+@ContextConfiguration(locations = { "classpath:syncopeContext.xml", "classpath:persistenceContext.xml",
+    "classpath:schedulingContext.xml", "classpath:workflowContext.xml" })
 @Transactional
 public class AttributableSearchTest {
 
@@ -53,7 +52,7 @@ public class AttributableSearchTest {
     private RoleDAO roleDAO;
 
     @Autowired
-    private AttributableSearchDAO searchDAO;
+    private SubjectSearchDAO searchDAO;
 
     @Autowired
     private EntitlementDAO entitlementDAO;
@@ -73,8 +72,8 @@ public class AttributableSearchTest {
         final SearchCond cond = SearchCond.getLeafCond(coolLeafCond);
         assertTrue(cond.isValid());
 
-        final List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond,
-                AttributableUtil.getInstance(AttributableType.USER));
+        final List<SyncopeUser> users =
+                searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond, SubjectType.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
 

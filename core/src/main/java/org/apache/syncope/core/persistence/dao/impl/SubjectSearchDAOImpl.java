@@ -32,16 +32,16 @@ import javax.validation.ValidationException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
-import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
-import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
+import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
+import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
-import org.apache.syncope.core.persistence.dao.search.AttributableCond;
+import org.apache.syncope.core.persistence.dao.search.SubjectCond;
 import org.apache.syncope.core.persistence.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.dao.search.EntitlementCond;
 import org.apache.syncope.core.persistence.dao.search.MembershipCond;
@@ -55,7 +55,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 
 @Repository
-public class AttributableSearchDAOImpl extends AbstractDAOImpl implements AttributableSearchDAO {
+public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSearchDAO {
 
     private static final String EMPTY_ATTR_QUERY = "SELECT subject_id FROM user_search_attr WHERE 1=2";
 
@@ -68,17 +68,17 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     @Autowired
     private SchemaDAO schemaDAO;
 
-    private String getAdminRolesFilter(final Set<Long> adminRoles, final AttributableUtil attrUtil) {
+    private String getAdminRolesFilter(final Set<Long> adminRoles, final SubjectType type) {
         final StringBuilder adminRolesFilter = new StringBuilder();
 
-        if (attrUtil.getType() == AttributableType.USER) {
+        if (type == SubjectType.USER) {
             adminRolesFilter.append("SELECT syncopeUser_id AS subject_id FROM Membership M1 WHERE syncopeRole_id IN (").
                     append("SELECT syncopeRole_id FROM Membership M2 WHERE M2.syncopeUser_id=M1.syncopeUser_id ").
                     append("AND syncopeRole_id NOT IN (");
         }
 
         adminRolesFilter.append("SELECT id AS ").
-                append(attrUtil.getType() == AttributableType.USER ? "syncopeRole" : "subject").
+                append(type == SubjectType.USER ? "syncopeRole" : "subject").
                 append("_id FROM SyncopeRole");
 
         boolean firstRole = true;
@@ -88,13 +88,12 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
                 adminRolesFilter.append(" WHERE");
                 firstRole = false;
             } else {
-                adminRolesFilter.append(attrUtil.getType() == AttributableType.USER ? " OR" : " AND");
+                adminRolesFilter.append(type == SubjectType.USER ? " OR" : " AND");
             }
-            adminRolesFilter.append(attrUtil.getType() == AttributableType.USER
-                    ? " id=" : " id <>").append(adminRoleId);
+            adminRolesFilter.append(type == SubjectType.USER ? " id=" : " id <>").append(adminRoleId);
         }
 
-        if (attrUtil.getType() == AttributableType.USER) {
+        if (type == SubjectType.USER) {
             adminRolesFilter.append("))");
         }
 
@@ -102,17 +101,17 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     }
 
     @Override
-    public int count(final Set<Long> adminRoles, final SearchCond searchCondition, final AttributableUtil attrUtil) {
+    public int count(final Set<Long> adminRoles, final SearchCond searchCondition, final SubjectType type) {
         List<Object> parameters = Collections.synchronizedList(new ArrayList<Object>());
 
         // 1. get the query string from the search condition
-        SearchSupport svs = new SearchSupport(attrUtil);
-        StringBuilder queryString = getQuery(searchCondition, parameters, attrUtil, svs);
+        SearchSupport svs = new SearchSupport(type);
+        StringBuilder queryString = getQuery(searchCondition, parameters, type, svs);
 
         // 2. take into account administrative roles
         queryString.insert(0, "SELECT u.subject_id FROM (");
         queryString.append(") u WHERE subject_id NOT IN (");
-        queryString.append(getAdminRolesFilter(adminRoles, attrUtil)).append(')');
+        queryString.append(getAdminRolesFilter(adminRoles, type)).append(')');
 
         // 3. prepare the COUNT query
         queryString.insert(0, "SELECT COUNT(subject_id) FROM (");
@@ -130,23 +129,23 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     }
 
     @Override
-    public <T extends AbstractAttributable> List<T> search(final Set<Long> adminRoles, final SearchCond searchCondition,
-            final AttributableUtil attrUtil) {
+    public <T extends AbstractSubject> List<T> search(final Set<Long> adminRoles, final SearchCond searchCondition,
+            final SubjectType type) {
 
-        return search(adminRoles, searchCondition, Collections.<OrderByClause>emptyList(), attrUtil);
+        return search(adminRoles, searchCondition, Collections.<OrderByClause>emptyList(), type);
     }
 
     @Override
-    public <T extends AbstractAttributable> List<T> search(final Set<Long> adminRoles, final SearchCond searchCondition,
-            final List<OrderByClause> orderBy, final AttributableUtil attrUtil) {
+    public <T extends AbstractSubject> List<T> search(final Set<Long> adminRoles, final SearchCond searchCondition,
+            final List<OrderByClause> orderBy, final SubjectType type) {
 
-        return search(adminRoles, searchCondition, -1, -1, orderBy, attrUtil);
+        return search(adminRoles, searchCondition, -1, -1, orderBy, type);
     }
 
     @Override
-    public <T extends AbstractAttributable> List<T> search(final Set<Long> adminRoles, final SearchCond searchCondition,
+    public <T extends AbstractSubject> List<T> search(final Set<Long> adminRoles, final SearchCond searchCondition,
             final int page, final int itemsPerPage, final List<OrderByClause> orderBy,
-            final AttributableUtil attrUtil) {
+            final SubjectType type) {
 
         List<T> result = Collections.<T>emptyList();
 
@@ -155,9 +154,9 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
 
             if (searchCondition != null && searchCondition.isValid()) {
                 try {
-                    result = doSearch(adminRoles, searchCondition, page, itemsPerPage, orderBy, attrUtil);
+                    result = doSearch(adminRoles, searchCondition, page, itemsPerPage, orderBy, type);
                 } catch (Exception e) {
-                    LOG.error("While searching for {}", attrUtil.getType(), e);
+                    LOG.error("While searching for {}", type, e);
                 }
             } else {
                 LOG.error("Invalid search condition:\n{}", searchCondition);
@@ -168,14 +167,14 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     }
 
     @Override
-    public <T extends AbstractAttributable> boolean matches(final T user, final SearchCond searchCondition,
-            final AttributableUtil attrUtil) {
+    public <T extends AbstractSubject> boolean matches(final T subject, final SearchCond searchCondition,
+            final SubjectType type) {
 
         List<Object> parameters = Collections.synchronizedList(new ArrayList<Object>());
 
         // 1. get the query string from the search condition
-        SearchSupport svs = new SearchSupport(attrUtil);
-        StringBuilder queryString = getQuery(searchCondition, parameters, attrUtil, svs);
+        SearchSupport svs = new SearchSupport(type);
+        StringBuilder queryString = getQuery(searchCondition, parameters, type, svs);
 
         boolean matches;
         if (queryString.length() == 0) {
@@ -184,7 +183,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         } else {
             // 2. take into account the passed user
             queryString.insert(0, "SELECT u.subject_id FROM (");
-            queryString.append(") u WHERE subject_id=?").append(setParameter(parameters, user.getId()));
+            queryString.append(") u WHERE subject_id=?").append(setParameter(parameters, subject.getId()));
 
             // 3. prepare the search query
             Query query = entityManager.createNativeQuery(queryString.toString());
@@ -234,7 +233,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         return select;
     }
 
-    private StringBuilder buildWhere(final OrderBySupport orderBySupport, final AttributableUtil attrUtil) {
+    private StringBuilder buildWhere(final OrderBySupport orderBySupport, final SubjectType type) {
         final StringBuilder where = new StringBuilder(" u");
         for (SearchSupport.SearchView searchView : orderBySupport.views) {
             where.append(',').append(searchView.name).append(' ').append(searchView.alias);
@@ -268,16 +267,18 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
         return orderBy;
     }
 
-    private OrderBySupport parseOrderBy(final AttributableUtil attrUtil, final SearchSupport svs,
+    private OrderBySupport parseOrderBy(final SubjectType type, final SearchSupport svs,
             final List<OrderByClause> orderByClauses) {
+
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(type.asAttributableType());
 
         OrderBySupport orderBySupport = new OrderBySupport();
 
         for (OrderByClause clause : orderByClauses) {
             OrderBySupport.Item obs = new OrderBySupport.Item();
 
-            Field attributableField = ReflectionUtils.findField(attrUtil.attributableClass(), clause.getField());
-            if (attributableField == null) {
+            Field subjectField = ReflectionUtils.findField(attrUtil.attributableClass(), clause.getField());
+            if (subjectField == null) {
                 AbstractNormalSchema schema = schemaDAO.find(clause.getField(), attrUtil.schemaClass());
                 if (schema != null) {
                     if (schema.isUniqueConstraint()) {
@@ -321,27 +322,27 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends AbstractAttributable> List<T> doSearch(final Set<Long> adminRoles,
+    private <T extends AbstractSubject> List<T> doSearch(final Set<Long> adminRoles,
             final SearchCond nodeCond, final int page, final int itemsPerPage, final List<OrderByClause> orderBy,
-            final AttributableUtil attrUtil) {
+            final SubjectType type) {
 
         List<Object> parameters = Collections.synchronizedList(new ArrayList<Object>());
 
         // 1. get the query string from the search condition
-        SearchSupport svs = new SearchSupport(attrUtil);
-        StringBuilder queryString = getQuery(nodeCond, parameters, attrUtil, svs);
+        SearchSupport svs = new SearchSupport(type);
+        StringBuilder queryString = getQuery(nodeCond, parameters, type, svs);
 
         // 2. take into account administrative roles and ordering
-        OrderBySupport orderBySupport = parseOrderBy(attrUtil, svs, orderBy);
+        OrderBySupport orderBySupport = parseOrderBy(type, svs, orderBy);
         if (queryString.charAt(0) == '(') {
             queryString.insert(0, buildSelect(orderBySupport));
-            queryString.append(buildWhere(orderBySupport, attrUtil));
+            queryString.append(buildWhere(orderBySupport, type));
         } else {
             queryString.insert(0, buildSelect(orderBySupport).append('('));
-            queryString.append(')').append(buildWhere(orderBySupport, attrUtil));
+            queryString.append(')').append(buildWhere(orderBySupport, type));
         }
         queryString.
-                append(getAdminRolesFilter(adminRoles, attrUtil)).append(')').
+                append(getAdminRolesFilter(adminRoles, type)).append(')').
                 append(buildOrderBy(orderBySupport));
 
         // 3. prepare the search query
@@ -370,12 +371,12 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
                 actualId = ((Number) subjectId).longValue();
             }
 
-            T subject = attrUtil.getType() == AttributableType.USER
+            T subject = type == SubjectType.USER
                     ? (T) userDAO.find(actualId)
                     : (T) roleDAO.find(actualId);
             if (subject == null) {
                 LOG.error("Could not find {} with id {}, even though returned by the native query",
-                        attrUtil.getType(), subjectId);
+                        type, subjectId);
             } else {
                 if (!result.contains(subject)) {
                     result.add(subject);
@@ -387,7 +388,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     }
 
     private StringBuilder getQuery(final SearchCond nodeCond, final List<Object> parameters,
-            final AttributableUtil attrUtil, final SearchSupport svs) {
+            final SubjectType type, final SearchSupport svs) {
 
         StringBuilder query = new StringBuilder();
 
@@ -395,13 +396,13 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
 
             case LEAF:
             case NOT_LEAF:
-                if (nodeCond.getMembershipCond() != null && AttributableType.USER == attrUtil.getType()) {
+                if (nodeCond.getMembershipCond() != null && SubjectType.USER == type) {
                     query.append(getQuery(nodeCond.getMembershipCond(), nodeCond.getType() == SearchCond.Type.NOT_LEAF,
                             parameters, svs));
                 }
                 if (nodeCond.getResourceCond() != null) {
                     query.append(getQuery(nodeCond.getResourceCond(),
-                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, attrUtil, svs));
+                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, type, svs));
                 }
                 if (nodeCond.getEntitlementCond() != null) {
                     query.append(getQuery(nodeCond.getEntitlementCond(),
@@ -409,25 +410,25 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
                 }
                 if (nodeCond.getAttributeCond() != null) {
                     query.append(getQuery(nodeCond.getAttributeCond(),
-                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, attrUtil, svs));
+                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, type, svs));
                 }
-                if (nodeCond.getAttributableCond() != null) {
-                    query.append(getQuery(nodeCond.getAttributableCond(),
-                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, attrUtil, svs));
+                if (nodeCond.getSubjectCond() != null) {
+                    query.append(getQuery(nodeCond.getSubjectCond(),
+                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, type, svs));
                 }
                 break;
 
             case AND:
-                query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, attrUtil, svs)).
+                query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, type, svs)).
                         append(" AND subject_id IN ( ").
-                        append(getQuery(nodeCond.getRightNodeCond(), parameters, attrUtil, svs)).
+                        append(getQuery(nodeCond.getRightNodeCond(), parameters, type, svs)).
                         append(")");
                 break;
 
             case OR:
-                query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, attrUtil, svs)).
+                query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, type, svs)).
                         append(" OR subject_id IN ( ").
-                        append(getQuery(nodeCond.getRightNodeCond(), parameters, attrUtil, svs)).
+                        append(getQuery(nodeCond.getRightNodeCond(), parameters, type, svs)).
                         append(")");
                 break;
 
@@ -458,7 +459,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     }
 
     private String getQuery(final ResourceCond cond, final boolean not, final List<Object> parameters,
-            final AttributableUtil attrUtil, final SearchSupport svs) {
+            final SubjectType type, final SearchSupport svs) {
 
         final StringBuilder query = new StringBuilder("SELECT DISTINCT subject_id FROM ").
                 append(svs.field().name).append(" WHERE ");
@@ -474,7 +475,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
                 append(" WHERE resource_name=?").
                 append(setParameter(parameters, cond.getResourceName()));
 
-        if (attrUtil.getType() == AttributableType.USER) {
+        if (type == SubjectType.USER) {
             query.append(" UNION SELECT DISTINCT subject_id FROM ").
                     append(svs.roleResource().name).
                     append(" WHERE resource_name=?").
@@ -504,7 +505,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
             final AbstractNormalSchema schema, final AttributeCond cond, final boolean not,
             final List<Object> parameters, final SearchSupport svs) {
 
-        String column = (cond instanceof AttributableCond)
+        String column = (cond instanceof SubjectCond)
                 ? cond.getSchema()
                 : "' AND " + svs.fieldName(schema.getType());
 
@@ -530,7 +531,7 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
                     }
                     query.append(" LIKE ?").append(setParameter(parameters, cond.getExpression()));
                 } else {
-                    if (!(cond instanceof AttributableCond)) {
+                    if (!(cond instanceof SubjectCond)) {
                         query.append("' AND");
                     }
                     query.append(" 1=2");
@@ -593,7 +594,9 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     }
 
     private String getQuery(final AttributeCond cond, final boolean not, final List<Object> parameters,
-            final AttributableUtil attrUtil, final SearchSupport svs) {
+            final SubjectType type, final SearchSupport svs) {
+
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(type.asAttributableType());
 
         AbstractNormalSchema schema = schemaDAO.find(cond.getSchema(), attrUtil.schemaClass());
         if (schema == null) {
@@ -639,29 +642,31 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
     }
 
     @SuppressWarnings("rawtypes")
-    private String getQuery(final AttributableCond cond, final boolean not, final List<Object> parameters,
-            final AttributableUtil attrUtil, final SearchSupport svs) {
+    private String getQuery(final SubjectCond cond, final boolean not, final List<Object> parameters,
+            final SubjectType type, final SearchSupport svs) {
 
-        Field attributableField = ReflectionUtils.findField(attrUtil.attributableClass(), cond.getSchema());
-        if (attributableField == null) {
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(type.asAttributableType());
+
+        Field subjectField = ReflectionUtils.findField(attrUtil.attributableClass(), cond.getSchema());
+        if (subjectField == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
             return EMPTY_ATTR_QUERY;
         }
 
         AbstractNormalSchema schema = attrUtil.newSchema();
-        schema.setName(attributableField.getName());
-        for (AttributeSchemaType type : AttributeSchemaType.values()) {
-            if (attributableField.getType().isAssignableFrom(type.getType())) {
-                schema.setType(type);
+        schema.setName(subjectField.getName());
+        for (AttributeSchemaType attrSchemaType : AttributeSchemaType.values()) {
+            if (subjectField.getType().isAssignableFrom(attrSchemaType.getType())) {
+                schema.setType(attrSchemaType);
             }
         }
 
-        // Deal with Attributable Integer fields logically mapping to boolean values
+        // Deal with subject Integer fields logically mapping to boolean values
         // (SyncopeRole.inheritAttributes, for example)
         boolean foundBooleanMin = false;
         boolean foundBooleanMax = false;
-        if (Integer.class.equals(attributableField.getType())) {
-            for (Annotation annotation : attributableField.getAnnotations()) {
+        if (Integer.class.equals(subjectField.getType())) {
+            for (Annotation annotation : subjectField.getAnnotations()) {
                 if (Min.class.equals(annotation.annotationType())) {
                     foundBooleanMin = ((Min) annotation).value() == 0;
                 } else if (Max.class.equals(annotation.annotationType())) {
@@ -679,14 +684,14 @@ public class AttributableSearchDAOImpl extends AbstractDAOImpl implements Attrib
             }
         }
 
-        // Deal with Attributable fields representing relationships to other entities
+        // Deal with subject fields representing relationships to other entities
         // Only _id and _name are suppored
-        if (attributableField.getType().getAnnotation(Entity.class) != null) {
-            if (BeanUtils.findDeclaredMethodWithMinimalParameters(attributableField.getType(), "getId") != null) {
+        if (subjectField.getType().getAnnotation(Entity.class) != null) {
+            if (BeanUtils.findDeclaredMethodWithMinimalParameters(subjectField.getType(), "getId") != null) {
                 cond.setSchema(cond.getSchema() + "_id");
                 schema.setType(AttributeSchemaType.Long);
             }
-            if (BeanUtils.findDeclaredMethodWithMinimalParameters(attributableField.getType(), "getName") != null) {
+            if (BeanUtils.findDeclaredMethodWithMinimalParameters(subjectField.getType(), "getName") != null) {
                 cond.setSchema(cond.getSchema() + "_name");
                 schema.setType(AttributeSchemaType.String);
             }

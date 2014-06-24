@@ -30,13 +30,13 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
+import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
@@ -48,7 +48,6 @@ import org.apache.syncope.core.propagation.impl.PropagationManager;
 import org.apache.syncope.core.rest.data.AttributableTransformer;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
-import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
@@ -66,7 +65,7 @@ import org.springframework.transaction.interceptor.TransactionInterceptor;
  * @see AbstractTransactionalController
  */
 @Component
-public class RoleController extends AbstractAttributableController<RoleTO, RoleMod> {
+public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
 
     @Autowired
     protected RoleDAO roleDAO;
@@ -75,7 +74,7 @@ public class RoleController extends AbstractAttributableController<RoleTO, RoleM
     protected UserDAO userDAO;
 
     @Autowired
-    protected AttributableSearchDAO searchDAO;
+    protected SubjectSearchDAO searchDAO;
 
     @Autowired
     protected RoleDataBinder binder;
@@ -202,7 +201,7 @@ public class RoleController extends AbstractAttributableController<RoleTO, RoleM
     @Override
     public int searchCount(final SearchCond searchCondition) {
         final Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-        return searchDAO.count(adminRoleIds, searchCondition, AttributableUtil.getInstance(AttributableType.ROLE));
+        return searchDAO.count(adminRoleIds, searchCondition, SubjectType.ROLE);
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -213,7 +212,7 @@ public class RoleController extends AbstractAttributableController<RoleTO, RoleM
 
         final List<SyncopeRole> matchingRoles = searchDAO.search(
                 EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()),
-                searchCondition, page, size, orderBy, AttributableUtil.getInstance(AttributableType.ROLE));
+                searchCondition, page, size, orderBy, SubjectType.ROLE);
 
         final List<RoleTO> result = new ArrayList<RoleTO>(matchingRoles.size());
         for (SyncopeRole role : matchingRoles) {

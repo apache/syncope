@@ -43,6 +43,7 @@ import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
+import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -139,7 +140,7 @@ public final class MappingUtil {
      * @param resource target resource
      * @return account link + prepared attributes
      */
-    public static <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> prepareAttributes(
+    public static <T extends AbstractSubject> Map.Entry<String, Set<Attribute>> prepareAttributes(
             final AttributableUtil attrUtil, final T subject, final String password, final boolean changePwd,
             final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated,
             final Set<String> membVAttrsToBeRemoved, final Map<String, AttributeMod> membVAttrsToBeUpdated,
@@ -640,7 +641,6 @@ public final class MappingUtil {
      * @param attributable attributable
      * @param accountIdItem accountId mapping item
      * @param resource external resource
-     * @param accountIdItem accountid mapping item
      * @return accountId internal value
      */
     public static String getAccountIdValue(final AbstractAttributable attributable, final ExternalResource resource,

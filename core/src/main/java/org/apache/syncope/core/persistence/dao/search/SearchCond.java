@@ -35,7 +35,7 @@ public class SearchCond extends AbstractSearchCond {
 
     private Type type;
 
-    private AttributableCond attributableCond;
+    private SubjectCond subjectCond;
 
     private AttributeCond attributeCond;
 
@@ -53,8 +53,8 @@ public class SearchCond extends AbstractSearchCond {
         SearchCond nodeCond = new SearchCond();
 
         nodeCond.type = Type.LEAF;
-        if (attributeCond instanceof AttributableCond) {
-            nodeCond.attributableCond = (AttributableCond) attributeCond;
+        if (attributeCond instanceof SubjectCond) {
+            nodeCond.subjectCond = (SubjectCond) attributeCond;
         } else {
             nodeCond.attributeCond = attributeCond;
         }
@@ -156,12 +156,12 @@ public class SearchCond extends AbstractSearchCond {
         }
     }
 
-    public AttributableCond getAttributableCond() {
-        return attributableCond;
+    public SubjectCond getSubjectCond() {
+        return subjectCond;
     }
 
-    public void setAttributableCond(final AttributableCond attributableCond) {
-        this.attributableCond = attributableCond;
+    public void setSubjectCond(final SubjectCond subjectCond) {
+        this.subjectCond = subjectCond;
     }
 
     public AttributeCond getAttributeCond() {
@@ -230,9 +230,9 @@ public class SearchCond extends AbstractSearchCond {
         switch (type) {
             case LEAF:
             case NOT_LEAF:
-                isValid = (attributableCond != null || attributeCond != null || membershipCond != null
+                isValid = (subjectCond != null || attributeCond != null || membershipCond != null
                         || resourceCond != null || entitlementCond != null)
-                        && (attributableCond == null || attributableCond.isValid())
+                        && (subjectCond == null || subjectCond.isValid())
                         && (attributeCond == null || attributeCond.isValid())
                         && (membershipCond == null || membershipCond.isValid())
                         && (resourceCond == null || resourceCond.isValid())

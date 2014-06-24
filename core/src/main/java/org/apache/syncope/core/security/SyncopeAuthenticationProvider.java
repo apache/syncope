@@ -20,12 +20,11 @@ package org.apache.syncope.core.security;
 
 import java.util.Date;
 import javax.annotation.Resource;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.core.audit.AuditManager;
-import org.apache.syncope.core.persistence.beans.SyncopeConf;
+import org.apache.syncope.core.persistence.beans.conf.CAttr;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
@@ -124,10 +123,9 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                     throw new DisabledException("User " + user.getUsername() + " is suspended");
                 }
 
-                SyncopeConf authStatuses = confDAO.find("authentication.statuses", null);
+                CAttr authStatuses = confDAO.find("authentication.statuses");
                 if (authStatuses != null) {
-                    String[] statuses = authStatuses.getValue().split("\\|");
-                    if (!ArrayUtils.contains(statuses, user.getStatus())) {
+                    if (!authStatuses.getValuesAsStrings().contains(user.getStatus())) {
                         throw new DisabledException("User " + user.getUsername() + " not allowed to authenticate");
                     }
                 }
@@ -163,7 +161,9 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             LOG.debug("User {} successfully authenticated, with roles {}",
                     authentication.getPrincipal(), token.getAuthorities());
 
-            if (user != null && Boolean.valueOf(confDAO.find("log.lastlogindate", Boolean.toString(true)).getValue())) {
+            if (user != null && confDAO.find("log.lastlogindate", Boolean.toString(true)).
+                    getValues().get(0).getBooleanValue()) {
+
                 user.setLastLoginDate(new Date());
                 user.setFailedLogins(0);
                 userDAO.save(user);

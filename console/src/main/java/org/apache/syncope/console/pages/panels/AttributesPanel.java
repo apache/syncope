@@ -165,11 +165,13 @@ public class AttributesPanel extends Panel {
             filter(schemaTOs, allowed);
         } else if (entityTO instanceof UserTO) {
             schemaTOs = schemaRestClient.getSchemas(AttributableType.USER);
-        } else {
+        } else if (entityTO instanceof MembershipTO) {
             schemaTOs = schemaRestClient.getSchemas(AttributableType.MEMBERSHIP);
             Set<String> allowed = new HashSet<String>(
                     roleRestClient.read(((MembershipTO) entityTO).getRoleId()).getMAttrTemplates());
             filter(schemaTOs, allowed);
+        } else {
+            schemaTOs = schemaRestClient.getSchemas(AttributableType.CONFIGURATION);
         }
 
         schemas.clear();

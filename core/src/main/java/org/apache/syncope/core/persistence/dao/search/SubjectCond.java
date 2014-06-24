@@ -21,14 +21,14 @@ package org.apache.syncope.core.persistence.dao.search;
 /**
  * Search condition to be applied when comparing bean field values.
  */
-public class AttributableCond extends AttributeCond {
+public class SubjectCond extends AttributeCond {
 
     private static final long serialVersionUID = -1880319220462653955L;
 
-    public AttributableCond() {
+    public SubjectCond() {
     }
 
-    public AttributableCond(final Type conditionType) {
+    public SubjectCond(final Type conditionType) {
         super(conditionType);
     }
 }

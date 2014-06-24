@@ -46,6 +46,8 @@ public final class Constants {
 
     public static final String PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW = "users.virtual.attributes.view";
 
+    public static final String PREF_CONF_SCHEMA_PAGINATOR_ROWS = "conf.schema.paginator.rows";
+
     public static final String PREF_USER_SCHEMA_PAGINATOR_ROWS = "user.schema.paginator.rows";
 
     public static final String PREF_USER_DER_SCHEMA_PAGINATOR_ROWS = "user.derived.schema.paginator.rows";
@@ -69,8 +71,6 @@ public final class Constants {
     public static final String PREF_RESOURCES_PAGINATOR_ROWS = "resources.paginator.rows";
 
     public static final String PREF_CONNECTORS_PAGINATOR_ROWS = "connectors.paginator.rows";
-
-    public static final String PREF_CONFIGURATION_PAGINATOR_ROWS = "configuration.paginator.rows";
 
     public static final String PREF_NOTIFICATION_PAGINATOR_ROWS = "notification.paginator.rows";
 

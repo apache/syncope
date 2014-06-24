@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.console.pages.panels;
 
-import static org.apache.syncope.console.pages.panels.AbstractTasks.TASKS;
-
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.SyncopeClientException;

@@ -18,20 +18,54 @@ specific language governing permissions and limitations
 under the License.
 -->
 <dataset>
-  <SyncopeConf confKey="password.cipher.algorithm" confValue="SHA1"/>
+  <SyncopeConf id="1" 
+               creator="admin" lastModifier="admin"
+               creationDate="2014-06-20 11:00:00" lastChangeDate="2014-06-20 11:00:00"/>
+
+  <CSchema name="password.cipher.algorithm" type="String"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="1" owner_id="1" schema_name="password.cipher.algorithm"/>
+  <CAttrValue id="1" attribute_id="1" stringValue="SHA1"/>
+
   <!-- notificationjob.cronExpression:
   + not existing: NotificationJob runs according to Notification.DEFAULT_CRON_EXP
   + provided as empty string: NotificationJob disabled
   + provided as non-empty string: NotificationJob runs according to the given value -->
-  <SyncopeConf confKey="notificationjob.cronExpression" confValue=""/>
-  <SyncopeConf confKey="notification.maxRetries" confValue="0"/>
-  <SyncopeConf confKey="token.length" confValue="256"/>
-  <SyncopeConf confKey="token.expireTime" confValue="60"/>
-  <SyncopeConf confKey="selfRegistration.allowed" confValue="true"/>
-  <!-- when needing to provide more values, use '|' as separator and no spaces -->
-  <SyncopeConf confKey="authentication.statuses" confValue="active"/>
+  <CSchema name="notificationjob.cronExpression" type="String"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="2" owner_id="1" schema_name="notificationjob.cronExpression"/>
+  <CAttrValue id="2" attribute_id="2" stringValue=""/>
+
+  <CSchema name="notification.maxRetries" type="Long"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="3" owner_id="1" schema_name="notification.maxRetries"/>
+  <CAttrValue id="3" attribute_id="3" longValue="0"/>
+
+  <CSchema name="token.length" type="Long"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="4" owner_id="1" schema_name="token.length"/>
+  <CAttrValue id="4" attribute_id="4" longValue="256"/>
+
+  <CSchema name="token.expireTime" type="Long"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="5" owner_id="1" schema_name="token.expireTime"/>
+  <CAttrValue id="5" attribute_id="5" longValue="60"/>
+
+  <CSchema name="selfRegistration.allowed" type="Boolean"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="6" owner_id="1" schema_name="selfRegistration.allowed"/>
+  <CAttrValue id="6" attribute_id="6" booleanValue="1"/>
+
+  <CSchema name="authentication.statuses" type="String"
+           mandatoryCondition="true" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="7" owner_id="1" schema_name="authentication.statuses"/>
+  <CAttrValue id="7" attribute_id="7" stringValue="active"/>
+
   <!-- Save user login date upon successful authentication -->
-  <SyncopeConf confKey="log.lastlogindate" confValue="true"/>
+  <CSchema name="log.lastlogindate" type="Boolean"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="10" owner_id="1" schema_name="log.lastlogindate"/>
+  <CAttrValue id="10" attribute_id="10" booleanValue="1"/>
     
   <!-- Authentication and authorization -->
   <Entitlement name="SCHEMA_LIST"/>
@@ -62,10 +96,10 @@ under the License.
   <Entitlement name="CONNECTOR_UPDATE"/>
   <Entitlement name="CONNECTOR_DELETE"/>
   <Entitlement name="CONNECTOR_RELOAD"/>
+  <Entitlement name="CONFIGURATION_EXPORT"/>
   <Entitlement name="CONFIGURATION_LIST"/>
-  <Entitlement name="CONFIGURATION_CREATE"/>
   <Entitlement name="CONFIGURATION_READ"/>
-  <Entitlement name="CONFIGURATION_UPDATE"/>
+  <Entitlement name="CONFIGURATION_SET"/>
   <Entitlement name="CONFIGURATION_DELETE"/>
   <Entitlement name="TASK_LIST"/>
   <Entitlement name="TASK_CREATE"/>

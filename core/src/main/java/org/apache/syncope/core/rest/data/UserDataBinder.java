@@ -187,7 +187,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
      * @return cipher algorithm.
      */
     private CipherAlgorithm getPredefinedCipherAlgoritm() {
-        final String algorithm = confDAO.find("password.cipher.algorithm", "AES").getValue();
+        final String algorithm = confDAO.find(
+                "password.cipher.algorithm", CipherAlgorithm.AES.name()).getValues().get(0).getStringValue();
 
         try {
             return CipherAlgorithm.valueOf(algorithm);

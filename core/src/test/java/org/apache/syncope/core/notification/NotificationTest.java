@@ -19,17 +19,15 @@
 package org.apache.syncope.core.notification;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-
 import javax.annotation.Resource;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
@@ -43,12 +41,13 @@ import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.NotificationTaskTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.Notification;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
-import org.apache.syncope.core.persistence.beans.SyncopeConf;
+import org.apache.syncope.core.persistence.beans.conf.CAttr;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.NotificationDAO;
@@ -57,6 +56,7 @@ import org.apache.syncope.core.rest.UserTestITCase;
 import org.apache.syncope.core.rest.controller.RoleController;
 import org.apache.syncope.core.rest.controller.TaskController;
 import org.apache.syncope.core.rest.controller.UserController;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -402,9 +402,10 @@ public class NotificationTest {
         userController.create(userTO);
 
         // 3. Set number of retries
-        SyncopeConf retryConf = confDAO.find("notification.maxRetries");
-        retryConf.setValue("5");
-        confDAO.save(retryConf);
+        CAttr maxRetries = confDAO.find("notification.maxRetries", "5");
+        maxRetries.getValues().clear();
+        maxRetries.addValue("5", AttributableUtil.getInstance(AttributableType.CONFIGURATION));
+        confDAO.save(maxRetries);
         confDAO.flush();
 
         // 4. Stop mail server to force error sending mail
@@ -430,8 +431,10 @@ public class NotificationTest {
         startGreenMail();
 
         // 8. reset number of retries
-        retryConf.setValue("0");
-        confDAO.save(retryConf);
+        maxRetries = confDAO.find("notification.maxRetries", "5");
+        maxRetries.getValues().clear();
+        maxRetries.addValue("0", AttributableUtil.getInstance(AttributableType.CONFIGURATION));
+        confDAO.save(maxRetries);
         confDAO.flush();
     }
 

@@ -35,11 +35,15 @@ under the License.
 
     <div id="tabs">
       <ul>
-        <li class="tabs-selected"><a href="#uschema"><wicket:message key="user"/></a></li>
+        <li class="tabs-selected"><a href="#cschema"><wicket:message key="configuration"/></a></li>
+        <li><a href="#uschema"><wicket:message key="user"/></a></li>
         <li><a href="#mschema"><wicket:message key="membership"/></a></li>
         <li><a href="#rschema"><wicket:message key="role"/></a></li>
       </ul>
 
+      <div id="cschema">
+        <div wicket:id="configurationTabs"/>
+      </div>
       <div id="uschema">
         <div wicket:id="userTabs"/>
       </div>

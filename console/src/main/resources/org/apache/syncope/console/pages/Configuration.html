@@ -39,29 +39,15 @@ under the License.
         <li><a href="#logs"><span><wicket:message key="logs"/></span></a></li>
       </ul>
 
-      <div id="parameters">
-        <div id="users-contain" class="ui-widget" style="width:inherit">
-          <span wicket:id="confContainer">
-            <table class="ui-widget ui-widget-content table-hover"
-                   wicket:id="syncopeconf"/>
-          </span>
+      <div id="parameters" wicket:id="parameters" style="width: 700px;">
+        <form wicket:id="confForm">
+          <span wicket:id="parameters">[parameters]</span>
 
-          <span style="float:right">
-            <form wicket:id="confPaginatorForm" style="display:inline">
-              <label><wicket:message key="displayRows"/></label>
-              <select class="text ui-widget-content ui-corner-all"
-                      wicket:id="rowsChooser"/>
-            </form>
-          </span>
-        </div>
-
-        <div wicket:id="createConfigurationWin">[Show modal window for creating configuration]</div>
-        <div wicket:id="editConfigurationWin">[Show modal window for editing configuration]</div>
-
-        <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-           wicket:id="createConfigurationLink">
-          <wicket:message key="create_configuration"/>
-        </a>
+          <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+             wicket:id="saveParameters">
+            <wicket:message key="apply"/>
+          </a>        
+        </form>
       </div>
       <div id="policies">
         <ul>
@@ -102,7 +88,7 @@ under the License.
 
         <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
            wicket:id="createNotificationLink">
-          <wicket:message key="create_notification"/>
+          <wicket:message key="create"/>
         </a>
       </div>
       <div id="workflow">

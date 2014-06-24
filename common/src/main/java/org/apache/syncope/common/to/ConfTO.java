@@ -21,31 +21,10 @@ package org.apache.syncope.common.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.syncope.common.AbstractBaseBean;
-
-@XmlRootElement(name = "configuration")
+@XmlRootElement(name = "conf")
 @XmlType
-public class ConfigurationTO extends AbstractBaseBean {
+public class ConfTO extends AbstractAttributableTO {
 
     private static final long serialVersionUID = -3825039700228595590L;
 
-    private String key;
-
-    private String value;
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(final String key) {
-        this.key = key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(final String value) {
-        this.value = value;
-    }
 }

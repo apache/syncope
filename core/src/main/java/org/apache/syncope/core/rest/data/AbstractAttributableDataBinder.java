@@ -154,7 +154,7 @@ public abstract class AbstractAttributableDataBinder {
         return result;
     }
 
-    private <T extends AbstractNormalSchema> T getNormalSchema(final String schemaName, final Class<T> reference) {
+    protected <T extends AbstractNormalSchema> T getNormalSchema(final String schemaName, final Class<T> reference) {
         T schema = null;
         if (StringUtils.isNotBlank(schemaName)) {
             schema = schemaDAO.find(schemaName, reference);

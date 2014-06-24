@@ -57,7 +57,6 @@ import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.services.UserSelfService;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.AttributeTO;
-import org.apache.syncope.common.to.ConfigurationTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
@@ -1390,16 +1389,13 @@ public class UserTestITCase extends AbstractTest {
 
     @Test()
     public void issueSYNCOPE51() {
-        ConfigurationTO defaultConfigurationTO = configurationService.read("password.cipher.algorithm");
-
-        ConfigurationTO configurationTO = new ConfigurationTO();
-        configurationTO.setKey("password.cipher.algorithm");
-        configurationTO.setValue("MD5");
-
-        configurationService.update(configurationTO.getKey(), configurationTO);
-        ConfigurationTO newConfTO = configurationService.read(configurationTO.getKey());
-
-        assertEquals(configurationTO, newConfTO);
+        AttributeTO defaultCA = configurationService.read("password.cipher.algorithm");
+        final String originalCAValue = defaultCA.getValues().get(0);
+        defaultCA.getValues().set(0, "MD5");
+        configurationService.set(defaultCA.getSchema(), defaultCA);
+        
+        AttributeTO newCA = configurationService.read(defaultCA.getSchema());
+        assertEquals(defaultCA, newCA);
 
         UserTO userTO = getSampleTO("syncope51@syncope.apache.org");
         userTO.setPassword("password");
@@ -1409,13 +1405,14 @@ public class UserTestITCase extends AbstractTest {
             fail("Create user should not succeed");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
-            assertTrue(e.getElements().iterator().next().toString().contains("MD5"));
+            assertTrue(e.getElements().iterator().next().contains("MD5"));
         }
 
-        configurationService.update(defaultConfigurationTO.getKey(), defaultConfigurationTO);
-        ConfigurationTO oldConfTO = configurationService.read(defaultConfigurationTO.getKey());
-
-        assertEquals(defaultConfigurationTO, oldConfTO);
+        defaultCA.getValues().set(0, originalCAValue);
+        configurationService.set(defaultCA.getSchema(), defaultCA);
+        
+        AttributeTO oldCA = configurationService.read(defaultCA.getSchema());
+        assertEquals(defaultCA, oldCA);
     }
 
     @Test
@@ -1546,12 +1543,12 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public void isseSYNCOPE136AES() {
         // 1. read configured cipher algorithm in order to be able to restore it at the end of test
-        ConfigurationTO pwdCipherAlgo = configurationService.read("password.cipher.algorithm");
-        final String origpwdCipherAlgo = pwdCipherAlgo.getValue();
+        AttributeTO pwdCipherAlgo = configurationService.read("password.cipher.algorithm");
+        final String origpwdCipherAlgo = pwdCipherAlgo.getValues().get(0);
 
         // 2. set AES password cipher algorithm
-        pwdCipherAlgo.setValue("AES");
-        configurationService.update(pwdCipherAlgo.getKey(), pwdCipherAlgo);
+        pwdCipherAlgo.getValues().set(0, "AES");
+        configurationService.set(pwdCipherAlgo.getSchema(), pwdCipherAlgo);
 
         // 3. create user with no resources
         UserTO userTO = getUniqueSampleTO("syncope136_AES@apache.org");
@@ -1578,8 +1575,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(PropagationTaskExecStatus.SUBMITTED, prop.getStatus());
 
         // 6. restore initial cipher algorithm
-        pwdCipherAlgo.setValue(origpwdCipherAlgo);
-        configurationService.update(pwdCipherAlgo.getKey(), pwdCipherAlgo);
+        pwdCipherAlgo.getValues().set(0, origpwdCipherAlgo);
+        configurationService.set(pwdCipherAlgo.getSchema(), pwdCipherAlgo);
     }
 
     @Test

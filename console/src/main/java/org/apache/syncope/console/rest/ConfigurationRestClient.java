@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.console.rest;
 
-import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.services.ConfigurationService;
-import org.apache.syncope.common.to.ConfigurationTO;
+import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.ConfTO;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,44 +29,20 @@ public class ConfigurationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 7692363064029538722L;
 
-    /**
-     * Get all stored configurations.
-     *
-     * @return ConfigurationTOs
-     */
-    public List<ConfigurationTO> getAllConfigurations() {
+    public ConfTO list() {
         return getService(ConfigurationService.class).list();
     }
 
-    public ConfigurationTO readConfiguration(final String key) {
+    public AttributeTO read(final String key) {
         return getService(ConfigurationService.class).read(key);
     }
 
-    /**
-     * Create a new configuration.
-     *
-     * @param configurationTO
-     */
-    public void createConfiguration(final ConfigurationTO configurationTO) {
-        getService(ConfigurationService.class).create(configurationTO);
+    public void set(final AttributeTO attributeTO) {
+        getService(ConfigurationService.class).set(attributeTO.getSchema(), attributeTO);
     }
 
-    /**
-     * Update an existing configuration.
-     *
-     * @param configurationTO
-     */
-    public void updateConfiguration(final ConfigurationTO configurationTO) {
-        getService(ConfigurationService.class).update(configurationTO.getKey(), configurationTO);
-    }
-
-    /**
-     * Delete a configuration by key.
-     */
-    public ConfigurationTO deleteConfiguration(final String key) {
-        ConfigurationTO response = getService(ConfigurationService.class).read(key);
+    public void delete(final String key) {
         getService(ConfigurationService.class).delete(key);
-        return response;
     }
 
     public Response dbExport() {

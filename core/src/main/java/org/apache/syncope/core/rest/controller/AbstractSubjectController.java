@@ -19,12 +19,12 @@
 package org.apache.syncope.core.rest.controller;
 
 import java.util.List;
-import org.apache.syncope.common.mod.AbstractAttributableMod;
-import org.apache.syncope.common.to.AbstractAttributableTO;
+import org.apache.syncope.common.mod.AbstractSubjectMod;
+import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.dao.search.SearchCond;
 
-public abstract class AbstractAttributableController<T extends AbstractAttributableTO, V extends AbstractAttributableMod>
+public abstract class AbstractSubjectController<T extends AbstractSubjectTO, V extends AbstractSubjectMod>
         extends AbstractResourceAssociator<T> {
 
     public abstract T read(Long id);

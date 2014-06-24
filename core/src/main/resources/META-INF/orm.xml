@@ -37,6 +37,7 @@ under the License.
   <table-generator name="SEQ_UAttrValue" pk-column-value="SEQ_UAttrValue" initial-value="100"/>
   <table-generator name="SEQ_RAttrValue" pk-column-value="SEQ_RAttrValue" initial-value="100"/>
   <table-generator name="SEQ_MAttrValue" pk-column-value="SEQ_MAttrValue" initial-value="100"/>
+  <table-generator name="SEQ_CAttrValue" pk-column-value="SEQ_CAttrValue" initial-value="100"/>
 
   <entity class="org.apache.syncope.core.persistence.beans.user.SyncopeUser">
     <attributes>
@@ -128,6 +129,14 @@ under the License.
       <id name="id">
         <generated-value generator="SEQ_MAttr" strategy="TABLE"/>
         <table-generator name="SEQ_MAttr" pk-column-value="SEQ_MAttr" initial-value="1000"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="org.apache.syncope.core.persistence.beans.conf.CAttr">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_CAttr" strategy="TABLE"/>
+        <table-generator name="SEQ_CAttr" pk-column-value="SEQ_CAttr" initial-value="1000"/>
       </id>
     </attributes>
   </entity>
@@ -237,6 +246,42 @@ under the License.
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_MAttrValue" strategy="TABLE"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="org.apache.syncope.core.persistence.beans.conf.CAttrValue">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_CAttrValue" strategy="TABLE"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="org.apache.syncope.core.persistence.beans.conf.CAttrUniqueValue">
+    <table>
+      <unique-constraint>
+        <column-name>booleanValue</column-name>
+        <column-name>schema_name</column-name>
+      </unique-constraint>
+      <unique-constraint>
+        <column-name>dateValue</column-name>
+        <column-name>schema_name</column-name>
+      </unique-constraint>
+      <unique-constraint>
+        <column-name>stringValue</column-name>
+        <column-name>schema_name</column-name>
+      </unique-constraint>
+      <unique-constraint>
+        <column-name>doubleValue</column-name>
+        <column-name>schema_name</column-name>
+      </unique-constraint>
+      <unique-constraint>
+        <column-name>longValue</column-name>
+        <column-name>schema_name</column-name>
+      </unique-constraint>
+    </table>
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_CAttrValue" strategy="TABLE"/>
       </id>
     </attributes>
   </entity>

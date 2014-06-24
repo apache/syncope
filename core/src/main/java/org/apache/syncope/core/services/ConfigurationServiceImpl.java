@@ -20,19 +20,16 @@ package org.apache.syncope.core.services;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
-
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-
 import org.apache.syncope.common.services.ConfigurationService;
-import org.apache.syncope.common.to.ConfigurationTO;
+import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.ConfTO;
 import org.apache.syncope.common.wrap.MailTemplate;
 import org.apache.syncope.common.wrap.Validator;
-import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.persistence.dao.impl.ContentLoader;
 import org.apache.syncope.core.rest.controller.ConfigurationController;
@@ -44,15 +41,6 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
 
     @Autowired
     private ConfigurationController controller;
-
-    @Override
-    public Response create(final ConfigurationTO configurationTO) {
-        ConfigurationTO created = controller.create(configurationTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
-        return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, created.getKey()).
-                build();
-    }
 
     @Override
     public Response export() {
@@ -75,30 +63,28 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<MailTemplate> getMailTemplates() {
         return CollectionWrapper.wrap(controller.getMailTemplates(), MailTemplate.class);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<Validator> getValidators() {
         return CollectionWrapper.wrap(controller.getValidators(), Validator.class);
     }
 
     @Override
-    public List<ConfigurationTO> list() {
+    public ConfTO list() {
         return controller.list();
     }
 
     @Override
-    public ConfigurationTO read(final String key) {
+    public AttributeTO read(final String key) {
         return controller.read(key);
-
     }
 
     @Override
-    public void update(final String key, final ConfigurationTO configurationTO) {
-        controller.update(configurationTO);
+    public void set(final String key, final AttributeTO value) {
+        value.setSchema(key);
+        controller.set(value);
     }
 }

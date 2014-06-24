@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.search.SpecialAttr;
 import org.apache.syncope.core.AbstractNonDAOTest;
-import org.apache.syncope.core.persistence.dao.search.AttributableCond;
+import org.apache.syncope.core.persistence.dao.search.SubjectCond;
 import org.apache.syncope.core.persistence.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.dao.search.EntitlementCond;
 import org.apache.syncope.core.persistence.dao.search.MembershipCond;
@@ -38,7 +38,7 @@ public class SearchCondConverterTest extends AbstractNonDAOTest {
         String fiqlExpression = SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("rossini").query();
         assertEquals("username==rossini", fiqlExpression);
 
-        AttributableCond attrCond = new AttributableCond(AttributeCond.Type.EQ);
+        SubjectCond attrCond = new SubjectCond(AttributeCond.Type.EQ);
         attrCond.setSchema("username");
         attrCond.setExpression("rossini");
         SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
@@ -51,7 +51,7 @@ public class SearchCondConverterTest extends AbstractNonDAOTest {
         String fiqlExpression = SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("ros*").query();
         assertEquals("username==ros*", fiqlExpression);
 
-        AttributeCond attrCond = new AttributableCond(AttributeCond.Type.LIKE);
+        AttributeCond attrCond = new SubjectCond(AttributeCond.Type.LIKE);
         attrCond.setSchema("username");
         attrCond.setExpression("ros%");
         SearchCond simpleCond = SearchCond.getLeafCond(attrCond);

@@ -20,42 +20,40 @@ package org.apache.syncope.core.persistence.dao;
 
 import java.util.List;
 import java.util.Set;
-
-import org.apache.syncope.core.persistence.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.beans.AbstractAttributable;
+import org.apache.syncope.common.types.SubjectType;
+import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
-import org.apache.syncope.core.util.AttributableUtil;
+import org.apache.syncope.core.persistence.dao.search.SearchCond;
 
-public interface AttributableSearchDAO extends DAO {
+public interface SubjectSearchDAO extends DAO {
 
     /**
      * @param adminRoles the set of admin roles owned by the caller
      * @param searchCondition the search condition
-     * @param attrUtil AttributeUtil
+     * @param type user or role
      * @return size of search result
      */
-    int count(Set<Long> adminRoles, SearchCond searchCondition, AttributableUtil attrUtil);
+    int count(Set<Long> adminRoles, SearchCond searchCondition, SubjectType type);
 
     /**
      * @param adminRoles the set of admin roles owned by the caller
      * @param searchCondition the search condition
-     * @param attrUtil AttributeUtil
+     * @param type user or role
      * @param <T> user/role
      * @return the list of users/roles matching the given search condition
      */
-    <T extends AbstractAttributable> List<T> search(Set<Long> adminRoles, SearchCond searchCondition,
-            AttributableUtil attrUtil);
+    <T extends AbstractSubject> List<T> search(Set<Long> adminRoles, SearchCond searchCondition, SubjectType type);
 
     /**
      * @param adminRoles the set of admin roles owned by the caller
      * @param searchCondition the search condition
      * @param orderBy list of ordering clauses
-     * @param attrUtil AttributeUtil
+     * @param type user or role
      * @param <T> user/role
      * @return the list of users/roles matching the given search condition
      */
-    <T extends AbstractAttributable> List<T> search(Set<Long> adminRoles, SearchCond searchCondition,
-            List<OrderByClause> orderBy, AttributableUtil attrUtil);
+    <T extends AbstractSubject> List<T> search(Set<Long> adminRoles, SearchCond searchCondition,
+            List<OrderByClause> orderBy, SubjectType type);
 
     /**
      * @param adminRoles the set of admin roles owned by the caller
@@ -63,21 +61,21 @@ public interface AttributableSearchDAO extends DAO {
      * @param page position of the first result, start from 1
      * @param itemsPerPage number of results per page
      * @param orderBy list of ordering clauses
-     * @param attrUtil AttributeUtil
+     * @param type user or role
      * @param <T> user/role
      * @return the list of users/roles matching the given search condition (in the given page)
      */
-    <T extends AbstractAttributable> List<T> search(Set<Long> adminRoles, SearchCond searchCondition,
-            int page, int itemsPerPage, List<OrderByClause> orderBy, AttributableUtil attrUtil);
+    <T extends AbstractSubject> List<T> search(Set<Long> adminRoles, SearchCond searchCondition,
+            int page, int itemsPerPage, List<OrderByClause> orderBy, SubjectType type);
 
     /**
      * Verify if user/role matches the given search condition.
      *
      * @param subject to be checked
      * @param searchCondition to be verified
-     * @param attrUtil AttributeUtil
+     * @param type user or role
      * @param <T> user/role
      * @return true if user/role matches searchCondition
      */
-    <T extends AbstractAttributable> boolean matches(T subject, SearchCond searchCondition, AttributableUtil attrUtil);
+    <T extends AbstractSubject> boolean matches(T subject, SearchCond searchCondition, SubjectType type);
 }

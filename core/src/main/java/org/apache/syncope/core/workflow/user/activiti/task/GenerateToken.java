@@ -36,8 +36,8 @@ public class GenerateToken extends AbstractActivitiServiceTask {
                 (SyncopeUser) runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER);
 
         user.generateToken(
-                Integer.parseInt(confDAO.find("token.length", "256").getValue()),
-                Integer.parseInt(confDAO.find("token.expireTime", "60").getValue()));
+                confDAO.find("token.length", "256").getValues().get(0).getLongValue().intValue(),
+                confDAO.find("token.expireTime", "60").getValues().get(0).getLongValue().intValue());
 
         runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
     }

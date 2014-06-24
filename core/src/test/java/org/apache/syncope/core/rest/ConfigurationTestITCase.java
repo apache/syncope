@@ -27,19 +27,20 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
-
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.SyncopeConstants;
-import org.apache.syncope.common.services.ConfigurationService;
-import org.apache.syncope.common.to.ConfigurationTO;
+import org.apache.syncope.common.to.ConfTO;
 import org.apache.syncope.common.types.EntityViolationType;
-import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.SchemaTO;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.AttributeSchemaType;
+import org.apache.syncope.common.types.ClientExceptionType;
+import org.apache.syncope.common.types.SchemaType;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -49,16 +50,19 @@ public class ConfigurationTestITCase extends AbstractTest {
 
     @Test
     public void create() {
-        ConfigurationTO configurationTO = new ConfigurationTO();
-        configurationTO.setKey("testKey");
-        configurationTO.setValue("testValue");
+        SchemaTO testKey = new SchemaTO();
+        testKey.setName("testKey");
+        testKey.setType(AttributeSchemaType.String);
+        createSchema(AttributableType.CONFIGURATION, SchemaType.NORMAL, testKey);
 
-        Response response = configurationService.create(configurationTO);
-        assertNotNull(response);
-        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
-        ConfigurationTO newConfigurationTO = getObject(response.getLocation(), ConfigurationService.class,
-                ConfigurationTO.class);
-        assertEquals(configurationTO, newConfigurationTO);
+        AttributeTO conf = new AttributeTO();
+        conf.setSchema("testKey");
+        conf.getValues().add("testValue");
+
+        configurationService.set(conf.getSchema(), conf);
+
+        AttributeTO actual = configurationService.read(conf.getSchema());
+        assertEquals(actual, conf);
     }
 
     @Test
@@ -69,7 +73,7 @@ public class ConfigurationTestITCase extends AbstractTest {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
 
-        ConfigurationTO tokenLengthTO = configurationService.read("token.length");
+        AttributeTO tokenLength = configurationService.read("token.length");
 
         configurationService.delete("token.length");
         try {
@@ -78,43 +82,38 @@ public class ConfigurationTestITCase extends AbstractTest {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
 
-        Response response = configurationService.create(tokenLengthTO);
-        assertNotNull(response);
-        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
-        ConfigurationTO newConfigurationTO = getObject(response.getLocation(), ConfigurationService.class,
-                ConfigurationTO.class);
-        assertEquals(tokenLengthTO, newConfigurationTO);
+        configurationService.set(tokenLength.getSchema(), tokenLength);
+
+        AttributeTO actual = configurationService.read(tokenLength.getSchema());
+        assertEquals(actual, tokenLength);
     }
 
     @Test
     public void list() {
-        List<ConfigurationTO> configurations = configurationService.list();
-        assertNotNull(configurations);
-        for (ConfigurationTO configuration : configurations) {
-            assertNotNull(configuration);
+        ConfTO wholeConf = configurationService.list();
+        assertNotNull(wholeConf);
+        for (AttributeTO conf : wholeConf.getAttrs()) {
+            assertNotNull(conf);
         }
     }
 
     @Test
     public void read() {
-        ConfigurationTO configurationTO = configurationService.read("token.expireTime");
-
-        assertNotNull(configurationTO);
+        AttributeTO conf = configurationService.read("token.expireTime");
+        assertNotNull(conf);
     }
 
     @Test
     public void update() {
-        ConfigurationTO configurationTO = configurationService.read("token.expireTime");
-        int value = Integer.parseInt(configurationTO.getValue());
+        AttributeTO expireTime = configurationService.read("token.expireTime");
+        int value = Integer.parseInt(expireTime.getValues().get(0));
         value++;
-        configurationTO.setValue(value + "");
+        expireTime.getValues().set(0, value + "");
 
-        configurationService.update(configurationTO.getKey(), configurationTO);
-        ConfigurationTO newConfigurationTO = configurationService.read(configurationTO.getKey());
-        assertEquals(configurationTO, newConfigurationTO);
+        configurationService.set(expireTime.getSchema(), expireTime);
 
-        newConfigurationTO = configurationService.read("token.expireTime");
-        assertEquals(configurationTO, newConfigurationTO);
+        AttributeTO newConfigurationTO = configurationService.read(expireTime.getSchema());
+        assertEquals(expireTime, newConfigurationTO);
     }
 
     @Test
@@ -135,18 +134,19 @@ public class ConfigurationTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE418() {
-        ConfigurationTO configurationTO = new ConfigurationTO();
-        configurationTO.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
+        SchemaTO failing = new SchemaTO();
+        failing.setName("http://schemas.examples.org/security/authorization/organizationUnit");
+        failing.setType(AttributeSchemaType.String);
 
         try {
-            configurationService.create(configurationTO);
+            createSchema(AttributableType.CONFIGURATION, SchemaType.NORMAL, failing);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSyncopeConf, e.getType());
+            assertEquals(ClientExceptionType.InvalidCSchema, e.getType());
 
             assertNotNull(e.getElements());
             assertEquals(1, e.getElements().size());
-            assertTrue(e.getElements().iterator().next().toString().contains(EntityViolationType.InvalidName.name()));
+            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
         }
     }
 }

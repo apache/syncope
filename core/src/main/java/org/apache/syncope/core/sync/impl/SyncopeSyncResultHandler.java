@@ -31,10 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.mod.UserMod;
-import org.apache.syncope.core.persistence.dao.search.AttributableCond;
-import org.apache.syncope.core.persistence.dao.search.AttributeCond;
-import org.apache.syncope.core.persistence.dao.search.SearchCond;
-import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.RoleTO;
@@ -44,35 +40,39 @@ import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ResourceOperation;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
-import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
+import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
+import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.persistence.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.dao.search.SubjectCond;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
-import org.apache.syncope.core.rest.controller.AbstractAttributableController;
+import org.apache.syncope.core.rest.controller.AbstractSubjectController;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.AttributableTransformer;
 import org.apache.syncope.core.sync.SyncActions;
-import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.sync.SyncCorrelationRule;
+import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
@@ -126,7 +126,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
      * Search DAO.
      */
     @Autowired
-    protected AttributableSearchDAO searchDAO;
+    protected SubjectSearchDAO searchDAO;
 
     /**
      * Propagation Manager.
@@ -181,9 +181,9 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
                     }
                 }
 
-                List<AbstractAttributable> subjects =
+                List<AbstractSubject> subjects =
                         userDAO.findByAttrValue(accountIdItem.getIntAttrName(), value, attrUtil);
-                for (AbstractAttributable subject : subjects) {
+                for (AbstractSubject subject : subjects) {
                     result.add(subject.getId());
                 }
                 break;
@@ -191,7 +191,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
             case UserDerivedSchema:
             case RoleDerivedSchema:
                 subjects = userDAO.findByDerAttrValue(accountIdItem.getIntAttrName(), uid, attrUtil);
-                for (AbstractAttributable subject : subjects) {
+                for (AbstractSubject subject : subjects) {
                     result.add(subject.getId());
                 }
                 break;
@@ -231,13 +231,13 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
         return result;
     }
 
-    protected List<Long> search(final SearchCond searchCond, final AttributableUtil attrUtil) {
+    protected List<Long> search(final SearchCond searchCond, final SubjectType type) {
         final List<Long> result = new ArrayList<Long>();
 
-        final List<AbstractAttributable> subjects = searchDAO.search(
+        final List<AbstractSubject> subjects = searchDAO.search(
                 EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
-                searchCond, Collections.<OrderByClause>emptyList(), attrUtil);
-        for (AbstractAttributable subject : subjects) {
+                searchCond, Collections.<OrderByClause>emptyList(), type);
+        for (AbstractSubject subject : subjects) {
             result.add(subject.getId());
         }
 
@@ -245,9 +245,9 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
     }
 
     protected List<Long> findByCorrelationRule(
-            final ConnectorObject connObj, final SyncCorrelationRule rule, final AttributableUtil attrUtil) {
+            final ConnectorObject connObj, final SyncCorrelationRule rule, final SubjectType type) {
 
-        return search(rule.getSearchCond(connObj), attrUtil);
+        return search(rule.getSearchCond(connObj), type);
     }
 
     protected List<Long> findByAttributableSearch(
@@ -287,7 +287,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
             if ("id".equalsIgnoreCase(schema) || "username".equalsIgnoreCase(schema)
                     || "name".equalsIgnoreCase(schema)) {
 
-                AttributableCond cond = new AttributableCond();
+                SubjectCond cond = new SubjectCond();
                 cond.setSchema(schema);
                 cond.setType(type);
                 cond.setExpression(expression);
@@ -307,7 +307,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
                     : SearchCond.getAndCond(searchCond, nodeCond);
         }
 
-        return search(searchCond, attrUtil);
+        return search(searchCond, SubjectType.valueOf(attrUtil.getType().name()));
     }
 
     /**
@@ -342,7 +342,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
         return syncRule == null ? altSearchSchemas == null || altSearchSchemas.isEmpty()
                 ? findByAccountIdItem(uid, attrUtil)
                 : findByAttributableSearch(connObj, altSearchSchemas, attrUtil)
-                : findByCorrelationRule(connObj, syncRule, attrUtil);
+                : findByCorrelationRule(connObj, syncRule, SubjectType.valueOf(attrUtil.getType().name()));
     }
 
     public Long findMatchingAttributableId(final ObjectClass objectClass, final String name) {
@@ -410,7 +410,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
             final SyncDelta delta, final AttributableUtil attrUtil, final boolean dryRun)
             throws JobExecutionException {
 
-        final AbstractAttributableTO subjectTO =
+        final AbstractSubjectTO subjectTO =
                 connObjectUtil.getSubjectTO(delta.getObject(), syncTask, attrUtil);
 
         SyncDelta _delta = delta;
@@ -422,7 +422,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
     }
 
     private List<SyncResult> create(
-            final AbstractAttributableTO subjectTO,
+            final AbstractSubjectTO subjectTO,
             final SyncDelta delta,
             final AttributableUtil attrUtil,
             final String operation,
@@ -440,7 +440,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
         result.setStatus(SyncResult.Status.SUCCESS);
 
         // Attributable transformation (if configured)
-        AbstractAttributableTO actual = attrTransformer.transform(subjectTO);
+        AbstractSubjectTO actual = attrTransformer.transform(subjectTO);
         LOG.debug("Transformed: {}", actual);
 
         if (dryRun) {
@@ -668,7 +668,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
             LOG.debug("About to update {}", id);
 
             Object output;
-            AbstractAttributableTO before = null;
+            AbstractSubjectTO before = null;
             Result resultStatus;
 
             final SyncResult result = new SyncResult();
@@ -678,7 +678,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
             result.setId(id);
 
             try {
-                final AbstractAttributableTO updated;
+                final AbstractSubjectTO updated;
                 if (AttributableType.USER == attrUtil.getType()) {
                     final Map.Entry<UserTO, UserTO> res = updateUser(id, delta, dryRun, result);
                     before = res.getKey();
@@ -754,7 +754,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
 
         final List<SyncResult> updResults = new ArrayList<SyncResult>();
 
-        final AbstractAttributableController<?, ?> controller;
+        final AbstractSubjectController<?, ?> controller;
         if (AttributableType.USER == attrUtil.getType()) {
             controller = userController;
         } else {
@@ -773,7 +773,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
             result.setStatus(SyncResult.Status.SUCCESS);
             result.setId(id);
 
-            final AbstractAttributableTO before = controller.read(id);
+            final AbstractSubjectTO before = controller.read(id);
             result.setName(before instanceof UserTO ? UserTO.class.cast(before).getUsername()
                     : before instanceof RoleTO ? RoleTO.class.cast(before).getName() : null);
 
@@ -794,7 +794,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
 
                     output = controller.read(id);
                     for (SyncActions action : actions) {
-                        action.after(this, delta, AbstractAttributableTO.class.cast(output), result);
+                        action.after(this, delta, AbstractSubjectTO.class.cast(output), result);
                     }
                 } else {
                     output = before;
@@ -861,7 +861,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
 
         final List<SyncResult> updResults = new ArrayList<SyncResult>();
 
-        final AbstractAttributableController<?, ?> controller;
+        final AbstractSubjectController<?, ?> controller;
         if (AttributableType.USER == attrUtil.getType()) {
             controller = userController;
         } else {
@@ -880,7 +880,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
             result.setStatus(SyncResult.Status.SUCCESS);
             result.setId(id);
 
-            final AbstractAttributableTO before = controller.read(id);
+            final AbstractSubjectTO before = controller.read(id);
             result.setName(before instanceof UserTO ? UserTO.class.cast(before).getUsername()
                     : before instanceof RoleTO ? RoleTO.class.cast(before).getName() : null);
 
@@ -900,7 +900,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
 
                     output = controller.read(id);
                     for (SyncActions action : actions) {
-                        action.after(this, delta, AbstractAttributableTO.class.cast(output), result);
+                        action.after(this, delta, AbstractSubjectTO.class.cast(output), result);
                     }
                 } else {
                     output = before;
@@ -967,7 +967,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
             Object output = null;
             Result resultStatus = Result.FAILURE;
 
-            AbstractAttributableTO before = null;
+            AbstractSubjectTO before = null;
 
             try {
                 before = AttributableType.USER == attrUtil.getType()
@@ -1059,7 +1059,7 @@ public class SyncopeSyncResultHandler extends AbstractSyncopeResultHandler<SyncT
     }
 
     /**
-     * Look into SyncDelta and take necessary actions (create / update / delete) on user(s).
+     * Look into SyncDelta and take necessary actions (create / update / delete) on user(s) / role(s).
      *
      * @param delta returned by the underlying connector
      * @throws JobExecutionException in case of synchronization failure.

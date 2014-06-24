@@ -18,56 +18,74 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
-import java.util.List;
-import javax.persistence.TypedQuery;
-import org.apache.syncope.core.persistence.beans.SyncopeConf;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.core.persistence.beans.conf.CAttr;
+import org.apache.syncope.core.persistence.beans.conf.CSchema;
+import org.apache.syncope.core.persistence.beans.conf.SyncopeConf;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
-import org.apache.syncope.core.persistence.dao.MissingConfKeyException;
+import org.apache.syncope.core.persistence.dao.SchemaDAO;
+import org.apache.syncope.core.util.AttributableUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class ConfDAOImpl extends AbstractDAOImpl implements ConfDAO {
 
+    @Autowired
+    private SchemaDAO schemaDAO;
+
+    @Transactional(readOnly = true)
     @Override
-    public SyncopeConf find(final String name) throws MissingConfKeyException {
-        SyncopeConf result = find(name, null);
+    public CAttr find(final String key) {
+        return get().getAttr(key);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public CAttr find(final String key, final String defaultValue) {
+        CAttr result = get().getAttr(key);
         if (result == null) {
-            throw new MissingConfKeyException(name);
+            result = new CAttr();
+            result.setSchema(schemaDAO.find(key, CSchema.class));
+
+            result.addValue(defaultValue, AttributableUtil.getInstance(AttributableType.CONFIGURATION));
         }
 
         return result;
     }
 
     @Override
-    public SyncopeConf find(final String name, final String defaultValue) {
-        SyncopeConf syncopeConf = entityManager.find(SyncopeConf.class, name);
+    public SyncopeConf get() {
+        SyncopeConf instance = entityManager.find(SyncopeConf.class, 1L);
+        if (instance == null) {
+            instance = new SyncopeConf();
+            instance.setId(1L);
 
-        if (syncopeConf == null && defaultValue != null) {
-            syncopeConf = new SyncopeConf();
-            syncopeConf.setKey(name);
-            syncopeConf.setValue(defaultValue);
+            instance = entityManager.merge(instance);
         }
 
-        return syncopeConf;
+        return instance;
     }
 
     @Override
-    public List<SyncopeConf> findAll() {
-        TypedQuery<SyncopeConf> query = entityManager.createQuery("SELECT e FROM SyncopeConf e", SyncopeConf.class);
-        return query.getResultList();
+    public SyncopeConf save(final CAttr attr) {
+        delete(attr.getSchema().getName());
+
+        SyncopeConf instance = get();
+        instance.addAttr(attr);
+        return entityManager.merge(instance);
     }
 
     @Override
-    public SyncopeConf save(final SyncopeConf syncopeConfiguration) {
-        return entityManager.merge(syncopeConfiguration);
-    }
-
-    @Override
-    public void delete(final String name) {
-        try {
-            entityManager.remove(find(name));
-        } catch (MissingConfKeyException e) {
-            LOG.error("Could not find configuration key '" + name + "'");
+    public SyncopeConf delete(final String key) {
+        SyncopeConf instance = get();
+        CAttr attr = instance.getAttr(key);
+        if (attr != null) {
+            instance.removeAttr(attr);
+            instance = entityManager.merge(instance);
         }
+
+        return instance;
     }
 }

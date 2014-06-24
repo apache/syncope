@@ -35,7 +35,6 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.connid.ConnObjectUtil;
-import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
@@ -191,7 +190,7 @@ public class PropagationManager {
         return getCreateTaskIds(role, null, null, wfResult.getPropByRes(), noPropResourceNames);
     }
 
-    protected List<PropagationTask> getCreateTaskIds(final AbstractAttributable attributable,
+    protected List<PropagationTask> getCreateTaskIds(final AbstractSubject subject,
             final String password, final Boolean enable,
             final PropagationByResource propByRes, final Set<String> noPropResourceNames) {
 
@@ -203,7 +202,7 @@ public class PropagationManager {
             propByRes.get(ResourceOperation.CREATE).removeAll(noPropResourceNames);
         }
 
-        return createTasks(attributable, password, true, null, null, null, null, enable, false, propByRes);
+        return createTasks(subject, password, true, null, null, null, null, enable, false, propByRes);
     }
 
     /**
@@ -558,7 +557,7 @@ public class PropagationManager {
     }
 
     protected List<PropagationTask> getDeleteTaskIds(
-            final AbstractAttributable attributable,
+            final AbstractSubject subject,
             final Set<String> resourceNames,
             final Collection<String> noPropResourceNames) {
 
@@ -567,7 +566,7 @@ public class PropagationManager {
         if (noPropResourceNames != null && !noPropResourceNames.isEmpty()) {
             propByRes.get(ResourceOperation.DELETE).removeAll(noPropResourceNames);
         }
-        return createTasks(attributable, null, false, null, null, null, null, false, true, propByRes);
+        return createTasks(subject, null, false, null, null, null, null, false, true, propByRes);
     }
 
     /**
@@ -586,7 +585,7 @@ public class PropagationManager {
      * @param propByRes operation to be performed per resource
      * @return list of propagation tasks created
      */
-    protected <T extends AbstractAttributable> List<PropagationTask> createTasks(final T subject,
+    protected <T extends AbstractSubject> List<PropagationTask> createTasks(final T subject,
             final String password, final boolean changePwd,
             final Set<String> vAttrsToBeRemoved, final Map<String, AttributeMod> vAttrsToBeUpdated,
             final Set<String> membVAttrsToBeRemoved, final Map<String, AttributeMod> membVAttrsToBeUpdatedMap,

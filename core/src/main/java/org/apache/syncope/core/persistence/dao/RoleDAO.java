@@ -30,7 +30,7 @@ import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 
-public interface RoleDAO extends AttributableDAO {
+public interface RoleDAO extends SubjectDAO {
 
     SyncopeRole find(Long id);
 

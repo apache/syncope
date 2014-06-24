@@ -34,7 +34,7 @@ import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.SyncTask;
-import org.apache.syncope.core.persistence.beans.SyncopeConf;
+import org.apache.syncope.core.persistence.beans.conf.CAttr;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.NotificationDAO;
@@ -110,9 +110,9 @@ public class ContentUpgrader extends AbstractContentDealer {
             throw new IllegalArgumentException("No local ConnId location was found, aborting");
         }
 
-        SyncopeConf cipher = confDAO.find("password.cipher.algorithm");
-        if ("MD5".equals(cipher.getValue())) {
-            cipher.setValue(CipherAlgorithm.SMD5.name());
+        CAttr cipher = confDAO.find("password.cipher.algorithm", CipherAlgorithm.AES.name());
+        if ("MD5".equals(cipher.getValuesAsStrings().get(0))) {
+            cipher.getValues().get(0).setStringValue(CipherAlgorithm.SMD5.name());
         }
 
         return localConnIdLocation.toString();

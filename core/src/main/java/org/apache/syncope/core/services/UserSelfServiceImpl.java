@@ -20,9 +20,11 @@ package org.apache.syncope.core.services;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.UserSelfService;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.core.rest.controller.UserController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,12 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
 
     @Override
     public Response create(final UserTO userTO) {
+        if (!controller.isSelfRegistrationAllowed()) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unauthorized);
+            sce.getElements().add("SelfRegistration forbidden by configuration");
+            throw sce;
+        }
+
         UserTO created = controller.createSelf(userTO);
         return createResponse(created.getId(), created).build();
     }

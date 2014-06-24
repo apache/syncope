@@ -30,7 +30,7 @@ import org.apache.syncope.common.search.SearchableFields;
 import org.apache.syncope.common.search.SpecialAttr;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.core.persistence.dao.search.AttributableCond;
+import org.apache.syncope.core.persistence.dao.search.SubjectCond;
 import org.apache.syncope.core.persistence.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.dao.search.EntitlementCond;
 import org.apache.syncope.core.persistence.dao.search.MembershipCond;
@@ -62,7 +62,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
     private AttributeCond createAttributeCond(final String schema) {
         AttributeCond attributeCond = ATTRIBUTABLE_FIELDS.contains(schema)
-                ? new AttributableCond()
+                ? new SubjectCond()
                 : new AttributeCond();
         attributeCond.setSchema(schema);
         return attributeCond;
@@ -124,10 +124,10 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                             && leaf.getAttributeCond().getType() == AttributeCond.Type.ISNULL) {
 
                         leaf.getAttributeCond().setType(AttributeCond.Type.ISNOTNULL);
-                    } else if (leaf.getAttributableCond() != null
-                            && leaf.getAttributableCond().getType() == AttributableCond.Type.ISNULL) {
+                    } else if (leaf.getSubjectCond() != null
+                            && leaf.getSubjectCond().getType() == SubjectCond.Type.ISNULL) {
 
-                        leaf.getAttributableCond().setType(AttributeCond.Type.ISNOTNULL);
+                        leaf.getSubjectCond().setType(AttributeCond.Type.ISNOTNULL);
                     } else {
                         leaf = SearchCond.getNotLeafCond(leaf);
                     }

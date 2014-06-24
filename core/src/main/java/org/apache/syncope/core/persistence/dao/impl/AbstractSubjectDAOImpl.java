@@ -37,14 +37,15 @@ import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerSchema;
 import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
+import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.dao.AttributableDAO;
+import org.apache.syncope.core.persistence.dao.SubjectDAO;
 import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implements AttributableDAO {
+public abstract class AbstractSubjectDAOImpl extends AbstractDAOImpl implements SubjectDAO {
 
     @Autowired
     protected SchemaDAO schemaDAO;
@@ -80,7 +81,6 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
      * @param value derived attribute value
      * @param attrUtil USER / ROLE
      * @return where clauses to use to build the query
-     * @throws IllegalArgumentException in case of errors retrieving identifiers
      */
     private Set<String> getWhereClause(final String expression, final String value, final AttributableUtil attrUtil) {
         final Parser parser = new Parser(new StringReader(expression));
@@ -204,7 +204,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
     protected abstract TypedQuery<AbstractAttrValue> findByAttrValueQuery(final String entityName);
 
     @Override
-    public <T extends AbstractAttributable> List<T> findByAttrValue(final String schemaName,
+    public <T extends AbstractSubject> List<T> findByAttrValue(final String schemaName,
             final AbstractAttrValue attrValue, final AttributableUtil attrUtil) {
 
         AbstractNormalSchema schema = schemaDAO.find(schemaName, attrUtil.schemaClass());
@@ -244,7 +244,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
     }
 
     @Override
-    public <T extends AbstractAttributable> AbstractAttributable findByAttrUniqueValue(final String schemaName,
+    public <T extends AbstractSubject> T findByAttrUniqueValue(final String schemaName,
             final AbstractAttrValue attrUniqueValue, final AttributableUtil attrUtil) {
 
         AbstractNormalSchema schema = schemaDAO.find(schemaName, attrUtil.schemaClass());
@@ -276,7 +276,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
      * @return list of users / roles
      */
     @Override
-    public <T extends AbstractAttributable> List<T> findByDerAttrValue(final String schemaName, final String value,
+    public <T extends AbstractSubject> List<T> findByDerAttrValue(final String schemaName, final String value,
             final AttributableUtil attrUtil) {
 
         AbstractDerSchema schema = derSchemaDAO.find(schemaName, attrUtil.derSchemaClass());
@@ -323,7 +323,7 @@ public abstract class AbstractAttributableDAOImpl extends AbstractDAOImpl implem
     }
 
     @Override
-    public <T extends AbstractAttributable> List<T> findByResource(final ExternalResource resource,
+    public <T extends AbstractSubject> List<T> findByResource(final ExternalResource resource,
             final Class<T> reference) {
 
         TypedQuery<T> query = entityManager.createQuery("SELECT e FROM " + reference.getSimpleName() + " e "

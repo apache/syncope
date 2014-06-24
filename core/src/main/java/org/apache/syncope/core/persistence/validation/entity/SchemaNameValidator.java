@@ -29,6 +29,8 @@ import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.ClassUtils;
 
 import org.apache.syncope.common.types.EntityViolationType;
+import org.apache.syncope.core.persistence.beans.conf.CSchema;
+import org.apache.syncope.core.persistence.beans.conf.SyncopeConf;
 import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
 import org.apache.syncope.core.persistence.beans.membership.MSchema;
 import org.apache.syncope.core.persistence.beans.membership.MVirSchema;
@@ -50,10 +52,13 @@ public class SchemaNameValidator extends AbstractValidator<SchemaNameCheck, Obje
 
     private static final List<String> UNALLOWED_RSCHEMA_NAMES = new ArrayList<String>();
 
+    private static final List<String> UNALLOWED_CSCHEMA_NAMES = new ArrayList<String>();
+
     static {
         initUnallowedSchemaNames(SyncopeUser.class, UNALLOWED_USCHEMA_NAMES);
         initUnallowedSchemaNames(Membership.class, UNALLOWED_MSCHEMA_NAMES);
         initUnallowedSchemaNames(SyncopeRole.class, UNALLOWED_RSCHEMA_NAMES);
+        initUnallowedSchemaNames(SyncopeConf.class, UNALLOWED_CSCHEMA_NAMES);
     }
 
     private static void initUnallowedSchemaNames(final Class<?> entityClass, final List<String> names) {
@@ -102,6 +107,9 @@ public class SchemaNameValidator extends AbstractValidator<SchemaNameCheck, Obje
         } else if (object instanceof RVirSchema) {
             schemaName = ((RVirSchema) object).getName();
             unallowedNames = UNALLOWED_RSCHEMA_NAMES;
+        } else if (object instanceof CSchema) {
+            schemaName = ((CSchema) object).getName();
+            unallowedNames = UNALLOWED_CSCHEMA_NAMES;
         } else {
             schemaName = null;
             unallowedNames = Collections.emptyList();

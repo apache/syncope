@@ -68,7 +68,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class RoleDAOImpl extends AbstractAttributableDAOImpl implements RoleDAO {
+public class RoleDAOImpl extends AbstractSubjectDAOImpl implements RoleDAO {
 
     @Autowired
     private UserDAO userDAO;

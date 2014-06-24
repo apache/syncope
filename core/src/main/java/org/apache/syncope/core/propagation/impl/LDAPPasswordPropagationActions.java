@@ -48,7 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
  * hash algorithm property of the LDAP Connector.
  */
 public class LDAPPasswordPropagationActions extends DefaultPropagationActions {
-    
+
     private static final String CLEARTEXT = "CLEARTEXT";
 
     @Autowired
@@ -61,12 +61,12 @@ public class LDAPPasswordPropagationActions extends DefaultPropagationActions {
 
         if (AttributableType.USER == task.getSubjectType()) {
             SyncopeUser user = userDAO.find(task.getSubjectId());
-            
+
             if (user != null && user.getPassword() != null) {
                 Attribute missing = AttributeUtil.find(
                         PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME,
                         task.getAttributes());
-                
+
                 ConnInstance connInstance = task.getResource().getConnector();
                 String cipherAlgorithm = getCipherAlgorithm(connInstance);
                 if (missing != null && missing.getValue() != null && missing.getValue().size() == 1
@@ -76,10 +76,10 @@ public class LDAPPasswordPropagationActions extends DefaultPropagationActions {
                     String password = user.getPassword().toLowerCase();
                     byte[] decodedPassword = Hex.decode(password);
                     byte[] base64EncodedPassword = Base64.encode(decodedPassword);
-                    
-                    String cipherPlusPassword = 
-                        ("{" + cipherAlgorithm.toLowerCase() + "}" + new String(base64EncodedPassword));
-                    
+
+                    String cipherPlusPassword =
+                            ("{" + cipherAlgorithm.toLowerCase() + "}" + new String(base64EncodedPassword));
+
                     Attribute passwordAttribute = AttributeBuilder.buildPassword(
                             new GuardedString(cipherPlusPassword.toCharArray()));
 
@@ -92,7 +92,7 @@ public class LDAPPasswordPropagationActions extends DefaultPropagationActions {
             }
         }
     }
-    
+
     private String getCipherAlgorithm(ConnInstance connInstance) {
         String cipherAlgorithm = CLEARTEXT;
         for (Iterator<ConnConfProperty> propertyIterator = connInstance.getConfiguration().iterator();
@@ -106,21 +106,21 @@ public class LDAPPasswordPropagationActions extends DefaultPropagationActions {
         }
         return cipherAlgorithm;
     }
-    
+
     private boolean cipherAlgorithmMatches(String connectorAlgorithm, CipherAlgorithm userAlgorithm) {
         if (userAlgorithm == null) {
             return false;
         }
-    
+
         if (connectorAlgorithm.equals(userAlgorithm.name())) {
             return true;
         }
-        
+
         // Special check for "SHA" (user sync'd from LDAP)
         if ("SHA".equals(connectorAlgorithm) && "SHA1".equals(userAlgorithm.name())) {
             return true;
         }
-        
+
         return false;
     }
 

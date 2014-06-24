@@ -22,17 +22,14 @@ import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.model.wadl.Description;
-import org.apache.cxf.jaxrs.model.wadl.Descriptions;
-import org.apache.cxf.jaxrs.model.wadl.DocTarget;
-import org.apache.syncope.common.to.ConfigurationTO;
+import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.ConfTO;
 import org.apache.syncope.common.wrap.MailTemplate;
 import org.apache.syncope.common.wrap.Validator;
 
@@ -72,6 +69,15 @@ public interface ConfigurationService extends JAXRSService {
     List<Validator> getValidators();
 
     /**
+     * Returns all configuration parameters.
+     *
+     * @return all configuration parameters
+     */
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    ConfTO list();
+
+    /**
      * Returns configuration parameter with matching key.
      *
      * @param key identifier of configuration to be read
@@ -80,44 +86,21 @@ public interface ConfigurationService extends JAXRSService {
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ConfigurationTO read(@PathParam("key") String key);
+    AttributeTO read(@PathParam("key") String key);
 
     /**
-     * Returns list of all configuration parameters.
+     * Creates / updates the configuration parameter with the given key.
      *
-     * @return list of all configuration parameters
-     */
-    @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ConfigurationTO> list();
-
-    /**
-     * Creates a new configuration parameter.
-     *
-     * @param configurationTO Configuration to be stored.
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created configuration
-     */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE, value = "Featuring <tt>Location</tt> header of created configuration")
-    })
-    @POST
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response create(ConfigurationTO configurationTO);
-
-    /**
-     * Updates configuration parameter for the given key.
-     *
-     * @param key configuration parameter key
-     * @param configurationTO new configuration
+     * @param key parameter key
+     * @param value parameter value
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@PathParam("key") String key, ConfigurationTO configurationTO);
+    void set(@PathParam("key") String key, AttributeTO value);
 
     /**
-     * Deletes configuration with matching key.
+     * Deletes the configuration parameter with matching key.
      *
      * @param key configuration parameter key
      */

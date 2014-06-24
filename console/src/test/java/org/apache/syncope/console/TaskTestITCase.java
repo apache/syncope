@@ -79,7 +79,7 @@ public class TaskTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
-        selenium.click("//a[contains(text(),'Create new task')]");
+        selenium.click("//a[contains(text(),'Create')]");
 
         selenium.waitForCondition(
                 "selenium.isElementPresent(\"//div[2]/form/div[2]/div/div/span/div/div[2]/div/label\");", "30000");
@@ -102,8 +102,7 @@ public class TaskTestITCase extends AbstractTest {
         selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
         selenium.click("//div[5]/span/a");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//iframe\");", "30000");
+        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
 
         selenium.selectFrame("index=0");
 

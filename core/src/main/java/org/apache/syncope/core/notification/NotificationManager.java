@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
@@ -34,23 +33,25 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.common.util.LoggerEventUtils;
 import org.apache.syncope.core.connid.ConnObjectUtil;
+import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
+import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.Notification;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
-import org.apache.syncope.core.persistence.beans.SyncopeConf;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttr;
 import org.apache.syncope.core.persistence.beans.user.UDerAttr;
 import org.apache.syncope.core.persistence.beans.user.UVirAttr;
-import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
+import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
@@ -74,7 +75,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @see NotificationTask
  */
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = { Throwable.class })
 public class NotificationManager {
 
     /**
@@ -122,7 +123,7 @@ public class NotificationManager {
      * User Search DAO.
      */
     @Autowired
-    private AttributableSearchDAO searchDAO;
+    private SubjectSearchDAO searchDAO;
 
     /**
      * Task DAO.
@@ -172,7 +173,7 @@ public class NotificationManager {
         if (notification.getRecipients() != null) {
             recipients.addAll(searchDAO.<SyncopeUser>search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
                     SearchCondConverter.convert(notification.getRecipients()),
-                    Collections.<OrderByClause>emptyList(), AttributableUtil.getInstance(AttributableType.USER)));
+                    Collections.<OrderByClause>emptyList(), SubjectType.USER));
         }
 
         if (notification.isSelfAsRecipient() && attributable instanceof SyncopeUser) {
@@ -258,24 +259,24 @@ public class NotificationManager {
             final Object output,
             final Object... input) {
 
-        AttributableType attributableType = null;
-        AbstractAttributable attributable = null;
+        SubjectType subjectType = null;
+        AbstractSubject subject = null;
 
         if (before instanceof UserTO) {
-            attributableType = AttributableType.USER;
-            attributable = userDAO.find(((UserTO) before).getId());
+            subjectType = SubjectType.USER;
+            subject = userDAO.find(((UserTO) before).getId());
         } else if (output instanceof UserTO) {
-            attributableType = AttributableType.USER;
-            attributable = userDAO.find(((UserTO) output).getId());
+            subjectType = SubjectType.USER;
+            subject = userDAO.find(((UserTO) output).getId());
         } else if (before instanceof RoleTO) {
-            attributableType = AttributableType.ROLE;
-            attributable = roleDAO.find(((RoleTO) before).getId());
+            subjectType = SubjectType.ROLE;
+            subject = roleDAO.find(((RoleTO) before).getId());
         } else if (output instanceof RoleTO) {
-            attributableType = AttributableType.ROLE;
-            attributable = roleDAO.find(((RoleTO) output).getId());
+            subjectType = SubjectType.ROLE;
+            subject = roleDAO.find(((RoleTO) output).getId());
         }
 
-        LOG.debug("Search notification for [{}]{}", attributableType, attributable);
+        LOG.debug("Search notification for [{}]{}", subjectType, subject);
 
         for (Notification notification : notificationDAO.findAll()) {
             LOG.debug("Notification available user about {}", notification.getUserAbout());
@@ -287,17 +288,15 @@ public class NotificationManager {
                         type, category, subcategory, event, condition)));
 
                 if (events.isEmpty()) {
-                    LOG.debug("No events found about {}", attributable);
-                } else if (attributableType == null || attributable == null
+                    LOG.debug("No events found about {}", subject);
+                } else if (subjectType == null || subject == null
                         || notification.getUserAbout() == null || notification.getRoleAbout() == null
-                        || searchDAO.matches(attributable,
-                                SearchCondConverter.convert(notification.getUserAbout()),
-                                AttributableUtil.getInstance(attributableType))
-                        || searchDAO.matches(attributable,
-                                SearchCondConverter.convert(notification.getRoleAbout()),
-                                AttributableUtil.getInstance(attributableType))) {
+                        || searchDAO.matches(subject,
+                                SearchCondConverter.convert(notification.getUserAbout()), subjectType)
+                        || searchDAO.matches(subject,
+                                SearchCondConverter.convert(notification.getRoleAbout()), subjectType)) {
 
-                    LOG.debug("Creating notification task for events {} about {}", events, attributable);
+                    LOG.debug("Creating notification task for events {} about {}", events, subject);
 
                     final Map<String, Object> model = new HashMap<String, Object>();
                     model.put("type", type);
@@ -309,13 +308,13 @@ public class NotificationManager {
                     model.put("output", output);
                     model.put("input", input);
 
-                    if (attributable instanceof SyncopeUser) {
-                        model.put("user", userDataBinder.getUserTO((SyncopeUser) attributable));
-                    } else if (attributable instanceof SyncopeRole) {
-                        model.put("role", roleDataBinder.getRoleTO((SyncopeRole) attributable));
+                    if (subject instanceof SyncopeUser) {
+                        model.put("user", userDataBinder.getUserTO((SyncopeUser) subject));
+                    } else if (subject instanceof SyncopeRole) {
+                        model.put("role", roleDataBinder.getRoleTO((SyncopeRole) subject));
                     }
 
-                    taskDAO.save(getNotificationTask(notification, attributable, model));
+                    taskDAO.save(getNotificationTask(notification, subject, model));
                 }
             } else {
                 LOG.debug("Notification {}, userAbout {}, roleAbout {} is deactivated, "
@@ -414,8 +413,8 @@ public class NotificationManager {
 
     protected Map<String, String> findAllSyncopeConfs() {
         Map<String, String> syncopeConfMap = new HashMap<String, String>();
-        for (SyncopeConf conf : confDAO.findAll()) {
-            syncopeConfMap.put(conf.getKey(), conf.getValue());
+        for (AbstractAttr attr : confDAO.get().getAttrs()) {
+            syncopeConfMap.put(attr.getSchema().getName(), attr.getValuesAsStrings().get(0));
         }
         return syncopeConfMap;
     }

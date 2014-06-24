@@ -19,7 +19,9 @@
 package org.apache.syncope.console.pages.panels;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
@@ -45,6 +47,17 @@ public class NotificationPanel extends FeedbackPanel {
 
         super(id, feedbackMessageFilter);
 
+        this.add(new AjaxEventBehavior(Constants.ON_CLICK) {
+
+            private static final long serialVersionUID = -7133385027739964990L;
+
+            @Override
+            protected void onEvent(final AjaxRequestTarget target) {
+                target.appendJavaScript(
+                        "setTimeout(\"$('div#" + getMarkupId() + "').fadeOut('normal')\", 0);");
+            }
+        });
+
         this.additionalCSSClass = StringUtils.isBlank(additionalCSSClass)
                 ? DEFAULT_ADDITIONAL_CSS_CLASS
                 : additionalCSSClass;
@@ -54,7 +67,7 @@ public class NotificationPanel extends FeedbackPanel {
         setOutputMarkupId(true);
 
         // Add the additional cssClass and hide the element by default
-        add(new AttributeModifier("class", new Model<String>(this.CSS_CLASS + " " + this.additionalCSSClass)));
+        add(new AttributeModifier("class", new Model<String>(CSS_CLASS + " " + this.additionalCSSClass)));
         add(new AttributeModifier("style", new Model<String>("opacity: 0;")));
     }
 

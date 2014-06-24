@@ -30,17 +30,16 @@ import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.dao.AttributableSearchDAO;
+import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.SearchCondConverter;
 import org.apache.syncope.core.rest.data.UserDataBinder;
-import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.DataFormat;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +59,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
     private UserDAO userDAO;
 
     @Autowired
-    private AttributableSearchDAO searchDAO;
+    private SubjectSearchDAO searchDAO;
 
     @Autowired
     private UserDataBinder userDataBinder;
@@ -76,8 +75,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
             result = userDAO.findAll(adminRoleIds, page, PAGE_SIZE);
         } else {
             result = searchDAO.search(adminRoleIds, SearchCondConverter.convert(conf.getMatchingCond()),
-                    page, PAGE_SIZE, Collections.<OrderByClause>emptyList(),
-                    AttributableUtil.getInstance(AttributableType.USER));
+                    page, PAGE_SIZE, Collections.<OrderByClause>emptyList(), SubjectType.USER);
         }
 
         return result;
@@ -88,8 +86,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
 
         return conf.getMatchingCond() == null
                 ? userDAO.count(adminRoleIds)
-                : searchDAO.count(adminRoleIds, SearchCondConverter.convert(conf.getMatchingCond()),
-                        AttributableUtil.getInstance(AttributableType.USER));
+                : searchDAO.count(adminRoleIds, SearchCondConverter.convert(conf.getMatchingCond()), SubjectType.USER);
     }
 
     private void doExtractResources(final ContentHandler handler, final AbstractSubjectTO subjectTO)

@@ -33,6 +33,7 @@ import org.apache.syncope.core.persistence.beans.Report;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
+import org.apache.syncope.core.persistence.beans.conf.CAttr;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.ReportDAO;
@@ -259,16 +260,15 @@ public class JobInstanceLoader {
         }
 
         // 2. NotificationJob
-        final String notificationJobCronExp =
-                confDAO.find("notificationjob.cronExpression", NotificationJob.DEFAULT_CRON_EXP).getValue();
-        if (StringUtils.isBlank(notificationJobCronExp)) {
+        CAttr notificationJobCronExp = confDAO.find("notificationjob.cronExpression", NotificationJob.DEFAULT_CRON_EXP);
+        if (StringUtils.isBlank(notificationJobCronExp.getValuesAsStrings().get(0))) {
             LOG.debug("Empty value provided for NotificationJob's cron, not registering anything on Quartz");
         } else {
             LOG.debug("NotificationJob's cron expression: {} - registering Quartz job and trigger",
                     notificationJobCronExp);
 
             try {
-                registerJob(null, NotificationJob.class.getName(), notificationJobCronExp);
+                registerJob(null, NotificationJob.class.getName(), notificationJobCronExp.getValuesAsStrings().get(0));
             } catch (Exception e) {
                 LOG.error("While loading NotificationJob instance", e);
             }

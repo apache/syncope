@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.to.AbstractSchemaTO;
-import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.console.commons.Constants;
@@ -102,6 +101,9 @@ public class Schema extends BasePage {
                 private static final long serialVersionUID = 3109256773218160485L;
 
                 {
+                    put(new SimpleEntry<AttributableType, SchemaType>(
+                                    AttributableType.CONFIGURATION, SchemaType.NORMAL),
+                            Constants.PREF_CONF_SCHEMA_PAGINATOR_ROWS);
                     put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.USER, SchemaType.NORMAL),
                             Constants.PREF_USER_SCHEMA_PAGINATOR_ROWS);
                     put(new SimpleEntry<AttributableType, SchemaType>(AttributableType.USER, SchemaType.DERIVED),
@@ -152,17 +154,19 @@ public class Schema extends BasePage {
             List<ITab> tabs = new ArrayList<ITab>();
 
             for (final SchemaType schemaType : SchemaType.values()) {
-                final String schemaTypeAsString = schemaType.name().toLowerCase();
+                if (attrType != AttributableType.CONFIGURATION || schemaType == SchemaType.NORMAL) {
+                    final String schemaTypeAsString = schemaType.name().toLowerCase();
 
-                tabs.add(new AbstractTab(new Model<String>(getString(schemaTypeAsString))) {
+                    tabs.add(new AbstractTab(new Model<String>(getString(schemaTypeAsString))) {
 
-                    private static final long serialVersionUID = -5861786415855103549L;
+                        private static final long serialVersionUID = -5861786415855103549L;
 
-                    @Override
-                    public WebMarkupContainer getPanel(final String panelId) {
-                        return new SchemaTypePanel(panelId, attrType, schemaType);
-                    }
-                });
+                        @Override
+                        public WebMarkupContainer getPanel(final String panelId) {
+                            return new SchemaTypePanel(panelId, attrType, schemaType);
+                        }
+                    });
+                }
             }
 
             add(new JQueryUITabbedPanel(attrTypeAsString + "Tabs", tabs));
@@ -178,6 +182,7 @@ public class Schema extends BasePage {
 
         for (final String field : fields) {
             final Field clazzField = ReflectionUtils.findField(schemaType.getToClass(), field);
+
             if (clazzField != null) {
                 if (clazzField.getType().equals(Boolean.class) || clazzField.getType().equals(boolean.class)) {
                     columns.add(new AbstractColumn<AbstractSchemaTO, String>(new ResourceModel(field)) {
@@ -355,6 +360,7 @@ public class Schema extends BasePage {
         MetaDataRoleAuthorizationStrategy.authorize(link, ENABLE, allowedCreateRoles);
 
         return link;
+
     }
 
     private class SchemaProvider extends SortableDataProvider<AbstractSchemaTO, String> {
