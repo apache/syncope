@@ -96,7 +96,7 @@ public class SyncopeUserValidator extends AbstractValidator<SyncopeUserCheck, Sy
 
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.InvalidPassword, e.getMessage())).
-                        addNode("password").addConstraintViolation();
+                        addPropertyNode("password").addConstraintViolation();
 
                 return false;
             } finally {
@@ -129,7 +129,7 @@ public class SyncopeUserValidator extends AbstractValidator<SyncopeUserCheck, Sy
 
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidUsername, e.getMessage())).
-                    addNode("username").addConstraintViolation();
+                    addPropertyNode("username").addConstraintViolation();
 
             return false;
         }

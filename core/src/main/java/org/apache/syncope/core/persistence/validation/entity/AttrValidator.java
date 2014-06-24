@@ -49,8 +49,8 @@ public class AttrValidator extends AbstractValidator<AttrCheck, AbstractAttr> {
 
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.InvalidValueList,
-                        "Invalid values " + object.getValuesAsStrings())).
-                        addNode(object.getSchema().getName()).addConstraintViolation();
+                                "Invalid values " + object.getValuesAsStrings())).
+                        addPropertyNode(object.getSchema().getName()).addConstraintViolation();
             }
         }
 

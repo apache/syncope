@@ -34,7 +34,7 @@ public class SchemaValidator extends AbstractValidator<SchemaCheck, AbstractNorm
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidSchemaEnum, "Enumeration values missing")).
-                    addNode("enumerationValues").addConstraintViolation();
+                    addPropertyNode("enumerationValues").addConstraintViolation();
         } else {
             isValid = schema.getType() != AttributeSchemaType.Encrypted
                     || (schema.getSecretKey() != null && schema.getCipherAlgorithm() != null);
@@ -43,7 +43,7 @@ public class SchemaValidator extends AbstractValidator<SchemaCheck, AbstractNorm
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.InvalidSchemaEncrypted,
                                 "SecretKey or CipherAlgorithm missing")).
-                        addNode("secretKey").addNode("cipherAlgorithm").addConstraintViolation();
+                        addPropertyNode("secretKey").addPropertyNode("cipherAlgorithm").addConstraintViolation();
             } else {
                 isValid = !schema.isMultivalue() || !schema.isUniqueConstraint();
                 if (!isValid) {
@@ -51,7 +51,7 @@ public class SchemaValidator extends AbstractValidator<SchemaCheck, AbstractNorm
                     context.buildConstraintViolationWithTemplate(
                             getTemplate(EntityViolationType.InvalidSchemaMultivalueUnique,
                                     "Cannot contemporary be multivalue and have unique constraint")).
-                            addNode("multiValue").addConstraintViolation();
+                            addPropertyNode("multiValue").addConstraintViolation();
                 }
             }
         }

@@ -37,7 +37,7 @@ public class NotificationValidator extends AbstractValidator<NotificationCheck, 
 
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidNotification, "No events")).
-                    addNode("events").addConstraintViolation();
+                    addPropertyNode("events").addConstraintViolation();
         }
 
         if (!value.getStaticRecipients().isEmpty()) {
@@ -49,7 +49,7 @@ public class NotificationValidator extends AbstractValidator<NotificationCheck, 
 
                     context.buildConstraintViolationWithTemplate(
                             getTemplate(EntityViolationType.InvalidNotification, "Invalid mail address: " + mail)).
-                            addNode("staticRecipients").addConstraintViolation();
+                            addPropertyNode("staticRecipients").addConstraintViolation();
                 }
             }
         }

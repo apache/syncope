@@ -57,7 +57,7 @@ public class PropagationTaskValidator extends AbstractValidator<PropagationTaskC
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.InvalidPropagationTask, "Invalid task")).
-                        addNode(task.getClass().getSimpleName()).addConstraintViolation();
+                        addPropertyNode(task.getClass().getSimpleName()).addConstraintViolation();
             }
         }
 

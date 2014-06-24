@@ -46,7 +46,7 @@ public class ReportValidator extends AbstractValidator<ReportCheck, Report> {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.InvalidReport, "Invalid cron expression")).
-                        addNode("cronExpression").addConstraintViolation();
+                        addPropertyNode("cronExpression").addConstraintViolation();
             }
         }
 
@@ -61,7 +61,7 @@ public class ReportValidator extends AbstractValidator<ReportCheck, Report> {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidReport, "Reportlet name must be unique")).
-                    addNode("reportletConfs").addConstraintViolation();
+                    addPropertyNode("reportletConfs").addConstraintViolation();
         }
 
         return isValid;

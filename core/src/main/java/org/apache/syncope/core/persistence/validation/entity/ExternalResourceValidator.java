@@ -32,7 +32,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
         if (StringUtils.isBlank(item.getExtAttrName())) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, item + ".extAttrName is null")).
-                    addNode("extAttrName").addConstraintViolation();
+                    addPropertyNode("extAttrName").addConstraintViolation();
 
             return false;
         }
@@ -40,7 +40,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
         if (StringUtils.isBlank(item.getIntAttrName())) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, item + ".intAttrName is null")).
-                    addNode("intAttrName").addConstraintViolation();
+                    addPropertyNode("intAttrName").addConstraintViolation();
 
             return false;
         }
@@ -48,7 +48,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
         if (item.getPurpose() == null) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, item + ".purpose is null")).
-                    addNode("purpose").addConstraintViolation();
+                    addPropertyNode("purpose").addConstraintViolation();
 
             return false;
         }
@@ -70,7 +70,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
         if (accountIds != 1) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "One and only one accountId mapping is needed")).
-                    addNode("accountId.size").addConstraintViolation();
+                    addPropertyNode("accountId.size").addConstraintViolation();
             return false;
         }
 
@@ -87,7 +87,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
         if (passwords > 1) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "One and only one password mapping is allowed")).
-                    addNode("password.size").addConstraintViolation();
+                    addPropertyNode("password.size").addConstraintViolation();
             isValid = false;
         }
 
@@ -101,7 +101,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
         if (!NAME_PATTERN.matcher(resource.getName()).matches()) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidName, "Invalid Resource name")).
-                    addNode("name").addConstraintViolation();
+                    addPropertyNode("name").addConstraintViolation();
             return false;
         }
 
@@ -119,7 +119,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
                 if (actionsClass == null || !isAssignable) {
                     context.buildConstraintViolationWithTemplate(
                             getTemplate(EntityViolationType.InvalidResource, "Invalid actions class name")).
-                            addNode("actionsClassName").addConstraintViolation();
+                            addPropertyNode("actionsClassName").addConstraintViolation();
                     return false;
                 }
             }

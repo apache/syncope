@@ -48,7 +48,7 @@ public class AbstractSyncTaskValidator extends AbstractValidator<AbstractSyncTas
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.InvalidSyncTask, "Resource cannot be null")).
-                        addNode("resource").addConstraintViolation();
+                        addPropertyNode("resource").addConstraintViolation();
             }
 
             if (!object.getActionsClassNames().isEmpty()) {
@@ -73,7 +73,7 @@ public class AbstractSyncTaskValidator extends AbstractValidator<AbstractSyncTas
                         context.disableDefaultConstraintViolation();
                         context.buildConstraintViolationWithTemplate(
                                 getTemplate(EntityViolationType.InvalidSyncTask, "Invalid class name")).
-                                addNode("actionsClassName").addConstraintViolation();
+                                addPropertyNode("actionsClassName").addConstraintViolation();
                     }
                 }
             }

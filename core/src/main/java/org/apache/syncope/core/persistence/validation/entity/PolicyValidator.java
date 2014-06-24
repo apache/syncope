@@ -46,7 +46,7 @@ public class PolicyValidator extends AbstractValidator<PolicyCheck, Policy> {
 
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.valueOf("Invalid" + object.getClass().getSimpleName()),
-                    "Invalid policy specification")).addNode("specification").
+                            "Invalid policy specification")).addPropertyNode("specification").
                     addConstraintViolation();
 
             return false;

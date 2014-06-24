@@ -120,12 +120,12 @@ public class SchemaNameValidator extends AbstractValidator<SchemaNameCheck, Obje
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidName, "Invalid Schema name")).
-                    addNode("name").addConstraintViolation();
+                    addPropertyNode("name").addConstraintViolation();
         } else if (unallowedNames.contains(schemaName)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidName, "Schema name not allowed: " + schemaName)).
-                    addNode("name").addConstraintViolation();
+                    addPropertyNode("name").addConstraintViolation();
 
             return false;
         }

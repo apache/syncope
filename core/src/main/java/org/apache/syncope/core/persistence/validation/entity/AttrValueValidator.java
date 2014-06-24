@@ -46,7 +46,7 @@ public class AttrValueValidator extends AbstractValidator<AttrValueCheck, Abstra
             if (object.getLongValue() != null) {
                 nonNullVales++;
             }
-            if (object.getBinaryValue()!= null) {
+            if (object.getBinaryValue() != null) {
                 nonNullVales++;
             }
             if (object.getStringValue() != null) {
@@ -60,7 +60,8 @@ public class AttrValueValidator extends AbstractValidator<AttrValueCheck, Abstra
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.MoreThanOneNonNull, "More than one non-null value found")).
-                        addNode(object.getClass().getSimpleName().replaceAll("\\n", " ")).addConstraintViolation();
+                        addPropertyNode(object.getClass().getSimpleName().replaceAll("\\n", " ")).
+                        addConstraintViolation();
 
             } else if (object instanceof AbstractAttrUniqueValue) {
                 AbstractNormalSchema uniqueValueSchema = ((AbstractAttrUniqueValue) object).getSchema();
@@ -75,8 +76,8 @@ public class AttrValueValidator extends AbstractValidator<AttrValueCheck, Abstra
                     context.disableDefaultConstraintViolation();
                     context.buildConstraintViolationWithTemplate(
                             getTemplate(EntityViolationType.valueOf("Invalid" + attrSchema.getClass().getSimpleName()),
-                            "Unique value schema is " + uniqueValueSchema
-                            + ", while owning attribute schema is " + attrSchema)).addNode("schema").
+                                    "Unique value schema is " + uniqueValueSchema
+                                    + ", while owning attribute schema is " + attrSchema)).addPropertyNode("schema").
                             addConstraintViolation();
                 }
             }

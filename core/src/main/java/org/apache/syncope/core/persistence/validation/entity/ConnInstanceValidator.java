@@ -38,7 +38,7 @@ public class ConnInstanceValidator extends AbstractValidator<ConnInstanceCheck, 
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidConnInstanceLocation, e.getMessage())).
-                    addNode("location").addConstraintViolation();
+                    addPropertyNode("location").addConstraintViolation();
 
             isValid = false;
         }
@@ -52,7 +52,7 @@ public class ConnInstanceValidator extends AbstractValidator<ConnInstanceCheck, 
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.InvalidConnPoolConf, e.getMessage())).
-                        addNode("poolConf").addConstraintViolation();
+                        addPropertyNode("poolConf").addConstraintViolation();
 
                 isValid = false;
             }

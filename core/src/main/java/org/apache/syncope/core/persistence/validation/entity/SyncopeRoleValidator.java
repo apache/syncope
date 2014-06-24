@@ -35,8 +35,8 @@ public class SyncopeRoleValidator extends AbstractValidator<SyncopeRoleCheck, Sy
 
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidRoleOwner,
-                    "A role must either be owned by an user or a role, not both")).
-                    addNode("owner").addConstraintViolation();
+                            "A role must either be owned by an user or a role, not both")).
+                    addPropertyNode("owner").addConstraintViolation();
         }
 
         return isValid;
