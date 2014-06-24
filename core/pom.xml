@@ -248,12 +248,12 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-validation_1.0_spec</artifactId>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.bval</groupId>
-      <artifactId>bval-jsr303</artifactId>
+      <groupId>javax.el</groupId>
+      <artifactId>el-api</artifactId>
     </dependency>
 
     <dependency>
