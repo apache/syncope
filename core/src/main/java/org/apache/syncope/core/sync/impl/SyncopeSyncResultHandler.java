@@ -266,7 +266,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
     }
 
     public Map<Long, String> getRoleOwnerMap() {
-        return roleOwnerMap;
+        return this.roleOwnerMap;
     }
 
     @Override
@@ -641,7 +641,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         UserMod actual = attrTransformer.transform(userMod);
         LOG.debug("Transformed: {}", actual);
 
-        delta = actions.beforeUpdate(this, delta, before, userMod);
+        delta = actions.beforeUpdate(this, delta, before, actual);
 
         WorkflowResult<Map.Entry<Long, Boolean>> updated;
         try {

@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.common.mod.ReferenceMod;
 
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.services.RoleService;
@@ -112,6 +113,13 @@ public class RoleTestITCase extends AbstractTest {
                 resourceService.getConnectorObject(RESOURCE_NAME_LDAP, AttributableType.ROLE, roleTO.getId());
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getAttributeMap().get("owner"));
+
+        // SYNCOPE-515: remove ownership
+        final RoleMod roleMod = new RoleMod();
+        roleMod.setId(roleTO.getId());
+        roleMod.setRoleOwner(new ReferenceMod());
+
+        assertNull(roleService.update(roleMod.getId(), roleMod).getRoleOwner());
     }
 
     @Test
