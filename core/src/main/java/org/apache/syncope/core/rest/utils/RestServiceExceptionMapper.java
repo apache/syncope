@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.persistence.EntityExistsException;
 import javax.persistence.PersistenceException;
 import javax.persistence.RollbackException;
+import javax.validation.ValidationException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
@@ -34,6 +35,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
+import org.apache.cxf.jaxrs.validation.ValidationExceptionMapper;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.RESTHeaders;
@@ -59,6 +61,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
     private static final String BASIC_REALM_UNAUTHORIZED = "Basic realm=\"Apache Syncope authentication\"";
 
     private static final Logger LOG = LoggerFactory.getLogger(RestServiceExceptionMapper.class);
+
+    private final ValidationExceptionMapper validationEM = new ValidationExceptionMapper();
 
     @Override
     public Response toResponse(final Exception ex) {
@@ -95,6 +99,18 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                 builder = processInvalidEntityExceptions(ex);
                 if (builder == null) {
                     builder = processBadRequestExceptions(ex);
+                }
+                // process JAX-RS validation errors
+                if (builder == null && ex instanceof ValidationException) {
+                    builder = JAXRSUtils.fromResponse(validationEM.toResponse((ValidationException) ex)).
+                            header(RESTHeaders.ERROR_INFO,
+                                    ClientExceptionType.RESTValidation.getInfoHeaderValue(getExMessage(ex)));
+
+                    ErrorTO error = new ErrorTO();
+                    error.setStatus(ClientExceptionType.RESTValidation.getResponseStatus().getStatusCode());
+                    error.setType(ClientExceptionType.RESTValidation);
+                    error.getElements().add(getExMessage(ex));
+                    builder.entity(error);
                 }
                 // ...or just report as InternalServerError
                 if (builder == null) {

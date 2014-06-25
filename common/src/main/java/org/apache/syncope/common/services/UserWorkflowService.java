@@ -19,6 +19,7 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 
 import javax.ws.rs.GET;
@@ -57,7 +58,8 @@ public interface UserWorkflowService extends JAXRSService {
     @GET
     @Path("forms/{userId}/{name}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<WorkflowFormTO> getFormsByName(@PathParam("userId") final Long userId, @PathParam("name") final String name);
+    List<WorkflowFormTO> getFormsByName(
+            @NotNull @PathParam("userId") final Long userId, @NotNull @PathParam("name") final String name);
 
     /**
      * Returns a list of available forms for the given user id.
@@ -68,7 +70,7 @@ public interface UserWorkflowService extends JAXRSService {
     @GET
     @Path("forms/{userId}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    WorkflowFormTO getFormForUser(@PathParam("userId") Long userId);
+    WorkflowFormTO getFormForUser(@NotNull @PathParam("userId") Long userId);
 
     /**
      * Claims the form for the given task id.
@@ -79,7 +81,7 @@ public interface UserWorkflowService extends JAXRSService {
     @POST
     @Path("forms/{taskId}/claim")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    WorkflowFormTO claimForm(@PathParam("taskId") String taskId);
+    WorkflowFormTO claimForm(@NotNull @PathParam("taskId") String taskId);
 
     /**
      * Submits a workflow form.
@@ -91,7 +93,7 @@ public interface UserWorkflowService extends JAXRSService {
     @Path("forms")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    UserTO submitForm(WorkflowFormTO form);
+    UserTO submitForm(@NotNull WorkflowFormTO form);
 
     /**
      * Executes workflow task for matching id.
@@ -104,5 +106,5 @@ public interface UserWorkflowService extends JAXRSService {
     @Path("tasks/{taskId}/execute")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    UserTO executeTask(@PathParam("taskId") String taskId, UserTO userTO);
+    UserTO executeTask(@NotNull @PathParam("taskId") String taskId, @NotNull UserTO userTO);
 }

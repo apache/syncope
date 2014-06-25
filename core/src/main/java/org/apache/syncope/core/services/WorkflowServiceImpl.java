@@ -20,7 +20,6 @@ package org.apache.syncope.core.services;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -41,19 +40,14 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
 
     @Override
     public Response getOptions(final SubjectType kind) {
-        String key = null;
-        String value = null;
-        switch (kind) {
-            case USER:
-            default:
-                key = RESTHeaders.ACTIVITI_USER_ENABLED;
-                value = Boolean.toString(ActivitiDetector.isActivitiEnabledForUsers());
-                break;
-
-            case ROLE:
-                key = RESTHeaders.ACTIVITI_ROLE_ENABLED;
-                value = Boolean.toString(ActivitiDetector.isActivitiEnabledForRoles());
-                break;
+        String key;
+        String value;
+        if (kind == SubjectType.USER) {
+            key = RESTHeaders.ACTIVITI_USER_ENABLED;
+            value = Boolean.toString(ActivitiDetector.isActivitiEnabledForUsers());
+        } else {
+            key = RESTHeaders.ACTIVITI_ROLE_ENABLED;
+            value = Boolean.toString(ActivitiDetector.isActivitiEnabledForRoles());
         }
 
         Response.ResponseBuilder builder = Response.ok().header(HttpHeaders.ALLOW, OPTIONS_ALLOW);
@@ -74,17 +68,10 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
 
             @Override
             public void write(final OutputStream os) throws IOException {
-                switch (kind) {
-                    case USER:
-                        controller.exportUserDefinition(accept, os);
-                        break;
-
-                    case ROLE:
-                        controller.exportRoleDefinition(accept, os);
-                        break;
-
-                    default:
-                        throw new BadRequestException();
+                if (kind == SubjectType.USER) {
+                    controller.exportUserDefinition(accept, os);
+                } else {
+                    controller.exportRoleDefinition(accept, os);
                 }
             }
         };
@@ -100,15 +87,10 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
 
             @Override
             public void write(final OutputStream os) throws IOException {
-                switch (kind) {
-                    case USER:
-                    default:
-                        controller.exportUserDiagram(os);
-                        break;
-
-                    case ROLE:
-                        controller.exportRoleDiagram(os);
-                        break;
+                if (kind == SubjectType.USER) {
+                    controller.exportUserDiagram(os);
+                } else {
+                    controller.exportRoleDiagram(os);
                 }
             }
         };
@@ -125,15 +107,10 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
                 ? MediaType.APPLICATION_JSON_TYPE
                 : MediaType.APPLICATION_XML_TYPE;
 
-        switch (kind) {
-            case USER:
-            default:
-                controller.importUserDefinition(contentType, definition);
-                break;
-
-            case ROLE:
-                controller.importRoleDefinition(contentType, definition);
-                break;
+        if (kind == SubjectType.USER) {
+            controller.importUserDefinition(contentType, definition);
+        } else {
+            controller.importRoleDefinition(contentType, definition);
         }
     }
 }

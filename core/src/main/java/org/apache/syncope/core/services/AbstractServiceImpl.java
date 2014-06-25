@@ -132,27 +132,6 @@ abstract class AbstractServiceImpl implements JAXRSService {
         return builder;
     }
 
-    /**
-     * Checks whether given page and size values are valid.
-     *
-     * [SYNCOPE-461] Keep this method until BVal 1.0 (implementing JSR 303 1.1 which will work with CXF JAX-RS
-     * validation) is available.
-     *
-     * @param page result page number
-     * @param size number of entries per page
-     * @see https://issues.apache.org/jira/browse/SYNCOPE-461
-     */
-    protected void checkPageSize(final int page, final int size) {
-        if (page <= 0 || size <= 0) {
-            LOG.error("Invalid page / size specified: {},{}", page, size);
-
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPageOrSize);
-            sce.getElements().add(String.valueOf(page));
-            sce.getElements().add(String.valueOf(size));
-            throw sce;
-        }
-    }
-
     protected SearchCond getSearchCond(final String fiql) {
         try {
             SearchCondVisitor visitor = new SearchCondVisitor();

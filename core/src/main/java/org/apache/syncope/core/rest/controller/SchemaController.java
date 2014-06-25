@@ -227,19 +227,19 @@ public class SchemaController extends AbstractTransactionalController<SchemaTO> 
 
     @PreAuthorize("hasRole('SCHEMA_UPDATE')")
     public <T extends AbstractSchemaTO> void update(final AttributableType attrType, final SchemaType schemaType,
-            final String schemaName, final T schemaTO) {
+            final T schemaTO) {
 
         final AttributableUtil attrUtil = AttributableUtil.getInstance(attrType);
 
-        if (!doesSchemaExist(schemaType, schemaName, attrUtil)) {
-            throw new NotFoundException(schemaType + "/" + attrType + "/" + schemaName);
+        if (!doesSchemaExist(schemaType, schemaTO.getName(), attrUtil)) {
+            throw new NotFoundException(schemaType + "/" + attrType + "/" + schemaTO.getName());
         }
 
         switch (schemaType) {
             case VIRTUAL:
-                AbstractVirSchema virSchema = virSchemaDAO.find(schemaName, attrUtil.virSchemaClass());
+                AbstractVirSchema virSchema = virSchemaDAO.find(schemaTO.getName(), attrUtil.virSchemaClass());
                 if (virSchema == null) {
-                    throw new NotFoundException("Virtual Schema '" + schemaName + "'");
+                    throw new NotFoundException("Virtual Schema '" + schemaTO.getName() + "'");
                 }
 
                 binder.update((VirSchemaTO) schemaTO, virSchema);
@@ -247,9 +247,9 @@ public class SchemaController extends AbstractTransactionalController<SchemaTO> 
                 break;
 
             case DERIVED:
-                AbstractDerSchema derSchema = derSchemaDAO.find(schemaName, attrUtil.derSchemaClass());
+                AbstractDerSchema derSchema = derSchemaDAO.find(schemaTO.getName(), attrUtil.derSchemaClass());
                 if (derSchema == null) {
-                    throw new NotFoundException("Derived schema '" + schemaName + "'");
+                    throw new NotFoundException("Derived schema '" + schemaTO.getName() + "'");
                 }
 
                 binder.update((DerSchemaTO) schemaTO, derSchema);
@@ -258,9 +258,9 @@ public class SchemaController extends AbstractTransactionalController<SchemaTO> 
 
             case NORMAL:
             default:
-                AbstractNormalSchema schema = schemaDAO.find(schemaName, attrUtil.schemaClass());
+                AbstractNormalSchema schema = schemaDAO.find(schemaTO.getName(), attrUtil.schemaClass());
                 if (schema == null) {
-                    throw new NotFoundException("Schema '" + schemaName + "'");
+                    throw new NotFoundException("Schema '" + schemaTO.getName() + "'");
                 }
 
                 binder.update((SchemaTO) schemaTO, schema, attrUtil);

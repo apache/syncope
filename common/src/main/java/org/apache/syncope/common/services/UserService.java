@@ -19,6 +19,8 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -64,7 +66,7 @@ public interface UserService extends JAXRSService {
     })
     @OPTIONS
     @Path("{userId}/username")
-    Response getUsername(@PathParam("userId") Long userId);
+    Response getUsername(@NotNull @PathParam("userId") Long userId);
 
     /**
      * Gives the user id for the provided username.
@@ -78,7 +80,7 @@ public interface UserService extends JAXRSService {
     })
     @OPTIONS
     @Path("{username}/userId")
-    Response getUserId(@PathParam("username") String username);
+    Response getUserId(@NotNull @PathParam("username") String username);
 
     /**
      * Reads the user matching the provided userId.
@@ -89,7 +91,7 @@ public interface UserService extends JAXRSService {
     @GET
     @Path("{userId}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    UserTO read(@PathParam("userId") Long userId);
+    UserTO read(@NotNull @PathParam("userId") Long userId);
 
     /**
      * Returns a paged list of existing users.
@@ -120,8 +122,8 @@ public interface UserService extends JAXRSService {
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<UserTO> list(
-            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
+            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
+            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
 
     /**
      * Returns a paged list of existing users matching page/size conditions.
@@ -134,8 +136,8 @@ public interface UserService extends JAXRSService {
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<UserTO> list(
-            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
+            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
+            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
             @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
@@ -147,7 +149,7 @@ public interface UserService extends JAXRSService {
     @GET
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<UserTO> search(@QueryParam(PARAM_FIQL) String fiql);
+    PagedResult<UserTO> search(@NotNull @QueryParam(PARAM_FIQL) String fiql);
 
     /**
      * Returns a paged list of users matching the provided FIQL search condition.
@@ -159,7 +161,7 @@ public interface UserService extends JAXRSService {
     @GET
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<UserTO> search(@QueryParam(PARAM_FIQL) String fiql, @QueryParam(PARAM_ORDERBY) String orderBy);
+    PagedResult<UserTO> search(@NotNull @QueryParam(PARAM_FIQL) String fiql, @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
      * Returns a paged list of users matching the provided FIQL search condition.
@@ -173,8 +175,8 @@ public interface UserService extends JAXRSService {
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<UserTO> search(@QueryParam(PARAM_FIQL) String fiql,
-            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
+            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
+            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
 
     /**
      * Returns a paged list of users matching the provided FIQL search condition.
@@ -189,8 +191,8 @@ public interface UserService extends JAXRSService {
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<UserTO> search(@QueryParam(PARAM_FIQL) String fiql,
-            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
+            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
+            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
             @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
@@ -208,7 +210,7 @@ public interface UserService extends JAXRSService {
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response create(UserTO userTO);
+    Response create(@NotNull UserTO userTO);
 
     /**
      * Updates user matching the provided userId.
@@ -227,7 +229,7 @@ public interface UserService extends JAXRSService {
     @Path("{userId}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response update(@PathParam("userId") Long userId, UserMod userMod);
+    Response update(@NotNull @PathParam("userId") Long userId, @NotNull UserMod userMod);
 
     /**
      * Performs a status update on user matching provided userId.
@@ -246,7 +248,7 @@ public interface UserService extends JAXRSService {
     @Path("{userId}/status")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response status(@PathParam("userId") Long userId, StatusMod statusMod);
+    Response status(@NotNull @PathParam("userId") Long userId, @NotNull StatusMod statusMod);
 
     /**
      * Deletes user matching provided userId.
@@ -263,7 +265,7 @@ public interface UserService extends JAXRSService {
     @DELETE
     @Path("{userId}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response delete(@PathParam("userId") Long userId);
+    Response delete(@NotNull @PathParam("userId") Long userId);
 
     /**
      * Executes resource-related operations on given user.
@@ -281,8 +283,9 @@ public interface UserService extends JAXRSService {
     @Path("{userId}/bulkDeassociation/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response bulkDeassociation(@PathParam("userId") Long userId,
-            @PathParam("type") ResourceDeassociationActionType type, List<ResourceName> resourceNames);
+    Response bulkDeassociation(@NotNull @PathParam("userId") Long userId,
+            @NotNull @PathParam("type") ResourceDeassociationActionType type,
+            @NotNull List<ResourceName> resourceNames);
 
     /**
      * Executes resource-related operations on given user.
@@ -299,9 +302,9 @@ public interface UserService extends JAXRSService {
     @Path("{userId}/bulkAssociation/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response bulkAssociation(@PathParam("userId") Long userId,
-            @PathParam("type") ResourceAssociationActionType type,
-            ResourceAssociationMod associationMod);
+    Response bulkAssociation(@NotNull @PathParam("userId") Long userId,
+            @NotNull @PathParam("type") ResourceAssociationActionType type,
+            @NotNull ResourceAssociationMod associationMod);
 
     /**
      * Executes the provided bulk action.
@@ -313,5 +316,5 @@ public interface UserService extends JAXRSService {
     @Path("bulk")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    BulkActionResult bulk(BulkAction bulkAction);
+    BulkActionResult bulk(@NotNull BulkAction bulkAction);
 }

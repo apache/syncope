@@ -312,9 +312,9 @@ under the License.
         
     <connid.version>1.3.3</connid.version>
     <connid.soap.version>1.2.7</connid.soap.version>
-    <connid.db.table.version>2.1.6</connid.db.table.version>
+    <connid.db.table.version>2.1.7</connid.db.table.version>
     <connid.csvdir.version>0.7</connid.csvdir.version>
-    <connid.ldap.version>1.3.6</connid.ldap.version>
+    <connid.ldap.version>1.3.7</connid.ldap.version>
     <connid.ad.version>1.1.2</connid.ad.version>
 
     <commons-jexl.version>2.1.1</commons-jexl.version>
@@ -344,7 +344,7 @@ under the License.
 
     <groovy.version>2.3.3</groovy.version>
 
-    <h2.version>1.4.178</h2.version>
+    <h2.version>1.4.179</h2.version>
 
     <log4j.version>2.0-rc1</log4j.version>
     <slf4j.version>1.7.7</slf4j.version>
@@ -380,7 +380,7 @@ under the License.
     <testdb.webport>9082</testdb.webport>
 
     <testdb.driver>org.h2.Driver</testdb.driver>
-    <testdb.url>jdbc:h2:tcp://localhost:9092/testdb</testdb.url>
+    <testdb.url>jdbc:h2:tcp://localhost:9092/mem:testdb;DB_CLOSE_DELAY=-1</testdb.url>
     <testdb.username>sa</testdb.username>
     <testdb.password>sa</testdb.password>
     
@@ -533,6 +533,11 @@ under the License.
         <version>${commons-dbcp.version}</version>
       </dependency>
       
+      <dependency>
+        <groupId>javax.validation</groupId>
+        <artifactId>validation-api</artifactId>
+        <version>1.1.0.Final</version>
+      </dependency>      
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-validator</artifactId>

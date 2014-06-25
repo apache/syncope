@@ -67,6 +67,8 @@ public class ConnectorTestITCase extends AbstractTest {
 
     private static String connidDbTableVersion;
 
+    private static String testJDBCURL;
+
     @BeforeClass
     public static void setUpConnIdBundles() throws IOException {
         InputStream propStream = null;
@@ -77,6 +79,8 @@ public class ConnectorTestITCase extends AbstractTest {
 
             connidSoapVersion = props.getProperty("connid.soap.version");
             connidDbTableVersion = props.getProperty("connid.db.table.version");
+
+            testJDBCURL = props.getProperty("testdb.url");
         } catch (Exception e) {
             LOG.error("Could not load {}", ConnIdBundleManager.CONNID_PROPS, e);
         } finally {
@@ -84,6 +88,7 @@ public class ConnectorTestITCase extends AbstractTest {
         }
         assertNotNull(connidSoapVersion);
         assertNotNull(connidDbTableVersion);
+        assertNotNull(testJDBCURL);
     }
 
     @Test(expected = SyncopeClientException.class)
@@ -458,7 +463,7 @@ public class ConnectorTestITCase extends AbstractTest {
         jdbcUrlTemplateSchema.setRequired(true);
         ConnConfProperty jdbcUrlTemplate = new ConnConfProperty();
         jdbcUrlTemplate.setSchema(jdbcUrlTemplateSchema);
-        jdbcUrlTemplate.getValues().add("jdbc:h2:tcp://localhost:9092/testdb");
+        jdbcUrlTemplate.getValues().add(testJDBCURL);
         conf.add(jdbcUrlTemplate);
 
         ConnConfPropSchema userSchema = new ConnConfPropSchema();

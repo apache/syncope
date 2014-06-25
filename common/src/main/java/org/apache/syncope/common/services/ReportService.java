@@ -19,6 +19,8 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -65,7 +67,7 @@ public interface ReportService extends JAXRSService {
     @GET
     @Path("{reportId}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ReportTO read(@PathParam("reportId") Long reportId);
+    ReportTO read(@NotNull @PathParam("reportId") Long reportId);
 
     /**
      * Returns report execution with matching id.
@@ -76,7 +78,7 @@ public interface ReportService extends JAXRSService {
     @GET
     @Path("executions/{executionId}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ReportExecTO readExecution(@PathParam("executionId") Long executionId);
+    ReportExecTO readExecution(@NotNull @PathParam("executionId") Long executionId);
 
     /**
      * Returns a paged list of all existing reports.
@@ -107,8 +109,8 @@ public interface ReportService extends JAXRSService {
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<ReportTO> list(
-            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
+            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
+            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
 
     /**
      * Returns a paged list of all existing reports matching page/size conditions.
@@ -121,8 +123,8 @@ public interface ReportService extends JAXRSService {
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<ReportTO> list(
-            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
+            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
+            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
             @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
@@ -136,7 +138,7 @@ public interface ReportService extends JAXRSService {
     })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response create(ReportTO reportTO);
+    Response create(@NotNull ReportTO reportTO);
 
     /**
      * Updates report with matching id.
@@ -147,7 +149,7 @@ public interface ReportService extends JAXRSService {
     @PUT
     @Path("{reportId}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@PathParam("reportId") Long reportId, ReportTO reportTO);
+    void update(@NotNull @PathParam("reportId") Long reportId, ReportTO reportTO);
 
     /**
      * Deletes report with matching id.
@@ -156,7 +158,7 @@ public interface ReportService extends JAXRSService {
      */
     @DELETE
     @Path("{reportId}")
-    void delete(@PathParam("reportId") Long reportId);
+    void delete(@NotNull @PathParam("reportId") Long reportId);
 
     /**
      * Deletes report execution with matching id.
@@ -165,7 +167,7 @@ public interface ReportService extends JAXRSService {
      */
     @DELETE
     @Path("executions/{executionId}")
-    void deleteExecution(@PathParam("executionId") Long executionId);
+    void deleteExecution(@NotNull @PathParam("executionId") Long executionId);
 
     /**
      * Executes the report with matching id.
@@ -176,7 +178,7 @@ public interface ReportService extends JAXRSService {
     @POST
     @Path("{reportId}/execute")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ReportExecTO execute(@PathParam("reportId") Long reportId);
+    ReportExecTO execute(@NotNull @PathParam("reportId") Long reportId);
 
     /**
      * Exports the report execution with matching id in the requested format.
@@ -188,6 +190,6 @@ public interface ReportService extends JAXRSService {
     @GET
     @Path("executions/{executionId}/stream")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response exportExecutionResult(@PathParam("executionId") Long executionId,
+    Response exportExecutionResult(@NotNull @PathParam("executionId") Long executionId,
             @QueryParam("format") ReportExecExportFormat fmt);
 }

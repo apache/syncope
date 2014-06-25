@@ -19,6 +19,7 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+import javax.validation.constraints.NotNull;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -59,7 +60,7 @@ public interface LoggerService extends JAXRSService {
     @GET
     @Path("{type}/{name}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    LoggerTO read(@PathParam("type") LoggerType type, @PathParam("name") final String name);
+    LoggerTO read(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") final String name);
 
     /**
      * Returns a list of loggers with matching type.
@@ -70,7 +71,7 @@ public interface LoggerService extends JAXRSService {
     @GET
     @Path("{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<LoggerTO> list(@PathParam("type") LoggerType type);
+    List<LoggerTO> list(@NotNull @PathParam("type") LoggerType type);
 
     /**
      * Creates or updates (if existing) the logger with matching name.
@@ -80,9 +81,10 @@ public interface LoggerService extends JAXRSService {
      * @param logger Logger to be created or updated
      */
     @PUT
-    @Path("{type}/{name}/level")
+    @Path("{type}/{name}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@PathParam("type") LoggerType type, @PathParam("name") String name, LoggerTO logger);
+    void update(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") String name,
+            @NotNull LoggerTO logger);
 
     /**
      * Deletes the logger with matching name.
@@ -92,6 +94,6 @@ public interface LoggerService extends JAXRSService {
      */
     @DELETE
     @Path("{type}/{name}")
-    void delete(@PathParam("type") LoggerType type, @PathParam("name") String name);
+    void delete(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") String name);
 
 }

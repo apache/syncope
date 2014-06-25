@@ -19,6 +19,7 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -54,8 +55,8 @@ public interface SchemaService extends JAXRSService {
     @GET
     @Path("{name}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractSchemaTO> T read(@PathParam("kind") AttributableType attrType,
-            @PathParam("type") SchemaType schemaType, @PathParam("name") String schemaName);
+    <T extends AbstractSchemaTO> T read(@NotNull @PathParam("kind") AttributableType attrType,
+            @NotNull @PathParam("type") SchemaType schemaType, @NotNull @PathParam("name") String schemaName);
 
     /**
      * Returns a list of schemas with matching kind and type.
@@ -68,7 +69,7 @@ public interface SchemaService extends JAXRSService {
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     <T extends AbstractSchemaTO> List<T> list(
-            @PathParam("kind") AttributableType attrType, @PathParam("type") SchemaType schemaType);
+            @NotNull @PathParam("kind") AttributableType attrType, @NotNull @PathParam("type") SchemaType schemaType);
 
     /**
      * Creates a new schema.
@@ -84,8 +85,8 @@ public interface SchemaService extends JAXRSService {
     })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractSchemaTO> Response create(@PathParam("kind") AttributableType attrType,
-            @PathParam("type") SchemaType schemaType, T schemaTO);
+    <T extends AbstractSchemaTO> Response create(@NotNull @PathParam("kind") AttributableType attrType,
+            @NotNull @PathParam("type") SchemaType schemaType, @NotNull T schemaTO);
 
     /**
      * Updates the schema matching the given kind, type and name.
@@ -99,8 +100,9 @@ public interface SchemaService extends JAXRSService {
     @PUT
     @Path("{name}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractSchemaTO> void update(@PathParam("kind") AttributableType attrType,
-            @PathParam("type") SchemaType schemaType, @PathParam("name") String schemaName, T schemaTO);
+    <T extends AbstractSchemaTO> void update(@NotNull @PathParam("kind") AttributableType attrType,
+            @NotNull @PathParam("type") SchemaType schemaType,
+            @NotNull @PathParam("name") String schemaName, @NotNull T schemaTO);
 
     /**
      * Deletes the schema matching the given kind, type and name.
@@ -111,6 +113,7 @@ public interface SchemaService extends JAXRSService {
      */
     @DELETE
     @Path("{name}")
-    void delete(@PathParam("kind") AttributableType attrType, @PathParam("type") SchemaType schemaType,
-            @PathParam("name") String schemaName);
+    void delete(@NotNull @PathParam("kind") AttributableType attrType,
+            @NotNull @PathParam("type") SchemaType schemaType,
+            @NotNull @PathParam("name") String schemaName);
 }

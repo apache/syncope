@@ -19,7 +19,8 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
-
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -36,7 +37,6 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.model.wadl.Description;
 import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
-
 import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.reqres.BulkActionResult;
@@ -95,7 +95,7 @@ public interface TaskService extends JAXRSService {
     @GET
     @Path("{taskId}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractTaskTO> T read(@PathParam("taskId") Long taskId);
+    <T extends AbstractTaskTO> T read(@NotNull @PathParam("taskId") Long taskId);
 
     /**
      * Returns the task execution with the given id.
@@ -106,7 +106,7 @@ public interface TaskService extends JAXRSService {
     @GET
     @Path("executions/{executionId}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    TaskExecTO readExecution(@PathParam("executionId") Long executionId);
+    TaskExecTO readExecution(@NotNull @PathParam("executionId") Long executionId);
 
     /**
      * Returns a list of tasks with matching type.
@@ -117,7 +117,7 @@ public interface TaskService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractTaskTO> PagedResult<T> list(@MatrixParam("type") TaskType taskType);
+    <T extends AbstractTaskTO> PagedResult<T> list(@NotNull @MatrixParam("type") TaskType taskType);
 
     /**
      * Returns a list of tasks with matching type.
@@ -129,7 +129,7 @@ public interface TaskService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractTaskTO> PagedResult<T> list(@MatrixParam("type") TaskType taskType,
+    <T extends AbstractTaskTO> PagedResult<T> list(@NotNull @MatrixParam("type") TaskType taskType,
             @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
@@ -144,9 +144,9 @@ public interface TaskService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractTaskTO> PagedResult<T> list(@MatrixParam("type") TaskType taskType,
-            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
+    <T extends AbstractTaskTO> PagedResult<T> list(@NotNull @MatrixParam("type") TaskType taskType,
+            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
+            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
             @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
@@ -161,8 +161,8 @@ public interface TaskService extends JAXRSService {
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     <T extends AbstractTaskTO> PagedResult<T> list(@MatrixParam("type") TaskType taskType,
-            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
+            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
+            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
 
     /**
      * Creates a new task.
@@ -176,7 +176,7 @@ public interface TaskService extends JAXRSService {
     })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends SchedTaskTO> Response create(T taskTO);
+    <T extends SchedTaskTO> Response create(@NotNull T taskTO);
 
     /**
      * Updates the task matching the provided id.
@@ -187,7 +187,7 @@ public interface TaskService extends JAXRSService {
     @PUT
     @Path("{taskId}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@PathParam("taskId") Long taskId, AbstractTaskTO taskTO);
+    void update(@NotNull @PathParam("taskId") Long taskId, @NotNull AbstractTaskTO taskTO);
 
     /**
      * Deletes the task matching the provided id.
@@ -196,7 +196,7 @@ public interface TaskService extends JAXRSService {
      */
     @DELETE
     @Path("{taskId}")
-    void delete(@PathParam("taskId") Long taskId);
+    void delete(@NotNull @PathParam("taskId") Long taskId);
 
     /**
      * Deletes the task execution matching the provided id.
@@ -205,7 +205,7 @@ public interface TaskService extends JAXRSService {
      */
     @DELETE
     @Path("executions/{executionId}")
-    void deleteExecution(@PathParam("executionId") Long executionId);
+    void deleteExecution(@NotNull @PathParam("executionId") Long executionId);
 
     /**
      * Executes the task matching the given id.
@@ -217,18 +217,19 @@ public interface TaskService extends JAXRSService {
     @POST
     @Path("{taskId}/execute")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    TaskExecTO execute(@PathParam("taskId") Long taskId, @QueryParam("dryRun") @DefaultValue("false") boolean dryRun);
+    TaskExecTO execute(@NotNull @PathParam("taskId") Long taskId,
+            @QueryParam("dryRun") @DefaultValue("false") boolean dryRun);
 
     /**
      * Reports task execution result.
      *
      * @param executionId id of task execution being reported
-     * @param report execution being reported
+     * @param reportExec execution being reported
      */
     @POST
     @Path("executions/{executionId}/report")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void report(@PathParam("executionId") Long executionId, ReportExecTO report);
+    void report(@NotNull @PathParam("executionId") Long executionId, @NotNull ReportExecTO reportExec);
 
     /**
      * Executes the provided bulk action.
@@ -240,5 +241,5 @@ public interface TaskService extends JAXRSService {
     @Path("bulk")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    BulkActionResult bulk(BulkAction bulkAction);
+    BulkActionResult bulk(@NotNull BulkAction bulkAction);
 }

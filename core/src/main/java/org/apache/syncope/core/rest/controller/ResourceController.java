@@ -34,8 +34,8 @@ import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
-import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
+import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
@@ -175,18 +175,10 @@ public class ResourceController extends AbstractTransactionalController<Resource
             throw new NotFoundException("Resource '" + resourceName + "'");
         }
 
-        AbstractAttributable attributable = null;
-        switch (type) {
-            case USER:
-            default:
-                attributable = userDAO.find(id);
-                break;
-
-            case ROLE:
-                attributable = roleDAO.find(id);
-                break;
-        }
-        if (attributable == null) {
+        AbstractSubject subject = type == SubjectType.USER
+                ? userDAO.find(id)
+                : roleDAO.find(id);
+        if (subject == null) {
             throw new NotFoundException(type + " " + id);
         }
 
@@ -198,7 +190,7 @@ public class ResourceController extends AbstractTransactionalController<Resource
                     + "'");
         }
         final String accountIdValue = MappingUtil.getAccountIdValue(
-                attributable, resource, attrUtil.getAccountIdItem(resource));
+                subject, resource, attrUtil.getAccountIdItem(resource));
 
         final ObjectClass objectClass = SubjectType.USER == type ? ObjectClass.ACCOUNT : ObjectClass.GROUP;
 

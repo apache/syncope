@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.reqres.BulkActionResult;
@@ -30,7 +29,6 @@ import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.ResourceTO;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.types.SubjectType;
@@ -67,6 +65,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
 
     @Override
     public void update(final String resourceName, final ResourceTO resourceTO) {
+        resourceTO.setName(resourceName);
         controller.update(resourceTO);
     }
 

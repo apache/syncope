@@ -71,6 +71,7 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
     public <T extends AbstractSchemaTO> void update(final AttributableType attrType, final SchemaType schemaType,
             final String schemaName, final T schemaTO) {
 
-        controller.update(attrType, schemaType, schemaName, schemaTO);
+        schemaTO.setName(schemaName);
+        controller.update(attrType, schemaType, schemaTO);
     }
 }

@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.beans;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
-import javax.persistence.Transient;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.syncope.common.to.RoleTO;
@@ -36,11 +35,9 @@ public class SyncTask extends AbstractSyncTask {
 
     private static final long serialVersionUID = -4141057723006682563L;
 
-    @Transient
-    private static UnmatchingRule DEF_UNMATCHIG_RULE = UnmatchingRule.PROVISION;
+    private static final UnmatchingRule DEF_UNMATCHIG_RULE = UnmatchingRule.PROVISION;
 
-    @Transient
-    private static MatchingRule DEF_MATCHIG_RULE = MatchingRule.UPDATE;
+    private static final MatchingRule DEF_MATCHIG_RULE = MatchingRule.UPDATE;
 
     @Lob
     private String userTemplate;

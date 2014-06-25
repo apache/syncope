@@ -99,9 +99,7 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
             case AUDIT:
                 try {
                     controller.enableAudit(AuditLoggerName.fromLoggerName(name));
-                } catch (IllegalArgumentException e) {
-                    throw new BadRequestException(e);
-                } catch (ParseException e) {
+                } catch (Exception e) {
                     throw new BadRequestException(e);
                 }
                 break;

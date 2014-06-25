@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.services;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
@@ -53,7 +54,7 @@ public interface WorkflowService extends JAXRSService {
                 value = "Contains special syncope HTTP header indicating if Activiti is enabled for users / roles")
     })
     @OPTIONS
-    Response getOptions(@PathParam("kind") SubjectType kind);
+    Response getOptions(@NotNull @PathParam("kind") SubjectType kind);
 
     /**
      * Exports workflow definition for matching kind.
@@ -63,7 +64,7 @@ public interface WorkflowService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response exportDefinition(@PathParam("kind") SubjectType kind);
+    Response exportDefinition(@NotNull @PathParam("kind") SubjectType kind);
 
     /**
      * Exports workflow diagram representation.
@@ -74,7 +75,7 @@ public interface WorkflowService extends JAXRSService {
     @GET
     @Path("diagram.png")
     @Produces({ RESTHeaders.MEDIATYPE_IMAGE_PNG })
-    Response exportDiagram(@PathParam("kind") SubjectType kind);
+    Response exportDiagram(@NotNull @PathParam("kind") SubjectType kind);
 
     /**
      * Imports workflow definition for matching kind.
@@ -84,5 +85,5 @@ public interface WorkflowService extends JAXRSService {
      */
     @PUT
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void importDefinition(@PathParam("kind") SubjectType kind, String definition);
+    void importDefinition(@NotNull @PathParam("kind") SubjectType kind, @NotNull String definition);
 }

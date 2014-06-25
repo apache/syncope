@@ -69,6 +69,8 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     public List<SchemaTO> getSchemaNames(final Long connInstanceId, final ConnInstanceTO connInstanceTO,
             final boolean includeSpecial) {
 
+        connInstanceTO.setId(connInstanceId);
+        
         List<String> schemaNames = controller.getSchemaNames(connInstanceTO, includeSpecial);
         List<SchemaTO> result = new ArrayList<SchemaTO>(schemaNames.size());
         for (String name : schemaNames) {
@@ -82,6 +84,8 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     @Override
     public List<ConnIdObjectClassTO> getSupportedObjectClasses(final Long connInstanceId,
             final ConnInstanceTO connInstanceTO) {
+
+        connInstanceTO.setId(connInstanceId);
 
         List<String> objectClasses = controller.getSupportedObjectClasses(connInstanceTO);
         List<ConnIdObjectClassTO> result = new ArrayList<ConnIdObjectClassTO>(objectClasses.size());
@@ -108,6 +112,7 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
 
     @Override
     public void update(final Long connInstanceId, final ConnInstanceTO connInstanceTO) {
+        connInstanceTO.setId(connInstanceId);
         controller.update(connInstanceTO);
     }
 

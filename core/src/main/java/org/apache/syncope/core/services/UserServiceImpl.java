@@ -93,13 +93,12 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     }
 
     @Override
-    public PagedResult<UserTO> list(final int page, final int size) {
+    public PagedResult<UserTO> list(final Integer page, final Integer size) {
         return list(page, size, null);
     }
 
     @Override
-    public PagedResult<UserTO> list(final int page, final int size, final String orderBy) {
-        checkPageSize(page, size);
+    public PagedResult<UserTO> list(final Integer page, final Integer size, final String orderBy) {
         List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
         return buildPagedResult(controller.list(page, size, orderByClauses), page, size, controller.count());
     }
@@ -120,13 +119,12 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     }
 
     @Override
-    public PagedResult<UserTO> search(final String fiql, final int page, final int size) {
+    public PagedResult<UserTO> search(final String fiql, final Integer page, final Integer size) {
         return search(fiql, page, size, null);
     }
 
     @Override
-    public PagedResult<UserTO> search(final String fiql, final int page, final int size, final String orderBy) {
-        checkPageSize(page, size);
+    public PagedResult<UserTO> search(final String fiql, final Integer page, final Integer size, final String orderBy) {
         SearchCond cond = getSearchCond(fiql);
         List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
         return buildPagedResult(

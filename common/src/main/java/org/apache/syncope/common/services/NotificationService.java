@@ -19,6 +19,7 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -50,7 +51,7 @@ public interface NotificationService extends JAXRSService {
     @GET
     @Path("{notificationId}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    NotificationTO read(@PathParam("notificationId") Long notificationId);
+    NotificationTO read(@NotNull @PathParam("notificationId") Long notificationId);
 
     /**
      * Returns a list of all notifications.
@@ -73,7 +74,7 @@ public interface NotificationService extends JAXRSService {
     })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response create(NotificationTO notificationTO);
+    Response create(@NotNull NotificationTO notificationTO);
 
     /**
      * Updates the notification matching the given id.
@@ -84,7 +85,7 @@ public interface NotificationService extends JAXRSService {
     @PUT
     @Path("{notificationId}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@PathParam("notificationId") Long notificationId, NotificationTO notificationTO);
+    void update(@NotNull @PathParam("notificationId") Long notificationId, @NotNull NotificationTO notificationTO);
 
     /**
      * Deletes the notification matching the given id.
@@ -93,5 +94,5 @@ public interface NotificationService extends JAXRSService {
      */
     @DELETE
     @Path("{notificationId}")
-    void delete(@PathParam("notificationId") Long notificationId);
+    void delete(@NotNull @PathParam("notificationId") Long notificationId);
 }

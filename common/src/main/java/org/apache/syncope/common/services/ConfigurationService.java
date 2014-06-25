@@ -19,6 +19,7 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -86,7 +87,7 @@ public interface ConfigurationService extends JAXRSService {
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    AttributeTO read(@PathParam("key") String key);
+    AttributeTO read(@NotNull @PathParam("key") String key);
 
     /**
      * Creates / updates the configuration parameter with the given key.
@@ -97,7 +98,7 @@ public interface ConfigurationService extends JAXRSService {
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void set(@PathParam("key") String key, AttributeTO value);
+    void set(@NotNull @PathParam("key") String key, @NotNull AttributeTO value);
 
     /**
      * Deletes the configuration parameter with matching key.
@@ -107,5 +108,5 @@ public interface ConfigurationService extends JAXRSService {
     @DELETE
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void delete(@PathParam("key") String key);
+    void delete(@NotNull @PathParam("key") String key);
 }

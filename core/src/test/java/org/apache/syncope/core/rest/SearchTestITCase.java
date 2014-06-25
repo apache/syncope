@@ -25,12 +25,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
-
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -131,7 +129,7 @@ public class SearchTestITCase extends AbstractTest {
     }
 
     @Test
-    public void searchByBooleanAttributableCond() {
+    public void searchByBooleanSubjectCond() {
         final PagedResult<RoleTO> matchingRoles = roleService.search(
                 SyncopeClient.getRoleSearchConditionBuilder().is("inheritAttrs").equalTo("true").query());
         assertNotNull(matchingRoles);
@@ -147,7 +145,7 @@ public class SearchTestITCase extends AbstractTest {
     }
 
     @Test
-    public void searchByRelationshipAttributableCond() {
+    public void searchByRelationshipSubjectCond() {
         final PagedResult<RoleTO> matchingRoles = roleService.search(SyncopeClient.getRoleSearchConditionBuilder().
                 isNotNull("passwordPolicy").and("userOwner").equalTo(5).query());
 

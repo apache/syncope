@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.buildtools;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -49,10 +48,9 @@ public class H2StartStopListener implements ServletContextListener {
     public void contextInitialized(final ServletContextEvent sce) {
         final ServletContext context = sce.getServletContext();
 
-        final File workDir = (File) sce.getServletContext().getAttribute("javax.servlet.context.tempdir");
         try {
             final Server h2TestDb = new Server();
-            h2TestDb.runTool("-baseDir", workDir.getAbsolutePath(), "-tcp", "-tcpDaemon", "-web", "-webDaemon",
+            h2TestDb.runTool("-tcp", "-tcpDaemon", "-web", "-webDaemon",
                     "-webPort", sce.getServletContext().getInitParameter("testdb.webport"));
 
             context.setAttribute(H2_TESTDB, h2TestDb);
@@ -69,6 +67,8 @@ public class H2StartStopListener implements ServletContextListener {
             conn = DataSourceUtils.getConnection(datasource);
             stmt = conn.createStatement();
             stmt.executeUpdate("RUNSCRIPT FROM 'classpath:/testdb.sql'");
+
+            LOG.info("Database successfully initialized");
         } catch (Exception e) {
             LOG.error("While loading data into testdb", e);
         } finally {

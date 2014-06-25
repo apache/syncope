@@ -106,16 +106,17 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public <T extends AbstractTaskTO> PagedResult<T> list(final TaskType taskType, final int page, final int size) {
+    public <T extends AbstractTaskTO> PagedResult<T> list(
+            final TaskType taskType, final Integer page, final Integer size) {
+
         return list(taskType, page, size, null);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T extends AbstractTaskTO> PagedResult<T> list(final TaskType taskType,
-            final int page, final int size, final String orderBy) {
+            final Integer page, final Integer size, final String orderBy) {
 
-        checkPageSize(page, size);
         List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
         return (PagedResult<T>) buildPagedResult(
                 controller.list(taskType, page, size, orderByClauses), page, size, controller.count(taskType));
@@ -132,13 +133,15 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public void report(final Long executionId, final ReportExecTO report) {
-        controller.report(executionId, PropagationTaskExecStatus.fromString(report.getStatus()),
-                report.getMessage());
+    public void report(final Long executionId, final ReportExecTO reportExec) {
+        reportExec.setId(executionId);
+        controller.report(
+                executionId, PropagationTaskExecStatus.fromString(reportExec.getStatus()), reportExec.getMessage());
     }
 
     @Override
     public void update(final Long taskId, final AbstractTaskTO taskTO) {
+        taskTO.setId(taskId);
         if (taskTO instanceof SyncTaskTO) {
             controller.updateSync((SyncTaskTO) taskTO);
         } else if (taskTO instanceof SchedTaskTO) {

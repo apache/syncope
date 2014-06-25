@@ -64,10 +64,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ClassUtils;
 
-/**
- * Intercept calls to ConnectorFacade's methods and check if the corresponding connector instance has been configured to
- * allow every single operation: if not, simply do nothing.
- */
 public class ConnectorFacadeProxy implements Connector {
 
     /**

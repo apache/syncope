@@ -19,6 +19,7 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -69,7 +70,7 @@ public interface ConnectorService extends JAXRSService {
     @GET
     @Path("{connInstanceId}/configuration")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ConnConfProperty> getConfigurationProperties(@PathParam("connInstanceId") Long connInstanceId);
+    List<ConnConfProperty> getConfigurationProperties(@NotNull @PathParam("connInstanceId") Long connInstanceId);
 
     /**
      * Returns schema names for connector bundle matching the given connector instance id.
@@ -84,7 +85,8 @@ public interface ConnectorService extends JAXRSService {
     @Path("{connInstanceId}/schemaNames")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<SchemaTO> getSchemaNames(@PathParam("connInstanceId") Long connInstanceId, ConnInstanceTO connInstanceTO,
+    List<SchemaTO> getSchemaNames(@NotNull @PathParam("connInstanceId") Long connInstanceId,
+            @NotNull ConnInstanceTO connInstanceTO,
             @QueryParam("includeSpecial") @DefaultValue("false") boolean includeSpecial);
 
     /**
@@ -98,8 +100,9 @@ public interface ConnectorService extends JAXRSService {
     @Path("{connInstanceId}/supportedObjectClasses")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ConnIdObjectClassTO> getSupportedObjectClasses(@PathParam("connInstanceId") Long connInstanceId,
-            ConnInstanceTO connInstanceTO);
+    List<ConnIdObjectClassTO> getSupportedObjectClasses(
+            @NotNull @PathParam("connInstanceId") Long connInstanceId,
+            @NotNull ConnInstanceTO connInstanceTO);
 
     /**
      * Returns connector instance with matching id.
@@ -110,7 +113,7 @@ public interface ConnectorService extends JAXRSService {
     @GET
     @Path("{connInstanceId}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ConnInstanceTO read(@PathParam("connInstanceId") Long connInstanceId);
+    ConnInstanceTO read(@NotNull @PathParam("connInstanceId") Long connInstanceId);
 
     /**
      * Returns connector instance for matching resource.
@@ -121,7 +124,7 @@ public interface ConnectorService extends JAXRSService {
     @GET
     @Path("byResource/{resourceName}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ConnInstanceTO readByResource(@PathParam("resourceName") String resourceName);
+    ConnInstanceTO readByResource(@NotNull @PathParam("resourceName") String resourceName);
 
     /**
      * Returns a list of all connector instances with property keys in the matching language.
@@ -146,7 +149,7 @@ public interface ConnectorService extends JAXRSService {
     })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response create(ConnInstanceTO connInstanceTO);
+    Response create(@NotNull ConnInstanceTO connInstanceTO);
 
     /**
      * Updates the connector instance matching the provided id.
@@ -157,7 +160,7 @@ public interface ConnectorService extends JAXRSService {
     @PUT
     @Path("{connInstanceId}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@PathParam("connInstanceId") Long connInstanceId, ConnInstanceTO connInstaceTO);
+    void update(@NotNull @PathParam("connInstanceId") Long connInstanceId, @NotNull ConnInstanceTO connInstaceTO);
 
     /**
      * Deletes the connector instance matching the provided id.
@@ -166,7 +169,7 @@ public interface ConnectorService extends JAXRSService {
      */
     @DELETE
     @Path("{connInstanceId}")
-    void delete(@PathParam("connInstanceId") Long connInstanceId);
+    void delete(@NotNull @PathParam("connInstanceId") Long connInstanceId);
 
     /**
      * @param connInstaceTO connector instance to be used for connection check
@@ -176,7 +179,7 @@ public interface ConnectorService extends JAXRSService {
     @Path("check")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    boolean check(ConnInstanceTO connInstaceTO);
+    boolean check(@NotNull ConnInstanceTO connInstaceTO);
 
     /**
      * Reload all connector bundles and instances.
@@ -195,5 +198,5 @@ public interface ConnectorService extends JAXRSService {
     @Path("bulk")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    BulkActionResult bulk(BulkAction bulkAction);
+    BulkActionResult bulk(@NotNull BulkAction bulkAction);
 }

@@ -19,6 +19,7 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -63,7 +64,7 @@ public interface PolicyService extends JAXRSService {
     @GET
     @Path("{policyId}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractPolicyTO> T read(@PathParam("policyId") Long policyId);
+    <T extends AbstractPolicyTO> T read(@NotNull @PathParam("policyId") Long policyId);
 
     /**
      * Returns the global policy for the given type.
@@ -75,7 +76,7 @@ public interface PolicyService extends JAXRSService {
     @GET
     @Path("global")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractPolicyTO> T readGlobal(@MatrixParam("type") PolicyType type);
+    <T extends AbstractPolicyTO> T readGlobal(@NotNull @MatrixParam("type") PolicyType type);
 
     /**
      * Returns a list of policies of the matching type.
@@ -86,7 +87,7 @@ public interface PolicyService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractPolicyTO> List<T> list(@MatrixParam("type") PolicyType type);
+    <T extends AbstractPolicyTO> List<T> list(@NotNull @MatrixParam("type") PolicyType type);
 
     /**
      * Create a new policy.
@@ -100,7 +101,7 @@ public interface PolicyService extends JAXRSService {
     })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractPolicyTO> Response create(T policyTO);
+    <T extends AbstractPolicyTO> Response create(@NotNull T policyTO);
 
     /**
      * Updates policy matching the given id.
@@ -112,7 +113,7 @@ public interface PolicyService extends JAXRSService {
     @PUT
     @Path("{policyId}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractPolicyTO> void update(@PathParam("policyId") Long policyId, T policyTO);
+    <T extends AbstractPolicyTO> void update(@NotNull @PathParam("policyId") Long policyId, @NotNull T policyTO);
 
     /**
      * Delete policy matching the given id.
@@ -122,6 +123,6 @@ public interface PolicyService extends JAXRSService {
      */
     @DELETE
     @Path("{policyId}")
-    <T extends AbstractPolicyTO> void delete(@PathParam("policyId") Long policyId);
+    <T extends AbstractPolicyTO> void delete(@NotNull @PathParam("policyId") Long policyId);
 
 }

@@ -57,6 +57,7 @@ public class NotificationServiceImpl extends AbstractServiceImpl implements Noti
 
     @Override
     public void update(final Long notificationId, final NotificationTO notificationTO) {
+        notificationTO.setId(notificationId);
         controller.update(notificationTO);
     }
 

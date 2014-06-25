@@ -81,13 +81,12 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     }
 
     @Override
-    public PagedResult<RoleTO> list(final int page, final int size) {
+    public PagedResult<RoleTO> list(final Integer page, final Integer size) {
         return list(page, size, null);
     }
 
     @Override
-    public PagedResult<RoleTO> list(final int page, final int size, final String orderBy) {
-        checkPageSize(page, size);
+    public PagedResult<RoleTO> list(final Integer page, final Integer size, final String orderBy) {
         List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
         return buildPagedResult(controller.list(page, size, orderByClauses), page, size, controller.count());
     }
@@ -113,13 +112,12 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     }
 
     @Override
-    public PagedResult<RoleTO> search(final String fiql, final int page, final int size) {
+    public PagedResult<RoleTO> search(final String fiql, final Integer page, final Integer size) {
         return search(fiql, page, size, null);
     }
 
     @Override
-    public PagedResult<RoleTO> search(final String fiql, final int page, final int size, final String orderBy) {
-        checkPageSize(page, size);
+    public PagedResult<RoleTO> search(final String fiql, final Integer page, final Integer size, final String orderBy) {
         SearchCond cond = getSearchCond(fiql);
         List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
         return buildPagedResult(

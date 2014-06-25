@@ -75,6 +75,14 @@ under the License.
 
   <bean id="exceptionMapper" class="org.apache.syncope.core.rest.utils.RestServiceExceptionMapper"/>
 
+  <bean id="validationProvider" class="org.apache.cxf.validation.BeanValidationProvider"/>
+  <bean id="validationInInterceptor" class="org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor">
+    <property name="provider" ref="validationProvider"/>
+  </bean>
+  <bean id="validationOutInterceptor" class="org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor">
+    <property name="provider" ref="validationProvider"/>
+  </bean>   
+  
   <bean id="searchContextProvider" class="org.apache.cxf.jaxrs.ext.search.SearchContextProvider"/>
   
   <bean id="wadlGenerator" class="org.apache.cxf.jaxrs.model.wadl.WadlGenerator">
@@ -89,13 +97,21 @@ under the License.
   
   <bean id="addETagFilter" class="org.apache.syncope.core.services.AddETagFilter"/>
 
-  <jaxrs:server id="restContainer" address="/" basePackages="org.apache.syncope.common.services, org.apache.syncope.core.services" staticSubresourceResolution="true">
+  <jaxrs:server id="restContainer" address="/" 
+                basePackages="org.apache.syncope.common.services, org.apache.syncope.core.services" 
+                staticSubresourceResolution="true">
     <jaxrs:resourceComparator>
       <bean id="queryResourceInfoComparator" class="org.apache.syncope.core.rest.utils.QueryResourceInfoComparator"/>
     </jaxrs:resourceComparator>
     <jaxrs:properties> 
       <entry key="search.lax.property.match" value="true"/> 
     </jaxrs:properties> 
+    <jaxrs:inInterceptors>
+      <ref bean="validationInInterceptor"/>
+    </jaxrs:inInterceptors>         
+    <jaxrs:outInterceptors>
+      <ref bean="validationOutInterceptor"/>
+    </jaxrs:outInterceptors>
     <jaxrs:providers>
       <ref bean="jaxbProvider"/>
       <ref bean="jsonProvider"/>

@@ -19,6 +19,8 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -33,7 +35,6 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.model.wadl.Description;
 import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
-
 import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.RoleTO;
@@ -56,7 +57,7 @@ public interface RoleService extends JAXRSService {
     @GET
     @Path("{roleId}/children")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<RoleTO> children(@PathParam("roleId") Long roleId);
+    List<RoleTO> children(@NotNull @PathParam("roleId") Long roleId);
 
     /**
      * Returns parent role of the given role (or null if no parent exists).
@@ -67,7 +68,7 @@ public interface RoleService extends JAXRSService {
     @GET
     @Path("{roleId}/parent")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    RoleTO parent(@PathParam("roleId") Long roleId);
+    RoleTO parent(@NotNull @PathParam("roleId") Long roleId);
 
     /**
      * Reads the role matching the provided roleId.
@@ -78,7 +79,7 @@ public interface RoleService extends JAXRSService {
     @GET
     @Path("{roleId}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    RoleTO read(@PathParam("roleId") Long roleId);
+    RoleTO read(@NotNull @PathParam("roleId") Long roleId);
 
     /**
      * This method is similar to {@link #read(Long)}, but uses different authentication handling to ensure that a user
@@ -95,7 +96,7 @@ public interface RoleService extends JAXRSService {
     @GET
     @Path("{roleId}/own")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    RoleTO readSelf(@PathParam("roleId") Long roleId);
+    RoleTO readSelf(@NotNull @PathParam("roleId") Long roleId);
 
     /**
      * Returns a paged list of existing roles.
@@ -126,8 +127,8 @@ public interface RoleService extends JAXRSService {
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<RoleTO> list(
-            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
+            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
+            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
 
     /**
      * Returns a paged list of existing roles matching page/size conditions.
@@ -140,8 +141,8 @@ public interface RoleService extends JAXRSService {
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<RoleTO> list(
-            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
+            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
+            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
             @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
@@ -153,7 +154,7 @@ public interface RoleService extends JAXRSService {
     @GET
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<RoleTO> search(@QueryParam(PARAM_FIQL) String fiql);
+    PagedResult<RoleTO> search(@NotNull @QueryParam(PARAM_FIQL) String fiql);
 
     /**
      * Returns a paged list of roles matching the provided FIQL search condition.
@@ -165,7 +166,8 @@ public interface RoleService extends JAXRSService {
     @GET
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<RoleTO> search(@QueryParam(PARAM_FIQL) String fiql, @QueryParam(PARAM_ORDERBY) String orderBy);
+    PagedResult<RoleTO> search(
+            @NotNull @QueryParam(PARAM_FIQL) String fiql, @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
      * Returns a paged list of roles matching the provided FIQL search condition.
@@ -179,8 +181,8 @@ public interface RoleService extends JAXRSService {
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<RoleTO> search(@QueryParam(PARAM_FIQL) String fiql,
-            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size);
+            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
+            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
 
     /**
      * Returns a paged list of roles matching the provided FIQL search condition.
@@ -195,8 +197,8 @@ public interface RoleService extends JAXRSService {
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<RoleTO> search(@QueryParam(PARAM_FIQL) String fiql,
-            @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) int page,
-            @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) int size,
+            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
+            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
             @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
@@ -214,7 +216,7 @@ public interface RoleService extends JAXRSService {
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response create(RoleTO roleTO);
+    Response create(@NotNull RoleTO roleTO);
 
     /**
      * Updates role matching the provided roleId.
@@ -233,7 +235,7 @@ public interface RoleService extends JAXRSService {
     @Path("{roleId}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response update(@PathParam("roleId") Long roleId, RoleMod roleMod);
+    Response update(@NotNull @PathParam("roleId") Long roleId, @NotNull RoleMod roleMod);
 
     /**
      * Deletes role matching provided roleId.
@@ -251,7 +253,7 @@ public interface RoleService extends JAXRSService {
     @Path("{roleId}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response delete(@PathParam("roleId") Long roleId);
+    Response delete(@NotNull @PathParam("roleId") Long roleId);
 
     /**
      * Executes resource-related operations on given role.
@@ -270,8 +272,9 @@ public interface RoleService extends JAXRSService {
     @Path("{roleId}/deassociate/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response bulkDeassociation(@PathParam("roleId") Long roleId,
-            @PathParam("type") ResourceDeassociationActionType type, List<ResourceName> resourceNames);
+    Response bulkDeassociation(@NotNull @PathParam("roleId") Long roleId,
+            @NotNull @PathParam("type") ResourceDeassociationActionType type,
+            @NotNull List<ResourceName> resourceNames);
 
     /**
      * Executes resource-related operations on given role.
@@ -290,6 +293,7 @@ public interface RoleService extends JAXRSService {
     @Path("{roleId}/associate/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response bulkAssociation(@PathParam("roleId") Long roleId,
-            @PathParam("type") ResourceAssociationActionType type, List<ResourceName> resourceNames);
+    Response bulkAssociation(@NotNull @PathParam("roleId") Long roleId,
+            @NotNull @PathParam("type") ResourceAssociationActionType type,
+            @NotNull List<ResourceName> resourceNames);
 }

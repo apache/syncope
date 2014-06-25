@@ -56,6 +56,7 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
 
     @Override
     public void update(final Long reportId, final ReportTO reportTO) {
+        reportTO.setId(reportId);
         controller.update(reportTO);
     }
 
@@ -70,13 +71,12 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public PagedResult<ReportTO> list(final int page, final int size) {
+    public PagedResult<ReportTO> list(final Integer page, final Integer size) {
         return list(page, size, null);
     }
 
     @Override
-    public PagedResult<ReportTO> list(final int page, final int size, final String orderBy) {
-        checkPageSize(page, size);
+    public PagedResult<ReportTO> list(final Integer page, final Integer size, final String orderBy) {
         List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
         return buildPagedResult(controller.list(page, size, orderByClauses), page, size, controller.count());
     }

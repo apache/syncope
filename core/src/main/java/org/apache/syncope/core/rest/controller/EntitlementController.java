@@ -50,7 +50,9 @@ public class EntitlementController extends AbstractTransactionalController<Entit
     }
 
     @Override
-    protected EntitlementTO resolveReference(Method method, Object... args) throws UnresolvedReferenceException {
+    protected EntitlementTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+
         throw new UnresolvedReferenceException();
     }
 }

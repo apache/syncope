@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.services;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -77,7 +78,7 @@ public interface UserSelfService extends JAXRSService {
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response create(UserTO userTO);
+    Response create(@NotNull UserTO userTO);
 
     /**
      * Self-updates user.
@@ -94,7 +95,7 @@ public interface UserSelfService extends JAXRSService {
     @Path("{userId}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response update(@PathParam("userId") Long userId, UserMod userMod);
+    Response update(@NotNull @PathParam("userId") Long userId, @NotNull UserMod userMod);
 
     /**
      * Self-deletes user.

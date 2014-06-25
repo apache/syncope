@@ -60,6 +60,7 @@ public enum ClientExceptionType {
     NotFound(Response.Status.NOT_FOUND),
     RejectedUserCreate(Response.Status.BAD_REQUEST),
     RequiredValuesMissing(Response.Status.BAD_REQUEST),
+    RESTValidation(Response.Status.BAD_REQUEST),
     RoleOwnership(Response.Status.BAD_REQUEST),
     Scheduling(Response.Status.BAD_REQUEST),
     UnauthorizedRole(Response.Status.UNAUTHORIZED),

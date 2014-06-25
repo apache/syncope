@@ -19,6 +19,7 @@
 package org.apache.syncope.common.services;
 
 import java.util.List;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -59,8 +60,8 @@ public interface ResourceService extends JAXRSService {
     @GET
     @Path("{resourceName}/{type}/{id}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ConnObjectTO getConnectorObject(@PathParam("resourceName") String resourceName,
-            @PathParam("type") SubjectType type, @PathParam("id") Long id);
+    ConnObjectTO getConnectorObject(@NotNull @PathParam("resourceName") String resourceName,
+            @NotNull @PathParam("type") SubjectType type, @NotNull @PathParam("id") Long id);
 
     /**
      * Returns a list of classes that can be used to customize the propagation process.
@@ -81,7 +82,7 @@ public interface ResourceService extends JAXRSService {
     @GET
     @Path("{resourceName}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ResourceTO read(@PathParam("resourceName") String resourceName);
+    ResourceTO read(@NotNull @PathParam("resourceName") String resourceName);
 
     /**
      * Returns a list of all resources.
@@ -100,7 +101,7 @@ public interface ResourceService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ResourceTO> list(@MatrixParam("connectorId") Long connInstanceId);
+    List<ResourceTO> list(@NotNull @MatrixParam("connectorId") Long connInstanceId);
 
     /**
      * Creates a new resource.
@@ -114,7 +115,7 @@ public interface ResourceService extends JAXRSService {
     })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response create(ResourceTO resourceTO);
+    Response create(@NotNull ResourceTO resourceTO);
 
     /**
      * Updates the resource matching the given name.
@@ -125,7 +126,7 @@ public interface ResourceService extends JAXRSService {
     @PUT
     @Path("{resourceName}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@PathParam("resourceName") String resourceName, ResourceTO resourceTO);
+    void update(@NotNull @PathParam("resourceName") String resourceName, @NotNull ResourceTO resourceTO);
 
     /**
      * Deletes the resource matching the given name.
@@ -135,7 +136,7 @@ public interface ResourceService extends JAXRSService {
     @DELETE
     @Path("{resourceName}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void delete(@PathParam("resourceName") String resourceName);
+    void delete(@NotNull @PathParam("resourceName") String resourceName);
 
     /**
      * Checks wether the connection to resource could be established.
@@ -146,7 +147,7 @@ public interface ResourceService extends JAXRSService {
     @POST
     @Path("check")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    boolean check(ResourceTO resourceTO);
+    boolean check(@NotNull ResourceTO resourceTO);
 
     /**
      * De-associate users or roles (depending on the provided subject type) from the given resource.
@@ -162,12 +163,12 @@ public interface ResourceService extends JAXRSService {
                 value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
     })
     @POST
-    @Path("{resourceName}/bulkDeassociation/{attrType}/{type}")
+    @Path("{resourceName}/bulkDeassociation/{subjType}/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    BulkActionResult bulkDeassociation(@PathParam("resourceName") String resourceName,
-            @PathParam("attrType") SubjectType subjectType,
-            @PathParam("type") ResourceDeassociationActionType type, List<SubjectId> subjectIds);
+    BulkActionResult bulkDeassociation(@NotNull @PathParam("resourceName") String resourceName,
+            @NotNull @PathParam("subjType") SubjectType subjectType,
+            @NotNull @PathParam("type") ResourceDeassociationActionType type, @NotNull List<SubjectId> subjectIds);
 
     /**
      * Executes the provided bulk action.
@@ -179,5 +180,5 @@ public interface ResourceService extends JAXRSService {
     @Path("bulk")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    BulkActionResult bulk(BulkAction bulkAction);
+    BulkActionResult bulk(@NotNull BulkAction bulkAction);
 }

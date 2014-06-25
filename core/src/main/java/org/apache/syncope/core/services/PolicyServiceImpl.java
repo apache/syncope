@@ -95,6 +95,8 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
 
     @Override
     public <T extends AbstractPolicyTO> void update(final Long policyId, final T policyTO) {
+        policyTO.setId(policyId);
+        
         switch (policyTO.getType()) {
             case ACCOUNT:
             case GLOBAL_ACCOUNT:
