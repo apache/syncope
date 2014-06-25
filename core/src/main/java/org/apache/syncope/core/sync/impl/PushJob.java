@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.sync.impl;
 
+import org.apache.syncope.core.sync.SyncProfile;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -87,18 +88,29 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
 
         final Set<Long> authorizations = EntitlementUtil.getRoleIds(entitlementDAO.findAll());
 
-        final SyncopePushResultHandler handler =
-                (SyncopePushResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
-                getApplicationContext().getBeanFactory()).createBean(
-                        SyncopePushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-        handler.setConnector(connector);
-        handler.setDryRun(dryRun);
-        handler.setResults(results);
-        handler.setSyncTask(pushTask);
-        handler.setActions(actions);
+        final SyncProfile<PushTask, PushActions> profile =
+                new SyncProfile<PushTask, PushActions>(connector, pushTask);
+        profile.setActions(actions);
+        profile.setDryRun(dryRun);
+        profile.setResAct(syncPolicySpec.getConflictResolutionAction());
+        profile.setResults(results);
 
-        for (PushActions action : actions) {
-            action.beforeAll(handler);
+        final UserPushResultHandler uhandler =
+                (UserPushResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
+                getApplicationContext().getBeanFactory()).createBean(
+                UserPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        uhandler.setProfile(profile);
+
+        final RolePushResultHandler rhandler =
+                (RolePushResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
+                getApplicationContext().getBeanFactory()).createBean(
+                RolePushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        rhandler.setProfile(profile);
+
+        if (!profile.isDryRun()) {
+            for (PushActions action : actions) {
+                action.beforeAll(profile);
+            }
         }
 
         if (uMapping != null) {
@@ -109,7 +121,7 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
                 for (SyncopeUser localUser : localUsers) {
                     try {
                         // user propagation
-                        handler.handle(localUser);
+                        uhandler.handle(localUser);
                     } catch (Exception e) {
                         LOG.warn("Failure pushing user '{}' on '{}'", localUser, pushTask.getResource());
                         if (!continueOnError()) {
@@ -126,7 +138,7 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
             for (SyncopeRole localRole : localRoles) {
                 try {
                     // role propagation
-                    handler.handle(localRole);
+                    rhandler.handle(localRole);
                 } catch (Exception e) {
                     LOG.warn("Failure pushing role '{}' on '{}'", localRole, pushTask.getResource());
                     if (!continueOnError()) {
@@ -136,8 +148,10 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
             }
         }
 
-        for (PushActions action : actions) {
-            action.afterAll(handler, results);
+        if (!profile.isDryRun()) {
+            for (PushActions action : actions) {
+                action.afterAll(profile, results);
+            }
         }
 
         final String result = createReport(results, pushTask.getResource().getSyncTraceLevel(), dryRun);

@@ -18,20 +18,16 @@
  */
 package org.apache.syncope.core.sync.impl;
 
-import java.util.Collection;
-import java.util.List;
-import org.apache.syncope.common.types.ConflictResolutionAction;
+import org.apache.syncope.core.sync.SyncProfile;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
-import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.rest.controller.RoleController;
 import org.apache.syncope.core.rest.controller.UserController;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.sync.AbstractSyncActions;
-import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.slf4j.Logger;
@@ -45,13 +41,12 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSyncopeResultHandler.class);
 
-    
     @Autowired
     protected UserController userController;
 
     @Autowired
     protected RoleController roleController;
-    
+
     /**
      * User data binder.
      */
@@ -95,65 +90,16 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
     protected RoleWorkflowAdapter rwfAdapter;
 
     /**
-     * Syncing connector.
+     * Sync profile.
      */
-    protected Connector connector;
+    protected SyncProfile<T, A> profile;
 
-    protected Collection<SyncResult> results;
-
-    protected boolean dryRun;
-
-    protected ConflictResolutionAction resAct;
-
-    protected List<A> actions;
-
-    protected T syncTask;
-
-    public List<A> getActions() {
-        return actions;
+    public void setProfile(
+            SyncProfile<T, A> profile) {
+        this.profile = profile;
     }
 
-    public void setActions(final List<A> actions) {
-        this.actions = actions;
-    }
-
-    public T getSyncTask() {
-        return syncTask;
-    }
-
-    public void setSyncTask(T syncTask) {
-        this.syncTask = syncTask;
-    }
-
-    public Connector getConnector() {
-        return connector;
-    }
-
-    public void setConnector(final Connector connector) {
-        this.connector = connector;
-    }
-
-    public Collection<SyncResult> getResults() {
-        return results;
-    }
-
-    public void setResults(final Collection<SyncResult> results) {
-        this.results = results;
-    }
-
-    public boolean isDryRun() {
-        return dryRun;
-    }
-
-    public void setDryRun(final boolean dryRun) {
-        this.dryRun = dryRun;
-    }
-
-    public ConflictResolutionAction getResAct() {
-        return resAct;
-    }
-
-    public void setResAct(final ConflictResolutionAction resAct) {
-        this.resAct = resAct;
+    public SyncProfile<T, A> getProfile() {
+        return profile;
     }
 }

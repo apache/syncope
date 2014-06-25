@@ -30,7 +30,7 @@ public interface AbstractSyncActions<T extends AbstractSyncopeResultHandler<?, ?
      * @param handler synchronization handler being executed.
      * @throws JobExecutionException in case of generic failure.
      */
-    void beforeAll(final T handler) throws JobExecutionException;
+    void beforeAll(final SyncProfile<?, ?> profile) throws JobExecutionException;
 
     /**
      * Action to be executed after the synchronization task completion.
@@ -39,5 +39,5 @@ public interface AbstractSyncActions<T extends AbstractSyncopeResultHandler<?, ?
      * @param results synchronization result
      * @throws JobExecutionException in case of generic failure
      */
-    void afterAll(final T handler, final List<SyncResult> results) throws JobExecutionException;
+    void afterAll(final SyncProfile<?, ?> profile, final List<SyncResult> results) throws JobExecutionException;
 }

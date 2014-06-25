@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.sync.impl;
 
+import org.apache.syncope.core.sync.SyncProfile;
 import java.util.Iterator;
 
 import org.apache.syncope.common.to.AbstractAttributableTO;
@@ -58,16 +59,16 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
     @Transactional(readOnly = true)
     @Override
     public <T extends AbstractAttributableTO> SyncDelta beforeCreate(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject) throws JobExecutionException {
 
         if (subject instanceof UserTO) {
             String password = ((UserTO) subject).getPassword();
             if (password != null) {
-                Connector connector = handler.getConnector();
+                Connector connector = profile.getConnector();
                 ConnInstance connInstance = connector.getActiveConnInstance();
-                
+
                 String cipherAlgorithm = getCipherAlgorithm(connInstance);
                 if (!CLEARTEXT.equals(cipherAlgorithm)) {
                     try {
@@ -83,7 +84,7 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
 
         return delta;
     }
-    
+
     private String getCipherAlgorithm(ConnInstance connInstance) {
         String cipherAlgorithm = CLEARTEXT;
         for (Iterator<ConnConfProperty> propertyIterator = connInstance.getConfiguration().iterator();
@@ -102,7 +103,7 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
     @Transactional(readOnly = true)
     @Override
     public <T extends AbstractAttributableTO> void after(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject,
             final SyncResult result) throws JobExecutionException {
@@ -116,5 +117,4 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
             cipher = null;
         }
     }
-
 }

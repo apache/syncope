@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.sync.impl;
 
+import org.apache.syncope.core.sync.SyncProfile;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.CipherAlgorithm;
@@ -52,7 +53,7 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
     @Transactional(readOnly = true)
     @Override
     public <T extends AbstractAttributableTO> SyncDelta beforeCreate(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject) throws JobExecutionException {
 
@@ -80,7 +81,7 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
     @Transactional(readOnly = true)
     @Override
     public <T extends AbstractAttributableTO> void after(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject,
             final SyncResult result) throws JobExecutionException {
@@ -98,5 +99,4 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
             cipher = null;
         }
     }
-
 }

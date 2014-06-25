@@ -89,6 +89,8 @@ under the License.
   <bean id="connectorFacadeProxy" class="org.apache.syncope.core.propagation.impl.ConnectorFacadeProxy" scope="prototype"/>
   <bean id="asyncConnFacade" class="org.apache.syncope.core.propagation.impl.AsyncConnectorFacade" scope="singleton"/>
 
+  <bean id="syncUtilities" class="org.apache.syncope.core.sync.SyncUtilities"/>
+  
   <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
     <property name="defaultEncoding" value="${smtpEncoding}"/>
     <property name="host" value="${smtpHost}"/>

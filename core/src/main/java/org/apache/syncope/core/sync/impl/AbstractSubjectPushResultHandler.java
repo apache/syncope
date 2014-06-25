@@ -20,7 +20,6 @@ package org.apache.syncope.core.sync.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -47,13 +46,7 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.quartz.JobExecutionException;
 import org.springframework.transaction.annotation.Transactional;
 
-public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions> {
-
-    protected Map<Long, String> roleOwnerMap = new HashMap<Long, String>();
-
-    public Map<Long, String> getRoleOwnerMap() {
-        return roleOwnerMap;
-    }
+public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions> {
 
     @Transactional
     public boolean handle(final AbstractSubject subject) {
@@ -69,26 +62,27 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
     protected final void doHandle(final AbstractSubject subject)
             throws JobExecutionException {
 
-        if (results == null) {
-            results = new ArrayList<SyncResult>();
+        if (profile.getResults() == null) {
+            profile.setResults(new ArrayList<SyncResult>());
         }
 
         final AttributableUtil attrUtil = AttributableUtil.getInstance(subject);
 
         final SyncResult result = new SyncResult();
-        results.add(result);
+        profile.getResults().add(result);
 
         result.setId(subject.getId());
         result.setSubjectType(attrUtil.getType());
 
         final AbstractSubjectController<?, ?> controller;
         final AbstractSubject toBeHandled;
+
         final Boolean enabled;
 
         if (attrUtil.getType() == AttributableType.USER) {
             toBeHandled = userDataBinder.getUserFromId(subject.getId());
             result.setName(((SyncopeUser) toBeHandled).getUsername());
-            enabled = getSyncTask().isSyncStatus()
+            enabled = profile.getSyncTask().isSyncStatus()
                     ? ((SyncopeUser) toBeHandled).isSuspended() ? Boolean.FALSE : Boolean.TRUE
                     : null;
             controller = userController;
@@ -100,7 +94,7 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
         }
 
         LOG.debug("Propagating {} with ID {} towards {}",
-                attrUtil.getType(), toBeHandled.getId(), getSyncTask().getResource());
+                attrUtil.getType(), toBeHandled.getId(), profile.getSyncTask().getResource());
 
         Object output = null;
         Result resultStatus = null;
@@ -120,100 +114,106 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
                     null, // no membership vir attrs to be removed
                     null, // propagate current membership vir attr values
                     enabled, // propagate status (suspended or not) if required
-                    getSyncTask().getResource()); // target external resource
+                    profile.getSyncTask().getResource()); // target external resource
 
             final ObjectClass oclass =
                     attrUtil.getType() == AttributableType.USER ? ObjectClass.ACCOUNT : ObjectClass.GROUP;
 
             // Try to read remote object (user / group) BEFORE any actual operation
-            beforeObj = getRemoteObject(oclass, values.getKey(), getSyncTask().getResource().getName());
+            beforeObj = getRemoteObject(oclass, values.getKey(), profile.getSyncTask().getResource().getName());
 
             if (beforeObj == null) {
-                operation = getSyncTask().getUnmatchigRule().name().toLowerCase();
-                switch (getSyncTask().getUnmatchigRule()) {
+                operation = profile.getSyncTask().getUnmatchigRule().name().toLowerCase();
+                switch (profile.getSyncTask().getUnmatchigRule()) {
                     case ASSIGN:
                         result.setOperation(ResourceOperation.CREATE);
-                        for (PushActions action : actions) {
-                            action.beforeAssign(this, values, toBeHandled);
+                        for (PushActions action : profile.getActions()) {
+                            action.beforeAssign(this.getProfile(), values, toBeHandled);
                         }
                         controller.assign(
                                 toBeHandled.getId(),
-                                Collections.singleton(getSyncTask().getResource().getName()), true, null);
+                                Collections.singleton(profile.getSyncTask().getResource().getName()), true, null);
                         break;
                     case PROVISION:
                         result.setOperation(ResourceOperation.CREATE);
-                        for (PushActions action : actions) {
-                            action.beforeProvision(this, values, toBeHandled);
+                        for (PushActions action : profile.getActions()) {
+                            action.beforeProvision(this.getProfile(), values, toBeHandled);
                         }
                         controller.provision(
                                 toBeHandled.getId(),
-                                Collections.singleton(getSyncTask().getResource().getName()), true, null);
+                                Collections.singleton(profile.getSyncTask().getResource().getName()), true, null);
                         break;
                     case UNLINK:
                         result.setOperation(ResourceOperation.NONE);
-                        for (PushActions action : actions) {
-                            action.beforeUnlink(this, values, toBeHandled);
+                        for (PushActions action : profile.getActions()) {
+                            action.beforeUnlink(this.getProfile(), values, toBeHandled);
                         }
                         controller.unlink(
-                                toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
+                                toBeHandled.getId(), Collections.
+                                singleton(profile.getSyncTask().getResource().getName()));
                         break;
                     default:
                     // do nothing
                 }
 
             } else {
-                operation = getSyncTask().getMatchigRule().name().toLowerCase();
-                switch (getSyncTask().getMatchigRule()) {
+                operation = profile.getSyncTask().getMatchigRule().name().toLowerCase();
+                switch (profile.getSyncTask().getMatchigRule()) {
                     case UPDATE:
                         result.setOperation(ResourceOperation.UPDATE);
-                        for (PushActions action : actions) {
-                            action.beforeUpdate(this, values, toBeHandled);
+                        for (PushActions action : profile.getActions()) {
+                            action.beforeUpdate(this.getProfile(), values, toBeHandled);
                         }
 
                         AbstractPropagationTaskExecutor.createOrUpdate(
                                 oclass,
                                 values.getKey(),
                                 values.getValue(),
-                                getSyncTask().getResource().getName(),
-                                getSyncTask().getResource().getPropagationMode(),
+                                profile.getSyncTask().getResource().getName(),
+                                profile.getSyncTask().getResource().getPropagationMode(),
                                 beforeObj,
-                                connector,
+                                profile.getConnector(),
                                 new HashSet<String>(),
                                 connObjectUtil);
                         break;
                     case DEPROVISION:
                         result.setOperation(ResourceOperation.DELETE);
-                        for (PushActions action : actions) {
-                            action.beforeDeprovision(this, values, toBeHandled);
+                        for (PushActions action : profile.getActions()) {
+                            action.beforeDeprovision(this.getProfile(), values, toBeHandled);
                         }
                         controller.deprovision(
-                                toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
+                                toBeHandled.getId(), Collections.
+                                singleton(profile.getSyncTask().getResource().getName()));
                         break;
                     case UNASSIGN:
                         result.setOperation(ResourceOperation.DELETE);
-                        for (PushActions action : actions) {
-                            action.beforeUnassign(this, values, toBeHandled);
+                        for (PushActions action : profile.getActions()) {
+                            action.beforeUnassign(this.getProfile(), values, toBeHandled);
                         }
                         controller.unlink(
-                                toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
+                                toBeHandled.getId(), Collections.
+                                singleton(profile.getSyncTask().getResource().getName()));
                         controller.deprovision(
-                                toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
+                                toBeHandled.getId(), Collections.
+                                singleton(profile.getSyncTask().getResource().getName()));
                         break;
                     case LINK:
                         result.setOperation(ResourceOperation.NONE);
-                        for (PushActions action : actions) {
-                            action.beforeLink(this, values, toBeHandled);
+                        for (PushActions action : profile.getActions()) {
+                            action.beforeLink(this.getProfile(), values, toBeHandled);
                         }
                         controller.link(
-                                toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
+                                toBeHandled.getId(), Collections.
+                                singleton(profile.getSyncTask().getResource().getName()));
                         break;
                     case UNLINK:
                         result.setOperation(ResourceOperation.NONE);
-                        for (PushActions action : actions) {
-                            action.beforeUnlink(this, values, toBeHandled);
+                        for (PushActions action : profile.getActions()) {
+                            action.beforeUnlink(this.getProfile(), values, toBeHandled);
                         }
                         controller.unlink(
-                                toBeHandled.getId(), Collections.singleton(getSyncTask().getResource().getName()));
+                                toBeHandled.getId(), Collections.
+                                singleton(profile.getSyncTask().getResource().getName()));
                         break;
                     default:
                     // do nothing
@@ -222,23 +222,23 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
 
             result.setStatus(SyncResult.Status.SUCCESS);
             resultStatus = AuditElements.Result.SUCCESS;
-            output = getRemoteObject(oclass, values.getKey(), getSyncTask().getResource().getName());
+            output = getRemoteObject(oclass, values.getKey(), profile.getSyncTask().getResource().getName());
         } catch (Exception e) {
             result.setStatus(SyncResult.Status.FAILURE);
             result.setMessage(e.getMessage());
             resultStatus = AuditElements.Result.FAILURE;
             output = e;
 
-            LOG.warn("Error pushing {} towards {}", toBeHandled, getSyncTask().getResource(), e);
+            LOG.warn("Error pushing {} towards {}", toBeHandled, profile.getSyncTask().getResource(), e);
             throw new JobExecutionException(e);
         } finally {
-            for (PushActions action : actions) {
-                action.after(this, values, toBeHandled, result);
+            for (PushActions action : profile.getActions()) {
+                action.after(this.getProfile(), values, toBeHandled, result);
             }
             notificationManager.createTasks(
                     AuditElements.EventCategoryType.PUSH,
                     AttributableType.USER.name().toLowerCase(),
-                    syncTask.getResource().getName(),
+                    profile.getSyncTask().getResource().getName(),
                     operation,
                     resultStatus,
                     beforeObj,
@@ -247,7 +247,7 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
             auditManager.audit(
                     AuditElements.EventCategoryType.PUSH,
                     AttributableType.USER.name().toLowerCase(),
-                    syncTask.getResource().getName(),
+                    profile.getSyncTask().getResource().getName(),
                     operation,
                     resultStatus,
                     beforeObj,
@@ -264,8 +264,10 @@ public class SyncopePushResultHandler extends AbstractSyncopeResultHandler<PushT
 
             final Uid uid = new Uid(accountId);
 
-            connector.getObject(
-                    oclass, uid, connector.getOperationOptions(Collections.<AbstractMappingItem>emptySet()));
+            profile.getConnector().getObject(
+                    oclass,
+                    uid,
+                    profile.getConnector().getOperationOptions(Collections.<AbstractMappingItem>emptySet()));
 
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);

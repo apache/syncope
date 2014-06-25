@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.sync.impl;
 
+import org.apache.syncope.core.sync.SyncProfile;
+import org.apache.syncope.core.sync.SyncUtilities;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,6 +36,7 @@ import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.notification.NotificationManager;
+import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
@@ -87,6 +90,9 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     @Autowired
     private AuditManager auditManager;
 
+    @Autowired
+    private SyncUtilities syncUtilities;
+
     protected Map<Long, Long> membersBeforeRoleUpdate = Collections.<Long, Long>emptyMap();
 
     /**
@@ -121,7 +127,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     @Transactional(readOnly = true)
     @Override
     public <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject,
             final K subjectMod) throws JobExecutionException {
@@ -139,7 +145,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
             }
         }
 
-        return super.beforeUpdate(handler, delta, subject, subjectMod);
+        return super.beforeUpdate(profile, delta, subject, subjectMod);
     }
 
     /**
@@ -255,15 +261,18 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * @param roleTO role after modification performed by the handler
      * @throws JobExecutionException if anything goes wrong
      */
-    protected void synchronizeMemberships(final SyncopeSyncResultHandler handler, final SyncDelta delta,
-            final RoleTO roleTO) throws JobExecutionException {
-
-        final SyncTask task = handler.getSyncTask();
+    protected void synchronizeMemberships(
+            final SyncProfile<?, ?> profile, final SyncDelta delta, final RoleTO roleTO) throws JobExecutionException {
+        final AbstractSyncTask task = profile.getSyncTask();
         final ExternalResource resource = task.getResource();
-        final Connector connector = handler.getConnector();
+        final Connector connector = profile.getConnector();
 
         for (Object membValue : getMembAttrValues(delta, connector)) {
-            Long userId = handler.findMatchingAttributableId(ObjectClass.ACCOUNT, membValue.toString());
+            Long userId = syncUtilities.findMatchingAttributableId(
+                    ObjectClass.ACCOUNT,
+                    membValue.toString(),
+                    profile.getSyncTask().getResource(),
+                    profile.getConnector());
             if (userId != null) {
                 UserMod userMod = getUserMod(userId, roleTO);
                 userUpdate(userMod, resource.getName());
@@ -285,20 +294,19 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      */
     @Override
     public <T extends AbstractAttributableTO> void after(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject,
             final SyncResult result) throws JobExecutionException {
 
-        if (!(handler instanceof SyncopeSyncResultHandler)) {
+        if (!(profile.getSyncTask() instanceof SyncTask)) {
             return;
         }
 
-        SyncopeSyncResultHandler intHandler = (SyncopeSyncResultHandler) handler;
-        if (!(subject instanceof RoleTO) || intHandler.getSyncTask().getResource().getUmapping() == null) {
-            super.after(handler, delta, subject, result);
+        if (!(subject instanceof RoleTO) || profile.getSyncTask().getResource().getUmapping() == null) {
+            super.after(profile, delta, subject, result);
         } else {
-            synchronizeMemberships(intHandler, delta, (RoleTO) subject);
+            synchronizeMemberships(profile, delta, (RoleTO) subject);
         }
     }
 }

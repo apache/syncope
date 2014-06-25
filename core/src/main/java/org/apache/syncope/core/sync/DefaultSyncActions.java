@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
-import org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 
@@ -32,12 +31,12 @@ import org.quartz.JobExecutionException;
 public abstract class DefaultSyncActions implements SyncActions {
 
     @Override
-    public void beforeAll(final AbstractSyncopeResultHandler<?, ?> handler) throws JobExecutionException {
+    public void beforeAll(final SyncProfile<?, ?> profile) throws JobExecutionException {
     }
 
     @Override
     public <T extends AbstractAttributableTO> SyncDelta beforeCreate(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject) throws JobExecutionException {
 
@@ -46,7 +45,7 @@ public abstract class DefaultSyncActions implements SyncActions {
 
     @Override
     public <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject,
             final K subjectMod)
@@ -57,7 +56,7 @@ public abstract class DefaultSyncActions implements SyncActions {
 
     @Override
     public <T extends AbstractAttributableTO> SyncDelta beforeDelete(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject) throws JobExecutionException {
 
@@ -66,7 +65,7 @@ public abstract class DefaultSyncActions implements SyncActions {
 
     @Override
     public <T extends AbstractAttributableTO> void after(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject,
             final SyncResult result) throws JobExecutionException {
@@ -74,7 +73,7 @@ public abstract class DefaultSyncActions implements SyncActions {
 
     @Override
     public <T extends AbstractAttributableTO> SyncDelta beforeAssign(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject) throws JobExecutionException {
 
@@ -83,7 +82,7 @@ public abstract class DefaultSyncActions implements SyncActions {
 
     @Override
     public <T extends AbstractAttributableTO> SyncDelta beforeUnassign(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject) throws JobExecutionException {
 
@@ -92,7 +91,7 @@ public abstract class DefaultSyncActions implements SyncActions {
 
     @Override
     public <T extends AbstractAttributableTO> SyncDelta beforeDeprovision(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject) throws JobExecutionException {
 
@@ -101,7 +100,7 @@ public abstract class DefaultSyncActions implements SyncActions {
 
     @Override
     public <T extends AbstractAttributableTO> SyncDelta beforeUnlink(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject) throws JobExecutionException {
 
@@ -110,7 +109,7 @@ public abstract class DefaultSyncActions implements SyncActions {
 
     @Override
     public <T extends AbstractAttributableTO> SyncDelta beforeLink(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject) throws JobExecutionException {
 
@@ -119,7 +118,7 @@ public abstract class DefaultSyncActions implements SyncActions {
 
     @Override
     public void afterAll(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final List<SyncResult> results)
             throws JobExecutionException {
     }

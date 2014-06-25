@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.sync.impl;
 
+import org.apache.syncope.core.sync.SyncProfile;
+import org.apache.syncope.core.sync.SyncUtilities;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,10 +59,13 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
     @Autowired
     private RoleWorkflowAdapter rwfAdapter;
 
-    protected void setRoleOwners(final SyncopeSyncResultHandler handler)
+    @Autowired
+    protected SyncUtilities syncUtilities;
+
+    protected void setRoleOwners(final RoleSyncResultHandler rhandler)
             throws UnauthorizedRoleException, NotFoundException {
 
-        for (Map.Entry<Long, String> entry : handler.getRoleOwnerMap().entrySet()) {
+        for (Map.Entry<Long, String> entry : rhandler.getRoleOwnerMap().entrySet()) {
             RoleMod roleMod = new RoleMod();
             roleMod.setId(entry.getKey());
 
@@ -68,9 +73,19 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
                 roleMod.setRoleOwner(null);
                 roleMod.setUserOwner(null);
             } else {
-                Long userId = handler.findMatchingAttributableId(ObjectClass.ACCOUNT, entry.getValue());
+                Long userId = syncUtilities.findMatchingAttributableId(
+                        ObjectClass.ACCOUNT,
+                        entry.getValue(),
+                        rhandler.getProfile().getSyncTask().getResource(),
+                        rhandler.getProfile().getConnector());
+
                 if (userId == null) {
-                    Long roleId = handler.findMatchingAttributableId(ObjectClass.GROUP, entry.getValue());
+                    Long roleId = syncUtilities.findMatchingAttributableId(
+                            ObjectClass.GROUP,
+                            entry.getValue(),
+                            rhandler.getProfile().getSyncTask().getResource(),
+                            rhandler.getProfile().getConnector());
+
                     if (roleId != null) {
                         roleMod.setRoleOwner(new ReferenceMod(roleId));
                     }
@@ -95,21 +110,33 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
 
         final List<SyncResult> results = new ArrayList<SyncResult>();
 
-        // Prepare handler for SyncDelta objects
-        final SyncopeSyncResultHandler handler =
-                (SyncopeSyncResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
-                getApplicationContext().getBeanFactory()).createBean(
-                        SyncopeSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-        handler.setConnector(connector);
-        handler.setActions(actions);
-        handler.setDryRun(dryRun);
-        handler.setResAct(syncPolicySpec.getConflictResolutionAction());
-        handler.setResults(results);
-        handler.setSyncTask(syncTask);
+        final SyncProfile<SyncTask, SyncActions> profile =
+                new SyncProfile<SyncTask, SyncActions>(connector, syncTask);
+        profile.setActions(actions);
+        profile.setDryRun(dryRun);
+        profile.setResAct(syncPolicySpec.getConflictResolutionAction());
+        profile.setResults(results);
 
-        for (SyncActions action : actions) {
-            action.beforeAll(handler);
+        // Prepare handler for SyncDelta objects (users)
+        final UserSyncResultHandler uhandler =
+                (UserSyncResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
+                getApplicationContext().getBeanFactory()).createBean(
+                UserSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        uhandler.setProfile(profile);
+
+        // Prepare handler for SyncDelta objects (roles/groups)
+        final RoleSyncResultHandler rhandler =
+                (RoleSyncResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
+                getApplicationContext().getBeanFactory()).createBean(
+                RoleSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        rhandler.setProfile(profile);
+
+        if (!profile.isDryRun()) {
+            for (SyncActions action : actions) {
+                action.beforeAll(profile);
+            }
         }
+
         try {
             SyncToken latestUSyncToken = null;
             if (uMapping != null && !syncTask.isFullReconciliation()) {
@@ -122,20 +149,20 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
 
             if (syncTask.isFullReconciliation()) {
                 if (uMapping != null) {
-                    connector.getAllObjects(ObjectClass.ACCOUNT, handler,
+                    connector.getAllObjects(ObjectClass.ACCOUNT, uhandler,
                             connector.getOperationOptions(uMapping.getItems()));
                 }
                 if (rMapping != null) {
-                    connector.getAllObjects(ObjectClass.GROUP, handler,
+                    connector.getAllObjects(ObjectClass.GROUP, rhandler,
                             connector.getOperationOptions(rMapping.getItems()));
                 }
             } else {
                 if (uMapping != null) {
-                    connector.sync(ObjectClass.ACCOUNT, syncTask.getResource().getUsyncToken(), handler,
+                    connector.sync(ObjectClass.ACCOUNT, syncTask.getResource().getUsyncToken(), uhandler,
                             connector.getOperationOptions(uMapping.getItems()));
                 }
                 if (rMapping != null) {
-                    connector.sync(ObjectClass.GROUP, syncTask.getResource().getRsyncToken(), handler,
+                    connector.sync(ObjectClass.GROUP, syncTask.getResource().getRsyncToken(), rhandler,
                             connector.getOperationOptions(rMapping.getItems()));
                 }
             }
@@ -159,13 +186,15 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
         }
 
         try {
-            setRoleOwners(handler);
+            setRoleOwners(rhandler);
         } catch (Exception e) {
             LOG.error("While setting role owners", e);
         }
 
-        for (SyncActions action : actions) {
-            action.afterAll(handler, results);
+        if (!profile.isDryRun()) {
+            for (SyncActions action : actions) {
+                action.afterAll(profile, results);
+            }
         }
 
         final String result = createReport(results, syncTask.getResource().getSyncTraceLevel(), dryRun);

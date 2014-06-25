@@ -22,7 +22,6 @@ import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
-import org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 
@@ -32,7 +31,7 @@ public class TestSyncActions extends DefaultSyncActions {
 
     @Override
     public <T extends AbstractAttributableTO> SyncDelta beforeCreate(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject) throws JobExecutionException {
 
@@ -55,7 +54,7 @@ public class TestSyncActions extends DefaultSyncActions {
 
     @Override
     public <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject,
             final K subjectMod) throws JobExecutionException {

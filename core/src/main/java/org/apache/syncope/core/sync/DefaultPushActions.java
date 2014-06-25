@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
-import org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.quartz.JobExecutionException;
 
@@ -33,12 +32,12 @@ import org.quartz.JobExecutionException;
 public abstract class DefaultPushActions implements PushActions {
 
     @Override
-    public void beforeAll(final AbstractSyncopeResultHandler<?, ?> handler) throws JobExecutionException {
+    public void beforeAll(final SyncProfile<?, ?> profile) throws JobExecutionException {
     }
 
     @Override
     public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeAssign(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException {
         return delta;
@@ -46,7 +45,7 @@ public abstract class DefaultPushActions implements PushActions {
 
     @Override
     public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeUpdate(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException {
 
@@ -55,7 +54,7 @@ public abstract class DefaultPushActions implements PushActions {
 
     @Override
     public <T extends AbstractAttributable> void after(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final Map.Entry<String, Set<Attribute>> delta,
             final T subject,
             SyncResult result) throws JobExecutionException {
@@ -63,7 +62,7 @@ public abstract class DefaultPushActions implements PushActions {
 
     @Override
     public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeProvision(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException {
         return delta;
@@ -71,7 +70,7 @@ public abstract class DefaultPushActions implements PushActions {
 
     @Override
     public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeLink(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException {
         return delta;
@@ -79,7 +78,7 @@ public abstract class DefaultPushActions implements PushActions {
 
     @Override
     public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeUnlink(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException {
         return delta;
@@ -87,7 +86,7 @@ public abstract class DefaultPushActions implements PushActions {
 
     @Override
     public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeUnassign(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException {
         return delta;
@@ -95,7 +94,7 @@ public abstract class DefaultPushActions implements PushActions {
 
     @Override
     public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeDeprovision(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException {
         return delta;
@@ -103,7 +102,7 @@ public abstract class DefaultPushActions implements PushActions {
 
     @Override
     public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeDelete(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException {
         return delta;
@@ -111,7 +110,7 @@ public abstract class DefaultPushActions implements PushActions {
 
     @Override
     public void afterAll(
-            final AbstractSyncopeResultHandler<?, ?> handler,
+            final SyncProfile<?, ?> profile,
             final List<SyncResult> results)
             throws JobExecutionException {
     }
