@@ -1522,10 +1522,10 @@ under the License.
                     <links>
                       <link>http://docs.oracle.com/javaee/6/api/</link>
                       <link>http://www.slf4j.org/api/</link>
-                      <link>http://tirasa.github.com/ConnId/apidocs/base/</link>
+                      <link>http://connid.tirasa.net/apidocs/base/</link>
                       <link>http://ci.apache.org/projects/wicket/apidocs/6.0.x/</link>
-                      <link>http://static.springsource.org/spring/docs/3.2.x/javadoc-api/</link>
-                      <link>http://static.springsource.org/spring-security/site/docs/3.1.x/apidocs/</link>
+                      <link>http://docs.spring.io/spring/docs/4.0.x/javadoc-api/</link>
+                      <link>http://docs.spring.io/spring-security/site/docs/3.2.x/apidocs/</link>
                       <link>http://activiti.org/javadocs/</link>
                     </links>
                   </configuration>
