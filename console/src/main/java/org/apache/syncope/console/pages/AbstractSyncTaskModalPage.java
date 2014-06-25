@@ -53,6 +53,10 @@ public abstract class AbstractSyncTaskModalPage extends AbstractSchedTaskModalPa
 
     private static final long serialVersionUID = 2148403203517274669L;
 
+    protected AjaxDropDownChoicePanel<MatchingRule> matchingRule;
+
+    protected AjaxDropDownChoicePanel<UnmatchingRule> unmatchingRule;
+
     public AbstractSyncTaskModalPage(final ModalWindow window, final AbstractSyncTaskTO taskTO,
             final PageReference pageRef) {
 
@@ -77,7 +81,7 @@ public abstract class AbstractSyncTaskModalPage extends AbstractSchedTaskModalPa
         final AjaxDropDownChoicePanel<String> resource = new AjaxDropDownChoicePanel<String>("resource",
                 getString("resourceName"), new PropertyModel<String>(taskTO, "resource"));
         resource.setChoices(allResources.getObject());
-        resource.setChoiceRenderer(new SelectChoiceRenderer());
+        resource.setChoiceRenderer(new SelectChoiceRenderer<String>());
         resource.addRequiredLabel();
         resource.setEnabled(taskTO.getId() == 0);
         resource.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
@@ -180,22 +184,14 @@ public abstract class AbstractSyncTaskModalPage extends AbstractSchedTaskModalPa
                 new PropertyModel<Boolean>(taskTO, "syncStatus"));
         profile.add(syncStatus);
 
-        final AjaxDropDownChoicePanel<MatchingRule> matchingRule = new AjaxDropDownChoicePanel<MatchingRule>(
+        matchingRule = new AjaxDropDownChoicePanel<MatchingRule>(
                 "matchingRule", "matchingRule", new PropertyModel<MatchingRule>(taskTO, "matchigRule"));
         matchingRule.setChoices(Arrays.asList(MatchingRule.values()));
         ((DropDownChoice) matchingRule.getField()).setNullValid(false);
-        ((DropDownChoice) matchingRule.getField()).setDefaultModelObject(taskTO.getMatchigRule() == null
-                ? MatchingRule.UPDATE
-                : taskTO.getMatchigRule());
-        profile.add(matchingRule);
 
-        final AjaxDropDownChoicePanel<UnmatchingRule> unmatchingRule = new AjaxDropDownChoicePanel<UnmatchingRule>(
+        unmatchingRule = new AjaxDropDownChoicePanel<UnmatchingRule>(
                 "unmatchingRule", "unmatchingRule", new PropertyModel<UnmatchingRule>(taskTO, "unmatchigRule"));
         unmatchingRule.setChoices(Arrays.asList(UnmatchingRule.values()));
         ((DropDownChoice) unmatchingRule.getField()).setNullValid(false);
-        ((DropDownChoice) unmatchingRule.getField()).setDefaultModelObject(taskTO.getUnmatchigRule() == null
-                ? UnmatchingRule.ASSIGN
-                : taskTO.getUnmatchigRule());
-        profile.add(unmatchingRule);
     }
 }

@@ -20,9 +20,12 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
+import org.apache.syncope.common.types.MatchingRule;
+import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.model.PropertyModel;
 
 /**
@@ -35,6 +38,18 @@ public class SyncTaskModalPage extends AbstractSyncTaskModalPage {
     public SyncTaskModalPage(final ModalWindow window, final SyncTaskTO taskTO, final PageReference pageRef) {
 
         super(window, taskTO, pageRef);
+
+        // set default Matching rule
+        ((DropDownChoice) matchingRule.getField()).setDefaultModelObject(taskTO.getMatchigRule() == null
+                ? MatchingRule.UPDATE
+                : taskTO.getMatchigRule());
+        profile.add(matchingRule);
+
+        // set default Unmatching rule
+        ((DropDownChoice) unmatchingRule.getField()).setDefaultModelObject(taskTO.getUnmatchigRule() == null
+                ? UnmatchingRule.PROVISION
+                : taskTO.getUnmatchigRule());
+        profile.add(unmatchingRule);
 
         final AjaxCheckBoxPanel fullReconciliation = new AjaxCheckBoxPanel("fullReconciliation",
                 getString("fullReconciliation"), new PropertyModel<Boolean>(taskTO, "fullReconciliation"));

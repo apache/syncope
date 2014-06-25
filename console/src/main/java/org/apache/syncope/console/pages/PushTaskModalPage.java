@@ -18,18 +18,24 @@
  */
 package org.apache.syncope.console.pages;
 
+import java.util.Arrays;
 import org.apache.syncope.common.to.PushTaskTO;
 import org.apache.syncope.common.to.SchedTaskTO;
+import org.apache.syncope.common.types.MatchingRule;
+import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.RoleSearchPanel;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 
 /**
  * Modal window with Push Task form.
@@ -38,17 +44,29 @@ public class PushTaskModalPage extends AbstractSyncTaskModalPage {
 
     private static final long serialVersionUID = 2148403203517274669L;
 
-    final UserSearchPanel userFilter;
+    private final UserSearchPanel userFilter;
 
-    final RoleSearchPanel roleFilter;
+    private final RoleSearchPanel roleFilter;
 
-    final AjaxCheckBoxPanel checkUserFilter;
+    private final AjaxCheckBoxPanel checkUserFilter;
 
-    final AjaxCheckBoxPanel checkRoleFilter;
+    private final AjaxCheckBoxPanel checkRoleFilter;
 
     public PushTaskModalPage(final ModalWindow window, final PushTaskTO taskTO, final PageReference pageRef) {
 
         super(window, taskTO, pageRef);
+
+        // set default Matching rule
+        ((DropDownChoice) matchingRule.getField()).setDefaultModelObject(taskTO.getMatchigRule() == null
+                ? MatchingRule.UPDATE
+                : taskTO.getMatchigRule());
+        profile.add(matchingRule);
+
+        // set default Unmatching rule
+        ((DropDownChoice) unmatchingRule.getField()).setDefaultModelObject(taskTO.getUnmatchigRule() == null
+                ? UnmatchingRule.ASSIGN
+                : taskTO.getUnmatchigRule());
+        profile.add(unmatchingRule);
 
         final WebMarkupContainer filterContainer = new WebMarkupContainer("filterContainer");
         filterContainer.setOutputMarkupId(true);
