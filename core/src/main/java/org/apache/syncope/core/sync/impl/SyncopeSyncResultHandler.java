@@ -26,7 +26,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -475,7 +476,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
 
         final List<ConnectorObject> found = connector.search(objectClass,
                 new EqualsFilter(new Name(name)), connector.getOperationOptions(
-                attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
+                        attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", objectClass, syncTask.getResource(), name);
@@ -593,7 +594,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 resultStatus = Result.FAILURE;
             } catch (Exception e) {
                 result.setStatus(SyncResult.Status.FAILURE);
-                result.setMessage(e.getMessage());
+                result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                 LOG.error("Could not create {} {} ", attrUtil.getType(), delta.getUid().getUidValue(), e);
                 output = e;
                 resultStatus = Result.FAILURE;
@@ -650,7 +651,8 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", id, e);
 
             result.setStatus(SyncResult.Status.FAILURE);
-            result.setMessage("Update failed, trying to sync status anyway (if configured)\n" + e.getMessage());
+            result.setMessage("Update failed, trying to sync status anyway (if configured)\n"
+                    + ExceptionUtils.getRootCauseMessage(e));
 
             updated = new WorkflowResult<Map.Entry<Long, Boolean>>(
                     new AbstractMap.SimpleEntry<Long, Boolean>(id, false), new PropagationByResource(),
@@ -789,7 +791,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                 resultStatus = Result.FAILURE;
             } catch (Exception e) {
                 result.setStatus(SyncResult.Status.FAILURE);
-                result.setMessage(e.getMessage());
+                result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                 LOG.error("Could not update {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
                 output = e;
                 resultStatus = Result.FAILURE;
@@ -886,7 +888,7 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
                         resultStatus = Result.SUCCESS;
                     } catch (Exception e) {
                         result.setStatus(SyncResult.Status.FAILURE);
-                        result.setMessage(e.getMessage());
+                        result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                         LOG.error("Could not delete {} {}", attrUtil.getType(), id, e);
                         output = e;
                     }
