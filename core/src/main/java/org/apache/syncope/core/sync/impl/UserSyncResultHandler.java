@@ -19,11 +19,13 @@
 package org.apache.syncope.core.sync.impl;
 
 import static org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler.LOG;
+
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.mod.AbstractSubjectMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.AbstractSubjectTO;
@@ -107,7 +109,8 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
             LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", before.getId(), e);
 
             result.setStatus(SyncResult.Status.FAILURE);
-            result.setMessage("Update failed, trying to sync status anyway (if configured)\n" + e.getMessage());
+            result.setMessage("Update failed, trying to sync status anyway (if configured)\n"
+                    + ExceptionUtils.getRootCauseMessage(e));
 
             updated = new WorkflowResult<Map.Entry<UserMod, Boolean>>(
                     new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, false), new PropagationByResource(),

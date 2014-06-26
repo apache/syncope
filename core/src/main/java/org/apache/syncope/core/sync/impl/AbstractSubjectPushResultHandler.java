@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
@@ -225,7 +226,7 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
             output = getRemoteObject(oclass, values.getKey(), profile.getSyncTask().getResource().getName());
         } catch (Exception e) {
             result.setStatus(SyncResult.Status.FAILURE);
-            result.setMessage(e.getMessage());
+            result.setMessage(ExceptionUtils.getRootCauseMessage(e));
             resultStatus = AuditElements.Result.FAILURE;
             output = e;
 

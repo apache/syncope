@@ -19,12 +19,14 @@
 package org.apache.syncope.core.sync.impl;
 
 import org.apache.syncope.core.sync.SyncUtilities;
+
 import static org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler.LOG;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.mod.AbstractSubjectMod;
 import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.RoleTO;
@@ -183,7 +185,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                 resultStatus = Result.FAILURE;
             } catch (Exception e) {
                 result.setStatus(SyncResult.Status.FAILURE);
-                result.setMessage(e.getMessage());
+                result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                 LOG.error("Could not create {} {} ", attrUtil.getType(), _delta.getUid().getUidValue(), e);
                 output = e;
                 resultStatus = Result.FAILURE;
@@ -278,7 +280,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                 resultStatus = Result.FAILURE;
             } catch (Exception e) {
                 result.setStatus(SyncResult.Status.FAILURE);
-                result.setMessage(e.getMessage());
+                result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                 LOG.error("Could not update {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
                 output = e;
                 resultStatus = Result.FAILURE;
@@ -387,7 +389,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                 resultStatus = Result.FAILURE;
             } catch (Exception e) {
                 result.setStatus(SyncResult.Status.FAILURE);
-                result.setMessage(e.getMessage());
+                result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                 LOG.error("Could not update {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
                 output = e;
                 resultStatus = Result.FAILURE;
@@ -495,7 +497,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                 resultStatus = Result.FAILURE;
             } catch (Exception e) {
                 result.setStatus(SyncResult.Status.FAILURE);
-                result.setMessage(e.getMessage());
+                result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                 LOG.error("Could not update {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
                 output = e;
                 resultStatus = Result.FAILURE;
@@ -575,7 +577,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                         resultStatus = Result.SUCCESS;
                     } catch (Exception e) {
                         result.setStatus(SyncResult.Status.FAILURE);
-                        result.setMessage(e.getMessage());
+                        result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                         LOG.error("Could not delete {} {}", attrUtil.getType(), id, e);
                         output = e;
                     }

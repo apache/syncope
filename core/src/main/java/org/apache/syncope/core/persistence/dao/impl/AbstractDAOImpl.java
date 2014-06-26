@@ -24,8 +24,7 @@ import javax.persistence.CacheStoreMode;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.beans.AbstractBaseBean;
 import org.apache.syncope.core.persistence.dao.DAO;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;

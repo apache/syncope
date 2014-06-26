@@ -21,7 +21,6 @@ package org.apache.syncope.core.notification;
 import java.util.Date;
 
 import javax.mail.internet.MimeMessage;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
