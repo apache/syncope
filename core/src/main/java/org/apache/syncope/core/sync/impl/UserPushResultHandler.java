@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.sync.impl;
 
-import static org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler.LOG;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -49,9 +48,9 @@ public class UserPushResultHandler extends AbstractSubjectPushResultHandler {
         final List<String> noPropResources = new ArrayList<String>(before.getResources());
         noPropResources.remove(profile.getSyncTask().getResource().getName());
 
-        taskExecutor.execute(propagationManager.getUserDeleteTaskIds(before.getId(), noPropResources));
+        taskExecutor.execute(propagationManager.getUserDeleteTaskIds(before.getId(),
+                Collections.singleton(profile.getSyncTask().getResource().getName()), noPropResources));
 
-        result.setId(before.getId());
         return userDataBinder.getUserFromId(before.getId());
     }
 
@@ -74,7 +73,6 @@ public class UserPushResultHandler extends AbstractSubjectPushResultHandler {
                 Collections.unmodifiableCollection(before.getMemberships()),
                 noPropResources));
 
-        result.setId(before.getId());
         return userDataBinder.getUserFromId(before.getId());
     }
 
@@ -93,7 +91,6 @@ public class UserPushResultHandler extends AbstractSubjectPushResultHandler {
 
         uwfAdapter.update(userMod);
 
-        result.setId(sbj.getId());
         return userDataBinder.getUserFromId(sbj.getId());
     }
 
@@ -134,7 +131,6 @@ public class UserPushResultHandler extends AbstractSubjectPushResultHandler {
                 new HashSet<String>(),
                 connObjectUtil);
 
-        result.setId(sbj.getId());
         return userDataBinder.getUserFromId(sbj.getId());
     }
 
@@ -168,10 +164,9 @@ public class UserPushResultHandler extends AbstractSubjectPushResultHandler {
         ConnectorObject obj = null;
 
         try {
-
             final Uid uid = new Uid(accountId);
 
-            profile.getConnector().getObject(
+            obj = profile.getConnector().getObject(
                     ObjectClass.ACCOUNT,
                     uid,
                     profile.getConnector().getOperationOptions(Collections.<AbstractMappingItem>emptySet()));

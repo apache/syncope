@@ -893,7 +893,7 @@ under the License.
   <Task DTYPE="SyncTask" id="12" name="VirAttrCache test" resource_name="resource-csv"
         performCreate="0" performUpdate="1" performDelete="0" syncStatus="0" fullReconciliation="1"
         jobClassName="org.apache.syncope.core.sync.impl.SyncJob"/>
-  <Task DTYPE="PushTask" id="13" name="Export on resource-testdb" resource_name="resource-testdb2"
+  <Task DTYPE="PushTask" id="13" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         jobClassName="org.apache.syncope.core.sync.impl.PushJob"/>
       

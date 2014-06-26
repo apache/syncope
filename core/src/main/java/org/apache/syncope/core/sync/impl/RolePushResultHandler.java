@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.sync.impl;
 
-import static org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler.LOG;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -52,7 +50,6 @@ public class RolePushResultHandler extends AbstractSubjectPushResultHandler {
 
         taskExecutor.execute(propagationManager.getRoleDeleteTaskIds(before.getId(), noPropResources));
 
-        result.setId(before.getId());
         return roleDataBinder.getRoleFromId(before.getId());
     }
 
@@ -72,7 +69,6 @@ public class RolePushResultHandler extends AbstractSubjectPushResultHandler {
                 propByRes,
                 noPropResources));
 
-        result.setId(before.getId());
         return roleDataBinder.getRoleFromId(before.getId());
     }
 
@@ -91,7 +87,6 @@ public class RolePushResultHandler extends AbstractSubjectPushResultHandler {
 
         rwfAdapter.update(roleMod);
 
-        result.setId(sbj.getId());
         return roleDataBinder.getRoleFromId(sbj.getId());
     }
 
@@ -132,7 +127,6 @@ public class RolePushResultHandler extends AbstractSubjectPushResultHandler {
                 new HashSet<String>(),
                 connObjectUtil);
 
-        result.setId(sbj.getId());
         return userDataBinder.getUserFromId(sbj.getId());
     }
 
