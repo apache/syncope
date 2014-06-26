@@ -37,7 +37,6 @@ import java.util.List;
 import javax.naming.NamingException;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Response;
-import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
@@ -1393,7 +1392,7 @@ public class UserTestITCase extends AbstractTest {
         final String originalCAValue = defaultCA.getValues().get(0);
         defaultCA.getValues().set(0, "MD5");
         configurationService.set(defaultCA.getSchema(), defaultCA);
-        
+
         AttributeTO newCA = configurationService.read(defaultCA.getSchema());
         assertEquals(defaultCA, newCA);
 
@@ -1410,7 +1409,7 @@ public class UserTestITCase extends AbstractTest {
 
         defaultCA.getValues().set(0, originalCAValue);
         configurationService.set(defaultCA.getSchema(), defaultCA);
-        
+
         AttributeTO oldCA = configurationService.read(defaultCA.getSchema());
         assertEquals(defaultCA, oldCA);
     }
@@ -2183,8 +2182,8 @@ public class UserTestITCase extends AbstractTest {
         try {
             ifMatchService.update(userMod.getId(), userMod);
             fail();
-        } catch (WebServiceException e) {
-            assertTrue(e.getMessage().endsWith(Response.Status.PRECONDITION_FAILED.name()));
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.ConcurrentModification, e.getType());
         }
 
         userTO = userService.read(userTO.getId());

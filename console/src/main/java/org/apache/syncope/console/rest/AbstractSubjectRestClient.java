@@ -25,7 +25,7 @@ import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
-public abstract class AbstractAttributableRestClient extends BaseRestClient {
+public abstract class AbstractSubjectRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 1962529678091410544L;
 
@@ -40,7 +40,7 @@ public abstract class AbstractAttributableRestClient extends BaseRestClient {
 
     public abstract ConnObjectTO getConnectorObject(String resourceName, Long id);
 
-    public abstract AbstractAttributableTO delete(Long id);
+    public abstract AbstractAttributableTO delete(String etag, Long id);
 
-    public abstract BulkActionResult bulkAction(BulkAction action);
+    public abstract void bulkAction(BulkAction action);
 }

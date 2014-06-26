@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -81,7 +82,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
      * @param entity the entity just created
      * @return response to successful <tt>create</tt> request
      */
-    protected Response.ResponseBuilder createResponse(final Object id, final Object entity) {
+    protected Response createResponse(final Object id, final Object entity) {
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(id)).build();
 
         Response.ResponseBuilder builder = Response.
@@ -103,7 +104,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
             builder = builder.header(RESTHeaders.PREFERENCE_APPLIED, getPreference().toString());
         }
 
-        return builder;
+        return builder.build();
     }
 
     /**
@@ -112,7 +113,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
      * @param entity the entity just modified
      * @return response to successful modification request
      */
-    protected Response.ResponseBuilder modificationResponse(final Object entity) {
+    protected Response modificationResponse(final Object entity) {
         Response.ResponseBuilder builder;
         switch (getPreference()) {
             case RETURN_NO_CONTENT:
@@ -129,7 +130,16 @@ abstract class AbstractServiceImpl implements JAXRSService {
             builder = builder.header(RESTHeaders.PREFERENCE_APPLIED, getPreference().toString());
         }
 
-        return builder;
+        return builder.build();
+    }
+
+    protected void checkETag(final String etag) {
+        Response.ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(etag));
+        if (builder != null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.ConcurrentModification);
+            sce.getElements().add("Mismatching ETag value");
+            throw sce;
+        }
     }
 
     protected SearchCond getSearchCond(final String fiql) {
@@ -180,7 +190,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
      * @param page current page
      * @param size requested size
      * @param totalCount total result size (not considering pagination)
-     * @return
+     * @return paged result
      */
     protected <T extends AbstractBaseBean> PagedResult<T> buildPagedResult(
             final List<T> list, final int page, final int size, final int totalCount) {

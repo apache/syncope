@@ -260,7 +260,9 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                 public void onClick(final AjaxRequestTarget target) {
                     try {
                         userRestClient.reactivate(
-                                subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                subjectTO.getETagValue(),
+                                subjectTO.getId(),
+                                new ArrayList<StatusBean>(table.getModelObject()));
 
                         ((BasePage) pageRef.getPage()).setModalResult(true);
 
@@ -281,7 +283,9 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                 public void onClick(final AjaxRequestTarget target) {
                     try {
                         userRestClient.suspend(
-                                subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                subjectTO.getETagValue(),
+                                subjectTO.getId(),
+                                new ArrayList<StatusBean>(table.getModelObject()));
 
                         if (pageRef.getPage() instanceof BasePage) {
                             ((BasePage) pageRef.getPage()).setModalResult(true);
@@ -305,10 +309,14 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                     try {
                         if (subjectTO instanceof UserTO) {
                             userRestClient.unlink(
-                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getETagValue(),
+                                    subjectTO.getId(),
+                                    new ArrayList<StatusBean>(table.getModelObject()));
                         } else {
                             roleRestClient.unlink(
-                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getETagValue(),
+                                    subjectTO.getId(),
+                                    new ArrayList<StatusBean>(table.getModelObject()));
                         }
 
                         ((BasePage) pageRef.getPage()).setModalResult(true);
@@ -330,10 +338,14 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                     try {
                         if (subjectTO instanceof UserTO) {
                             userRestClient.link(
-                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getETagValue(),
+                                    subjectTO.getId(),
+                                    new ArrayList<StatusBean>(table.getModelObject()));
                         } else {
                             roleRestClient.link(
-                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getETagValue(),
+                                    subjectTO.getId(),
+                                    new ArrayList<StatusBean>(table.getModelObject()));
                         }
 
                         ((BasePage) pageRef.getPage()).setModalResult(true);
@@ -353,13 +365,17 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
                     try {
-                        final BulkActionResult bulkActionResult;
+                        BulkActionResult bulkActionResult;
                         if (subjectTO instanceof UserTO) {
                             bulkActionResult = userRestClient.deprovision(
-                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getETagValue(),
+                                    subjectTO.getId(),
+                                    new ArrayList<StatusBean>(table.getModelObject()));
                         } else {
                             bulkActionResult = roleRestClient.deprovision(
-                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getETagValue(),
+                                    subjectTO.getId(),
+                                    new ArrayList<StatusBean>(table.getModelObject()));
                         }
 
                         ((BasePage) pageRef.getPage()).setModalResult(true);
@@ -385,7 +401,9 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                     } else {
                         try {
                             final BulkActionResult bulkActionResult = roleRestClient.provision(
-                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getETagValue(),
+                                    subjectTO.getId(),
+                                    new ArrayList<StatusBean>(table.getModelObject()));
 
                             ((BasePage) pageRef.getPage()).setModalResult(true);
                             loadBulkActionResultPage(table.getModelObject(), bulkActionResult);
@@ -408,10 +426,14 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                         final BulkActionResult bulkActionResult;
                         if (subjectTO instanceof UserTO) {
                             bulkActionResult = userRestClient.unassign(
-                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getETagValue(),
+                                    subjectTO.getId(),
+                                    new ArrayList<StatusBean>(table.getModelObject()));
                         } else {
                             bulkActionResult = roleRestClient.unassign(
-                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getETagValue(),
+                                    subjectTO.getId(),
+                                    new ArrayList<StatusBean>(table.getModelObject()));
                         }
 
                         ((BasePage) pageRef.getPage()).setModalResult(true);
@@ -436,7 +458,9 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                     } else {
                         try {
                             final BulkActionResult bulkActionResult = roleRestClient.assign(
-                                    subjectTO.getId(), new ArrayList<StatusBean>(table.getModelObject()));
+                                    subjectTO.getETagValue(),
+                                    subjectTO.getId(),
+                                    new ArrayList<StatusBean>(table.getModelObject()));
 
                             ((BasePage) pageRef.getPage()).setModalResult(true);
                             loadBulkActionResultPage(table.getModelObject(), bulkActionResult);
@@ -540,6 +564,7 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                             switch (type) {
                                 case ASSIGN:
                                     bulkActionResult = userRestClient.assign(
+                                            subjectTO.getETagValue(),
                                             subjectTO.getId(),
                                             new ArrayList<StatusBean>(selection),
                                             changepwd.getModelObject(),
@@ -547,6 +572,7 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                                     break;
                                 case PROVISION:
                                     bulkActionResult = userRestClient.provision(
+                                            subjectTO.getETagValue(),
                                             subjectTO.getId(),
                                             new ArrayList<StatusBean>(selection),
                                             changepwd.getModelObject(),

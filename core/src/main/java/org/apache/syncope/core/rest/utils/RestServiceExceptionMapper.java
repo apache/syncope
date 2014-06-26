@@ -103,6 +103,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                 // process JAX-RS validation errors
                 if (builder == null && ex instanceof ValidationException) {
                     builder = JAXRSUtils.fromResponse(validationEM.toResponse((ValidationException) ex)).
+                            header(RESTHeaders.ERROR_CODE, ClientExceptionType.RESTValidation.getHeaderValue()).
                             header(RESTHeaders.ERROR_INFO,
                                     ClientExceptionType.RESTValidation.getInfoHeaderValue(getExMessage(ex)));
 

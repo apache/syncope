@@ -29,7 +29,7 @@ import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.ResultStatusModalPage;
 import org.apache.syncope.console.pages.RoleModalPage;
 import org.apache.syncope.console.pages.StatusModalPage;
-import org.apache.syncope.console.rest.AbstractAttributableRestClient;
+import org.apache.syncope.console.rest.AbstractSubjectRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
@@ -52,7 +52,7 @@ public class RoleSearchResultPanel extends AbstractSearchResultPanel {
     private final static String PAGEID = "Roles";
 
     public <T extends AbstractAttributableTO> RoleSearchResultPanel(final String id, final boolean filtered,
-            final String fiql, final PageReference callerRef, final AbstractAttributableRestClient restClient) {
+            final String fiql, final PageReference callerRef, final AbstractSubjectRestClient restClient) {
 
         super(id, filtered, fiql, callerRef, restClient);
         initResultTable();
@@ -133,7 +133,8 @@ public class RoleSearchResultPanel extends AbstractSearchResultPanel {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            final RoleTO roleTO = (RoleTO) restClient.delete(model.getObject().getId());
+                            final RoleTO roleTO = (RoleTO) restClient.
+                                    delete(model.getObject().getETagValue(), model.getObject().getId());
 
                             page.setModalResult(true);
 

@@ -138,7 +138,7 @@ public class RoleTabPanel extends Panel {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    final RoleTO roleTO = roleRestClient.delete(selectedNode.getId());
+                    final RoleTO roleTO = roleRestClient.delete(selectedNode.getETagValue(), selectedNode.getId());
 
                     ((Roles) pageRef.getPage()).setModalResult(true);
 

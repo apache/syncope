@@ -157,7 +157,7 @@ public class RoleModalPage extends BaseModalPage {
             if (roleMod.isEmpty()) {
                 result = roleTO;
             } else {
-                result = roleRestClient.update(roleMod);
+                result = roleRestClient.update(originalRoleTO.getETagValue(), roleMod);
             }
         }
 

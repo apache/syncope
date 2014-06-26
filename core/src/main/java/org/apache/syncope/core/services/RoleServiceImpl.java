@@ -20,10 +20,7 @@ package org.apache.syncope.core.services;
 
 import java.util.List;
 
-import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.services.RoleService;
@@ -54,20 +51,17 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     @Override
     public Response create(final RoleTO roleTO) {
         RoleTO created = controller.create(roleTO);
-        return createResponse(created.getId(), created).build();
+        return createResponse(created.getId(), created);
     }
 
     @Override
     public Response delete(final Long roleId) {
         RoleTO role = controller.read(roleId);
 
-        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(role.getETagValue()));
-        if (builder == null) {
-            RoleTO deleted = controller.delete(roleId);
-            builder = modificationResponse(deleted);
-        }
+        checkETag(role.getETagValue());
 
-        return builder.build();
+        RoleTO deleted = controller.delete(roleId);
+        return modificationResponse(deleted);
     }
 
     @Override
@@ -133,14 +127,11 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     public Response update(final Long roleId, final RoleMod roleMod) {
         RoleTO role = controller.read(roleId);
 
-        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(role.getETagValue()));
-        if (builder == null) {
-            roleMod.setId(roleId);
-            RoleTO updated = controller.update(roleMod);
-            builder = modificationResponse(updated);
-        }
+        checkETag(role.getETagValue());
 
-        return builder.build();
+        roleMod.setId(roleId);
+        RoleTO updated = controller.update(roleMod);
+        return modificationResponse(updated);
     }
 
     @Override
@@ -149,45 +140,41 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
 
         RoleTO role = controller.read(roleId);
 
-        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(role.getETagValue()));
-        if (builder == null) {
-            RoleTO updated;
+        checkETag(role.getETagValue());
 
-            switch (type) {
-                case UNLINK:
-                    updated = controller.unlink(roleId, CollectionWrapper.unwrap(resourceNames));
-                    break;
+        RoleTO updated;
+        switch (type) {
+            case UNLINK:
+                updated = controller.unlink(roleId, CollectionWrapper.unwrap(resourceNames));
+                break;
 
-                case UNASSIGN:
-                    updated = controller.unassign(roleId, CollectionWrapper.unwrap(resourceNames));
-                    break;
+            case UNASSIGN:
+                updated = controller.unassign(roleId, CollectionWrapper.unwrap(resourceNames));
+                break;
 
-                case DEPROVISION:
-                    updated = controller.deprovision(roleId, CollectionWrapper.unwrap(resourceNames));
-                    break;
+            case DEPROVISION:
+                updated = controller.deprovision(roleId, CollectionWrapper.unwrap(resourceNames));
+                break;
 
-                default:
-                    updated = controller.read(roleId);
-            }
-
-            final BulkActionResult res = new BulkActionResult();
-
-            if (type == ResourceDeassociationActionType.UNLINK) {
-                for (ResourceName resourceName : resourceNames) {
-                    res.add(resourceName.getElement(), updated.getResources().contains(resourceName.getElement())
-                            ? BulkActionResult.Status.FAILURE
-                            : BulkActionResult.Status.SUCCESS);
-                }
-            } else {
-                for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
-                    res.add(propagationStatusTO.getResource(), propagationStatusTO.getStatus().toString());
-                }
-            }
-
-            builder = modificationResponse(res);
+            default:
+                updated = controller.read(roleId);
         }
 
-        return builder.build();
+        final BulkActionResult res = new BulkActionResult();
+
+        if (type == ResourceDeassociationActionType.UNLINK) {
+            for (ResourceName resourceName : resourceNames) {
+                res.add(resourceName.getElement(), updated.getResources().contains(resourceName.getElement())
+                        ? BulkActionResult.Status.FAILURE
+                        : BulkActionResult.Status.SUCCESS);
+            }
+        } else {
+            for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
+                res.add(propagationStatusTO.getResource(), propagationStatusTO.getStatus().toString());
+            }
+        }
+
+        return modificationResponse(res);
     }
 
     @Override
@@ -196,44 +183,40 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
 
         RoleTO role = controller.read(roleId);
 
-        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(role.getETagValue()));
-        if (builder == null) {
-            RoleTO updated;
+        checkETag(role.getETagValue());
 
-            switch (type) {
-                case LINK:
-                    updated = controller.link(roleId, CollectionWrapper.unwrap(resourceNames));
-                    break;
+        RoleTO updated;
+        switch (type) {
+            case LINK:
+                updated = controller.link(roleId, CollectionWrapper.unwrap(resourceNames));
+                break;
 
-                case ASSIGN:
-                    updated = controller.assign(roleId, CollectionWrapper.unwrap(resourceNames), false, null);
-                    break;
+            case ASSIGN:
+                updated = controller.assign(roleId, CollectionWrapper.unwrap(resourceNames), false, null);
+                break;
 
-                case PROVISION:
-                    updated = controller.provision(roleId, CollectionWrapper.unwrap(resourceNames), false, null);
-                    break;
+            case PROVISION:
+                updated = controller.provision(roleId, CollectionWrapper.unwrap(resourceNames), false, null);
+                break;
 
-                default:
-                    updated = controller.read(roleId);
-            }
-
-            final BulkActionResult res = new BulkActionResult();
-
-            if (type == ResourceAssociationActionType.LINK) {
-                for (ResourceName resourceName : resourceNames) {
-                    res.add(resourceName.getElement(), updated.getResources().contains(resourceName.getElement())
-                            ? BulkActionResult.Status.FAILURE
-                            : BulkActionResult.Status.SUCCESS);
-                }
-            } else {
-                for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
-                    res.add(propagationStatusTO.getResource(), propagationStatusTO.getStatus().toString());
-                }
-            }
-
-            builder = modificationResponse(res);
+            default:
+                updated = controller.read(roleId);
         }
 
-        return builder.build();
+        final BulkActionResult res = new BulkActionResult();
+
+        if (type == ResourceAssociationActionType.LINK) {
+            for (ResourceName resourceName : resourceNames) {
+                res.add(resourceName.getElement(), updated.getResources().contains(resourceName.getElement())
+                        ? BulkActionResult.Status.FAILURE
+                        : BulkActionResult.Status.SUCCESS);
+            }
+        } else {
+            for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
+                res.add(propagationStatusTO.getResource(), propagationStatusTO.getStatus().toString());
+            }
+        }
+
+        return modificationResponse(res);
     }
 }

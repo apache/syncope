@@ -19,10 +19,8 @@
 package org.apache.syncope.core.services;
 
 import java.util.List;
-import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 import org.apache.syncope.common.mod.ResourceAssociationMod;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
@@ -66,20 +64,17 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     @Override
     public Response create(final UserTO userTO) {
         UserTO created = controller.create(userTO);
-        return createResponse(created.getId(), created).build();
+        return createResponse(created.getId(), created);
     }
 
     @Override
     public Response delete(final Long userId) {
         UserTO user = controller.read(userId);
 
-        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
-        if (builder == null) {
-            UserTO deleted = controller.delete(userId);
-            builder = modificationResponse(deleted);
-        }
+        checkETag(user.getETagValue());
 
-        return builder.build();
+        UserTO deleted = controller.delete(userId);
+        return modificationResponse(deleted);
     }
 
     @Override
@@ -135,28 +130,22 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     public Response update(final Long userId, final UserMod userMod) {
         UserTO user = controller.read(userId);
 
-        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
-        if (builder == null) {
-            userMod.setId(userId);
-            UserTO updated = controller.update(userMod);
-            builder = modificationResponse(updated);
-        }
+        checkETag(user.getETagValue());
 
-        return builder.build();
+        userMod.setId(userId);
+        UserTO updated = controller.update(userMod);
+        return modificationResponse(updated);
     }
 
     @Override
     public Response status(final Long userId, final StatusMod statusMod) {
         UserTO user = controller.read(userId);
 
-        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
-        if (builder == null) {
-            statusMod.setId(userId);
-            UserTO updated = controller.status(statusMod);
-            builder = modificationResponse(updated);
-        }
+        checkETag(user.getETagValue());
 
-        return builder.build();
+        statusMod.setId(userId);
+        UserTO updated = controller.status(statusMod);
+        return modificationResponse(updated);
     }
 
     @Override
@@ -165,46 +154,41 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
         final UserTO user = controller.read(userId);
 
-        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
+        checkETag(user.getETagValue());
 
-        if (builder == null) {
-            UserTO updated;
+        UserTO updated;
+        switch (type) {
+            case UNLINK:
+                updated = controller.unlink(userId, CollectionWrapper.unwrap(resourceNames));
+                break;
 
-            switch (type) {
-                case UNLINK:
-                    updated = controller.unlink(userId, CollectionWrapper.unwrap(resourceNames));
-                    break;
+            case UNASSIGN:
+                updated = controller.unassign(userId, CollectionWrapper.unwrap(resourceNames));
+                break;
 
-                case UNASSIGN:
-                    updated = controller.unassign(userId, CollectionWrapper.unwrap(resourceNames));
-                    break;
+            case DEPROVISION:
+                updated = controller.deprovision(userId, CollectionWrapper.unwrap(resourceNames));
+                break;
 
-                case DEPROVISION:
-                    updated = controller.deprovision(userId, CollectionWrapper.unwrap(resourceNames));
-                    break;
-
-                default:
-                    updated = controller.read(userId);
-            }
-
-            final BulkActionResult res = new BulkActionResult();
-
-            if (type == ResourceDeassociationActionType.UNLINK) {
-                for (ResourceName resourceName : resourceNames) {
-                    res.add(resourceName.getElement(), updated.getResources().contains(resourceName.getElement())
-                            ? BulkActionResult.Status.FAILURE
-                            : BulkActionResult.Status.SUCCESS);
-                }
-            } else {
-                for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
-                    res.add(propagationStatusTO.getResource(), propagationStatusTO.getStatus().toString());
-                }
-            }
-
-            builder = modificationResponse(res);
+            default:
+                updated = controller.read(userId);
         }
 
-        return builder.build();
+        final BulkActionResult res = new BulkActionResult();
+
+        if (type == ResourceDeassociationActionType.UNLINK) {
+            for (ResourceName resourceName : resourceNames) {
+                res.add(resourceName.getElement(), updated.getResources().contains(resourceName.getElement())
+                        ? BulkActionResult.Status.FAILURE
+                        : BulkActionResult.Status.SUCCESS);
+            }
+        } else {
+            for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
+                res.add(propagationStatusTO.getResource(), propagationStatusTO.getStatus().toString());
+            }
+        }
+
+        return modificationResponse(res);
     }
 
     @Override
@@ -213,55 +197,51 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
         final UserTO user = controller.read(userId);
 
-        ResponseBuilder builder = messageContext.getRequest().evaluatePreconditions(new EntityTag(user.getETagValue()));
-        if (builder == null) {
-            UserTO updated;
+        checkETag(user.getETagValue());
 
-            switch (type) {
-                case LINK:
-                    updated = controller.link(
-                            userId,
-                            CollectionWrapper.unwrap(associationMod.getTargetResources()));
-                    break;
+        UserTO updated;
+        switch (type) {
+            case LINK:
+                updated = controller.link(
+                        userId,
+                        CollectionWrapper.unwrap(associationMod.getTargetResources()));
+                break;
 
-                case ASSIGN:
-                    updated = controller.assign(
-                            userId,
-                            CollectionWrapper.unwrap(associationMod.getTargetResources()),
-                            associationMod.isChangePwd(),
-                            associationMod.getPassword());
-                    break;
+            case ASSIGN:
+                updated = controller.assign(
+                        userId,
+                        CollectionWrapper.unwrap(associationMod.getTargetResources()),
+                        associationMod.isChangePwd(),
+                        associationMod.getPassword());
+                break;
 
-                case PROVISION:
-                    updated = controller.provision(
-                            userId,
-                            CollectionWrapper.unwrap(associationMod.getTargetResources()),
-                            associationMod.isChangePwd(),
-                            associationMod.getPassword());
-                    break;
+            case PROVISION:
+                updated = controller.provision(
+                        userId,
+                        CollectionWrapper.unwrap(associationMod.getTargetResources()),
+                        associationMod.isChangePwd(),
+                        associationMod.getPassword());
+                break;
 
-                default:
-                    updated = controller.read(userId);
-            }
-
-            final BulkActionResult res = new BulkActionResult();
-
-            if (type == ResourceAssociationActionType.LINK) {
-                for (ResourceName resourceName : associationMod.getTargetResources()) {
-                    res.add(resourceName.getElement(), updated.getResources().contains(resourceName.getElement())
-                            ? BulkActionResult.Status.FAILURE
-                            : BulkActionResult.Status.SUCCESS);
-                }
-            } else {
-                for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
-                    res.add(propagationStatusTO.getResource(), propagationStatusTO.getStatus().toString());
-                }
-            }
-
-            builder = modificationResponse(res);
+            default:
+                updated = controller.read(userId);
         }
 
-        return builder.build();
+        final BulkActionResult res = new BulkActionResult();
+
+        if (type == ResourceAssociationActionType.LINK) {
+            for (ResourceName resourceName : associationMod.getTargetResources()) {
+                res.add(resourceName.getElement(), updated.getResources().contains(resourceName.getElement())
+                        ? BulkActionResult.Status.FAILURE
+                        : BulkActionResult.Status.SUCCESS);
+            }
+        } else {
+            for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
+                res.add(propagationStatusTO.getResource(), propagationStatusTO.getStatus().toString());
+            }
+        }
+
+        return modificationResponse(res);
     }
 
     @Override

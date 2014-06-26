@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.common.to.AbstractAttributableTO;
-import org.apache.syncope.console.rest.AbstractAttributableRestClient;
+import org.apache.syncope.console.rest.AbstractSubjectRestClient;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -44,9 +44,9 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
 
     private final boolean filtered;
 
-    private final AbstractAttributableRestClient restClient;
+    private final AbstractSubjectRestClient restClient;
 
-    public AttributableDataProvider(final AbstractAttributableRestClient restClient,
+    public AttributableDataProvider(final AbstractSubjectRestClient restClient,
             final int paginatorRows, final boolean filtered) {
 
         super();

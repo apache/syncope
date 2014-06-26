@@ -44,6 +44,14 @@ public abstract class BaseRestClient implements Serializable {
         return SyncopeSession.get().getService(serviceClass);
     }
 
+    protected <T> T getService(final String etag, final Class<T> serviceClass) {
+        return SyncopeSession.get().getService(etag, serviceClass);
+    }
+
+    protected <T> void resetClient(final Class<T> serviceClass) {
+        SyncopeSession.get().resetClient(serviceClass);
+    }
+
     protected String toOrderBy(final SortParam<String> sort) {
         OrderByClauseBuilder builder = SyncopeClient.getOrderByClauseBuilder();
 

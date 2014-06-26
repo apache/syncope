@@ -91,7 +91,7 @@ public class EditUserModalPage extends UserModalPage {
 
             // update user just if it is changed
             if (!userMod.isEmpty()) {
-                userTO = userRestClient.update(userMod);
+                userTO = userRestClient.update(initialUserTO.getETagValue(), userMod);
             }
         }
     }

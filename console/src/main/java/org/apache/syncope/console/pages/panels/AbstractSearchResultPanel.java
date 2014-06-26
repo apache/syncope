@@ -26,7 +26,7 @@ import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.AbstractBasePage;
-import org.apache.syncope.console.rest.AbstractAttributableRestClient;
+import org.apache.syncope.console.rest.AbstractSubjectRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -96,7 +96,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
-    protected final AbstractAttributableRestClient restClient;
+    protected final AbstractSubjectRestClient restClient;
 
     /**
      * Number of rows per page.
@@ -155,7 +155,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
     protected final AbstractBasePage page;
 
     protected <T extends AbstractAttributableTO> AbstractSearchResultPanel(final String id, final boolean filtered,
-            final String fiql, final PageReference pageRef, final AbstractAttributableRestClient restClient) {
+            final String fiql, final PageReference pageRef, final AbstractSubjectRestClient restClient) {
 
         super(id);
 

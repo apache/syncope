@@ -52,7 +52,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
         }
 
         UserTO created = controller.createSelf(userTO);
-        return createResponse(created.getId(), created).build();
+        return createResponse(created.getId(), created);
     }
 
     @Override
@@ -64,13 +64,13 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     public Response update(final Long userId, final UserMod userMod) {
         userMod.setId(userId);
         UserTO updated = controller.updateSelf(userMod);
-        return modificationResponse(updated).build();
+        return modificationResponse(updated);
     }
 
     @Override
     public Response delete() {
         UserTO deleted = controller.deleteSelf();
-        return modificationResponse(deleted).build();
+        return modificationResponse(deleted);
     }
 
 }

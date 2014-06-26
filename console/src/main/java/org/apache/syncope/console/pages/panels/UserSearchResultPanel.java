@@ -34,7 +34,7 @@ import org.apache.syncope.console.pages.DisplayAttributesModalPage;
 import org.apache.syncope.console.pages.EditUserModalPage;
 import org.apache.syncope.console.pages.ResultStatusModalPage;
 import org.apache.syncope.console.pages.StatusModalPage;
-import org.apache.syncope.console.rest.AbstractAttributableRestClient;
+import org.apache.syncope.console.rest.AbstractSubjectRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.rest.UserRestClient;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
@@ -72,7 +72,7 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
     private final List<String> vSchemaNames;
 
     public <T extends AbstractAttributableTO> UserSearchResultPanel(final String id, final boolean filtered,
-            final String fiql, final PageReference callerRef, final AbstractAttributableRestClient restClient) {
+            final String fiql, final PageReference callerRef, final AbstractSubjectRestClient restClient) {
 
         super(id, filtered, fiql, callerRef, restClient);
 
@@ -210,7 +210,8 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            final UserTO userTO = (UserTO) restClient.delete(model.getObject().getId());
+                            final UserTO userTO = (UserTO) restClient.
+                                    delete(model.getObject().getETagValue(), model.getObject().getId());
 
                             page.setModalResult(true);
 

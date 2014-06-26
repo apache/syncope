@@ -24,6 +24,7 @@ public enum ClientExceptionType {
 
     AssociatedResources(Response.Status.BAD_REQUEST),
     Composite(Response.Status.BAD_REQUEST),
+    ConcurrentModification(Response.Status.PRECONDITION_FAILED),
     DataIntegrityViolation(Response.Status.BAD_REQUEST),
     EntityExists(Response.Status.CONFLICT),
     GenericPersistence(Response.Status.BAD_REQUEST),

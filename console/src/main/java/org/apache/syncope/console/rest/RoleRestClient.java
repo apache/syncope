@@ -43,7 +43,7 @@ import org.springframework.stereotype.Component;
  * Console client for invoking Rest Role's services.
  */
 @Component
-public class RoleRestClient extends AbstractAttributableRestClient {
+public class RoleRestClient extends AbstractSubjectRestClient {
 
     private static final long serialVersionUID = -8549081557283519638L;
 
@@ -85,53 +85,101 @@ public class RoleRestClient extends AbstractAttributableRestClient {
         return getAnonymousService(RoleService.class).read(id);
     }
 
-    public RoleTO update(final RoleMod roleMod) {
-        return getService(RoleService.class).update(roleMod.getId(), roleMod).readEntity(RoleTO.class);
+    public RoleTO update(final String etag, final RoleMod roleMod) {
+        RoleTO result;
+        synchronized (this) {
+            RoleService service = getService(etag, RoleService.class);
+            result = service.update(roleMod.getId(), roleMod).readEntity(RoleTO.class);
+            resetClient(RoleService.class);
+        }
+        return result;
     }
 
     @Override
-    public RoleTO delete(final Long id) {
-        return getService(RoleService.class).delete(id).readEntity(RoleTO.class);
+    public RoleTO delete(final String etag, final Long id) {
+        RoleTO result;
+        synchronized (this) {
+            RoleService service = getService(etag, RoleService.class);
+            result = service.delete(id).readEntity(RoleTO.class);
+            resetClient(RoleService.class);
+        }
+        return result;
     }
 
     @Override
-    public BulkActionResult bulkAction(final BulkAction action) {
-        return getService(RoleRestClient.class).bulkAction(action);
+    public void bulkAction(final BulkAction action) {
+        getService(RoleRestClient.class).bulkAction(action);
     }
 
-    public BulkActionResult unlink(final long roleId, final List<StatusBean> statuses) {
-        return getService(RoleService.class).bulkDeassociation(roleId, ResourceDeassociationActionType.UNLINK,
-                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class)).
-                readEntity(BulkActionResult.class);
+    public void unlink(final String etag, final long roleId, final List<StatusBean> statuses) {
+        synchronized (this) {
+            RoleService service = getService(etag, RoleService.class);
+            service.bulkDeassociation(roleId, ResourceDeassociationActionType.UNLINK,
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
+                            ResourceName.class));
+            resetClient(RoleService.class);
+        }
     }
 
-    public BulkActionResult link(final long roleId, final List<StatusBean> statuses) {
-        return getService(RoleService.class).bulkAssociation(roleId, ResourceAssociationActionType.LINK,
-                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class)).
-                readEntity(BulkActionResult.class);
+    public void link(final String etag, final long roleId, final List<StatusBean> statuses) {
+        synchronized (this) {
+            RoleService service = getService(etag, RoleService.class);
+            service.bulkAssociation(roleId, ResourceAssociationActionType.LINK,
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
+                            ResourceName.class));
+            resetClient(RoleService.class);
+        }
     }
 
-    public BulkActionResult deprovision(final long roleId, final List<StatusBean> statuses) {
-        return getService(RoleService.class).bulkDeassociation(roleId, ResourceDeassociationActionType.DEPROVISION,
-                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class)).
-                readEntity(BulkActionResult.class);
+    public BulkActionResult deprovision(final String etag, final long roleId, final List<StatusBean> statuses) {
+        BulkActionResult result;
+        synchronized (this) {
+            RoleService service = getService(etag, RoleService.class);
+            result = service.bulkDeassociation(roleId, ResourceDeassociationActionType.DEPROVISION,
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
+                            ResourceName.class)).
+                    readEntity(BulkActionResult.class);
+            resetClient(RoleService.class);
+        }
+        return result;
     }
 
-    public BulkActionResult provision(final long roleId, final List<StatusBean> statuses) {
-        return getService(RoleService.class).bulkAssociation(roleId, ResourceAssociationActionType.PROVISION,
-                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class)).
-                readEntity(BulkActionResult.class);
+    public BulkActionResult provision(final String etag, final long roleId, final List<StatusBean> statuses) {
+        BulkActionResult result;
+        synchronized (this) {
+            RoleService service = getService(etag, RoleService.class);
+            result = service.bulkAssociation(roleId, ResourceAssociationActionType.PROVISION,
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
+                            ResourceName.class)).
+                    readEntity(BulkActionResult.class);
+            resetClient(RoleService.class);
+        }
+        return result;
     }
 
-    public BulkActionResult unassign(final long roleId, final List<StatusBean> statuses) {
-        return getService(RoleService.class).bulkDeassociation(roleId, ResourceDeassociationActionType.UNASSIGN,
-                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class)).
-                readEntity(BulkActionResult.class);
+    public BulkActionResult unassign(final String etag, final long roleId, final List<StatusBean> statuses) {
+        BulkActionResult result;
+        synchronized (this) {
+            RoleService service = getService(etag, RoleService.class);
+            result = service.bulkDeassociation(roleId, ResourceDeassociationActionType.UNASSIGN,
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
+                            ResourceName.class)).
+                    readEntity(BulkActionResult.class);
+            resetClient(RoleService.class);
+        }
+        return result;
     }
 
-    public BulkActionResult assign(final long roleId, final List<StatusBean> statuses) {
-        return getService(RoleService.class).bulkAssociation(roleId, ResourceAssociationActionType.ASSIGN,
-                CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceName.class)).
-                readEntity(BulkActionResult.class);
+    public BulkActionResult assign(final String etag, final long roleId, final List<StatusBean> statuses) {
+        BulkActionResult result;
+        synchronized (this) {
+            RoleService service = getService(etag, RoleService.class);
+            result = service.bulkAssociation(roleId, ResourceAssociationActionType.ASSIGN,
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
+                            ResourceName.class)).
+                    readEntity(BulkActionResult.class);
+            resetClient(RoleService.class);
+        }
+        return result;
     }
 }

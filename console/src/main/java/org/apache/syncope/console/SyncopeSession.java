@@ -20,12 +20,15 @@ package org.apache.syncope.console;
 
 import java.text.DateFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.client.SyncopeClientFactoryBean;
 import org.apache.syncope.common.types.SubjectType;
@@ -61,7 +64,8 @@ public class SyncopeSession extends WebSession {
 
     private final String anonymousKey;
 
-    private final Map<Integer, SyncopeClient> clients = new HashMap<Integer, SyncopeClient>();
+    private final Map<Integer, SyncopeClient> clients =
+            Collections.synchronizedMap(new HashMap<Integer, SyncopeClient>());
 
     public static SyncopeSession get() {
         return (SyncopeSession) Session.get();
@@ -101,12 +105,28 @@ public class SyncopeSession extends WebSession {
         return getService(service, this.username, this.password);
     }
 
-    public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
-        SyncopeClientFactoryBean.ContentType preType = clientFactory.getContentType();
+    public <T> T getService(final String etag, final Class<T> service) {
+        T serviceInstance = getService(service, this.username, this.password);
+        WebClient.client(serviceInstance).match(new EntityTag(etag), false);
 
-        clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
-        T service = clientFactory.create(username, password).getService(serviceClass);
-        clientFactory.setContentType(preType);
+        return serviceInstance;
+    }
+
+    public <T> void resetClient(final Class<T> service) {
+        T serviceInstance = getService(service, this.username, this.password);
+        WebClient.client(serviceInstance).reset();
+    }
+
+    public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
+        T service;
+
+        synchronized (clientFactory) {
+            SyncopeClientFactoryBean.ContentType preType = clientFactory.getContentType();
+
+            clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
+            service = clientFactory.create(username, password).getService(serviceClass);
+            clientFactory.setContentType(preType);
+        }
 
         return service;
     }
@@ -116,10 +136,7 @@ public class SyncopeSession extends WebSession {
     }
 
     public <T> T getService(final Class<T> serviceClass, final String username, final String password) {
-        final int clientKey = new HashCodeBuilder().
-                append(username).
-                append(password).
-                toHashCode();
+        final int clientKey = new HashCodeBuilder().append(username).append(password).toHashCode();
 
         if (!clients.containsKey(clientKey)) {
             clients.put(clientKey, clientFactory.create(username, password));

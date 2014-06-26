@@ -34,7 +34,7 @@ import org.apache.syncope.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.ImagePanel;
 import org.apache.syncope.console.pages.panels.StatusPanel;
-import org.apache.syncope.console.rest.AbstractAttributableRestClient;
+import org.apache.syncope.console.rest.AbstractSubjectRestClient;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.Behavior;
@@ -54,9 +54,9 @@ public class StatusUtils implements Serializable {
 
     public static final String IMG_STATUES = "../statuses/";
 
-    private final AbstractAttributableRestClient restClient;
+    private final AbstractSubjectRestClient restClient;
 
-    public StatusUtils(final AbstractAttributableRestClient restClient) {
+    public StatusUtils(final AbstractSubjectRestClient restClient) {
         this.restClient = restClient;
     }
 

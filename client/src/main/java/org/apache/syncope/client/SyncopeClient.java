@@ -245,11 +245,11 @@ public class SyncopeClient {
     }
 
     /**
-     * Fetches <tt>Etag</tt> header value from latest service run (if available).
+     * Fetches <tt>ETag</tt> header value from latest service run (if available).
      *
      * @param <T> any service class
      * @param service service class instance
-     * @return <tt>Etag</tt> header value from latest service run (if available)
+     * @return <tt>ETag</tt> header value from latest service run (if available)
      */
     public <T> EntityTag getLatestEntityTag(final T service) {
         return WebClient.client(service).getResponse().getEntityTag();
