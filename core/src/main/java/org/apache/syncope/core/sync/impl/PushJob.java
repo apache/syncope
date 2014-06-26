@@ -123,7 +123,7 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
                         // user propagation
                         uhandler.handle(localUser);
                     } catch (Exception e) {
-                        LOG.warn("Failure pushing user '{}' on '{}'", localUser, pushTask.getResource());
+                        LOG.warn("Failure pushing user '{}' on '{}'", localUser, pushTask.getResource(), e);
                         if (!continueOnError()) {
                             throw new JobExecutionException("While pushing users on connector", e);
                         }
@@ -140,7 +140,7 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
                     // role propagation
                     rhandler.handle(localRole);
                 } catch (Exception e) {
-                    LOG.warn("Failure pushing role '{}' on '{}'", localRole, pushTask.getResource());
+                    LOG.warn("Failure pushing role '{}' on '{}'", localRole, pushTask.getResource(), e);
                     if (!continueOnError()) {
                         throw new JobExecutionException("While pushing roles on connector", e);
                     }

@@ -133,7 +133,27 @@ public class PropagationManager {
             final Set<String> noPropResourceNames, final List<MembershipTO> membershipTOs)
             throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeUser user = userDataBinder.getUserFromId(wfResult.getResult().getKey());
+        return getUserCreateTaskIds(
+                wfResult.getResult().getKey(),
+                wfResult.getResult().getValue(),
+                wfResult.getPropByRes(),
+                password,
+                vAttrs,
+                membershipTOs,
+                noPropResourceNames);
+    }
+
+    public List<PropagationTask> getUserCreateTaskIds(
+            final Long id,
+            final Boolean enabled,
+            final PropagationByResource propByRes,
+            final String password,
+            final Collection<AttributeTO> vAttrs,
+            final Collection<MembershipTO> membershipTOs,
+            final Collection<String> noPropResourceNames)
+            throws NotFoundException, UnauthorizedRoleException {
+
+        SyncopeUser user = userDataBinder.getUserFromId(id);
         if (vAttrs != null && !vAttrs.isEmpty()) {
             userDataBinder.fillVirtual(user, vAttrs, AttributableUtil.getInstance(AttributableType.USER));
 
@@ -148,8 +168,7 @@ public class PropagationManager {
                 }
             }
         }
-        return getCreateTaskIds(user, password,
-                wfResult.getResult().getValue(), wfResult.getPropByRes(), noPropResourceNames);
+        return getCreateTaskIds(user, password, enabled, propByRes, noPropResourceNames);
     }
 
     /**
@@ -178,21 +197,44 @@ public class PropagationManager {
      * @throws NotFoundException if role is not found
      * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given role
      */
-    public List<PropagationTask> getRoleCreateTaskIds(final WorkflowResult<Long> wfResult,
-            final Collection<AttributeTO> vAttrs, final Set<String> noPropResourceNames)
+    public List<PropagationTask> getRoleCreateTaskIds(
+            final WorkflowResult<Long> wfResult,
+            final Collection<AttributeTO> vAttrs,
+            final Collection<String> noPropResourceNames)
+            throws NotFoundException, UnauthorizedRoleException {
+        return getRoleCreateTaskIds(wfResult.getResult(), vAttrs, wfResult.getPropByRes(), noPropResourceNames);
+    }
+
+    /**
+     * Create the role on every associated resource.
+     *
+     * @param id role id
+     * @param vAttrs virtual attributes to be set
+     * @param propByRes operation to be performed per resource
+     * @param noPropResourceNames external resources performing not to be considered for propagation
+     * @return list of propagation tasks
+     * @throws NotFoundException if role is not found
+     * @throws UnauthorizedRoleException if caller doesn't own enough entitlements to administer the given role
+     */
+    public List<PropagationTask> getRoleCreateTaskIds(
+            final Long id,
+            final Collection<AttributeTO> vAttrs,
+            final PropagationByResource propByRes,
+            final Collection<String> noPropResourceNames)
             throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeRole role = roleDataBinder.getRoleFromId(wfResult.getResult());
+        SyncopeRole role = roleDataBinder.getRoleFromId(id);
         if (vAttrs != null && !vAttrs.isEmpty()) {
             roleDataBinder.fillVirtual(role, vAttrs, AttributableUtil.getInstance(AttributableType.ROLE));
         }
 
-        return getCreateTaskIds(role, null, null, wfResult.getPropByRes(), noPropResourceNames);
+        return getCreateTaskIds(role, null, null, propByRes, noPropResourceNames);
     }
 
     protected List<PropagationTask> getCreateTaskIds(final AbstractSubject subject,
             final String password, final Boolean enable,
-            final PropagationByResource propByRes, final Set<String> noPropResourceNames) {
+            final PropagationByResource propByRes,
+            final Collection<String> noPropResourceNames) {
 
         if (propByRes == null || propByRes.isEmpty()) {
             return Collections.<PropagationTask>emptyList();
@@ -361,7 +403,7 @@ public class PropagationManager {
                                 : membershipMod.getVirAttrsToRemove(),
                                 membershipMod.getVirAttrsToUpdate() == null ? Collections.<AttributeMod>emptySet()
                                 : membershipMod.getVirAttrsToUpdate(), AttributableUtil.getInstance(
-                                        AttributableType.MEMBERSHIP));
+                                AttributableType.MEMBERSHIP));
                     }
                 }
             }
@@ -679,7 +721,7 @@ public class PropagationManager {
         return tasks;
     }
 
-    private MembershipTO findMembershipTO(final Membership membership, final List<MembershipTO> memberships) {
+    private MembershipTO findMembershipTO(final Membership membership, final Collection<MembershipTO> memberships) {
         for (MembershipTO membershipTO : memberships) {
             if (membershipTO.getRoleId() == membership.getSyncopeRole().getId()) {
                 return membershipTO;

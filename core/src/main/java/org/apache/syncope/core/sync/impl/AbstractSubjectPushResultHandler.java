@@ -19,35 +19,53 @@
 package org.apache.syncope.core.sync.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.AbstractSubject;
-import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.PushTask;
-import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.propagation.TimeoutException;
-import org.apache.syncope.core.propagation.impl.AbstractPropagationTaskExecutor;
-import org.apache.syncope.core.rest.controller.AbstractSubjectController;
 import org.apache.syncope.core.sync.PushActions;
 import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.MappingUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.Uid;
 import org.quartz.JobExecutionException;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions> {
+
+    protected abstract String getName(final AbstractSubject subject);
+
+    protected abstract AbstractSubjectTO getSubjectTO(final long id);
+
+    protected abstract AbstractSubject getSubject(final long id);
+
+    protected abstract AbstractSubject deprovision(final AbstractSubject sbj, final SyncResult result);
+
+    protected abstract AbstractSubject provision(
+            final AbstractSubject sbj, final Boolean enabled, final SyncResult result);
+
+    protected abstract AbstractSubject link(final AbstractSubject sbj, final Boolean unlink, final SyncResult result);
+
+    protected abstract AbstractSubject unassign(final AbstractSubject sbj, final SyncResult result);
+
+    protected abstract AbstractSubject assign(final AbstractSubject sbj, Boolean enabled, final SyncResult result);
+
+    protected abstract AbstractSubject update(
+            final AbstractSubject sbj,
+            final String accountId,
+            final Set<Attribute> attributes,
+            final ConnectorObject beforeObj,
+            final SyncResult result);
+
+    protected abstract ConnectorObject getRemoteObject(final String accountId);
 
     @Transactional
     public boolean handle(final AbstractSubject subject) {
@@ -67,32 +85,20 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
             profile.setResults(new ArrayList<SyncResult>());
         }
 
-        final AttributableUtil attrUtil = AttributableUtil.getInstance(subject);
+        final AbstractSubject toBeHandled = getSubject(subject.getId());
+        
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(toBeHandled);
 
         final SyncResult result = new SyncResult();
         profile.getResults().add(result);
 
-        result.setId(subject.getId());
+        result.setId(toBeHandled.getId());
         result.setSubjectType(attrUtil.getType());
 
-        final AbstractSubjectController<?, ?> controller;
-        final AbstractSubject toBeHandled;
-
-        final Boolean enabled;
-
-        if (attrUtil.getType() == AttributableType.USER) {
-            toBeHandled = userDataBinder.getUserFromId(subject.getId());
-            result.setName(((SyncopeUser) toBeHandled).getUsername());
-            enabled = profile.getSyncTask().isSyncStatus()
-                    ? ((SyncopeUser) toBeHandled).isSuspended() ? Boolean.FALSE : Boolean.TRUE
-                    : null;
-            controller = userController;
-        } else {
-            toBeHandled = roleDataBinder.getRoleFromId(subject.getId());
-            result.setName(((SyncopeRole) toBeHandled).getName());
-            enabled = null;
-            controller = roleController;
-        }
+        result.setName(getName(toBeHandled));
+        final Boolean enabled = toBeHandled instanceof SyncopeUser && profile.getSyncTask().isSyncStatus()
+                ? ((SyncopeUser) toBeHandled).isSuspended() ? Boolean.FALSE : Boolean.TRUE
+                : null;
 
         LOG.debug("Propagating {} with ID {} towards {}",
                 attrUtil.getType(), toBeHandled.getId(), profile.getSyncTask().getResource());
@@ -117,11 +123,8 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
                     enabled, // propagate status (suspended or not) if required
                     profile.getSyncTask().getResource()); // target external resource
 
-            final ObjectClass oclass =
-                    attrUtil.getType() == AttributableType.USER ? ObjectClass.ACCOUNT : ObjectClass.GROUP;
-
             // Try to read remote object (user / group) BEFORE any actual operation
-            beforeObj = getRemoteObject(oclass, values.getKey(), profile.getSyncTask().getResource().getName());
+            beforeObj = getRemoteObject(values.getKey());
 
             if (beforeObj == null) {
                 operation = profile.getSyncTask().getUnmatchigRule().name().toLowerCase();
@@ -131,27 +134,21 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
                         for (PushActions action : profile.getActions()) {
                             action.beforeAssign(this.getProfile(), values, toBeHandled);
                         }
-                        controller.assign(
-                                toBeHandled.getId(),
-                                Collections.singleton(profile.getSyncTask().getResource().getName()), true, null);
+                        assign(toBeHandled, enabled, result);
                         break;
                     case PROVISION:
                         result.setOperation(ResourceOperation.CREATE);
                         for (PushActions action : profile.getActions()) {
                             action.beforeProvision(this.getProfile(), values, toBeHandled);
                         }
-                        controller.provision(
-                                toBeHandled.getId(),
-                                Collections.singleton(profile.getSyncTask().getResource().getName()), true, null);
+                        provision(toBeHandled, enabled, result);
                         break;
                     case UNLINK:
                         result.setOperation(ResourceOperation.NONE);
                         for (PushActions action : profile.getActions()) {
                             action.beforeUnlink(this.getProfile(), values, toBeHandled);
                         }
-                        controller.unlink(
-                                toBeHandled.getId(), Collections.
-                                singleton(profile.getSyncTask().getResource().getName()));
+                        link(toBeHandled, false, result);
                         break;
                     default:
                     // do nothing
@@ -165,56 +162,35 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
                         for (PushActions action : profile.getActions()) {
                             action.beforeUpdate(this.getProfile(), values, toBeHandled);
                         }
-
-                        AbstractPropagationTaskExecutor.createOrUpdate(
-                                oclass,
-                                values.getKey(),
-                                values.getValue(),
-                                profile.getSyncTask().getResource().getName(),
-                                profile.getSyncTask().getResource().getPropagationMode(),
-                                beforeObj,
-                                profile.getConnector(),
-                                new HashSet<String>(),
-                                connObjectUtil);
+                        update(toBeHandled, values.getKey(), values.getValue(), beforeObj, result);
                         break;
                     case DEPROVISION:
                         result.setOperation(ResourceOperation.DELETE);
                         for (PushActions action : profile.getActions()) {
                             action.beforeDeprovision(this.getProfile(), values, toBeHandled);
                         }
-                        controller.deprovision(
-                                toBeHandled.getId(), Collections.
-                                singleton(profile.getSyncTask().getResource().getName()));
+                        deprovision(toBeHandled, result);
                         break;
                     case UNASSIGN:
                         result.setOperation(ResourceOperation.DELETE);
                         for (PushActions action : profile.getActions()) {
                             action.beforeUnassign(this.getProfile(), values, toBeHandled);
                         }
-                        controller.unlink(
-                                toBeHandled.getId(), Collections.
-                                singleton(profile.getSyncTask().getResource().getName()));
-                        controller.deprovision(
-                                toBeHandled.getId(), Collections.
-                                singleton(profile.getSyncTask().getResource().getName()));
+                        unassign(toBeHandled, result);
                         break;
                     case LINK:
                         result.setOperation(ResourceOperation.NONE);
                         for (PushActions action : profile.getActions()) {
                             action.beforeLink(this.getProfile(), values, toBeHandled);
                         }
-                        controller.link(
-                                toBeHandled.getId(), Collections.
-                                singleton(profile.getSyncTask().getResource().getName()));
+                        link(toBeHandled, true, result);
                         break;
                     case UNLINK:
                         result.setOperation(ResourceOperation.NONE);
                         for (PushActions action : profile.getActions()) {
                             action.beforeUnlink(this.getProfile(), values, toBeHandled);
                         }
-                        controller.unlink(
-                                toBeHandled.getId(), Collections.
-                                singleton(profile.getSyncTask().getResource().getName()));
+                        link(toBeHandled, false, result);
                         break;
                     default:
                     // do nothing
@@ -223,7 +199,7 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
 
             result.setStatus(SyncResult.Status.SUCCESS);
             resultStatus = AuditElements.Result.SUCCESS;
-            output = getRemoteObject(oclass, values.getKey(), profile.getSyncTask().getResource().getName());
+            output = getRemoteObject(values.getKey());
         } catch (Exception e) {
             result.setStatus(SyncResult.Status.FAILURE);
             result.setMessage(ExceptionUtils.getRootCauseMessage(e));
@@ -255,27 +231,5 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
                     output,
                     toBeHandled);
         }
-    }
-
-    private ConnectorObject getRemoteObject(
-            final ObjectClass oclass, final String accountId, final String resource) {
-        ConnectorObject obj = null;
-
-        try {
-
-            final Uid uid = new Uid(accountId);
-
-            profile.getConnector().getObject(
-                    oclass,
-                    uid,
-                    profile.getConnector().getOperationOptions(Collections.<AbstractMappingItem>emptySet()));
-
-        } catch (TimeoutException toe) {
-            LOG.debug("Request timeout", toe);
-            throw toe;
-        } catch (RuntimeException ignore) {
-            LOG.debug("While resolving {}", accountId, ignore);
-        }
-        return obj;
     }
 }

@@ -23,8 +23,8 @@ import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
-import org.apache.syncope.core.rest.controller.RoleController;
-import org.apache.syncope.core.rest.controller.UserController;
+import org.apache.syncope.core.propagation.PropagationTaskExecutor;
+import org.apache.syncope.core.propagation.impl.PropagationManager;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.sync.AbstractSyncActions;
@@ -40,12 +40,6 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSyncopeResultHandler.class);
-
-    @Autowired
-    protected UserController userController;
-
-    @Autowired
-    protected RoleController roleController;
 
     /**
      * User data binder.
@@ -76,6 +70,18 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
      */
     @Autowired
     protected AuditManager auditManager;
+
+    /**
+     * Propagation manager.
+     */
+    @Autowired
+    protected PropagationManager propagationManager;
+    
+    /**
+     * task executor.
+     */
+    @Autowired
+    protected PropagationTaskExecutor taskExecutor;
 
     /**
      * User workflow adapter.

@@ -53,7 +53,12 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
 
     @Override
     protected AbstractSubjectTO getSubjectTO(final long id) {
-        return userDataBinder.getUserTO(id);
+        try {
+            return userDataBinder.getUserTO(id);
+        } catch (Exception e) {
+            LOG.warn("Error retrieving user {}", id, e);
+            return null;
+        }
     }
 
     @Override
@@ -88,16 +93,35 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
         userTO = userDataBinder.getUserTO(created.getResult().getKey());
 
         result.setId(created.getResult().getKey());
-        result.setName(getName(subjectTO));
 
         return userTO;
+    }
+
+    @Override
+    protected AbstractSubjectTO link(
+            final AbstractSubjectTO before,
+            final SyncResult result,
+            final boolean unlink)
+            throws Exception {
+
+        final UserMod userMod = new UserMod();
+        userMod.setId(before.getId());
+
+        if (unlink) {
+            userMod.getResourcesToRemove().add(profile.getSyncTask().getResource().getName());
+        } else {
+            userMod.getResourcesToAdd().add(profile.getSyncTask().getResource().getName());
+        }
+
+        return userDataBinder.getUserTO(uwfAdapter.update(userMod).getResult().getKey().getId());
     }
 
     @Override
     protected AbstractSubjectTO update(
             final AbstractSubjectTO before,
             final AbstractSubjectMod subjectMod,
-            final SyncDelta delta, final SyncResult result)
+            final SyncDelta delta,
+            final SyncResult result)
             throws Exception {
 
         final UserMod userMod = UserMod.class.cast(subjectMod);
@@ -113,7 +137,8 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
                     + ExceptionUtils.getRootCauseMessage(e));
 
             updated = new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                    new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, false), new PropagationByResource(),
+                    new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, false),
+                    new PropagationByResource(),
                     new HashSet<String>());
         }
 
@@ -145,10 +170,22 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
 
         taskExecutor.execute(tasks);
 
-        final UserTO after = userDataBinder.getUserTO(updated.getResult().getKey().getId());
+        return userDataBinder.getUserTO(updated.getResult().getKey().getId());
+    }
 
-        result.setName(getName(after));
-        return after;
+    @Override
+    protected void deprovision(
+            final Long id,
+            final boolean unlink) {
+
+        taskExecutor.execute(
+                propagationManager.getUserDeleteTaskIds(id, profile.getSyncTask().getResource().getName()));
+
+        if (unlink) {
+            final UserMod userMod = new UserMod();
+            userMod.setId(id);
+            userMod.getResourcesToRemove().add(profile.getSyncTask().getResource().getName());
+        }
     }
 
     @Override

@@ -47,7 +47,6 @@ import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.dao.search.SubjectCond;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.propagation.Connector;
-import org.apache.syncope.core.sync.SyncCorrelationRule;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.identityconnectors.framework.common.objects.Attribute;

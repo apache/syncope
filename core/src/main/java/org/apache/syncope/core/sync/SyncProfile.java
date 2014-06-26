@@ -23,8 +23,6 @@ import java.util.List;
 import org.apache.syncope.common.types.ConflictResolutionAction;
 import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
 import org.apache.syncope.core.propagation.Connector;
-import org.apache.syncope.core.sync.AbstractSyncActions;
-import org.apache.syncope.core.sync.SyncResult;
 
 public class SyncProfile<T extends AbstractSyncTask, A extends AbstractSyncActions<?>> {
 

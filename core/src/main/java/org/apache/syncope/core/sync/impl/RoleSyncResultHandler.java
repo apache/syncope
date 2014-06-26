@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.AbstractSubjectMod;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.RoleMod;
+import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.RoleTO;
@@ -58,7 +59,12 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
 
     @Override
     protected AbstractSubjectTO getSubjectTO(final long id) {
-        return roleDataBinder.getRoleTO(id);
+        try {
+            return roleDataBinder.getRoleTO(id);
+        } catch (Exception e) {
+            LOG.warn("Error retrieving role {}", id, e);
+            return null;
+        }
     }
 
     @Override
@@ -101,6 +107,25 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
     }
 
     @Override
+    protected AbstractSubjectTO link(
+            final AbstractSubjectTO before,
+            final SyncResult result,
+            final boolean unlink)
+            throws Exception {
+
+        final RoleMod roleMod = new RoleMod();
+        roleMod.setId(before.getId());
+
+        if (unlink) {
+            roleMod.getResourcesToRemove().add(profile.getSyncTask().getResource().getName());
+        } else {
+            roleMod.getResourcesToAdd().add(profile.getSyncTask().getResource().getName());
+        }
+
+        return userDataBinder.getUserTO(rwfAdapter.update(roleMod).getResult());
+    }
+
+    @Override
     protected AbstractSubjectTO update(
             final AbstractSubjectTO before,
             final AbstractSubjectMod subjectMod,
@@ -135,7 +160,20 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
     }
 
     @Override
-    protected void delete(Long id) {
+    protected void deprovision(final Long id, final boolean unlink) {
+
+        taskExecutor.execute(
+                propagationManager.getRoleDeleteTaskIds(id, profile.getSyncTask().getResource().getName()));
+
+        if (unlink) {
+            final UserMod userMod = new UserMod();
+            userMod.setId(id);
+            userMod.getResourcesToRemove().add(profile.getSyncTask().getResource().getName());
+        }
+    }
+
+    @Override
+    protected void delete(final Long id) {
         try {
             taskExecutor.execute(
                     propagationManager.getRoleDeleteTaskIds(id, profile.getSyncTask().getResource().getName()));
