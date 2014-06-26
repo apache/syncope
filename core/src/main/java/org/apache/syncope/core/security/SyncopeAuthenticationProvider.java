@@ -20,7 +20,7 @@ package org.apache.syncope.core.security;
 
 import java.util.Date;
 import javax.annotation.Resource;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.CipherAlgorithm;

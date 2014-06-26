@@ -20,9 +20,9 @@ package org.apache.syncope.core.sync;
 
 import java.util.Collection;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.TraceLevel;

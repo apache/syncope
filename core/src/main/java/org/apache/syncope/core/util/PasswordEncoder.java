@@ -29,7 +29,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.jasypt.commons.CommonUtils;
 import org.jasypt.digest.StandardStringDigester;

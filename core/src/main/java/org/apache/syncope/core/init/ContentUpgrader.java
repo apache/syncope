@@ -25,7 +25,7 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.search.NodeCond;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AbstractPolicySpec;

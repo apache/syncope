@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.validation.ValidationException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;

@@ -47,7 +47,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.core.persistence.dao.impl.AbstractContentDealer;
 import org.apache.syncope.core.util.multiparent.MultiParentNode;

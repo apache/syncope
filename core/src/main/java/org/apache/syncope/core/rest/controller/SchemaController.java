@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
