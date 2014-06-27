@@ -474,8 +474,6 @@ public class SyncopeUser extends AbstractSubject {
         return username;
     }
 
-    int PASSWORD_LENGTH = 8;
-
     public void setUsername(final String username) {
         this.username = username;
     }
