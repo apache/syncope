@@ -19,6 +19,8 @@
 package org.apache.syncope.core.sync.impl;
 
 import org.apache.syncope.core.sync.SyncProfile;
+import org.apache.syncope.common.mod.AbstractAttributableMod;
+import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.CipherAlgorithm;
@@ -59,23 +61,43 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
 
         if (subject instanceof UserTO) {
             String password = ((UserTO) subject).getPassword();
-            if (password != null && password.startsWith("{")) {
-                int closingBracketIndex = password.indexOf('}');
-                String digest = password.substring(1, password.indexOf('}'));
-                if (digest != null) {
-                    digest = digest.toUpperCase();
-                }
-                try {
-                    encodedPassword = password.substring(closingBracketIndex + 1);
-                    cipher = CipherAlgorithm.valueOf(digest);
-                } catch (IllegalArgumentException e) {
-                    LOG.error("Cipher algorithm not allowed: {}", digest, e);
-                    encodedPassword = null;
-                }
-            }
+            parseEncodedPassword(password);
         }
 
         return delta;
+    }
+    
+    @Transactional(readOnly = true)
+    @Override
+    public <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
+            final SyncProfile<?, ?> profile,
+            final SyncDelta delta,
+            final T subject,
+            final K subjectMod) throws JobExecutionException {
+        
+        if (subjectMod instanceof UserMod) {
+            String modPassword = ((UserMod)subjectMod).getPassword();
+            parseEncodedPassword(modPassword);
+        }
+        
+        return delta;
+    }
+    
+    private void parseEncodedPassword(String password) {
+        if (password != null && password.startsWith("{")) {
+            int closingBracketIndex = password.indexOf('}');
+            String digest = password.substring(1, password.indexOf('}'));
+            if (digest != null) {
+                digest = digest.toUpperCase();
+            }
+            try {
+                encodedPassword = password.substring(closingBracketIndex + 1);
+                cipher = CipherAlgorithm.valueOf(digest);
+            } catch (IllegalArgumentException e) {
+                LOG.error("Cipher algorithm not allowed: {}", digest, e);
+                encodedPassword = null;
+            }
+        }
     }
 
     @Transactional(readOnly = true)

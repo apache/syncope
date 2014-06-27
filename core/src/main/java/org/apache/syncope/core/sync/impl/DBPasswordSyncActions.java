@@ -19,8 +19,11 @@
 package org.apache.syncope.core.sync.impl;
 
 import org.apache.syncope.core.sync.SyncProfile;
+
 import java.util.Iterator;
 
+import org.apache.syncope.common.mod.AbstractAttributableMod;
+import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.CipherAlgorithm;
@@ -65,24 +68,43 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
 
         if (subject instanceof UserTO) {
             String password = ((UserTO) subject).getPassword();
-            if (password != null) {
-                Connector connector = profile.getConnector();
-                ConnInstance connInstance = connector.getActiveConnInstance();
-
-                String cipherAlgorithm = getCipherAlgorithm(connInstance);
-                if (!CLEARTEXT.equals(cipherAlgorithm)) {
-                    try {
-                        encodedPassword = password;
-                        cipher = CipherAlgorithm.valueOf(cipherAlgorithm);
-                    } catch (IllegalArgumentException e) {
-                        LOG.error("Cipher algorithm not allowed: {}", cipherAlgorithm, e);
-                        encodedPassword = null;
-                    }
-                }
-            }
+            parseEncodedPassword(password, profile.getConnector());
         }
 
         return delta;
+    }
+    
+    @Transactional(readOnly = true)
+    @Override
+    public <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
+            final SyncProfile<?, ?> profile,
+            final SyncDelta delta,
+            final T subject,
+            final K subjectMod) throws JobExecutionException {
+        
+        if (subjectMod instanceof UserMod) {
+            String modPassword = ((UserMod)subjectMod).getPassword();
+            parseEncodedPassword(modPassword, profile.getConnector());
+        }
+        
+        return delta;
+    }
+    
+    private void parseEncodedPassword(String password, Connector connector) {
+        if (password != null) {
+            ConnInstance connInstance = connector.getActiveConnInstance();
+
+            String cipherAlgorithm = getCipherAlgorithm(connInstance);
+            if (!CLEARTEXT.equals(cipherAlgorithm)) {
+                try {
+                    encodedPassword = password;
+                    cipher = CipherAlgorithm.valueOf(cipherAlgorithm);
+                } catch (IllegalArgumentException e) {
+                    LOG.error("Cipher algorithm not allowed: {}", cipherAlgorithm, e);
+                    encodedPassword = null;
+                }
+            }
+        }
     }
 
     private String getCipherAlgorithm(ConnInstance connInstance) {
