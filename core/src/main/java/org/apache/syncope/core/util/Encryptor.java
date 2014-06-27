@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.codec.Base64;
 
-public class Encryptor {
+public final class Encryptor {
 
     private static final Logger LOG = LoggerFactory.getLogger(Encryptor.class);
 
@@ -50,9 +50,42 @@ public class Encryptor {
 
     private static final String DEFAULT_SECRET_KEY = "1abcdefghilmnopqrstuvz2!";
 
-    private static String PASSWORD_SECRET_KEY;
+    /**
+     * Default value for salted {@link StandardStringDigester#setIterations(int)}.
+     */
+    private static final int DEFAULT_SALT_ITERATIONS = 1;
 
-    private SecretKeySpec keySpec;
+    /**
+     * Default value for {@link StandardStringDigester#setSaltSizeBytes(int)}.
+     */
+    private static final int DEFAULT_SALT_SIZE_BYTES = 8;
+
+    /**
+     * Default value for {@link StandardStringDigester#setInvertPositionOfPlainSaltInEncryptionResults(boolean)}.
+     */
+    private static final boolean DEFAULT_IPOPSIER = true;
+
+    /**
+     * Default value for salted {@link StandardStringDigester#setInvertPositionOfSaltInMessageBeforeDigesting(boolean)}.
+     */
+    private static final boolean DEFAULT_IPOSIMBD = true;
+
+    /**
+     * Default value for salted {@link StandardStringDigester#setUseLenientSaltSizeCheck(boolean)}.
+     */
+    private static final boolean DEFAULT_ULSSC = true;
+
+    private static String secretKey;
+
+    private static Integer saltIterations;
+
+    private static Integer saltSizeBytes;
+
+    private static Boolean ipopsier;
+
+    private static Boolean iposimbd;
+
+    private static Boolean ulssc;
 
     static {
         InputStream propStream = null;
@@ -60,21 +93,47 @@ public class Encryptor {
             propStream = Encryptor.class.getResourceAsStream("/security.properties");
             Properties props = new Properties();
             props.load(propStream);
-            PASSWORD_SECRET_KEY = props.getProperty("secretKey");
+
+            secretKey = props.getProperty("secretKey");
+            saltIterations = Integer.valueOf(props.getProperty("digester.saltIterations"));
+            saltSizeBytes = Integer.valueOf(props.getProperty("digester.saltSizeBytes"));
+            ipopsier = Boolean.valueOf(props.getProperty("digester.invertPositionOfPlainSaltInEncryptionResults"));
+            iposimbd = Boolean.valueOf(props.getProperty("digester.invertPositionOfSaltInMessageBeforeDigesting"));
+            ulssc = Boolean.valueOf(props.getProperty("digester.useLenientSaltSizeCheck"));
         } catch (Exception e) {
-            LOG.error("Could not read password secretKey", e);
+            LOG.error("Could not read security parameters", e);
         } finally {
             IOUtils.closeQuietly(propStream);
         }
 
-        if (PASSWORD_SECRET_KEY == null) {
-            PASSWORD_SECRET_KEY = DEFAULT_SECRET_KEY;
-            LOG.debug("password secretKey not found, reverting to default");
+        if (secretKey == null) {
+            secretKey = DEFAULT_SECRET_KEY;
+            LOG.debug("secretKey not found, reverting to default");
+        }
+        if (saltIterations == null) {
+            saltIterations = DEFAULT_SALT_ITERATIONS;
+            LOG.debug("digester.saltIterations not found, reverting to default");
+        }
+        if (saltSizeBytes == null) {
+            saltSizeBytes = DEFAULT_SALT_SIZE_BYTES;
+            LOG.debug("digester.saltSizeBytes not found, reverting to default");
+        }
+        if (ipopsier == null) {
+            ipopsier = DEFAULT_IPOPSIER;
+            LOG.debug("digester.invertPositionOfPlainSaltInEncryptionResults not found, reverting to default");
+        }
+        if (iposimbd == null) {
+            iposimbd = DEFAULT_IPOSIMBD;
+            LOG.debug("digester.invertPositionOfSaltInMessageBeforeDigesting not found, reverting to default");
+        }
+        if (ulssc == null) {
+            ulssc = DEFAULT_ULSSC;
+            LOG.debug("digester.useLenientSaltSizeCheck not found, reverting to default");
         }
     }
 
     public static Encryptor getInstance() {
-        return getInstance(PASSWORD_SECRET_KEY);
+        return getInstance(secretKey);
     }
 
     public static Encryptor getInstance(final String secretKey) {
@@ -88,6 +147,8 @@ public class Encryptor {
 
         return instance;
     }
+
+    private SecretKeySpec keySpec;
 
     private Encryptor(final String secretKey) {
         String actualKey = secretKey;
@@ -109,68 +170,66 @@ public class Encryptor {
         }
     }
 
-    public String encode(final String password, final CipherAlgorithm cipherAlgorithm)
+    public String encode(final String value, final CipherAlgorithm cipherAlgorithm)
             throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
             IllegalBlockSizeException, BadPaddingException {
 
-        String encodedPassword = null;
+        String encodedValue = null;
 
-        if (password != null) {
+        if (value != null) {
             if (cipherAlgorithm == null || cipherAlgorithm == CipherAlgorithm.AES) {
-                final byte[] cleartext = password.getBytes(SyncopeConstants.DEFAULT_ENCODING);
+                final byte[] cleartext = value.getBytes(SyncopeConstants.DEFAULT_ENCODING);
 
                 final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
                 cipher.init(Cipher.ENCRYPT_MODE, keySpec);
 
-                encodedPassword = new String(Base64.encode(cipher.doFinal(cleartext)));
+                encodedValue = new String(Base64.encode(cipher.doFinal(cleartext)));
             } else if (cipherAlgorithm == CipherAlgorithm.BCRYPT) {
-                encodedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+                encodedValue = BCrypt.hashpw(value, BCrypt.gensalt());
             } else {
-                encodedPassword = getDigester(cipherAlgorithm).digest(password);
+                encodedValue = getDigester(cipherAlgorithm).digest(value);
             }
         }
 
-        return encodedPassword;
+        return encodedValue;
     }
 
-    public boolean verify(final String password, final CipherAlgorithm cipherAlgorithm,
-            final String digestedPassword) {
-
+    public boolean verify(final String value, final CipherAlgorithm cipherAlgorithm, final String encodedValue) {
         boolean res = false;
 
         try {
-            if (password != null) {
+            if (value != null) {
                 if (cipherAlgorithm == null || cipherAlgorithm == CipherAlgorithm.AES) {
-                    res = encode(password, cipherAlgorithm).equals(digestedPassword);
+                    res = encode(value, cipherAlgorithm).equals(encodedValue);
                 } else if (cipherAlgorithm == CipherAlgorithm.BCRYPT) {
-                    res = BCrypt.checkpw(password, digestedPassword);
+                    res = BCrypt.checkpw(value, encodedValue);
                 } else {
-                    res = getDigester(cipherAlgorithm).matches(password, digestedPassword);
+                    res = getDigester(cipherAlgorithm).matches(value, encodedValue);
                 }
             }
         } catch (Exception e) {
-            LOG.error("Could not verify password", e);
+            LOG.error("Could not verify encoded value", e);
         }
 
         return res;
     }
 
-    public String decode(final String encodedPassword, final CipherAlgorithm cipherAlgorithm)
+    public String decode(final String encodedValue, final CipherAlgorithm cipherAlgorithm)
             throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
             IllegalBlockSizeException, BadPaddingException {
 
-        String password = null;
+        String value = null;
 
-        if (encodedPassword != null && cipherAlgorithm == CipherAlgorithm.AES) {
-            final byte[] encoded = encodedPassword.getBytes(SyncopeConstants.DEFAULT_ENCODING);
+        if (encodedValue != null && cipherAlgorithm == CipherAlgorithm.AES) {
+            final byte[] encoded = encodedValue.getBytes(SyncopeConstants.DEFAULT_ENCODING);
 
             final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
             cipher.init(Cipher.DECRYPT_MODE, keySpec);
 
-            password = new String(cipher.doFinal(Base64.decode(encoded)));
+            value = new String(cipher.doFinal(Base64.decode(encoded)), SyncopeConstants.DEFAULT_ENCODING);
         }
 
-        return password;
+        return value;
     }
 
     private StandardStringDigester getDigester(final CipherAlgorithm cipherAlgorithm) {
@@ -179,8 +238,11 @@ public class Encryptor {
         if (cipherAlgorithm.getAlgorithm().startsWith("S-")) {
             // Salted ...
             digester.setAlgorithm(cipherAlgorithm.getAlgorithm().replaceFirst("S\\-", ""));
-            digester.setIterations(100000);
-            digester.setSaltSizeBytes(16);
+            digester.setIterations(saltIterations);
+            digester.setSaltSizeBytes(saltSizeBytes);
+            digester.setInvertPositionOfPlainSaltInEncryptionResults(ipopsier);
+            digester.setInvertPositionOfSaltInMessageBeforeDigesting(iposimbd);
+            digester.setUseLenientSaltSizeCheck(ulssc);
         } else {
             // Not salted ...
             digester.setAlgorithm(cipherAlgorithm.getAlgorithm());

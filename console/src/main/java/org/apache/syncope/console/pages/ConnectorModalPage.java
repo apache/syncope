@@ -429,7 +429,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 conn.setBundleName(bundleTO.getBundleName());
                 conn.setVersion(bundleTO.getVersion());
                 conn.getConfiguration().clear();
-                conn.getConfiguration().addAll(connPropView.getModelObject());                
+                conn.getConfiguration().addAll(connPropView.getModelObject());
 
                 // Set the model object's capabilities to capabilitiesPalette's converted Set
                 conn.getCapabilities().addAll(selectedCapabilities.isEmpty()
@@ -437,7 +437,8 @@ public class ConnectorModalPage extends BaseModalPage {
                         : EnumSet.copyOf(selectedCapabilities));
 
                 // Reset pool configuration if all fields are null
-                if (conn.getPoolConf().getMaxIdle() == null
+                if (conn.getPoolConf() != null
+                        && conn.getPoolConf().getMaxIdle() == null
                         && conn.getPoolConf().getMaxObjects() == null
                         && conn.getPoolConf().getMaxWait() == null
                         && conn.getPoolConf().getMinEvictableIdleTimeMillis() == null

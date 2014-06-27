@@ -29,7 +29,7 @@ import org.junit.Test;
 /**
  * Test class to test all encryption algorithms.
  */
-public class PasswordEncoderTest {
+public class EncryptorTest {
 
     private final String password = "password";
 
