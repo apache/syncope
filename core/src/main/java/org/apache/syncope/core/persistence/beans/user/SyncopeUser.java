@@ -492,8 +492,6 @@ public class SyncopeUser extends AbstractAttributable {
         return username;
     }
 
-    int PASSWORD_LENGTH = 8;
-
     public void setUsername(final String username) {
         this.username = username;
     }
