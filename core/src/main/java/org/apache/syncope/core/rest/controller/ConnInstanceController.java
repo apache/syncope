@@ -47,6 +47,7 @@ import org.apache.syncope.core.rest.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.util.ConnIdBundleManager;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConfigurationProperties;
+import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorKey;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -212,18 +213,18 @@ public class ConnInstanceController extends AbstractTransactionalController<Conn
                 ConfigurationProperties properties = ConnIdBundleManager.getConfigurationProperties(bundle);
 
                 for (String propName : properties.getPropertyNames()) {
-                    ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
+                    ConfigurationProperty configurationProperty = properties.getProperty(propName);
 
-                    ConfigurationPropertyImpl configurationProperty =
-                            (ConfigurationPropertyImpl) properties.getProperty(propName);
+                    ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
 
                     connConfPropSchema.setName(configurationProperty.getName());
                     connConfPropSchema.setDisplayName(configurationProperty.getDisplayName(propName));
                     connConfPropSchema.setHelpMessage(configurationProperty.getHelpMessage(propName));
                     connConfPropSchema.setRequired(configurationProperty.isRequired());
                     connConfPropSchema.setType(configurationProperty.getType().getName());
-                    connConfPropSchema.setOrder(configurationProperty.getOrder());
+                    connConfPropSchema.setOrder(((ConfigurationPropertyImpl) configurationProperty).getOrder());
                     connConfPropSchema.setConfidential(configurationProperty.isConfidential());
+                    connConfPropSchema.setDefaultValue(configurationProperty.getValue());
 
                     connBundleTO.addProperty(connConfPropSchema);
                 }

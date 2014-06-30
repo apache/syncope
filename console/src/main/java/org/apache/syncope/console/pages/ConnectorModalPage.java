@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -83,8 +84,8 @@ public class ConnectorModalPage extends BaseModalPage {
     // GuardedByteArray is not in classpath
     private static final String GUARDED_BYTE_ARRAY = "org.identityconnectors.common.security.GuardedByteArray";
 
-    private static final Class[] NUMBER = {Integer.class, Double.class, Long.class,
-        Float.class, Number.class, Integer.TYPE, Long.TYPE, Double.TYPE, Float.TYPE};
+    private static final Class[] NUMBER = { Integer.class, Double.class, Long.class,
+        Float.class, Number.class, Integer.TYPE, Long.TYPE, Double.TYPE, Float.TYPE };
 
     @SpringBean
     private ConnectorRestClient restClient;
@@ -105,7 +106,6 @@ public class ConnectorModalPage extends BaseModalPage {
         super();
 
         // general data setup
-
         selectedCapabilities = new ArrayList<ConnectorCapability>(connInstanceTO.getId() == 0
                 ? EnumSet.noneOf(ConnectorCapability.class)
                 : connInstanceTO.getCapabilities());
@@ -134,7 +134,6 @@ public class ConnectorModalPage extends BaseModalPage {
         properties = fillProperties(bundleTO, connInstanceTO);
 
         // form - first tab
-
         final Form<ConnInstanceTO> connectorForm = new Form<ConnInstanceTO>(FORM);
         connectorForm.setModel(new CompoundPropertyModel<ConnInstanceTO>(connInstanceTO));
         connectorForm.setOutputMarkupId(true);
@@ -157,7 +156,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
         final AjaxDropDownChoicePanel<String> location =
                 new AjaxDropDownChoicePanel<String>("location", "location",
-                new Model<String>(bundleTO == null ? null : bundleTO.getLocation()));
+                        new Model<String>(bundleTO == null ? null : bundleTO.getLocation()));
         ((DropDownChoice) location.getField()).setNullValid(true);
         location.setStyleSheet("long_dynamicsize");
         location.setChoices(new ArrayList<String>(mapConnBundleTOs.keySet()));
@@ -170,7 +169,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
         final AjaxDropDownChoicePanel<String> connectorName =
                 new AjaxDropDownChoicePanel<String>("connectorName", "connectorName",
-                new Model<String>(bundleTO == null ? null : bundleTO.getBundleName()));
+                        new Model<String>(bundleTO == null ? null : bundleTO.getBundleName()));
         ((DropDownChoice) connectorName.getField()).setNullValid(true);
         connectorName.setStyleSheet("long_dynamicsize");
         connectorName.setChoices(bundleTO == null
@@ -186,12 +185,12 @@ public class ConnectorModalPage extends BaseModalPage {
 
         final AjaxDropDownChoicePanel<String> version =
                 new AjaxDropDownChoicePanel<String>("version", "version",
-                new Model<String>(bundleTO == null ? null : bundleTO.getVersion()));
+                        new Model<String>(bundleTO == null ? null : bundleTO.getVersion()));
         version.setStyleSheet("long_dynamicsize");
         version.setChoices(bundleTO == null
                 ? new ArrayList<String>()
                 : new ArrayList<String>(mapConnBundleTOs.get(connInstanceTO.getLocation()).
-                get(connInstanceTO.getBundleName()).keySet()));
+                        get(connInstanceTO.getBundleName()).keySet()));
         version.setRequired(true);
         version.addRequiredLabel();
         version.setEnabled(connInstanceTO.getBundleName() != null);
@@ -268,92 +267,94 @@ public class ConnectorModalPage extends BaseModalPage {
         });
 
         // form - second tab (properties)
-
         final ListView<ConnConfProperty> connPropView = new AltListView<ConnConfProperty>(
                 "connectorProperties", new PropertyModel<List<ConnConfProperty>>(this, "properties")) {
 
-            private static final long serialVersionUID = 9101744072914090143L;
+                    private static final long serialVersionUID = 9101744072914090143L;
 
-            @Override
-            protected void populateItem(final ListItem<ConnConfProperty> item) {
-                final ConnConfProperty property = item.getModelObject();
+                    @Override
+                    @SuppressWarnings("unchecked")
+                    protected void populateItem(final ListItem<ConnConfProperty> item) {
+                        final ConnConfProperty property = item.getModelObject();
 
-                final Label label = new Label("connPropAttrSchema", property.getSchema().getDisplayName() == null
-                        || property.getSchema().getDisplayName().isEmpty()
-                        ? property.getSchema().getName()
-                        : property.getSchema().getDisplayName());
+                        final Label label = new Label("connPropAttrSchema",
+                                property.getSchema().getDisplayName() == null
+                                || property.getSchema().getDisplayName().isEmpty()
+                                ? property.getSchema().getName()
+                                : property.getSchema().getDisplayName());
+                        item.add(label);
 
-                item.add(label);
-
-                final FieldPanel field;
-                boolean required = false;
-                boolean isArray = false;
-                if (property.getSchema().isConfidential()
+                        final FieldPanel field;
+                        boolean required = false;
+                        boolean isArray = false;
+                        if (property.getSchema().isConfidential()
                         || GUARDED_STRING.equalsIgnoreCase(property.getSchema().getType())
                         || GUARDED_BYTE_ARRAY.equalsIgnoreCase(property.getSchema().getType())) {
 
-                    field = new AjaxPasswordFieldPanel("panel",
-                            label.getDefaultModelObjectAsString(), new Model<String>());
+                            field = new AjaxPasswordFieldPanel("panel",
+                                    label.getDefaultModelObjectAsString(), new Model<String>());
 
-                    ((PasswordTextField) field.getField()).setResetPassword(false);
+                            ((PasswordTextField) field.getField()).setResetPassword(false);
 
-                    required = property.getSchema().isRequired();
-                } else {
-                    Class<?> propertySchemaClass;
+                            required = property.getSchema().isRequired();
+                        } else {
+                            Class<?> propertySchemaClass;
 
-                    try {
-                        propertySchemaClass =
+                            try {
+                                propertySchemaClass =
                                 ClassUtils.forName(property.getSchema().getType(), ClassUtils.getDefaultClassLoader());
-                    } catch (Exception e) {
-                        LOG.error("Error parsing attribute type", e);
-                        propertySchemaClass = String.class;
+                            } catch (Exception e) {
+                                LOG.error("Error parsing attribute type", e);
+                                propertySchemaClass = String.class;
+                            }
+                            if (ArrayUtils.contains(NUMBER, propertySchemaClass)) {
+                                field = new AjaxNumberFieldPanel("panel",
+                                        label.getDefaultModelObjectAsString(), new Model<Number>(),
+                                        ClassUtils.resolvePrimitiveIfNecessary(propertySchemaClass));
+
+                                required = property.getSchema().isRequired();
+                            } else if (Boolean.class.equals(propertySchemaClass)
+                            || boolean.class.equals(propertySchemaClass)) {
+
+                                field = new AjaxCheckBoxPanel("panel",
+                                        label.getDefaultModelObjectAsString(), new Model<Boolean>());
+                            } else {
+                                field = new AjaxTextFieldPanel("panel",
+                                        label.getDefaultModelObjectAsString(), new Model<String>());
+
+                                required = property.getSchema().isRequired();
+                            }
+
+                            if (propertySchemaClass.isArray()) {
+                                isArray = true;
+                            }
+                        }
+
+                        field.setTitle(property.getSchema().getHelpMessage());
+
+                        if (required) {
+                            field.addRequiredLabel();
+                        }
+
+                        if (isArray) {
+                            if (property.getValues().isEmpty()) {
+                                property.getValues().add(null);
+                            }
+
+                            item.add(new MultiValueSelectorPanel<String>(
+                                            "panel", new PropertyModel<List<String>>(property, "values"), field));
+                        } else {
+                            field.setNewModel(property.getValues());
+                            item.add(field);
+                        }
+
+                        final AjaxCheckBoxPanel overridable = new AjaxCheckBoxPanel("connPropAttrOverridable",
+                                "connPropAttrOverridable", new PropertyModel<Boolean>(property, "overridable"));
+
+                        item.add(overridable);
+                        connInstanceTO.addConfiguration(property);
                     }
-                    if (ArrayUtils.contains(NUMBER, propertySchemaClass)) {
-                        field = new AjaxNumberFieldPanel("panel",
-                                label.getDefaultModelObjectAsString(), new Model<Number>(),
-                                ClassUtils.resolvePrimitiveIfNecessary(propertySchemaClass));
-
-                        required = property.getSchema().isRequired();
-                    } else if (Boolean.class.equals(propertySchemaClass) || boolean.class.equals(propertySchemaClass)) {
-                        field = new AjaxCheckBoxPanel("panel",
-                                label.getDefaultModelObjectAsString(), new Model<Boolean>());
-                    } else {
-                        field = new AjaxTextFieldPanel("panel",
-                                label.getDefaultModelObjectAsString(), new Model<String>());
-
-                        required = property.getSchema().isRequired();
-                    }
-
-                    if (String[].class.equals(propertySchemaClass)) {
-                        isArray = true;
-                    }
-                }
-
-                field.setTitle(property.getSchema().getHelpMessage());
-
-                if (required) {
-                    field.addRequiredLabel();
-                }
-
-                if (isArray) {
-                    if (property.getValues().isEmpty()) {
-                        property.getValues().add(null);
-                    }
-
-                    item.add(new MultiValueSelectorPanel<String>(
-                            "panel", new PropertyModel<List<String>>(property, "values"), field));
-                } else {
-                    field.setNewModel(property.getValues());
-                    item.add(field);
-                }
-
-                final AjaxCheckBoxPanel overridable = new AjaxCheckBoxPanel("connPropAttrOverridable",
-                        "connPropAttrOverridable", new PropertyModel<Boolean>(property, "overridable"));
-
-                item.add(overridable);
-                connInstanceTO.addConfiguration(property);
-            }
-        };
+                };
         connPropView.setOutputMarkupId(true);
         connectorPropForm.add(connPropView);
 
@@ -379,24 +380,22 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorPropForm.add(check);
 
         // form - third tab (capabilities)
-
         final IModel<List<ConnectorCapability>> capabilities =
                 new LoadableDetachableModel<List<ConnectorCapability>>() {
 
-            private static final long serialVersionUID = 5275935387613157437L;
+                    private static final long serialVersionUID = 5275935387613157437L;
 
-            @Override
-            protected List<ConnectorCapability> load() {
-                return Arrays.asList(ConnectorCapability.values());
-            }
-        };
+                    @Override
+                    protected List<ConnectorCapability> load() {
+                        return Arrays.asList(ConnectorCapability.values());
+                    }
+                };
         CheckBoxMultipleChoice<ConnectorCapability> capabilitiesPalette =
                 new CheckBoxMultipleChoice<ConnectorCapability>("capabilitiesPalette",
-                new PropertyModel<List<ConnectorCapability>>(this, "selectedCapabilities"), capabilities);
+                        new PropertyModel<List<ConnectorCapability>>(this, "selectedCapabilities"), capabilities);
         connectorForm.add(capabilitiesPalette);
 
         // form - submit / cancel buttons
-
         final AjaxButton submit = new IndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT))) {
 
             private static final long serialVersionUID = -958724007591692537L;
@@ -480,16 +479,29 @@ public class ConnectorModalPage extends BaseModalPage {
 
         if (bundleTO != null) {
             for (ConnConfPropSchema key : bundleTO.getProperties()) {
-                final ConnConfProperty propertyTO = new ConnConfProperty();
-                propertyTO.setSchema(key);
+                final ConnConfProperty property = new ConnConfProperty();
+                property.setSchema(key);
                 if (connInstanceTO.getId() != 0 && connInstanceTO.getConfigurationMap().containsKey(key.getName())) {
-                    propertyTO.setValues(connInstanceTO.getConfigurationMap().get(key.getName()).getValues());
-                    propertyTO.setOverridable(connInstanceTO.getConfigurationMap().get(key.getName()).isOverridable());
+                    property.getValues().addAll(
+                            connInstanceTO.getConfigurationMap().get(key.getName()).getValues());
+                    property.setOverridable(connInstanceTO.getConfigurationMap().get(key.getName()).isOverridable());
                 }
-                props.add(propertyTO);
+
+                if (property.getValues() == null || property.getValues().isEmpty() && key.getDefaultValue() != null) {
+                    if (key.getDefaultValue().getClass().isArray()) {
+                        property.getValues().addAll(Arrays.asList((Object[]) key.getDefaultValue()));
+                    } else if (key.getDefaultValue() instanceof Collection<?>) {
+                        property.getValues().addAll((Collection<?>) key.getDefaultValue());
+                    } else {
+                        property.getValues().add(key.getDefaultValue());
+                    }
+                }
+
+                props.add(property);
             }
         }
-        // re-order properties
+        
+        // re-order properties (implements Comparable)
         Collections.sort(props);
         return props;
     }

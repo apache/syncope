@@ -28,7 +28,6 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -123,7 +122,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         endpointSchema.setRequired(true);
         ConnConfProperty endpoint = new ConnConfProperty();
         endpoint.setSchema(endpointSchema);
-        endpoint.setValues(Collections.singletonList("http://localhost:8888/wssample/services"));
+        endpoint.getValues().add("http://localhost:8888/wssample/services");
 
         ConnConfPropSchema servicenameSchema = new ConnConfPropSchema();
         servicenameSchema.setName("servicename");
@@ -131,7 +130,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         servicenameSchema.setRequired(true);
         ConnConfProperty servicename = new ConnConfProperty();
         servicename.setSchema(servicenameSchema);
-        servicename.setValues(Collections.singletonList("Provisioning"));
+        servicename.getValues().add("Provisioning");
 
         conf.add(endpoint);
         conf.add(servicename);
@@ -224,7 +223,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         endpointSchema.setRequired(true);
         ConnConfProperty endpoint = new ConnConfProperty();
         endpoint.setSchema(endpointSchema);
-        endpoint.setValues(Collections.singletonList("http://localhost:8888/wssample/services"));
+        endpoint.getValues().add("http://localhost:8888/wssample/services");
 
         ConnConfPropSchema servicenameSchema = new ConnConfPropSchema();
         servicenameSchema.setName("servicename");
@@ -232,7 +231,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         servicenameSchema.setRequired(true);
         ConnConfProperty servicename = new ConnConfProperty();
         servicename.setSchema(servicenameSchema);
-        servicename.setValues(Collections.singletonList("Provisioning"));
+        servicename.getValues().add("Provisioning");
 
         conf.add(endpoint);
         conf.add(servicename);
@@ -451,7 +450,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         userSchema.setRequired(false);
         ConnConfProperty user = new ConnConfProperty();
         user.setSchema(userSchema);
-        user.setValues(Collections.singletonList("sa"));
+        user.getValues().add("sa");
 
         ConnConfPropSchema keyColumnSchema = new ConnConfPropSchema();
         keyColumnSchema.setName("keyColumn");
@@ -459,7 +458,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         keyColumnSchema.setRequired(true);
         ConnConfProperty keyColumn = new ConnConfProperty();
         keyColumn.setSchema(keyColumnSchema);
-        keyColumn.setValues(Collections.singletonList("id"));
+        keyColumn.getValues().add("id");
 
         ConnConfPropSchema jdbcUrlTemplateSchema = new ConnConfPropSchema();
         jdbcUrlTemplateSchema.setName("jdbcUrlTemplate");
@@ -467,7 +466,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         jdbcUrlTemplateSchema.setRequired(true);
         ConnConfProperty jdbcUrlTemplate = new ConnConfProperty();
         jdbcUrlTemplate.setSchema(jdbcUrlTemplateSchema);
-        jdbcUrlTemplate.setValues(Collections.singletonList("jdbc:h2:tcp://localhost:9092/testdb"));
+        jdbcUrlTemplate.getValues().add("jdbc:h2:tcp://localhost:9092/testdb");
 
         ConnConfPropSchema passwordColumnSchema = new ConnConfPropSchema();
         passwordColumnSchema.setName("passwordColumn");
@@ -475,7 +474,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         passwordColumnSchema.setRequired(true);
         ConnConfProperty passwordColumn = new ConnConfProperty();
         passwordColumn.setSchema(passwordColumnSchema);
-        passwordColumn.setValues(Collections.singletonList("password"));
+        passwordColumn.getValues().add("password");
 
         ConnConfPropSchema tableSchema = new ConnConfPropSchema();
         tableSchema.setName("table");
@@ -483,7 +482,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         tableSchema.setRequired(true);
         ConnConfProperty table = new ConnConfProperty();
         table.setSchema(tableSchema);
-        table.setValues(Collections.singletonList("test"));
+        table.getValues().add("test");
 
         ConnConfPropSchema passwordSchema = new ConnConfPropSchema();
         passwordSchema.setName("password");
@@ -491,7 +490,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         passwordSchema.setRequired(true);
         ConnConfProperty password = new ConnConfProperty();
         password.setSchema(passwordSchema);
-        password.setValues(Collections.singletonList("sa"));
+        password.getValues().add("sa");
 
         ConnConfPropSchema jdbcDriverSchema = new ConnConfPropSchema();
         jdbcDriverSchema.setName("jdbcDriver");
@@ -499,7 +498,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         jdbcDriverSchema.setRequired(true);
         ConnConfProperty jdbcDriver = new ConnConfProperty();
         jdbcDriver.setSchema(jdbcDriverSchema);
-        jdbcDriver.setValues(Collections.singletonList("org.h2.Driver"));
+        jdbcDriver.getValues().add("org.h2.Driver");
 
         conf.add(user);
         conf.add(keyColumn);
@@ -517,7 +516,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertTrue(verify);
 
         conf.remove(password);
-        password.setValues(Collections.singletonList("password"));
+        password.getValues().clear();
+        password.getValues().add("password");
         conf.add(password);
 
         verify = connectorService.check(connectorTO);
@@ -600,7 +600,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         userSchema.setRequired(true);
         ConnConfProperty endpoint = new ConnConfProperty();
         endpoint.setSchema(userSchema);
-        endpoint.setValues(Collections.singletonList("http://localhost:9080/does_not_work"));
+        endpoint.getValues().add("http://localhost:9080/does_not_work");
         endpoint.setOverridable(true);
 
         ConnConfPropSchema keyColumnSchema = new ConnConfPropSchema();
@@ -609,8 +609,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         keyColumnSchema.setRequired(true);
         ConnConfProperty servicename = new ConnConfProperty();
         servicename.setSchema(keyColumnSchema);
-        servicename.setValues(
-                Collections.singletonList("org.connid.bundles.soap.provisioning.interfaces.Provisioning"));
+        servicename.getValues().add("org.connid.bundles.soap.provisioning.interfaces.Provisioning");
         servicename.setOverridable(false);
 
         conf.add(endpoint);
@@ -641,7 +640,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
             resourceTO.setConnectorId(connectorTO.getId());
 
             conf = new HashSet<ConnConfProperty>();
-            endpoint.setValues(Collections.singletonList("http://localhost:9080/wssample/services/provisioning"));
+            endpoint.getValues().clear();
+            endpoint.getValues().add("http://localhost:9080/wssample/services/provisioning");
             conf.add(endpoint);
 
             resourceTO.setConnectorConfigurationProperties(conf);
@@ -690,7 +690,6 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         bulkAction.addTarget(String.valueOf(
                 getObject(connectorService.create(conn), ConnInstanceTO.class, connectorService).getId()));
-
 
         Iterator<String> iter = bulkAction.getTargets().iterator();
 

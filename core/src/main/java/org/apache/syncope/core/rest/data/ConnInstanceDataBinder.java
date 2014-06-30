@@ -31,6 +31,7 @@ import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.util.ConnIdBundleManager;
 import org.identityconnectors.framework.api.ConfigurationProperties;
+import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConnInstanceDataBinder {
 
-    private static final String[] IGNORE_PROPERTIES = {"id"};
+    private static final String[] IGNORE_PROPERTIES = { "id" };
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
@@ -112,9 +113,7 @@ public class ConnInstanceDataBinder {
             connInstance.setLocation(connInstanceTO.getLocation().toString());
         }
 
-        // Throw composite exception if there is at least one element set
-        // in the composing exceptions
-
+        // Throw composite exception if there is at least one element set in the composing exceptions
         if (!requiredValuesMissing.isEmpty()) {
             scee.addException(requiredValuesMissing);
         }
@@ -188,28 +187,29 @@ public class ConnInstanceDataBinder {
         // retrieve the ConfigurationProperties
         ConfigurationProperties properties = ConnIdBundleManager.getConfigurationProperties(
                 ConnIdBundleManager.getConnectorInfo(connInstance.getLocation(),
-                connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName()));
+                        connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName()));
 
         BeanUtils.copyProperties(connInstance, connInstanceTO, IGNORE_PROPERTIES);
 
         final Map<String, ConnConfProperty> connInstanceToConfMap = connInstanceTO.getConfigurationMap();
 
         for (String propName : properties.getPropertyNames()) {
-            ConfigurationPropertyImpl configurationProperty =
-                    (ConfigurationPropertyImpl) properties.getProperty(propName);
+            ConfigurationProperty configurationProperty = properties.getProperty(propName);
 
             if (connInstanceToConfMap.containsKey(propName)) {
                 connInstanceToConfMap.get(propName).getSchema().setDisplayName(
                         configurationProperty.getDisplayName(propName));
             } else {
                 ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
+
                 connConfPropSchema.setName(configurationProperty.getName());
                 connConfPropSchema.setDisplayName(configurationProperty.getDisplayName(propName));
                 connConfPropSchema.setHelpMessage(configurationProperty.getHelpMessage(propName));
                 connConfPropSchema.setRequired(configurationProperty.isRequired());
                 connConfPropSchema.setType(configurationProperty.getType().getName());
+                connConfPropSchema.setOrder(((ConfigurationPropertyImpl) configurationProperty).getOrder());
                 connConfPropSchema.setConfidential(configurationProperty.isConfidential());
-                connConfPropSchema.setOrder(configurationProperty.getOrder());
+                connConfPropSchema.setDefaultValue(configurationProperty.getValue());
 
                 ConnConfProperty property = new ConnConfProperty();
                 property.setSchema(connConfPropSchema);

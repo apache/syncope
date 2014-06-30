@@ -43,6 +43,8 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
 
     private boolean confidential;
 
+    private Object defaultValue;
+
     public String getName() {
         return name;
     }
@@ -97,6 +99,14 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
 
     public void setConfidential(final boolean confidential) {
         this.confidential = confidential;
+    }
+
+    public Object getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(final Object defaultValue) {
+        this.defaultValue = defaultValue;
     }
 
     @Override

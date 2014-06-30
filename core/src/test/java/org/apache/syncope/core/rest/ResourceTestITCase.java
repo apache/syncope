@@ -118,7 +118,7 @@ public class ResourceTestITCase extends AbstractTest {
         schema.setName("endpoint");
         schema.setRequired(true);
         p.setSchema(schema);
-        p.setValues(Collections.singletonList("http://invalidurl/"));
+        p.getValues().add("http://invalidurl/");
 
         Set<ConnConfProperty> connectorConfigurationProperties = new HashSet<ConnConfProperty>(Arrays.asList(p));
         resourceTO.setConnectorConfigurationProperties(connectorConfigurationProperties);

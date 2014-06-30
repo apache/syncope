@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.apache.syncope.core.rest.AbstractTest.RESOURCE_NAME_LDAP;
-import static org.apache.syncope.core.rest.AbstractTest.attributeMod;
-import static org.apache.syncope.core.rest.AbstractTest.attributeTO;
-import static org.apache.syncope.core.rest.UserTestITCase.getUniqueSampleTO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -56,7 +52,7 @@ public class VirAttrTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE16() {
-        UserTO userTO = getUniqueSampleTO("issue16@apache.org");
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("issue16@apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
@@ -91,7 +87,7 @@ public class VirAttrTestITCase extends AbstractTest {
         // ----------------------------------
         // create user and check virtual attribute value propagation
         // ----------------------------------
-        UserTO userTO = getUniqueSampleTO("260@a.com");
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("260@a.com");
         userTO.addResource(RESOURCE_NAME_WS2);
 
         userTO = createUser(userTO);
@@ -203,7 +199,7 @@ public class VirAttrTestITCase extends AbstractTest {
 
     @Test
     public void virAttrCache() {
-        UserTO userTO = getUniqueSampleTO("virattrcache@apache.org");
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("virattrcache@apache.org");
         userTO.getVirtualAttributes().clear();
 
         AttributeTO virAttrTO = new AttributeTO();
@@ -291,7 +287,7 @@ public class VirAttrTestITCase extends AbstractTest {
         assertTrue(found);
 
         // create a new user
-        UserTO userTO = getUniqueSampleTO("syncope397@syncope.apache.org");
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope397@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
         userTO.getDerivedAttributes().clear();
@@ -333,7 +329,7 @@ public class VirAttrTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE442() {
-        UserTO userTO = getUniqueSampleTO("syncope442@apache.org");
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope442@apache.org");
         userTO.getVirtualAttributes().clear();
 
         AttributeTO virAttrTO = new AttributeTO();
@@ -361,7 +357,8 @@ public class VirAttrTestITCase extends AbstractTest {
         for (ConnConfProperty prop : connInstanceBean.getConfiguration()) {
             if ("jdbcUrlTemplate".equals(prop.getSchema().getName())) {
                 jdbcURL = prop.getValues().iterator().next().toString();
-                prop.setValues(Collections.singletonList("jdbc:h2:tcp://localhost:9092/xxx"));
+                prop.getValues().clear();
+                prop.getValues().add("jdbc:h2:tcp://localhost:9092/xxx");
             }
         }
 
@@ -405,7 +402,8 @@ public class VirAttrTestITCase extends AbstractTest {
         // ----------------------------------------
         for (ConnConfProperty prop : connInstanceBean.getConfiguration()) {
             if ("jdbcUrlTemplate".equals(prop.getSchema().getName())) {
-                prop.setValues(Collections.singletonList(jdbcURL));
+                prop.getValues().clear();
+                prop.getValues().add(jdbcURL);
             }
         }
 
@@ -418,7 +416,7 @@ public class VirAttrTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE436() {
-        UserTO userTO = getUniqueSampleTO("syncope436@syncope.apache.org");
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope436@syncope.apache.org");
         userTO.getMemberships().clear();
         userTO.getResources().clear();
         userTO.addResource(RESOURCE_NAME_LDAP);
@@ -484,7 +482,7 @@ public class VirAttrTestITCase extends AbstractTest {
         // -------------------------------------------
         // Create new user
         // -------------------------------------------
-        UserTO userTO = getUniqueSampleTO("syncope453@syncope.apache.org");
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope453@syncope.apache.org");
         userTO.addAttribute(attributeTO("aLong", "123"));
         userTO.getResources().clear();
         userTO.getResources().add(resourceName);
@@ -522,7 +520,7 @@ public class VirAttrTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE459() {
-        UserTO userTO = getUniqueSampleTO("syncope459@apache.org");
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope459@apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
         userTO.getVirtualAttributes().clear();
@@ -551,11 +549,11 @@ public class VirAttrTestITCase extends AbstractTest {
     @Test
     public void issueSYNCOPE501() {
         // 1. create user and propagate him on resource-db-virattr
-        UserTO userTO = getUniqueSampleTO("syncope501@apache.org");
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope501@apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
         userTO.getVirtualAttributes().clear();
-        
+
         userTO.getResources().add(RESOURCE_NAME_DBVIRATTR);
 
         // virtualdata is mapped with username
@@ -586,7 +584,7 @@ public class VirAttrTestITCase extends AbstractTest {
 
         userTO = userService.update(userMod.getId(), userMod);
         assertNotNull(userTO);
-        
+
         // 3. check that user virtual attribute has been really updated 
         assertFalse(userTO.getVirtualAttributeMap().get("virtualdata").getValues().isEmpty());
         assertEquals("syncope501_updated@apache.org", userTO.getVirtualAttributeMap().get("virtualdata").getValues().
