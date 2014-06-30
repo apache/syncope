@@ -34,9 +34,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
 import javax.naming.NamingException;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Response;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
@@ -80,7 +82,12 @@ import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.wrap.ResourceName;
+import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.propagation.impl.DBPasswordPropagationActions;
+import org.apache.syncope.core.propagation.impl.LDAPPasswordPropagationActions;
+import org.apache.syncope.core.util.Encryptor;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
@@ -2293,5 +2300,69 @@ public class UserTestITCase extends AbstractTest {
         newWs1.setRmapping(newWs1.getRmapping());
 
         resourceService.update(RESOURCE_NAME_WS1, newWs1);
+    }
+    
+    @Test
+    public void issueSYNCOPE505DB() throws Exception {
+        // 1. create user
+        UserTO user = UserTestITCase.getUniqueSampleTO("syncope505-db@syncope.apache.org");
+        user.setPassword("security");
+        user = createUser(user);
+        assertNotNull(user);
+        assertTrue(user.getResources().isEmpty());
+        
+        // 2. Add DBPasswordPropagationActions
+        ResourceTO resourceTO = resourceService.read(RESOURCE_NAME_TESTDB);
+        assertNotNull(resourceTO);
+        resourceTO.getPropagationActionsClassNames().add(DBPasswordPropagationActions.class.getName());
+        resourceService.update(RESOURCE_NAME_TESTDB, resourceTO);
+        
+        // 3. Add a db resource to the User
+        UserMod userMod = new UserMod();
+        userMod.setId(user.getId());
+        userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
+        user = updateUser(userMod);
+        assertNotNull(user);
+        assertEquals(1, user.getResources().size());
+
+        // 4. Check that the DB resource has the correct password
+        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        String value = jdbcTemplate.queryForObject(
+                "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
+        assertEquals(Encryptor.getInstance().encode("security", CipherAlgorithm.SHA1), value.toUpperCase());
+    }
+    
+    @Test
+    public void issueSYNCOPE505LDAP() throws Exception {
+        // 1. create user
+        UserTO user = UserTestITCase.getUniqueSampleTO("syncope505-ldap@syncope.apache.org");
+        user.setPassword("security");
+        user = createUser(user);
+        assertNotNull(user);
+        assertTrue(user.getResources().isEmpty());
+        
+        // 2. Add LDAPPasswordPropagationActions
+        ResourceTO resourceTO = resourceService.read(RESOURCE_NAME_LDAP);
+        assertNotNull(resourceTO);
+        resourceTO.getPropagationActionsClassNames().add(LDAPPasswordPropagationActions.class.getName());
+        resourceTO.setRandomPwdIfNotProvided(false);
+        resourceService.update(RESOURCE_NAME_LDAP, resourceTO);
+        
+        // 3. Add a resource to the User
+        UserMod userMod = new UserMod();
+        userMod.setId(user.getId());
+        userMod.getResourcesToAdd().add(RESOURCE_NAME_LDAP);
+        user = updateUser(userMod);
+        assertNotNull(user);
+        assertEquals(1, user.getResources().size());
+
+        // 4. Check that the LDAP resource has the correct password
+        ConnObjectTO connObject =
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, user.getId());
+        
+        assertNotNull(getLdapRemoteObject(
+            connObject.getAttrMap().get(Name.NAME).getValues().get(0),
+            "security",
+            connObject.getAttrMap().get(Name.NAME).getValues().get(0)));
     }
 }
