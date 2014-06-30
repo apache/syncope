@@ -25,9 +25,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.HttpResourceStream;
+import org.apache.syncope.console.preview.PreviewUtil;
+import org.apache.syncope.console.pages.BaseModalPage;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.StatelessForm;
@@ -35,10 +39,12 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.resource.ContentDisposition;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.crypt.Base64;
 import org.apache.wicket.util.lang.Bytes;
 
@@ -48,16 +54,40 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
     private final String mimeType;
 
+    private final WebMarkupContainer container;
+
+    private final Link<Void> downloadLink;
+
+    private final Form<?> uploadForm;
+
+    private final Fragment emptyFragment;
+
+    @SpringBean
+    private PreviewUtil previewUtil;
+
     public BinaryFieldPanel(final String id, final String name, final IModel<String> model, final String mimeType) {
         super(id, model);
         this.mimeType = mimeType;
 
+        uploadForm = new StatelessForm<Void>("uploadForm");
+        uploadForm.setMultiPart(true);
+        uploadForm.setMaxSize(Bytes.megabytes(4));
+        add(uploadForm);
+
+        container = new WebMarkupContainer("previewContainer");
+        container.setOutputMarkupId(true);
+
+        emptyFragment = new Fragment("panelPreview", "emptyFragment", container);
+        emptyFragment.setOutputMarkupId(true);
+        container.add(emptyFragment);
+        uploadForm.add(container);
+
         field = new TextField<String>("textField", model);
         add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));
 
-        add(new Label("preview", StringUtils.isBlank(mimeType) ? StringUtils.EMPTY : "(" + mimeType + ")"));
+        uploadForm.add(new Label("preview", StringUtils.isBlank(mimeType) ? StringUtils.EMPTY : "(" + mimeType + ")"));
 
-        Link<Void> downloadLink = new Link<Void>("downloadLink") {
+        downloadLink = new Link<Void>("downloadLink") {
 
             private static final long serialVersionUID = -4331619903296515985L;
 
@@ -75,19 +105,14 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                 }
             }
-
         };
-        add(downloadLink);
-
-        Form<?> uploadForm = new StatelessForm<Void>("uploadForm");
-        uploadForm.setMultiPart(true);
-        uploadForm.setMaxSize(Bytes.megabytes(4));
-        add(uploadForm);
+        downloadLink.setOutputMarkupId(true);
+        uploadForm.add(downloadLink);
 
         @SuppressWarnings("unchecked")
         final FileUploadField fileUpload = new FileUploadField("fileUpload", new Model());
         fileUpload.setOutputMarkupId(true);
-        fileUpload.add(new AjaxFormSubmitBehavior(Constants.ON_BLUR) {
+        fileUpload.add(new AjaxFormSubmitBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -96,16 +121,26 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                 final FileUpload uploadedFile = fileUpload.getFileUpload();
                 if (uploadedFile != null) {
                     try {
+                        final byte[] uploadedBytes = uploadedFile.getBytes();
                         final String uploaded = new String(
-                                Base64.encodeBase64(uploadedFile.getBytes()),
+                                Base64.encodeBase64(uploadedBytes),
                                 SyncopeConstants.DEFAULT_ENCODING);
                         field.setModelObject(uploaded);
                         target.add(field);
 
+                        final Component panelPreview = previewUtil.getPreviewer(mimeType, uploadedBytes);
+
+                        if (panelPreview != null) {
+                            changePreviewer(panelPreview);
+                        }
+
                         fileUpload.setModelObject(null);
-                        target.add(fileUpload);
+                        uploadForm.addOrReplace(fileUpload);
+                        downloadLink.setEnabled(StringUtils.isNotBlank(uploaded));
+                        target.add(uploadForm);
                     } catch (Exception e) {
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
+                        ((BaseModalPage) getPage()).getFeedbackPanel().refresh(target);
                         LOG.error("While saving uploaded file", e);
                     }
                 }
@@ -122,7 +157,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
             public void onClick(final AjaxRequestTarget target) {
             }
         };
-        add(uploadLink);
+        uploadForm.add(uploadLink);
 
         IndicatingAjaxLink<Void> resetLink = new IndicatingAjaxLink<Void>("resetLink") {
 
@@ -132,9 +167,13 @@ public class BinaryFieldPanel extends FieldPanel<String> {
             public void onClick(final AjaxRequestTarget target) {
                 field.setModelObject(null);
                 target.add(field);
+                downloadLink.setEnabled(false);
+                container.addOrReplace(emptyFragment);
+                uploadForm.addOrReplace(container);
+                target.add(uploadForm);
             }
         };
-        add(resetLink);
+        uploadForm.add(resetLink);
     }
 
     private Response buildResponse() {
@@ -142,9 +181,31 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                 type(StringUtils.isBlank(mimeType) ? MediaType.APPLICATION_OCTET_STREAM : mimeType).build();
     }
 
+    private void changePreviewer(final Component panelPreview) {
+        final Fragment fragment = new Fragment("panelPreview", "previewFragment", container);
+        fragment.add(panelPreview);
+        container.addOrReplace(fragment);
+        uploadForm.addOrReplace(container);
+    }
+
     @Override
     public BinaryFieldPanel clone() {
         return (BinaryFieldPanel) super.clone();
     }
 
+    @Override
+    public FieldPanel<String> setNewModel(final IModel<String> model) {
+        field.setModel(model);
+        try {
+            final Component panelPreview = previewUtil.getPreviewer(mimeType, model.getObject());
+            if (panelPreview != null) {
+                changePreviewer(panelPreview);
+            }
+        } catch (Exception e) {
+            LOG.error("While loading saved file", e);
+        }
+        downloadLink.setEnabled(StringUtils.isNotBlank(model.getObject()));
+        uploadForm.addOrReplace(downloadLink);
+        return this;
+    }
 }

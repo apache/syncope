@@ -215,7 +215,7 @@ under the License.
            secretKey="7abcdefghilmnopqrstuvz9#" cipherAlgorithm="SHA"/>
   <USchema name="photo" type="Binary"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-           mimeType="application/jpg"/>
+           mimeType="image/jpeg"/>
 
   <UDerSchema name="csvuserid" expression="firstname + ',' + surname"/>
   <UDerSchema name="cn" expression="surname + ', ' + firstname"/>

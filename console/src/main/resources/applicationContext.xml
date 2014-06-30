@@ -29,6 +29,8 @@ under the License.
                            http://cxf.apache.org/schemas/core.xsd">
 
   <context:component-scan base-package="org.apache.syncope.console.rest"/>
+  <context:component-scan base-package="org.apache.syncope.console.init"/>
+  <context:component-scan base-package="org.apache.syncope.console.preview"/>
 
   <bean id="systemPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="order" value="1"/>

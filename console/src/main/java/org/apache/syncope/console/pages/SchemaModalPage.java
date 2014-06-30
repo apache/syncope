@@ -141,7 +141,8 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
         // -- binary
         final AjaxTextFieldPanel mimeType = new AjaxTextFieldPanel("mimeType",
                 getString("mimeType"), new PropertyModel<String>(schema, "mimeType"));
-
+        mimeType.setChoices(mimeTypesInitializer.getMimeTypes());
+        
         final WebMarkupContainer binaryParams = new WebMarkupContainer("binaryParams");
         binaryParams.setOutputMarkupPlaceholderTag(true);
         binaryParams.add(mimeType);

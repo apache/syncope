@@ -81,6 +81,7 @@ public class RoleModalPage extends BaseModalPage {
         }
 
         final Form<RoleTO> form = new Form<RoleTO>("RoleForm");
+        form.setMultiPart(true);
 
         add(new Label("displayName", roleTO.getId() == 0 ? "" : roleTO.getDisplayName()));
 

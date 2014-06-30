@@ -51,7 +51,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
 
             @Override
             protected Iterator<String> getChoices(final String input) {
-                final Pattern pattern = Pattern.compile(Pattern.quote(input) + ".*", Pattern.CASE_INSENSITIVE);
+                final Pattern pattern = Pattern.compile(".*" + Pattern.quote(input) + ".*", Pattern.CASE_INSENSITIVE);
 
                 final List<String> result = new ArrayList<String>();
 

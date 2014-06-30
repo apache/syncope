@@ -21,15 +21,23 @@ under the License.
     <input style="display: none;" wicket:id="textField"/>
     <span style="margin-right: 20px;">
       <div style="display: table-cell;">
-        <form wicket:id="uploadForm">
+        <form wicket:id="uploadForm" encType="multipart/form-data" method="post" accept-charset="UTF-8">
           <input wicket:id="fileUpload" type="file"/>
+          <div style="top: -25px; left: 100%; position: relative; vertical-align: middle;">
+            <a href="#" wicket:id="uploadLink"><img src="img/file-upload.png" alt="upload" title="upload" style="vertical-align: middle;"/></a>
+            <a href="#" wicket:id="downloadLink"><img src="img/file-download.png" alt="download" title="download" style="vertical-align: middle;"/></a>
+            <a href="#" wicket:id="resetLink"><img src="img/disable.png" alt="disable" title="remove value" style="vertical-align: middle;"/></a>
+            <span wicket:id="preview"/>
+          </div>
+          <span wicket:id="previewContainer">
+            <span wicket:id="panelPreview">[panelPreview]</span>
+            <wicket:fragment wicket:id="previewFragment">
+              <div wicket:id = "previewer" class="ui-widget-content ui-corner-all"></div>
+            </wicket:fragment>
+            <wicket:fragment wicket:id="emptyFragment">
+            </wicket:fragment>
+          </span>
         </form>
-      </div>
-      <div style="display: table-cell; vertical-align: middle;">
-        <a href="#" wicket:id="uploadLink"><img src="img/up-icon.png" alt="upload" title="upload" style="vertical-align: middle;"/></a>
-        <a href="#" wicket:id="downloadLink"><img src="img/down-icon.png" alt="download" title="download" style="vertical-align: middle;"/></a>
-        <a href="#" wicket:id="resetLink"><img src="img/disable.png" alt="disable" title="remove value" style="vertical-align: middle;"/></a>
-        <span wicket:id="preview"/>
       </div>
     </span>
   </wicket:extend>
