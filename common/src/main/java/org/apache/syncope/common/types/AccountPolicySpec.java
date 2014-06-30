@@ -80,8 +80,7 @@ public class AccountPolicySpec extends AbstractPolicySpec {
     private boolean allLowerCase;
 
     /**
-     * Specify if it must be propagate suspension in case of maximum subsequent
-     * failed logins reached.
+     * Specify if, when reached the maximum allowed number of subsequent login failures, user shall be suspended.
      */
     private boolean propagateSuspension;
 

@@ -18,6 +18,11 @@
  */
 package org.apache.syncope.common.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -31,6 +36,8 @@ public class AccountPolicyTO extends AbstractPolicyTO {
     private static final long serialVersionUID = -1557150042828800134L;
 
     private AccountPolicySpec specification;
+
+    private final List<String> resources = new ArrayList<String>();
 
     public AccountPolicyTO() {
         this(false);
@@ -51,5 +58,12 @@ public class AccountPolicyTO extends AbstractPolicyTO {
 
     public AccountPolicySpec getSpecification() {
         return specification;
+    }
+
+    @XmlElementWrapper(name = "resources")
+    @XmlElement(name = "resource")
+    @JsonProperty("resources")
+    public List<String> getResources() {
+        return resources;
     }
 }

@@ -27,14 +27,17 @@ import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.beans.AbstractMapping;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
+import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.persistence.beans.PushTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.ConnectorRegistry;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
+import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
@@ -56,12 +59,15 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
     private RoleDAO roleDAO;
 
     @Autowired
+    private PolicyDAO policyDAO;
+
+    @Autowired
     private ConnectorRegistry connRegistry;
 
     @Override
     public ExternalResource find(final String name) {
         TypedQuery<ExternalResource> query = entityManager.createQuery("SELECT e FROM "
-                + ExternalResource.class.getSimpleName() + " e " + "WHERE e.name = :name", ExternalResource.class);
+                + ExternalResource.class.getSimpleName() + " e WHERE e.name = :name", ExternalResource.class);
         query.setParameter("name", name);
 
         ExternalResource result = null;
@@ -195,12 +201,16 @@ public class ResourceDAOImpl extends AbstractDAOImpl implements ResourceDAO {
 
         taskDAO.deleteAll(resource, PropagationTask.class);
         taskDAO.deleteAll(resource, SyncTask.class);
+        taskDAO.deleteAll(resource, PushTask.class);
 
         for (SyncopeUser user : userDAO.findByResource(resource)) {
             user.removeResource(resource);
         }
         for (SyncopeRole role : roleDAO.findByResource(resource)) {
             role.removeResource(resource);
+        }
+        for (AccountPolicy policy : policyDAO.findByResource(resource)) {
+            policy.removeResource(resource);
         }
 
         if (resource.getConnector() != null && resource.getConnector().getResources() != null

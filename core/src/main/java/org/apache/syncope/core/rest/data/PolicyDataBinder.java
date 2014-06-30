@@ -36,11 +36,18 @@ import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PolicyDataBinder {
+
+    /**
+     * Logger.
+     */
+    protected static final Logger LOG = LoggerFactory.getLogger(PolicyDataBinder.class);
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -95,6 +102,7 @@ public class PolicyDataBinder {
                 }
                 policyTO = (T) new AccountPolicyTO(isGlobal);
                 ((AccountPolicyTO) policyTO).setSpecification((AccountPolicySpec) policy.getSpecification());
+                ((AccountPolicyTO) policyTO).getResources().addAll(((AccountPolicy) policy).getResourceNames());
                 break;
 
             case GLOBAL_SYNC:
@@ -132,6 +140,15 @@ public class PolicyDataBinder {
         return policyTO;
     }
 
+    private ExternalResource getResource(final String resourceName) {
+        ExternalResource resource = resourceDAO.find(resourceName);
+        if (resource == null) {
+            LOG.debug("Ignoring invalid resource {} ", resourceName);
+        }
+
+        return resource;
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends Policy> T getPolicy(T policy, final AbstractPolicyTO policyTO) {
         if (policy != null && policy.getType() != policyTO.getType()) {
@@ -165,6 +182,15 @@ public class PolicyDataBinder {
                     policy = (T) new AccountPolicy(isGlobal);
                 }
                 policy.setSpecification(((AccountPolicyTO) policyTO).getSpecification());
+
+                ((AccountPolicy) policy).getResources().clear();
+                for (String resourceName : ((AccountPolicyTO) policyTO).getResources()) {
+                    ExternalResource resource = getResource(resourceName);
+
+                    if (resource != null) {
+                        ((AccountPolicy) policy).addResource(resource);
+                    }
+                }
                 break;
 
             case GLOBAL_SYNC:

@@ -32,6 +32,7 @@ import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.pages.BasePage;
 import org.apache.syncope.console.pages.PolicyModalPage;
 import org.apache.syncope.console.rest.PolicyRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
@@ -88,6 +89,8 @@ public class PoliciesPanel extends Panel {
     @SpringBean
     private PreferenceManager prefMan;
 
+    private final PageReference pageRef;
+
     private final int paginatorRows = prefMan.getPaginatorRows(getWebRequest(), Constants.PREF_POLICY_PAGINATOR_ROWS);
 
     protected boolean modalResult = false;
@@ -96,7 +99,7 @@ public class PoliciesPanel extends Panel {
 
     public PoliciesPanel(final String id, final PageReference pageRef, final PolicyType policyType) {
         super(id);
-
+        this.pageRef = pageRef;
         this.policyType = policyType;
 
         // Modal window for editing user attributes
@@ -164,7 +167,7 @@ public class PoliciesPanel extends Panel {
                             @SuppressWarnings({ "unchecked", "rawtypes" })
                             @Override
                             public Page createPage() {
-                                return new PolicyModalPage(mwindow, policyTO);
+                                return new PolicyModalPage(pageRef, mwindow, policyTO);
                             }
                         });
 
@@ -216,7 +219,7 @@ public class PoliciesPanel extends Panel {
                     @SuppressWarnings({ "unchecked", "rawtypes" })
                     @Override
                     public Page createPage() {
-                        return new PolicyModalPage(mwindow, getPolicyTOInstance(policyType));
+                        return new PolicyModalPage(pageRef, mwindow, getPolicyTOInstance(policyType));
                     }
                 });
 
@@ -262,6 +265,12 @@ public class PoliciesPanel extends Panel {
             @Override
             public void onClose(final AjaxRequestTarget target) {
                 target.add(container);
+                BasePage configuration = ((BasePage) pageRef.getPage());
+                if (configuration.isModalResult()) {
+                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    configuration.getFeedbackPanel().refresh(target);
+                    configuration.setModalResult(false);
+                }
             }
         });
     }

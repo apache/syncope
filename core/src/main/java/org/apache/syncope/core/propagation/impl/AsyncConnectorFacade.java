@@ -21,6 +21,7 @@ package org.apache.syncope.core.propagation.impl;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Future;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.ConnectorFacade;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeInfo;
@@ -47,6 +48,16 @@ public class AsyncConnectorFacade {
      * Logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(AsyncConnectorFacade.class);
+
+    @Async
+    public Future<Uid> authenticate(
+            final ConnectorFacade connector,
+            final String username,
+            final GuardedString password,
+            final OperationOptions options) {
+
+        return new AsyncResult<Uid>(connector.authenticate(ObjectClass.ACCOUNT, username, password, options));
+    }
 
     @Async
     public Future<Uid> create(

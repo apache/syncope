@@ -179,7 +179,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                List<ResourceTO> resourceTOs = resourceRestClient.getAllResources();
+                List<ResourceTO> resourceTOs = resourceRestClient.getAll();
 
                 List<String> result = new ArrayList<String>(resourceTOs.size());
 

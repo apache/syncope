@@ -98,7 +98,7 @@ public class ResourcesPanel extends Panel {
         subjectTO = (AbstractSubjectTO) builder.to;
         previousResources = new HashSet<String>(subjectTO.getResources());
         allResources = new ArrayList<String>();
-        for (ResourceTO resourceTO : resourceRestClient.getAllResources()) {
+        for (ResourceTO resourceTO : resourceRestClient.getAll()) {
             allResources.add(resourceTO.getName());
         }
         Collections.sort(allResources);

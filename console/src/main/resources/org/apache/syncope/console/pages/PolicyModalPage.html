@@ -24,13 +24,13 @@ under the License.
       <form wicket:id="form">
         <div id="tabs">
           <ul>
-            <li class="tabs-selected"><a href="#description"><span><wicket:message key="policyDescription"/></span></a></li>
+            <li class="tabs-selected"><a href="#info"><span><wicket:message key="policyInfo"/></span></a></li>
             <li><a href="#specification"><span><wicket:message key="policySpecification"/></span></a></li>
             <li><a href="#resources"><span><wicket:message key="resources"/></span></a></li>
             <li><a href="#roles"><span><wicket:message key="roles"/></span></a></li>
           </ul>
 
-          <div id="description">
+          <div id="info">
             <div id="formtable">
               <div class="tablerow alt">
                 <div class="tablecolumn_label short_fixedsize">
@@ -58,8 +58,23 @@ under the License.
                   <span wicket:id="description">[description]</span>
                 </div>
               </div>
+
+              <span wicket:id="forAccountOnly"/>
             </div>
           </div>
+
+          <wicket:fragment wicket:id="authResourcesFragment">
+            <div class="tablerow">
+              <div class="tablecolumn_label short_fixedsize">
+                <label for="authResources"><wicket:message key="authResources"/></label>
+              </div>
+              <div class="tablecolumn_field medium_dynamicsize">
+                <span wicket:id="authResources">[resources]</span>
+              </div>
+            </div>
+          </wicket:fragment>
+          <wicket:fragment wicket:id="emptyFragment">
+          </wicket:fragment>                        
 
           <div id="specification">
             <span wicket:id="panel">[password policy panel]</span>

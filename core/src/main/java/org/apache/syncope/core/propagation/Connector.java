@@ -40,21 +40,31 @@ import org.identityconnectors.framework.common.objects.filter.Filter;
 public interface Connector {
 
     /**
-     * Create user on a connector instance.
+     * Authenticate user on a connector instance.
+     *
+     * @param username the name based credential for authentication
+     * @param password the password based credential for authentication
+     * @param options ConnId's OperationOptions
+     * @return Uid of the account that was used to authenticate
+     */
+    Uid authenticate(String username, String password, OperationOptions options);
+
+    /**
+     * Create user / role on a connector instance.
      *
      * @param propagationMode propagation mode
      * @param objectClass ConnId's object class
      * @param attrs attributes for creation
      * @param options ConnId's OperationOptions
      * @param propagationAttempted if creation is actually performed (based on connector instance's capabilities)
-     * @return Uid for created user
+     * @return Uid for created object
      */
     Uid create(PropagationMode propagationMode, ObjectClass objectClass,
             Set<Attribute> attrs, OperationOptions options,
             Set<String> propagationAttempted);
 
     /**
-     * Update user on a connector instance.
+     * Update user / role on a connector instance.
      *
      * @param propagationMode propagation mode
      * @param objectClass ConnId's object class
@@ -62,14 +72,14 @@ public interface Connector {
      * @param attrs attributes for update
      * @param options ConnId's OperationOptions
      * @param propagationAttempted if update is actually performed (based on connector instance's capabilities)
-     * @return Uid for created user
+     * @return Uid for updated object
      */
     Uid update(PropagationMode propagationMode, ObjectClass objectClass,
             Uid uid, Set<Attribute> attrs, OperationOptions options,
             Set<String> propagationAttempted);
 
     /**
-     * Delete user on a connector instance.
+     * Delete user / role on a connector instance.
      *
      * @param propagationMode propagation mode
      * @param objectClass ConnId's object class
@@ -81,7 +91,7 @@ public interface Connector {
             Uid uid, OperationOptions options, Set<String> propagationAttempted);
 
     /**
-     * Sync users from a connector instance.
+     * Sync users / roles from a connector instance.
      *
      * @param objectClass ConnId's object class
      * @param token to be passed to the underlying connector
@@ -155,6 +165,7 @@ public interface Connector {
     Attribute getObjectAttribute(ObjectClass objectClass, Uid uid, OperationOptions options, String attributeName);
 
     /**
+     * Read attributes for a given connector object.
      *
      * @param objectClass ConnId's object class
      * @param uid ConnId's Uid
@@ -173,11 +184,11 @@ public interface Connector {
 
     /**
      * Return ConnId's object classes supported by this connector.
-     * 
+     *
      * @return supported object classes
      */
     Set<ObjectClass> getSupportedObjectClasses();
-    
+
     /**
      * Validate a connector instance.
      */

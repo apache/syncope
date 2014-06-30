@@ -73,7 +73,7 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
 
         return delta;
     }
-    
+
     @Transactional(readOnly = true)
     @Override
     public <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
@@ -81,16 +81,16 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
             final SyncDelta delta,
             final T subject,
             final K subjectMod) throws JobExecutionException {
-        
+
         if (subjectMod instanceof UserMod) {
-            String modPassword = ((UserMod)subjectMod).getPassword();
+            String modPassword = ((UserMod) subjectMod).getPassword();
             parseEncodedPassword(modPassword, profile.getConnector());
         }
-        
+
         return delta;
     }
-    
-    private void parseEncodedPassword(String password, Connector connector) {
+
+    private void parseEncodedPassword(final String password, final Connector connector) {
         if (password != null) {
             ConnInstance connInstance = connector.getActiveConnInstance();
 
@@ -107,7 +107,7 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
         }
     }
 
-    private String getCipherAlgorithm(ConnInstance connInstance) {
+    private String getCipherAlgorithm(final ConnInstance connInstance) {
         String cipherAlgorithm = CLEARTEXT;
         for (Iterator<ConnConfProperty> propertyIterator = connInstance.getConfiguration().iterator();
                 propertyIterator.hasNext();) {

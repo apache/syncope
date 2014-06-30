@@ -23,9 +23,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.common.to.AbstractPolicyTO;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
-import org.apache.syncope.common.to.AbstractPolicyTO;
+import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
 import org.apache.syncope.common.types.AbstractPolicySpec;
@@ -37,13 +38,13 @@ import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.NotificationPanel;
 import org.apache.syncope.console.pages.panels.PolicyBeanPanel;
 import org.apache.syncope.console.rest.PolicyRestClient;
-import org.apache.syncope.console.rest.ResourceRestClient;
-import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.Page;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -58,12 +59,14 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
@@ -80,16 +83,10 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
     @SpringBean
     private PolicyRestClient policyRestClient;
 
-    @SpringBean
-    private ResourceRestClient resourceRestClient;
-
-    @SpringBean
-    private RoleRestClient roleRestClient;
-
-    public PolicyModalPage(final ModalWindow window, final T policyTO) {
+    public PolicyModalPage(final PageReference pageRef, final ModalWindow window, final T policyTO) {
         super();
 
-        final Form form = new Form(FORM);
+        final Form<?> form = new Form<Void>(FORM);
         form.setOutputMarkupId(true);
         add(form);
 
@@ -107,7 +104,6 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
 
         final AjaxDropDownChoicePanel<PolicyType> type = new AjaxDropDownChoicePanel<PolicyType>("type", "type",
                 new PropertyModel<PolicyType>(policyTO, "type"));
-
         switch (policyTO.getType()) {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
@@ -125,11 +121,27 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
 
             default:
         }
-
         type.setChoiceRenderer(new PolicyTypeRenderer());
-
         type.addRequiredLabel();
         form.add(type);
+
+        // Authentication resources - only for AccountPolicyTO
+        Fragment fragment;
+        if (policyTO instanceof AccountPolicyTO) {
+            fragment = new Fragment("forAccountOnly", "authResourcesFragment", form);
+
+            final List<String> resourceNames = new ArrayList<String>();
+            for (ResourceTO resource : resourceRestClient.getAll()) {
+                resourceNames.add(resource.getName());
+            }
+            fragment.add(new AjaxPalettePanel<String>("authResources",
+                    new PropertyModel<List<String>>(policyTO, "resources"),
+                    new ListModel<String>(resourceNames)));
+        } else {
+            fragment = new Fragment("forAccountOnly", "emptyFragment", form);
+        }
+        form.add(fragment);
+        //
 
         final AbstractPolicySpec policy = getPolicySpecification(policyTO);
 
@@ -220,7 +232,7 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
             }
         };
         final AjaxFallbackDefaultDataTable<String, String> resources =
-                 new AjaxFallbackDefaultDataTable<String, String>("resources", resColumns, resDataProvider, 10);
+                new AjaxFallbackDefaultDataTable<String, String>("resources", resColumns, resDataProvider, 10);
         form.add(resources);
 
         List<IColumn<RoleTO, String>> roleColumns = new ArrayList<IColumn<RoleTO, String>>();
@@ -298,8 +310,9 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
             }
         };
         final AjaxFallbackDefaultDataTable<RoleTO, String> roles =
-                 new AjaxFallbackDefaultDataTable<RoleTO, String>("roles", roleColumns, roleDataProvider, 10);
+                new AjaxFallbackDefaultDataTable<RoleTO, String>("roles", roleColumns, roleDataProvider, 10);
         form.add(roles);
+
         mwindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
@@ -330,6 +343,7 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
                     } else {
                         policyRestClient.createPolicy(policyTO);
                     }
+                    ((BasePage) pageRef.getPage()).setModalResult(true);
 
                     window.close(target);
                 } catch (Exception e) {
@@ -345,7 +359,6 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
                 ((NotificationPanel) getPage().get(Constants.FEEDBACK)).refresh(target);
             }
         };
-
         form.add(submit);
 
         final IndicatingAjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
@@ -361,7 +374,6 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
             }
         };
-
         cancel.setDefaultFormProcessing(false);
         form.add(cancel);
     }
@@ -400,8 +412,8 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
                 if (!(specification instanceof AccountPolicySpec)) {
-                    throw new ClassCastException("policy is type Account, but spec is not: " + specification.getClass().
-                            getName());
+                    throw new ClassCastException("policy is type Account, but spec is not: "
+                            + specification.getClass().getName());
                 }
                 ((AccountPolicyTO) policyTO).setSpecification((AccountPolicySpec) specification);
                 break;
@@ -418,8 +430,8 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
             case GLOBAL_SYNC:
             case SYNC:
                 if (!(specification instanceof SyncPolicySpec)) {
-                    throw new ClassCastException("policy is type Sync, but spec is not: " + specification.getClass().
-                            getName());
+                    throw new ClassCastException("policy is type Sync, but spec is not: "
+                            + specification.getClass().getName());
                 }
                 ((SyncPolicyTO) policyTO).setSpecification((SyncPolicySpec) specification);
 

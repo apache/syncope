@@ -19,16 +19,27 @@
 package org.apache.syncope.core.security;
 
 import java.util.Date;
+import java.util.Iterator;
+import java.util.Set;
 import javax.annotation.Resource;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.core.audit.AuditManager;
+import org.apache.syncope.core.persistence.beans.AccountPolicy;
+import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.conf.CAttr;
+import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
+import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
+import org.apache.syncope.core.propagation.ConnectorFactory;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.Encryptor;
+import org.apache.syncope.core.util.MappingUtil;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +68,12 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private PolicyDAO policyDAO;
+
+    @Autowired
+    private ConnectorFactory connFactory;
 
     @Resource(name = "adminUser")
     private String adminUser;
@@ -111,7 +128,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         if (anonymousUser.equals(username)) {
             authenticated = authentication.getCredentials().toString().equals(anonymousKey);
         } else if (adminUser.equals(username)) {
-            authenticated = authenticate(
+            authenticated = encryptor.verify(
                     authentication.getCredentials().toString(),
                     CipherAlgorithm.valueOf(adminPasswordAlgorithm),
                     adminPassword);
@@ -130,10 +147,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                     }
                 }
 
-                authenticated = authenticate(
-                        authentication.getCredentials().toString(),
-                        user.getCipherAlgorithm(),
-                        user.getPassword());
+                authenticated = authenticate(user, authentication.getCredentials().toString());
             }
         }
 
@@ -193,10 +207,68 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         return token;
     }
 
-    protected boolean authenticate(final String password, final CipherAlgorithm cipherAlgorithm,
-            final String digestedPassword) {
+    protected Set<ExternalResource> getPassthroughResources(final SyncopeUser user) {
+        Set<ExternalResource> result = null;
 
-        return encryptor.verify(password, cipherAlgorithm, digestedPassword);
+        // 1. look for directly assigned resources, pick the ones whose account policy has authentication resources
+        for (ExternalResource resource : user.getOwnResources()) {
+            if (resource.getAccountPolicy() != null && !resource.getAccountPolicy().getResources().isEmpty()) {
+                if (result == null) {
+                    result = resource.getAccountPolicy().getResources();
+                } else {
+                    result.retainAll(resource.getAccountPolicy().getResources());
+                }
+            }
+        }
+
+        // 2. look for owned roles, pick the ones whose account policy has authentication resources
+        for (SyncopeRole role : user.getRoles()) {
+            if (role.getAccountPolicy() != null && !role.getAccountPolicy().getResources().isEmpty()) {
+                if (result == null) {
+                    result = role.getAccountPolicy().getResources();
+                } else {
+                    result.retainAll(role.getAccountPolicy().getResources());
+                }
+            }
+        }
+
+        // 3. look for global account policy (if defined)
+        AccountPolicy global = policyDAO.getGlobalAccountPolicy();
+        if (global != null && !global.getResources().isEmpty()) {
+            if (result == null) {
+                result = global.getResources();
+            } else {
+                result.retainAll(global.getResources());
+            }
+        }
+
+        return result;
+    }
+
+    protected boolean authenticate(final SyncopeUser user, final String password) {
+        boolean authenticated = encryptor.verify(password, user.getCipherAlgorithm(), user.getPassword());
+        LOG.debug("{} authenticated on internal storage: {}", user.getUsername(), authenticated);
+
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(AttributableType.USER);
+        for (Iterator<ExternalResource> itor = getPassthroughResources(user).iterator();
+                itor.hasNext() && !authenticated;) {
+            
+            ExternalResource resource = itor.next();
+            String accountId = null;
+            try {
+                accountId = MappingUtil.getAccountIdValue(user, resource, attrUtil.getAccountIdItem(resource));
+                Uid uid = connFactory.getConnector(resource).authenticate(accountId, password, null);
+                if (uid != null) {
+                    authenticated = true;
+                }
+            } catch (Exception e) {
+                LOG.debug("Could not authenticate {} on {}", user.getUsername(), resource.getName(), e);
+            }
+            LOG.debug("{} authenticated on {} as {}: {}",
+                    user.getUsername(), resource.getName(), accountId, authenticated);
+        }
+
+        return authenticated;
     }
 
     @Override

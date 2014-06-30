@@ -625,7 +625,7 @@ public class Resources extends BasePage {
         }
 
         public List<ResourceTO> getResourcesListDB() {
-            return resourceRestClient.getAllResources();
+            return resourceRestClient.getAll();
         }
     }
 

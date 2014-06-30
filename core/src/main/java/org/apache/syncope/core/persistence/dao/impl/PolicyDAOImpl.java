@@ -23,6 +23,7 @@ import javax.persistence.TypedQuery;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
+import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.PushPolicy;
@@ -44,6 +45,16 @@ public class PolicyDAOImpl extends AbstractDAOImpl implements PolicyDAO {
         final TypedQuery<Policy> query = entityManager.createQuery("SELECT e FROM Policy e WHERE e.type=:type",
                 Policy.class);
         query.setParameter("type", type);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<AccountPolicy> findByResource(final ExternalResource resource) {
+        TypedQuery<AccountPolicy> query = entityManager.createQuery("SELECT e FROM "
+                + AccountPolicy.class.getSimpleName() + " e "
+                + "WHERE :resource MEMBER OF e.resources", AccountPolicy.class);
+        query.setParameter("resource", resource);
 
         return query.getResultList();
     }

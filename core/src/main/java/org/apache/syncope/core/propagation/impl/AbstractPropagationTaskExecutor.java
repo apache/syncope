@@ -75,10 +75,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractPropagationTaskExecutor.class);
 
     /**
-     * Connector instance loader.
+     * Connector factory.
      */
     @Autowired
-    protected ConnectorFactory connLoader;
+    protected ConnectorFactory connFactory;
 
     /**
      * ConnObjectUtil.
@@ -342,7 +342,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         Connector connector = null;
         Result result;
         try {
-            connector = connLoader.getConnector(task.getResource());
+            connector = connFactory.getConnector(task.getResource());
 
             // Try to read remote object (user / group) BEFORE any actual operation
             beforeObj = getRemoteObject(task, connector, false);

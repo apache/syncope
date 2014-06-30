@@ -490,7 +490,7 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
         @Override
         public List<StatusBean> getStatusBeans() {
             final List<String> resources = new ArrayList<String>();
-            for (ResourceTO resourceTO : resourceRestClient.getAllResources()) {
+            for (ResourceTO resourceTO : resourceRestClient.getAll()) {
                 resources.add(resourceTO.getName());
             }
 

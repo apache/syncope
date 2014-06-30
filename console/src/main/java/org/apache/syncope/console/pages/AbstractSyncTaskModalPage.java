@@ -70,7 +70,7 @@ public abstract class AbstractSyncTaskModalPage extends AbstractSchedTaskModalPa
             protected List<String> load() {
                 final List<String> resourceNames = new ArrayList<String>();
 
-                for (ResourceTO resourceTO : resourceRestClient.getAllResources()) {
+                for (ResourceTO resourceTO : resourceRestClient.getAll()) {
 
                     resourceNames.add(resourceTO.getName());
                 }

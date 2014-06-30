@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.apache.syncope.core.rest.AbstractTest.userService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -52,11 +53,19 @@ import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.mod.UserMod;
+import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.common.services.UserSelfService;
+import org.apache.syncope.common.types.CipherAlgorithm;
+import org.apache.syncope.common.types.ResourceDeassociationActionType;
+import org.apache.syncope.common.wrap.ResourceName;
+import org.apache.syncope.core.util.Encryptor;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class AuthenticationTestITCase extends AbstractTest {
@@ -250,7 +259,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertEquals(0, getFailedLogins(userService2, userId));
 
         // authentications failed ...
-        UserService userService3 = clientFactory.create(userTO.getUsername(), "wrongpwd1").getService(UserService.class);
+        UserService userService3 = clientFactory.create(userTO.getUsername(), "wrongpwd1").getService(
+                UserService.class);
         assertReadFails(userService3, userId);
         assertReadFails(userService3, userId);
 
@@ -393,5 +403,40 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         // 4. try to authenticate again: success
         assertNotNull(myEntitlementService.getOwnEntitlements());
+    }
+
+    @Test
+    public void issueSYNCOPE164() throws Exception {
+        // 1. create user with db resource
+        UserTO user = UserTestITCase.getUniqueSampleTO("syncope164@syncope.apache.org");
+        user.setPassword("password1");
+        user.getResources().add(RESOURCE_NAME_TESTDB);
+        user = createUser(user);
+        assertNotNull(user);
+
+        // 2. unlink the resource from the created user
+        assertNotNull(userService.bulkDeassociation(user.getId(),
+                ResourceDeassociationActionType.UNLINK,
+                CollectionWrapper.wrap(RESOURCE_NAME_TESTDB, ResourceName.class)).
+                readEntity(BulkActionResult.class));
+
+        // 3. change password on Syncope
+        UserMod userMod = new UserMod();
+        userMod.setId(user.getId());
+        userMod.setPassword("password2");
+        user = updateUser(userMod);
+        assertNotNull(user);
+
+        // 4. check that the db resource has still the initial password value
+        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        String value = jdbcTemplate.queryForObject(
+                "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
+        assertEquals(Encryptor.getInstance().encode("password1", CipherAlgorithm.SHA1), value.toUpperCase());
+
+        // 5. successfully authenticate with old (on db resource) and new (on internal storage) password values
+        user = clientFactory.create(user.getUsername(), "password1").getService(UserSelfService.class).read();
+        assertNotNull(user);
+        user = clientFactory.create(user.getUsername(), "password2").getService(UserSelfService.class).read();
+        assertNotNull(user);
     }
 }

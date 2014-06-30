@@ -132,6 +132,34 @@ public class ConnectorFacadeProxy implements Connector {
     }
 
     @Override
+    public Uid authenticate(final String username, final String password, final OperationOptions options) {
+        Uid result = null;
+
+        if (activeConnInstance.getCapabilities().contains(ConnectorCapability.AUTHENTICATE)) {
+            final Future<Uid> future = asyncFacade.authenticate(
+                    connector, username, new GuardedString(password.toCharArray()), options);
+            try {
+                result = future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
+            } catch (java.util.concurrent.TimeoutException e) {
+                future.cancel(true);
+                throw new TimeoutException("Request timeout");
+            } catch (Exception e) {
+                LOG.error("Connector request execution failure", e);
+                if (e.getCause() instanceof RuntimeException) {
+                    throw (RuntimeException) e.getCause();
+                } else {
+                    throw new IllegalArgumentException(e.getCause());
+                }
+            }
+        } else {
+            LOG.info("Authenticate was attempted, although the connector only has these capabilities: {}. No action.",
+                    activeConnInstance.getCapabilities());
+        }
+
+        return result;
+    }
+
+    @Override
     public Uid create(final PropagationMode propagationMode, final ObjectClass objectClass, final Set<Attribute> attrs,
             final OperationOptions options, final Set<String> propagationAttempted) {
 

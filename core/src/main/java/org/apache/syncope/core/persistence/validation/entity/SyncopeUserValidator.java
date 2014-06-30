@@ -169,7 +169,7 @@ public class SyncopeUserValidator extends AbstractValidator<SyncopeUserCheck, Sy
     private List<AccountPolicy> getAccountPolicies(final SyncopeUser user) {
         final List<AccountPolicy> policies = new ArrayList<AccountPolicy>();
 
-        // Add global policy
+        // add global policy
         AccountPolicy policy = policyDAO.getGlobalAccountPolicy();
         if (policy != null) {
             policies.add(policy);

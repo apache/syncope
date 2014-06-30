@@ -51,7 +51,7 @@ public class ResourceRestClient extends BaseRestClient {
         return actions;
     }
 
-    public List<ResourceTO> getAllResources() {
+    public List<ResourceTO> getAll() {
         List<ResourceTO> resources = null;
 
         try {
