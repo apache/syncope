@@ -97,7 +97,7 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
         result.setId(toBeHandled.getId());
         result.setSubjectType(attrUtil.getType());
         result.setName(getName(toBeHandled));
-        
+
         final Boolean enabled = toBeHandled instanceof SyncopeUser && profile.getSyncTask().isSyncStatus()
                 ? ((SyncopeUser) toBeHandled).isSuspended() ? Boolean.FALSE : Boolean.TRUE
                 : null;
@@ -124,21 +124,21 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
 
         // Try to read remote object (user / group) BEFORE any actual operation
         beforeObj = getRemoteObject(values.getKey());
-        
+
         if (profile.isDryRun()) {
             if (beforeObj == null) {
-                result.setOperation(getResourceOperation(profile.getSyncTask().getUnmatchigRule()));
+                result.setOperation(getResourceOperation(profile.getSyncTask().getUnmatchingRule()));
             } else {
-                result.setOperation(getResourceOperation(profile.getSyncTask().getMatchigRule()));
+                result.setOperation(getResourceOperation(profile.getSyncTask().getMatchingRule()));
             }
             result.setStatus(SyncResult.Status.SUCCESS);
         } else {
             try {
                 if (beforeObj == null) {
-                    operation = profile.getSyncTask().getUnmatchigRule().name().toLowerCase();
-                    result.setOperation(getResourceOperation(profile.getSyncTask().getUnmatchigRule()));
+                    operation = profile.getSyncTask().getUnmatchingRule().name().toLowerCase();
+                    result.setOperation(getResourceOperation(profile.getSyncTask().getUnmatchingRule()));
 
-                    switch (profile.getSyncTask().getUnmatchigRule()) {
+                    switch (profile.getSyncTask().getUnmatchingRule()) {
                         case ASSIGN:
                             for (PushActions action : profile.getActions()) {
                                 action.beforeAssign(this.getProfile(), values, toBeHandled);
@@ -162,10 +162,10 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
                     }
 
                 } else {
-                    operation = profile.getSyncTask().getMatchigRule().name().toLowerCase();
-                    result.setOperation(getResourceOperation(profile.getSyncTask().getMatchigRule()));
+                    operation = profile.getSyncTask().getMatchingRule().name().toLowerCase();
+                    result.setOperation(getResourceOperation(profile.getSyncTask().getMatchingRule()));
 
-                    switch (profile.getSyncTask().getMatchigRule()) {
+                    switch (profile.getSyncTask().getMatchingRule()) {
                         case UPDATE:
                             for (PushActions action : profile.getActions()) {
                                 action.beforeUpdate(this.getProfile(), values, toBeHandled);

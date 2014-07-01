@@ -32,6 +32,8 @@ password VARCHAR(255) NOT NULL,
 status VARCHAR(5));
 
 INSERT INTO test2 VALUES ('testuser2', 'password321', 'false');
+INSERT INTO test2 VALUES ('rossini', 'password321', 'true');
+INSERT INTO test2 VALUES ('verdi', 'password321', 'true');
 
 -- this table is for issueSYNCOPE230
 DROP TABLE testsync IF EXISTS;

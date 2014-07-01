@@ -46,9 +46,9 @@ public class AbstractSyncTaskTO extends SchedTaskTO {
 
     private boolean syncStatus;
 
-    private UnmatchingRule unmatchigRule;
+    private UnmatchingRule unmatchingRule;
 
-    private MatchingRule matchigRule;
+    private MatchingRule matchingRule;
 
     private List<String> actionsClassNames = new ArrayList<String>();
 
@@ -99,19 +99,19 @@ public class AbstractSyncTaskTO extends SchedTaskTO {
         return actionsClassNames;
     }
 
-    public UnmatchingRule getUnmatchigRule() {
-        return unmatchigRule;
+    public UnmatchingRule getUnmatchingRule() {
+        return unmatchingRule;
     }
 
-    public void setUnmatchigRule(final UnmatchingRule unmatchigRule) {
-        this.unmatchigRule = unmatchigRule;
+    public void setUnmatchingRule(final UnmatchingRule unmatchigRule) {
+        this.unmatchingRule = unmatchigRule;
     }
 
-    public MatchingRule getMatchigRule() {
-        return matchigRule;
+    public MatchingRule getMatchingRule() {
+        return matchingRule;
     }
 
-    public void setMatchigRule(final MatchingRule matchigRule) {
-        this.matchigRule = matchigRule;
+    public void setMatchingRule(final MatchingRule matchigRule) {
+        this.matchingRule = matchigRule;
     }
 }

@@ -57,15 +57,15 @@ public class PushTaskModalPage extends AbstractSyncTaskModalPage {
         super(window, taskTO, pageRef);
 
         // set default Matching rule
-        ((DropDownChoice) matchingRule.getField()).setDefaultModelObject(taskTO.getMatchigRule() == null
+        ((DropDownChoice) matchingRule.getField()).setDefaultModelObject(taskTO.getMatchingRule() == null
                 ? MatchingRule.UPDATE
-                : taskTO.getMatchigRule());
+                : taskTO.getMatchingRule());
         profile.add(matchingRule);
 
         // set default Unmatching rule
-        ((DropDownChoice) unmatchingRule.getField()).setDefaultModelObject(taskTO.getUnmatchigRule() == null
+        ((DropDownChoice) unmatchingRule.getField()).setDefaultModelObject(taskTO.getUnmatchingRule() == null
                 ? UnmatchingRule.ASSIGN
-                : taskTO.getUnmatchigRule());
+                : taskTO.getUnmatchingRule());
         profile.add(unmatchingRule);
 
         final WebMarkupContainer filterContainer = new WebMarkupContainer("filterContainer");

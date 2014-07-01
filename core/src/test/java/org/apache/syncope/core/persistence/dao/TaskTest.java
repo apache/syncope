@@ -68,7 +68,7 @@ public class TaskTest extends AbstractDAOTest {
         assertEquals(1, taskDAO.findAll(NotificationTask.class).size());
         assertEquals(1, taskDAO.findAll(SchedTask.class).size());
         assertEquals(6, taskDAO.findAll(SyncTask.class).size());
-        assertEquals(1, taskDAO.findAll(PushTask.class).size());
+        assertEquals(11, taskDAO.findAll(PushTask.class).size());
     }
 
     @Test

@@ -163,7 +163,7 @@ public class RolePushResultHandler extends AbstractSubjectPushResultHandler {
 
             final Uid uid = new Uid(accountId);
 
-            profile.getConnector().getObject(
+            obj = profile.getConnector().getObject(
                     ObjectClass.GROUP,
                     uid,
                     profile.getConnector().getOperationOptions(Collections.<AbstractMappingItem>emptySet()));

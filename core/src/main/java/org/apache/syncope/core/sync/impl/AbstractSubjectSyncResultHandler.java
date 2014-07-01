@@ -557,7 +557,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
 
             if (SyncDeltaType.CREATE_OR_UPDATE == delta.getDeltaType()) {
                 if (subjectIds.isEmpty()) {
-                    switch (profile.getSyncTask().getUnmatchigRule()) {
+                    switch (profile.getSyncTask().getUnmatchingRule()) {
                         case ASSIGN:
                             profile.getResults().addAll(assign(delta, attrUtil, profile.isDryRun()));
                             break;
@@ -568,7 +568,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                         // do nothing
                     }
                 } else {
-                    switch (profile.getSyncTask().getMatchigRule()) {
+                    switch (profile.getSyncTask().getMatchingRule()) {
                         case UPDATE:
                             profile.getResults().addAll(update(delta, subjectIds, attrUtil, profile.isDryRun()));
                             break;

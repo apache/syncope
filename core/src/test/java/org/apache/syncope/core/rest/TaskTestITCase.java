@@ -26,7 +26,16 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.SyncopeClientException;
@@ -56,6 +65,7 @@ import org.apache.syncope.common.types.MatchingRule;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.types.TraceLevel;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.common.wrap.PushActionClass;
 import org.apache.syncope.core.sync.TestSyncActions;
@@ -149,7 +159,7 @@ public class TaskTestITCase extends AbstractTest {
                 SyncopeClient.getUserSearchConditionBuilder().hasNotResources(RESOURCE_NAME_TESTDB2).query());
         task.setRoleFilter(
                 SyncopeClient.getRoleSearchConditionBuilder().isNotNull("cool").query());
-        task.setMatchigRule(MatchingRule.LINK);
+        task.setMatchingRule(MatchingRule.LINK);
 
         final Response response = taskService.create(task);
         final PushTaskTO actual = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
@@ -161,8 +171,8 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(task.getJobClassName(), actual.getJobClassName());
         assertEquals(task.getUserFilter(), actual.getUserFilter());
         assertEquals(task.getRoleFilter(), actual.getRoleFilter());
-        assertEquals(UnmatchingRule.ASSIGN, actual.getUnmatchigRule());
-        assertEquals(MatchingRule.LINK, actual.getMatchigRule());
+        assertEquals(UnmatchingRule.ASSIGN, actual.getUnmatchingRule());
+        assertEquals(MatchingRule.LINK, actual.getMatchingRule());
     }
 
     @Test
@@ -249,9 +259,9 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(taskTO.getExecutions());
         assertTrue(taskTO.getExecutions().isEmpty());
 
-        final PushTaskTO pushTaskTO = taskService.<PushTaskTO>read(13L);
-        assertEquals(UnmatchingRule.ASSIGN, pushTaskTO.getUnmatchigRule());
-        assertEquals(MatchingRule.UPDATE, pushTaskTO.getMatchigRule());
+        final PushTaskTO pushTaskTO = taskService.<PushTaskTO>read(17L);
+        assertEquals(UnmatchingRule.ASSIGN, pushTaskTO.getUnmatchingRule());
+        assertEquals(MatchingRule.UPDATE, pushTaskTO.getMatchingRule());
     }
 
     @Test
@@ -394,26 +404,7 @@ public class TaskTestITCase extends AbstractTest {
     @Test
     public void reconcileFromDB() {
         // update sync task
-        SyncTaskTO task = taskService.read(7L);
-        assertNotNull(task);
-
-        // add user template
-        UserTO template = new UserTO();
-        template.getAttrs().add(attributeTO("type", "'type a'"));
-        template.getAttrs().add(attributeTO("userId", "'reconciled@syncope.apache.org'"));
-        template.getAttrs().add(attributeTO("fullname", "'reconciled fullname'"));
-        template.getAttrs().add(attributeTO("surname", "'surname'"));
-
-        task.setUserTemplate(template);
-
-        taskService.update(task.getId(), task);
-        SyncTaskTO actual = taskService.read(task.getId());
-        assertNotNull(actual);
-        assertEquals(task.getId(), actual.getId());
-        assertEquals(template, actual.getUserTemplate());
-        assertEquals(new RoleTO(), actual.getRoleTemplate());
-
-        TaskExecTO execution = execSyncTask(actual.getId(), 20, false);
+        TaskExecTO execution = execSyncTask(7L, 20, false);
         assertNotNull(execution.getStatus());
         assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
 
@@ -427,7 +418,7 @@ public class TaskTestITCase extends AbstractTest {
         jdbcTemplate.execute("UPDATE TEST SET STATUS=TRUE");
 
         // re-execute the same SyncTask: now user must be active
-        execution = execSyncTask(actual.getId(), 20, false);
+        execution = execSyncTask(7L, 20, false);
         assertNotNull(execution.getStatus());
         assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
 
@@ -439,32 +430,7 @@ public class TaskTestITCase extends AbstractTest {
     @Test
     public void reconcileFromLDAP() {
         // Update sync task
-        SyncTaskTO task = taskService.read(11L);
-        assertNotNull(task);
-
-        //  add user template
-        final UserTO userTemplate = task.getUserTemplate();
-        userTemplate.getResources().add(RESOURCE_NAME_LDAP);
-        userTemplate.getVirAttrs().add(attributeTO("virtualReadOnly", ""));
-
-        task.setUserTemplate(userTemplate);
-
-        //  add role template
-        RoleTO roleTemplate = new RoleTO();
-        roleTemplate.setParent(8L);
-        roleTemplate.getRAttrTemplates().add("show");
-        roleTemplate.getAttrs().add(attributeTO("show", "'true'"));
-
-        task.setRoleTemplate(roleTemplate);
-
-        taskService.update(task.getId(), task);
-        SyncTaskTO actual = taskService.read(task.getId());
-        assertNotNull(actual);
-        assertEquals(task.getId(), actual.getId());
-        assertEquals(roleTemplate, actual.getRoleTemplate());
-        assertEquals(userTemplate, actual.getUserTemplate());
-
-        TaskExecTO execution = execSyncTask(actual.getId(), 20, false);
+        TaskExecTO execution = execSyncTask(11L, 20, false);
 
         // 1. verify execution status
         final String status = execution.getStatus();
@@ -774,7 +740,7 @@ public class TaskTestITCase extends AbstractTest {
         // wait for sync completion (executions incremented)
         do {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
             }
 
@@ -788,7 +754,29 @@ public class TaskTestITCase extends AbstractTest {
         if (i == maxit) {
             fail("Timeout when executing task " + taskId);
         }
-        return taskTO.getExecutions().get(0);
+        return taskTO.getExecutions().get(taskTO.getExecutions().size() - 1);
+    }
+
+    private Map<Long, TaskExecTO> execSyncTasks(
+            final Set<Long> taskIds, final int maxWaitSeconds, final boolean dryRun) throws Exception {
+
+        final ExecutorService service = Executors.newFixedThreadPool(taskIds.size());
+        final List<Future<TaskExecTO>> futures = new ArrayList<Future<TaskExecTO>>();
+
+        for (final Long id : taskIds) {
+            futures.add(service.submit(new ThreadExec(this, id, maxWaitSeconds, dryRun)));
+        }
+
+        final Map<Long, TaskExecTO> res = new HashMap<Long, TaskExecTO>();
+
+        for (Future<TaskExecTO> f : futures) {
+            TaskExecTO taskExecTO = f.get(100, TimeUnit.SECONDS);
+            res.put(taskExecTO.getTask(), taskExecTO);
+        }
+
+        service.shutdownNow();
+
+        return res;
     }
 
     @Test
@@ -977,158 +965,104 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public void pushUnmatchingUsers() {
-        // ------------------------------------------
-        // Matching --> Assign --> dryRuyn
-        // ------------------------------------------
-        UserTO userTO = userService.read(3L);
-        assertEquals("Vivaldi", userTO.getAttrMap().get("surname").getValues().get(0));
-        assertFalse(userTO.getResources().contains(RESOURCE_NAME_TESTDB2));
+    public void pushMatchingUnmatchingRoles() {
+        assertFalse(roleService.read(3L).getResources().contains(RESOURCE_NAME_LDAP));
 
-        PushTaskTO task = taskService.<PushTaskTO>read(13L);
-        assertNotNull(task);
-        task.setUserFilter(SyncopeClient.getUserSearchConditionBuilder().is("surname").equalTo("Vivaldi").query());
-        taskService.update(13L, task);
+        execSyncTask(23L, 50, false);
 
-        assertEquals(task.getUserFilter(), taskService.<PushTaskTO>read(13L).getUserFilter());
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, 3L));
+        assertTrue(roleService.read(3L).getResources().contains(RESOURCE_NAME_LDAP));
 
-        execSyncTask(task.getId(), 50, true);
+        execSyncTask(23L, 50, false);
+
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, 3L));
+        assertFalse(roleService.read(3L).getResources().contains(RESOURCE_NAME_LDAP));
+    }
+
+    @Test
+    public void pushUnmatchingUsers() throws Exception {
+        assertFalse(userService.read(2L).getResources().contains(RESOURCE_NAME_TESTDB2));
+        assertFalse(userService.read(3L).getResources().contains(RESOURCE_NAME_TESTDB2));
+        assertFalse(userService.read(4L).getResources().contains(RESOURCE_NAME_TESTDB2));
+        assertTrue(userService.read(5L).getResources().contains(RESOURCE_NAME_TESTDB2));
 
         final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        assertEquals(0, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='puccini'").size());
+
+        // ------------------------------------------
+        // Unmatching --> Assign --> dryRuyn
+        // ------------------------------------------
+        execSyncTask(13L, 50, true);
         assertEquals(0, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='vivaldi'").size());
-
         assertFalse(userService.read(3L).getResources().contains(RESOURCE_NAME_TESTDB2));
+        // ------------------------------------------
 
-        jdbcTemplate.execute("DELETE FROM test2 WHERE ID='vivaldi'");
+        final Set<Long> pushTaskIds = new HashSet<Long>();
+        pushTaskIds.add(13L);
+        pushTaskIds.add(14L);
+        pushTaskIds.add(15L);
+        pushTaskIds.add(16L);
+        execSyncTasks(pushTaskIds, 50, false);
+
+        // ------------------------------------------
+        // Unatching --> Ignore
+        // ------------------------------------------
+        assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='verdi'").size());
+        assertFalse(userService.read(2L).getResources().contains(RESOURCE_NAME_TESTDB2));
         // ------------------------------------------
 
         // ------------------------------------------
-        // Matching --> Assign
+        // Unmatching --> Assign
         // ------------------------------------------
-        execSyncTask(task.getId(), 50, false);
-
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='vivaldi'").size());
-        assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID<>'vivaldi'").size());
-
         assertTrue(userService.read(3L).getResources().contains(RESOURCE_NAME_TESTDB2));
-        assertEquals("vivaldi",
-                jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "vivaldi"));
-
         jdbcTemplate.execute("DELETE FROM test2 WHERE ID='vivaldi'");
         // ------------------------------------------
 
         // ------------------------------------------
-        // Matching --> Provision
+        // Unmatching --> Provision
         // ------------------------------------------
-        assertEquals("Bellini", userService.read(4L).getAttrMap().get("surname").getValues().get(0));
-
-        task.setUserFilter(SyncopeClient.getUserSearchConditionBuilder().is("surname").equalTo("Bellini").query());
-        task.setUnmatchigRule(UnmatchingRule.PROVISION);
-        taskService.update(13L, task);
-        assertEquals(task.getUserFilter(), taskService.<PushTaskTO>read(13L).getUserFilter());
-
-        execSyncTask(task.getId(), 50, false);
-
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='bellini'").size());
-        assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID<>'bellini'").size());
-
         assertFalse(userService.read(4L).getResources().contains(RESOURCE_NAME_TESTDB2));
-        assertEquals("bellini",
-                jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "bellini"));
-
         jdbcTemplate.execute("DELETE FROM test2 WHERE ID='bellini'");
         // ------------------------------------------
 
         // ------------------------------------------
-        // Matching --> Unlink
+        // Unmatching --> Unlink
         // ------------------------------------------
-        userTO = userService.read(5L);
-        assertEquals("Puccini", userTO.getAttrMap().get("surname").getValues().get(0));
-        assertFalse(userTO.getResources().contains(RESOURCE_NAME_TESTDB2));
-
-        task.setUserFilter(SyncopeClient.getUserSearchConditionBuilder().is("surname").equalTo("Puccini").query());
-        task.setUnmatchigRule(UnmatchingRule.UNLINK);
-        taskService.update(13L, task);
-        assertEquals(task.getUserFilter(), taskService.<PushTaskTO>read(13L).getUserFilter());
-
-        execSyncTask(task.getId(), 50, false);
-
         assertEquals(0, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='puccini'").size());
-
         assertFalse(userService.read(5L).getResources().contains(RESOURCE_NAME_TESTDB2));
-        // ------------------------------------------
-
-        // ------------------------------------------
-        // Matching --> Ignore
-        // ------------------------------------------
-        userTO = userService.read(5L);
-        assertEquals("Puccini", userTO.getAttrMap().get("surname").getValues().get(0));
-        assertFalse(userTO.getResources().contains(RESOURCE_NAME_TESTDB2));
-
-        task.setUserFilter(SyncopeClient.getUserSearchConditionBuilder().is("surname").equalTo("Rossini").query());
-        task.setUnmatchigRule(UnmatchingRule.IGNORE);
-        taskService.update(13L, task);
-        assertEquals(task.getUserFilter(), taskService.<PushTaskTO>read(13L).getUserFilter());
-
-        execSyncTask(task.getId(), 50, false);
-
-        assertEquals(0, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='rossini'").size());
-
-        assertFalse(userService.read(1L).getResources().contains(RESOURCE_NAME_TESTDB2));
         // ------------------------------------------
     }
 
     @Test
-    public void pushMatchingUser() {
-        // ------------------------------------------
-        // Assign Verdi to test2 --> dryRun
-        // ------------------------------------------
-        UserTO userTO = userService.read(2L);
-        assertEquals("Verdi", userTO.getAttrMap().get("surname").getValues().get(0));
-        assertFalse(userTO.getResources().contains(RESOURCE_NAME_TESTDB2));
-
-        PushTaskTO task = taskService.<PushTaskTO>read(13L);
-        assertNotNull(task);
-
-        task.setUserFilter(SyncopeClient.getUserSearchConditionBuilder().is("surname").equalTo("Verdi").query());
-        task.setUnmatchigRule(UnmatchingRule.ASSIGN);
-        taskService.update(13L, task);
-
-        assertEquals(UnmatchingRule.ASSIGN, taskService.<PushTaskTO>read(13L).getUnmatchigRule());
-
-        execSyncTask(task.getId(), 50, true);
-
+    public void pushMatchingUser() throws Exception {
+        assertTrue(userService.read(1L).getResources().contains(RESOURCE_NAME_TESTDB2));
         assertFalse(userService.read(2L).getResources().contains(RESOURCE_NAME_TESTDB2));
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-        assertEquals(0, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='verdi'").size());
-        // ------------------------------------------
-
-        // ------------------------------------------
-        // Assign Verdi to test2
-        // ------------------------------------------
-        userTO = userService.read(2L);
-        assertEquals("Verdi", userTO.getAttrMap().get("surname").getValues().get(0));
-        assertFalse(userTO.getResources().contains(RESOURCE_NAME_TESTDB2));
-
-        execSyncTask(task.getId(), 50, false);
-
-        assertTrue(userService.read(2L).getResources().contains(RESOURCE_NAME_TESTDB2));
-        assertEquals("verdi", jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "verdi"));
-        // ------------------------------------------
-
-        // ------------------------------------------
-        // Matching --> Deprovision
-        // ------------------------------------------
+        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='verdi'").size());
+        assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='rossini'").size());
 
-        task.setMatchigRule(MatchingRule.DEPROVISION);
-        taskService.update(13L, task);
-        assertEquals(MatchingRule.DEPROVISION, taskService.<PushTaskTO>read(13L).getMatchigRule());
+        // ------------------------------------------
+        // Matching --> Deprovision --> dryRuyn
+        // ------------------------------------------
+        execSyncTask(19L, 50, true);
+        assertTrue(userService.read(1L).getResources().contains(RESOURCE_NAME_TESTDB2));
+        assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='rossini'").size());
+        // ------------------------------------------
 
-        execSyncTask(task.getId(), 50, false);
+        final Set<Long> pushTaskIds = new HashSet<Long>();
+        pushTaskIds.add(18L);
+        pushTaskIds.add(19L);
+        pushTaskIds.add(16L);
 
-        assertTrue(userService.read(2L).getResources().contains(RESOURCE_NAME_TESTDB2));
+        execSyncTasks(pushTaskIds, 50, false);
+
+        // ------------------------------------------
+        // Matching --> Deprovision && Ignore
+        // ------------------------------------------
+        assertFalse(userService.read(2L).getResources().contains(RESOURCE_NAME_TESTDB2));
         // DELETE Capability not available ....
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='verdi'").size());
         // ------------------------------------------
@@ -1136,73 +1070,53 @@ public class TaskTestITCase extends AbstractTest {
         // ------------------------------------------
         // Matching --> Unassign
         // ------------------------------------------
-        task.setMatchigRule(MatchingRule.UNASSIGN);
-        taskService.update(13L, task);
-        assertEquals(MatchingRule.UNASSIGN, taskService.<PushTaskTO>read(13L).getMatchigRule());
-
-        execSyncTask(task.getId(), 50, false);
-
-        assertFalse(userService.read(2L).getResources().contains(RESOURCE_NAME_TESTDB2));
+        assertFalse(userService.read(1L).getResources().contains(RESOURCE_NAME_TESTDB2));
         // DELETE Capability not available ....
-        assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='verdi'").size());
+        assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='rossini'").size());
         // ------------------------------------------
 
         // ------------------------------------------
         // Matching --> Link
         // ------------------------------------------
-        task.setMatchigRule(MatchingRule.LINK);
-        taskService.update(13L, task);
-        assertEquals(MatchingRule.LINK, taskService.<PushTaskTO>read(13L).getMatchigRule());
-
-        execSyncTask(task.getId(), 50, false);
-
+        execSyncTask(20L, 50, false);
         assertTrue(userService.read(2L).getResources().contains(RESOURCE_NAME_TESTDB2));
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='verdi'").size());
         // ------------------------------------------
 
-        // ------------------------------------------
-        // Matching --> Unlink
-        // ------------------------------------------
-        task.setMatchigRule(MatchingRule.UNLINK);
-        taskService.update(13L, task);
-        assertEquals(MatchingRule.UNLINK, taskService.<PushTaskTO>read(13L).getMatchigRule());
+        pushTaskIds.clear();
+        pushTaskIds.add(21L);
+        pushTaskIds.add(22L);
 
-        execSyncTask(task.getId(), 50, false);
-
-        assertFalse(userService.read(2L).getResources().contains(RESOURCE_NAME_TESTDB2));
-        assertEquals("verdi", jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "verdi"));
-        // ------------------------------------------
+        execSyncTasks(pushTaskIds, 50, false);
 
         // ------------------------------------------
-        // Matching --> Update
+        // Matching --> Unlink && Update
         // ------------------------------------------
-        task.setMatchigRule(MatchingRule.UPDATE);
-        taskService.update(13L, task);
-        assertEquals(MatchingRule.UPDATE, taskService.<PushTaskTO>read(13L).getMatchigRule());
-
-        execSyncTask(task.getId(), 50, false);
-
         assertFalse(userService.read(2L).getResources().contains(RESOURCE_NAME_TESTDB2));
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='verdi'").size());
         // ------------------------------------------
+    }
 
-        // ------------------------------------------
-        // Matching --> Ignore
-        // ------------------------------------------
-        task.setMatchigRule(MatchingRule.IGNORE);
-        taskService.update(13L, task);
-        assertEquals(MatchingRule.IGNORE, taskService.<PushTaskTO>read(13L).getMatchigRule());
+    private static class ThreadExec implements Callable<TaskExecTO> {
 
-        execSyncTask(task.getId(), 50, false);
+        private final TaskTestITCase test;
 
-        assertFalse(userService.read(2L).getResources().contains(RESOURCE_NAME_TESTDB2));
-        assertEquals("verdi", jdbcTemplate.queryForObject("SELECT ID FROM test2 WHERE ID=?", String.class, "verdi"));
-        // ------------------------------------------
+        private final Long taskId;
 
-        task.setMatchigRule(MatchingRule.UPDATE);
-        task.setUserFilter(null);
-        taskService.update(13L, task);
+        private final int maxWaitSeconds;
 
-        jdbcTemplate.execute("DELETE FROM test2 WHERE ID='verdi'");
+        private final boolean dryRun;
+
+        public ThreadExec(TaskTestITCase test, Long taskId, int maxWaitSeconds, boolean dryRun) {
+            this.test = test;
+            this.taskId = taskId;
+            this.maxWaitSeconds = maxWaitSeconds;
+            this.dryRun = dryRun;
+        }
+
+        @Override
+        public TaskExecTO call() throws Exception {
+            return test.execSyncTask(taskId, maxWaitSeconds, dryRun);
+        }
     }
 }

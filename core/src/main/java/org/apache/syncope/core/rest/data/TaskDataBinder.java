@@ -155,8 +155,8 @@ public class TaskDataBinder {
         task.setPerformUpdate(taskTO.isPerformUpdate());
         task.setPerformDelete(taskTO.isPerformDelete());
         task.setSyncStatus(taskTO.isSyncStatus());
-        task.setMatchigRule(taskTO.getMatchigRule());
-        task.setUnmatchigRule(taskTO.getUnmatchigRule());
+        task.setMatchingRule(taskTO.getMatchingRule());
+        task.setUnmatchingRule(taskTO.getUnmatchingRule());
         task.getActionsClassNames().clear();
         task.getActionsClassNames().addAll(taskTO.getActionsClassNames());
     }

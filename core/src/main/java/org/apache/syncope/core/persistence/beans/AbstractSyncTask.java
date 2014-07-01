@@ -69,13 +69,13 @@ public abstract class AbstractSyncTask extends SchedTask {
      * @see UnmatchingRule
      */
     @Enumerated(EnumType.STRING)
-    protected UnmatchingRule unmatchigRule;
+    protected UnmatchingRule unmatchingRule;
 
     /**
      * @see MatchingRule
      */
     @Enumerated(EnumType.STRING)
-    protected MatchingRule matchigRule;
+    protected MatchingRule matchingRule;
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> actionsClassNames = new ArrayList<String>();
@@ -130,16 +130,16 @@ public abstract class AbstractSyncTask extends SchedTask {
         this.syncStatus = getBooleanAsInteger(syncStatus);
     }
 
-    public abstract UnmatchingRule getUnmatchigRule();
+    public abstract UnmatchingRule getUnmatchingRule();
 
-    public void setUnmatchigRule(final UnmatchingRule unmatchigRule) {
-        this.unmatchigRule = unmatchigRule;
+    public void setUnmatchingRule(final UnmatchingRule unmatchigRule) {
+        this.unmatchingRule = unmatchigRule;
     }
 
-    public abstract MatchingRule getMatchigRule();
+    public abstract MatchingRule getMatchingRule();
 
-    public void setMatchigRule(final MatchingRule matchigRule) {
-        this.matchigRule = matchigRule;
+    public void setMatchingRule(final MatchingRule matchigRule) {
+        this.matchingRule = matchigRule;
     }
 
     public List<String> getActionsClassNames() {

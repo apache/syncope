@@ -60,12 +60,12 @@ public class PushTask extends AbstractSyncTask {
     }
 
     @Override
-    public UnmatchingRule getUnmatchigRule() {
-        return this.unmatchigRule == null ? DEF_UNMATCHIG_RULE : unmatchigRule;
+    public UnmatchingRule getUnmatchingRule() {
+        return this.unmatchingRule == null ? DEF_UNMATCHIG_RULE : unmatchingRule;
     }
 
     @Override
-    public MatchingRule getMatchigRule() {
-        return this.matchigRule == null ? DEF_MATCHIG_RULE : this.matchigRule;
+    public MatchingRule getMatchingRule() {
+        return this.matchingRule == null ? DEF_MATCHIG_RULE : this.matchingRule;
     }
 }
