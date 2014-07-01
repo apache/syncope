@@ -18,10 +18,13 @@
  */
 package org.apache.syncope.core.security;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
+
 import javax.annotation.Resource;
+
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
@@ -240,6 +243,10 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             } else {
                 result.retainAll(global.getResources());
             }
+        }
+        
+        if (result == null) {
+            result = Collections.emptySet();
         }
 
         return result;
