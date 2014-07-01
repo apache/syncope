@@ -20,13 +20,12 @@ package org.apache.syncope.common.types;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
 import org.apache.syncope.common.AbstractBaseBean;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 @XmlRootElement
 @XmlType
@@ -50,12 +49,9 @@ public class ConnConfProperty extends AbstractBaseBean implements Comparable<Con
 
     @XmlElementWrapper(name = "values")
     @XmlElement(name = "value")
+    @JsonProperty("values")
     public List<Object> getValues() {
         return values;
-    }
-
-    public void setValues(final List<Object> values) {
-        this.values = values;
     }
 
     public boolean isOverridable() {

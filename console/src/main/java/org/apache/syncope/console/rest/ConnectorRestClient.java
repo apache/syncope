@@ -136,7 +136,8 @@ public class ConnectorRestClient extends BaseRestClient {
                     }
                 }
             }
-            prop.setValues(parsed);
+            prop.getValues().clear();
+            prop.getValues().addAll(parsed);
             newProperties.add(prop);
         }
         return newProperties;

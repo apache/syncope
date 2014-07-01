@@ -360,8 +360,10 @@ public abstract class AbstractTest {
     }
 
     private static <T> T getObjectCXF(final Response response, final Class<T> type, final Object serviceProxy) {
-        String location = response.getLocation().toString();
-        WebClient webClient = WebClient.fromClient(WebClient.client(serviceProxy));
+        final String location = response.getLocation().toString();
+        final Client client = WebClient.client(serviceProxy);
+        final WebClient webClient = WebClient.fromClient(client);
+        webClient.accept(client.getHeaders().getFirst("Accept")).to(location, false);
         webClient.to(location, false);
 
         return webClient.get(type);

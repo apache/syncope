@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.rest.data;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -110,7 +112,7 @@ public class ConnInstanceDataBinder {
 
         BeanUtils.copyProperties(connInstanceTO, connInstance, IGNORE_PROPERTIES);
         if (connInstanceTO.getLocation() != null) {
-            connInstance.setLocation(connInstanceTO.getLocation().toString());
+            connInstance.setLocation(connInstanceTO.getLocation());
         }
 
         // Throw composite exception if there is at least one element set in the composing exceptions
@@ -138,7 +140,7 @@ public class ConnInstanceDataBinder {
         ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
 
         if (connInstanceTO.getLocation() != null) {
-            connInstance.setLocation(connInstanceTO.getLocation().toString());
+            connInstance.setLocation(connInstanceTO.getLocation());
         }
 
         if (connInstanceTO.getBundleName() != null) {
@@ -180,6 +182,30 @@ public class ConnInstanceDataBinder {
         return connInstance;
     }
 
+    public ConnConfPropSchema buildConnConfPropSchema(final ConfigurationProperty property) {
+        ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
+
+        connConfPropSchema.setName(property.getName());
+        connConfPropSchema.setDisplayName(property.getDisplayName(property.getName()));
+        connConfPropSchema.setHelpMessage(property.getHelpMessage(property.getName()));
+        connConfPropSchema.setRequired(property.isRequired());
+        connConfPropSchema.setType(property.getType().getName());
+        connConfPropSchema.setOrder(((ConfigurationPropertyImpl) property).getOrder());
+        connConfPropSchema.setConfidential(property.isConfidential());
+
+        if (property.getValue() != null) {
+            if (property.getValue().getClass().isArray()) {
+                connConfPropSchema.getDefaultValues().addAll(Arrays.asList((Object[]) property.getValue()));
+            } else if (property.getValue() instanceof Collection<?>) {
+                connConfPropSchema.getDefaultValues().addAll((Collection<?>) property.getValue());
+            } else {
+                connConfPropSchema.getDefaultValues().add(property.getValue());
+            }
+        }
+
+        return connConfPropSchema;
+    }
+
     public ConnInstanceTO getConnInstanceTO(final ConnInstance connInstance) {
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
         connInstanceTO.setId(connInstance.getId() == null ? 0L : connInstance.getId().longValue());
@@ -194,27 +220,17 @@ public class ConnInstanceDataBinder {
         final Map<String, ConnConfProperty> connInstanceToConfMap = connInstanceTO.getConfigurationMap();
 
         for (String propName : properties.getPropertyNames()) {
-            ConfigurationProperty configurationProperty = properties.getProperty(propName);
-
+            ConnConfPropSchema schema = buildConnConfPropSchema(properties.getProperty(propName));
+            
+            ConnConfProperty property;
             if (connInstanceToConfMap.containsKey(propName)) {
-                connInstanceToConfMap.get(propName).getSchema().setDisplayName(
-                        configurationProperty.getDisplayName(propName));
+                property = connInstanceToConfMap.get(propName);
             } else {
-                ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
-
-                connConfPropSchema.setName(configurationProperty.getName());
-                connConfPropSchema.setDisplayName(configurationProperty.getDisplayName(propName));
-                connConfPropSchema.setHelpMessage(configurationProperty.getHelpMessage(propName));
-                connConfPropSchema.setRequired(configurationProperty.isRequired());
-                connConfPropSchema.setType(configurationProperty.getType().getName());
-                connConfPropSchema.setOrder(((ConfigurationPropertyImpl) configurationProperty).getOrder());
-                connConfPropSchema.setConfidential(configurationProperty.isConfidential());
-                connConfPropSchema.setDefaultValue(configurationProperty.getValue());
-
-                ConnConfProperty property = new ConnConfProperty();
-                property.setSchema(connConfPropSchema);
+                property = new ConnConfProperty();
                 connInstanceTO.addConfiguration(property);
             }
+            
+            property.setSchema(schema);            
         }
         return connInstanceTO;
     }

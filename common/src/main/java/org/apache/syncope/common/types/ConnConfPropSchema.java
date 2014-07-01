@@ -18,10 +18,14 @@
  */
 package org.apache.syncope.common.types;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
 import org.apache.syncope.common.AbstractBaseBean;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 @XmlRootElement
 @XmlType
@@ -43,7 +47,7 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
 
     private boolean confidential;
 
-    private Object defaultValue;
+    private final List<Object> defaultValues = new ArrayList<Object>();
 
     public String getName() {
         return name;
@@ -101,12 +105,11 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
         this.confidential = confidential;
     }
 
-    public Object getDefaultValue() {
-        return defaultValue;
-    }
-
-    public void setDefaultValue(final Object defaultValue) {
-        this.defaultValue = defaultValue;
+    @XmlElementWrapper(name = "defaultValues")
+    @XmlElement(name = "defaultValue")
+    @JsonProperty("defaultValues")
+    public List<Object> getDefaultValues() {
+        return defaultValues;
     }
 
     @Override

@@ -1093,6 +1093,7 @@ under the License.
                 <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                 <extractDir>${project.build.directory}/cargo/extract</extractDir>
               </zipUrlInstaller>
+              <timeout>240000</timeout>
               <log>${cargo.log}</log>
               <output>${cargo.output}</output>    
             </container>

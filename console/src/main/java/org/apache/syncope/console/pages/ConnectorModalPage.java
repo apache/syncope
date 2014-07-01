@@ -20,7 +20,6 @@ package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -487,20 +486,14 @@ public class ConnectorModalPage extends BaseModalPage {
                     property.setOverridable(connInstanceTO.getConfigurationMap().get(key.getName()).isOverridable());
                 }
 
-                if (property.getValues() == null || property.getValues().isEmpty() && key.getDefaultValue() != null) {
-                    if (key.getDefaultValue().getClass().isArray()) {
-                        property.getValues().addAll(Arrays.asList((Object[]) key.getDefaultValue()));
-                    } else if (key.getDefaultValue() instanceof Collection<?>) {
-                        property.getValues().addAll((Collection<?>) key.getDefaultValue());
-                    } else {
-                        property.getValues().add(key.getDefaultValue());
-                    }
+                if (property.getValues().isEmpty() && !key.getDefaultValues().isEmpty()) {
+                    property.getValues().addAll(key.getDefaultValues());
                 }
 
                 props.add(property);
             }
         }
-        
+
         // re-order properties (implements Comparable)
         Collections.sort(props);
         return props;
