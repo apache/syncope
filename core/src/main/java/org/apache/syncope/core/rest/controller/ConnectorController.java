@@ -30,7 +30,6 @@ import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.ConnBundleTO;
 import org.apache.syncope.common.to.ConnInstanceTO;
-import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
@@ -49,7 +48,6 @@ import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorKey;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -183,20 +181,7 @@ public class ConnectorController extends AbstractTransactionalController<ConnIns
                 ConfigurationProperties properties = ConnIdBundleManager.getConfigurationProperties(bundle);
 
                 for (String propName : properties.getPropertyNames()) {
-                    ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
-
-                    ConfigurationPropertyImpl configurationProperty = (ConfigurationPropertyImpl) properties.
-                            getProperty(propName);
-
-                    connConfPropSchema.setName(configurationProperty.getName());
-                    connConfPropSchema.setDisplayName(configurationProperty.getDisplayName(propName));
-                    connConfPropSchema.setHelpMessage(configurationProperty.getHelpMessage(propName));
-                    connConfPropSchema.setRequired(configurationProperty.isRequired());
-                    connConfPropSchema.setType(configurationProperty.getType().getName());
-                    connConfPropSchema.setOrder(configurationProperty.getOrder());
-                    connConfPropSchema.setConfidential(configurationProperty.isConfidential());
-
-                    connBundleTO.getProperties().add(connConfPropSchema);
+                    connBundleTO.getProperties().add(binder.buildConnConfPropSchema(properties.getProperty(propName)));
                 }
 
                 LOG.debug("Connector bundle: {}", connBundleTO);

@@ -82,8 +82,6 @@ import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.wrap.ResourceName;
-import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.impl.DBPasswordPropagationActions;
 import org.apache.syncope.core.propagation.impl.LDAPPasswordPropagationActions;
@@ -924,8 +922,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, SubjectType.USER, userId);
+        ConnObjectTO connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, SubjectType.USER, userId);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
         connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, userId);
@@ -1590,7 +1587,6 @@ public class UserTestITCase extends AbstractTest {
         // 1. create user with no resources
         UserTO userTO = getUniqueSampleTO("syncope136_Random@apache.org");
         userTO.getResources().clear();
-
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
@@ -1598,7 +1594,6 @@ public class UserTestITCase extends AbstractTest {
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.getResourcesToAdd().add(RESOURCE_NAME_LDAP);
-
         userTO = updateUser(userMod);
         assertNotNull(userTO);
 
@@ -2301,7 +2296,7 @@ public class UserTestITCase extends AbstractTest {
 
         resourceService.update(RESOURCE_NAME_WS1, newWs1);
     }
-    
+
     @Test
     public void issueSYNCOPE505DB() throws Exception {
         // 1. create user
@@ -2310,13 +2305,13 @@ public class UserTestITCase extends AbstractTest {
         user = createUser(user);
         assertNotNull(user);
         assertTrue(user.getResources().isEmpty());
-        
+
         // 2. Add DBPasswordPropagationActions
         ResourceTO resourceTO = resourceService.read(RESOURCE_NAME_TESTDB);
         assertNotNull(resourceTO);
         resourceTO.getPropagationActionsClassNames().add(DBPasswordPropagationActions.class.getName());
         resourceService.update(RESOURCE_NAME_TESTDB, resourceTO);
-        
+
         // 3. Add a db resource to the User
         UserMod userMod = new UserMod();
         userMod.setId(user.getId());
@@ -2330,8 +2325,14 @@ public class UserTestITCase extends AbstractTest {
         String value = jdbcTemplate.queryForObject(
                 "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
         assertEquals(Encryptor.getInstance().encode("security", CipherAlgorithm.SHA1), value.toUpperCase());
+
+        // 5. Remove DBPasswordPropagationActions
+        resourceTO = resourceService.read(RESOURCE_NAME_TESTDB);
+        assertNotNull(resourceTO);
+        resourceTO.getPropagationActionsClassNames().remove(DBPasswordPropagationActions.class.getName());
+        resourceService.update(RESOURCE_NAME_TESTDB, resourceTO);
     }
-    
+
     @Test
     public void issueSYNCOPE505LDAP() throws Exception {
         // 1. create user
@@ -2340,14 +2341,14 @@ public class UserTestITCase extends AbstractTest {
         user = createUser(user);
         assertNotNull(user);
         assertTrue(user.getResources().isEmpty());
-        
+
         // 2. Add LDAPPasswordPropagationActions
         ResourceTO resourceTO = resourceService.read(RESOURCE_NAME_LDAP);
         assertNotNull(resourceTO);
         resourceTO.getPropagationActionsClassNames().add(LDAPPasswordPropagationActions.class.getName());
         resourceTO.setRandomPwdIfNotProvided(false);
         resourceService.update(RESOURCE_NAME_LDAP, resourceTO);
-        
+
         // 3. Add a resource to the User
         UserMod userMod = new UserMod();
         userMod.setId(user.getId());
@@ -2357,12 +2358,19 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, user.getResources().size());
 
         // 4. Check that the LDAP resource has the correct password
-        ConnObjectTO connObject =
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, user.getId());
-        
+        ConnObjectTO connObject = 
+                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, user.getId());
+
         assertNotNull(getLdapRemoteObject(
-            connObject.getAttrMap().get(Name.NAME).getValues().get(0),
-            "security",
-            connObject.getAttrMap().get(Name.NAME).getValues().get(0)));
+                connObject.getAttrMap().get(Name.NAME).getValues().get(0),
+                "security",
+                connObject.getAttrMap().get(Name.NAME).getValues().get(0)));
+
+        // 5. Remove LDAPPasswordPropagationActions
+        resourceTO = resourceService.read(RESOURCE_NAME_LDAP);
+        assertNotNull(resourceTO);
+        resourceTO.getPropagationActionsClassNames().remove(LDAPPasswordPropagationActions.class.getName());
+        resourceTO.setRandomPwdIfNotProvided(true);
+        resourceService.update(RESOURCE_NAME_LDAP, resourceTO);
     }
 }

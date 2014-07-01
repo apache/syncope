@@ -301,7 +301,6 @@ public class ConnectorModalPage extends BaseModalPage {
                                 StringUtils.isBlank(property.getSchema().getDisplayName())
                                 ? property.getSchema().getName()
                                 : property.getSchema().getDisplayName());
-
                         item.add(label);
 
                         final FieldPanel field;
@@ -346,7 +345,7 @@ public class ConnectorModalPage extends BaseModalPage {
                                 required = property.getSchema().isRequired();
                             }
 
-                            if (String[].class.equals(propertySchemaClass)) {
+                            if (propertySchemaClass.isArray()) {
                                 isArray = true;
                             }
                         }
@@ -513,18 +512,25 @@ public class ConnectorModalPage extends BaseModalPage {
 
         if (bundleTO != null) {
             for (ConnConfPropSchema key : bundleTO.getProperties()) {
-                final ConnConfProperty propertyTO = new ConnConfProperty();
-                propertyTO.setSchema(key);
+                final ConnConfProperty property = new ConnConfProperty();
+                property.setSchema(key);
                 if (connInstanceTO.getId() != 0
                         && connInstanceTO.getConfigurationMap().containsKey(key.getName())
                         && connInstanceTO.getConfigurationMap().get(key.getName()).getValues() != null) {
-                    propertyTO.getValues().addAll(connInstanceTO.getConfigurationMap().get(key.getName()).getValues());
-                    propertyTO.setOverridable(connInstanceTO.getConfigurationMap().get(key.getName()).isOverridable());
+
+                    property.getValues().addAll(connInstanceTO.getConfigurationMap().get(key.getName()).getValues());
+                    property.setOverridable(connInstanceTO.getConfigurationMap().get(key.getName()).isOverridable());
                 }
-                props.add(propertyTO);
+
+                if (property.getValues().isEmpty() && !key.getDefaultValues().isEmpty()) {
+                    property.getValues().addAll(key.getDefaultValues());
+                }
+
+                props.add(property);
             }
         }
-        // re-order properties
+
+        // re-order properties (implements Comparable)
         Collections.sort(props);
         return props;
     }
