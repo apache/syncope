@@ -1,5 +1,22 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.syncope.installer.processes;
-
 
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
@@ -84,7 +101,7 @@ public class ContainerProcess extends AbstractProcess {
         switch (selectedContainer) {
             case TOMCAT:
                 final Tomcat tomcat = new Tomcat(tomcatUrl, installPath, artifactId, tomcatUser, tomcatPassword);
-                
+
                 boolean deployCoreResult = tomcat.deployCore();
                 if (deployCoreResult) {
                     handler.logOutput("Core successfully deployed ", true);
@@ -102,14 +119,14 @@ public class ContainerProcess extends AbstractProcess {
             case JBOSS:
                 final JBoss jBoss = new JBoss(
                         jbossHost, jbossPort, jbossAdminUsername, jbossAdminPassword, installPath, artifactId);
-                
+
                 boolean deployCoreJboss = jBoss.deployCore();
                 if (deployCoreJboss) {
                     handler.logOutput("Core successfully deployed ", true);
                 } else {
                     handler.emitError("Deploy core on JBoss failed", "Deploy core on JBoss failed");
                 }
-                
+
                 boolean deployConsoleJBoss = jBoss.deployConsole();
                 if (deployConsoleJBoss) {
                     handler.logOutput("Console successfully deployed ", true);
