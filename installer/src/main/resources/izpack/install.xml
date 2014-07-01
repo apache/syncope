@@ -118,13 +118,13 @@ under the License.
   </conditions>
   
   <resources>
-    <res id="installer.jar" src="../installer.jar"/>
+    <res id="installer.jar" src="../syncope-installer-1.2.0-SNAPSHOT.jar"/>
     
     <res id="Installer.image" src="img/apache-syncope-vert.png" />
     
     <res id="welcome_background" src="img/welcome_background.jpg" />
     <res id="HTMLHelloPanel.welcome" src="html/welcome.html"/>
-    <res id="LicencePanel.licence" src="txt/LICENSE"/>
+    <res id="LicencePanel.licence" src="LICENSE"/>
     <res id="HTMLInfoPanel.info" src="html/prerequisites.html"/>  
     <res id="userInputSpec.xml" src="userInputSpec.xml" />
     <res id="userInputLang.xml_eng" src="userInputLang.xml_eng" />
@@ -132,7 +132,7 @@ under the License.
     <res id="ProcessPanel.Spec.xml" src="ProcessPanel.Spec.xml"/>
   </resources>
   
-  <jar src="../installer.jar" stage="install"/>
+  <jar src="../syncope-installer-1.2.0-SNAPSHOT.jar" stage="install"/>
   <jar src="lib/postgresql-9.3-1101-jdbc41.jar"/>
   <jar src="lib/mysql-connector-java-5.1.31.jar"/>
   <jar src="lib/commons-logging-1.1.3.jar"/>
