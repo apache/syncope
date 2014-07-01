@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<langpack>
+  <str id="archetype.mvn.groupid" txt="GroupId:"/>
+  <str id="archetype.mvn.artifactid" txt="ArtifactId:"/>
+  <str id="archetype.mvn.secretkey" txt="SecretKey:"/>
+  <str id="mvn.anonymous.key.id" txt="Anonymous Key:"/>
+  <str id="archetype.mvn.log.directory" txt="Log directory name:"/>
+  <str id="archetype.mvn.bundle.directory" txt="Bundle directory name:"/>
+  <str id="mvn.syncope.version.id" txt="Syncope Version:"/>
+  <str id="mvn.syncope.admin.password.id" txt="Admin Password:"/>
+  
+  <str id="persistence.jdbc.url" txt="Database JDBC url:"/>
+  <str id="persistence.db.user" txt="Username:"/>
+  <str id="persistence.db.password" txt="Password:"/>
+  <str id="persistence.mysql.is.innodb" txt="INNODB"/>
+  <str id="persistence.oracle.tablespace" txt="Oracle tablespace:"/>
+  
+  <str id="with.datasuorce.id" txt="DataSource with JNDI name 'java:/syncopeDataSource':"/>
+  
+  <str id="tomcat.container.url.id" txt="Tomcat URL:"/>
+  <str id="tomcat.container.user.id" txt="Tomcat username:"/>
+  <str id="tomcat.container.pwd.id" txt="Tomcat password:"/>
+  
+  <str id="glassfish.container.dir.id" txt="Glassfish home directory:"/>
+  
+  <str id="jboss.container.host.id" txt="Jboss host:"/>
+  <str id="jboss.container.port.id" txt="Jboss port:"/>
+  <str id="jboss.container.jdbc.module.id" txt="Jboss JDBC module name:"/>
+  <str id="jboss.container.user.id" txt="Jboss admin username:"/>
+  <str id="jboss.container.pwd.id" txt="Jboss admin password:"/>
+</langpack>

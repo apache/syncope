@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<userInput>
+  <panel id="archetype" order="1" border="false">
+    <field type="title" txt="Maven" bold="true" size="2" />
+    
+    <field type="divider"/>
+    <field type="space"/>
+    
+    <field type="text" variable="mvn.groupid">
+      <spec id="archetype.mvn.groupid" size="20" set="net.tirasa"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="mvn.artifactid">
+      <spec id="archetype.mvn.artifactid" size="20" set="syncope"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="mvn.secretkey">
+      <spec id="archetype.mvn.secretkey" size="20" set="123456789asdfghj"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="mvn.anonymous.key">
+      <spec id="mvn.anonymous.key.id" size="20" set="123456789asdfghj"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="mvn.log.directory">
+      <spec id="archetype.mvn.log.directory" size="20" set="${TargetPanel.dir.unix}/log"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="mvn.bundle.directory">
+      <spec id="archetype.mvn.bundle.directory" size="20" set="${TargetPanel.dir.unix}/bundles"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="mvn.syncope.version">
+      <spec id="mvn.syncope.version.id" size="20" set="1.2.0-SNAPSHOT"/>
+    </field>
+    <!--    <field type="space"/>
+    <field type="password" variable="mvn.syncope.admin.password">
+      <spec id="mvn.syncope.admin.password.id" size="20" set="password"/>
+    </field>-->
+  </panel>
+  
+  <panel id="persistence" order="2" border="false">
+    <field type="title" txt="Database options" bold="true" size="2" />
+    
+    <field type="divider"/>
+    <field type="space"/>
+    
+    <field type="staticText" align="left" txt="Database technologies:" />
+    <field type="radio" variable="install.type.selection">
+      <spec>
+        <choice txt="Postgres" value="postgres" set="true" />
+        <choice txt="MySQL" value="mysql"/>
+        <choice txt="Oracle" value="oracle"/>
+        <choice txt="SQLServer" value="sqlserver"/>
+      </spec> 
+    </field>
+  </panel>
+  
+  <panel id="persistence_advanced" order="2" border="false">
+    <field type="title" txt="Database advanced options" bold="true" size="2" />
+    
+    <field type="divider"/>
+    <field type="space"/>
+    <field type="text" variable="persistence.url" conditionid="postgres.choice">
+      <spec id="persistence.jdbc.url" size="20" set="jdbc:postgresql://localhost:5432/syncope"/>
+    </field>
+    <field type="text" variable="persistence.url" conditionid="mysql.choice">
+      <spec id="persistence.jdbc.url" size="20" set="jdbc:mysql://localhost:3306/syncope?characterEncoding=UTF-8"/>
+    </field>
+    <field type="text" variable="persistence.url" conditionid="oracle.choice">
+      <spec id="persistence.jdbc.url" size="20" set="jdbc:oracle:thin:@localhost:1521:orcl"/>
+    </field>
+    <field type="text" variable="persistence.url" conditionid="sqlserver.choice">
+      <spec id="persistence.jdbc.url" size="20" set="jdbc:sqlserver://localhost:1344;database=syncope;selectMethod=cursor;sendStringParametersAsUnicode=false"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="persistence.dbuser">
+      <spec id="persistence.db.user" size="20" set="syncope"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="persistence.dbpassword">
+      <spec id="persistence.db.password" size="20" set="syncope"/>
+    </field>
+    <field type="space"/>
+    
+    <field type="check" variable="is.innodb" conditionid="mysql.choice">
+      <spec id="persistence.mysql.is.innodb" true="true" false="false" set="true"/>
+    </field>
+    
+    <field type="text" variable="persistence.tablespace" conditionid="oracle.choice">
+      <spec id="persistence.oracle.tablespace" size="20" set="SYNCOPE"/>
+    </field>
+  </panel>
+  
+  <panel id="container" order="3" border="false">
+    <field type="title" txt="Application Server" bold="true" size="2" />
+    
+    <field type="divider"/>
+    <field type="space"/>
+    
+    <field type="staticText" align="left" txt="Application server:" />
+    <field type="radio" variable="install.container.selection">
+      <spec>
+        <choice txt="Tomcat" value="tomcat" set="true" />
+        <choice txt="Glassfish" value="glassfish"/>
+        <choice txt="Jboss" value="jboss"/>
+      </spec>
+    </field>
+    
+    <field type="space"/>
+
+    <field type="check" variable="with.datasuorce">
+      <spec id="with.datasuorce.id" true="true" false="false" set="true"/>
+    </field>
+  </panel>
+  
+  <panel id="container_advanced" order="3" border="false">
+    <field type="title" txt="Application Server" bold="true" size="2" />
+    
+    <field type="divider"/>
+    <field type="space"/>
+    
+    <field type="text" variable="tomcat.container.url" conditionid="tomcat.choice">
+      <spec id="tomcat.container.url.id" size="20" set="http://localhost:8080/"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="tomcat.container.user" conditionid="tomcat.choice">
+      <spec id="tomcat.container.user.id" size="20" set="manager"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="tomcat.container.pwd" conditionid="tomcat.choice">
+      <spec id="tomcat.container.pwd.id" size="20" set="s3cret"/>
+    </field>
+    
+    <field type="text" variable="glassfish.container.dir" conditionid="glassfish.choice">
+      <spec id="glassfish.container.dir.id" size="20" set="/opt/glassfish4/"/>
+    </field>
+    
+    <field type="text" variable="jboss.container.host" conditionid="jboss.choice">
+      <spec id="jboss.container.host.id" size="20" set="localhost"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="jboss.container.port" conditionid="jboss.choice">
+      <spec id="jboss.container.port.id" size="20" set="9990"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="jboss.container.jdbc.module" conditionid="jboss.choice">
+      <spec id="jboss.container.jdbc.module.id" size="20" set="org.postgres"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="jboss.container.user" conditionid="jboss.choice">
+      <spec id="jboss.container.user.id" size="20" set="admin"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="jboss.container.pwd" conditionid="jboss.choice">
+      <spec id="jboss.container.pwd.id" size="20" set="password"/>
+    </field>
+  </panel>
+</userInput>

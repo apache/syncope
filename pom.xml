@@ -1560,5 +1560,6 @@ under the License.
     <module>core</module>
     <module>console</module>
     <module>standalone</module>
+    <module>installer</module>
   </modules>
 </project>
