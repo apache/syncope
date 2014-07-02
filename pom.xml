@@ -354,6 +354,8 @@ under the License.
     <selenium.version>2.42.2</selenium.version>
 
     <apacheds.version>1.5.7</apacheds.version>
+    
+    <httpclient.version>4.3.4</httpclient.version>
 
     <tomcat.version>7.0.54</tomcat.version>
 
@@ -822,6 +824,17 @@ under the License.
             <artifactId>shared-ldap-schema</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${httpclient.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpmime</artifactId>
+        <version>${httpclient.version}</version>
       </dependency>
 
       <dependency>
