@@ -185,12 +185,12 @@ public abstract class AbstractSyncTaskModalPage extends AbstractSchedTaskModalPa
         profile.add(syncStatus);
 
         matchingRule = new AjaxDropDownChoicePanel<MatchingRule>(
-                "matchingRule", "matchingRule", new PropertyModel<MatchingRule>(taskTO, "matchigRule"));
+                "matchingRule", "matchingRule", new PropertyModel<MatchingRule>(taskTO, "matchingRule"));
         matchingRule.setChoices(Arrays.asList(MatchingRule.values()));
         ((DropDownChoice) matchingRule.getField()).setNullValid(false);
 
         unmatchingRule = new AjaxDropDownChoicePanel<UnmatchingRule>(
-                "unmatchingRule", "unmatchingRule", new PropertyModel<UnmatchingRule>(taskTO, "unmatchigRule"));
+                "unmatchingRule", "unmatchingRule", new PropertyModel<UnmatchingRule>(taskTO, "unmatchingRule"));
         unmatchingRule.setChoices(Arrays.asList(UnmatchingRule.values()));
         ((DropDownChoice) unmatchingRule.getField()).setNullValid(false);
     }
