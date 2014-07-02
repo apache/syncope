@@ -38,9 +38,9 @@ public class TaskTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isTextPresent(" + "\"Operation executed successfully\");", "30000");
 
         selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//tr[4]/td[10]/div/span[9]/a/img\");", "30000");
+                + "\"//tr[4]/td[10]/div/span[10]/a/img\");", "30000");
 
-        selenium.click("//tr[4]/td[10]/div/span[9]/a/img");
+        selenium.click("//tr[4]/td[10]/div/span[10]/a/img");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
         selenium.selectFrame("index=0");

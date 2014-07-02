@@ -56,7 +56,7 @@ public class UserTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         //Edit vivaldi
-        selenium.click("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[9]/a");
+        selenium.click("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[10]/a");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
         selenium.selectFrame("index=0");
@@ -101,7 +101,7 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//*[@id=\"users-contain\"]//*[div=4]/../td[5]/div/span[11]/a");
+        selenium.click("//*[@id=\"users-contain\"]//*[div=4]/../td[5]/div/span[12]/a");
 
         assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
 

@@ -27,7 +27,7 @@ public class ReportTestITCase extends AbstractTest {
         selenium.click("css=img[alt=\"Reports\"]");
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//table/tbody/tr/td[8]/div/span[9]/a");
+        selenium.click("//table/tbody/tr/td[8]/div/span[10]/a");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
         selenium.selectFrame("index=0");

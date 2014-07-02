@@ -38,7 +38,6 @@ import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -52,7 +51,7 @@ public class ResourceDetailsPanel extends Panel {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(ResourceDetailsPanel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ResourceDetailsPanel.class);
 
     @SpringBean
     private ConnectorRestClient connRestClient;
@@ -79,12 +78,12 @@ public class ResourceDetailsPanel extends Panel {
 
         final AjaxCheckBoxPanel propagationPrimary = new AjaxCheckBoxPanel("propagationPrimary", new ResourceModel(
                 "propagationPrimary", "propagationPrimary").getObject(), new PropertyModel<Boolean>(resourceTO,
-                "propagationPrimary"));
+                        "propagationPrimary"));
         add(propagationPrimary);
 
         final AjaxNumberFieldPanel propagationPriority = new AjaxNumberFieldPanel("propagationPriority",
                 new ResourceModel("propagationPriority", "propagationPriority").getObject(), new PropertyModel<Number>(
-                resourceTO, "propagationPriority"), Integer.class);
+                        resourceTO, "propagationPriority"), Integer.class);
         add(propagationPriority);
 
         final AjaxDropDownChoicePanel<PropagationMode> propagationMode = new AjaxDropDownChoicePanel<PropagationMode>(
@@ -128,23 +127,6 @@ public class ResourceDetailsPanel extends Panel {
                 new PropertyModel<TraceLevel>(resourceTO, "syncTraceLevel"));
         syncTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
         add(syncTraceLevel);
-
-        final AjaxCheckBoxPanel resetToken = new AjaxCheckBoxPanel("resetToken", new ResourceModel("resetToken",
-                "resetToken").getObject(), new Model<Boolean>(null));
-
-        resetToken.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget art) {
-                if (resetToken.getModelObject()) {
-                    resourceTO.setUsyncToken(null);
-                    resourceTO.setRsyncToken(null);
-                }
-            }
-        });
-        add(resetToken);
 
         final IModel<List<ConnInstanceTO>> connectors = new LoadableDetachableModel<List<ConnInstanceTO>>() {
 

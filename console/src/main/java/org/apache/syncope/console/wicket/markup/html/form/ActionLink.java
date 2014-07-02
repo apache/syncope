@@ -31,6 +31,7 @@ public abstract class ActionLink implements Serializable {
         EDIT("read"),
         USER_TEMPLATE("read"),
         ROLE_TEMPLATE("read"),
+        RESET("update"),
         ENABLE("update"),
         SEARCH("read"),
         DELETE("delete"),
