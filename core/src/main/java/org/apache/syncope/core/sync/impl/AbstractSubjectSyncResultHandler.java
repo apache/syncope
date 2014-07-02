@@ -107,40 +107,13 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
         }
     }
 
-    protected List<SyncResult> assign(
-            final SyncDelta delta, final AttributableUtil attrUtil, final boolean dryRun)
+    protected List<SyncResult> assign(final SyncDelta delta, final AttributableUtil attrUtil)
             throws JobExecutionException {
 
         final AbstractSubjectTO subjectTO =
                 connObjectUtil.getSubjectTO(delta.getObject(), profile.getSyncTask(), attrUtil);
 
         subjectTO.getResources().add(profile.getSyncTask().getResource().getName());
-
-        SyncDelta _delta = delta;
-        for (SyncActions action : profile.getActions()) {
-            _delta = action.beforeAssign(this.getProfile(), _delta, subjectTO);
-        }
-
-        return create(subjectTO, _delta, attrUtil, "assign", dryRun);
-    }
-
-    protected List<SyncResult> create(
-            final SyncDelta delta, final AttributableUtil attrUtil, final boolean dryRun)
-            throws JobExecutionException {
-
-        final AbstractSubjectTO subjectTO =
-                connObjectUtil.getSubjectTO(delta.getObject(), profile.getSyncTask(), attrUtil);
-
-        return create(subjectTO, delta, attrUtil, "provision", dryRun);
-    }
-
-    private List<SyncResult> create(
-            final AbstractSubjectTO subjectTO,
-            final SyncDelta delta,
-            final AttributableUtil attrUtil,
-            final String operation,
-            final boolean dryRun)
-            throws JobExecutionException {
 
         if (!profile.getSyncTask().isPerformCreate()) {
             LOG.debug("SyncTask not configured for create");
@@ -153,53 +126,99 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
         result.setStatus(SyncResult.Status.SUCCESS);
 
         // Attributable transformation (if configured)
-        AbstractSubjectTO actual = attrTransformer.transform(subjectTO);
-        LOG.debug("Transformed: {}", actual);
+        AbstractSubjectTO transformed = attrTransformer.transform(subjectTO);
+        LOG.debug("Transformed: {}", transformed);
 
-        result.setName(getName(actual));
+        result.setName(getName(transformed));
 
-        if (dryRun) {
+        if (profile.isDryRun()) {
             result.setId(0L);
         } else {
             SyncDelta _delta = delta;
             for (SyncActions action : profile.getActions()) {
-                _delta = action.beforeCreate(this.getProfile(), _delta, subjectTO);
+                _delta = action.beforeAssign(this.getProfile(), _delta, transformed);
             }
 
-            Object output;
-            Result resultStatus;
-
-            try {
-                actual = create(actual, _delta, result);
-                result.setName(getName(actual));
-                output = actual;
-                resultStatus = Result.SUCCESS;
-            } catch (PropagationException e) {
-                // A propagation failure doesn't imply a synchronization failure.
-                // The propagation exception status will be reported into the propagation task execution.
-                LOG.error("Could not propagate {} {}", attrUtil.getType(), _delta.getUid().getUidValue(), e);
-                output = e;
-                resultStatus = Result.FAILURE;
-            } catch (Exception e) {
-                result.setStatus(SyncResult.Status.FAILURE);
-                result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-                LOG.error("Could not create {} {} ", attrUtil.getType(), _delta.getUid().getUidValue(), e);
-                output = e;
-                resultStatus = Result.FAILURE;
-            }
-
-            for (SyncActions action : profile.getActions()) {
-                action.after(this.getProfile(), _delta, actual, result);
-            }
-
-            audit(operation, resultStatus, null, output, _delta);
+            create(transformed, _delta, attrUtil, "assign", result);
         }
 
         return Collections.singletonList(result);
     }
 
-    protected List<SyncResult> update(SyncDelta delta, final List<Long> subjects, final AttributableUtil attrUtil,
-            final boolean dryRun)
+    protected List<SyncResult> create(final SyncDelta delta, final AttributableUtil attrUtil)
+            throws JobExecutionException {
+
+        if (!profile.getSyncTask().isPerformCreate()) {
+            LOG.debug("SyncTask not configured for create");
+            return Collections.<SyncResult>emptyList();
+        }
+
+        final AbstractSubjectTO subjectTO =
+                connObjectUtil.getSubjectTO(delta.getObject(), profile.getSyncTask(), attrUtil);
+
+        // Attributable transformation (if configured)
+        AbstractSubjectTO transformed = attrTransformer.transform(subjectTO);
+        LOG.debug("Transformed: {}", transformed);
+
+        final SyncResult result = new SyncResult();
+        result.setOperation(ResourceOperation.CREATE);
+        result.setSubjectType(attrUtil.getType());
+        result.setStatus(SyncResult.Status.SUCCESS);
+
+        result.setName(getName(transformed));
+
+        if (profile.isDryRun()) {
+            result.setId(0L);
+        } else {
+            SyncDelta _delta = delta;
+            for (SyncActions action : profile.getActions()) {
+                _delta = action.beforeProvision(this.getProfile(), _delta, transformed);
+            }
+
+            create(transformed, _delta, attrUtil, "provision", result);
+        }
+
+        return Collections.<SyncResult>singletonList(result);
+    }
+
+    private void create(
+            final AbstractSubjectTO subjectTO,
+            final SyncDelta delta,
+            final AttributableUtil attrUtil,
+            final String operation,
+            final SyncResult result)
+            throws JobExecutionException {
+
+        Object output;
+        Result resultStatus;
+
+        try {
+            AbstractSubjectTO actual = create(subjectTO, delta, result);
+            result.setName(getName(actual));
+            output = actual;
+            resultStatus = Result.SUCCESS;
+
+            for (SyncActions action : profile.getActions()) {
+                action.after(this.getProfile(), delta, actual, result);
+            }
+        } catch (PropagationException e) {
+            // A propagation failure doesn't imply a synchronization failure.
+            // The propagation exception status will be reported into the propagation task execution.
+            LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
+            output = e;
+            resultStatus = Result.FAILURE;
+        } catch (Exception e) {
+            result.setStatus(SyncResult.Status.FAILURE);
+            result.setMessage(ExceptionUtils.getRootCauseMessage(e));
+            LOG.error("Could not create {} {} ", attrUtil.getType(), delta.getUid().getUidValue(), e);
+            output = e;
+            resultStatus = Result.FAILURE;
+        }
+
+        audit(operation, resultStatus, null, output, delta);
+    }
+
+    protected List<SyncResult> update(SyncDelta delta, final List<Long> subjects, final AttributableUtil attrUtil)
             throws JobExecutionException {
 
         if (!profile.getSyncTask().isPerformUpdate()) {
@@ -233,7 +252,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                 result.setName(getName(before));
             }
 
-            if (!dryRun) {
+            if (!profile.isDryRun()) {
                 if (before == null) {
                     resultStatus = Result.FAILURE;
                     output = null;
@@ -284,8 +303,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
             SyncDelta delta,
             final List<Long> subjects,
             final AttributableUtil attrUtil,
-            final boolean unlink,
-            final boolean dryRun)
+            final boolean unlink)
             throws JobExecutionException {
 
         if (!profile.getSyncTask().isPerformUpdate()) {
@@ -316,7 +334,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                 result.setMessage(String.format("Subject '%s(%d)' not found", attrUtil.getType().name(), id));
             }
 
-            if (!dryRun) {
+            if (!profile.isDryRun()) {
                 if (before == null) {
                     resultStatus = Result.FAILURE;
                     output = null;
@@ -369,8 +387,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
             SyncDelta delta,
             final List<Long> subjects,
             final AttributableUtil attrUtil,
-            final boolean unlink,
-            final boolean dryRun)
+            final boolean unlink)
             throws JobExecutionException {
 
         if (!profile.getSyncTask().isPerformUpdate()) {
@@ -401,7 +418,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                 result.setMessage(String.format("Subject '%s(%d)' not found", attrUtil.getType().name(), id));
             }
 
-            if (!dryRun) {
+            if (!profile.isDryRun()) {
                 if (before == null) {
                     resultStatus = Result.FAILURE;
                     output = null;
@@ -449,8 +466,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
         return updResults;
     }
 
-    protected List<SyncResult> delete(SyncDelta delta, final List<Long> subjects, final AttributableUtil attrUtil,
-            final boolean dryRun)
+    protected List<SyncResult> delete(SyncDelta delta, final List<Long> subjects, final AttributableUtil attrUtil)
             throws JobExecutionException {
 
         if (!profile.getSyncTask().isPerformDelete()) {
@@ -478,7 +494,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                 result.setSubjectType(attrUtil.getType());
                 result.setStatus(SyncResult.Status.SUCCESS);
 
-                if (!dryRun) {
+                if (!profile.isDryRun()) {
                     for (SyncActions action : profile.getActions()) {
                         delta = action.beforeDelete(this.getProfile(), delta, before);
                     }
@@ -559,10 +575,10 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                 if (subjectIds.isEmpty()) {
                     switch (profile.getSyncTask().getUnmatchingRule()) {
                         case ASSIGN:
-                            profile.getResults().addAll(assign(delta, attrUtil, profile.isDryRun()));
+                            profile.getResults().addAll(assign(delta, attrUtil));
                             break;
                         case PROVISION:
-                            profile.getResults().addAll(create(delta, attrUtil, profile.isDryRun()));
+                            profile.getResults().addAll(create(delta, attrUtil));
                             break;
                         default:
                         // do nothing
@@ -570,21 +586,19 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                 } else {
                     switch (profile.getSyncTask().getMatchingRule()) {
                         case UPDATE:
-                            profile.getResults().addAll(update(delta, subjectIds, attrUtil, profile.isDryRun()));
+                            profile.getResults().addAll(update(delta, subjectIds, attrUtil));
                             break;
                         case DEPROVISION:
-                            profile.getResults().addAll(
-                                    deprovision(delta, subjectIds, attrUtil, false, profile.isDryRun()));
+                            profile.getResults().addAll(deprovision(delta, subjectIds, attrUtil, false));
                             break;
                         case UNASSIGN:
-                            profile.getResults().addAll(
-                                    deprovision(delta, subjectIds, attrUtil, true, profile.isDryRun()));
+                            profile.getResults().addAll(deprovision(delta, subjectIds, attrUtil, true));
                             break;
                         case LINK:
-                            profile.getResults().addAll(link(delta, subjectIds, attrUtil, false, profile.isDryRun()));
+                            profile.getResults().addAll(link(delta, subjectIds, attrUtil, false));
                             break;
                         case UNLINK:
-                            profile.getResults().addAll(link(delta, subjectIds, attrUtil, true, profile.isDryRun()));
+                            profile.getResults().addAll(link(delta, subjectIds, attrUtil, true));
                             break;
                         default:
                         // do nothing
@@ -594,7 +608,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                 if (subjectIds.isEmpty()) {
                     LOG.debug("No match found for deletion");
                 } else {
-                    profile.getResults().addAll(delete(delta, subjectIds, attrUtil, profile.isDryRun()));
+                    profile.getResults().addAll(delete(delta, subjectIds, attrUtil));
                 }
             }
         } catch (IllegalStateException e) {

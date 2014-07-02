@@ -119,7 +119,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
 
     /**
      * Keep track of members of the role being updated <b>before</b> actual update takes place. This is not needed on
-     * <ul> <li>beforeCreate() - because the synchronizing role does not exist yet on Syncope</li> <li>beforeDelete() -
+     * <ul> <li>beforeProvision() - because the synchronizing role does not exist yet on Syncope</li> <li>beforeDelete() -
      * because role delete cascades as membership removal for all users involved</li> </ul>
      *
      * {@inheritDoc}
@@ -298,7 +298,6 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
             final SyncDelta delta,
             final T subject,
             final SyncResult result) throws JobExecutionException {
-
         if (!(profile.getSyncTask() instanceof SyncTask)) {
             return;
         }

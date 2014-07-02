@@ -54,7 +54,7 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
 
     @Transactional(readOnly = true)
     @Override
-    public <T extends AbstractAttributableTO> SyncDelta beforeCreate(
+    public <T extends AbstractAttributableTO> SyncDelta beforeProvision(
             final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject) throws JobExecutionException {

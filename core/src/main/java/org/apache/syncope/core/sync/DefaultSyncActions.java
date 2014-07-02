@@ -35,7 +35,7 @@ public abstract class DefaultSyncActions implements SyncActions {
     }
 
     @Override
-    public <T extends AbstractAttributableTO> SyncDelta beforeCreate(
+    public <T extends AbstractAttributableTO> SyncDelta beforeProvision(
             final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject) throws JobExecutionException {

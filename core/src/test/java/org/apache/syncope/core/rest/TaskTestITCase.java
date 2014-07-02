@@ -68,7 +68,6 @@ import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.common.wrap.PushActionClass;
-import org.apache.syncope.core.sync.TestSyncActions;
 import org.apache.syncope.core.sync.TestSyncRule;
 import org.apache.syncope.core.sync.impl.SyncJob;
 import org.apache.syncope.core.workflow.ActivitiDetector;
@@ -324,33 +323,6 @@ public class TaskTestITCase extends AbstractTest {
         try {
             int usersPre = userService.list(1, 1).getTotalCount();
             assertNotNull(usersPre);
-
-            // Update sync task
-            SyncTaskTO task = taskService.read(SYNC_TASK_ID);
-            assertNotNull(task);
-
-            // add custom SyncJob actions
-            task.getActionsClassNames().add(TestSyncActions.class.getName());
-
-            // add user template
-            UserTO template = new UserTO();
-            template.getAttrs().add(attributeTO("type",
-                    "email == 'test8@syncope.apache.org'? 'TYPE_8': 'TYPE_OTHER'"));
-            template.getDerAttrs().add(attributeTO("cn", null));
-            template.getResources().add(RESOURCE_NAME_TESTDB);
-
-            MembershipTO membershipTO = new MembershipTO();
-            membershipTO.setRoleId(8L);
-            membershipTO.getAttrs().add(attributeTO("subscriptionDate", "'2009-08-18T16:33:12.203+0200'"));
-            template.getMemberships().add(membershipTO);
-
-            task.setUserTemplate(template);
-
-            taskService.update(task.getId(), task);
-            SyncTaskTO actual = taskService.read(task.getId());
-            assertNotNull(actual);
-            assertEquals(task.getId(), actual.getId());
-            assertEquals(TestSyncActions.class.getName(), actual.getActionsClassNames().get(0));
 
             execSyncTask(SYNC_TASK_ID, 50, false);
 
@@ -793,32 +765,7 @@ public class TaskTestITCase extends AbstractTest {
             assertEquals(1, userTO.getPropagationStatusTOs().size());
             assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
 
-            // update sync task
-            SyncTaskTO task = taskService.read(SYNC_TASK_ID);
-            assertNotNull(task);
-
-            // add user template
-            AttributeTO newAttrTO = new AttributeTO();
-            newAttrTO.setSchema("firstname");
-            newAttrTO.getValues().add("");
-
-            UserTO template = new UserTO();
-            template.getAttrs().add(newAttrTO);
-            template.getAttrs().add(attributeTO("userId", "'test'"));
-            template.getAttrs().add(attributeTO("fullname", "'test'"));
-            template.getAttrs().add(attributeTO("surname", "'test'"));
-            template.getResources().add(RESOURCE_NAME_TESTDB);
-
-            task.setUserTemplate(template);
-
-            taskService.update(task.getId(), task);
-            SyncTaskTO actual = taskService.read(task.getId());
-            assertNotNull(actual);
-            assertEquals(task.getId(), actual.getId());
-
-            TaskExecTO taskExecTO = execSyncTask(SYNC_TASK_ID, 50, false);
-            assertNotNull(actual);
-            assertEquals(task.getId(), actual.getId());
+            TaskExecTO taskExecTO = execSyncTask(24L, 50, false);
 
             assertNotNull(taskExecTO.getStatus());
             assertTrue(PropagationTaskExecStatus.valueOf(taskExecTO.getStatus()).isSuccessful());

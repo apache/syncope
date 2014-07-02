@@ -40,7 +40,7 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
      * @return synchronization information used for user status evaluation and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractAttributableTO> SyncDelta beforeCreate(
+    <T extends AbstractAttributableTO> SyncDelta beforeProvision(
             final SyncProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject) throws JobExecutionException;
@@ -162,7 +162,7 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
      * Action to be executed after each local user / role synchronization.
      *
      * @param profile profile of the synchronization being executed.
-     * @param delta retrieved synchronization information (may be modified by 'beforeCreate/beforeUpdate/beforeDelete')
+     * @param delta retrieved synchronization information (may be modified by 'beforeProvision/beforeUpdate/beforeDelete')
      * @param subject synchronized local user / role
      * @param result global synchronization results at the current synchronization step
      * @throws JobExecutionException in case of generic failure

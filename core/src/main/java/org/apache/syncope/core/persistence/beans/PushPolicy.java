@@ -34,7 +34,7 @@ public class PushPolicy extends Policy {
         super();
 
         this.type = global
-                ? PolicyType.GLOBAL_SYNC
-                : PolicyType.SYNC;
+                ? PolicyType.GLOBAL_PUSH
+                : PolicyType.PUSH;
     }
 }
