@@ -375,7 +375,7 @@ public class PropagationManager {
                 Collections.<MembershipMod>emptySet());
     }
 
-    protected List<PropagationTask> getUpdateTaskIds(final AbstractSubject subject,
+    public List<PropagationTask> getUpdateTaskIds(final AbstractSubject subject,
             final String password, final boolean changePwd, final Boolean enable,
             final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
             final PropagationByResource propByRes, final Collection<String> noPropResourceNames,

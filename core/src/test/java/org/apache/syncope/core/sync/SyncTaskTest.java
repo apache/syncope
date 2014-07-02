@@ -22,6 +22,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.MatchingRule;
+import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.dao.AbstractDAOTest;
@@ -51,6 +53,8 @@ public class SyncTaskTest extends AbstractDAOTest {
         task.setDescription("SyncTask description");
         task.setUserTemplate(new UserTO());
         task.setCronExpression("BLA BLA");
+        task.setMatchingRule(MatchingRule.UPDATE);
+        task.setUnmatchingRule(UnmatchingRule.PROVISION);
 
         // this save() fails because of an invalid Cron Expression
         InvalidEntityException exception = null;
@@ -105,6 +109,8 @@ public class SyncTaskTest extends AbstractDAOTest {
         task.setName("issueSYNCOPE144");
         task.setDescription("issueSYNCOPE144 Description");
         task.getActionsClassNames().add(TestSyncActions.class.getName());
+        task.setMatchingRule(MatchingRule.UPDATE);
+        task.setUnmatchingRule(UnmatchingRule.PROVISION);
 
         task = taskDAO.save(task);
         assertNotNull(task);

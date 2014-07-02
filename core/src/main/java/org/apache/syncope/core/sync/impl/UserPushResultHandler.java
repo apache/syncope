@@ -20,21 +20,17 @@ package org.apache.syncope.core.sync.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.ResourceOperation;
+import org.apache.syncope.core.persistence.beans.AbstractMapping;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.propagation.TimeoutException;
-import org.apache.syncope.core.propagation.impl.AbstractPropagationTaskExecutor;
-import org.apache.syncope.core.sync.SyncResult;
-import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -42,7 +38,7 @@ import org.identityconnectors.framework.common.objects.Uid;
 public class UserPushResultHandler extends AbstractSubjectPushResultHandler {
 
     @Override
-    protected AbstractSubject deprovision(final AbstractSubject sbj, final SyncResult result) {
+    protected AbstractSubject deprovision(final AbstractSubject sbj) {
         final UserTO before = userDataBinder.getUserTO(sbj.getId());
 
         final List<String> noPropResources = new ArrayList<String>(before.getResources());
@@ -55,7 +51,7 @@ public class UserPushResultHandler extends AbstractSubjectPushResultHandler {
     }
 
     @Override
-    protected AbstractSubject provision(final AbstractSubject sbj, final Boolean enabled, final SyncResult result) {
+    protected AbstractSubject provision(final AbstractSubject sbj, final Boolean enabled) {
         final UserTO before = userDataBinder.getUserTO(sbj.getId());
 
         final List<String> noPropResources = new ArrayList<String>(before.getResources());
@@ -77,8 +73,7 @@ public class UserPushResultHandler extends AbstractSubjectPushResultHandler {
     }
 
     @Override
-    protected AbstractSubject link(
-            final AbstractSubject sbj, final Boolean unlink, final SyncResult result) {
+    protected AbstractSubject link(final AbstractSubject sbj, final Boolean unlink) {
 
         final UserMod userMod = new UserMod();
         userMod.setId(sbj.getId());
@@ -95,43 +90,21 @@ public class UserPushResultHandler extends AbstractSubjectPushResultHandler {
     }
 
     @Override
-    protected AbstractSubject unassign(final AbstractSubject sbj, final SyncResult result) {
+    protected AbstractSubject unassign(final AbstractSubject sbj) {
         final UserMod userMod = new UserMod();
         userMod.setId(sbj.getId());
         userMod.getResourcesToRemove().add(profile.getSyncTask().getResource().getName());
         uwfAdapter.update(userMod);
-        return deprovision(sbj, result);
+        return deprovision(sbj);
     }
 
     @Override
-    protected AbstractSubject assign(final AbstractSubject sbj, final Boolean enabled, final SyncResult result) {
+    protected AbstractSubject assign(final AbstractSubject sbj, final Boolean enabled) {
         final UserMod userMod = new UserMod();
         userMod.setId(sbj.getId());
         userMod.getResourcesToAdd().add(profile.getSyncTask().getResource().getName());
         uwfAdapter.update(userMod);
-        return provision(sbj, enabled, result);
-    }
-
-    @Override
-    protected AbstractSubject update(
-            final AbstractSubject sbj,
-            final String accountId,
-            final Set<Attribute> attributes,
-            final ConnectorObject beforeObj,
-            final SyncResult result) {
-
-        AbstractPropagationTaskExecutor.createOrUpdate(
-                ObjectClass.ACCOUNT,
-                accountId,
-                attributes,
-                profile.getSyncTask().getResource().getName(),
-                profile.getSyncTask().getResource().getPropagationMode(),
-                beforeObj,
-                profile.getConnector(),
-                new HashSet<String>(),
-                connObjectUtil);
-
-        return userDataBinder.getUserFromId(sbj.getId());
+        return provision(sbj, enabled);
     }
 
     @Override
@@ -178,5 +151,10 @@ public class UserPushResultHandler extends AbstractSubjectPushResultHandler {
             LOG.debug("While resolving {}", accountId, ignore);
         }
         return obj;
+    }
+
+    @Override
+    protected AbstractMapping getMapping() {
+        return profile.getSyncTask().getResource().getUmapping();
     }
 }

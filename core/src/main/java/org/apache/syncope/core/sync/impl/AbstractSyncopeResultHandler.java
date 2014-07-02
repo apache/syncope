@@ -40,7 +40,7 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSyncopeResultHandler.class);
-
+    
     /**
      * User data binder.
      */

@@ -35,6 +35,8 @@ import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.to.AbstractSyncTaskTO;
 import org.apache.syncope.common.to.PushTaskTO;
+import org.apache.syncope.common.types.MatchingRule;
+import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.core.init.JobInstanceLoader;
 import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -68,7 +70,8 @@ public class TaskDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
-    private static final String[] IGNORE_TASK_PROPERTIES = { "executions", "resource" };
+    private static final String[] IGNORE_TASK_PROPERTIES = {
+        "executions", "resource", "matchingRule", "unmatchingRule" };
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = { "id", "task" };
 
@@ -105,9 +108,21 @@ public class TaskDataBinder {
             pushTask.setUserFilter(pushTaskTO.getUserFilter());
             pushTask.setRoleFilter(pushTaskTO.getRoleFilter());
 
+            pushTask.setMatchingRule(pushTaskTO.getMatchingRule() == null
+                    ? MatchingRule.LINK : pushTaskTO.getMatchingRule());
+
+            pushTask.setUnmatchingRule(pushTaskTO.getUnmatchingRule() == null
+                    ? UnmatchingRule.ASSIGN : pushTaskTO.getUnmatchingRule());
+
         } else if (task instanceof SyncTask && taskTO instanceof SyncTaskTO) {
             final SyncTask syncTask = (SyncTask) task;
             final SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
+
+            syncTask.setMatchingRule(syncTaskTO.getMatchingRule() == null
+                    ? MatchingRule.UPDATE : syncTaskTO.getMatchingRule());
+
+            syncTask.setUnmatchingRule(syncTaskTO.getUnmatchingRule() == null
+                    ? UnmatchingRule.PROVISION : syncTaskTO.getUnmatchingRule());
 
             // 1. validate JEXL expressions in user and role templates
             if (syncTaskTO.getUserTemplate() != null) {
@@ -155,8 +170,6 @@ public class TaskDataBinder {
         task.setPerformUpdate(taskTO.isPerformUpdate());
         task.setPerformDelete(taskTO.isPerformDelete());
         task.setSyncStatus(taskTO.isSyncStatus());
-        task.setMatchingRule(taskTO.getMatchingRule());
-        task.setUnmatchingRule(taskTO.getUnmatchingRule());
         task.getActionsClassNames().clear();
         task.getActionsClassNames().addAll(taskTO.getActionsClassNames());
     }
@@ -254,17 +267,9 @@ public class TaskDataBinder {
         BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
 
         TaskExec latestExec = taskExecDAO.findLatestStarted(task);
-        taskTO.setLatestExecStatus(latestExec == null
-                ? ""
-                : latestExec.getStatus());
-
-        taskTO.setStartDate(latestExec == null
-                ? null
-                : latestExec.getStartDate());
-
-        taskTO.setEndDate(latestExec == null
-                ? null
-                : latestExec.getEndDate());
+        taskTO.setLatestExecStatus(latestExec == null ? "" : latestExec.getStatus());
+        taskTO.setStartDate(latestExec == null ? null : latestExec.getStartDate());
+        taskTO.setEndDate(latestExec == null ? null : latestExec.getEndDate());
 
         for (TaskExec execution : task.getExecs()) {
             taskTO.getExecutions().add(getTaskExecTO(execution));
@@ -298,6 +303,10 @@ public class TaskDataBinder {
                 ((SyncTaskTO) taskTO).setName(((SyncTask) task).getName());
                 ((SyncTaskTO) taskTO).setDescription(((SyncTask) task).getDescription());
                 ((SyncTaskTO) taskTO).setResource(((SyncTask) task).getResource().getName());
+                ((SyncTaskTO) taskTO).setMatchingRule(((SyncTask) task).getMatchingRule() == null
+                        ? MatchingRule.UPDATE : ((SyncTask) task).getMatchingRule());
+                ((SyncTaskTO) taskTO).setUnmatchingRule(((SyncTask) task).getUnmatchingRule() == null
+                        ? UnmatchingRule.PROVISION : ((SyncTask) task).getUnmatchingRule());
                 break;
 
             case PUSH:
@@ -309,6 +318,10 @@ public class TaskDataBinder {
                 ((PushTaskTO) taskTO).setName(((PushTask) task).getName());
                 ((PushTaskTO) taskTO).setDescription(((PushTask) task).getDescription());
                 ((PushTaskTO) taskTO).setResource(((PushTask) task).getResource().getName());
+                ((PushTaskTO) taskTO).setMatchingRule(((PushTask) task).getMatchingRule() == null
+                        ? MatchingRule.LINK : ((PushTask) task).getMatchingRule());
+                ((PushTaskTO) taskTO).setUnmatchingRule(((PushTask) task).getUnmatchingRule() == null
+                        ? UnmatchingRule.ASSIGN : ((PushTask) task).getUnmatchingRule());
                 break;
 
             case NOTIFICATION:

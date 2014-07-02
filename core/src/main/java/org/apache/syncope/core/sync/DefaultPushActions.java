@@ -19,11 +19,8 @@
 package org.apache.syncope.core.sync;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
-import org.identityconnectors.framework.common.objects.Attribute;
 import org.quartz.JobExecutionException;
 
 /**
@@ -36,76 +33,66 @@ public abstract class DefaultPushActions implements PushActions {
     }
 
     @Override
-    public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeAssign(
+    public <T extends AbstractAttributable> T beforeAssign(
             final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException {
-        return delta;
+        return subject;
     }
 
     @Override
-    public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeUpdate(
+    public <T extends AbstractAttributable> T beforeUpdate(
             final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException {
+        return subject;
+    }
 
-        return delta;
+    @Override
+    public <T extends AbstractAttributable> T beforeProvision(
+            final SyncProfile<?, ?> profile,
+            final T subject) throws JobExecutionException {
+        return subject;
+    }
+
+    @Override
+    public <T extends AbstractAttributable> T beforeLink(
+            final SyncProfile<?, ?> profile,
+            final T subject) throws JobExecutionException {
+        return subject;
+    }
+
+    @Override
+    public <T extends AbstractAttributable> T beforeUnlink(
+            final SyncProfile<?, ?> profile,
+            final T subject) throws JobExecutionException {
+        return subject;
+    }
+
+    @Override
+    public <T extends AbstractAttributable> T beforeUnassign(
+            final SyncProfile<?, ?> profile,
+            final T subject) throws JobExecutionException {
+        return subject;
+    }
+
+    @Override
+    public <T extends AbstractAttributable> T beforeDeprovision(
+            final SyncProfile<?, ?> profile,
+            final T subject) throws JobExecutionException {
+        return subject;
+    }
+
+    @Override
+    public <T extends AbstractAttributable> T beforeDelete(
+            final SyncProfile<?, ?> profile,
+            final T subject) throws JobExecutionException {
+        return subject;
     }
 
     @Override
     public <T extends AbstractAttributable> void after(
             final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
             final T subject,
             SyncResult result) throws JobExecutionException {
-    }
-
-    @Override
-    public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeProvision(
-            final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
-            final T subject) throws JobExecutionException {
-        return delta;
-    }
-
-    @Override
-    public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeLink(
-            final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
-            final T subject) throws JobExecutionException {
-        return delta;
-    }
-
-    @Override
-    public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeUnlink(
-            final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
-            final T subject) throws JobExecutionException {
-        return delta;
-    }
-
-    @Override
-    public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeUnassign(
-            final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
-            final T subject) throws JobExecutionException {
-        return delta;
-    }
-
-    @Override
-    public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeDeprovision(
-            final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
-            final T subject) throws JobExecutionException {
-        return delta;
-    }
-
-    @Override
-    public <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeDelete(
-            final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
-            final T subject) throws JobExecutionException {
-        return delta;
     }
 
     @Override

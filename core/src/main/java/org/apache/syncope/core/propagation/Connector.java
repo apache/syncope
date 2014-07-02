@@ -129,9 +129,8 @@ public interface Connector {
      * @param options ConnId's OperationOptions
      * @return ConnId's connector object for given uid
      */
-    ConnectorObject getObject(PropagationMode propagationMode,
-            ResourceOperation operationType, ObjectClass objectClass, Uid uid,
-            OperationOptions options);
+    ConnectorObject getObject(PropagationMode propagationMode, ResourceOperation operationType, ObjectClass objectClass,
+            Uid uid, OperationOptions options);
 
     /**
      * Search for remote objects.

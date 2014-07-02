@@ -97,16 +97,15 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
 
     protected List<SyncResult> assign(final SyncDelta delta, final AttributableUtil attrUtil)
             throws JobExecutionException {
+        if (!profile.getSyncTask().isPerformCreate()) {
+            LOG.debug("SyncTask not configured for create");
+            return Collections.<SyncResult>emptyList();
+        }
 
         final AbstractSubjectTO subjectTO =
                 connObjectUtil.getSubjectTO(delta.getObject(), profile.getSyncTask(), attrUtil);
 
         subjectTO.getResources().add(profile.getSyncTask().getResource().getName());
-
-        if (!profile.getSyncTask().isPerformCreate()) {
-            LOG.debug("SyncTask not configured for create");
-            return Collections.<SyncResult>emptyList();
-        }
 
         final SyncResult result = new SyncResult();
         result.setOperation(ResourceOperation.CREATE);
@@ -135,7 +134,6 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
 
     protected List<SyncResult> create(final SyncDelta delta, final AttributableUtil attrUtil)
             throws JobExecutionException {
-
         if (!profile.getSyncTask().isPerformCreate()) {
             LOG.debug("SyncTask not configured for create");
             return Collections.<SyncResult>emptyList();

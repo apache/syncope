@@ -34,126 +34,108 @@ public interface PushActions extends AbstractSyncActions<AbstractSyncopeResultHa
      * Action to be executed before to assign (link & provision) a synchronized user / role to the resource.
      *
      * @param profile profile of the synchronization being executed.
-     * @param delta info to be pushed out (accountId, attributes).
      * @param subject user / role to be created.
-     * @return info to be pushed out (accountId, attributes).
+     * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeAssign(
+    <T extends AbstractAttributable> T beforeAssign(
             final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before to provision a synchronized user / role to the resource.
      *
      * @param profile profile of the synchronization being executed.
-     * @param delta info to be pushed out (accountId, attributes).
      * @param subject user / role to be created.
-     * @return info to be pushed out (accountId, attributes).
+     * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeProvision(
+    <T extends AbstractAttributable> T beforeProvision(
             final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before to update a synchronized user / role on the resource.
      *
      * @param profile profile of the synchronization being executed.
-     * @param delta info to be pushed out (accountId, attributes).
      * @param subject user / role to be updated.
-     * @return info to be pushed out (accountId, attributes).
+     * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeUpdate(
+    <T extends AbstractAttributable> T beforeUpdate(
             final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before to link a synchronized user / role to the resource.
      *
      * @param profile profile of the synchronization being executed.
-     * @param delta info to be pushed out (accountId, attributes).
      * @param subject user / role to be created.
-     * @return info to be pushed out (accountId, attributes).
+     * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeLink(
+    <T extends AbstractAttributable> T beforeLink(
             final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before to unlink a synchronized user / role from the resource.
      *
      * @param profile profile of the synchronization being executed.
-     * @param delta info to be pushed out (accountId, attributes).
      * @param subject user / role to be created.
-     * @return info to be pushed out (accountId, attributes).
+     * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeUnlink(
+    <T extends AbstractAttributable> T beforeUnlink(
             final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before to unassign a synchronized user / role from the resource.
      *
      * @param profile profile of the synchronization being executed.
-     * @param delta info to be pushed out (accountId, attributes).
      * @param subject user / role to be created.
-     * @return info to be pushed out (accountId, attributes).
+     * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeUnassign(
+    <T extends AbstractAttributable> T beforeUnassign(
             final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before to unassign a synchronized user / role from the resource.
      *
      * @param profile profile of the synchronization being executed.
-     * @param delta info to be pushed out (accountId, attributes).
      * @param subject user / role to be created.
-     * @return info to be pushed out (accountId, attributes).
+     * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeDeprovision(
+    <T extends AbstractAttributable> T beforeDeprovision(
             final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before delete a synchronized user / role locally and from the resource.
      *
      * @param profile profile of the synchronization being executed.
-     * @param delta info to be pushed out (accountId, attributes).
      * @param subject user / role to be created.
-     * @return info to be pushed out (accountId, attributes).
+     * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractAttributable> Map.Entry<String, Set<Attribute>> beforeDelete(
+    <T extends AbstractAttributable> T beforeDelete(
             final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
             final T subject) throws JobExecutionException;
 
     /**
      * Action to be executed after each local user / role synchronization.
      *
      * @param profile profile of the synchronization being executed.
-     * @param delta info pushed out (accountId, attributes)
      * @param subject synchronized user / role.
      * @param result operation result.
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractAttributable> void after(
             final SyncProfile<?, ?> profile,
-            final Map.Entry<String, Set<Attribute>> delta,
             final T subject,
             final SyncResult result) throws JobExecutionException;
 }

@@ -25,8 +25,6 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
-import org.apache.syncope.common.types.MatchingRule;
-import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.core.sync.impl.SyncJob;
 import org.apache.syncope.core.util.POJOHelper;
 
@@ -34,10 +32,6 @@ import org.apache.syncope.core.util.POJOHelper;
 public class SyncTask extends AbstractSyncTask {
 
     private static final long serialVersionUID = -4141057723006682563L;
-
-    private static final UnmatchingRule DEF_UNMATCHIG_RULE = UnmatchingRule.PROVISION;
-
-    private static final MatchingRule DEF_MATCHIG_RULE = MatchingRule.UPDATE;
 
     @Lob
     private String userTemplate;
@@ -83,15 +77,5 @@ public class SyncTask extends AbstractSyncTask {
 
     public void setFullReconciliation(final boolean fullReconciliation) {
         this.fullReconciliation = getBooleanAsInteger(fullReconciliation);
-    }
-
-    @Override
-    public UnmatchingRule getUnmatchingRule() {
-        return this.unmatchingRule == null ? DEF_UNMATCHIG_RULE : unmatchingRule;
-    }
-
-    @Override
-    public MatchingRule getMatchingRule() {
-        return this.matchingRule == null ? DEF_MATCHIG_RULE : this.matchingRule;
     }
 }

@@ -298,7 +298,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public void sync() {
+    public void sync() throws Exception {
         removeTestUsers();
 
         // -----------------------------
@@ -318,6 +318,7 @@ public class TaskTestITCase extends AbstractTest {
 
         inUserTO = createUser(inUserTO);
         assertNotNull(inUserTO);
+        assertFalse(inUserTO.getResources().contains(RESOURCE_NAME_CSV));
 
         // -----------------------------
         try {
@@ -335,16 +336,24 @@ public class TaskTestITCase extends AbstractTest {
             assertEquals("test9@syncope.apache.org", userTO.getAttrMap().get("email").getValues().get(0));
             assertEquals("test9@syncope.apache.org", userTO.getAttrMap().get("userId").getValues().get(0));
             assertTrue(Integer.valueOf(userTO.getAttrMap().get("fullname").getValues().get(0)) <= 10);
+            assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));
+            assertTrue(userTO.getResources().contains(RESOURCE_NAME_WS2));
+            
+            // Matching --> Update (no link)
+            assertFalse(userTO.getResources().contains(RESOURCE_NAME_CSV));
 
             // check for user template
             userTO = readUser("test7");
             assertNotNull(userTO);
             assertEquals("TYPE_OTHER", userTO.getAttrMap().get("type").getValues().get(0));
-            assertEquals(2, userTO.getResources().size());
+            assertEquals(3, userTO.getResources().size());
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_WS2));
             assertEquals(1, userTO.getMemberships().size());
             assertTrue(userTO.getMemberships().get(0).getAttrMap().containsKey("subscriptionDate"));
+
+            // Unmatching --> Assign (link)
+            assertTrue(userTO.getResources().contains(RESOURCE_NAME_CSV));
 
             userTO = readUser("test8");
             assertNotNull(userTO);
@@ -368,6 +377,15 @@ public class TaskTestITCase extends AbstractTest {
 
             // SYNCOPE-317
             execSyncTask(SYNC_TASK_ID, 50, false);
+
+            final Set<Long> pushTaskIds = new HashSet<Long>();
+            pushTaskIds.add(25L);
+            pushTaskIds.add(26L);
+            
+            execSyncTasks(pushTaskIds, 50, false);
+            // Matching --> UNLINK
+            assertFalse(readUser("test9").getResources().contains(RESOURCE_NAME_CSV));
+            assertFalse(readUser("test7").getResources().contains(RESOURCE_NAME_CSV));
         } finally {
             removeTestUsers();
         }

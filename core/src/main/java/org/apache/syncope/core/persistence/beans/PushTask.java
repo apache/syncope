@@ -19,18 +19,12 @@
 package org.apache.syncope.core.persistence.beans;
 
 import javax.persistence.Entity;
-import org.apache.syncope.common.types.MatchingRule;
-import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.core.sync.impl.PushJob;
 
 @Entity
 public class PushTask extends AbstractSyncTask {
 
     private static final long serialVersionUID = -4141057723006682564L;
-
-    private static final UnmatchingRule DEF_UNMATCHIG_RULE = UnmatchingRule.ASSIGN;
-
-    private static final MatchingRule DEF_MATCHIG_RULE = MatchingRule.UPDATE;
 
     private String userFilter;
 
@@ -57,15 +51,5 @@ public class PushTask extends AbstractSyncTask {
 
     public void setRoleFilter(final String roleFilter) {
         this.roleFilter = roleFilter;
-    }
-
-    @Override
-    public UnmatchingRule getUnmatchingRule() {
-        return this.unmatchingRule == null ? DEF_UNMATCHIG_RULE : unmatchingRule;
-    }
-
-    @Override
-    public MatchingRule getMatchingRule() {
-        return this.matchingRule == null ? DEF_MATCHIG_RULE : this.matchingRule;
     }
 }

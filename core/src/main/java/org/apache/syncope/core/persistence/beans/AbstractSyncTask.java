@@ -29,6 +29,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.types.MatchingRule;
 import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.validation.entity.AbstractSyncTaskCheck;
@@ -68,12 +69,14 @@ public abstract class AbstractSyncTask extends SchedTask {
     /**
      * @see UnmatchingRule
      */
+    @NotNull
     @Enumerated(EnumType.STRING)
     protected UnmatchingRule unmatchingRule;
 
     /**
      * @see MatchingRule
      */
+    @NotNull
     @Enumerated(EnumType.STRING)
     protected MatchingRule matchingRule;
 
@@ -130,13 +133,17 @@ public abstract class AbstractSyncTask extends SchedTask {
         this.syncStatus = getBooleanAsInteger(syncStatus);
     }
 
-    public abstract UnmatchingRule getUnmatchingRule();
+    public UnmatchingRule getUnmatchingRule() {
+        return this.unmatchingRule;
+    }
 
     public void setUnmatchingRule(final UnmatchingRule unmatchigRule) {
         this.unmatchingRule = unmatchigRule;
     }
 
-    public abstract MatchingRule getMatchingRule();
+    public MatchingRule getMatchingRule() {
+        return this.matchingRule;
+    }
 
     public void setMatchingRule(final MatchingRule matchigRule) {
         this.matchingRule = matchigRule;

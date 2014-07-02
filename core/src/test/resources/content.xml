@@ -879,9 +879,9 @@ under the License.
   <Task DTYPE="PropagationTask" id="3" propagationMode="TWO_PHASES" propagationOperation="DELETE"
         objectClassName="__ACCOUNT__" resource_name="ws-target-resource-2" subjectType="USER" subjectId="1"
         xmlAttributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"type","value":["type"]}]'/>
-  <Task DTYPE="SyncTask" id="4" name="CSV Task" resource_name="resource-csv"
+  <Task DTYPE="SyncTask" id="4" name="CSV (update matching; assign unmatching)" resource_name="resource-csv"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
-        jobClassName="org.apache.syncope.core.sync.impl.SyncJob"
+        jobClassName="org.apache.syncope.core.sync.impl.SyncJob" unmatchingRule="ASSIGN" matchingRule="UPDATE"
         userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"id":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"attributes":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}],"derivedAttributes":[{"schema":"cn","readonly":false,"values":[null]}],"virtualAttributes":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"id":0,"roleId":8,"roleName":null,"attributes":[{"schema":"subscriptionDate","readonly":false,"values":["&apos;2009-08-18T16:33:12.203+0200&apos;"]}],"derivedAttributes":[],"virtualAttributes":[]}]}'
         roleTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"id":0,"name":null,"parent":0,"userOwner":null,"roleOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"rAttrTemplates":[],"rDerAttrTemplates":[],"rVirAttrTemplates":[],"mAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
   <SyncTask_actionsClassNames SyncTask_id="4" element="org.apache.syncope.core.sync.TestSyncActions"/>
@@ -892,26 +892,26 @@ under the License.
   <TaskExec id="6" task_id="6" status="SUCCESS"/>
   <Task DTYPE="SyncTask" id="7" name="TestDB Task" resource_name="resource-testdb"
         performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
-        jobClassName="org.apache.syncope.core.sync.impl.SyncJob"
+        jobClassName="org.apache.syncope.core.sync.impl.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"
         userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"id":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"attributes":[{"schema":"type","readonly":false,"values":["&apos;type a&apos;"]},{"schema":"userId","readonly":false,"values":["&apos;reconciled@syncope.apache.org&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;reconciled fullname&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;surname&apos;"]}],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"memberships":[]}'
         roleTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"id":0,"name":null,"parent":0,"userOwner":null,"roleOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"rAttrTemplates":[],"rDerAttrTemplates":[],"rVirAttrTemplates":[],"mAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
   <Task DTYPE="NotificationTask" id="8" sender="admin@prova.org" subject="Notification for SYNCOPE-81" 
         textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL"/>
   <Task DTYPE="SyncTask" id="9" name="TestDB2 Task" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
-        jobClassName="org.apache.syncope.core.sync.impl.SyncJob"/>
+        jobClassName="org.apache.syncope.core.sync.impl.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"/>
   <Task DTYPE="SyncTask" id="10" name="TestDB Sync Task" resource_name="resource-db-sync"
         fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
-        jobClassName="org.apache.syncope.core.sync.impl.SyncJob"/>
+        jobClassName="org.apache.syncope.core.sync.impl.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"/>
   <Task DTYPE="SyncTask" id="11" name="LDAP Sync Task" resource_name="resource-ldap"
         fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
-        jobClassName="org.apache.syncope.core.sync.impl.SyncJob"
+        jobClassName="org.apache.syncope.core.sync.impl.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"
         userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"id":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"attributes":[],"derivedAttributes":[],"virtualAttributes":[{"schema":"virtualReadOnly","readonly":false,"values":[""]}],"resources":["resource-ldap"],"propagationStatuses":[],"memberships":[]}'
         roleTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"id":0,"name":null,"parent":8,"userOwner":null,"roleOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[{"schema":"show","readonly":false,"values":["&apos;true&apos;"]}],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"rAttrTemplates":["show"],"rDerAttrTemplates":[],"rVirAttrTemplates":[],"mAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
   <SyncTask_actionsClassNames SyncTask_id="11" element="org.apache.syncope.core.sync.impl.LDAPMembershipSyncActions"/>
   <Task DTYPE="SyncTask" id="12" name="VirAttrCache test" resource_name="resource-csv"
         performCreate="0" performUpdate="1" performDelete="0" syncStatus="0" fullReconciliation="1"
-        jobClassName="org.apache.syncope.core.sync.impl.SyncJob"/>
+        jobClassName="org.apache.syncope.core.sync.impl.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"/>
   <Task DTYPE="PushTask" id="13" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         jobClassName="org.apache.syncope.core.sync.impl.PushJob" unmatchingRule="ASSIGN" matchingRule="IGNORE" 
@@ -958,9 +958,15 @@ under the License.
         userFilter="username==_NO_ONE_" roleFilter="name==citizen"/>
   <Task DTYPE="SyncTask" id="24" name="CSV Task 2" resource_name="resource-csv"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
-        jobClassName="org.apache.syncope.core.sync.impl.SyncJob"
+        jobClassName="org.apache.syncope.core.sync.impl.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"
         userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"id":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"attributes":[{"schema":"firstname","readonly":false,"values":[""]},{"schema":"userId","readonly":false,"values":["&apos;test&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;test&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;test&apos;"]}],"derivedAttributes":[],"virtualAttributes":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[]}'
         roleTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"id":0,"name":null,"parent":0,"userOwner":null,"roleOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"rAttrTemplates":[],"rDerAttrTemplates":[],"rVirAttrTemplates":[],"mAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
+  <Task DTYPE="SyncTask" id="25" name="CSV (unlink matching; ignore unmatching)" resource_name="resource-csv"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
+        jobClassName="org.apache.syncope.core.sync.impl.SyncJob" unmatchingRule="IGNORE" matchingRule="UNLINK"/>
+  <Task DTYPE="SyncTask" id="26" name="CSV (ignore matching; assign unmatching)" resource_name="resource-csv"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
+        jobClassName="org.apache.syncope.core.sync.impl.SyncJob" unmatchingRule="ASSIGN" matchingRule="IGNORE"/>
       
   <Notification id="1" sender="test@syncope.apache.org" subject="Test subject" template="test" selfAsRecipient="0" traceLevel="ALL"
                 userAbout="fullname==*o*;fullname==*i*"

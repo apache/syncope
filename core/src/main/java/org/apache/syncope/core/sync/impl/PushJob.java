@@ -124,16 +124,14 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
                         uhandler.handle(localUser);
                     } catch (Exception e) {
                         LOG.warn("Failure pushing user '{}' on '{}'", localUser, pushTask.getResource(), e);
-                        if (!continueOnError()) {
-                            throw new JobExecutionException("While pushing users on connector", e);
-                        }
+                        throw new JobExecutionException("While pushing users on connector", e);
                     }
                 }
             }
         }
 
         if (rMapping != null) {
-            final List<SyncopeRole> localRoles = getRoles(authorizations, pushTask, PAGE_SIZE);
+            final List<SyncopeRole> localRoles = getRoles(authorizations, pushTask);
 
             for (SyncopeRole localRole : localRoles) {
                 try {
@@ -141,9 +139,7 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
                     rhandler.handle(localRole);
                 } catch (Exception e) {
                     LOG.warn("Failure pushing role '{}' on '{}'", localRole, pushTask.getResource(), e);
-                    if (!continueOnError()) {
-                        throw new JobExecutionException("While pushing roles on connector", e);
-                    }
+                    throw new JobExecutionException("While pushing roles on connector", e);
                 }
             }
         }
@@ -161,10 +157,6 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
         return result;
     }
 
-    protected boolean continueOnError() {
-        return true;
-    }
-
     private List<SyncopeUser> getUsers(final Set<Long> authorizations, final PushTask pushTask, final int page) {
         final String filter = pushTask.getUserFilter();
         if (StringUtils.isBlank(filter)) {
@@ -176,7 +168,7 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
         }
     }
 
-    private List<SyncopeRole> getRoles(final Set<Long> authorizations, final PushTask pushTask, final int page) {
+    private List<SyncopeRole> getRoles(final Set<Long> authorizations, final PushTask pushTask) {
         final String filter = pushTask.getRoleFilter();
         if (StringUtils.isBlank(filter)) {
             return roleDAO.findAll();
