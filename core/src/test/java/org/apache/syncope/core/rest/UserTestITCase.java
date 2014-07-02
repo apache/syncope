@@ -2358,7 +2358,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, user.getResources().size());
 
         // 4. Check that the LDAP resource has the correct password
-        ConnObjectTO connObject = 
+        ConnObjectTO connObject =
                 resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, user.getId());
 
         assertNotNull(getLdapRemoteObject(

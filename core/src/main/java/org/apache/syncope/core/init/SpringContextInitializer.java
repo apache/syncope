@@ -33,9 +33,6 @@ import org.springframework.stereotype.Component;
 public class SpringContextInitializer implements InitializingBean {
 
     @Autowired
-    private ContentUpgrader contentUpgrader;
-
-    @Autowired
     private ConnectorFactory connFactory;
 
     @Autowired
@@ -53,18 +50,8 @@ public class SpringContextInitializer implements InitializingBean {
     @Autowired
     private WorkflowAdapterLoader workflowAdapterLoader;
 
-    private boolean upgrade = false;
-
-    public void setUpgrade(final boolean upgrade) {
-        this.upgrade = upgrade;
-    }
-
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (upgrade) {
-            contentUpgrader.upgrade();
-        }
-
         workflowAdapterLoader.load();
         contentLoader.load();
         connFactory.load();

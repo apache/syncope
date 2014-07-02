@@ -86,35 +86,22 @@ public class PolicyDataBinder {
         switch (policy.getType()) {
             case GLOBAL_PASSWORD:
             case PASSWORD:
-                if (!(policy.getSpecification() instanceof PasswordPolicySpec)) {
-                    throw new ClassCastException("Expected " + PasswordPolicySpec.class.getName()
-                            + ", found " + policy.getSpecification().getClass().getName());
-                }
                 policyTO = (T) new PasswordPolicyTO(isGlobal);
-                ((PasswordPolicyTO) policyTO).setSpecification((PasswordPolicySpec) policy.getSpecification());
+                ((PasswordPolicyTO) policyTO).setSpecification(policy.getSpecification(PasswordPolicySpec.class));
                 break;
 
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
-                if (!(policy.getSpecification() instanceof AccountPolicySpec)) {
-                    throw new ClassCastException("Expected " + AccountPolicySpec.class.getName()
-                            + ", found " + policy.getSpecification().getClass().getName());
-                }
                 policyTO = (T) new AccountPolicyTO(isGlobal);
-                ((AccountPolicyTO) policyTO).setSpecification((AccountPolicySpec) policy.getSpecification());
+                ((AccountPolicyTO) policyTO).setSpecification(policy.getSpecification(AccountPolicySpec.class));
                 ((AccountPolicyTO) policyTO).getResources().addAll(((AccountPolicy) policy).getResourceNames());
                 break;
 
             case GLOBAL_SYNC:
             case SYNC:
             default:
-                if (!(policy.getSpecification() instanceof SyncPolicySpec)) {
-                    throw new ClassCastException("Expected " + SyncPolicySpec.class.getName()
-                            + ", found " + policy.getSpecification().getClass().getName());
-
-                }
                 policyTO = (T) new SyncPolicyTO(isGlobal);
-                ((SyncPolicyTO) policyTO).setSpecification((SyncPolicySpec) policy.getSpecification());
+                ((SyncPolicyTO) policyTO).setSpecification(policy.getSpecification(SyncPolicySpec.class));
         }
 
         policyTO.setId(policy.getId());

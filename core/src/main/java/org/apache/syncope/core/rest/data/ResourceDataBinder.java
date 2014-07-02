@@ -135,10 +135,10 @@ public class ResourceDataBinder {
         resource.setConnInstanceConfiguration(new HashSet<ConnConfProperty>(resourceTO.getConnConfProperties()));
 
         if (resourceTO.getUsyncToken() == null) {
-            resource.setUserializedSyncToken(null);
+            resource.setUsyncToken(null);
         }
         if (resourceTO.getRsyncToken() == null) {
-            resource.setRserializedSyncToken(null);
+            resource.setRsyncToken(null);
         }
 
         resource.getPropagationActionsClassNames().clear();

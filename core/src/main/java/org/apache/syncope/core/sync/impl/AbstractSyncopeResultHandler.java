@@ -76,7 +76,7 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
      */
     @Autowired
     protected PropagationManager propagationManager;
-    
+
     /**
      * task executor.
      */
@@ -100,8 +100,7 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
      */
     protected SyncProfile<T, A> profile;
 
-    public void setProfile(
-            SyncProfile<T, A> profile) {
+    public void setProfile(final SyncProfile<T, A> profile) {
         this.profile = profile;
     }
 

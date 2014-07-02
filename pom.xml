@@ -328,7 +328,6 @@ under the License.
     <spring.version>4.0.5.RELEASE</spring.version>
     <spring-security.version>3.2.4.RELEASE</spring-security.version>
     <jackson.version>2.4.1</jackson.version>
-    <xstream.version>1.4.7</xstream.version>
     <velocity.version>1.7</velocity.version>
     <velocitytools.version>2.0</velocitytools.version>
     <quartz.version>2.2.1</quartz.version>
@@ -700,12 +699,6 @@ under the License.
         <groupId>com.fasterxml.jackson.jaxrs</groupId>
         <artifactId>jackson-jaxrs-json-provider</artifactId>
         <version>${jackson.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.thoughtworks.xstream</groupId>
-        <artifactId>xstream</artifactId>
-        <version>${xstream.version}</version>
       </dependency>
             
       <dependency>
@@ -1377,7 +1370,6 @@ under the License.
             </goals>
             <configuration>
               <source>
-                project.properties['urlencoded.csvdir.path'] = java.net.URLEncoder.encode(project.properties['test.csvdir.path'])
                 project.properties['licenseUrl'] = project.parent.licenses[0].url
               </source>
             </configuration>

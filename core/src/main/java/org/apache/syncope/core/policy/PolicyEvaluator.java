@@ -49,7 +49,7 @@ public class PolicyEvaluator {
         switch (policy.getType()) {
             case PASSWORD:
             case GLOBAL_PASSWORD:
-                final PasswordPolicySpec ppSpec = policy.getSpecification();
+                final PasswordPolicySpec ppSpec = policy.getSpecification(PasswordPolicySpec.class);
                 final PasswordPolicySpec evaluatedPPSpec = new PasswordPolicySpec();
 
                 BeanUtils.copyProperties(ppSpec, evaluatedPPSpec, new String[]{"schemasNotPermitted"});
@@ -80,7 +80,7 @@ public class PolicyEvaluator {
                 break;
             case ACCOUNT:
             case GLOBAL_ACCOUNT:
-                final AccountPolicySpec spec = policy.getSpecification();
+                final AccountPolicySpec spec = policy.getSpecification(AccountPolicySpec.class);
                 final AccountPolicySpec accountPolicy = new AccountPolicySpec();
 
                 BeanUtils.copyProperties(spec, accountPolicy, new String[]{"schemasNotPermitted"});

@@ -27,26 +27,23 @@ import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.Policy;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
-import org.apache.syncope.core.persistence.dao.PolicyDAO;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class PolicyValidator extends AbstractValidator<PolicyCheck, Policy> {
-
-    @Autowired
-    private PolicyDAO policyDAO;
 
     @Override
     public boolean isValid(final Policy object, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        if (object.getSpecification() != null
-                && ((object instanceof PasswordPolicy && !(object.getSpecification() instanceof PasswordPolicySpec))
-                || ((object instanceof AccountPolicy && !(object.getSpecification() instanceof AccountPolicySpec)))
-                || ((object instanceof SyncPolicy && !(object.getSpecification() instanceof SyncPolicySpec))))) {
+        if (((object instanceof PasswordPolicy
+                && !(object.getSpecification(PasswordPolicySpec.class) instanceof PasswordPolicySpec))
+                || ((object instanceof AccountPolicy
+                && !(object.getSpecification(AccountPolicySpec.class) instanceof AccountPolicySpec)))
+                || ((object instanceof SyncPolicy
+                && !(object.getSpecification(SyncPolicySpec.class) instanceof SyncPolicySpec))))) {
 
-            context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.valueOf("Invalid" + object.getClass().getSimpleName()),
-                            "Invalid policy specification")).addPropertyNode("specification").
+            context.buildConstraintViolationWithTemplate(getTemplate(
+                    EntityViolationType.valueOf("Invalid" + object.getClass().getSimpleName()),
+                    "Invalid policy specification")).addPropertyNode("specification").
                     addConstraintViolation();
 
             return false;

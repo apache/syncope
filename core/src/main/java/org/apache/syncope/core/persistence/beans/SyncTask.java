@@ -28,7 +28,7 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.MatchingRule;
 import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.core.sync.impl.SyncJob;
-import org.apache.syncope.core.util.XMLSerializer;
+import org.apache.syncope.core.util.POJOHelper;
 
 @Entity
 public class SyncTask extends AbstractSyncTask {
@@ -60,21 +60,21 @@ public class SyncTask extends AbstractSyncTask {
     public UserTO getUserTemplate() {
         return userTemplate == null
                 ? new UserTO()
-                : XMLSerializer.<UserTO>deserialize(userTemplate);
+                : POJOHelper.deserialize(userTemplate, UserTO.class);
     }
 
     public void setUserTemplate(final UserTO userTemplate) {
-        this.userTemplate = XMLSerializer.serialize(userTemplate);
+        this.userTemplate = POJOHelper.serialize(userTemplate);
     }
 
     public RoleTO getRoleTemplate() {
         return userTemplate == null
                 ? new RoleTO()
-                : XMLSerializer.<RoleTO>deserialize(roleTemplate);
+                : POJOHelper.deserialize(roleTemplate, RoleTO.class);
     }
 
     public void setRoleTemplate(final RoleTO roleTemplate) {
-        this.roleTemplate = XMLSerializer.serialize(roleTemplate);
+        this.roleTemplate = POJOHelper.serialize(roleTemplate);
     }
 
     public boolean isFullReconciliation() {

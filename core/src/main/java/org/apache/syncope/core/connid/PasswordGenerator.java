@@ -42,7 +42,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PasswordGenerator {
 
-    private static final char[] SPECIAL_CHARS = {'!', '£', '%', '&', '(', ')', '?', '#', '$'};
+    private static final char[] SPECIAL_CHARS = { '!', '£', '%', '&', '(', ')', '?', '#', '$' };
 
     @Autowired
     private PolicyDAO policyDAO;
@@ -63,19 +63,23 @@ public class PasswordGenerator {
         List<PasswordPolicySpec> ppSpecs = new ArrayList<PasswordPolicySpec>();
 
         PasswordPolicy globalPP = policyDAO.getGlobalPasswordPolicy();
-        if (globalPP != null && globalPP.getSpecification() != null) {
-            ppSpecs.add(globalPP.<PasswordPolicySpec>getSpecification());
+        if (globalPP != null && globalPP.getSpecification(PasswordPolicySpec.class) != null) {
+            ppSpecs.add(globalPP.getSpecification(PasswordPolicySpec.class));
         }
 
         for (SyncopeRole role : user.getRoles()) {
-            if (role.getPasswordPolicy() != null && role.getPasswordPolicy().getSpecification() != null) {
-                ppSpecs.add(role.getPasswordPolicy().<PasswordPolicySpec>getSpecification());
+            if (role.getPasswordPolicy() != null
+                    && role.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
+
+                ppSpecs.add(role.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
             }
         }
 
         for (ExternalResource resource : user.getResources()) {
-            if (resource.getPasswordPolicy() != null && resource.getPasswordPolicy().getSpecification() != null) {
-                ppSpecs.add(resource.getPasswordPolicy().<PasswordPolicySpec>getSpecification());
+            if (resource.getPasswordPolicy() != null
+                    && resource.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
+
+                ppSpecs.add(resource.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
             }
         }
 
@@ -296,8 +300,8 @@ public class PasswordGenerator {
         if (policySpec.isNonAlphanumericRequired()
                 && !PolicyPattern.NON_ALPHANUMERIC.matcher(StringUtils.join(generatedPassword)).matches()) {
 
-            generatedPassword[firstEmptyChar(generatedPassword)] = 
-                SecureRandomUtil.generateRandomSpecialCharacter(SPECIAL_CHARS);
+            generatedPassword[firstEmptyChar(generatedPassword)] =
+                    SecureRandomUtil.generateRandomSpecialCharacter(SPECIAL_CHARS);
         }
     }
 
@@ -314,5 +318,5 @@ public class PasswordGenerator {
             }
         }
     }
-    
+
 }

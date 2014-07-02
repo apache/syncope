@@ -37,4 +37,5 @@ public class PushPolicy extends Policy {
                 ? PolicyType.GLOBAL_PUSH
                 : PolicyType.PUSH;
     }
+
 }

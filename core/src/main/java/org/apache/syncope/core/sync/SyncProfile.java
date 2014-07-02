@@ -29,7 +29,9 @@ public class SyncProfile<T extends AbstractSyncTask, A extends AbstractSyncActio
     /**
      * Syncing connector.
      */
-    private Connector connector;
+    private final Connector connector;
+
+    private final T syncTask;
 
     private Collection<SyncResult> results;
 
@@ -39,8 +41,6 @@ public class SyncProfile<T extends AbstractSyncTask, A extends AbstractSyncActio
 
     private List<A> actions;
 
-    private T syncTask;
-
     public SyncProfile(final Connector connector, final T syncTask) {
         this.connector = connector;
         this.syncTask = syncTask;
@@ -48,6 +48,10 @@ public class SyncProfile<T extends AbstractSyncTask, A extends AbstractSyncActio
 
     public Connector getConnector() {
         return connector;
+    }
+
+    public T getSyncTask() {
+        return syncTask;
     }
 
     public Collection<SyncResult> getResults() {
@@ -78,12 +82,7 @@ public class SyncProfile<T extends AbstractSyncTask, A extends AbstractSyncActio
         return actions;
     }
 
-    public void setActions(
-            List<A> actions) {
+    public void setActions(final List<A> actions) {
         this.actions = actions;
-    }
-
-    public T getSyncTask() {
-        return syncTask;
     }
 }

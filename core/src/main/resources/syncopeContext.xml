@@ -109,8 +109,6 @@ under the License.
 
   <task:annotation-driven executor="connectorExecutor"/>
   <task:executor id="connectorExecutor" pool-size="10"/>
-
-  <bean id="xStream" class="com.thoughtworks.xstream.XStream"/>
   
   <bean id="virAttrCache" class="org.apache.syncope.core.util.VirAttrCache" scope="singleton">
     <constructor-arg value="60"/>

@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.beans;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -45,7 +46,7 @@ import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.core.persistence.beans.role.RMapping;
 import org.apache.syncope.core.persistence.beans.user.UMapping;
 import org.apache.syncope.core.persistence.validation.entity.ExternalResourceCheck;
-import org.apache.syncope.core.util.XMLSerializer;
+import org.apache.syncope.core.util.POJOHelper;
 import org.identityconnectors.framework.common.objects.SyncToken;
 
 /**
@@ -328,19 +329,14 @@ public class ExternalResource extends AbstractSysInfo {
     }
 
     public Set<ConnConfProperty> getConnInstanceConfiguration() {
-        Set<ConnConfProperty> result = null;
-        if (StringUtils.isNotBlank(xmlConfiguration)) {
-            result = XMLSerializer.<HashSet<ConnConfProperty>>deserialize(xmlConfiguration);
-        }
-        if (result == null) {
-            result = Collections.emptySet();
-        }
-
-        return result;
+        return StringUtils.isBlank(xmlConfiguration)
+                ? Collections.<ConnConfProperty>emptySet()
+                : new HashSet<ConnConfProperty>(
+                        Arrays.asList(POJOHelper.deserialize(xmlConfiguration, ConnConfProperty[].class)));
     }
 
     public void setConnInstanceConfiguration(final Set<ConnConfProperty> properties) {
-        xmlConfiguration = XMLSerializer.serialize(new HashSet<ConnConfProperty>(properties));
+        xmlConfiguration = POJOHelper.serialize(new HashSet<ConnConfProperty>(properties));
     }
 
     public String getUserializedSyncToken() {
@@ -350,15 +346,11 @@ public class ExternalResource extends AbstractSysInfo {
     public SyncToken getUsyncToken() {
         return userializedSyncToken == null
                 ? null
-                : XMLSerializer.<SyncToken>deserialize(userializedSyncToken);
-    }
-
-    public void setUserializedSyncToken(final String serializedSyncToken) {
-        this.userializedSyncToken = serializedSyncToken;
+                : POJOHelper.deserialize(userializedSyncToken, SyncToken.class);
     }
 
     public void setUsyncToken(final SyncToken syncToken) {
-        this.userializedSyncToken = XMLSerializer.serialize(syncToken);
+        this.userializedSyncToken = syncToken == null ? null : POJOHelper.serialize(syncToken);
     }
 
     public String getRserializedSyncToken() {
@@ -368,15 +360,11 @@ public class ExternalResource extends AbstractSysInfo {
     public SyncToken getRsyncToken() {
         return rserializedSyncToken == null
                 ? null
-                : XMLSerializer.<SyncToken>deserialize(rserializedSyncToken);
-    }
-
-    public void setRserializedSyncToken(final String serializedSyncToken) {
-        this.rserializedSyncToken = serializedSyncToken;
+                : POJOHelper.deserialize(rserializedSyncToken, SyncToken.class);
     }
 
     public void setRsyncToken(final SyncToken syncToken) {
-        this.rserializedSyncToken = XMLSerializer.serialize(syncToken);
+        this.rserializedSyncToken = syncToken == null ? null : POJOHelper.serialize(syncToken);
     }
 
     public List<String> getPropagationActionsClassNames() {

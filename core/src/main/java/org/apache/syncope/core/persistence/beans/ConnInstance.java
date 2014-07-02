@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.beans;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -33,10 +34,11 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.validation.entity.ConnInstanceCheck;
-import org.apache.syncope.core.util.XMLSerializer;
+import org.apache.syncope.core.util.POJOHelper;
 
 @Entity
 @ConnInstanceCheck
@@ -153,15 +155,14 @@ public class ConnInstance extends AbstractBaseBean {
     }
 
     public Set<ConnConfProperty> getConfiguration() {
-        Set<ConnConfProperty> result = XMLSerializer.<HashSet<ConnConfProperty>>deserialize(xmlConfiguration);
-        if (result == null) {
-            result = Collections.emptySet();
-        }
-        return result;
+        return StringUtils.isBlank(xmlConfiguration)
+                ? Collections.<ConnConfProperty>emptySet()
+                : new HashSet<ConnConfProperty>(
+                        Arrays.asList(POJOHelper.deserialize(xmlConfiguration, ConnConfProperty[].class)));
     }
 
     public void setConfiguration(final Set<ConnConfProperty> configuration) {
-        xmlConfiguration = XMLSerializer.serialize(new HashSet<ConnConfProperty>(configuration));
+        xmlConfiguration = POJOHelper.serialize(new HashSet<ConnConfProperty>(configuration));
     }
 
     public Long getId() {

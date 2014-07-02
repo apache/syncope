@@ -165,25 +165,25 @@ public class ConnObjectUtil {
             List<PasswordPolicySpec> ppSpecs = new ArrayList<PasswordPolicySpec>();
 
             PasswordPolicy globalPP = policyDAO.getGlobalPasswordPolicy();
-            if (globalPP != null && globalPP.getSpecification() != null) {
-                ppSpecs.add(globalPP.<PasswordPolicySpec>getSpecification());
+            if (globalPP != null && globalPP.getSpecification(PasswordPolicySpec.class) != null) {
+                ppSpecs.add(globalPP.getSpecification(PasswordPolicySpec.class));
             }
 
             for (MembershipTO memb : userTO.getMemberships()) {
                 SyncopeRole role = roleDAO.find(memb.getRoleId());
                 if (role != null && role.getPasswordPolicy() != null
-                        && role.getPasswordPolicy().getSpecification() != null) {
+                        && role.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
 
-                    ppSpecs.add(role.getPasswordPolicy().<PasswordPolicySpec>getSpecification());
+                    ppSpecs.add(role.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
                 }
             }
 
             for (String resName : userTO.getResources()) {
                 ExternalResource resource = resourceDAO.find(resName);
                 if (resource != null && resource.getPasswordPolicy() != null
-                        && resource.getPasswordPolicy().getSpecification() != null) {
+                        && resource.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
 
-                    ppSpecs.add(resource.getPasswordPolicy().<PasswordPolicySpec>getSpecification());
+                    ppSpecs.add(resource.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
                 }
             }
 

@@ -61,36 +61,24 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
 
     protected abstract AttributableUtil getAttributableUtil();
 
-    protected abstract String getName(
-            final AbstractSubjectTO subjectTO);
+    protected abstract String getName(AbstractSubjectTO subjectTO);
 
-    protected abstract AbstractSubjectTO getSubjectTO(
-            final long id);
+    protected abstract AbstractSubjectTO getSubjectTO(long id);
 
-    protected abstract AbstractSubjectMod getSubjectMod(
-            final AbstractSubjectTO subjectTO, final SyncDelta delta);
+    protected abstract AbstractSubjectMod getSubjectMod(AbstractSubjectTO subjectTO, SyncDelta delta);
 
-    protected abstract AbstractSubjectTO create(
-            final AbstractSubjectTO subjectTO,
-            final SyncDelta _delta,
-            final SyncResult result);
+    protected abstract AbstractSubjectTO create(AbstractSubjectTO subjectTO, SyncDelta _delta, SyncResult result);
 
-    protected abstract AbstractSubjectTO link(
-            final AbstractSubjectTO before,
-            final SyncResult result,
-            final boolean unlink)
+    protected abstract AbstractSubjectTO link(AbstractSubjectTO before, SyncResult result, boolean unlink)
             throws Exception;
 
-    protected abstract AbstractSubjectTO update(
-            final AbstractSubjectTO before,
-            final AbstractSubjectMod subjectMod,
-            final SyncDelta delta,
-            final SyncResult result)
+    protected abstract AbstractSubjectTO update(AbstractSubjectTO before, AbstractSubjectMod subjectMod,
+            SyncDelta delta, SyncResult result)
             throws Exception;
 
-    protected abstract void deprovision(final Long id, final boolean unlink) throws Exception;
+    protected abstract void deprovision(Long id, boolean unlink) throws Exception;
 
-    protected abstract void delete(final Long id);
+    protected abstract void delete(Long id);
 
     @Override
     public boolean handle(final SyncDelta delta) {

@@ -517,7 +517,6 @@ public class ConnectorFacadeProxy implements Connector {
 
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
             connector.search(objectClass, filter, handler, options);
-
         } else {
             LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",
                     activeConnInstance.getCapabilities());

@@ -116,7 +116,7 @@ public class SyncUtilities {
 
         final List<ConnectorObject> found = connector.search(oclass,
                 new EqualsFilter(new Name(name)), connector.getOperationOptions(
-                attrUtil.getMappingItems(resource, MappingPurpose.SYNCHRONIZATION)));
+                        attrUtil.getMappingItems(resource, MappingPurpose.SYNCHRONIZATION)));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", oclass, resource, name);
@@ -267,8 +267,8 @@ public class SyncUtilities {
             SearchCond nodeCond;
             // users: just id or username can be selected to be used
             // roles: just id or name can be selected to be used
-            if ("id".equalsIgnoreCase(schema) || "username".equalsIgnoreCase(schema)
-                    || "name".equalsIgnoreCase(schema)) {
+            if ("id".equalsIgnoreCase(schema)
+                    || "username".equalsIgnoreCase(schema) || "name".equalsIgnoreCase(schema)) {
 
                 SubjectCond cond = new SubjectCond();
                 cond.setSchema(schema);
@@ -298,6 +298,7 @@ public class SyncUtilities {
      *
      * @param uid for finding by account id
      * @param connObj for finding by attribute value
+     * @param resource external resource
      * @param attrUtil attributable util
      * @return list of matching users / roles
      */
@@ -311,10 +312,10 @@ public class SyncUtilities {
         if (resource.getSyncPolicy() == null) {
             SyncPolicy globalSP = policyDAO.getGlobalSyncPolicy();
             if (globalSP != null) {
-                syncPolicySpec = globalSP.<SyncPolicySpec>getSpecification();
+                syncPolicySpec = globalSP.getSpecification(SyncPolicySpec.class);
             }
         } else {
-            syncPolicySpec = resource.getSyncPolicy().<SyncPolicySpec>getSpecification();
+            syncPolicySpec = resource.getSyncPolicy().getSpecification(SyncPolicySpec.class);
         }
 
         SyncCorrelationRule syncRule = null;

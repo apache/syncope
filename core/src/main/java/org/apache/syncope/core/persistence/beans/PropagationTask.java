@@ -18,18 +18,21 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
-
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.validation.entity.PropagationTaskCheck;
-import org.apache.syncope.core.util.XMLSerializer;
+import org.apache.syncope.core.util.POJOHelper;
 import org.identityconnectors.framework.common.objects.Attribute;
 
 /**
@@ -86,7 +89,7 @@ public class PropagationTask extends Task {
         return accountId;
     }
 
-    public void setAccountId(String accountId) {
+    public void setAccountId(final String accountId) {
         this.accountId = accountId;
     }
 
@@ -94,23 +97,26 @@ public class PropagationTask extends Task {
         return oldAccountId;
     }
 
-    public void setOldAccountId(String oldAccountId) {
+    public void setOldAccountId(final String oldAccountId) {
         this.oldAccountId = oldAccountId;
     }
 
     public Set<Attribute> getAttributes() {
-        return XMLSerializer.<Set<Attribute>>deserialize(xmlAttributes);
+        return StringUtils.isBlank(xmlAttributes)
+                ? Collections.<Attribute>emptySet()
+                : new HashSet<Attribute>(
+                        Arrays.asList(POJOHelper.deserialize(xmlAttributes, Attribute[].class)));
     }
 
     public void setAttributes(final Set<Attribute> attributes) {
-        xmlAttributes = XMLSerializer.serialize(attributes);
+        xmlAttributes = POJOHelper.serialize(attributes);
     }
 
     public PropagationMode getPropagationMode() {
         return propagationMode;
     }
 
-    public void setPropagationMode(PropagationMode propagationMode) {
+    public void setPropagationMode(final PropagationMode propagationMode) {
         this.propagationMode = propagationMode;
     }
 
@@ -118,8 +124,7 @@ public class PropagationTask extends Task {
         return propagationOperation;
     }
 
-    public void setPropagationOperation(ResourceOperation propagationOperation) {
-
+    public void setPropagationOperation(final ResourceOperation propagationOperation) {
         this.propagationOperation = propagationOperation;
     }
 
@@ -127,7 +132,7 @@ public class PropagationTask extends Task {
         return resource;
     }
 
-    public void setResource(ExternalResource resource) {
+    public void setResource(final ExternalResource resource) {
         this.resource = resource;
     }
 
@@ -135,7 +140,7 @@ public class PropagationTask extends Task {
         return objectClassName;
     }
 
-    public void setObjectClassName(String objectClassName) {
+    public void setObjectClassName(final String objectClassName) {
         this.objectClassName = objectClassName;
     }
 
@@ -143,7 +148,7 @@ public class PropagationTask extends Task {
         return subjectType;
     }
 
-    public void setSubjectType(AttributableType subjectType) {
+    public void setSubjectType(final AttributableType subjectType) {
         this.subjectType = subjectType;
     }
 
@@ -151,7 +156,7 @@ public class PropagationTask extends Task {
         return subjectId;
     }
 
-    public void setSubjectId(Long subjectId) {
+    public void setSubjectId(final Long subjectId) {
         this.subjectId = subjectId;
     }
 }

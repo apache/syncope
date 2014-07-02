@@ -69,7 +69,7 @@ public class PolicyTest extends AbstractDAOTest {
 
         assertEquals(PolicyType.GLOBAL_PASSWORD, policy.getType());
 
-        assertEquals("invalid policy values", 8, ((PasswordPolicySpec) policy.getSpecification()).getMinLength());
+        assertEquals("invalid policy values", 8, (policy.getSpecification(PasswordPolicySpec.class)).getMinLength());
     }
 
     @Test(expected = InvalidEntityException.class)
@@ -116,8 +116,8 @@ public class PolicyTest extends AbstractDAOTest {
 
         assertNotNull(policy);
         assertEquals(PolicyType.SYNC, policy.getType());
-        assertEquals(syncURuleName, ((SyncPolicySpec) policy.getSpecification()).getUserJavaRule());
-        assertEquals(syncRRuleName, ((SyncPolicySpec) policy.getSpecification()).getRoleJavaRule());
+        assertEquals(syncURuleName, (policy.getSpecification(SyncPolicySpec.class)).getUserJavaRule());
+        assertEquals(syncRRuleName, (policy.getSpecification(SyncPolicySpec.class)).getRoleJavaRule());
     }
 
     @Test
@@ -134,8 +134,8 @@ public class PolicyTest extends AbstractDAOTest {
 
         assertNotNull(policy);
         assertEquals(PolicyType.GLOBAL_PASSWORD, policy.getType());
-        assertEquals(((PasswordPolicySpec) policy.getSpecification()).getMaxLength(), 8);
-        assertEquals(((PasswordPolicySpec) policy.getSpecification()).getMinLength(), 6);
+        assertEquals((policy.getSpecification(PasswordPolicySpec.class)).getMaxLength(), 8);
+        assertEquals((policy.getSpecification(PasswordPolicySpec.class)).getMinLength(), 6);
     }
 
     @Test

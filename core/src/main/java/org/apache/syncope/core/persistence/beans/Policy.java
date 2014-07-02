@@ -29,7 +29,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.types.AbstractPolicySpec;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.validation.entity.PolicyCheck;
-import org.apache.syncope.core.util.XMLSerializer;
+import org.apache.syncope.core.util.POJOHelper;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -67,11 +67,12 @@ public abstract class Policy extends AbstractBaseBean {
         return type;
     }
 
-    public <T extends AbstractPolicySpec> T getSpecification() {
-        return XMLSerializer.<T>deserialize(specification);
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractPolicySpec> T getSpecification(final Class<T> reference) {
+        return POJOHelper.deserialize(specification, reference);
     }
 
     public <T extends AbstractPolicySpec> void setSpecification(final T policy) {
-        this.specification = XMLSerializer.serialize(policy);
+        this.specification = POJOHelper.serialize(policy);
     }
 }

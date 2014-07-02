@@ -202,8 +202,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         int passwordHistorySize = 0;
         PasswordPolicy policy = policyDAO.getGlobalPasswordPolicy();
-        if (policy != null && policy.getSpecification() != null) {
-            passwordHistorySize = policy.<PasswordPolicySpec>getSpecification().getHistoryLength();
+        if (policy != null && policy.getSpecification(PasswordPolicySpec.class) != null) {
+            passwordHistorySize = policy.getSpecification(PasswordPolicySpec.class).getHistoryLength();
         }
 
         try {

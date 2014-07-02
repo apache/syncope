@@ -319,7 +319,7 @@ public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends Abst
             } catch (Exception e) {
                 final String msg = String.
                         format("Connector instance bean for resource %s and connInstance %s not found",
-                        syncTask.getResource(), syncTask.getResource().getConnector());
+                                syncTask.getResource(), syncTask.getResource().getConnector());
 
                 throw new JobExecutionException(msg, e);
             }
@@ -378,13 +378,13 @@ public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends Abst
                     ? policyDAO.getGlobalSyncPolicy()
                     : syncTask.getResource().getSyncPolicy();
 
-            syncPolicySpec = syncPolicy == null ? null : (SyncPolicySpec) syncPolicy.getSpecification();
+            syncPolicySpec = syncPolicy == null ? null : syncPolicy.getSpecification(SyncPolicySpec.class);
         } else if (syncTask instanceof PushTask) {
             final PushPolicy pushPolicy = syncTask.getResource().getPushPolicy() == null
                     ? policyDAO.getGlobalPushPolicy()
                     : syncTask.getResource().getPushPolicy();
 
-            syncPolicySpec = pushPolicy == null ? null : (SyncPolicySpec) pushPolicy.getSpecification();
+            syncPolicySpec = pushPolicy == null ? null : pushPolicy.getSpecification(SyncPolicySpec.class);
         } else {
             syncPolicySpec = null;
         }

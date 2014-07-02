@@ -24,7 +24,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 
 import org.apache.syncope.common.report.ReportletConf;
-import org.apache.syncope.core.util.XMLSerializer;
+import org.apache.syncope.core.util.POJOHelper;
 
 @Entity
 public class ReportletConfInstance extends AbstractBaseBean {
@@ -55,12 +55,12 @@ public class ReportletConfInstance extends AbstractBaseBean {
     public ReportletConf getInstance() {
         return serializedInstance == null
                 ? null
-                : XMLSerializer.<ReportletConf> deserialize(serializedInstance);
+                : POJOHelper.deserialize(serializedInstance, ReportletConf.class);
     }
 
     public void setInstance(final ReportletConf instance) {
         this.serializedInstance = instance == null
                 ? null
-                : XMLSerializer.serialize(instance);
+                : POJOHelper.serialize(instance);
     }
 }
