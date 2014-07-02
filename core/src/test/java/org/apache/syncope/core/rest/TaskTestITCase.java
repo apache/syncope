@@ -36,20 +36,26 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
 import javax.ws.rs.core.Response;
+
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.NotificationService;
 import org.apache.syncope.common.services.TaskService;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.wrap.JobClass;
+import org.apache.syncope.common.to.ConnInstanceTO;
+import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.to.NotificationTaskTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
 import org.apache.syncope.common.to.ReportExecTO;
+import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.wrap.SyncActionClass;
@@ -60,6 +66,8 @@ import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.to.PushTaskTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.CipherAlgorithm;
+import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MatchingRule;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
@@ -69,8 +77,13 @@ import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.common.wrap.PushActionClass;
 import org.apache.syncope.core.sync.TestSyncRule;
+import org.apache.syncope.core.sync.impl.DBPasswordSyncActions;
+import org.apache.syncope.core.sync.impl.LDAPPasswordSyncActions;
 import org.apache.syncope.core.sync.impl.SyncJob;
+import org.apache.syncope.core.util.Encryptor;
 import org.apache.syncope.core.workflow.ActivitiDetector;
+import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.Name;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -1083,5 +1096,140 @@ public class TaskTestITCase extends AbstractTest {
         public TaskExecTO call() throws Exception {
             return test.execSyncTask(taskId, maxWaitSeconds, dryRun);
         }
+    }
+    
+    @Test
+    public void issueSYNCOPE313DB() throws Exception {
+        // 1. create user in DB
+        UserTO user = UserTestITCase.getUniqueSampleTO("syncope313-db@syncope.apache.org");
+        user.setPassword("security");
+        user.getResources().add(RESOURCE_NAME_TESTDB);
+        user = createUser(user);
+        assertNotNull(user);
+        assertFalse(user.getResources().isEmpty());
+
+        // 2. Check that the DB resource has the correct password
+        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        String value = jdbcTemplate.queryForObject(
+                "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
+        assertEquals(Encryptor.getInstance().encode("security", CipherAlgorithm.SHA1), value.toUpperCase());
+
+        // 3. Update the password in the DB
+        String newPassword = Encryptor.getInstance().encode("new-security", CipherAlgorithm.SHA1);
+        jdbcTemplate.execute(
+            "UPDATE test set PASSWORD='" + newPassword + "' where ID='" + user.getUsername() + "'");
+
+        // 4. Sync the user from the resource
+        SyncTaskTO syncTask = new SyncTaskTO();
+        syncTask.setName("DB Sync Task");
+        syncTask.setPerformCreate(true);
+        syncTask.setPerformUpdate(true);
+        syncTask.setFullReconciliation(true);
+        syncTask.setResource(RESOURCE_NAME_TESTDB);
+        syncTask.getActionsClassNames().add(DBPasswordSyncActions.class.getName());
+        Response taskResponse = taskService.create(syncTask);
+        
+        SyncTaskTO actual = getObject(taskResponse.getLocation(), TaskService.class, SyncTaskTO.class);
+        assertNotNull(actual);
+        
+        syncTask = taskService.read(actual.getId());
+        assertNotNull(syncTask);
+        assertEquals(actual.getId(), syncTask.getId());
+        assertEquals(actual.getJobClassName(), syncTask.getJobClassName());
+        
+        TaskExecTO execution = execSyncTask(syncTask.getId(), 50, false);
+        final String status = execution.getStatus();
+        assertNotNull(status);
+        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+
+        // 5. Test the sync'd user
+        UserTO updatedUser = userService.read(user.getId());
+        assertEquals(newPassword, updatedUser.getPassword());
+        
+        // 6. Delete SyncTask + user
+        taskService.delete(syncTask.getId());
+        deleteUser(user.getId());
+    }
+    
+    // @Ignore'd for now as it is causing a failure in the 'reconcileFromLDAP' test
+    @Test
+    @org.junit.Ignore
+    public void issueSYNCOPE313LDAP() throws Exception {
+        // 1. create user in LDAP
+        UserTO user = UserTestITCase.getUniqueSampleTO("syncope313-ldap@syncope.apache.org");
+        user.setPassword("security");
+        user.getResources().add(RESOURCE_NAME_LDAP);
+        user = createUser(user);
+        assertNotNull(user);
+        assertFalse(user.getResources().isEmpty());
+        
+        // 2. request to change password only on Syncope and not on LDAP
+        UserMod userMod = new UserMod();
+        userMod.setId(user.getId());
+        userMod.setPassword("new-security");
+        StatusMod pwdPropRequest = new StatusMod();
+        pwdPropRequest.setOnSyncope(true);
+        pwdPropRequest.getResourceNames().clear();
+        userMod.setPwdPropRequest(pwdPropRequest);
+        updateUser(userMod);
+        
+        // 3. Check that the Syncope user now has the changed password
+        UserTO updatedUser = userService.read(user.getId());
+        String encodedNewPassword = 
+            Encryptor.getInstance().encode("new-security", CipherAlgorithm.SHA1);
+        assertEquals(encodedNewPassword, updatedUser.getPassword());
+
+        // 4. Check that the LDAP resource has the old password
+        ConnObjectTO connObject = 
+                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, user.getId());
+        
+        assertNotNull(getLdapRemoteObject(
+                connObject.getAttrMap().get(Name.NAME).getValues().get(0),
+                "security",
+                connObject.getAttrMap().get(Name.NAME).getValues().get(0)));
+        
+        // 5. Update the LDAP Connector to retrieve passwords
+        ResourceTO ldapResource = resourceService.read(RESOURCE_NAME_LDAP);
+        ConnInstanceTO resourceConnector = connectorService.read(ldapResource.getConnectorId());
+        ConnConfProperty property = 
+            resourceConnector.getConfigurationMap().get("retrievePasswordsWithSearch");
+        property.getValues().clear();
+        property.getValues().add(Boolean.TRUE);
+        connectorService.update(ldapResource.getConnectorId(), resourceConnector);
+        
+        // 6. Sync the user from the resource
+        SyncTaskTO syncTask = new SyncTaskTO();
+        syncTask.setName("LDAP Sync Task");
+        syncTask.setPerformCreate(true);
+        syncTask.setPerformUpdate(true);
+        syncTask.setFullReconciliation(true);
+        syncTask.setResource(RESOURCE_NAME_LDAP);
+        syncTask.getActionsClassNames().add(LDAPPasswordSyncActions.class.getName());
+        Response taskResponse = taskService.create(syncTask);
+        
+        SyncTaskTO actual = getObject(taskResponse.getLocation(), TaskService.class, SyncTaskTO.class);
+        assertNotNull(actual);
+        
+        syncTask = taskService.read(actual.getId());
+        assertNotNull(syncTask);
+        assertEquals(actual.getId(), syncTask.getId());
+        assertEquals(actual.getJobClassName(), syncTask.getJobClassName());
+        
+        TaskExecTO execution = execSyncTask(syncTask.getId(), 50, false);
+        final String status = execution.getStatus();
+        assertNotNull(status);
+        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+
+        // 7. Test the sync'd user
+        String syncedPassword = Encryptor.getInstance().encode("security", CipherAlgorithm.SHA1);
+        updatedUser = userService.read(user.getId());
+        assertEquals(syncedPassword, updatedUser.getPassword());
+        
+        // 8. Delete SyncTask + user + reset the connector
+        taskService.delete(syncTask.getId());
+        property.getValues().clear();
+        property.getValues().add(Boolean.FALSE);
+        connectorService.update(ldapResource.getConnectorId(), resourceConnector);
+        deleteUser(updatedUser.getId());
     }
 }
