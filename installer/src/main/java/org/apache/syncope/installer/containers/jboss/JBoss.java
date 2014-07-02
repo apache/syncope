@@ -48,7 +48,7 @@ public class JBoss {
         this.jbossPort = jbossPort;
         this.installPath = installPath;
         this.artifactId = artifactId;
-        httpUtils = new HttpUtils(jbossAdminUsername, jbossAdminPassword);
+        httpUtils = new HttpUtils(jbossHost, jbossPort, jbossAdminUsername, jbossAdminPassword);
 
     }
 
@@ -70,8 +70,9 @@ public class JBoss {
         final JBossDeployRequestContent jBossDeployRequestContent = new JBossDeployRequestContent(
                 jBossAddResponse.getResult().getBYTES_VALUE(), warName);
 
-        int status = httpUtils.postWithStringEntity(String.format(enableUrl, jbossHost, jbossPort),
-                JsonUtils.jBossDeployRequestContent(jBossDeployRequestContent));
+        int status = httpUtils.
+                postWithStringEntity(String.format(enableUrl, jbossHost, jbossPort),
+                        JsonUtils.jBossDeployRequestContent(jBossDeployRequestContent));
         return status == 200;
     }
 }

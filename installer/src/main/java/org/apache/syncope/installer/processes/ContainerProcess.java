@@ -40,7 +40,9 @@ public class ContainerProcess extends AbstractProcess {
 
     private String tomcatPassword;
 
-    private String tomcatUrl;
+    private String tomcatHost;
+
+    private String tomcatPort;
 
     private String glassfishDir;
 
@@ -65,18 +67,19 @@ public class ContainerProcess extends AbstractProcess {
         installPath = args[0];
         artifactId = args[1];
         final Containers selectedContainer = Containers.fromContainerName(args[2]);
-        tomcatUrl = args[3];
-        tomcatUser = args[4];
-        tomcatPassword = args[5];
-        glassfishDir = args[6];
-        logsDirectory = args[7];
-        bundlesDirectory = args[8];
-        withDataSource = Boolean.valueOf(args[9]);
-        jbossHost = args[10];
-        jbossPort = args[11];
-        jbossJdbcModuleName = args[12];
-        jbossAdminUsername = args[13];
-        jbossAdminPassword = args[14];
+        tomcatHost = args[3];
+        tomcatPort = args[4];
+        tomcatUser = args[5];
+        tomcatPassword = args[6];
+        glassfishDir = args[7];
+        logsDirectory = args[8];
+        bundlesDirectory = args[9];
+        withDataSource = Boolean.valueOf(args[10]);
+        jbossHost = args[11];
+        jbossPort = args[12];
+        jbossJdbcModuleName = args[13];
+        jbossAdminUsername = args[14];
+        jbossAdminPassword = args[15];
 
         if (withDataSource) {
             writeToFile(new File(installPath + "/" + artifactId + WebXml.PATH), WebXml.withDataSource());
@@ -100,8 +103,8 @@ public class ContainerProcess extends AbstractProcess {
 
         switch (selectedContainer) {
             case TOMCAT:
-                final Tomcat tomcat = new Tomcat(tomcatUrl, installPath, artifactId, tomcatUser, tomcatPassword);
-
+                final Tomcat tomcat = new Tomcat(
+                        tomcatHost, tomcatPort, installPath, artifactId, tomcatUser, tomcatPassword);
                 boolean deployCoreResult = tomcat.deployCore();
                 if (deployCoreResult) {
                     handler.logOutput("Core successfully deployed ", true);

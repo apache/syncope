@@ -20,46 +20,62 @@ package org.apache.syncope.installer.utilities;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthPolicy;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.FilePart;
-import org.apache.commons.httpclient.methods.multipart.FilePartSource;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.PartSource;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScheme;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.auth.DigestScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 public class HttpUtils {
 
-    private static final String APPLICATION_JSON = "application/json";
+    private static final String URL_TEMPLATE = "http://%s:%s";
 
-    private static final String MULTIPART_FORM_DATA = "multipart/form-data";
+    private final CloseableHttpClient httpClient;
 
-    private static final String UTF_8 = "UTF-8";
+    private final String host;
 
-    private final HttpClient httpClient;
+    private final int port;
 
-    public HttpUtils(final String username, final String password) {
-        httpClient = new HttpClient();
-        httpClient.getParams().setAuthenticationPreemptive(true);
-        httpClient.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+    private final String username;
+
+    private final String password;
+
+    private final HttpHost targetHost;
+
+    public HttpUtils(final String host, final String port, final String username, final String password) {
+        httpClient = HttpClients.createDefault();
+        this.username = username;
+        this.password = password;
+        this.host = host;
+        this.port = Integer.valueOf(port);
+        this.targetHost = new HttpHost(this.host, this.port);
     }
 
-    public int getWithBasicAuth(final String url) {
-        final HttpMethod method = new GetMethod(url);
-        final List authPrefs = new ArrayList();
-        authPrefs.add(AuthPolicy.BASIC);
-        httpClient.getParams().setParameter(AuthPolicy.BASIC, authPrefs);
+    public int getWithBasicAuth(final String path) {
+        final HttpGet httpGet = new HttpGet(String.format(URL_TEMPLATE, host, port) + path);
         int status = 0;
         try {
-            status = httpClient.executeMethod(method);
+            final CloseableHttpResponse response = httpClient.execute(
+                    targetHost, httpGet, setAuth(targetHost, new BasicScheme()));
+            status = response.getStatusLine().getStatusCode();
+            response.close();
         } catch (IOException ex) {
         }
         return status;
@@ -68,33 +84,55 @@ public class HttpUtils {
     public String postWithDigestAuth(final String url, final String file) {
         String responseBodyAsString = "";
         try {
-            final PostMethod addContentPost = new PostMethod(url);
-            final PartSource partSource = new FilePartSource(new File(file));
-
-            final String[] tmp = file.split("/");
-            final String fileName = tmp[tmp.length - 1].split("\\.")[0];
-            final Part[] parts = {new FilePart(fileName, partSource, MULTIPART_FORM_DATA, UTF_8)};
-            final MultipartRequestEntity mre = new MultipartRequestEntity(parts, addContentPost.getParams());
-            addContentPost.setRequestEntity(mre);
-            final List authPrefs = new ArrayList();
-            authPrefs.add(AuthPolicy.DIGEST);
-
-            httpClient.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authPrefs);
-            httpClient.executeMethod(addContentPost);
-            responseBodyAsString = addContentPost.getResponseBodyAsString();
-        } catch (IOException ioe) {
+            final CloseableHttpResponse response = httpClient.execute(targetHost,
+                    httpPost(url, MultipartEntityBuilder.create().addPart("bin", new FileBody(new File(file))).build()),
+                    setAuth(targetHost, new DigestScheme()));
+            responseBodyAsString = IOUtils.toString(response.getEntity().getContent());
+            response.close();
+        } catch (IOException ex) {
         }
+
         return responseBodyAsString;
     }
 
     public int postWithStringEntity(final String url, final String stringEntity) {
         int status = 0;
         try {
-            final StringRequestEntity requestEntity = new StringRequestEntity(stringEntity, APPLICATION_JSON, UTF_8);
-            final PostMethod enablePost = new PostMethod(url);
-            enablePost.setRequestEntity(requestEntity);
-            status = httpClient.executeMethod(enablePost);
-        } catch (IOException uee) {
+            final HttpPost httPost = httpPost(url, new StringEntity(stringEntity));
+            httPost.addHeader("Content-Type", ContentType.APPLICATION_JSON.getMimeType());
+            final CloseableHttpResponse response = httpClient.execute(
+                    targetHost, httPost, setAuth(targetHost, new DigestScheme()));
+            status = response.getStatusLine().getStatusCode();
+            response.close();
+        } catch (IOException ioe) {
+        }
+        return status;
+    }
+
+    private HttpClientContext setAuth(final HttpHost targetHost, final AuthScheme authScheme) {
+        final CredentialsProvider credsProvider = new BasicCredentialsProvider();
+        credsProvider.setCredentials(new AuthScope(targetHost.getHostName(), targetHost.getPort()),
+                new UsernamePasswordCredentials(username, password));
+        final HttpClientContext context = HttpClientContext.create();
+        final AuthCache authCache = new BasicAuthCache();
+        authCache.put(targetHost, authScheme);
+        context.setAuthCache(authCache);
+        context.setCredentialsProvider(credsProvider);
+        return context;
+    }
+
+    private HttpPost httpPost(final String url, final HttpEntity reqEntity) {
+        final HttpPost httppost = new HttpPost(url);
+        httppost.setEntity(reqEntity);
+        return httppost;
+    }
+
+    public static int ping(final String host, final String port) {
+        int status = 0;
+        try {
+            status = HttpClients.createDefault().execute(
+                    new HttpGet(String.format(URL_TEMPLATE, host, port))).getStatusLine().getStatusCode();
+        } catch (IOException ioe) {
         }
         return status;
     }

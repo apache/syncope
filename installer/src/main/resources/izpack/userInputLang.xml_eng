@@ -35,7 +35,8 @@ under the License.
   
   <str id="with.datasuorce.id" txt="DataSource with JNDI name 'java:/syncopeDataSource':"/>
   
-  <str id="tomcat.container.url.id" txt="Tomcat URL:"/>
+  <str id="tomcat.container.host.id" txt="Tomcat host:"/>
+  <str id="tomcat.container.port.id" txt="Tomcat port:"/>
   <str id="tomcat.container.user.id" txt="Tomcat username:"/>
   <str id="tomcat.container.pwd.id" txt="Tomcat password:"/>
   

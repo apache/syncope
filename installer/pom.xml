@@ -55,8 +55,16 @@ under the License.
       <groupId>org.codehaus.izpack</groupId>
       <artifactId>izpack-panel</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpmime</artifactId>
+    </dependency>
 
-    <!--DB DRIVERS-->
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
@@ -67,14 +75,7 @@ under the License.
       <artifactId>mysql-connector-java</artifactId>
       <version>5.1.31</version>
     </dependency>
-    <!--DB DRIVERS-->
     
-    <!-- JBOSS -->
-    <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>3.1</version>
-    </dependency>
     <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-asl</artifactId>
@@ -85,7 +86,7 @@ under the License.
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
       <version>1.9</version>
-    </dependency> 
+    </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>

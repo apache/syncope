@@ -138,8 +138,12 @@ under the License.
     <field type="divider"/>
     <field type="space"/>
     
-    <field type="text" variable="tomcat.container.url" conditionid="tomcat.choice">
-      <spec id="tomcat.container.url.id" size="20" set="http://localhost:8080/"/>
+    <field type="text" variable="tomcat.container.host" conditionid="tomcat.choice">
+      <spec id="tomcat.container.host.id" size="20" set="localhost"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="tomcat.container.port" conditionid="tomcat.choice">
+      <spec id="tomcat.container.port.id" size="20" set="8080"/>
     </field>
     <field type="space"/>
     <field type="text" variable="tomcat.container.user" conditionid="tomcat.choice">

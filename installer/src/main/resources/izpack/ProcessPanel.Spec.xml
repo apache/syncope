@@ -19,7 +19,7 @@ under the License.
 -->
 <processing>
   <logfiledir>$INSTALL_PATH</logfiledir>
-  <job name="archetype">
+  <job name="Archetype creation...">
     <executeclass name="org.apache.syncope.installer.processes.ArchetypeProcess">
       <arg>$INSTALL_PATH</arg>
       <arg>$mvn.groupid</arg>
@@ -32,7 +32,7 @@ under the License.
       <arg>$mvn.syncope.admin.password</arg>
     </executeclass>
   </job>
-  <job name="persistence">
+  <job name="Persistence configuration...">
     <executeclass name="org.apache.syncope.installer.processes.PersistenceProcess">
       <arg>$INSTALL_PATH</arg><!-- 0 -->
       <arg>$mvn.artifactid</arg><!-- 1 -->
@@ -44,23 +44,24 @@ under the License.
       <arg>$persistence.tablespace</arg><!-- 7 -->
     </executeclass>
   </job>
-  <job name="container">
+  <job name="Deploy...">
     <executeclass name="org.apache.syncope.installer.processes.ContainerProcess">
       <arg>$INSTALL_PATH</arg><!-- 0 -->
       <arg>$mvn.artifactid</arg><!-- 1 -->
       <arg>$install.container.selection</arg><!-- 2 -->
-      <arg>$tomcat.container.url</arg><!-- 3 -->
-      <arg>$tomcat.container.user</arg><!-- 4 -->
-      <arg>$tomcat.container.pwd</arg><!-- 5 -->
-      <arg>$glassfish.container.dir</arg><!-- 6 -->
-      <arg>$mvn.log.directory</arg><!-- 7 -->
-      <arg>$mvn.bundle.directory</arg><!-- 8 -->
-      <arg>$with.datasuorce</arg><!-- 9 -->
-      <arg>$jboss.container.host</arg><!-- 10 -->
-      <arg>$jboss.container.port</arg><!-- 11 -->
-      <arg>$jboss.container.jdbc.module</arg><!-- 12 -->
-      <arg>$jboss.container.user</arg><!-- 13 -->
-      <arg>$jboss.container.pwd</arg><!-- 14 -->
+      <arg>$tomcat.container.host</arg><!-- 3 -->
+      <arg>$tomcat.container.port</arg><!-- 4 -->
+      <arg>$tomcat.container.user</arg><!-- 5 -->
+      <arg>$tomcat.container.pwd</arg><!-- 6 -->
+      <arg>$glassfish.container.dir</arg><!-- 7 -->
+      <arg>$mvn.log.directory</arg><!-- 8 -->
+      <arg>$mvn.bundle.directory</arg><!-- 9 -->
+      <arg>$with.datasuorce</arg><!-- 10 -->
+      <arg>$jboss.container.host</arg><!-- 11 -->
+      <arg>$jboss.container.port</arg><!-- 12 -->
+      <arg>$jboss.container.jdbc.module</arg><!-- 13 -->
+      <arg>$jboss.container.user</arg><!-- 14 -->
+      <arg>$jboss.container.pwd</arg><!-- 15 -->
     </executeclass>
   </job>
   <onFail previous="true" next="false" />

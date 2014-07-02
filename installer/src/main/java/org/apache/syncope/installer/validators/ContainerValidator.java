@@ -20,10 +20,8 @@ package org.apache.syncope.installer.validators;
 
 import com.izforge.izpack.api.data.InstallData;
 import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import org.apache.syncope.installer.enums.Containers;
+import org.apache.syncope.installer.utilities.HttpUtils;
 
 public class ContainerValidator extends AbstractValidator {
 
@@ -34,7 +32,8 @@ public class ContainerValidator extends AbstractValidator {
 
         final Containers selectedContainer = Containers.fromContainerName(
                 installData.getVariable("install.container.selection"));
-        final String tomcatUrl = installData.getVariable("tomcat.container.url");
+        final String tomcatHost = installData.getVariable("tomcat.container.host");
+        final String tomcatPort = installData.getVariable("tomcat.container.port");
         final String tomcatUser = installData.getVariable("tomcat.container.user");
         final String tomcatPassword = installData.getVariable("tomcat.container.pwd");
         final String glassfishDir = installData.getVariable("glassfish.container.dir");
@@ -49,8 +48,12 @@ public class ContainerValidator extends AbstractValidator {
 
                 boolean verified = true;
                 error = new StringBuilder("Required fields:\n");
-                if (isEmpty(tomcatUrl)) {
-                    error.append("Tomcat URL\n");
+                if (isEmpty(tomcatHost)) {
+                    error.append("Tomcat host\n");
+                    verified = false;
+                }
+                if (isEmpty(tomcatPort)) {
+                    error.append("Tomcat port\n");
                     verified = false;
                 }
                 if (isEmpty(tomcatUser)) {
@@ -66,14 +69,7 @@ public class ContainerValidator extends AbstractValidator {
                     return Status.ERROR;
                 }
 
-                int responseCode = 0;
-
-                try {
-                    final HttpURLConnection connection = (HttpURLConnection) new URL(tomcatUrl).openConnection();
-                    responseCode = connection.getResponseCode();
-                } catch (final IOException ex) {
-
-                }
+                int responseCode = HttpUtils.ping(tomcatHost, tomcatPort);
 
                 if (responseCode == 200) {
                     return Status.OK;
@@ -109,15 +105,7 @@ public class ContainerValidator extends AbstractValidator {
                     return Status.ERROR;
                 }
 
-                int jResponseCode = 0;
-
-                try {
-                    final HttpURLConnection connection = (HttpURLConnection) new URL(
-                            "http://" + jbossHost + ":" + jbossPort).openConnection();
-                    jResponseCode = connection.getResponseCode();
-                } catch (final IOException ex) {
-
-                }
+                int jResponseCode = HttpUtils.ping(jbossHost, jbossPort);
 
                 if (jResponseCode == 200) {
                     return Status.OK;
