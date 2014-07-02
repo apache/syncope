@@ -363,6 +363,8 @@ under the License.
     <jquery-ui.version>1.10.4</jquery-ui.version>
     <highlightjs.version>8.0</highlightjs.version>
     <codemirror.version>3.23</codemirror.version>
+
+    <izpack.version>5.0.0-rc2</izpack.version>
  
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
     <connid.location>file:${bundles.directory}/</connid.location>
@@ -879,6 +881,17 @@ under the License.
         <artifactId>codemirror</artifactId>
         <version>${codemirror.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.codehaus.izpack</groupId>
+        <artifactId>izpack-compiler</artifactId>
+        <version>${izpack.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.izpack</groupId>
+        <artifactId>izpack-panel</artifactId>
+        <version>${izpack.version}</version>
+      </dependency>
       
       <!-- TEST -->
       <dependency>
@@ -1302,6 +1315,11 @@ under the License.
               </pluginExecutions>
             </lifecycleMappingMetadata>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.izpack</groupId>
+          <artifactId>izpack-maven-plugin</artifactId>
+          <version>${izpack.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
