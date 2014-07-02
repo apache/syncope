@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.installer.utilities;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import org.apache.syncope.installer.containers.jboss.JBossAddResponse;
 import org.apache.syncope.installer.containers.jboss.JBossDeployRequestContent;
-import org.codehaus.jackson.map.ObjectMapper;
 
 public class JsonUtils {
 
@@ -32,7 +33,6 @@ public class JsonUtils {
         try {
             jBossAddResponse = objectMapper.readValue(responseBodyAsString, JBossAddResponse.class);
         } catch (IOException ioe) {
-
         }
         return jBossAddResponse;
     }
@@ -41,8 +41,7 @@ public class JsonUtils {
         String jBossDeployRequestContentString = "";
         try {
             jBossDeployRequestContentString = objectMapper.writeValueAsString(jBossDeployRequestContent);
-        } catch (IOException ioe) {
-
+        } catch (JsonProcessingException ioe) {
         }
         return jBossDeployRequestContentString;
     }
