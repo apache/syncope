@@ -19,15 +19,13 @@
 package org.apache.syncope.installer.validators;
 
 import com.izforge.izpack.api.data.InstallData;
-import java.sql.DriverManager;
+import java.sql.Driver;
 import java.sql.SQLException;
+import java.util.Properties;
 import org.apache.syncope.installer.enums.DBs;
+import org.apache.syncope.installer.utilities.DriverLoader;
 
 public class PersistenceValidator extends AbstractValidator {
-
-    private static final String POSTGRES_CLASS_DRIVER = "org.postgresql.Driver";
-
-    private static final String MYSQL_CLASS_DRIVER = "com.mysql.jdbc.Driver";
 
     private String persistenceUrl;
 
@@ -70,9 +68,9 @@ public class PersistenceValidator extends AbstractValidator {
 
         switch (selectedDB) {
             case POSTGRES:
-                return checkConnection(POSTGRES_CLASS_DRIVER);
+                return checkConnection(selectedDB);
             case MYSQL:
-                return checkConnection(MYSQL_CLASS_DRIVER);
+                return checkConnection(selectedDB);
             case SQLSERVER:
                 warning = new StringBuilder("Remember to check your SqlServer db connection");
                 return Status.WARNING;
@@ -85,16 +83,17 @@ public class PersistenceValidator extends AbstractValidator {
         }
     }
 
-    private Status checkConnection(final String driverClass) {
+    private Status checkConnection(final DBs selectedDb) {
+
         try {
-            Class.forName(driverClass);
-            DriverManager.getConnection(persistenceUrl, persistenceDbuser, persistenceDbPassword);
+            final Driver driver = DriverLoader.load(selectedDb);
+            final Properties props = new Properties();
+            props.put("user", persistenceDbuser);
+            props.put("password", persistenceDbPassword);
+            driver.connect(persistenceUrl, props);
             return Status.OK;
         } catch (SQLException ex) {
             error = new StringBuilder("Db connection error: please check your insert data");
-            return Status.ERROR;
-        } catch (ClassNotFoundException ex) {
-            error = new StringBuilder("General error please contact Apache Syncope developers!");
             return Status.ERROR;
         }
     }
