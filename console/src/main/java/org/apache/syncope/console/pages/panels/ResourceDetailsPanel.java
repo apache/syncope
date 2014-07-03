@@ -206,23 +206,6 @@ public class ResourceDetailsPanel extends Panel {
         syncTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
         add(syncTraceLevel);
 
-        final AjaxCheckBoxPanel resetToken = new AjaxCheckBoxPanel("resetToken", new ResourceModel("resetToken",
-                "resetToken").getObject(), new Model<Boolean>(null));
-
-        resetToken.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget art) {
-                if (resetToken.getModelObject()) {
-                    resourceTO.setUsyncToken(null);
-                    resourceTO.setRsyncToken(null);
-                }
-            }
-        });
-        add(resetToken);
-
         final IModel<List<ConnInstanceTO>> connectors = new LoadableDetachableModel<List<ConnInstanceTO>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;

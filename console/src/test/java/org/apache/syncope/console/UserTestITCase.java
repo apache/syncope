@@ -56,7 +56,7 @@ public class UserTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         //Edit vivaldi
-        selenium.click("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[12]/a");
+        selenium.click("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[13]/a");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
         selenium.selectFrame("index=0");
@@ -99,7 +99,7 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//*[@id=\"users-contain\"]//*[div=4]/../td[5]/div/span[14]/a");
+        selenium.click("//*[@id=\"users-contain\"]//*[div=4]/../td[5]/div/span[15]/a");
 
         assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
 
@@ -133,7 +133,7 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.click("//div[@class='navigator']/div/span/a");
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//td[div='ws-target-resource-1']\");", "30000");
-        
+
         seleniumDriver.switchTo().defaultContent();
 
         selenium.click("css=a.w_close");
@@ -141,12 +141,12 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     @SuppressWarnings("SleepWhileHoldingLock")
-    public void issueSyncope495() {
+    public void issueSYNCOPE495() {
         selenium.click("css=img[alt=\"Users\"]");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[12]/a");
+        selenium.click("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[13]/a");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
         selenium.selectFrame("index=0");

@@ -54,6 +54,7 @@ public class ActionLinksPanel extends Panel {
         super.add(new Fragment("panelManageRoles", "emptyFragment", this));
         super.add(new Fragment("panelCreate", "emptyFragment", this));
         super.add(new Fragment("panelEdit", "emptyFragment", this));
+        super.add(new Fragment("panelReset", "emptyFragment", this));
         super.add(new Fragment("panelUserTemplate", "emptyFragment", this));
         super.add(new Fragment("panelRoleTemplate", "emptyFragment", this));
         super.add(new Fragment("panelEnable", "emptyFragment", this));
@@ -174,6 +175,20 @@ public class ActionLinksPanel extends Panel {
                         link.onClick(target);
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
+                break;
+
+            case RESET:
+                fragment = new Fragment("panelReset", "fragmentReset", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("resetLink", pageRef) {
+
+                    private static final long serialVersionUID = -6957616042924610290L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                });
                 break;
 
             case EDIT:

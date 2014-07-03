@@ -294,7 +294,28 @@ public class Resources extends BasePage {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
+                        resourceTO.setUsyncToken(null);
+                        resourceTO.setRsyncToken(null);
+                        try {
+                            resourceRestClient.update(resourceTO);
+                            info(getString(Constants.OPERATION_SUCCEEDED));
+                        } catch (SyncopeClientException e) {
+                            error(getString(Constants.ERROR) + ":" + e.getMessage());
 
+                            LOG.error("While resetting sync token from " + resourceTO.getName(), e);
+                        }
+
+                        feedbackPanel.refresh(target);
+                        target.add(resourceContainer);
+                    }
+                }, ActionLink.ActionType.RESET, "Resources");
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
                         editResourceWin.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = -7834632442532690940L;

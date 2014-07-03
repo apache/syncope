@@ -41,6 +41,7 @@ public class ConfigurationTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
         selenium.click("//div[@id='tabs']/ul/li[2]/a");
+        selenium.click("//div[@id='policies']/ul/li[2]/a");
         selenium.click("//div[@id='password']/span/div/a");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='id:textField']\");", "30000");

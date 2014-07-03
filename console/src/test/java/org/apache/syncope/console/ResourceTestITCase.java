@@ -42,8 +42,8 @@ public class ResourceTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//td[6]/div/span[12]/a");
-        
+        selenium.click("//td[6]/div/span[13]/a");
+
         selenium.waitForCondition("selenium.isElementPresent(" + "\"class=wicket_modal\");", "30000");
         selenium.waitForFrameToLoad("class=wicket_modal", "30000");
         selenium.selectFrame("index=0");
@@ -69,7 +69,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//tr[3]/td[6]/div/span[14]/a");
+        selenium.click("//tr[3]/td[6]/div/span[15]/a");
 
         assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
     }
@@ -80,14 +80,14 @@ public class ResourceTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//td[6]/div/span[12]/a");
+        selenium.click("//td[6]/div/span[13]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//form/div[3]/div/span/div/div/div/label[text()='Name']\");", "30000");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
         selenium.selectFrame("index=0");
-        
+
         selenium.click("//li[4]/a");
 
         assertTrue(selenium.isElementPresent("//label[@for='passwordPolicy']"));
@@ -107,14 +107,14 @@ public class ResourceTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//*[@id=\"users-contain\"]//*[div=\"ws-target-resource-delete\"]/../td[6]/div/span[12]/a");
+        selenium.click("//*[@id=\"users-contain\"]//*[div=\"ws-target-resource-delete\"]/../td[6]/div/span[13]/a");
 
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//form/div[3]/div/span/div/div/div/label[text()='Name']\");", "30000");
 
         selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
         selenium.selectFrame("index=0");
-        
+
         selenium.click("//li[4]/a");
 
         selenium.waitForCondition("selenium.isElementPresent(" + "\"//span[text()='endpoint']\");", "30000");

@@ -40,7 +40,7 @@ public class ActionResultColumn<T, S> extends AbstractColumn<T, S> {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(ActionResultColumn.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ActionResultColumn.class);
 
     private final BulkActionResult results;
 
@@ -63,7 +63,7 @@ public class ActionResultColumn<T, S> extends AbstractColumn<T, S> {
     }
 
     @Override
-    public void populateItem(Item<ICellPopulator<T>> item, String componentId, IModel<T> rowModel) {
+    public void populateItem(final Item<ICellPopulator<T>> item, final String componentId, final IModel<T> rowModel) {
         try {
             final PropertyDescriptor propDesc =
                     BeanUtils.getPropertyDescriptor(rowModel.getObject().getClass(), idFieldName);
