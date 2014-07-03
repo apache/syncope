@@ -138,6 +138,10 @@ under the License.
     <field type="divider"/>
     <field type="space"/>
     
+    <field type="check" variable="tomcat.container.ssl" conditionid="tomcat.choice">
+      <spec id="tomcat.container.ssl.id" true="true" false="false" set="true"/>
+    </field>
+    <field type="space"/>
     <field type="text" variable="tomcat.container.host" conditionid="tomcat.choice">
       <spec id="tomcat.container.host.id" size="20" set="localhost"/>
     </field>
@@ -158,6 +162,10 @@ under the License.
       <spec id="glassfish.container.dir.id" size="20" set="/opt/glassfish4/"/>
     </field>
     
+    <field type="check" variable="jboss.container.ssl" conditionid="jboss.choice">
+      <spec id="jboss.container.ssl.id" true="true" false="false" set="true"/>
+    </field>
+    <field type="space"/>
     <field type="text" variable="jboss.container.host" conditionid="jboss.choice">
       <spec id="jboss.container.host.id" size="20" set="localhost"/>
     </field>

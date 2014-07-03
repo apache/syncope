@@ -40,6 +40,8 @@ public class ContainerProcess extends AbstractProcess {
 
     private String tomcatPassword;
 
+    private boolean tomcatSsl;
+
     private String tomcatHost;
 
     private String tomcatPort;
@@ -51,6 +53,8 @@ public class ContainerProcess extends AbstractProcess {
     private String bundlesDirectory;
 
     private boolean withDataSource;
+
+    private boolean jbossSsl;
 
     private String jbossHost;
 
@@ -67,19 +71,21 @@ public class ContainerProcess extends AbstractProcess {
         installPath = args[0];
         artifactId = args[1];
         final Containers selectedContainer = Containers.fromContainerName(args[2]);
-        tomcatHost = args[3];
-        tomcatPort = args[4];
-        tomcatUser = args[5];
-        tomcatPassword = args[6];
-        glassfishDir = args[7];
-        logsDirectory = args[8];
-        bundlesDirectory = args[9];
-        withDataSource = Boolean.valueOf(args[10]);
-        jbossHost = args[11];
-        jbossPort = args[12];
-        jbossJdbcModuleName = args[13];
-        jbossAdminUsername = args[14];
-        jbossAdminPassword = args[15];
+        tomcatSsl = Boolean.valueOf(args[3]);
+        tomcatHost = args[4];
+        tomcatPort = args[5];
+        tomcatUser = args[6];
+        tomcatPassword = args[7];
+        glassfishDir = args[8];
+        logsDirectory = args[9];
+        bundlesDirectory = args[10];
+        withDataSource = Boolean.valueOf(args[11]);
+        jbossSsl = Boolean.valueOf(args[12]);
+        jbossHost = args[13];
+        jbossPort = args[14];
+        jbossJdbcModuleName = args[15];
+        jbossAdminUsername = args[16];
+        jbossAdminPassword = args[17];
 
         if (withDataSource) {
             writeToFile(new File(installPath + "/" + artifactId + WebXml.PATH), WebXml.withDataSource());
@@ -104,7 +110,7 @@ public class ContainerProcess extends AbstractProcess {
         switch (selectedContainer) {
             case TOMCAT:
                 final Tomcat tomcat = new Tomcat(
-                        tomcatHost, tomcatPort, installPath, artifactId, tomcatUser, tomcatPassword);
+                        tomcatSsl, tomcatHost, tomcatPort, installPath, artifactId, tomcatUser, tomcatPassword);
                 boolean deployCoreResult = tomcat.deployCore();
                 if (deployCoreResult) {
                     handler.logOutput("Core successfully deployed ", true);
@@ -121,7 +127,7 @@ public class ContainerProcess extends AbstractProcess {
                 break;
             case JBOSS:
                 final JBoss jBoss = new JBoss(
-                        jbossHost, jbossPort, jbossAdminUsername, jbossAdminPassword, installPath, artifactId);
+                        jbossSsl, jbossHost, jbossPort, jbossAdminUsername, jbossAdminPassword, installPath, artifactId);
 
                 boolean deployCoreJboss = jBoss.deployCore();
                 if (deployCoreJboss) {

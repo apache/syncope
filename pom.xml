@@ -319,6 +319,7 @@ under the License.
 
     <commons-jexl.version>2.1.1</commons-jexl.version>
     <commons-lang.version>3.3.2</commons-lang.version>
+    <commons-codec.version>1.9</commons-codec.version>
 
     <activiti.version>5.15.1</activiti.version>
     
@@ -449,6 +450,12 @@ under the License.
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
         <version>${commons-lang.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>${commons-codec.version}</version>
       </dependency>
 
       <dependency>

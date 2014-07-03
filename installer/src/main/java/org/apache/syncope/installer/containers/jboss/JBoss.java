@@ -31,6 +31,8 @@ public class JBoss {
 
     private final String enableUrl = "http://%s:%s/management/";
 
+    private final boolean jbossSsl;
+
     private final String jbossHost;
 
     private final String jbossPort;
@@ -41,14 +43,15 @@ public class JBoss {
 
     private final HttpUtils httpUtils;
 
-    public JBoss(final String jbossHost, final String jbossPort,
+    public JBoss(final boolean jbossSsl, final String jbossHost, final String jbossPort,
             final String jbossAdminUsername, final String jbossAdminPassword,
             final String installPath, final String artifactId) {
+        this.jbossSsl = jbossSsl;
         this.jbossHost = jbossHost;
         this.jbossPort = jbossPort;
         this.installPath = installPath;
         this.artifactId = artifactId;
-        httpUtils = new HttpUtils(jbossHost, jbossPort, jbossAdminUsername, jbossAdminPassword);
+        httpUtils = new HttpUtils(jbossSsl, jbossHost, jbossPort, jbossAdminUsername, jbossAdminPassword);
 
     }
 

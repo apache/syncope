@@ -34,11 +34,11 @@ public class Tomcat {
 
     private final HttpUtils httpUtils;
 
-    public Tomcat(final String tomcatHost, final String tomcatPort, final String installPath, final String artifactId,
-            final String tomcatUser, final String tomcatPassword) {
+    public Tomcat(final boolean tomcatSsl, final String tomcatHost, final String tomcatPort,
+            final String installPath, final String artifactId, final String tomcatUser, final String tomcatPassword) {
         this.installPath = installPath;
         this.artifactId = artifactId;
-        httpUtils = new HttpUtils(tomcatHost, tomcatPort, tomcatUser, tomcatPassword);
+        httpUtils = new HttpUtils(tomcatSsl, tomcatHost, tomcatPort, tomcatUser, tomcatPassword);
     }
 
     public boolean deployCore() {

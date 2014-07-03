@@ -35,6 +35,7 @@ under the License.
   
   <str id="with.datasuorce.id" txt="DataSource with JNDI name 'java:/syncopeDataSource':"/>
   
+  <str id="tomcat.container.ssl.id" txt="Https"/>
   <str id="tomcat.container.host.id" txt="Tomcat host:"/>
   <str id="tomcat.container.port.id" txt="Tomcat port:"/>
   <str id="tomcat.container.user.id" txt="Tomcat username:"/>
@@ -42,6 +43,7 @@ under the License.
   
   <str id="glassfish.container.dir.id" txt="Glassfish home directory:"/>
   
+  <str id="jboss.container.ssl.id" txt="Https"/>
   <str id="jboss.container.host.id" txt="Jboss host:"/>
   <str id="jboss.container.port.id" txt="Jboss port:"/>
   <str id="jboss.container.jdbc.module.id" txt="Jboss JDBC module name:"/>

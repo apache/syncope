@@ -32,11 +32,13 @@ public class ContainerValidator extends AbstractValidator {
 
         final Containers selectedContainer = Containers.fromContainerName(
                 installData.getVariable("install.container.selection"));
+        final String tomcatSsl = installData.getVariable("tomcat.container.ssl");
         final String tomcatHost = installData.getVariable("tomcat.container.host");
         final String tomcatPort = installData.getVariable("tomcat.container.port");
         final String tomcatUser = installData.getVariable("tomcat.container.user");
         final String tomcatPassword = installData.getVariable("tomcat.container.pwd");
         final String glassfishDir = installData.getVariable("glassfish.container.dir");
+        final String jbossSsl = installData.getVariable("jboss.container.ssl");
         final String jbossHost = installData.getVariable("jboss.container.host");
         final String jbossPort = installData.getVariable("jboss.container.port");
         final String jbossJdbcModule = installData.getVariable("jboss.container.jdbc.module");
@@ -69,7 +71,7 @@ public class ContainerValidator extends AbstractValidator {
                     return Status.ERROR;
                 }
 
-                int responseCode = HttpUtils.ping(tomcatHost, tomcatPort);
+                int responseCode = HttpUtils.ping(Boolean.valueOf(tomcatSsl), tomcatHost, tomcatPort);
 
                 if (responseCode == 200) {
                     return Status.OK;
@@ -105,7 +107,7 @@ public class ContainerValidator extends AbstractValidator {
                     return Status.ERROR;
                 }
 
-                int jResponseCode = HttpUtils.ping(jbossHost, jbossPort);
+                int jResponseCode = HttpUtils.ping(Boolean.valueOf(jbossSsl), jbossHost, jbossPort);
 
                 if (jResponseCode == 200) {
                     return Status.OK;

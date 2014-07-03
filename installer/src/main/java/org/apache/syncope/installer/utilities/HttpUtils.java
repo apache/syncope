@@ -20,6 +20,9 @@ package org.apache.syncope.installer.utilities;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -32,6 +35,9 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContextBuilder;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -45,9 +51,13 @@ import org.apache.http.impl.client.HttpClients;
 
 public class HttpUtils {
 
-    private static final String URL_TEMPLATE = "http://%s:%s";
+    private static final String HTTPS_URL_TEMPLATE = "https://%s:%s";
+
+    private static final String HTTP_URL_TEMPLATE = "http://%s:%s";
 
     private final CloseableHttpClient httpClient;
+
+    private final boolean isSsl;
 
     private final String host;
 
@@ -59,17 +69,32 @@ public class HttpUtils {
 
     private final HttpHost targetHost;
 
-    public HttpUtils(final String host, final String port, final String username, final String password) {
-        httpClient = HttpClients.createDefault();
-        this.username = username;
-        this.password = password;
+    public HttpUtils(final boolean isSsl, final String host,
+            final String port, final String username, final String password) {
+
+        this.isSsl = isSsl;
         this.host = host;
         this.port = Integer.valueOf(port);
-        this.targetHost = new HttpHost(this.host, this.port);
+
+        if (isSsl) {
+            httpClient = createHttpsClient();
+            this.targetHost = new HttpHost(this.host, this.port, "https");
+        } else {
+            httpClient = HttpClients.createDefault();
+            this.targetHost = new HttpHost(this.host, this.port, "http");
+        }
+        
+        this.username = username;
+        this.password = password;
     }
 
     public int getWithBasicAuth(final String path) {
-        final HttpGet httpGet = new HttpGet(String.format(URL_TEMPLATE, host, port) + path);
+        final HttpGet httpGet;
+        if (isSsl) {
+            httpGet = new HttpGet(String.format(HTTPS_URL_TEMPLATE, host, port) + path);
+        } else {
+            httpGet = new HttpGet(String.format(HTTP_URL_TEMPLATE, host, port) + path);
+        }
         int status = 0;
         try {
             final CloseableHttpResponse response = httpClient.execute(
@@ -127,13 +152,35 @@ public class HttpUtils {
         return httppost;
     }
 
-    public static int ping(final String host, final String port) {
+    public static int ping(final boolean isSsl, final String host, final String port) {
         int status = 0;
         try {
-            status = HttpClients.createDefault().execute(
-                    new HttpGet(String.format(URL_TEMPLATE, host, port))).getStatusLine().getStatusCode();
-        } catch (IOException ioe) {
+            if (isSsl) {
+                status = createHttpsClient().execute(
+                        new HttpGet(String.format(HTTPS_URL_TEMPLATE, host, port))).getStatusLine().
+                        getStatusCode();
+            } else {
+                status = HttpClients.createDefault().execute(
+                        new HttpGet(String.format(HTTP_URL_TEMPLATE, host, port))).getStatusLine().getStatusCode();
+            }
+        } catch (IOException ex) {
         }
+
         return status;
+    }
+
+    private static CloseableHttpClient createHttpsClient() {
+        CloseableHttpClient chc = null;
+        try {
+            final SSLContextBuilder builder = new SSLContextBuilder();
+            builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
+            chc = HttpClients.custom().setSSLSocketFactory(
+                    new SSLConnectionSocketFactory(builder.build(),
+                            SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)).build();
+        } catch (KeyManagementException ex) {
+        } catch (NoSuchAlgorithmException ex) {
+        } catch (KeyStoreException ex) {
+        }
+        return chc;
     }
 }
