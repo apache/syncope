@@ -25,7 +25,6 @@ import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.Policy;
-import org.apache.syncope.core.persistence.beans.PushPolicy;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
 
 public interface PolicyDAO extends DAO {
@@ -41,8 +40,6 @@ public interface PolicyDAO extends DAO {
     AccountPolicy getGlobalAccountPolicy();
 
     SyncPolicy getGlobalSyncPolicy();
-
-    PushPolicy getGlobalPushPolicy();
 
     List<Policy> findAll();
 

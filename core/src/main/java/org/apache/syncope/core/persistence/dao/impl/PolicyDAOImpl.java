@@ -26,7 +26,6 @@ import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
 import org.apache.syncope.core.persistence.beans.Policy;
-import org.apache.syncope.core.persistence.beans.PushPolicy;
 import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
@@ -81,14 +80,6 @@ public class PolicyDAOImpl extends AbstractDAOImpl implements PolicyDAO {
         return policies == null || policies.isEmpty()
                 ? null
                 : (SyncPolicy) policies.get(0);
-    }
-
-    @Override
-    public PushPolicy getGlobalPushPolicy() {
-        List<? extends Policy> policies = find(PolicyType.GLOBAL_PUSH);
-        return policies == null || policies.isEmpty()
-                ? null
-                : (PushPolicy) policies.get(0);
     }
 
     @Override

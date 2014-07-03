@@ -34,6 +34,7 @@ import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.to.PushTaskTO;
+import org.apache.syncope.common.wrap.PushActionClass;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.springframework.stereotype.Component;
 
@@ -66,6 +67,17 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
         try {
             actions = new ArrayList<SyncActionClass>(getService(TaskService.class).getSyncActionsClasses());
+        } catch (SyncopeClientException e) {
+            LOG.error("While getting all sync actions classes", e);
+        }
+        return CollectionWrapper.unwrap(actions);
+    }
+
+    public List<String> getPushActionsClasses() {
+        List<PushActionClass> actions = null;
+
+        try {
+            actions = new ArrayList<PushActionClass>(getService(TaskService.class).getPushActionsClasses());
         } catch (SyncopeClientException e) {
             LOG.error("While getting all sync actions classes", e);
         }

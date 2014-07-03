@@ -21,13 +21,10 @@ package org.apache.syncope.core.sync.impl;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
 import org.apache.syncope.core.persistence.beans.Entitlement;
-import org.apache.syncope.core.persistence.beans.PushPolicy;
 import org.apache.syncope.core.persistence.beans.PushTask;
-import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.beans.role.RMapping;
@@ -319,7 +316,7 @@ public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends Abst
             } catch (Exception e) {
                 final String msg = String.
                         format("Connector instance bean for resource %s and connInstance %s not found",
-                                syncTask.getResource(), syncTask.getResource().getConnector());
+                        syncTask.getResource(), syncTask.getResource().getConnector());
 
                 throw new JobExecutionException(msg, e);
             }
@@ -340,7 +337,6 @@ public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends Abst
 
             return executeWithSecurityContext(
                     syncTask,
-                    getSyncPolicySpec(syncTask),
                     connector,
                     uMapping,
                     rMapping,
@@ -354,7 +350,6 @@ public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends Abst
 
     protected abstract String executeWithSecurityContext(
             final T task,
-            final SyncPolicySpec syncPolicySpec,
             final Connector connector,
             final UMapping uMapping,
             final RMapping rMapping,
@@ -368,29 +363,6 @@ public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends Abst
         return (Status.valueOf(execution.getStatus()) == Status.FAILURE
                 && syncTask.getResource().getSyncTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
                 || syncTask.getResource().getSyncTraceLevel().ordinal() >= TraceLevel.SUMMARY.ordinal();
-    }
-
-    private SyncPolicySpec getSyncPolicySpec(final AbstractSyncTask syncTask) {
-        SyncPolicySpec syncPolicySpec;
-
-        if (syncTask instanceof SyncTask) {
-            final SyncPolicy syncPolicy = syncTask.getResource().getSyncPolicy() == null
-                    ? policyDAO.getGlobalSyncPolicy()
-                    : syncTask.getResource().getSyncPolicy();
-
-            syncPolicySpec = syncPolicy == null ? null : syncPolicy.getSpecification(SyncPolicySpec.class);
-        } else if (syncTask instanceof PushTask) {
-            final PushPolicy pushPolicy = syncTask.getResource().getPushPolicy() == null
-                    ? policyDAO.getGlobalPushPolicy()
-                    : syncTask.getResource().getPushPolicy();
-
-            syncPolicySpec = pushPolicy == null ? null : pushPolicy.getSpecification(SyncPolicySpec.class);
-        } else {
-            syncPolicySpec = null;
-        }
-
-        // step required because the call <policy>.getSpecification() could return a null value
-        return syncPolicySpec == null ? new SyncPolicySpec() : syncPolicySpec;
     }
 
     @SuppressWarnings("unchecked")

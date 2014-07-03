@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.SubjectType;
-import org.apache.syncope.common.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.beans.PushTask;
 import org.apache.syncope.core.persistence.beans.role.RMapping;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
@@ -77,7 +76,6 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
     @Override
     protected String executeWithSecurityContext(
             final PushTask pushTask,
-            final SyncPolicySpec syncPolicySpec,
             final Connector connector,
             final UMapping uMapping,
             final RMapping rMapping,
@@ -92,7 +90,7 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
                 new SyncProfile<PushTask, PushActions>(connector, pushTask);
         profile.setActions(actions);
         profile.setDryRun(dryRun);
-        profile.setResAct(syncPolicySpec.getConflictResolutionAction());
+        profile.setResAct(null);
         profile.setResults(results);
 
         final UserPushResultHandler uhandler =

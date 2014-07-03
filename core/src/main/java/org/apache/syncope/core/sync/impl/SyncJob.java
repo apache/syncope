@@ -27,7 +27,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.ReferenceMod;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.types.SyncPolicySpec;
+import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.SyncPolicy;
 import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.role.RMapping;
 import org.apache.syncope.core.persistence.beans.user.UMapping;
@@ -101,7 +103,6 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
     @Override
     protected String executeWithSecurityContext(
             final SyncTask syncTask,
-            final SyncPolicySpec syncPolicySpec,
             final Connector connector,
             final UMapping uMapping,
             final RMapping rMapping,
@@ -114,7 +115,7 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
                 new SyncProfile<SyncTask, SyncActions>(connector, syncTask);
         profile.setActions(actions);
         profile.setDryRun(dryRun);
-        profile.setResAct(syncPolicySpec.getConflictResolutionAction());
+        profile.setResAct(getSyncPolicySpec(syncTask).getConflictResolutionAction());
         profile.setResults(results);
 
         // Prepare handler for SyncDelta objects (users)
@@ -202,5 +203,22 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
         LOG.debug("Sync result: {}", result);
 
         return result;
+    }
+
+    private SyncPolicySpec getSyncPolicySpec(final AbstractSyncTask syncTask) {
+        SyncPolicySpec syncPolicySpec;
+
+        if (syncTask instanceof SyncTask) {
+            final SyncPolicy syncPolicy = syncTask.getResource().getSyncPolicy() == null
+                    ? policyDAO.getGlobalSyncPolicy()
+                    : syncTask.getResource().getSyncPolicy();
+
+            syncPolicySpec = syncPolicy == null ? null : syncPolicy.getSpecification(SyncPolicySpec.class);
+        } else {
+            syncPolicySpec = null;
+        }
+
+        // step required because the call <policy>.getSpecification() could return a null value
+        return syncPolicySpec == null ? new SyncPolicySpec() : syncPolicySpec;
     }
 }

@@ -956,7 +956,7 @@ under the License.
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         jobClassName="org.apache.syncope.core.sync.impl.PushJob" unmatchingRule="ASSIGN" matchingRule="UNLINK" 
         userFilter="username==_NO_ONE_" roleFilter="name==citizen"/>
-  <Task DTYPE="SyncTask" id="24" name="CSV Task 2" resource_name="resource-csv"
+  <Task DTYPE="SyncTask" id="24" name="CSV Task (update matching; provision unmatching)" resource_name="resource-csv"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
         jobClassName="org.apache.syncope.core.sync.impl.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"
         userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"id":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"attributes":[{"schema":"firstname","readonly":false,"values":[""]},{"schema":"userId","readonly":false,"values":["&apos;test&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;test&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;test&apos;"]}],"derivedAttributes":[],"virtualAttributes":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[]}'

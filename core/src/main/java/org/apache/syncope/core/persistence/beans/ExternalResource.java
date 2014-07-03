@@ -145,9 +145,6 @@ public class ExternalResource extends AbstractSysInfo {
     @ManyToOne(fetch = FetchType.EAGER, optional = true)
     private SyncPolicy syncPolicy;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = true)
-    private PushPolicy pushPolicy;
-
     /**
      * Configuration properties that are overridden from the connector instance.
      */
@@ -320,19 +317,11 @@ public class ExternalResource extends AbstractSysInfo {
         this.syncPolicy = syncPolicy;
     }
 
-    public PushPolicy getPushPolicy() {
-        return pushPolicy;
-    }
-
-    public void setPushPolicy(final PushPolicy pushPolicy) {
-        this.pushPolicy = pushPolicy;
-    }
-
     public Set<ConnConfProperty> getConnInstanceConfiguration() {
         return StringUtils.isBlank(xmlConfiguration)
                 ? Collections.<ConnConfProperty>emptySet()
                 : new HashSet<ConnConfProperty>(
-                        Arrays.asList(POJOHelper.deserialize(xmlConfiguration, ConnConfProperty[].class)));
+                Arrays.asList(POJOHelper.deserialize(xmlConfiguration, ConnConfProperty[].class)));
     }
 
     public void setConnInstanceConfiguration(final Set<ConnConfProperty> properties) {
@@ -370,5 +359,4 @@ public class ExternalResource extends AbstractSysInfo {
     public List<String> getPropagationActionsClassNames() {
         return propagationActionsClassNames;
     }
-
 }

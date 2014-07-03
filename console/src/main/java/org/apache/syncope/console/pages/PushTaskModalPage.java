@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
-import java.util.Arrays;
+import java.util.List;
 import org.apache.syncope.common.to.PushTaskTO;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.types.MatchingRule;
@@ -27,7 +27,6 @@ import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.RoleSearchPanel;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -35,7 +34,6 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 
 /**
  * Modal window with Push Task form.
@@ -51,6 +49,11 @@ public class PushTaskModalPage extends AbstractSyncTaskModalPage {
     private final AjaxCheckBoxPanel checkUserFilter;
 
     private final AjaxCheckBoxPanel checkRoleFilter;
+
+    @Override
+    protected List<String> getSyncActions() {
+        return taskRestClient.getPushActionsClasses();
+    }
 
     public PushTaskModalPage(final ModalWindow window, final PushTaskTO taskTO, final PageReference pageRef) {
 
@@ -79,14 +82,12 @@ public class PushTaskModalPage extends AbstractSyncTaskModalPage {
                 new Model<Boolean>(taskTO.getRoleFilter() != null));
         filterContainer.add(checkRoleFilter);
 
-        userFilter =
-                new UserSearchPanel.Builder("userFilter").fiql(taskTO.getUserFilter()).build();
+        userFilter = new UserSearchPanel.Builder("userFilter").fiql(taskTO.getUserFilter()).build();
         userFilter.setEnabled(checkUserFilter.getModelObject());
 
         filterContainer.add(userFilter);
 
-        roleFilter =
-                new RoleSearchPanel.Builder("roleFilter").fiql(taskTO.getRoleFilter()).build();
+        roleFilter = new RoleSearchPanel.Builder("roleFilter").fiql(taskTO.getRoleFilter()).build();
         roleFilter.setEnabled(checkRoleFilter.getModelObject());
         filterContainer.add(roleFilter);
 
@@ -127,13 +128,8 @@ public class PushTaskModalPage extends AbstractSyncTaskModalPage {
 
     private void setFilters(final PushTaskTO pushTaskTO) {
         // set user filter if enabled
-        pushTaskTO.setUserFilter(checkUserFilter.getModelObject()
-                ? userFilter.buildFIQL()
-                : null);
+        pushTaskTO.setUserFilter(checkUserFilter.getModelObject() ? userFilter.buildFIQL() : null);
         // set role filter if enabled
-        pushTaskTO.setRoleFilter(checkRoleFilter.getModelObject()
-                ? roleFilter.buildFIQL()
-                : null);
+        pushTaskTO.setRoleFilter(checkRoleFilter.getModelObject() ? roleFilter.buildFIQL() : null);
     }
-
 }

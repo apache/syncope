@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.pages;
 
+import java.util.List;
 import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.types.MatchingRule;
@@ -54,6 +55,11 @@ public class SyncTaskModalPage extends AbstractSyncTaskModalPage {
         final AjaxCheckBoxPanel fullReconciliation = new AjaxCheckBoxPanel("fullReconciliation",
                 getString("fullReconciliation"), new PropertyModel<Boolean>(taskTO, "fullReconciliation"));
         profile.add(fullReconciliation);
+    }
+
+    @Override
+    protected List<String> getSyncActions() {
+        return taskRestClient.getSyncActionsClasses();
     }
 
     @Override
