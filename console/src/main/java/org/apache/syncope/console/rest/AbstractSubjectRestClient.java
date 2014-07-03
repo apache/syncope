@@ -42,5 +42,5 @@ public abstract class AbstractSubjectRestClient extends BaseRestClient {
 
     public abstract AbstractAttributableTO delete(String etag, Long id);
 
-    public abstract void bulkAction(BulkAction action);
+    public abstract BulkActionResult bulkAction(BulkAction action);
 }

@@ -130,8 +130,8 @@ public class UserRestClient extends AbstractSubjectRestClient {
     }
 
     @Override
-    public void bulkAction(final BulkAction action) {
-        getService(UserService.class).bulk(action);
+    public BulkActionResult bulkAction(final BulkAction action) {
+        return getService(UserService.class).bulk(action);
     }
 
     public void unlink(final String etag, final long userId, final List<StatusBean> statuses) {
