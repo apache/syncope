@@ -1221,7 +1221,6 @@ public class TaskTestITCase extends AbstractTest {
         // 4. Check that the LDAP resource has the old password
         ConnObjectTO connObject =
                 resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, user.getId());
-
         assertNotNull(getLdapRemoteObject(
                 connObject.getAttrMap().get(Name.NAME).getValues().get(0),
                 "security",

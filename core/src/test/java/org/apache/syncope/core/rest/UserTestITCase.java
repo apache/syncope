@@ -237,15 +237,9 @@ public class UserTestITCase extends AbstractTest {
         // BUT not primary: must succeed
         userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.setPassword("newPassword");
-        userMod.getResourcesToAdd().add("resource-db");
-
-        try {
-            updateUser(userMod);
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSyncopeUser, e.getType());
-        }
+        userMod.setPassword("newPassword123456");
+        userMod.getResourcesToAdd().add(RESOURCE_NAME_CSV);
+        updateUser(userMod);
     }
 
     @Test

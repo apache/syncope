@@ -37,7 +37,7 @@ objectClass: organizationalPerson
 objectClass: person
 objectClass: inetOrgPerson
 objectClass: top
-cn: Sync from LDAP
+cn: syncFromLDAP
 description: Active
 mail: syncFromLDAP@syncope.apache.org
 sn: Surname
