@@ -34,6 +34,8 @@ public class ContainerProcess extends AbstractProcess {
 
     private String installPath;
 
+    private String mavenDir;
+
     private String artifactId;
 
     private String tomcatUser;
@@ -69,23 +71,24 @@ public class ContainerProcess extends AbstractProcess {
     public void run(final AbstractUIProcessHandler handler, final String[] args) {
 
         installPath = args[0];
-        artifactId = args[1];
-        final Containers selectedContainer = Containers.fromContainerName(args[2]);
-        tomcatSsl = Boolean.valueOf(args[3]);
-        tomcatHost = args[4];
-        tomcatPort = args[5];
-        tomcatUser = args[6];
-        tomcatPassword = args[7];
-        glassfishDir = args[8];
-        logsDirectory = args[9];
-        bundlesDirectory = args[10];
-        withDataSource = Boolean.valueOf(args[11]);
-        jbossSsl = Boolean.valueOf(args[12]);
-        jbossHost = args[13];
-        jbossPort = args[14];
-        jbossJdbcModuleName = args[15];
-        jbossAdminUsername = args[16];
-        jbossAdminPassword = args[17];
+        mavenDir = args[1];
+        artifactId = args[2];
+        final Containers selectedContainer = Containers.fromContainerName(args[3]);
+        tomcatSsl = Boolean.valueOf(args[4]);
+        tomcatHost = args[5];
+        tomcatPort = args[6];
+        tomcatUser = args[7];
+        tomcatPassword = args[8];
+        glassfishDir = args[9];
+        logsDirectory = args[10];
+        bundlesDirectory = args[11];
+        withDataSource = Boolean.valueOf(args[12]);
+        jbossSsl = Boolean.valueOf(args[13]);
+        jbossHost = args[14];
+        jbossPort = args[15];
+        jbossJdbcModuleName = args[16];
+        jbossAdminUsername = args[17];
+        jbossAdminPassword = args[18];
 
         if (withDataSource) {
             writeToFile(new File(installPath + "/" + artifactId + WebXml.PATH), WebXml.withDataSource());
@@ -105,7 +108,8 @@ public class ContainerProcess extends AbstractProcess {
         }
 
         exec(String.format(
-                Commands.compileCommand, logsDirectory, bundlesDirectory), handler, installPath + "/" + artifactId);
+                Commands.compileCommand, mavenDir, logsDirectory, bundlesDirectory),
+                handler, installPath + "/" + artifactId);
 
         switch (selectedContainer) {
             case TOMCAT:

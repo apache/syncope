@@ -28,21 +28,22 @@ public class ArchetypeProcess extends AbstractProcess {
     public void run(final AbstractUIProcessHandler handler, final String[] args) {
 
         final String installPath = args[0];
-        final String groupId = args[1];
-        final String artifactId = args[2];
-        final String secretKey = args[3];
-        final String anonymousKey = args[4];
-        final String logsDirectory = args[5];
-        final String bundlesDirectory = args[6];
-        final String syncopeVersion = args[7];
-        final String syncopeAdminPassword = args[8];
+        final String mavenDir = args[1];
+        final String groupId = args[2];
+        final String artifactId = args[3];
+        final String secretKey = args[4];
+        final String anonymousKey = args[5];
+        final String logsDirectory = args[6];
+        final String bundlesDirectory = args[7];
+        final String syncopeVersion = args[8];
+        final String syncopeAdminPassword = args[9];
 
         if (!new File(installPath).exists()) {
             exec(String.format(Commands.createDirectory, installPath), handler, null);
         }
 
         exec(String.format(Commands.createArchetypeCommand,
-                syncopeVersion, groupId, artifactId, secretKey, anonymousKey), handler, installPath);
+                mavenDir, syncopeVersion, groupId, artifactId, secretKey, anonymousKey), handler, installPath);
         writeToFile(new File(installPath + "/" + artifactId + Pom.PATH), Pom.FILE);
 
         exec(String.format(Commands.createDirectory, logsDirectory), handler, null);
@@ -50,7 +51,8 @@ public class ArchetypeProcess extends AbstractProcess {
         exec(String.format(Commands.createDirectory, bundlesDirectory), handler, null);
 
         exec(String.format(
-                Commands.compileCommand, logsDirectory, bundlesDirectory), handler, installPath + "/" + artifactId);
+                Commands.compileCommand, mavenDir, logsDirectory, bundlesDirectory),
+                handler, installPath + "/" + artifactId);
     }
 
 }

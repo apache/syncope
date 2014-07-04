@@ -22,6 +22,7 @@ under the License.
   <job name="Archetype creation...">
     <executeclass name="org.apache.syncope.installer.processes.ArchetypeProcess">
       <arg>$INSTALL_PATH</arg>
+      <arg>$mvn.directory</arg>
       <arg>$mvn.groupid</arg>
       <arg>$mvn.artifactid</arg>
       <arg>$mvn.secretkey</arg>
@@ -47,23 +48,24 @@ under the License.
   <job name="Deploy...">
     <executeclass name="org.apache.syncope.installer.processes.ContainerProcess">
       <arg>$INSTALL_PATH</arg><!-- 0 -->
-      <arg>$mvn.artifactid</arg><!-- 1 -->
-      <arg>$install.container.selection</arg><!-- 2 -->
-      <arg>$tomcat.container.ssl</arg><!-- 3 -->
-      <arg>$tomcat.container.host</arg><!-- 4 -->
-      <arg>$tomcat.container.port</arg><!-- 5 -->
-      <arg>$tomcat.container.user</arg><!-- 6 -->
-      <arg>$tomcat.container.pwd</arg><!-- 7 -->
-      <arg>$glassfish.container.dir</arg><!-- 8 -->
-      <arg>$mvn.log.directory</arg><!-- 9 -->
-      <arg>$mvn.bundle.directory</arg><!-- 10 -->
-      <arg>$with.datasuorce</arg><!-- 11 -->
-      <arg>$jboss.container.ssl</arg><!-- 12 -->
-      <arg>$jboss.container.host</arg><!-- 13 -->
-      <arg>$jboss.container.port</arg><!-- 14 -->
-      <arg>$jboss.container.jdbc.module</arg><!-- 15 -->
-      <arg>$jboss.container.user</arg><!-- 16 -->
-      <arg>$jboss.container.pwd</arg><!-- 17 -->
+      <arg>$mvn.directory</arg><!-- 1 -->
+      <arg>$mvn.artifactid</arg><!-- 2 -->
+      <arg>$install.container.selection</arg><!-- 3 -->
+      <arg>$tomcat.container.ssl</arg><!-- 4 -->
+      <arg>$tomcat.container.host</arg><!-- 5 -->
+      <arg>$tomcat.container.port</arg><!-- 6 -->
+      <arg>$tomcat.container.user</arg><!-- 7 -->
+      <arg>$tomcat.container.pwd</arg><!-- 8 -->
+      <arg>$glassfish.container.dir</arg><!-- 9 -->
+      <arg>$mvn.log.directory</arg><!-- 10 -->
+      <arg>$mvn.bundle.directory</arg><!-- 11 -->
+      <arg>$with.datasuorce</arg><!-- 12 -->
+      <arg>$jboss.container.ssl</arg><!-- 13 -->
+      <arg>$jboss.container.host</arg><!-- 14 -->
+      <arg>$jboss.container.port</arg><!-- 15 -->
+      <arg>$jboss.container.jdbc.module</arg><!-- 16 -->
+      <arg>$jboss.container.user</arg><!-- 17 -->
+      <arg>$jboss.container.pwd</arg><!-- 18 -->
     </executeclass>
   </job>
   <onFail previous="true" next="false" />

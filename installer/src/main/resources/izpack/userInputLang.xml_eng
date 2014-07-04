@@ -17,7 +17,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<langpack>
+<langpack>+
+  <str id="mvn.directory.id" txt="Maven home directory:"/>
   <str id="archetype.mvn.groupid" txt="GroupId:"/>
   <str id="archetype.mvn.artifactid" txt="ArtifactId:"/>
   <str id="archetype.mvn.secretkey" txt="SecretKey:"/>

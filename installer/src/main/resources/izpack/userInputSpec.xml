@@ -24,6 +24,10 @@ under the License.
     <field type="divider"/>
     <field type="space"/>
     
+    <field type="dir" variable="mvn.directory">
+      <spec id="mvn.directory.id" size="20" set=""/>
+    </field>
+    <field type="space"/>
     <field type="text" variable="mvn.groupid">
       <spec id="archetype.mvn.groupid" size="20" set="net.tirasa"/>
     </field>
@@ -139,7 +143,7 @@ under the License.
     <field type="space"/>
     
     <field type="check" variable="tomcat.container.ssl" conditionid="tomcat.choice">
-      <spec id="tomcat.container.ssl.id" true="true" false="false" set="true"/>
+      <spec id="tomcat.container.ssl.id" true="true" false="false" set="false"/>
     </field>
     <field type="space"/>
     <field type="text" variable="tomcat.container.host" conditionid="tomcat.choice">
@@ -163,7 +167,7 @@ under the License.
     </field>
     
     <field type="check" variable="jboss.container.ssl" conditionid="jboss.choice">
-      <spec id="jboss.container.ssl.id" true="true" false="false" set="true"/>
+      <spec id="jboss.container.ssl.id" true="true" false="false" set="false"/>
     </field>
     <field type="space"/>
     <field type="text" variable="jboss.container.host" conditionid="jboss.choice">
