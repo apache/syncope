@@ -20,6 +20,7 @@ package org.apache.syncope.installer.containers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import org.apache.syncope.installer.utilities.Commands;
 import org.apache.syncope.installer.utilities.HttpUtils;
 
 public class Tomcat {
@@ -42,19 +43,16 @@ public class Tomcat {
 
     private final HttpUtils httpUtils;
 
-    private final boolean isWin;
-
     public Tomcat(final boolean tomcatSsl, final String tomcatHost, final String tomcatPort,
             final String installPath, final String artifactId, final String tomcatUser, final String tomcatPassword) {
         this.installPath = installPath;
         this.artifactId = artifactId;
-        isWin = System.getProperty("os.name").toLowerCase().contains("win");
         httpUtils = new HttpUtils(tomcatSsl, tomcatHost, tomcatPort, tomcatUser, tomcatPassword);
     }
 
     public boolean deployCore() {
         int status;
-        if (isWin) {
+        if (Commands.IS_WIN) {
             status = httpUtils.getWithBasicAuth(pathEncoded(WIN_DEPLOY_SYNCOPE_CORE_QUERY));
         } else {
             status = httpUtils.getWithBasicAuth(path(UNIX_DEPLOY_SYNCOPE_CORE_QUERY));
@@ -65,7 +63,7 @@ public class Tomcat {
 
     public boolean deployConsole() {
         int status;
-        if (isWin) {
+        if (Commands.IS_WIN) {
             status = httpUtils.getWithBasicAuth(pathEncoded(WIN_DEPLOY_SYNCOPE_CONSOLE_QUERY));
         } else {
             status = httpUtils.getWithBasicAuth(path(UNIX_DEPLOY_SYNCOPE_CONSOLE_QUERY));

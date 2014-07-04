@@ -69,7 +69,7 @@ under the License.
     <variable name="WELCOME_TEXT" value="Apache Syncope Installer"/>
     <variable name="WELCOME_VERSION" value="${appversion}"/>
     <variable name="TargetPanel.dir.unix" value="/tmp/syncope"/>
-    <variable name="TargetPanel.dir.windows" value="c:\\syncope"/>
+    <variable name="TargetPanel.dir.windows" value="C:\Program Files"/>
   </variables>
   
   <dynamicvariables>

@@ -31,12 +31,11 @@ public abstract class AbstractProcess {
 
     protected void exec(final String cmd, final AbstractUIProcessHandler handler, final String path) {
         try {
-            final Process process;
-            if (path == null || path.isEmpty()) {
-                process = Runtime.getRuntime().exec(cmd);
-            } else {
-                process = Runtime.getRuntime().exec(cmd, null, new File(path));
+            final ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
+            if (path != null && !path.isEmpty()) {
+                builder.directory(new File(path));
             }
+            final Process process = builder.start();
             readResponse(process.getInputStream(), handler);
         } catch (IOException ex) {
         }

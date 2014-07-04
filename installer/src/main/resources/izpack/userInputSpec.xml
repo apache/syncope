@@ -44,12 +44,12 @@ under the License.
       <spec id="mvn.anonymous.key.id" size="20" set="123456789asdfghj"/>
     </field>
     <field type="space"/>
-    <field type="text" variable="mvn.log.directory">
-      <spec id="archetype.mvn.log.directory" size="20" set="${TargetPanel.dir.unix}/log"/>
+    <field type="dir" variable="mvn.log.directory">
+      <spec id="archetype.mvn.log.directory" size="20" set=""/>
     </field>
     <field type="space"/>
-    <field type="text" variable="mvn.bundle.directory">
-      <spec id="archetype.mvn.bundle.directory" size="20" set="${TargetPanel.dir.unix}/bundles"/>
+    <field type="dir" variable="mvn.bundle.directory">
+      <spec id="archetype.mvn.bundle.directory" size="20" set=""/>
     </field>
     <field type="space"/>
     <field type="text" variable="mvn.syncope.version">

@@ -39,19 +39,17 @@ public class ArchetypeProcess extends AbstractProcess {
         final String syncopeAdminPassword = args[9];
 
         if (!new File(installPath).exists()) {
-            exec(String.format(Commands.createDirectory, installPath), handler, null);
+            exec(Commands.createDirectory(installPath), handler, null);
         }
-
-        exec(String.format(Commands.createArchetypeCommand,
-                mavenDir, syncopeVersion, groupId, artifactId, secretKey, anonymousKey), handler, installPath);
+        exec(Commands.createArchetype(mavenDir, syncopeVersion, groupId, artifactId, secretKey, anonymousKey),
+                handler, installPath);
         writeToFile(new File(installPath + "/" + artifactId + Pom.PATH), Pom.FILE);
 
-        exec(String.format(Commands.createDirectory, logsDirectory), handler, null);
+        exec(Commands.createDirectory(logsDirectory), handler, null);
 
-        exec(String.format(Commands.createDirectory, bundlesDirectory), handler, null);
+        exec(Commands.createDirectory(bundlesDirectory), handler, null);
 
-        exec(String.format(
-                Commands.compileCommand, mavenDir, logsDirectory, bundlesDirectory),
+        exec(Commands.compileArchetype(mavenDir, logsDirectory, bundlesDirectory),
                 handler, installPath + "/" + artifactId);
     }
 

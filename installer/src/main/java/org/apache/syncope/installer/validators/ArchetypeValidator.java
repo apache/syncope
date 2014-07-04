@@ -19,6 +19,7 @@
 package org.apache.syncope.installer.validators;
 
 import com.izforge.izpack.api.data.InstallData;
+import java.io.File;
 
 public class ArchetypeValidator extends AbstractValidator {
 
@@ -27,6 +28,7 @@ public class ArchetypeValidator extends AbstractValidator {
     @Override
     public Status validateData(final InstallData installData) {
 
+        final String mavenDir = installData.getVariable("mvn.directory");
         final String mavenGroupId = installData.getVariable("mvn.groupid");
         final String mavenArtifactId = installData.getVariable("mvn.artifactid");
         final String mavenSecretKey = installData.getVariable("mvn.secretkey");
@@ -36,6 +38,13 @@ public class ArchetypeValidator extends AbstractValidator {
 
         boolean verified = true;
         error = new StringBuilder("Required fields:\n");
+        if (isEmpty(mavenDir)) {
+            error.append("Maven home directory\n");
+            verified = false;
+        } else if (!new File(mavenDir + "/bin/mvn").exists()){
+            error.append("Maven home directory not valid, check it please...\n");
+            verified = false;
+        }
         if (isEmpty(mavenGroupId)) {
             error.append("GroupID\n");
             verified = false;

@@ -107,8 +107,7 @@ public class ContainerProcess extends AbstractProcess {
             }
         }
 
-        exec(String.format(
-                Commands.compileCommand, mavenDir, logsDirectory, bundlesDirectory),
+        exec(Commands.compileArchetype(mavenDir, logsDirectory, bundlesDirectory),
                 handler, installPath + "/" + artifactId);
 
         switch (selectedContainer) {

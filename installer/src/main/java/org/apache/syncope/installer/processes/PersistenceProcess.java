@@ -89,7 +89,7 @@ public class PersistenceProcess extends AbstractProcess {
     }
 
     private void writeOrmFile(final AbstractUIProcessHandler handler, final String content) {
-        exec(String.format(Commands.createDirectory, installPath + "/" + artifactId + OrmXml.PATH_DIR), handler, null);
+        exec(Commands.createDirectory(installPath + "/" + artifactId + OrmXml.PATH_DIR), handler, null);
         final File orm = new File(installPath + "/" + artifactId + OrmXml.PATH_COMPLETE);
         writeToFile(orm, content);
     }
