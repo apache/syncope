@@ -174,12 +174,12 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     	if (user != null) {
     		boolean userModified = false;
     		
-    		if (Boolean.valueOf(confDAO.find("log.lastlogindate", Boolean.toString(true)).getValue())) {
-    			user.setLastLoginDate(new Date());
-    			userModified = true;
-    		}
-    		
     		if (authenticated) {
+    			if (Boolean.valueOf(confDAO.find("log.lastlogindate", Boolean.toString(true)).getValue())) {
+        			user.setLastLoginDate(new Date());
+        			userModified = true;
+        		}
+    			
     			if (user.getFailedLogins() != 0) {
     				user.setFailedLogins(0);
     				userModified = true;
