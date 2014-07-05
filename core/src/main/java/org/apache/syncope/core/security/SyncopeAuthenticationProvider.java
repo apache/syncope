@@ -123,6 +123,8 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             }
         }
 
+        updateLoginAttributes(user, authenticated);
+        
         UsernamePasswordAuthenticationToken token;
 
         if (authenticated) {
@@ -147,17 +149,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             LOG.debug("User {} successfully authenticated, with roles {}",
                     authentication.getPrincipal(), token.getAuthorities());
 
-            if (user != null && Boolean.valueOf(confDAO.find("log.lastlogindate", Boolean.toString(true)).getValue())) {
-                user.setLastLoginDate(new Date());
-                user.setFailedLogins(0);
-                userDAO.save(user);
-            }
         } else {
-            if (user != null) {
-                user.setFailedLogins(user.getFailedLogins() + 1);
-                userDAO.save(user);
-            }
-
             auditManager.audit(
                     AuditElements.EventCategoryType.REST,
                     "AuthenticationController",
@@ -175,6 +167,32 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         }
 
         return token;
+    }
+    
+    private void updateLoginAttributes(SyncopeUser user, boolean authenticated) {
+    	
+    	if (user != null) {
+    		boolean userModified = false;
+    		
+    		if (Boolean.valueOf(confDAO.find("log.lastlogindate", Boolean.toString(true)).getValue())) {
+    			user.setLastLoginDate(new Date());
+    			userModified = true;
+    		}
+    		
+    		if (authenticated) {
+    			if (user.getFailedLogins() != 0) {
+    				user.setFailedLogins(0);
+    				userModified = true;
+    			}
+    		} else {
+    			user.setFailedLogins(user.getFailedLogins() + 1);
+    			userModified = true;
+    		}
+    		
+    		if (userModified) {
+    			userDAO.save(user);
+    		}
+    	}
     }
 
     protected boolean authenticate(final String password, final CipherAlgorithm cipherAlgorithm,
