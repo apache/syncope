@@ -120,13 +120,12 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                         authentication.getCredentials().toString(),
                         user.getCipherAlgorithm(),
                         user.getPassword());
+
+                updateLoginAttributes(user, authenticated);
             }
         }
 
-        updateLoginAttributes(user, authenticated);
-        
         UsernamePasswordAuthenticationToken token;
-
         if (authenticated) {
             token = new UsernamePasswordAuthenticationToken(
                     authentication.getPrincipal(),
@@ -148,7 +147,6 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
             LOG.debug("User {} successfully authenticated, with roles {}",
                     authentication.getPrincipal(), token.getAuthorities());
-
         } else {
             auditManager.audit(
                     AuditElements.EventCategoryType.REST,
@@ -168,31 +166,28 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
         return token;
     }
-    
+
     private void updateLoginAttributes(SyncopeUser user, boolean authenticated) {
-    	
-    	if (user != null) {
-    		boolean userModified = false;
-    		
-    		if (authenticated) {
-    			if (Boolean.valueOf(confDAO.find("log.lastlogindate", Boolean.toString(true)).getValue())) {
-        			user.setLastLoginDate(new Date());
-        			userModified = true;
-        		}
-    			
-    			if (user.getFailedLogins() != 0) {
-    				user.setFailedLogins(0);
-    				userModified = true;
-    			}
-    		} else {
-    			user.setFailedLogins(user.getFailedLogins() + 1);
-    			userModified = true;
-    		}
-    		
-    		if (userModified) {
-    			userDAO.save(user);
-    		}
-    	}
+        boolean userModified = false;
+
+        if (authenticated) {
+            if (Boolean.valueOf(confDAO.find("log.lastlogindate", Boolean.toString(true)).getValue())) {
+                user.setLastLoginDate(new Date());
+                userModified = true;
+            }
+
+            if (user.getFailedLogins() != 0) {
+                user.setFailedLogins(0);
+                userModified = true;
+            }
+        } else {
+            user.setFailedLogins(user.getFailedLogins() + 1);
+            userModified = true;
+        }
+
+        if (userModified) {
+            userDAO.save(user);
+        }
     }
 
     protected boolean authenticate(final String password, final CipherAlgorithm cipherAlgorithm,
