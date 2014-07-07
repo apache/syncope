@@ -18,14 +18,11 @@
  */
 package org.apache.syncope.installer.containers.jboss;
 
+import org.apache.syncope.installer.containers.AbstractContainer;
 import org.apache.syncope.installer.utilities.HttpUtils;
 import org.apache.syncope.installer.utilities.JsonUtils;
 
-public class JBoss {
-
-    private final String core = "%s/%s/core/target/syncope.war";
-
-    private final String console = "%s/%s/console/target/syncope-console.war";
+public class JBoss extends AbstractContainer {
 
     private final String addContentUrl = "http://%s:%s/management/add-content";
 
@@ -56,11 +53,11 @@ public class JBoss {
     }
 
     public boolean deployCore() {
-        return deploy(core, "syncope.war");
+        return deploy(CORE_RELATIVE_PATH, "syncope.war");
     }
 
     public boolean deployConsole() {
-        return deploy(console, "syncope-console.war");
+        return deploy(CONSOLE_RELATIVE_PATH, "syncope-console.war");
     }
 
     public boolean deploy(final String whatDeploy, final String warName) {

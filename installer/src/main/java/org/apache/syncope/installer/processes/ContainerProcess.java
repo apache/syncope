@@ -149,10 +149,11 @@ public class ContainerProcess extends AbstractProcess {
             case GLASSFISH:
                 final String createJavaOptCommand = "sh " + glassfishDir + Glassfish.CREATE_JAVA_OPT_COMMAND;
                 exec(createJavaOptCommand, handler, null);
-                exec("sh " + glassfishDir + Glassfish.DEPLOY_COMMAND
-                        + String.format(Glassfish.deploySyncopeCore, installPath, artifactId), handler, null);
-                exec("sh " + glassfishDir + Glassfish.DEPLOY_COMMAND
-                        + String.format(Glassfish.deploySyncopeConsole, installPath, artifactId), handler, null);
+
+                final Glassfish glassfish = new Glassfish(installPath, artifactId);
+
+                exec("sh " + glassfishDir + Glassfish.DEPLOY_COMMAND + glassfish.deployCore(), handler, null);
+                exec("sh " + glassfishDir + Glassfish.DEPLOY_COMMAND + glassfish.deployConsole(), handler, null);
                 break;
         }
     }
