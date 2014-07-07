@@ -183,7 +183,7 @@ under the License.
                   <namespacePrefix>syncope</namespacePrefix>
                   <addResourceAndMethodIds>true</addResourceAndMethodIds>
                   <linkAnyMediaTypeToXmlSchema>true</linkAnyMediaTypeToXmlSchema>
-                  <classResourceNames/>
+                  <classResourceNames />
                   <basePackages>org.apache.syncope.common.services</basePackages>
                   <docProvider>org.apache.cxf.maven_plugin.javatowadl.ResourceMapJavaDocProvider</docProvider>
                   <attachWadl>true</attachWadl>
