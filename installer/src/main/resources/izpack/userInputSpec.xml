@@ -53,7 +53,7 @@ under the License.
     </field>
     <field type="space"/>
     <field type="text" variable="mvn.syncope.version">
-      <spec id="mvn.syncope.version.id" size="20" set="1.2.0-SNAPSHOT"/>
+      <spec id="mvn.syncope.version.id" size="20" set="${syncope.version}"/>
     </field>
     <!--    <field type="space"/>
     <field type="password" variable="mvn.syncope.admin.password">

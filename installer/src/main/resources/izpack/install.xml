@@ -24,7 +24,6 @@ under the License.
                      http://izpack.org/schema/5.0/izpack-installation-5.0.xsd">
   <properties>
     <property name="info.appName" value="Apache Syncope"/>
-    <property name="info.appVersion" value="@{project.version}"/>
     <property name="info.url" value="http://syncope.apache.org"/>
     <property name="info.company.name" value="Tirasa S.r.l."/>
     <property name="info.company.email" value="info@tirasa.net"/>
@@ -118,7 +117,7 @@ under the License.
   </conditions>
   
   <resources>
-    <res id="installer.jar" src="../syncope-installer-1.2.0-SNAPSHOT.jar"/>
+    <res id="installer.jar" src="../syncope-installer-@{syncope.version}.jar"/>
     
     <res id="Installer.image" src="img/apache-syncope-vert.png" />
     
@@ -132,7 +131,7 @@ under the License.
     <res id="ProcessPanel.Spec.xml" src="ProcessPanel.Spec.xml"/>
   </resources>
   
-  <jar src="../syncope-installer-1.2.0-SNAPSHOT.jar" stage="install"/>
+  <jar src="../syncope-installer-@{syncope.version}.jar" stage="install"/>
   <jar src="lib/commons-logging-1.1.3.jar"/>
   <jar src="lib/commons-codec-1.9.jar"/>
   <jar src="lib/commons-io-2.4.jar"/>

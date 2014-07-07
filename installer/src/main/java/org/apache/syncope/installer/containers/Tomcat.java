@@ -23,16 +23,16 @@ import java.net.URLEncoder;
 import org.apache.syncope.installer.utilities.Commands;
 import org.apache.syncope.installer.utilities.HttpUtils;
 
-public class Tomcat {
+public class Tomcat extends AbstractContainer {
 
     private static final String UNIX_DEPLOY_SYNCOPE_CORE_QUERY
-            = "/manager/text/deploy?path=/syncope&war=file:%s/%s/core/target/syncope.war";
+            = "/manager/text/deploy?path=/syncope&war=file:" + CORE_RELATIVE_PATH;
 
     private static final String WIN_DEPLOY_SYNCOPE_CORE_QUERY
             = "/manager/text/deploy?path=/syncope&war=file:%s\\%s\\core\\target\\syncope.war";
 
     private static final String UNIX_DEPLOY_SYNCOPE_CONSOLE_QUERY
-            = "/manager/text/deploy?path=/syncope-console&war=file:%s/%s/console/target/syncope-console.war";
+            = "/manager/text/deploy?path=/syncope-console&war=file:" + CONSOLE_RELATIVE_PATH;
 
     private static final String WIN_DEPLOY_SYNCOPE_CONSOLE_QUERY
             = "/manager/text/deploy?path=/syncope-console&war=file:%s\\%s\\console\\target\\syncope-console.war";

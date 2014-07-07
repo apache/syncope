@@ -18,32 +18,10 @@
  */
 package org.apache.syncope.installer.containers;
 
-public class Glassfish extends AbstractContainer {
+public abstract class AbstractContainer {
 
-    private final String installPath;
+    protected static final String CORE_RELATIVE_PATH = "%s/%s/core/target/syncope.war";
 
-    private final String artifactId;
-
-    public Glassfish(final String installPath, final String artifactId) {
-        this.installPath = installPath;
-        this.artifactId = artifactId;
-    }
-
-    public String deployCore() {
-        return deploy(CORE_RELATIVE_PATH);
-    }
-
-    public String deployConsole() {
-        return deploy(CONSOLE_RELATIVE_PATH);
-    }
-
-    public String deploy(final String what) {
-        return String.format(what, installPath, artifactId);
-    }
-
-    public static final String CREATE_JAVA_OPT_COMMAND = "/bin/asadmin create-jvm-options"
-            + "-Dcom.sun.enterprise.overrideablejavaxpackages=javax.ws.rs,javax.ws.rs.core,javax.ws.rs.ext";
-
-    public static final String DEPLOY_COMMAND = "/bin/asadmin deploy ";
+    protected static final String CONSOLE_RELATIVE_PATH = "%s/%s/console/target/syncope-console.war";
 
 }

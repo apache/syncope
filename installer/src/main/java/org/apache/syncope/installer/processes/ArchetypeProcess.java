@@ -43,7 +43,8 @@ public class ArchetypeProcess extends AbstractProcess {
         }
         exec(Commands.createArchetype(mavenDir, syncopeVersion, groupId, artifactId, secretKey, anonymousKey),
                 handler, installPath);
-        writeToFile(new File(installPath + "/" + artifactId + Pom.PATH), Pom.FILE);
+        writeToFile(new File(installPath + "/" + artifactId + Pom.PATH),
+                String.format(Pom.FILE, syncopeVersion, syncopeVersion));
 
         exec(Commands.createDirectory(logsDirectory), handler, null);
 
