@@ -22,9 +22,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
-
 import javax.annotation.Resource;
-
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
@@ -144,18 +142,17 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                 }
 
                 CAttr authStatuses = confDAO.find("authentication.statuses");
-                if (authStatuses != null) {
-                    if (!authStatuses.getValuesAsStrings().contains(user.getStatus())) {
-                        throw new DisabledException("User " + user.getUsername() + " not allowed to authenticate");
-                    }
+                if (authStatuses != null && !authStatuses.getValuesAsStrings().contains(user.getStatus())) {
+                    throw new DisabledException("User " + user.getUsername() + " not allowed to authenticate");
                 }
 
                 authenticated = authenticate(user, authentication.getCredentials().toString());
+
+                updateLoginAttributes(user, authenticated);
             }
         }
 
         UsernamePasswordAuthenticationToken token;
-
         if (authenticated) {
             token = new UsernamePasswordAuthenticationToken(
                     authentication.getPrincipal(),
@@ -177,20 +174,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
             LOG.debug("User {} successfully authenticated, with roles {}",
                     authentication.getPrincipal(), token.getAuthorities());
-
-            if (user != null && confDAO.find("log.lastlogindate", Boolean.toString(true)).
-                    getValues().get(0).getBooleanValue()) {
-
-                user.setLastLoginDate(new Date());
-                user.setFailedLogins(0);
-                userDAO.save(user);
-            }
         } else {
-            if (user != null) {
-                user.setFailedLogins(user.getFailedLogins() + 1);
-                userDAO.save(user);
-            }
-
             auditManager.audit(
                     AuditElements.EventCategoryType.REST,
                     "AuthenticationController",
@@ -208,6 +192,29 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         }
 
         return token;
+    }
+
+    private void updateLoginAttributes(SyncopeUser user, boolean authenticated) {
+        boolean userModified = false;
+
+        if (authenticated) {
+            if (confDAO.find("log.lastlogindate", Boolean.toString(true)).getValues().get(0).getBooleanValue()) {
+                user.setLastLoginDate(new Date());
+                userModified = true;
+            }
+
+            if (user.getFailedLogins() != 0) {
+                user.setFailedLogins(0);
+                userModified = true;
+            }
+        } else {
+            user.setFailedLogins(user.getFailedLogins() + 1);
+            userModified = true;
+        }
+
+        if (userModified) {
+            userDAO.save(user);
+        }
     }
 
     protected Set<ExternalResource> getPassthroughResources(final SyncopeUser user) {
@@ -244,7 +251,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                 result.retainAll(global.getResources());
             }
         }
-        
+
         if (result == null) {
             result = Collections.emptySet();
         }
@@ -259,7 +266,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         final AttributableUtil attrUtil = AttributableUtil.getInstance(AttributableType.USER);
         for (Iterator<ExternalResource> itor = getPassthroughResources(user).iterator();
                 itor.hasNext() && !authenticated;) {
-            
+
             ExternalResource resource = itor.next();
             String accountId = null;
             try {

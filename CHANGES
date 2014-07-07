@@ -2,10 +2,30 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.1.8
+================================================================================
+** Bug
+    * [SYNCOPE-499] - Deletion of role set as parent role in template generates exception
+    * [SYNCOPE-500] - Wrong (unwanted) derived attribute insertion addition in membership modal page
+    * [SYNCOPE-501] - Virtual attribute propagation not working when updating only virtual attributes
+    * [SYNCOPE-504] - Sync/Push actions shouldn't be executed in dryrun
+    * [SYNCOPE-509] - In Task page after change of number of rows (to display) is erroneously added a column to tasks table
+    * [SYNCOPE-512] - If there are no roles in edit user modal page is possible to create membership between root (fake) role and user
+    * [SYNCOPE-515] - Bad integration test causes role ownership conflicts
+
+** Improvement
+    * [SYNCOPE-485] - Upgrade to Activiti 5.15.1
+    * [SYNCOPE-486] - Update Selenium test configuration
+    * [SYNCOPE-507] - User login date conditional logging
+    * [SYNCOPE-511] - Enhance synchronization report information
+    * [SYNCOPE-519] - Report default values for connector properties
+    * [SYNCOPE-520] - Move reset sync token to resource actions
+
 Release Notes - Syncope - Version 1.1.7
 ================================================================================
 ** Bug
     * [SYNCOPE-484] - Reports and Content export fails over HTTPS connection
+
 ** Improvement
     * [SYNCOPE-487] - make Velocity tools available in templates for notifications
 
