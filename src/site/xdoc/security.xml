@@ -34,27 +34,59 @@ under the License.
 
       <p>If you want to report a vulnerability, please follow <a href="http://www.apache.org/security/">the procedure</a>.</p>
 
+      <subsection name="CVE-2014-3503: Insecure Random implementations used to generate passwords">	
+        <p>A password is generated for a user in Apache Syncope under certain  circumstances, when no existing password 
+          is found. However, the password generation code is relying on insecure Random implementations, which means 
+          that an attacker could attempt to guess a generated password.</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>Releases 1.1.0 to 1.1.7</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Revision <a href="http://svn.apache.org/viewvc?view=revision&amp;revision=r1596537">1596537</a></li>
+            <li>Release 1.1.8</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-3503">full CVE advisory</a>.</p>
+      </subsection>
+
       <subsection name="CVE-2014-0111: Remote code execution by an authenticated administrator">	
-	<p>In the various places in which Apache Commons JEXL expressions are allowed (derived schema definition, user / role templates, account links of resource mappings) a malicious administrator can inject Java code that can be executed remotely by the JEE container running the Apache Syncope core.</p>
+        <p>In the various places in which Apache Commons JEXL expressions are allowed (derived schema definition, 
+          user / role templates, account links of resource mappings) a malicious administrator can inject Java code 
+          that can be executed remotely by the JEE container running the Apache Syncope core.</p>
 
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>Releases 1.0.0 to 1.0.8</li>
+            <li>Releases 1.1.0 to 1.1.6</li>
+          </ul>
+        </p>
 
-	<p><b>Affects</b></p>
-	<p>
-	  <ul>
-	    <li>Releases 1.0.0 to 1.0.8</li>
-	    <li>Releases 1.1.0 to 1.1.6</li>
-	  </ul>
-	</p>
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Revisions <a href="http://svn.apache.org/viewvc?view=revision&amp;revision=r1586349">1586349</a> / <a href="http://svn.apache.org/viewvc?view=revision&amp;revision=r1586317">1586317</a></li>
+            <li>Releases 1.0.9 / 1.1.7</li>
+          </ul>
+        </p>
 
-	<p><b>Fixed in</b></p>
-	<p>
-	  <ul>
-	    <li>Revisions <a href="http://svn.apache.org/viewvc?view=revision&amp;revision=r1586349">1586349</a> / <a href="http://svn.apache.org/viewvc?view=revision&amp;revision=r1586317">1586317</a></li>
-	    <li>Releases 1.0.9 / 1.1.7</li>
-	  </ul>
-	</p>
-
-	<p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0111">full CVE advisory</a>.</p>
+        <p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0111">full CVE advisory</a>.</p>
       </subsection>
     </section>
 
