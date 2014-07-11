@@ -81,7 +81,7 @@ public class EditUserModalPage extends UserModalPage {
         final UserTO updatedUserTO = (UserTO) form.getModelObject();
 
         if (updatedUserTO.getId() == 0) {
-            userTO = userRestClient.create(updatedUserTO);
+            userTO = userRestClient.create(updatedUserTO, storePassword.getModelObject());
         } else {
             final UserMod userMod = AttributableOperations.diff(updatedUserTO, initialUserTO);
 

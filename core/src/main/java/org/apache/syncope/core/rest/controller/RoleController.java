@@ -223,7 +223,6 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
     }
 
     @PreAuthorize("hasRole('ROLE_CREATE')")
-    @Override
     public RoleTO create(final RoleTO roleTO) {
         // Check that this operation is allowed to be performed by caller
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());

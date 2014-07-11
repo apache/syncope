@@ -218,7 +218,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
     }
 
-    public void create(final SyncopeUser user, final UserTO userTO) {
+    public void create(final SyncopeUser user, final UserTO userTO, final boolean storePassword) {
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         // memberships
@@ -253,8 +253,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         fill(user, userTO, AttributableUtil.getInstance(AttributableType.USER), scce);
 
         // set password
-        if (StringUtils.isBlank(userTO.getPassword())) {
-            LOG.error("No password provided");
+        if (StringUtils.isBlank(userTO.getPassword()) || !storePassword) {
+            LOG.debug("Password was not provided or not required to be stored");
         } else {
             setPassword(user, userTO.getPassword(), scce);
         }

@@ -67,42 +67,40 @@ public class SyncopeUserValidator extends AbstractValidator<SyncopeUserCheck, Sy
         // ------------------------------
         LOG.debug("Password Policy enforcement");
 
-        if (user.getClearPassword() != null) {
-            try {
-                int maxPPSpecHistory = 0;
-                for (Policy policy : getPasswordPolicies(user)) {
-                    // evaluate policy
-                    final PasswordPolicySpec ppSpec = evaluator.evaluate(policy, user);
-                    // enforce policy
-                    ppEnforcer.enforce(ppSpec, policy.getType(), user.getClearPassword());
+        try {
+            int maxPPSpecHistory = 0;
+            for (Policy policy : getPasswordPolicies(user)) {
+                // evaluate policy
+                final PasswordPolicySpec ppSpec = evaluator.evaluate(policy, user);
+                // enforce policy
+                ppEnforcer.enforce(ppSpec, policy.getType(), user);
 
-                    if (ppSpec.getHistoryLength() > maxPPSpecHistory) {
-                        maxPPSpecHistory = ppSpec.getHistoryLength();
-                    }
+                if (ppSpec.getHistoryLength() > maxPPSpecHistory) {
+                    maxPPSpecHistory = ppSpec.getHistoryLength();
                 }
-
-                // update user's password history with encrypted password
-                if (maxPPSpecHistory > 0 && user.getPassword() != null) {
-                    user.getPasswordHistory().add(user.getPassword());
-                }
-                // keep only the last maxPPSpecHistory items in user's password history
-                if (maxPPSpecHistory < user.getPasswordHistory().size()) {
-                    for (int i = 0; i < user.getPasswordHistory().size() - maxPPSpecHistory; i++) {
-                        user.getPasswordHistory().remove(i);
-                    }
-                }
-            } catch (Exception e) {
-                LOG.debug("Invalid password");
-
-                context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidPassword, e.getMessage())).
-                        addPropertyNode("password").addConstraintViolation();
-
-                return false;
-            } finally {
-                // password has been validated, let's remove its clear version
-                user.removeClearPassword();
             }
+
+            // update user's password history with encrypted password
+            if (maxPPSpecHistory > 0 && user.getPassword() != null) {
+                user.getPasswordHistory().add(user.getPassword());
+            }
+            // keep only the last maxPPSpecHistory items in user's password history
+            if (maxPPSpecHistory < user.getPasswordHistory().size()) {
+                for (int i = 0; i < user.getPasswordHistory().size() - maxPPSpecHistory; i++) {
+                    user.getPasswordHistory().remove(i);
+                }
+            }
+        } catch (Exception e) {
+            LOG.debug("Invalid password");
+
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidPassword, e.getMessage())).
+                    addPropertyNode("password").addConstraintViolation();
+
+            return false;
+        } finally {
+            // password has been validated, let's remove its clear version
+            user.removeClearPassword();
         }
         // ------------------------------
 

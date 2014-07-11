@@ -351,8 +351,6 @@ public final class MappingUtil {
                             passwordAttrValue = passwordGenerator.generate(user);
                         } catch (InvalidPasswordPolicySpecException e) {
                             LOG.error("Could not generate policy-compliant random password for {}", user, e);
-
-                            passwordAttrValue = SecureRandomUtil.generateRandomPassword(16);
                         }
                     }
                 }

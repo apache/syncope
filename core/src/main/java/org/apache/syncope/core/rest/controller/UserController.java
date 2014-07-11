@@ -180,13 +180,12 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
     }
 
     @PreAuthorize("isAnonymous() or hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
-    public UserTO createSelf(final UserTO userTO) {
-        return doCreate(userTO);
+    public UserTO createSelf(final UserTO userTO, final boolean storePassword) {
+        return doCreate(userTO, storePassword);
     }
 
     @PreAuthorize("hasRole('USER_CREATE')")
-    @Override
-    public UserTO create(final UserTO userTO) {
+    public UserTO create(final UserTO userTO, final boolean storePassword) {
         Set<Long> requestRoleIds = new HashSet<Long>(userTO.getMemberships().size());
         for (MembershipTO membership : userTO.getMemberships()) {
             requestRoleIds.add(membership.getRoleId());
@@ -197,10 +196,10 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
             throw new UnauthorizedRoleException(requestRoleIds);
         }
 
-        return doCreate(userTO);
+        return doCreate(userTO, storePassword);
     }
 
-    protected UserTO doCreate(final UserTO userTO) {
+    protected UserTO doCreate(final UserTO userTO, final boolean storePassword) {
         // Attributable transformation (if configured)
         UserTO actual = attrTransformer.transform(userTO);
         LOG.debug("Transformed: {}", actual);
@@ -208,7 +207,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
         /*
          * Actual operations: workflow, propagation, notification
          */
-        WorkflowResult<Map.Entry<Long, Boolean>> created = uwfAdapter.create(actual);
+        WorkflowResult<Map.Entry<Long, Boolean>> created = uwfAdapter.create(actual, storePassword);
 
         List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(
                 created, actual.getPassword(), actual.getVirAttrs(), actual.getMemberships());

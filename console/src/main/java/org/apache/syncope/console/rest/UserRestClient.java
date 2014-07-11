@@ -58,8 +58,8 @@ public class UserRestClient extends AbstractSubjectRestClient {
         return getService(UserService.class).list(page, size, toOrderBy(sort)).getResult();
     }
 
-    public UserTO create(final UserTO userTO) {
-        Response response = getService(UserService.class).create(userTO);
+    public UserTO create(final UserTO userTO, final boolean storePassword) {
+        Response response = getService(UserService.class).create(userTO, storePassword);
         return response.readEntity(UserTO.class);
     }
 

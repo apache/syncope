@@ -34,10 +34,11 @@ public class Create extends AbstractActivitiServiceTask {
     @Override
     protected void doExecute(final String executionId) {
         UserTO userTO = (UserTO) runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER_TO);
-
+        Boolean storePassword = (Boolean) runtimeService.getVariable(executionId,
+                ActivitiUserWorkflowAdapter.STORE_PASSWORD);
         // create and set workflow id
         SyncopeUser user = new SyncopeUser();
-        dataBinder.create(user, userTO);
+        dataBinder.create(user, userTO, storePassword == null ? true : storePassword);
         user.setWorkflowId(executionId);
 
         // report SyncopeUser as result

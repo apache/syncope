@@ -1185,7 +1185,7 @@ public class UserTestITCase extends AbstractTest {
 
         UserTO user = getUniqueSampleTO("nocontent@syncope.apache.org");
 
-        Response response = noContentService.create(user);
+        Response response = noContentService.create(user, true);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
@@ -2129,19 +2129,10 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE435() {
-        // 1. try to create user without password - fail
+        // 1. create user without password
         UserTO userTO = getUniqueSampleTO("syncope435@syncope.apache.org");
         userTO.setPassword(null);
-
-        try {
-            createUser(userTO);
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSyncopeUser, e.getType());
-        }
-
-        userTO.setPassword("password123");
-        userTO = createUser(userTO);
+        userTO = createUser(userTO, false);
         assertNotNull(userTO);
 
         // 2. try to update user by subscribing a resource - works but propagation is not even attempted
@@ -2157,7 +2148,8 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public void ifMatch() {
-        UserTO userTO = userService.create(getUniqueSampleTO("ifmatch@syncope.apache.org")).readEntity(UserTO.class);
+        UserTO userTO = userService.create(getUniqueSampleTO("ifmatch@syncope.apache.org"), true).
+                readEntity(UserTO.class);
         assertNotNull(userTO);
         assertNotNull(userTO.getId());
 
@@ -2366,5 +2358,109 @@ public class UserTestITCase extends AbstractTest {
         resourceTO.getPropagationActionsClassNames().remove(LDAPPasswordPropagationActions.class.getName());
         resourceTO.setRandomPwdIfNotProvided(true);
         resourceService.update(RESOURCE_NAME_LDAP, resourceTO);
+    }
+
+    @Test
+    public void issueSYNCOPE391() {
+        // 1. create user on Syncope with null password
+        UserTO userTO = getUniqueSampleTO("syncope391@syncope.apache.org");
+        userTO.setPassword(null);
+
+        userTO = createUser(userTO, false);
+        assertNotNull(userTO);
+        assertNull(userTO.getPassword());
+
+        // 2. create existing user on csv and check that password on Syncope is null and that password on resource
+        // doesn't change
+        userTO = new UserTO();
+        userTO.setPassword(null);
+        userTO.setUsername("syncope391@syncope.apache.org");
+        userTO.getAttrs().add(attributeTO("fullname", "fullname"));
+        userTO.getAttrs().add(attributeTO("firstname", "nome0"));
+        userTO.getAttrs().add(attributeTO("surname", "cognome0"));
+        userTO.getAttrs().add(attributeTO("userId", "syncope391@syncope.apache.org"));
+        userTO.getAttrs().add(attributeTO("email", "syncope391@syncope.apache.org"));
+        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
+
+        userTO.getResources().add(RESOURCE_NAME_CSV);
+        userTO = createUser(userTO, false);
+        assertNotNull(userTO);
+
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, userTO.getId());
+        assertNotNull(connObjectTO);
+
+        // check if password has not changed
+        assertEquals("password0", connObjectTO.getAttrMap().
+                get(OperationalAttributes.PASSWORD_NAME).getValues().get(0));
+        assertNull(userTO.getPassword());
+
+        // 3. create user with not null password and propagate onto resource-csv, specify not to save password on
+        // Syncope local storage
+        userTO = getUniqueSampleTO("syncope391@syncope.apache.org");
+        userTO.setPassword("passwordTESTNULL");
+        userTO.getDerAttrs().clear();
+        userTO.getVirAttrs().clear();
+        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
+
+        userTO.getResources().add(RESOURCE_NAME_CSV);
+        userTO = createUser(userTO, false);
+        assertNotNull(userTO);
+
+        connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, userTO.getId());
+        assertNotNull(connObjectTO);
+
+        // check if password has been propagated and that saved userTO's password is null
+        assertEquals("passwordTESTNULL", connObjectTO.getAttrMap().
+                get(OperationalAttributes.PASSWORD_NAME).getValues().get(0));
+        assertNull(userTO.getPassword());
+
+        // 4. create user and propagate password on resource-csv and on Syncope local storage
+        userTO = getUniqueSampleTO("syncope391@syncope.apache.org");
+        userTO.setPassword("passwordTESTNULL");
+        userTO.getDerAttrs().clear();
+        userTO.getVirAttrs().clear();
+        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
+
+        userTO.getResources().add(RESOURCE_NAME_CSV);
+        // storePassword true by default
+        userTO = createUser(userTO);
+        assertNotNull(userTO);
+
+        connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, userTO.getId());
+        assertNotNull(connObjectTO);
+
+        // check if password has been correctly propagated on Syncope and resource-csv as usual
+        assertEquals("passwordTESTNULL", connObjectTO.getAttrMap().
+                get(OperationalAttributes.PASSWORD_NAME).getValues().get(0));
+        assertNotNull(userTO.getPassword());
+
+        // 4. add password policy to resource with passwordNotStore to false --> must store password
+        ResourceTO csv = resourceService.read(RESOURCE_NAME_CSV);
+        assertNotNull(csv);
+        try {
+            csv.setPasswordPolicy(4L);
+            resourceService.update(RESOURCE_NAME_CSV, csv);
+            csv = resourceService.read(RESOURCE_NAME_CSV);
+
+            userTO = getUniqueSampleTO("syncope391@syncope.apache.org");
+            userTO.setPassword(null);
+            userTO.getDerAttrs().clear();
+            userTO.getVirAttrs().clear();
+            userTO.getDerAttrs().add(attributeTO("csvuserid", null));
+
+            userTO.getResources().add(RESOURCE_NAME_CSV);
+            createUser(userTO, false);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSyncopeUser, e.getType());
+            assertTrue(e.getMessage().contains("Password must not be null and must be stored internally"));
+        } finally {
+            // resource csv with null password policy
+            csv.setPasswordPolicy(null);
+            resourceService.update(RESOURCE_NAME_CSV, csv);
+        }
     }
 }

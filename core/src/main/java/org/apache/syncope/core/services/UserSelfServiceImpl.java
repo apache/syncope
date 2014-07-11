@@ -44,14 +44,14 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     }
 
     @Override
-    public Response create(final UserTO userTO) {
+    public Response create(final UserTO userTO, final boolean storePassword) {
         if (!controller.isSelfRegistrationAllowed()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unauthorized);
             sce.getElements().add("SelfRegistration forbidden by configuration");
             throw sce;
         }
 
-        UserTO created = controller.createSelf(userTO);
+        UserTO created = controller.createSelf(userTO, storePassword);
         return createResponse(created.getId(), created);
     }
 

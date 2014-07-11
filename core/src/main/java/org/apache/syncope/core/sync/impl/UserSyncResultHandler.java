@@ -81,7 +81,7 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
 
         Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getSyncTask());
         WorkflowResult<Map.Entry<Long, Boolean>> created =
-                uwfAdapter.create(userTO, true, enabled);
+                uwfAdapter.create(userTO, true, enabled, true);
 
         List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(created,
                 userTO.getPassword(), userTO.getVirAttrs(),

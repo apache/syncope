@@ -26,6 +26,7 @@ import org.apache.syncope.console.pages.panels.MembershipsPanel;
 import org.apache.syncope.console.pages.panels.ResourcesPanel;
 import org.apache.syncope.console.pages.panels.UserDetailsPanel;
 import org.apache.syncope.console.pages.panels.VirtualAttributesPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -66,6 +67,8 @@ public abstract class UserModalPage extends BaseModalPage {
 
     private final boolean resetPassword;
 
+    protected final AjaxCheckBoxPanel storePassword;
+
     public UserModalPage(final PageReference callerPageRef, final ModalWindow window, final UserTO userTO,
             final Mode mode, final boolean resetPassword) {
 
@@ -80,6 +83,9 @@ public abstract class UserModalPage extends BaseModalPage {
         fragment = new Fragment("userModalFrag", "userModalEditFrag", this);
         fragment.setOutputMarkupId(true);
         add(fragment);
+
+        storePassword = new AjaxCheckBoxPanel("storePassword", "storePassword",
+                new Model<Boolean>(Boolean.TRUE));
     }
 
     public UserTO getUserTO() {
@@ -113,6 +119,18 @@ public abstract class UserModalPage extends BaseModalPage {
         form.add(new Label("pwdChangeInfo", ""));
 
         form.add(new Label("accountinformation", ""));
+        //--------------------------------
+
+        //--------------------------------
+        // Store password internally checkbox
+        //--------------------------------
+        final Fragment storePwdFragment = new Fragment("storePwdFrag", "storePwdCheck", form);
+        storePwdFragment.setOutputMarkupId(true);
+        final Label storePasswordLabel = new Label("storePasswordLabel", new ResourceModel("storePassword"));
+        storePwdFragment.add(storePasswordLabel);
+        storePwdFragment.add(storePassword);
+        form.add(userTO.getId() == 0 && mode != Mode.TEMPLATE ? storePwdFragment : new Fragment("storePwdFrag",
+                "emptyFragment", form));
         //--------------------------------
 
         //--------------------------------

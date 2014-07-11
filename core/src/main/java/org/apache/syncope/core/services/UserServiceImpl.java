@@ -62,8 +62,8 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     }
 
     @Override
-    public Response create(final UserTO userTO) {
-        UserTO created = controller.create(userTO);
+    public Response create(final UserTO userTO, final boolean storePassword) {
+        UserTO created = controller.create(userTO, storePassword);
         return createResponse(created.getId(), created);
     }
 

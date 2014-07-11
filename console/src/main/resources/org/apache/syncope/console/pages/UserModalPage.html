@@ -40,6 +40,19 @@ under the License.
             </ul>
             <div id="tabs-1">
               <span wicket:id="details">[user details]</span>
+              <span wicket:id="storePwdFrag">[storePwdFrag]</span>
+              <wicket:fragment wicket:id="storePwdCheck">
+                <div class="tablerow alt">
+                  <div class="tablecolumn_label short_dynamicsize">
+                    <span wicket:id="storePasswordLabel">[storePasswordLabel]</span>
+                  </div>
+                  <div class="tablecolumn_field medium_dynamicsize">
+                    <span wicket:id="storePassword">[storePassword]</span>
+                  </div>
+                </div>
+              </wicket:fragment>
+              <wicket:fragment wicket:id="emptyFragment">
+              </wicket:fragment>
               <div wicket:id="pwdChangeInfo" style="margin-top: 25px;">[pwdChangeInfo]</div>
               <span wicket:id="statuspanel">[Status Panel]</span>
               <span wicket:id="accountinformation">[Account Information]</span>

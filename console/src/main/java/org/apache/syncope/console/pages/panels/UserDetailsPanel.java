@@ -20,6 +20,8 @@ package org.apache.syncope.console.pages.panels;
 
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.JexlHelpUtil;
+import org.apache.syncope.console.pages.UserModalPage;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
@@ -89,14 +91,12 @@ public class UserDetailsPanel extends Panel {
 
             password = new AjaxPasswordFieldPanel("password", "password",
                     new PropertyModel<String>(userTO, "password"));
-            password.setRequired(userTO.getId() == 0);
             ((PasswordTextField) password.getField()).setResetPassword(resetPassword);
 
             confirmPassword = new AjaxPasswordFieldPanel("confirmPassword", "confirmPassword", new Model<String>());
             if (!resetPassword) {
                 confirmPassword.getField().setModelObject(userTO.getPassword());
             }
-            confirmPassword.setRequired(userTO.getId() == 0);
             ((PasswordTextField) confirmPassword.getField()).setResetPassword(resetPassword);
 
             form.add(new EqualPasswordInputValidator(password.getField(), confirmPassword.getField()));

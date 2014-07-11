@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.apache.syncope.core.rest.UserTestITCase.getUniqueSampleTO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -68,7 +67,7 @@ public class UserSelfTestITCase extends AbstractTest {
 
         // 1. self-registration as admin: failure
         try {
-            userSelfService.create(UserTestITCase.getUniqueSampleTO("anonymous@syncope.apache.org"));
+            userSelfService.create(UserTestITCase.getUniqueSampleTO("anonymous@syncope.apache.org"), true);
             fail();
         } catch (AccessControlException e) {
             assertNotNull(e);
@@ -77,7 +76,7 @@ public class UserSelfTestITCase extends AbstractTest {
         // 2. self-registration as anonymous: works
         SyncopeClient anonClient = clientFactory.createAnonymous();
         UserTO self = anonClient.getService(UserSelfService.class).
-                create(UserTestITCase.getUniqueSampleTO("anonymous@syncope.apache.org")).
+                create(UserTestITCase.getUniqueSampleTO("anonymous@syncope.apache.org"), true).
                 readEntity(UserTO.class);
         assertNotNull(self);
         assertEquals("createApproval", self.getStatus());
@@ -96,7 +95,7 @@ public class UserSelfTestITCase extends AbstractTest {
 
         SyncopeClient anonClient = clientFactory.createAnonymous();
         userTO = anonClient.getService(UserSelfService.class).
-                create(userTO).
+                create(userTO, true).
                 readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("createApproval", userTO.getStatus());
@@ -242,9 +241,9 @@ public class UserSelfTestITCase extends AbstractTest {
         SyncopeClient anonClient = clientFactory.createAnonymous();
         UserSelfService noContentService = anonClient.prefer(UserSelfService.class, Preference.RETURN_NO_CONTENT);
 
-        UserTO user = getUniqueSampleTO("nocontent-anonymous@syncope.apache.org");
+        UserTO user = UserTestITCase.getUniqueSampleTO("nocontent-anonymous@syncope.apache.org");
 
-        Response response = noContentService.create(user);
+        Response response = noContentService.create(user, true);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));

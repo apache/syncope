@@ -21,12 +21,14 @@ package org.apache.syncope.common.services;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.model.wadl.Description;
@@ -67,6 +69,7 @@ public interface UserSelfService extends JAXRSService {
      * Self-registration for new user.
      *
      * @param userTO user to be created
+     * @param storePassword whether password shall be stored internally
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of self-registered user as well as the user
      * itself - {@link UserTO} as <tt>Entity</tt>
      */
@@ -78,7 +81,8 @@ public interface UserSelfService extends JAXRSService {
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response create(@NotNull UserTO userTO);
+    Response create(@NotNull UserTO userTO,
+            @DefaultValue("true") @QueryParam("storePassword") boolean storePassword);
 
     /**
      * Self-updates user.

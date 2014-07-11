@@ -143,6 +143,11 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
     private boolean mustntEndWithAlpha;
 
     /**
+     * Specify if password shall not be stored internally.
+     */
+    private boolean allowNullPassword;
+
+    /**
      * Substrings not permitted as prefix.
      */
     private List<String> prefixesNotPermitted;
@@ -350,5 +355,13 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
 
     public void setHistoryLength(final int historyLength) {
         this.historyLength = historyLength;
+    }
+
+    public boolean isAllowNullPassword() {
+        return allowNullPassword;
+    }
+
+    public void setAllowNullPassword(final boolean allowNullPassword) {
+        this.allowNullPassword = allowNullPassword;
     }
 }

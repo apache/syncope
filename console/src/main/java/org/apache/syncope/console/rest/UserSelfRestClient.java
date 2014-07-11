@@ -47,8 +47,8 @@ public class UserSelfRestClient extends BaseRestClient {
         return getService(UserSelfService.class).read();
     }
 
-    public void create(final UserTO userTO) {
-        getService(UserSelfService.class).create(userTO);
+    public void create(final UserTO userTO, final boolean storePassword) {
+        getService(UserSelfService.class).create(userTO, storePassword);
     }
 
     public void update(final UserMod userMod) {
