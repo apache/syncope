@@ -224,7 +224,8 @@ public final class AttributableOperations {
         diff(updated, original, result, incremental);
 
         // 1. password
-        if (original.getPassword() != null && !original.getPassword().equals(updated.getPassword())) {
+        if (updated.getPassword() != null && (original.getPassword() == null || !original.getPassword().
+                equals(updated.getPassword()))) {
             result.setPassword(updated.getPassword());
         }
 

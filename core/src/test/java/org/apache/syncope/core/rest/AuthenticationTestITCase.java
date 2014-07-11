@@ -361,7 +361,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         membershipTO.setRoleId(1L);
         role1User.getMemberships().add(membershipTO);
 
-        Response response = userService2.create(role1User);
+        Response response = userService2.create(role1User, true);
         assertNotNull(response);
         role1User = response.readEntity(UserTO.class);
         assertNotNull(role1User);

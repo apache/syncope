@@ -174,7 +174,7 @@ public abstract class AbstractTest {
 
     @Autowired
     protected DataSource testDataSource;
-
+    
     @BeforeClass
     public static void securitySetup() {
         InputStream propStream = null;
@@ -241,7 +241,11 @@ public abstract class AbstractTest {
     }
 
     protected UserTO createUser(final UserTO userTO) {
-        Response response = userService.create(userTO);
+        return createUser(userTO, true);
+    }
+    
+    protected UserTO createUser(final UserTO userTO, final boolean storePassword) {
+        Response response = userService.create(userTO, storePassword);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {

@@ -31,8 +31,6 @@ public abstract class AbstractSubjectController<T extends AbstractSubjectTO, V e
 
     public abstract int count();
 
-    public abstract T create(T attributableTO);
-
     public abstract T update(V attributableMod);
 
     public abstract T delete(Long id);

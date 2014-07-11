@@ -124,6 +124,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public static final String TASK_IS_FORM = "taskIsForm";
 
     public static final String MODEL_DATA_JSON_MODEL = "model";
+    
+    public static final String STORE_PASSWORD = "storePassword";
 
     @Resource(name = "adminUser")
     private String adminUser;
@@ -225,21 +227,21 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck)
-            throws WorkflowException {
+    public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+            final boolean storePassword) throws WorkflowException {
 
-        return create(userTO, disablePwdPolicyCheck, null);
+        return create(userTO, disablePwdPolicyCheck, null, storePassword);
     }
 
     @Override
     public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
-            final Boolean enabled)
-            throws WorkflowException {
+            final Boolean enabled, final boolean storePassword) throws WorkflowException {
 
         final Map<String, Object> variables = new HashMap<String, Object>();
         variables.put(WF_EXECUTOR, EntitlementUtil.getAuthenticatedUsername());
         variables.put(USER_TO, userTO);
         variables.put(ENABLED, enabled);
+        variables.put(STORE_PASSWORD, storePassword);
 
         ProcessInstance processInstance = null;
         try {
@@ -264,7 +266,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         updateStatus(user);
         user = userDAO.save(user);
-
+        
         Boolean propagateEnable = (Boolean) runtimeService.getVariable(
                 processInstance.getProcessInstanceId(), PROPAGATE_ENABLE);
         if (propagateEnable == null) {

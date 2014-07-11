@@ -189,4 +189,21 @@ public class UserTest extends AbstractDAOTest {
         assertNotNull(actual);
     }
 
+    @Test
+    public void issueSYNCOPE391() {
+        SyncopeUser user = new SyncopeUser();
+        user.setUsername("username");
+        user.setPassword(null, CipherAlgorithm.AES, 0);
+
+        SyncopeUser actual = null;
+        Throwable t = null;
+        try {
+            actual = userDAO.save(user);
+        } catch (InvalidEntityException e) {
+            t = e;
+        }
+        assertNull(t);
+        assertNull(user.getPassword());
+        assertNotNull(actual);
+    }
 }

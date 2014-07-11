@@ -199,6 +199,7 @@ public interface UserService extends JAXRSService {
      * Creates a new user.
      *
      * @param userTO user to be created
+     * @param storePassword whether password shall be stored internally
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created user as well as the user itself
      * enriched with propagation status information - {@link UserTO} as <tt>Entity</tt>
      */
@@ -210,7 +211,8 @@ public interface UserService extends JAXRSService {
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response create(@NotNull UserTO userTO);
+    Response create(@NotNull UserTO userTO,
+            @DefaultValue("true") @QueryParam("storePassword") boolean storePassword);
 
     /**
      * Updates user matching the provided userId.

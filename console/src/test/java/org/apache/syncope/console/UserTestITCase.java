@@ -37,6 +37,8 @@ public class UserTestITCase extends AbstractTest {
         selenium.waitForCondition("selenium.isElementPresent("
                 + "\"//span[contains(text(),'Attributes')]\");", "30000");
 
+        selenium.click("//div/form/div[3]/div[1]/span[2]/div/div[2]/span");
+        
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[4]/a/span");

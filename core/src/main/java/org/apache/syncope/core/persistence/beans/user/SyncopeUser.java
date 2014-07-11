@@ -72,7 +72,7 @@ public class SyncopeUser extends AbstractSubject {
     @Id
     private Long id;
 
-    @NotNull(message = "Blank password")
+    @Column(nullable = true)
     private String password;
 
     @Transient
@@ -154,7 +154,7 @@ public class SyncopeUser extends AbstractSubject {
             @JoinColumn(name = "resource_name"))
     @Valid
     private Set<ExternalResource> resources;
-
+    
     public SyncopeUser() {
         super();
 

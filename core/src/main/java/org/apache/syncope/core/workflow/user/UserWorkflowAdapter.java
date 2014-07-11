@@ -36,23 +36,26 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * Create an user.
      *
      * @param userTO user to be created and wether to propagate it as active
+     * @param storePassword whether password shall be stored into the internal storage
      * @return user just created
      * @throws UnauthorizedRoleException authorization exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO) throws UnauthorizedRoleException, WorkflowException;
+    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean storePassword) throws
+            UnauthorizedRoleException, WorkflowException;
 
     /**
      * Create an user, optionally disabling password policy check.
      *
      * @param userTO user to be created and wether to propagate it as active
      * @param disablePwdPolicyCheck disable password policy check?
+     * @param storePassword whether password shall be stored into the internal storage
      * @return user just created
      * @throws UnauthorizedRoleException authorization exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean disablePwdPolicyCheck)
-            throws UnauthorizedRoleException, WorkflowException;
+    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean disablePwdPolicyCheck,
+            boolean storePassword) throws UnauthorizedRoleException, WorkflowException;
 
     /**
      * Create an user, optionally disabling password policy check.
@@ -60,12 +63,13 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param userTO user to be created and wether to propagate it as active
      * @param disablePwdPolicyCheck disable password policy check?
      * @param enabled specify true/false to force active/supended status
+     * @param storePassword whether password shall be stored into the internal storage
      * @return user just created
      * @throws UnauthorizedRoleException authorization exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean disablePwdPolicyCheck, final Boolean enabled)
-            throws UnauthorizedRoleException, WorkflowException;
+    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean disablePwdPolicyCheck, final Boolean enabled,
+            boolean storePassword) throws UnauthorizedRoleException, WorkflowException;
 
     /**
      * Execute a task on an user.

@@ -267,74 +267,77 @@ public class VirAttrTestITCase extends AbstractTest {
     @Test
     public void issueSYNCOPE397() {
         ResourceTO csv = resourceService.read(RESOURCE_NAME_CSV);
-        // change mapping of resource-csv
-        MappingTO origMapping = SerializationUtils.clone(csv.getUmapping());
-        assertNotNull(origMapping);
-        for (MappingItemTO item : csv.getUmapping().getItems()) {
-            if ("email".equals(item.getIntAttrName())) {
-                // unset internal attribute mail and set virtual attribute virtualdata as mapped to external email
-                item.setIntMappingType(IntMappingType.UserVirtualSchema);
-                item.setIntAttrName("virtualdata");
-                item.setPurpose(MappingPurpose.BOTH);
-                item.setExtAttrName("email");
+        final MappingTO origMapping = SerializationUtils.clone(csv.getUmapping());
+        try {
+            // change mapping of resource-csv
+            assertNotNull(origMapping);
+            for (MappingItemTO item : csv.getUmapping().getItems()) {
+                if ("email".equals(item.getIntAttrName())) {
+                    // unset internal attribute mail and set virtual attribute virtualdata as mapped to external email
+                    item.setIntMappingType(IntMappingType.UserVirtualSchema);
+                    item.setIntAttrName("virtualdata");
+                    item.setPurpose(MappingPurpose.BOTH);
+                    item.setExtAttrName("email");
+                }
             }
-        }
 
-        resourceService.update(csv.getName(), csv);
-        csv = resourceService.read(RESOURCE_NAME_CSV);
-        assertNotNull(csv.getUmapping());
+            resourceService.update(csv.getName(), csv);
+            csv = resourceService.read(RESOURCE_NAME_CSV);
+            assertNotNull(csv.getUmapping());
 
-        boolean found = false;
-        for (MappingItemTO item : csv.getUmapping().getItems()) {
-            if ("email".equals(item.getExtAttrName()) && "virtualdata".equals(item.getIntAttrName())) {
-                found = true;
+            boolean found = false;
+            for (MappingItemTO item : csv.getUmapping().getItems()) {
+                if ("email".equals(item.getExtAttrName()) && "virtualdata".equals(item.getIntAttrName())) {
+                    found = true;
+                }
             }
+
+            assertTrue(found);
+
+            // create a new user
+            UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope397@syncope.apache.org");
+            userTO.getResources().clear();
+            userTO.getMemberships().clear();
+            userTO.getDerAttrs().clear();
+            userTO.getVirAttrs().clear();
+
+            userTO.getDerAttrs().add(attributeTO("csvuserid", null));
+            userTO.getDerAttrs().add(attributeTO("cn", null));
+            userTO.getVirAttrs().add(attributeTO("virtualdata", "test@testone.org"));
+            // assign resource-csv to user
+            userTO.getResources().add(RESOURCE_NAME_CSV);
+            // save user
+            UserTO created = createUser(userTO);
+            // make std controls about user
+            assertNotNull(created);
+            assertTrue(RESOURCE_NAME_CSV.equals(created.getResources().iterator().next()));
+            // update user
+            UserTO toBeUpdated = userService.read(created.getId());
+            UserMod userMod = new UserMod();
+            userMod.setId(toBeUpdated.getId());
+            userMod.setPassword("password2");
+            // assign new resource to user
+            userMod.getResourcesToAdd().add(RESOURCE_NAME_WS2);
+            //modify virtual attribute
+            userMod.getVirAttrsToRemove().add("virtualdata");
+            userMod.getVirAttrsToUpdate().add(attributeMod("virtualdata", "test@testoneone.com"));
+
+            // check Syncope change password
+            StatusMod pwdPropRequest = new StatusMod();
+            pwdPropRequest.setOnSyncope(true);
+            pwdPropRequest.getResourceNames().add(RESOURCE_NAME_WS2);
+            userMod.setPwdPropRequest(pwdPropRequest);
+
+            toBeUpdated = updateUser(userMod);
+            assertNotNull(toBeUpdated);
+            assertEquals("test@testoneone.com", toBeUpdated.getVirAttrs().get(0).getValues().get(0));
+            // check if propagates correctly with assertEquals on size of tasks list
+            assertEquals(2, toBeUpdated.getPropagationStatusTOs().size());
+        } finally {
+            // restore mapping of resource-csv
+            csv.setUmapping(origMapping);
+            resourceService.update(csv.getName(), csv);
         }
-
-        assertTrue(found);
-
-        // create a new user
-        UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope397@syncope.apache.org");
-        userTO.getResources().clear();
-        userTO.getMemberships().clear();
-        userTO.getDerAttrs().clear();
-        userTO.getVirAttrs().clear();
-
-        userTO.getDerAttrs().add(attributeTO("csvuserid", null));
-        userTO.getDerAttrs().add(attributeTO("cn", null));
-        userTO.getVirAttrs().add(attributeTO("virtualdata", "test@testone.org"));
-        // assign resource-csv to user
-        userTO.getResources().add(RESOURCE_NAME_CSV);
-        // save user
-        UserTO created = createUser(userTO);
-        // make std controls about user
-        assertNotNull(created);
-        assertTrue(RESOURCE_NAME_CSV.equals(created.getResources().iterator().next()));
-        // update user
-        UserTO toBeUpdated = userService.read(created.getId());
-        UserMod userMod = new UserMod();
-        userMod.setId(toBeUpdated.getId());
-        userMod.setPassword("password2");
-        // assign new resource to user
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_WS2);
-        //modify virtual attribute
-        userMod.getVirAttrsToRemove().add("virtualdata");
-        userMod.getVirAttrsToUpdate().add(attributeMod("virtualdata", "test@testoneone.com"));
-
-        // check Syncope change password
-        StatusMod pwdPropRequest = new StatusMod();
-        pwdPropRequest.setOnSyncope(true);
-        pwdPropRequest.getResourceNames().add(RESOURCE_NAME_WS2);
-        userMod.setPwdPropRequest(pwdPropRequest);
-
-        toBeUpdated = updateUser(userMod);
-        assertNotNull(toBeUpdated);
-        assertEquals("test@testoneone.com", toBeUpdated.getVirAttrs().get(0).getValues().get(0));
-        // check if propagates correctly with assertEquals on size of tasks list
-        assertEquals(2, toBeUpdated.getPropagationStatusTOs().size());
-        // restore mapping of resource-csv
-        csv.setUmapping(origMapping);
-        resourceService.update(csv.getName(), csv);
     }
 
     @Test
@@ -750,7 +753,7 @@ public class VirAttrTestITCase extends AbstractTest {
 
         final StatusMod statusMod = new StatusMod();
         statusMod.getResourceNames().addAll(Collections.<String>emptySet());
-        statusMod.setOnSyncope(Boolean.FALSE);
+        statusMod.setOnSyncope(false);
 
         userMod.setPwdPropRequest(statusMod);
         // change virtual attribute value

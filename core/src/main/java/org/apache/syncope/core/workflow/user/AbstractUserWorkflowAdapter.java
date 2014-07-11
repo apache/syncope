@@ -62,10 +62,10 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     }
 
     @Override
-    public WorkflowResult<Entry<Long, Boolean>> create(final UserTO userTO)
+    public WorkflowResult<Entry<Long, Boolean>> create(final UserTO userTO, final boolean storePassword)
             throws UnauthorizedRoleException, WorkflowException {
 
-        return create(userTO, false);
+        return create(userTO, false, storePassword);
     }
 
     protected abstract WorkflowResult<Long> doActivate(SyncopeUser user, String token) throws WorkflowException;

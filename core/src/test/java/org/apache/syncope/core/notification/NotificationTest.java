@@ -239,7 +239,7 @@ public class NotificationTest {
         membershipTO.setRoleId(7);
         userTO.getMemberships().add(membershipTO);
 
-        userController.create(userTO);
+        userController.create(userTO, true);
 
         // 3. force Quartz job execution and verify e-mail
         notificationJob.execute(null);
@@ -296,7 +296,7 @@ public class NotificationTest {
         membershipTO.setRoleId(7);
         userTO.getMemberships().add(membershipTO);
 
-        userController.create(userTO);
+        userController.create(userTO, true);
 
         // 3. force Quartz job execution and verify e-mail
         notificationJob.execute(null);
@@ -349,7 +349,7 @@ public class NotificationTest {
         membershipTO.setRoleId(7);
         userTO.getMemberships().add(membershipTO);
 
-        userController.create(userTO);
+        userController.create(userTO, true);
 
         // 3. force Quartz job execution and verify e-mail
         notificationJob.execute(null);
@@ -399,7 +399,7 @@ public class NotificationTest {
         membershipTO.setRoleId(7);
         userTO.getMemberships().add(membershipTO);
 
-        userController.create(userTO);
+        userController.create(userTO, true);
 
         // 3. Set number of retries
         CAttr maxRetries = confDAO.find("notification.maxRetries", "5");
@@ -470,7 +470,7 @@ public class NotificationTest {
         membershipTO.setRoleId(7);
         userTO.getMemberships().add(membershipTO);
 
-        userController.create(userTO);
+        userController.create(userTO, true);
 
         // 3. force Quartz job execution and verify e-mail
         notificationJob.execute(null);
@@ -531,7 +531,7 @@ public class NotificationTest {
         membershipTO.setRoleId(7);
         userTO.getMemberships().add(membershipTO);
 
-        userController.create(userTO);
+        userController.create(userTO, true);
 
         // 3. force Quartz job execution
         notificationJob.execute(null);
