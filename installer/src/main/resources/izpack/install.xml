@@ -132,15 +132,15 @@ under the License.
   </resources>
   
   <jar src="../syncope-installer-@{syncope.version}.jar" stage="install"/>
-  <jar src="lib/commons-logging-1.1.3.jar"/>
-  <jar src="lib/commons-codec-1.9.jar"/>
+  <jar src="lib/commons-logging-@{commons.logging.version}.jar"/>
+  <jar src="lib/commons-codec-@{commons-codec.version}.jar"/>
   <jar src="lib/commons-io-2.4.jar"/>
-  <jar src="lib/httpclient-4.3.4.jar"/>
-  <jar src="lib/httpmime-4.3.4.jar"/>
+  <jar src="lib/httpclient-@{httpclient.version}.jar"/>
+  <jar src="lib/httpmime-@{httpclient.version}.jar"/>
   <jar src="lib/httpcore-4.3.2.jar"/>
-  <jar src="lib/jackson-databind-2.4.1.1.jar"/>
-  <jar src="lib/jackson-core-2.4.1.jar"/>
-  <jar src="lib/jackson-annotations-2.4.0.jar"/>
+  <jar src="lib/jackson-databind-@{jackson.version}.3.jar"/>
+  <jar src="lib/jackson-core-@{jackson.version}.1.jar"/>
+  <jar src="lib/jackson-annotations-@{jackson.version}.jar"/>
   
   <panels>
     <panel classname="HTMLHelloPanel" id="welcome"/>
