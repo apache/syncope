@@ -213,33 +213,39 @@ under the License.
             <phase>process-resources</phase>
             <configuration>
               <target>
-                <unzip src="${settings.localRepository}/org/activiti/activiti-webapp-explorer2/${activiti.version}/activiti-webapp-explorer2-${activiti.version}.war" dest="${project.build.directory}/activiti-webapp-explorer2" />
+                <unzip src="${settings.localRepository}/org/activiti/activiti-webapp-explorer2/${activiti.version}/activiti-webapp-explorer2-${activiti.version}.war" 
+                       dest="${project.build.directory}/activiti-webapp-explorer2"/>
                 
-                <mkdir dir="${activiti-modeler.directory}" />
+                <mkdir dir="${activiti-modeler.directory}"/>
                 
-                <mkdir dir="${activiti-modeler.directory}/editor" />
+                <mkdir dir="${activiti-modeler.directory}/editor"/>
                 <copy todir="${activiti-modeler.directory}/editor">
                   <fileset dir="${project.build.directory}/activiti-webapp-explorer2/editor">
-                    <exclude name="oryx.js" />
+                    <exclude name="oryx.js"/>
                   </fileset>
                 </copy>
-                <copy file="${project.build.directory}/activiti-webapp-explorer2/WEB-INF/classes/plugins.xml" todir="${activiti-modeler.directory}/editor" />
-                <copy file="${project.build.directory}/activiti-webapp-explorer2/WEB-INF/classes/stencilset.json" todir="${activiti-modeler.directory}/editor" />
+                <copy file="${project.build.directory}/activiti-webapp-explorer2/WEB-INF/classes/plugins.xml" 
+                      todir="${activiti-modeler.directory}/editor"/>
+                <copy file="${project.build.directory}/activiti-webapp-explorer2/WEB-INF/classes/stencilset.json" 
+                      todir="${activiti-modeler.directory}/editor"/>
                 
-                <mkdir dir="${activiti-modeler.directory}/explorer" />
+                <mkdir dir="${activiti-modeler.directory}/explorer"/>
                 <copy todir="${activiti-modeler.directory}/explorer">
-                  <fileset dir="${project.build.directory}/activiti-webapp-explorer2/explorer" />
+                  <fileset dir="${project.build.directory}/activiti-webapp-explorer2/explorer"/>
                 </copy>
                 
-                <mkdir dir="${activiti-modeler.directory}/libs" />
+                <mkdir dir="${activiti-modeler.directory}/libs"/>
                 <copy todir="${activiti-modeler.directory}/libs">
-                  <fileset dir="${project.build.directory}/activiti-webapp-explorer2/libs" />
+                  <fileset dir="${project.build.directory}/activiti-webapp-explorer2/libs"/>
                 </copy>
                 
-                <fixcrlf srcdir="${project.build.directory}/activiti-webapp-explorer2/editor/" includes="oryx.debug.js" eol="unix" />
-                <patch patchfile="${basedir}/src/main/resources/oryx.debug.js.patch" originalfile="${project.build.directory}/activiti-webapp-explorer2/editor/oryx.debug.js" destfile="${activiti-modeler.directory}/editor/oryx.debug.js" />
+                <fixcrlf srcdir="${project.build.directory}/activiti-webapp-explorer2/editor/" 
+                         includes="oryx.debug.js" eol="unix"/>
+                <patch patchfile="${basedir}/src/main/resources/oryx.debug.js.patch" 
+                       originalfile="${project.build.directory}/activiti-webapp-explorer2/editor/oryx.debug.js" 
+                       destfile="${activiti-modeler.directory}/editor/oryx.debug.js"/>
                 
-                <delete dir="${project.build.directory}/activiti-webapp-explorer2" />
+                <delete dir="${project.build.directory}/activiti-webapp-explorer2"/>
               </target>
             </configuration>
             <goals>
@@ -251,13 +257,13 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <unzip src="${basedir}/../core/target/syncope.war" dest="${cargo.run.dir}" />
-                <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}" />
+                <unzip src="${basedir}/../core/target/syncope.war" dest="${cargo.run.dir}"/>
+                <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}"/>
                 <copy todir="${cargo.run.dir}/WEB-INF/classes" includeEmptyDirs="false">
                   <fileset dir="${project.build.directory}/test-classes">
-                    <exclude name="**/*.class" />
-                    <exclude name="restClientContext.xml" />
-                    <exclude name="rest.properties" />
+                    <exclude name="**/*.class"/>
+                    <exclude name="restClientContext.xml"/>
+                    <exclude name="rest.properties"/>
                   </fileset>
                 </copy>
               </target>
@@ -271,7 +277,7 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true" />
+                <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true"/>
               </target>
             </configuration>
             <goals>
@@ -438,7 +444,7 @@ under the License.
     <profile>
       <id>skipTests</id>
       <properties>
-        <javaagent />
+        <javaagent/>
       </properties>
       
       <build>
@@ -528,11 +534,11 @@ under the License.
                 <phase>pre-integration-test</phase>
                 <configuration>
                   <target>
-                    <touch millis="0" file="${project.build.directory}/test-classes/web.xml" />
+                    <touch millis="0" file="${project.build.directory}/test-classes/web.xml"/>
                     <war destfile="${project.build.directory}/${project.build.finalName}.war" update="true">                      
                       <mappedresources>
-                        <fileset dir="${project.build.directory}/test-classes" includes="web.xml" />
-                        <globmapper from="web.xml" to="WEB-INF/web.xml" />
+                        <fileset dir="${project.build.directory}/test-classes" includes="web.xml"/>
+                        <globmapper from="web.xml" to="WEB-INF/web.xml"/>
                       </mappedresources>                      
                     </war>
                   </target>
@@ -593,11 +599,11 @@ under the License.
                 <phase>pre-integration-test</phase>
                 <configuration>
                   <target>
-                    <touch millis="0" file="${project.build.directory}/test-classes/web.xml" />
+                    <touch millis="0" file="${project.build.directory}/test-classes/web.xml"/>
                     <war destfile="${project.build.directory}/${project.build.finalName}.war" update="true">                      
                       <mappedresources>
-                        <fileset dir="${project.build.directory}/test-classes" includes="web.xml" />
-                        <globmapper from="web.xml" to="WEB-INF/web.xml" />
+                        <fileset dir="${project.build.directory}/test-classes" includes="web.xml"/>
+                        <globmapper from="web.xml" to="WEB-INF/web.xml"/>
                       </mappedresources>                      
                     </war>
                   </target>
@@ -656,7 +662,7 @@ under the License.
       <id>selenium</id>
       
       <properties>
-        <javaagent />
+        <javaagent/>
       </properties>
       
       <build>

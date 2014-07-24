@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.workflow.user.activiti;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -73,9 +76,6 @@ import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.WorkflowInstanceLoader;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.user.AbstractUserWorkflowAdapter;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,7 +124,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public static final String TASK_IS_FORM = "taskIsForm";
 
     public static final String MODEL_DATA_JSON_MODEL = "model";
-    
+
     public static final String STORE_PASSWORD = "storePassword";
 
     @Resource(name = "adminUser")
@@ -266,7 +266,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         updateStatus(user);
         user = userDAO.save(user);
-        
+
         Boolean propagateEnable = (Boolean) runtimeService.getVariable(
                 processInstance.getProcessInstanceId(), PROPAGATE_ENABLE);
         if (propagateEnable == null) {
@@ -462,7 +462,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         try {
             ObjectNode modelNode = (ObjectNode) objectMapper.readTree(model.getMetaInfo());
             modelNode.put(ModelDataJsonConstants.MODEL_ID, model.getId());
-            modelNode.put(MODEL_DATA_JSON_MODEL,
+            modelNode.replace(MODEL_DATA_JSON_MODEL,
                     objectMapper.readTree(repositoryService.getModelEditorSource(model.getId())));
 
             os.write(modelNode.toString().getBytes());

@@ -321,7 +321,7 @@ under the License.
     <commons-lang.version>3.3.2</commons-lang.version>
     <commons-codec.version>1.9</commons-codec.version>
 
-    <activiti.version>5.15.1</activiti.version>
+    <activiti.version>5.16</activiti.version>
     
     <aspectj.version>1.8.0</aspectj.version>
 
@@ -697,6 +697,11 @@ under the License.
       </dependency>      
       <!-- /CXF -->
 
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson.version}.1</version>
+      </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
