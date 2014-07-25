@@ -293,7 +293,6 @@ public class ConnectorModalPage extends BaseModalPage {
                     private static final long serialVersionUID = 9101744072914090143L;
 
                     @Override
-                    @SuppressWarnings({ "unchecked", "rawtypes" })
                     protected void populateItem(final ListItem<ConnConfProperty> item) {
                         final ConnConfProperty property = item.getModelObject();
 
@@ -303,6 +302,7 @@ public class ConnectorModalPage extends BaseModalPage {
                                 : property.getSchema().getDisplayName());
                         item.add(label);
 
+                        @SuppressWarnings("rawtypes")
                         final FieldPanel field;
                         boolean required = false;
                         boolean isArray = false;
@@ -331,8 +331,10 @@ public class ConnectorModalPage extends BaseModalPage {
                                 propertySchemaClass = String.class;
                             }
                             if (ClassUtils.isAssignable(Number.class, propertySchemaClass)) {
+                                @SuppressWarnings("unchecked")
+                                final Class<Number> numberClass = (Class<Number>) propertySchemaClass;
                                 field = new SpinnerFieldPanel<Number>("panel", label.getDefaultModelObjectAsString(),
-                                        (Class<Number>) propertySchemaClass, new Model<Number>(), null, null);
+                                        numberClass, new Model<Number>(), null, null);
 
                                 required = property.getSchema().isRequired();
                             } else if (ClassUtils.isAssignable(Boolean.class, propertySchemaClass)) {
@@ -361,10 +363,12 @@ public class ConnectorModalPage extends BaseModalPage {
                                 property.getValues().add(null);
                             }
 
-                            item.add(new MultiFieldPanel<String>(
-                                            "panel", new PropertyModel<List<String>>(property, "values"), field));
+                            @SuppressWarnings("unchecked")
+                            final MultiFieldPanel<String> multiFieldPanel = new MultiFieldPanel<String>(
+                                    "panel", new PropertyModel<List<String>>(property, "values"), field);
+                            item.add(multiFieldPanel);
                         } else {
-                            field.setNewModel(property.getValues());
+                            setNewFieldModel(field, property.getValues());
                             item.add(field);
                         }
 
@@ -486,6 +490,11 @@ public class ConnectorModalPage extends BaseModalPage {
         };
         cancel.setDefaultFormProcessing(false);
         connectorForm.add(cancel);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private void setNewFieldModel(final FieldPanel field, final List<Object> values) {
+        field.setNewModel(values);
     }
 
     private ConnBundleTO getSelectedBundleTO(final ConnInstanceTO connInstanceTO) {
