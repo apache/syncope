@@ -104,7 +104,7 @@ under the License.
       <subsection name="Connectors layer">
         <p>
           The Connector layer is implemented with 
-          <a href="http://tirasa.github.com/ConnId/" target="_blank">ConnId</a>; ConnId is designed to separate the 
+          <a href="http://connid.tirasa.net" target="_blank">ConnId</a>; ConnId is designed to separate the 
           implementation of an application from the dependencies of the system that the application is attempting to 
           connect to.
         </p>
