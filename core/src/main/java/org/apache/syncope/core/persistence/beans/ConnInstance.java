@@ -96,7 +96,7 @@ public class ConnInstance extends AbstractBaseBean {
      * @see org.identityconnectors.framework.api.ConfigurationProperty
      */
     @Lob
-    private String xmlConfiguration;
+    private String jsonConf;
 
     @Column(unique = true)
     private String displayName;
@@ -155,14 +155,14 @@ public class ConnInstance extends AbstractBaseBean {
     }
 
     public Set<ConnConfProperty> getConfiguration() {
-        return StringUtils.isBlank(xmlConfiguration)
+        return StringUtils.isBlank(jsonConf)
                 ? Collections.<ConnConfProperty>emptySet()
                 : new HashSet<ConnConfProperty>(
-                        Arrays.asList(POJOHelper.deserialize(xmlConfiguration, ConnConfProperty[].class)));
+                        Arrays.asList(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
     }
 
     public void setConfiguration(final Set<ConnConfProperty> configuration) {
-        xmlConfiguration = POJOHelper.serialize(new HashSet<ConnConfProperty>(configuration));
+        jsonConf = POJOHelper.serialize(new HashSet<ConnConfProperty>(configuration));
     }
 
     public Long getId() {

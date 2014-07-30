@@ -150,7 +150,7 @@ public class ExternalResource extends AbstractSysInfo {
      * Configuration properties that are overridden from the connector instance.
      */
     @Lob
-    private String xmlConfiguration;
+    private String jsonConf;
 
     /**
      * SyncToken for calling ConnId's sync() on users.
@@ -320,14 +320,14 @@ public class ExternalResource extends AbstractSysInfo {
     }
 
     public Set<ConnConfProperty> getConnInstanceConfiguration() {
-        return StringUtils.isBlank(xmlConfiguration)
+        return StringUtils.isBlank(jsonConf)
                 ? Collections.<ConnConfProperty>emptySet()
                 : new HashSet<ConnConfProperty>(
-                Arrays.asList(POJOHelper.deserialize(xmlConfiguration, ConnConfProperty[].class)));
+                Arrays.asList(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
     }
 
     public void setConnInstanceConfiguration(final Set<ConnConfProperty> properties) {
-        xmlConfiguration = POJOHelper.serialize(new HashSet<ConnConfProperty>(properties));
+        jsonConf = POJOHelper.serialize(new HashSet<ConnConfProperty>(properties));
     }
 
     public String getUserializedSyncToken() {
