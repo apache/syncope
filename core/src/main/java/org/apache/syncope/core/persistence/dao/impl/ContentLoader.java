@@ -18,12 +18,15 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
+import java.io.IOException;
 import java.io.InputStream;
+import javax.annotation.Resource;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.core.persistence.beans.conf.SyncopeConf;
 import org.apache.syncope.core.util.ContentLoaderHandler;
+import org.apache.syncope.core.util.ResourceWithFallbackLoader;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -35,7 +38,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class ContentLoader extends AbstractContentDealer {
 
-    public static final String CONTENT_XML = "content.xml";
+    @Resource(name = "contentXML")
+    private ResourceWithFallbackLoader contentXML;
 
     @Transactional
     public void load() {
@@ -55,23 +59,29 @@ public class ContentLoader extends AbstractContentDealer {
         } else {
             LOG.info("Empty database found, loading default content");
 
-            loadDefaultContent();
-            createIndexes();
-            createViews();
+            try {
+                loadDefaultContent();
+            } catch (Exception e) {
+                LOG.error("While loading default content", e);
+            }
+            try {
+                createIndexes();
+                createViews();
+            } catch (IOException e) {
+                LOG.error("While creating indexes and views", e);
+            }
         }
     }
 
-    private void loadDefaultContent() {
+    private void loadDefaultContent() throws Exception {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         InputStream in = null;
         try {
-            in = getClass().getResourceAsStream("/" + CONTENT_XML);
+            in = contentXML.getResource().getInputStream();
 
             SAXParser parser = factory.newSAXParser();
             parser.parse(in, new ContentLoaderHandler(dataSource, ROOT_ELEMENT));
             LOG.debug("Default content successfully loaded");
-        } catch (Exception e) {
-            LOG.error("While loading default content", e);
         } finally {
             IOUtils.closeQuietly(in);
         }

@@ -342,13 +342,13 @@ under the License.
 
     <wicket.version>6.16.0</wicket.version>
 
-    <groovy.version>2.3.3</groovy.version>
+    <groovy.version>2.3.4</groovy.version>
 
-    <h2.version>1.4.179</h2.version>
+    <h2.version>1.4.180</h2.version>
 
     <log4j.version>2.0</log4j.version>
     <slf4j.version>1.7.7</slf4j.version>
-    <disruptor.version>3.2.1</disruptor.version>
+    <disruptor.version>3.3.0</disruptor.version>
 
     <junit.version>4.11</junit.version>
     <selenium.version>2.42.2</selenium.version>
@@ -357,7 +357,7 @@ under the License.
     
     <httpclient.version>4.3.4</httpclient.version>
 
-    <tomcat.version>7.0.54</tomcat.version>
+    <tomcat.version>7.0.55</tomcat.version>
 
     <jasypt.version>1.9.2</jasypt.version>
  
@@ -368,6 +368,7 @@ under the License.
 
     <izpack.version>5.0.0-rc2</izpack.version>
  
+    <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
     <connid.location>file:${bundles.directory}/</connid.location>
     <log.directory>${project.build.directory}/log</log.directory>

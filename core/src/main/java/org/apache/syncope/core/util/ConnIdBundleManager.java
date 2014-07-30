@@ -20,21 +20,17 @@ package org.apache.syncope.core.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.identityconnectors.common.IOUtil;
@@ -52,57 +48,43 @@ import org.slf4j.LoggerFactory;
 /**
  * Manage information about ConnId connector bundles.
  */
-public final class ConnIdBundleManager {
+public class ConnIdBundleManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnIdBundleManager.class);
 
-    /**
-     * Where to find conf properties for ConnId.
-     */
-    public static final String CONNID_PROPS = "/connid.properties";
+    private String stringLocations;
 
     /**
      * ConnId Locations.
      */
-    private static final List<URI> LOCATIONS;
+    private List<URI> locations;
 
     /**
      * ConnectorInfoManager instances.
      */
-    private static final Map<URI, ConnectorInfoManager> CONN_MANAGERS;
+    private final Map<URI, ConnectorInfoManager> connInfoManagers =
+            Collections.synchronizedMap(new LinkedHashMap<URI, ConnectorInfoManager>());
 
-    static {
-        String[] stringLocations = null;
-
-        InputStream propStream = null;
-        try {
-            propStream = ConnIdBundleManager.class.getResourceAsStream(CONNID_PROPS);
-            Properties props = new Properties();
-            props.load(propStream);
-            stringLocations = props.getProperty("connid.locations").split(",");
-
-            LOG.debug("ConnId locations: {}", Arrays.asList(stringLocations));
-        } catch (Exception e) {
-            LOG.error("Could not load {}", CONNID_PROPS, e);
-            stringLocations = new String[0];
-        } finally {
-            IOUtils.closeQuietly(propStream);
-        }
-
-        List<URI> locations = new ArrayList<URI>();
-        for (String location : stringLocations) {
-            try {
-                locations.add(URIUtil.buildForConnId(location));
-                LOG.info("Valid ConnId location: {}", location.trim());
-            } catch (Exception e) {
-                LOG.error("Invalid ConnId location: {}", location.trim(), e);
-            }
-        }
-        LOCATIONS = Collections.unmodifiableList(locations);
-        CONN_MANAGERS = Collections.synchronizedMap(new LinkedHashMap<URI, ConnectorInfoManager>());
+    public void setStringLocations(final String stringLocations) {
+        this.stringLocations = stringLocations;
     }
 
-    private static void initLocal(final URI location) {
+    private void init() {
+        if (locations == null) {
+            locations = new ArrayList<URI>();
+            for (String location : stringLocations == null ? new String[0] : stringLocations.split(",")) {
+                try {
+                    locations.add(URIUtil.buildForConnId(location));
+                    LOG.info("Valid ConnId location: {}", location.trim());
+                } catch (Exception e) {
+                    LOG.error("Invalid ConnId location: {}", location.trim(), e);
+                }
+            }
+            locations = Collections.unmodifiableList(locations);
+        }
+    }
+
+    private void initLocal(final URI location) {
         // 1. Find bundles inside local directory
         File bundleDirectory = new File(location);
         String[] bundleFiles = bundleDirectory.list();
@@ -133,10 +115,10 @@ public final class ConnIdBundleManager {
             throw new NotFoundException("Local ConnectorInfoManager");
         }
 
-        CONN_MANAGERS.put(location, manager);
+        connInfoManagers.put(location, manager);
     }
 
-    private static void initRemote(final URI location) {
+    private void initRemote(final URI location) {
         // 1. Extract conf params for remote connection from given URI
         final String host = location.getHost();
         final int port = location.getPort();
@@ -191,16 +173,18 @@ public final class ConnIdBundleManager {
             throw new NotFoundException("Remote ConnectorInfoManager");
         }
 
-        CONN_MANAGERS.put(location, manager);
+        connInfoManagers.put(location, manager);
     }
 
-    public static void resetConnManagers() {
-        CONN_MANAGERS.clear();
+    public void resetConnManagers() {
+        connInfoManagers.clear();
     }
 
-    public static Map<URI, ConnectorInfoManager> getConnManagers() {
-        if (CONN_MANAGERS.isEmpty()) {
-            for (URI location : LOCATIONS) {
+    public Map<URI, ConnectorInfoManager> getConnManagers() {
+        init();
+
+        if (connInfoManagers.isEmpty()) {
+            for (URI location : locations) {
                 try {
                     if ("file".equals(location.getScheme())) {
                         LOG.debug("Local initialization: {}", location);
@@ -218,7 +202,7 @@ public final class ConnIdBundleManager {
         }
 
         if (LOG.isDebugEnabled()) {
-            for (Map.Entry<URI, ConnectorInfoManager> entry : CONN_MANAGERS.entrySet()) {
+            for (Map.Entry<URI, ConnectorInfoManager> entry : connInfoManagers.entrySet()) {
                 LOG.debug("Connector bundles found at {}", entry.getKey());
                 for (ConnectorInfo connInfo : entry.getValue().getConnectorInfos()) {
                     LOG.debug("\t{}", connInfo.getConnectorDisplayName());
@@ -226,10 +210,10 @@ public final class ConnIdBundleManager {
             }
         }
 
-        return CONN_MANAGERS;
+        return connInfoManagers;
     }
 
-    public static ConnectorInfo getConnectorInfo(
+    public ConnectorInfo getConnectorInfo(
             final String location, final String bundleName, final String bundleVersion, final String connectorName) {
 
         // check ConnIdLocation
@@ -261,15 +245,15 @@ public final class ConnIdBundleManager {
         return info;
     }
 
-    public static Map<String, List<ConnectorInfo>> getConnectorInfos() {
+    public Map<String, List<ConnectorInfo>> getConnectorInfos() {
         final Map<String, List<ConnectorInfo>> infos = new LinkedHashMap<String, List<ConnectorInfo>>();
-        for (Map.Entry<URI, ConnectorInfoManager> entry : CONN_MANAGERS.entrySet()) {
+        for (Map.Entry<URI, ConnectorInfoManager> entry : connInfoManagers.entrySet()) {
             infos.put(entry.getKey().toString(), entry.getValue().getConnectorInfos());
         }
         return infos;
     }
 
-    public static ConfigurationProperties getConfigurationProperties(final ConnectorInfo info) {
+    public ConfigurationProperties getConfigurationProperties(final ConnectorInfo info) {
         if (info == null) {
             throw new NotFoundException("Invalid: connector info is null");
         }
@@ -296,9 +280,5 @@ public final class ConnIdBundleManager {
         }
 
         return properties;
-    }
-
-    private ConnIdBundleManager() {
-        // Empty constructor for static utility class.
     }
 }

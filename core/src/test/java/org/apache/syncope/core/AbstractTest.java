@@ -44,14 +44,14 @@ public abstract class AbstractTest {
     public static void setUpConnIdBundles() throws IOException {
         InputStream propStream = null;
         try {
-            propStream = AbstractTest.class.getResourceAsStream(ConnIdBundleManager.CONNID_PROPS);
+            propStream = AbstractTest.class.getResourceAsStream("/connid.properties");
             Properties props = new Properties();
             props.load(propStream);
 
             bundlesDirectory = props.getProperty("connid.locations");
             connidSoapVersion = props.getProperty("connid.soap.version");
         } catch (Exception e) {
-            LOG.error("Could not load {}", ConnIdBundleManager.CONNID_PROPS, e);
+            LOG.error("Could not load /connid.properties", e);
         } finally {
             IOUtils.closeQuietly(propStream);
         }

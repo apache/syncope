@@ -74,13 +74,13 @@ public class SyncopeSession extends WebSession {
     public SyncopeSession(final Request request) {
         super(request);
 
-        final ApplicationContext applicationContext = WebApplicationContextUtils.
+        final ApplicationContext ctx = WebApplicationContextUtils.
                 getWebApplicationContext(WebApplication.get().getServletContext());
 
-        clientFactory = applicationContext.getBean(SyncopeClientFactoryBean.class).
+        clientFactory = ctx.getBean(SyncopeClientFactoryBean.class).
                 setContentType(SyncopeClientFactoryBean.ContentType.JSON);
-        anonymousUser = applicationContext.getBean("anonymousUser", String.class);
-        anonymousKey = applicationContext.getBean("anonymousKey", String.class);
+        anonymousUser = ctx.getBean("anonymousUser", String.class);
+        anonymousKey = ctx.getBean("anonymousKey", String.class);
     }
 
     public void resetClients() {

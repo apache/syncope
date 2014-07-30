@@ -80,7 +80,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
-    "classpath:syncopeContext.xml",
+    "classpath:coreContext.xml",
     "classpath:restTestEnv.xml",
     "classpath:persistenceContext.xml",
     "classpath:schedulingContext.xml",
@@ -94,17 +94,17 @@ public class NotificationTest {
      */
     private static final Logger LOG = LoggerFactory.getLogger(NotificationTest.class);
 
-    private static final String smtpHost = "localhost";
+    private static final String SMTP_HOST = "localhost";
 
-    private static final int smtpPort = 2525;
+    private static final int SMTP_PORT = 2525;
 
-    private static final String pop3Host = "localhost";
+    private static final String POP3_HOST = "localhost";
 
-    private static final int pop3Port = 1110;
+    private static final int POP3_PORT = 1110;
 
-    private static final String mailAddress = "notificationtest@syncope.apache.org";
+    private static final String MAIL_ADDRESS = "notificationtest@syncope.apache.org";
 
-    private static final String mailPassword = "password";
+    private static final String MAIL_PASSWORD = "password";
 
     private static GreenMail greenMail;
 
@@ -144,10 +144,10 @@ public class NotificationTest {
     @BeforeClass
     public static void startGreenMail() {
         ServerSetup[] config = new ServerSetup[2];
-        config[0] = new ServerSetup(smtpPort, smtpHost, ServerSetup.PROTOCOL_SMTP);
-        config[1] = new ServerSetup(pop3Port, pop3Host, ServerSetup.PROTOCOL_POP3);
+        config[0] = new ServerSetup(SMTP_PORT, SMTP_HOST, ServerSetup.PROTOCOL_SMTP);
+        config[1] = new ServerSetup(POP3_PORT, POP3_HOST, ServerSetup.PROTOCOL_POP3);
         greenMail = new GreenMail(config);
-        greenMail.setUser(mailAddress, mailPassword);
+        greenMail.setUser(MAIL_ADDRESS, MAIL_PASSWORD);
         greenMail.start();
     }
 
@@ -174,10 +174,10 @@ public class NotificationTest {
     public void setupSMTP() throws Exception {
         JavaMailSenderImpl sender = (JavaMailSenderImpl) mailSender;
         sender.setDefaultEncoding(SyncopeConstants.DEFAULT_ENCODING);
-        sender.setHost(smtpHost);
-        sender.setPort(smtpPort);
-        sender.setUsername(mailAddress);
-        sender.setPassword(mailPassword);
+        sender.setHost(SMTP_HOST);
+        sender.setPort(SMTP_PORT);
+        sender.setUsername(MAIL_ADDRESS);
+        sender.setPassword(MAIL_PASSWORD);
     }
 
     private boolean verifyMail(final String sender, final String subject) throws Exception {
@@ -190,7 +190,7 @@ public class NotificationTest {
         boolean found = false;
         Session session = Session.getDefaultInstance(System.getProperties());
         Store store = session.getStore("pop3");
-        store.connect(pop3Host, pop3Port, mailAddress, mailPassword);
+        store.connect(POP3_HOST, POP3_PORT, MAIL_ADDRESS, MAIL_PASSWORD);
 
         Folder inbox = store.getFolder("INBOX");
         assertNotNull(inbox);
@@ -234,7 +234,7 @@ public class NotificationTest {
         notificationDAO.flush();
 
         // 2. create user
-        UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
+        UserTO userTO = UserTestITCase.getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7);
         userTO.getMemberships().add(membershipTO);
@@ -291,7 +291,7 @@ public class NotificationTest {
         assertNotNull(actual);
 
         // 2. create user
-        UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
+        UserTO userTO = UserTestITCase.getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7);
         userTO.getMemberships().add(membershipTO);
@@ -344,7 +344,7 @@ public class NotificationTest {
         notificationDAO.flush();
 
         // 2. create user
-        UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
+        UserTO userTO = UserTestITCase.getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7);
         userTO.getMemberships().add(membershipTO);
@@ -394,7 +394,7 @@ public class NotificationTest {
         notificationDAO.flush();
 
         // 2. create user
-        UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
+        UserTO userTO = UserTestITCase.getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7);
         userTO.getMemberships().add(membershipTO);
@@ -465,7 +465,7 @@ public class NotificationTest {
         notificationDAO.flush();
 
         // 2. create user
-        UserTO userTO = UserTestITCase.getSampleTO(mailAddress);
+        UserTO userTO = UserTestITCase.getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7);
         userTO.getMemberships().add(membershipTO);
@@ -526,7 +526,7 @@ public class NotificationTest {
         final int tasksNumberBefore = taskDAO.findAll(NotificationTask.class).size();
 
         // 2. create user
-        UserTO userTO = UserTestITCase.getUniqueSampleTO(mailAddress);
+        UserTO userTO = UserTestITCase.getUniqueSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7);
         userTO.getMemberships().add(membershipTO);
@@ -552,7 +552,7 @@ public class NotificationTest {
         notification.setRecipientAttrName("email");
         notification.setRecipientAttrType(IntMappingType.UserSchema);
 
-        notification.getStaticRecipients().add(mailAddress);
+        notification.getStaticRecipients().add(MAIL_ADDRESS);
 
         Random random = new Random(System.currentTimeMillis());
         String sender = "syncopetest-" + random.nextLong() + "@syncope.apache.org";
@@ -592,7 +592,7 @@ public class NotificationTest {
 
         assertNotNull(taskId);
         assertNotNull(textBody);
-        assertTrue(recipients.contains(mailAddress));
+        assertTrue(recipients.contains(MAIL_ADDRESS));
 
         // 5. execute Notification task and verify e-mail
         taskController.execute(taskId, false);

@@ -46,6 +46,9 @@ public class ConnInstanceDataBinder {
     private static final String[] IGNORE_PROPERTIES = { "id", "poolConf" };
 
     @Autowired
+    private ConnIdBundleManager connIdBundleManager;
+
+    @Autowired
     private ConnInstanceDAO connInstanceDAO;
 
     /**
@@ -203,8 +206,8 @@ public class ConnInstanceDataBinder {
         connInstanceTO.setId(connInstance.getId() == null ? 0L : connInstance.getId().longValue());
 
         // retrieve the ConfigurationProperties
-        ConfigurationProperties properties = ConnIdBundleManager.getConfigurationProperties(
-                ConnIdBundleManager.getConnectorInfo(connInstance.getLocation(),
+        ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(
+                connIdBundleManager.getConnectorInfo(connInstance.getLocation(),
                         connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName()));
 
         BeanUtils.copyProperties(connInstance, connInstanceTO, IGNORE_PROPERTIES);

@@ -49,6 +49,9 @@ class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
     private static final Logger LOG = LoggerFactory.getLogger(ConnectorManager.class);
 
     @Autowired
+    private ConnIdBundleManager connIdBundleManager;
+
+    @Autowired
     private ResourceDAO resourceDAO;
 
     @Autowired
@@ -108,7 +111,7 @@ class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
         CurrentLocale.set(Locale.ENGLISH);
 
         // Load all connector bundles
-        ConnIdBundleManager.getConnManagers();
+        connIdBundleManager.getConnManagers();
 
         // Load all resource-specific connectors
         int connectors = 0;
@@ -141,7 +144,7 @@ class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
         LOG.info("Done unloading {} connectors", connectors);
 
         ConnectorFacadeFactory.getInstance().dispose();
-        ConnIdBundleManager.resetConnManagers();
+        connIdBundleManager.resetConnManagers();
         LOG.info("All connector resources disposed");
     }
 }

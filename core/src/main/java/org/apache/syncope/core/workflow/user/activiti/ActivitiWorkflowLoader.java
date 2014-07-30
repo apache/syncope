@@ -24,12 +24,14 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import javax.annotation.Resource;
 import org.activiti.editor.constants.ModelDataJsonConstants;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.core.util.ResourceWithFallbackLoader;
 import org.apache.syncope.core.workflow.WorkflowInstanceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ActivitiWorkflowLoader implements WorkflowInstanceLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActivitiWorkflowLoader.class);
+
+    @Resource(name = "userWorkflowDef")
+    private ResourceWithFallbackLoader userWorkflowDef;
 
     @Autowired
     private RepositoryService repositoryService;
@@ -71,7 +76,7 @@ public class ActivitiWorkflowLoader implements WorkflowInstanceLoader {
         if (processes.isEmpty()) {
             InputStream wfIn = null;
             try {
-                wfIn = getClass().getResourceAsStream("/" + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE);
+                wfIn = userWorkflowDef.getResource().getInputStream();
                 repositoryService.createDeployment().addInputStream(ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE,
                         new ByteArrayInputStream(IOUtils.toByteArray(wfIn))).deploy();
 

@@ -19,5 +19,5 @@ under the License.
 -->
 <Context>
   <!-- Disable session persistence across Tomcat restarts -->
-  <Manager pathname="" />
+  <Manager pathname=""/>
 </Context>

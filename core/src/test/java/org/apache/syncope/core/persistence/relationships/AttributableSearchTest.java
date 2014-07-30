@@ -25,15 +25,14 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.syncope.core.persistence.dao.search.AttributeCond;
-import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
+import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
+import org.apache.syncope.core.persistence.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,8 +42,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:syncopeContext.xml", "classpath:persistenceContext.xml",
-    "classpath:schedulingContext.xml", "classpath:workflowContext.xml" })
+@ContextConfiguration(locations = {
+    "classpath:coreContext.xml",
+    "classpath:persistenceContext.xml",
+    "classpath:schedulingContext.xml",
+    "classpath:workflowContext.xml"
+})
 @Transactional
 public class AttributableSearchTest {
 

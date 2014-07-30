@@ -417,7 +417,7 @@ public class TaskTestITCase extends AbstractTest {
     @Test
     public void reconcileFromDB() {
         // update sync task
-        TaskExecTO execution = execSyncTask(7L, 20, false);
+        TaskExecTO execution = execSyncTask(7L, 50, false);
         assertNotNull(execution.getStatus());
         assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
 
@@ -431,7 +431,7 @@ public class TaskTestITCase extends AbstractTest {
         jdbcTemplate.execute("UPDATE TEST SET STATUS=TRUE");
 
         // re-execute the same SyncTask: now user must be active
-        execution = execSyncTask(7L, 20, false);
+        execution = execSyncTask(7L, 50, false);
         assertNotNull(execution.getStatus());
         assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
 
@@ -472,7 +472,7 @@ public class TaskTestITCase extends AbstractTest {
         ldapCleanup();
 
         // Update sync task
-        TaskExecTO execution = execSyncTask(11L, 20, false);
+        TaskExecTO execution = execSyncTask(11L, 50, false);
 
         // 1. verify execution status
         final String status = execution.getStatus();
@@ -743,7 +743,7 @@ public class TaskTestITCase extends AbstractTest {
     @Test
     public void issueSYNCOPE230() {
         // 1. read SyncTask for resource-db-sync (table TESTSYNC on external H2)
-        execSyncTask(10L, 20, false);
+        execSyncTask(10L, 50, false);
 
         // 3. read e-mail address for user created by the SyncTask first execution
         UserTO userTO = readUser("issuesyncope230");
@@ -756,7 +756,7 @@ public class TaskTestITCase extends AbstractTest {
         jdbcTemplate.execute("UPDATE TESTSYNC SET email='updatedSYNCOPE230@syncope.apache.org'");
 
         // 5. re-execute the SyncTask
-        execSyncTask(10L, 20, false);
+        execSyncTask(10L, 50, false);
 
         // 6. verify that the e-mail was updated
         userTO = readUser("issuesyncope230");
@@ -767,7 +767,6 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     private TaskExecTO execSyncTask(final Long taskId, final int maxWaitSeconds, final boolean dryRun) {
-
         AbstractTaskTO taskTO = taskService.read(taskId);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());

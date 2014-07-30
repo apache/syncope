@@ -31,13 +31,14 @@ import org.apache.syncope.common.to.ConfTO;
 import org.apache.syncope.common.wrap.MailTemplate;
 import org.apache.syncope.common.wrap.Validator;
 import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.core.persistence.dao.impl.ContentLoader;
 import org.apache.syncope.core.rest.controller.ConfigurationController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ConfigurationServiceImpl extends AbstractServiceImpl implements ConfigurationService {
+
+    private static final String CONTENT_XML = "content.xml";
 
     @Autowired
     private ConfigurationController controller;
@@ -53,7 +54,7 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
         };
         return Response.ok(sout).
                 type(MediaType.TEXT_XML).
-                header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + ContentLoader.CONTENT_XML).
+                header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + CONTENT_XML).
                 build();
     }
 
