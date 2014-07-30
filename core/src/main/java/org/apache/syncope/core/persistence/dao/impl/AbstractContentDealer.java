@@ -20,11 +20,12 @@ package org.apache.syncope.core.persistence.dao.impl;
 
 import java.io.IOException;
 import java.util.Properties;
+import javax.annotation.Resource;
 import javax.sql.DataSource;
+import org.apache.syncope.core.util.ResourceWithFallbackLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -35,40 +36,24 @@ public abstract class AbstractContentDealer {
 
     protected static final String ROOT_ELEMENT = "dataset";
 
-    public static final String PERSISTENCE_PROPERTIES = "/persistence.properties";
+    @Resource(name = "database.schema")
+    protected String dbSchema;
 
-    private static final String VIEWS_XML = "/views.xml";
+    @Resource(name = "indexesXML")
+    private ResourceWithFallbackLoader indexesXML;
 
-    private static final String INDEXES_XML = "/indexes.xml";
-
-    protected static String dbSchema;
-
-    protected static Properties views;
-
-    protected static Properties indexes;
+    @Resource(name = "viewsXML")
+    private ResourceWithFallbackLoader viewsXML;
 
     @Autowired
     protected DataSource dataSource;
 
-    static {
-        try {
-            Properties persistence = PropertiesLoaderUtils.loadProperties(
-                    new ClassPathResource(PERSISTENCE_PROPERTIES));
-            dbSchema = persistence.getProperty("database.schema");
-
-            views = PropertiesLoaderUtils.loadProperties(new ClassPathResource(VIEWS_XML));
-
-            indexes = PropertiesLoaderUtils.loadProperties(new ClassPathResource(INDEXES_XML));
-        } catch (IOException e) {
-            LOG.error("Could not read one or more properties files", e);
-        }
-    }
-
-    protected void createIndexes() {
+    protected void createIndexes() throws IOException {
         LOG.debug("Creating indexes");
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
+        Properties indexes = PropertiesLoaderUtils.loadProperties(indexesXML.getResource());
         for (String idx : indexes.stringPropertyNames()) {
             LOG.debug("Creating index {}", indexes.get(idx).toString());
 
@@ -82,11 +67,12 @@ public abstract class AbstractContentDealer {
         LOG.debug("Indexes created");
     }
 
-    protected void createViews() {
+    protected void createViews() throws IOException {
         LOG.debug("Creating views");
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
+        Properties views = PropertiesLoaderUtils.loadProperties(viewsXML.getResource());
         for (String idx : views.stringPropertyNames()) {
             LOG.debug("Creating view {}", views.get(idx).toString());
 

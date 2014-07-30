@@ -323,9 +323,7 @@ public class ContentExporter extends AbstractContentDealer {
             conn = DataSourceUtils.getConnection(dataSource);
             final DatabaseMetaData meta = conn.getMetaData();
 
-            final String schema = dbSchema;
-
-            rs = meta.getTables(null, schema, null, new String[] { "TABLE" });
+            rs = meta.getTables(null, StringUtils.isBlank(dbSchema) ? null : dbSchema, null, new String[] { "TABLE" });
 
             final Set<String> tableNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 

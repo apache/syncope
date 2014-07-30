@@ -544,19 +544,19 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
                 if (not) {
                     query.append("<>");
                 } else {
-                    query.append("=");
+                    query.append('=');
                 }
-                query.append("?").append(setParameter(parameters, attrValue.getValue()));
+                query.append('?').append(setParameter(parameters, attrValue.getValue()));
                 break;
 
             case GE:
                 query.append(column);
                 if (not) {
-                    query.append("<");
+                    query.append('<');
                 } else {
                     query.append(">=");
                 }
-                query.append("?").append(setParameter(parameters, attrValue.getValue()));
+                query.append('?').append(setParameter(parameters, attrValue.getValue()));
                 break;
 
             case GT:
@@ -564,19 +564,19 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
                 if (not) {
                     query.append("<=");
                 } else {
-                    query.append(">");
+                    query.append('>');
                 }
-                query.append("?").append(setParameter(parameters, attrValue.getValue()));
+                query.append('?').append(setParameter(parameters, attrValue.getValue()));
                 break;
 
             case LE:
                 query.append(column);
                 if (not) {
-                    query.append(">");
+                    query.append('>');
                 } else {
                     query.append("<=");
                 }
-                query.append("?").append(setParameter(parameters, attrValue.getValue()));
+                query.append('?').append(setParameter(parameters, attrValue.getValue()));
                 break;
 
             case LT:
@@ -584,9 +584,9 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
                 if (not) {
                     query.append(">=");
                 } else {
-                    query.append("<");
+                    query.append('<');
                 }
-                query.append("?").append(setParameter(parameters, attrValue.getValue()));
+                query.append('?').append(setParameter(parameters, attrValue.getValue()));
                 break;
 
             default:
@@ -662,7 +662,7 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
         }
 
         // Deal with subject Integer fields logically mapping to boolean values
-        // (SyncopeRole.inheritAttributes, for example)
+        // (SyncopeRole.inheritAttrs, for example)
         boolean foundBooleanMin = false;
         boolean foundBooleanMax = false;
         if (Integer.class.equals(subjectField.getType())) {
@@ -675,13 +675,7 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
             }
         }
         if (foundBooleanMin && foundBooleanMax) {
-            if ("true".equalsIgnoreCase(cond.getExpression())) {
-                cond.setExpression("1");
-                schema.setType(AttributeSchemaType.Long);
-            } else if ("false".equalsIgnoreCase(cond.getExpression())) {
-                cond.setExpression("0");
-                schema.setType(AttributeSchemaType.Long);
-            }
+            schema.setType(AttributeSchemaType.Boolean);
         }
 
         // Deal with subject fields representing relationships to other entities
@@ -698,15 +692,15 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
         }
 
         AbstractAttrValue attrValue = attrUtil.newAttrValue();
-        try {
-            if (cond.getType() != AttributeCond.Type.LIKE && cond.getType() != AttributeCond.Type.ISNULL
-                    && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+        if (cond.getType() != AttributeCond.Type.LIKE && cond.getType() != AttributeCond.Type.ISNULL
+                && cond.getType() != AttributeCond.Type.ISNOTNULL) {
 
+            try {
                 schema.getValidator().validate(cond.getExpression(), attrValue);
+            } catch (ValidationException e) {
+                LOG.error("Could not validate expression '" + cond.getExpression() + "'", e);
+                return EMPTY_ATTR_QUERY;
             }
-        } catch (ValidationException e) {
-            LOG.error("Could not validate expression '" + cond.getExpression() + "'", e);
-            return EMPTY_ATTR_QUERY;
         }
 
         final StringBuilder query = new StringBuilder("SELECT DISTINCT subject_id FROM ").

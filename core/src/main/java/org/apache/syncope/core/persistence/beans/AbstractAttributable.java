@@ -31,9 +31,9 @@ public abstract class AbstractAttributable extends AbstractSysInfo {
     public <T extends AbstractAttr> T getAttr(final String schemaName) {
         T result = null;
         for (Iterator<? extends AbstractAttr> itor = getAttrs().iterator(); result == null && itor.hasNext();) {
-            final T attribute = (T) itor.next();
-            if (attribute.getSchema() != null && schemaName.equals(attribute.getSchema().getName())) {
-                result = attribute;
+            final T attr = (T) itor.next();
+            if (attr != null && attr.getSchema() != null && schemaName.equals(attr.getSchema().getName())) {
+                result = attr;
             }
         }
         return result;
@@ -46,7 +46,7 @@ public abstract class AbstractAttributable extends AbstractSysInfo {
                 result == null && itor.hasNext();) {
 
             T derAttr = (T) itor.next();
-            if (derAttr.getSchema() != null
+            if (derAttr != null && derAttr.getSchema() != null
                     && derSchemaName.equals(derAttr.getSchema().getName())) {
 
                 result = derAttr;
@@ -63,7 +63,7 @@ public abstract class AbstractAttributable extends AbstractSysInfo {
                 result == null && itor.hasNext();) {
 
             T virAttr = (T) itor.next();
-            if (virAttr.getSchema() != null
+            if (virAttr != null && virAttr.getSchema() != null
                     && virSchemaName.equals(virAttr.getSchema().getName())) {
 
                 result = virAttr;

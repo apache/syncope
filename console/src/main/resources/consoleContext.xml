@@ -32,22 +32,18 @@ under the License.
   <context:component-scan base-package="org.apache.syncope.console.init"/>
   <context:component-scan base-package="org.apache.syncope.console.preview"/>
 
-  <bean id="systemPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+  <bean id="confDirectoryPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="order" value="1"/>
-    <property name="location" value="file:#{(systemProperties['syncope.console.configuration'])}"/>
+    <property name="location" value="file:${conf.directory}/console.properties"/>
     <property name="ignoreResourceNotFound" value="true"/>
     <property name="ignoreUnresolvablePlaceholders" value="true"/>
   </bean>
-  <bean id="defaultPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="locations">
-      <list>
-        <value>classpath:configuration.properties</value>
-      </list>
-    </property>
+  <bean id="classpathPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="location" value="classpath:console.properties"/>
   </bean>
 
   <bean id="version" class="java.lang.String">
-    <constructor-arg value="${project.parent.version}"/>
+    <constructor-arg value="${syncope.version}"/>
   </bean>
 
   <bean id="site" class="java.lang.String">

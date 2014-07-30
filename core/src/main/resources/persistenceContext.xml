@@ -40,6 +40,26 @@ under the License.
   <context:component-scan base-package="org.apache.syncope.core.util"/>
   <context:component-scan base-package="org.apache.syncope.core.policy"/>
 
+  <bean id="database.schema" class="java.lang.String">
+    <constructor-arg value="${database.schema}"/>
+  </bean>
+  <bean id="persistenceProperties" class="org.apache.syncope.core.util.ResourceWithFallbackLoader">
+    <property name="primary" value="file:${conf.directory}/persistence.properties"/>
+    <property name="fallback" value="classpath:persistence.properties"/>
+  </bean>
+  <bean id="contentXML" class="org.apache.syncope.core.util.ResourceWithFallbackLoader">
+    <property name="primary" value="file:${conf.directory}/content.xml"/>
+    <property name="fallback" value="classpath:content.xml"/>
+  </bean>
+  <bean id="viewsXML" class="org.apache.syncope.core.util.ResourceWithFallbackLoader">
+    <property name="primary" value="file:${conf.directory}/views.xml"/>
+    <property name="fallback" value="classpath:views.xml"/>
+  </bean>
+  <bean id="indexesXML" class="org.apache.syncope.core.util.ResourceWithFallbackLoader">
+    <property name="primary" value="file:${conf.directory}/indexes.xml"/>
+    <property name="fallback" value="classpath:indexes.xml"/>
+  </bean>
+
   <!-- Use JNDI datasource as default but, when not available, revert to
   local datasource, with different properties for execution and testing. 
   In any case, get all JDBC connections with a determined isolation level. -->

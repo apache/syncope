@@ -35,26 +35,6 @@ public class ConfDAOImpl extends AbstractDAOImpl implements ConfDAO {
     @Autowired
     private SchemaDAO schemaDAO;
 
-    @Transactional(readOnly = true)
-    @Override
-    public CAttr find(final String key) {
-        return get().getAttr(key);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public CAttr find(final String key, final String defaultValue) {
-        CAttr result = get().getAttr(key);
-        if (result == null) {
-            result = new CAttr();
-            result.setSchema(schemaDAO.find(key, CSchema.class));
-
-            result.addValue(defaultValue, AttributableUtil.getInstance(AttributableType.CONFIGURATION));
-        }
-
-        return result;
-    }
-
     @Override
     public SyncopeConf get() {
         SyncopeConf instance = entityManager.find(SyncopeConf.class, 1L);
@@ -66,6 +46,26 @@ public class ConfDAOImpl extends AbstractDAOImpl implements ConfDAO {
         }
 
         return instance;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public CAttr find(final String key) {
+        return get().getAttr(key);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public CAttr find(final String key, final String defaultValue) {
+        CAttr result = find(key);
+        if (result == null) {
+            result = new CAttr();
+            result.setSchema(schemaDAO.find(key, CSchema.class));
+
+            result.addValue(defaultValue, AttributableUtil.getInstance(AttributableType.CONFIGURATION));
+        }
+
+        return result;
     }
 
     @Override

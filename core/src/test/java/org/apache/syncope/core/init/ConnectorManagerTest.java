@@ -26,6 +26,7 @@ import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.rest.data.ResourceDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
+import org.apache.syncope.core.util.ConnIdBundleManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,9 @@ public class ConnectorManagerTest extends AbstractNonDAOTest {
     private ConnectorManager connManager;
 
     @Autowired
+    private ConnIdBundleManager connIdBundleManager;
+
+    @Autowired
     private ResourceDAO resourceDAO;
 
     @Autowired
@@ -46,6 +50,7 @@ public class ConnectorManagerTest extends AbstractNonDAOTest {
     @Before
     public void before() {
         connManager = new ConnectorManager();
+        ReflectionTestUtils.setField(connManager, "connIdBundleManager", connIdBundleManager);
         ReflectionTestUtils.setField(connManager, "resourceDAO", resourceDAO);
         ReflectionTestUtils.setField(connManager, "resourceDataBinder", resourceDataBinder);
 

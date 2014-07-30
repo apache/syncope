@@ -178,7 +178,7 @@ under the License.
         <directory>../console/src/test/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/test/resources</targetPath>
         <includes>
-          <include>configuration.properties</include>
+          <include>console.properties</include>
         </includes>
       </resource>
     </resources>

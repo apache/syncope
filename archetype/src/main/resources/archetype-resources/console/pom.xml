@@ -16,7 +16,6 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
@@ -158,15 +157,12 @@ under the License.
             </goals>
           </execution>
           <execution>
-            <id>explodeSyncopeWAR</id>
+            <id>setupTestWebapp</id>
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
                 <unzip src="${basedir}/../core/target/syncope.war" dest="${cargo.run.dir}"/>
                 <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}"/>
-                <copy todir="${cargo.run.dir}/WEB-INF/classes" includeEmptyDirs="false">
-                  <fileset dir="${project.build.directory}/test-classes"/>
-                </copy>
               </target>
             </configuration>
             <goals>
@@ -178,7 +174,9 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true"/>
+                <copy file="${project.build.directory}/test-classes/test.csv" 
+                      todir="${test.csvdir.path}" 
+                      overwrite="true"/>
               </target>    
             </configuration>
             <goals>
@@ -200,9 +198,6 @@ under the License.
                 <artifactId>h2</artifactId>
               </dependency>
             </dependencies>
-            <systemProperties>
-              <syncope.console.configuration>${project.build.directory}/test-classes/configuration.properties</syncope.console.configuration>
-            </systemProperties>
           </container>
           <configuration>
             <type>standalone</type>
@@ -271,9 +266,12 @@ under the License.
   <profiles>
     <profile>
       <id>embedded</id>
+      
       <properties>
+        <conf.directory>${project.build.directory}/test-classes</conf.directory>
         <skipTests>true</skipTests>
       </properties>
+      
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>    
       </build>

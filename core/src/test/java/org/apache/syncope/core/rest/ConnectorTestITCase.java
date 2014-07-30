@@ -27,7 +27,6 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -53,7 +52,6 @@ import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.SyncopeClientException;
-import org.apache.syncope.core.util.ConnIdBundleManager;
 import org.identityconnectors.common.security.GuardedString;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -62,6 +60,8 @@ import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class ConnectorTestITCase extends AbstractTest {
+
+    private static String connectorServerLocation;
 
     private static String connidSoapVersion;
 
@@ -74,18 +74,25 @@ public class ConnectorTestITCase extends AbstractTest {
         InputStream propStream = null;
         try {
             Properties props = new Properties();
-            propStream = ConnectorTestITCase.class.getResourceAsStream(ConnIdBundleManager.CONNID_PROPS);
+            propStream = ConnectorTestITCase.class.getResourceAsStream("/connid.properties");
             props.load(propStream);
+
+            for (String location : props.getProperty("connid.locations").split(",")) {
+                if (!location.startsWith("file")) {
+                    connectorServerLocation = location;
+                }
+            }
 
             connidSoapVersion = props.getProperty("connid.soap.version");
             connidDbTableVersion = props.getProperty("connid.db.table.version");
 
             testJDBCURL = props.getProperty("testdb.url");
         } catch (Exception e) {
-            LOG.error("Could not load {}", ConnIdBundleManager.CONNID_PROPS, e);
+            LOG.error("Could not load /connid.properties", e);
         } finally {
             IOUtils.closeQuietly(propStream);
         }
+        assertNotNull(connectorServerLocation);
         assertNotNull(connidSoapVersion);
         assertNotNull(connidDbTableVersion);
         assertNotNull(testJDBCURL);
@@ -427,22 +434,10 @@ public class ConnectorTestITCase extends AbstractTest {
     @Test
     public void validate() {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
-
-        for (URI location : ConnIdBundleManager.getConnManagers().keySet()) {
-            if (!location.getScheme().equals("file")) {
-                connectorTO.setLocation(location.toString());
-            }
-        }
-
-        // set connector version
+        connectorTO.setLocation(connectorServerLocation);
         connectorTO.setVersion(connidDbTableVersion);
-
-        // set connector name
         connectorTO.setConnectorName("org.connid.bundles.db.table.DatabaseTableConnector");
-
-        // set bundle name
         connectorTO.setBundleName("org.connid.bundles.db.table");
-
         connectorTO.setDisplayName("H2Test");
 
         // set the connector configuration using PropertyTO

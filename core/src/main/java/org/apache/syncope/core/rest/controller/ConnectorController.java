@@ -57,6 +57,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class ConnectorController extends AbstractTransactionalController<ConnInstanceTO> {
 
     @Autowired
+    private ConnIdBundleManager connIdBundleManager;
+
+    @Autowired
     private ResourceDAO resourceDAO;
 
     @Autowired
@@ -166,7 +169,7 @@ public class ConnectorController extends AbstractTransactionalController<ConnIns
         }
 
         List<ConnBundleTO> connectorBundleTOs = new ArrayList<ConnBundleTO>();
-        for (Map.Entry<String, List<ConnectorInfo>> entry : ConnIdBundleManager.getConnectorInfos().entrySet()) {
+        for (Map.Entry<String, List<ConnectorInfo>> entry : connIdBundleManager.getConnectorInfos().entrySet()) {
             for (ConnectorInfo bundle : entry.getValue()) {
                 ConnBundleTO connBundleTO = new ConnBundleTO();
                 connBundleTO.setDisplayName(bundle.getConnectorDisplayName());
@@ -178,7 +181,7 @@ public class ConnectorController extends AbstractTransactionalController<ConnIns
                 connBundleTO.setConnectorName(key.getConnectorName());
                 connBundleTO.setVersion(key.getBundleVersion());
 
-                ConfigurationProperties properties = ConnIdBundleManager.getConfigurationProperties(bundle);
+                ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(bundle);
 
                 for (String propName : properties.getPropertyNames()) {
                     connBundleTO.getProperties().add(binder.buildConnConfPropSchema(properties.getProperty(propName)));

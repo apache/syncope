@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.propagation.TimeoutException;
+import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.ConnIdBundleManager;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
@@ -96,7 +97,9 @@ public class ConnectorFacadeProxy implements Connector {
     public ConnectorFacadeProxy(final ConnInstance connInstance) {
         this.activeConnInstance = connInstance;
 
-        ConnectorInfo info = ConnIdBundleManager.getConnectorInfo(connInstance.getLocation(),
+        ConnIdBundleManager connIdBundleManager =
+                ApplicationContextProvider.getApplicationContext().getBean(ConnIdBundleManager.class);
+        ConnectorInfo info = connIdBundleManager.getConnectorInfo(connInstance.getLocation(),
                 connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName());
 
         // create default configuration

@@ -214,7 +214,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.core.persistence.beans.membership.CAttrValue">
+  <entity class="org.apache.syncope.core.persistence.beans.conf.CAttrValue">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_CAttrValue" strategy="TABLE"/>

@@ -38,7 +38,11 @@ public class DoubleValueAttributableTransformer implements AttributableTransform
             if (NAME.equals(attr.getSchema())) {
                 List<String> values = new ArrayList<String>(attr.getValues().size());
                 for (String value : attr.getValues()) {
-                    values.add(String.valueOf(2 * Long.valueOf(value)));
+                    try {
+                        values.add(String.valueOf(2 * Long.valueOf(value)));
+                    } catch (NumberFormatException e) {
+                        // ignore
+                    }
                 }
                 attr.getValues().clear();
                 attr.getValues().addAll(values);
@@ -54,7 +58,11 @@ public class DoubleValueAttributableTransformer implements AttributableTransform
             if (NAME.equals(attr.getSchema())) {
                 List<String> values = new ArrayList<String>(attr.getValuesToBeAdded().size());
                 for (String value : attr.getValuesToBeAdded()) {
-                    values.add(String.valueOf(2 * Long.valueOf(value)));
+                    try {
+                        values.add(String.valueOf(2 * Long.valueOf(value)));
+                    } catch (NumberFormatException e) {
+                        // ignore
+                    }
                 }
                 attr.getValuesToBeAdded().clear();
                 attr.getValuesToBeAdded().addAll(values);

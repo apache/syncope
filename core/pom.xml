@@ -450,20 +450,19 @@ under the License.
         <inherited>true</inherited>
         <executions>
           <execution>
-            <id>explodeSyncopeWAR</id>
+            <id>setupTestWebapp</id>
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <unzip src="${project.build.directory}/${project.build.finalName}.war" dest="${cargo.run.dir}" />
-                <copy file="${project.build.directory}/test-classes/org/apache/syncope/core/sync/TestSyncActions.class" todir="${cargo.run.dir}/WEB-INF/classes/org/apache/syncope/core/sync" />
-                <copy file="${project.build.directory}/test-classes/org/apache/syncope/core/sync/TestSyncRule.class" todir="${cargo.run.dir}/WEB-INF/classes/org/apache/syncope/core/sync" />
-                <copy file="${project.build.directory}/test-classes/org/apache/syncope/core/rest/data/DoubleValueAttributableTransformer.class" todir="${cargo.run.dir}/WEB-INF/classes/org/apache/syncope/core/rest/data" />
-                <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}" />
-                <copy todir="${cargo.run.dir}/WEB-INF/classes" includeEmptyDirs="false">
-                  <fileset dir="${project.build.directory}/test-classes">
-                    <exclude name="**/*.class" />
-                  </fileset>
-                </copy>
+                <unzip src="${project.build.directory}/${project.build.finalName}.war" dest="${cargo.run.dir}"/>
+                <copy file="${project.build.directory}/test-classes/org/apache/syncope/core/sync/TestSyncActions.class" 
+                      todir="${cargo.run.dir}/WEB-INF/classes/org/apache/syncope/core/sync"/>
+                <copy file="${project.build.directory}/test-classes/org/apache/syncope/core/sync/TestSyncRule.class" 
+                      todir="${cargo.run.dir}/WEB-INF/classes/org/apache/syncope/core/sync"/>
+                <copy file="${project.build.directory}/test-classes/org/apache/syncope/core/rest/data/DoubleValueAttributableTransformer.class" 
+                      todir="${cargo.run.dir}/WEB-INF/classes/org/apache/syncope/core/rest/data"/>
+                <copy file="${project.build.directory}/test-classes/db.jsp" 
+                      todir="${cargo.run.dir}"/>
               </target>
             </configuration>
             <goals>
@@ -475,7 +474,9 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true" />
+                <copy file="${project.build.directory}/test-classes/test.csv" 
+                      todir="${test.csvdir.path}" 
+                      overwrite="true"/>
               </target>
             </configuration>
             <goals>
@@ -929,10 +930,12 @@ under the License.
 
     <profile>
       <id>oracle-it</id>
+
       <properties>
         <jdbcdriver.groupId>com.oracle</jdbcdriver.groupId>
         <jdbcdriver.artifactId>ojdbc6</jdbcdriver.artifactId>
       </properties>
+
       <dependencies>
         <dependency>
           <groupId>com.oracle</groupId>
@@ -941,6 +944,7 @@ under the License.
           <scope>test</scope>
         </dependency>
       </dependencies>
+
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
@@ -955,7 +959,9 @@ under the License.
                 <phase>process-test-resources</phase>
                 <configuration>
                   <target>
-                    <copy tofile="${project.build.directory}/classes/META-INF/orm.xml" file="${basedir}/src/main/resources/META-INF/orm.xml.oracle" overwrite="true" />
+                    <copy file="${basedir}/src/main/resources/META-INF/orm.xml.oracle" 
+                          tofile="${project.build.directory}/classes/META-INF/orm.xml"                           
+                          overwrite="true"/>
                   </target>
                 </configuration>
                 <goals>
@@ -984,10 +990,12 @@ under the License.
     
     <profile>
       <id>sqlserver-it</id>
+      
       <properties>
         <jdbcdriver.groupId>com.microsoft.sqlserver</jdbcdriver.groupId>
         <jdbcdriver.artifactId>sqljdbc4</jdbcdriver.artifactId>
       </properties>
+      
       <dependencies>
         <dependency>
           <groupId>com.microsoft.sqlserver</groupId>
@@ -996,10 +1004,20 @@ under the License.
           <scope>test</scope>
         </dependency>
       </dependencies>
+      
       <build>
-        <defaultGoal>clean verify</defaultGoal>
+        <defaultGoal>clean verify cargo:run</defaultGoal>
 
         <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <skipTests>true</skipTests>
+            </configuration>
+          </plugin>
+        
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
@@ -1010,7 +1028,9 @@ under the License.
                 <phase>process-test-resources</phase>
                 <configuration>
                   <target>
-                    <copy tofile="${project.build.directory}/classes/META-INF/orm.xml" file="${basedir}/src/main/resources/META-INF/orm.xml.sqlserver" overwrite="true" />
+                    <copy file="${basedir}/src/main/resources/META-INF/orm.xml.sqlserver" 
+                          tofile="${project.build.directory}/classes/META-INF/orm.xml"                          
+                          overwrite="true"/>
                   </target>
                 </configuration>
                 <goals>
@@ -1039,18 +1059,21 @@ under the License.
     
     <profile>
       <id>postgres-it</id>
+
       <properties>
         <jdbcdriver.groupId>org.postgresql</jdbcdriver.groupId>
         <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>
       </properties>
+
       <dependencies>
         <dependency>
           <groupId>org.postgresql</groupId>
           <artifactId>postgresql</artifactId>
-          <version>9.3-1100-jdbc41</version>
+          <version>9.3-1101-jdbc3</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
+      
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
@@ -1072,10 +1095,12 @@ under the License.
 
     <profile>
       <id>mysql-it</id>
+
       <properties>
         <jdbcdriver.groupId>mysql</jdbcdriver.groupId>
         <jdbcdriver.artifactId>mysql-connector-java</jdbcdriver.artifactId>
       </properties>
+
       <dependencies>
         <dependency>
           <groupId>mysql</groupId>
@@ -1084,6 +1109,7 @@ under the License.
           <scope>test</scope>
         </dependency>
       </dependencies>
+      
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
@@ -1193,9 +1219,14 @@ under the License.
                 <phase>pre-integration-test</phase>
                 <configuration>
                   <target>
-                    <unzip src="${settings.localRepository}/org/apache/syncope/syncope-build-tools/${project.version}/syncope-build-tools-${project.version}.war" dest="${project.build.directory}/syncope-build-tools-test" />
-                    <copy file="${project.build.outputDirectory}/META-INF/MANIFEST.MF" todir="${project.build.directory}/syncope-build-tools-test/META-INF" overwrite="true" />
-                    <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" todir="${project.build.directory}/syncope-build-tools-test/WEB-INF/lib" overwrite="true" />
+                    <unzip src="${settings.localRepository}/org/apache/syncope/syncope-build-tools/${project.version}/syncope-build-tools-${project.version}.war" 
+                           dest="${project.build.directory}/syncope-build-tools-test"/>
+                    <copy file="${project.build.outputDirectory}/META-INF/MANIFEST.MF" 
+                          todir="${project.build.directory}/syncope-build-tools-test/META-INF" 
+                          overwrite="true"/>
+                    <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" 
+                          todir="${project.build.directory}/syncope-build-tools-test/WEB-INF/lib" 
+                          overwrite="true"/>
                   </target>
                 </configuration>
                 <goals>
@@ -1315,12 +1346,17 @@ under the License.
                 <configuration>
                   <target>
                     <!-- Needed because WebLogic has problems in running ApacheDS from the WAR archive -->
-                    <unzip src="${settings.localRepository}/org/apache/syncope/syncope-build-tools/${project.version}/syncope-build-tools-${project.version}.war" dest="${project.build.directory}/syncope-build-tools-test" />
+                    <unzip src="${settings.localRepository}/org/apache/syncope/syncope-build-tools/${project.version}/syncope-build-tools-${project.version}.war" 
+                           dest="${project.build.directory}/syncope-build-tools-test"/>
                     <!-- Needed because WebLogic is installed (H2 dependency cannot be injected via cargo) -->
-                    <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" todir="${project.build.directory}/syncope-build-tools-test/WEB-INF/lib" overwrite="true" />
+                    <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" 
+                          todir="${project.build.directory}/syncope-build-tools-test/WEB-INF/lib" 
+                          overwrite="true"/>
                     <!-- Needed because WebLogic deploys first core then build-tools: this JSP will just ask core to
                     reload all connectors -->
-                    <copy file="${project.build.directory}/test-classes/conninstance-reload.jsp" todir="${project.build.directory}/syncope-build-tools-test" overwrite="true" />
+                    <copy file="${project.build.directory}/test-classes/conninstance-reload.jsp" 
+                          todir="${project.build.directory}/syncope-build-tools-test" 
+                          overwrite="true"/>
                   </target>
                 </configuration>
                 <goals>
@@ -1346,6 +1382,11 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.weblogic.bea.home>${weblogic.home}</cargo.weblogic.bea.home>
+                  <cargo.jvmargs>-server -Xms1024m -Xmx1024m -XX:PermSize=512m -XX:MaxPermSize=1024m -XX:NewRatio=2 
+                    -XX:SurvivorRatio=128 -XX:MaxTenuringThreshold=0 -XX:+UseG1GC -XX:MaxGCPauseMillis=200 
+                    -XX:InitiatingHeapOccupancyPercent=80 -XX:G1HeapRegionSize=2048k -XX:+UseTLAB 
+                    -XX:LargePageSizeInBytes=2048k -XX:+UseLargePages -Dtangosol.coherence.mode=prod 
+                    -Dtangosol.coherence.distributed.localstorage=false</cargo.jvmargs>
                 </properties>
               </configuration>
               <deployables>

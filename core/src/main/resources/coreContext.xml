@@ -28,20 +28,34 @@ under the License.
                            http://www.springframework.org/schema/task
                            http://www.springframework.org/schema/task/spring-task.xsd">
 
-  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+  <bean id="confDirectoryPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="order" value="1"/>
+    <property name="ignoreResourceNotFound" value="true"/>
+    <property name="ignoreUnresolvablePlaceholders" value="true"/>
+    <property name="locations">
+      <list>
+        <value>file:${conf.directory}/persistence.properties</value>
+        <value>file:${conf.directory}/rest.properties</value>
+        <value>file:${conf.directory}/security.properties</value>
+        <value>file:${conf.directory}/connid.properties</value>
+        <value>file:${conf.directory}/workflow.properties</value>
+        <value>file:${conf.directory}/mail.properties</value>
+      </list>
+    </property>
+  </bean>
+  <bean id="classpathPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="locations">
       <list>
         <value>classpath:persistence.properties</value>
         <value>classpath:rest.properties</value>
         <value>classpath:security.properties</value>
+        <value>classpath:connid.properties</value>
         <value>classpath:workflow.properties</value>
         <value>classpath:mail.properties</value>
       </list>
     </property>
-    <property name="ignoreResourceNotFound" value="true"/>
-    <property name="ignoreUnresolvablePlaceholders" value="true"/>
   </bean>
-
+  
   <bean id="adminUser" class="java.lang.String">
     <constructor-arg value="${adminUser}"/>
   </bean>
@@ -86,7 +100,10 @@ under the License.
 
   <bean id="auditManager" class="org.apache.syncope.core.audit.AuditManager"/>
   
-  <bean id="connectorFacadeProxy" class="org.apache.syncope.core.propagation.impl.ConnectorFacadeProxy" scope="prototype"/>
+  <bean id="connIdBundleManager" class="org.apache.syncope.core.util.ConnIdBundleManager" scope="singleton">
+    <property name="stringLocations" value="${connid.locations}"/>
+  </bean>
+  
   <bean id="asyncConnFacade" class="org.apache.syncope.core.propagation.impl.AsyncConnectorFacade" scope="singleton"/>
 
   <bean id="syncUtilities" class="org.apache.syncope.core.sync.SyncUtilities"/>

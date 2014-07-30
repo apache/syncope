@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -167,6 +168,7 @@ public class ExternalResource extends AbstractSysInfo {
      * (Optional) classes for PropagationAction.
      */
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "ExternalResource_PropActions")
     private List<String> propagationActionsClassNames = new ArrayList<String>();
 
     /**

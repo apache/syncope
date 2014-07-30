@@ -33,8 +33,6 @@ under the License.
   + provided as non-empty string: NotificationJob runs according to the given value -->
   <CSchema name="notificationjob.cronExpression" type="String"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CAttr id="2" owner_id="1" schema_name="notificationjob.cronExpression"/>
-  <CAttrValue id="2" attribute_id="2" stringValue=""/>
 
   <CSchema name="notification.maxRetries" type="Long"
            mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
@@ -582,8 +580,8 @@ under the License.
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <ExternalResource_propagationActionsClassNames externalResource_name="resource-ldap"
-                                                 element="org.apache.syncope.core.propagation.impl.LDAPMembershipPropagationActions"/>
+  <ExternalResource_PropActions externalResource_name="resource-ldap"
+                                element="org.apache.syncope.core.propagation.impl.LDAPMembershipPropagationActions"/>
   <ExternalResource name="ws-target-resource-nopropagation" connector_id="103"
                     randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" 

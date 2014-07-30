@@ -32,7 +32,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:applicationContext.xml"})
+@ContextConfiguration(locations = { "classpath:consoleContext.xml" })
 public abstract class AbstractTest extends TestCase {
 
     /**
@@ -47,7 +47,7 @@ public abstract class AbstractTest extends TestCase {
     protected static final String BASE_URL = "http://localhost:9080/syncope-console/";
 
     protected Selenium selenium;
-    
+
     protected WebDriver seleniumDriver;
 
     @Override

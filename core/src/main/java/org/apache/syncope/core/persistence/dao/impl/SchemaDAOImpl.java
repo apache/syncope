@@ -26,7 +26,9 @@ import javax.persistence.TypedQuery;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
-import org.apache.syncope.core.persistence.beans.user.UAttr;
+import org.apache.syncope.core.persistence.beans.membership.MAttr;
+import org.apache.syncope.core.persistence.beans.role.RAttr;
+import org.apache.syncope.core.persistence.beans.role.RMappingItem;
 import org.apache.syncope.core.persistence.beans.user.UMappingItem;
 import org.apache.syncope.core.persistence.dao.AttrDAO;
 import org.apache.syncope.core.persistence.dao.AttrTemplateDAO;
@@ -65,7 +67,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl implements SchemaDAO {
     public <T extends AbstractAttr> List<T> findAttrs(final AbstractNormalSchema schema, final Class<T> reference) {
         final StringBuilder queryString =
                 new StringBuilder("SELECT e FROM ").append(reference.getSimpleName()).append(" e WHERE e.");
-        if (!reference.equals(UAttr.class)) {
+        if (reference.equals(RAttr.class) || reference.equals(MAttr.class)) {
             queryString.append("template.");
         }
         queryString.append("schema=:schema");
@@ -97,7 +99,9 @@ public class SchemaDAOImpl extends AbstractDAOImpl implements SchemaDAO {
             attrDAO.delete(attrId, attributableUtil.attrClass());
         }
 
-        if (attributableUtil.getType() != AttributableType.USER) {
+        if (attributableUtil.getType() == AttributableType.ROLE
+                || attributableUtil.getType() == AttributableType.MEMBERSHIP) {
+
             for (Iterator<Number> it = attrTemplateDAO.
                     findBySchemaName(schema.getName(), attributableUtil.attrTemplateClass()).iterator();
                     it.hasNext();) {
@@ -107,6 +111,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl implements SchemaDAO {
         }
 
         resourceDAO.deleteMapping(name, attributableUtil.intMappingType(), UMappingItem.class);
+        resourceDAO.deleteMapping(name, attributableUtil.intMappingType(), RMappingItem.class);
 
         entityManager.remove(schema);
     }

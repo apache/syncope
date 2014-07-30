@@ -31,13 +31,14 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.core.persistence.dao.impl.AbstractContentDealer;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSInput;
@@ -57,17 +58,28 @@ public final class AuditConnectionFactory {
     static {
         // 1. Attempts to lookup for configured JNDI datasource (if present and available)
         InputStream springConf = AuditConnectionFactory.class.getResourceAsStream(PERSISTENCE_CONTEXT);
+        String primary = null;
+        String fallback = null;
         try {
             DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
             DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
             LSParser parser = impl.createLSParser(DOMImplementationLS.MODE_SYNCHRONOUS, null);
             LSInput lsinput = impl.createLSInput();
             lsinput.setByteStream(springConf);
+            Document source = parser.parse(lsinput);
 
             XPathFactory xPathfactory = XPathFactory.newInstance();
             XPath xpath = xPathfactory.newXPath();
-            XPathExpression expr = xpath.compile("//*[local-name()='property' and @name='jndiName']/@value");
-            String jndiName = (String) expr.evaluate(parser.parse(lsinput), XPathConstants.STRING);
+
+            XPathExpression expr = xpath.compile("//*[local-name()='bean' and @id='persistenceProperties']/"
+                    + "child::*[local-name()='property' and @name='primary']/@value");
+            primary = (String) expr.evaluate(source, XPathConstants.STRING);
+            expr = xpath.compile("//*[local-name()='bean' and @id='persistenceProperties']/"
+                    + "child::*[local-name()='property' and @name='fallback']/@value");
+            fallback = (String) expr.evaluate(source, XPathConstants.STRING);
+
+            expr = xpath.compile("//*[local-name()='property' and @name='jndiName']/@value");
+            String jndiName = (String) expr.evaluate(source, XPathConstants.STRING);
 
             Context ctx = new InitialContext();
             Object obj = ctx.lookup(jndiName);
@@ -82,8 +94,24 @@ public final class AuditConnectionFactory {
         // 2. Creates Commons DBCP datasource
         String initSQLScript = null;
         try {
-            Properties persistence = PropertiesLoaderUtils.loadProperties(
-                    new ClassPathResource(AbstractContentDealer.PERSISTENCE_PROPERTIES));
+            Resource persistenceProperties = null;
+            if (primary != null) {
+                if (primary.startsWith("file:")) {
+                    persistenceProperties = new FileSystemResource(primary.substring(5));
+                }
+                if (primary.startsWith("classpath:")) {
+                    persistenceProperties = new ClassPathResource(primary.substring(10));
+                }
+            }
+            if ((persistenceProperties == null || !persistenceProperties.exists()) && fallback != null) {
+                if (fallback.startsWith("file:")) {
+                    persistenceProperties = new FileSystemResource(fallback.substring(5));
+                }
+                if (fallback.startsWith("classpath:")) {
+                    persistenceProperties = new ClassPathResource(fallback.substring(10));
+                }
+            }
+            Properties persistence = PropertiesLoaderUtils.loadProperties(persistenceProperties);
 
             initSQLScript = persistence.getProperty("audit.sql");
 
