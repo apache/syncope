@@ -367,6 +367,8 @@ under the License.
     <codemirror.version>3.23</codemirror.version>
 
     <izpack.version>5.0.0-rc2</izpack.version>
+    
+    <jdeb.version>1.3</jdeb.version>
  
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -1129,30 +1131,27 @@ under the License.
           <artifactId>maven-dependency-plugin</artifactId>
           <version>2.8</version>
           <configuration>
+            <outputDirectory>${bundles.directory}</outputDirectory>
             <artifactItems>
               <artifactItem>
                 <groupId>org.connid.bundles.soap</groupId>
                 <artifactId>org.connid.bundles.soap</artifactId>
                 <version>${connid.soap.version}</version>
-                <outputDirectory>${bundles.directory}</outputDirectory>
               </artifactItem>
               <artifactItem>
                 <groupId>org.connid.bundles</groupId>
                 <artifactId>org.connid.bundles.csvdir</artifactId>
                 <version>${connid.csvdir.version}</version>
-                <outputDirectory>${bundles.directory}</outputDirectory>
               </artifactItem>
               <artifactItem>
                 <groupId>org.connid.bundles</groupId>
                 <artifactId>org.connid.bundles.ldap</artifactId>
                 <version>${connid.ldap.version}</version>
-                <outputDirectory>${bundles.directory}</outputDirectory>
               </artifactItem>
               <artifactItem>
                 <groupId>org.connid.bundles</groupId>
                 <artifactId>org.connid.bundles.ad</artifactId>
                 <version>${connid.ad.version}</version>
-                <outputDirectory>${bundles.directory}</outputDirectory>
               </artifactItem>
             </artifactItems>
           </configuration>
@@ -1345,6 +1344,11 @@ under the License.
           <artifactId>izpack-maven-plugin</artifactId>
           <version>${izpack.version}</version>
         </plugin>
+        <plugin>        
+          <groupId>org.vafer</groupId>
+          <artifactId>jdeb</artifactId>
+          <version>${jdeb.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
         
@@ -1417,6 +1421,8 @@ under the License.
             <exclude>.git/**</exclude>
             <exclude>.idea/**</exclude>
             <exclude>**/.*</exclude>
+            <exclude>**/deb/control/conffiles</exclude>
+            <exclude>**/deb/control/control</exclude>
           </excludes>
         </configuration>
         <executions>
@@ -1602,5 +1608,6 @@ under the License.
     <module>console</module>
     <module>standalone</module>
     <module>installer</module>
+    <module>deb</module>
   </modules>
 </project>
