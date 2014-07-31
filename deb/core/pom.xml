@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-deb</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.3.0-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Deb Core</name>
@@ -32,8 +32,6 @@ under the License.
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope-deb-core</artifactId>
   <packaging>war</packaging>
-
-
 
   <dependencies>
     <dependency>
