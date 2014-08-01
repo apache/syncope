@@ -171,6 +171,14 @@ under the License.
                     <group>tomcat7</group>
                   </mapper>
                 </data>
+                <data>
+                  <src>${basedir}/../../legal_ext</src>
+                  <type>directory</type>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/usr/share/doc/apache-syncope-console</prefix>
+                  </mapper>
+                </data>                
               </dataSet>
             </configuration>
           </execution>
