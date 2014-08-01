@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.installer.processes;
 
+import org.apache.syncope.installer.utilities.FileSystemUtils;
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
 import org.apache.syncope.installer.enums.DBs;
 import org.apache.syncope.installer.files.OrmXml;
 import org.apache.syncope.installer.files.PersistenceProperties;
-import org.apache.syncope.installer.utilities.Commands;
 
-public class PersistenceProcess extends AbstractProcess {
+public class PersistenceProcess {
 
     private String installPath;
 
@@ -83,14 +83,14 @@ public class PersistenceProcess extends AbstractProcess {
                 break;
         }
 
-        writeToFile(new File(
+        FileSystemUtils.writeToFile(new File(
                 installPath + "/" + artifactId + PersistenceProperties.PATH), persistenceProperties.toString());
 
     }
 
     private void writeOrmFile(final AbstractUIProcessHandler handler, final String content) {
-        exec(Commands.createDirectory(installPath + "/" + artifactId + OrmXml.PATH_DIR), handler, null);
+        FileSystemUtils.createDirectory(installPath + "/" + artifactId + OrmXml.PATH_DIR, handler, null);
         final File orm = new File(installPath + "/" + artifactId + OrmXml.PATH_COMPLETE);
-        writeToFile(orm, content);
+        FileSystemUtils.writeToFile(orm, content);
     }
 }

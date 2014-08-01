@@ -20,7 +20,7 @@ package org.apache.syncope.installer.containers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import org.apache.syncope.installer.utilities.Commands;
+import org.apache.syncope.installer.utilities.FileSystemUtils;
 import org.apache.syncope.installer.utilities.HttpUtils;
 
 public class Tomcat extends AbstractContainer {
@@ -52,7 +52,7 @@ public class Tomcat extends AbstractContainer {
 
     public boolean deployCore() {
         int status;
-        if (Commands.IS_WIN) {
+        if (FileSystemUtils.IS_WIN) {
             status = httpUtils.getWithBasicAuth(pathEncoded(WIN_DEPLOY_SYNCOPE_CORE_QUERY));
         } else {
             status = httpUtils.getWithBasicAuth(path(UNIX_DEPLOY_SYNCOPE_CORE_QUERY));
@@ -63,7 +63,7 @@ public class Tomcat extends AbstractContainer {
 
     public boolean deployConsole() {
         int status;
-        if (Commands.IS_WIN) {
+        if (FileSystemUtils.IS_WIN) {
             status = httpUtils.getWithBasicAuth(pathEncoded(WIN_DEPLOY_SYNCOPE_CONSOLE_QUERY));
         } else {
             status = httpUtils.getWithBasicAuth(path(UNIX_DEPLOY_SYNCOPE_CONSOLE_QUERY));

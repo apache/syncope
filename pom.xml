@@ -367,6 +367,7 @@ under the License.
     <codemirror.version>3.23</codemirror.version>
 
     <izpack.version>5.0.0-rc2</izpack.version>
+    <maven-invoker.version>2.1.1</maven-invoker.version>
     
     <jdeb.version>1.3</jdeb.version>
  
@@ -922,6 +923,11 @@ under the License.
         <groupId>org.codehaus.izpack</groupId>
         <artifactId>izpack-panel</artifactId>
         <version>${izpack.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.shared</groupId>
+        <artifactId>maven-invoker</artifactId>
+        <version>${maven-invoker.version}</version>
       </dependency>
       
       <!-- TEST -->
