@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.installer.processes;
+package org.apache.syncope.installer.utilities;
 
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.BufferedReader;
@@ -27,9 +27,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public abstract class AbstractProcess {
+public class FileSystemUtils {
 
-    protected void exec(final String cmd, final AbstractUIProcessHandler handler, final String path) {
+    public static final boolean IS_WIN = System.getProperty("os.name").toLowerCase().contains("win");
+
+    public static void createDirectory(final String directoryPath,
+            final AbstractUIProcessHandler handler, final String path) {
+        exec(String.format(CREATE_DIRECTORY, directoryPath), null, path);
+    }
+
+    private static final String CREATE_DIRECTORY = "mkdir -p %s";
+
+    public static void exec(final String cmd, final AbstractUIProcessHandler handler, final String path) {
         try {
             final ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
             if (path != null && !path.isEmpty()) {
@@ -41,7 +50,7 @@ public abstract class AbstractProcess {
         }
     }
 
-    protected void readResponse(final InputStream inputStream, final AbstractUIProcessHandler handler) throws
+    private static void readResponse(final InputStream inputStream, final AbstractUIProcessHandler handler) throws
             IOException {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String line = reader.readLine();
@@ -52,7 +61,7 @@ public abstract class AbstractProcess {
         inputStream.close();
     }
 
-    protected void writeToFile(final File orm, final String content) {
+    public static void writeToFile(final File orm, final String content) {
         try {
             final FileWriter fw = new FileWriter(orm.getAbsoluteFile());
             final BufferedWriter bw = new BufferedWriter(fw);

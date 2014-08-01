@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.installer.processes;
 
+import org.apache.syncope.installer.utilities.FileSystemUtils;
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
 import org.apache.syncope.installer.containers.Glassfish;
@@ -28,9 +29,9 @@ import org.apache.syncope.installer.files.GlassfishWebXml;
 import org.apache.syncope.installer.files.JBossDeploymentStructureXml;
 import org.apache.syncope.installer.files.PersistenceContextEMFactoryXml;
 import org.apache.syncope.installer.files.WebXml;
-import org.apache.syncope.installer.utilities.Commands;
+import org.apache.syncope.installer.utilities.MavenUtils;
 
-public class ContainerProcess extends AbstractProcess {
+public class ContainerProcess {
 
     private String installPath;
 
@@ -91,24 +92,26 @@ public class ContainerProcess extends AbstractProcess {
         jbossAdminPassword = args[18];
 
         if (withDataSource) {
-            writeToFile(new File(installPath + "/" + artifactId + WebXml.PATH), WebXml.withDataSource());
+            FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + WebXml.PATH), WebXml.withDataSource());
             switch (selectedContainer) {
                 case JBOSS:
-                    writeToFile(new File(installPath + "/" + artifactId + WebXml.PATH), WebXml.withDataSourceForJBoss());
-                    writeToFile(new File(installPath + "/" + artifactId + PersistenceContextEMFactoryXml.PATH),
-                            PersistenceContextEMFactoryXml.FILE);
-                    writeToFile(new File(installPath + "/" + artifactId + JBossDeploymentStructureXml.PATH),
+                    FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + WebXml.PATH),
+                            WebXml.withDataSourceForJBoss());
+                    FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId
+                            + PersistenceContextEMFactoryXml.PATH), PersistenceContextEMFactoryXml.FILE);
+                    FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId
+                            + JBossDeploymentStructureXml.PATH),
                             String.format(JBossDeploymentStructureXml.FILE, jbossJdbcModuleName));
                     break;
                 case GLASSFISH:
-                    writeToFile(new File(installPath + "/" + artifactId + GlassfishWebXml.PATH),
+                    FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + GlassfishWebXml.PATH),
                             GlassfishWebXml.withDataSource());
                     break;
             }
         }
 
-        exec(Commands.compileArchetype(mavenDir, logsDirectory, bundlesDirectory),
-                handler, installPath + "/" + artifactId);
+        final MavenUtils mavenUtils = new MavenUtils(mavenDir);
+        mavenUtils.createPackage(installPath + "/" + artifactId, logsDirectory, bundlesDirectory);
 
         switch (selectedContainer) {
             case TOMCAT:
@@ -148,12 +151,12 @@ public class ContainerProcess extends AbstractProcess {
                 break;
             case GLASSFISH:
                 final String createJavaOptCommand = "sh " + glassfishDir + Glassfish.CREATE_JAVA_OPT_COMMAND;
-                exec(createJavaOptCommand, handler, null);
+                FileSystemUtils.exec(createJavaOptCommand, handler, null);
 
                 final Glassfish glassfish = new Glassfish(installPath, artifactId);
 
-                exec("sh " + glassfishDir + Glassfish.DEPLOY_COMMAND + glassfish.deployCore(), handler, null);
-                exec("sh " + glassfishDir + Glassfish.DEPLOY_COMMAND + glassfish.deployConsole(), handler, null);
+                FileSystemUtils.exec("sh " + glassfishDir + Glassfish.DEPLOY_COMMAND + glassfish.deployCore(), handler, null);
+                FileSystemUtils.exec("sh " + glassfishDir + Glassfish.DEPLOY_COMMAND + glassfish.deployConsole(), handler, null);
                 break;
         }
     }

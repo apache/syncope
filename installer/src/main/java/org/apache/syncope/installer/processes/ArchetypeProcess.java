@@ -18,12 +18,13 @@
  */
 package org.apache.syncope.installer.processes;
 
+import org.apache.syncope.installer.utilities.FileSystemUtils;
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
 import org.apache.syncope.installer.files.Pom;
-import org.apache.syncope.installer.utilities.Commands;
+import org.apache.syncope.installer.utilities.MavenUtils;
 
-public class ArchetypeProcess extends AbstractProcess {
+public class ArchetypeProcess {
 
     public void run(final AbstractUIProcessHandler handler, final String[] args) {
 
@@ -39,19 +40,22 @@ public class ArchetypeProcess extends AbstractProcess {
         final String syncopeAdminPassword = args[9];
 
         if (!new File(installPath).exists()) {
-            exec(Commands.createDirectory(installPath), handler, null);
+            FileSystemUtils.createDirectory(installPath, handler, null);
         }
-        exec(Commands.createArchetype(mavenDir, syncopeVersion, groupId, artifactId, secretKey, anonymousKey),
-                handler, installPath);
-        writeToFile(new File(installPath + "/" + artifactId + Pom.PATH),
+        
+        final MavenUtils mavenUtils = new MavenUtils(mavenDir);
+        
+        mavenUtils.archetypeGenerate(
+                syncopeVersion, groupId, artifactId, secretKey, anonymousKey, installPath);
+
+        FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + Pom.PATH),
                 String.format(Pom.FILE, syncopeVersion, syncopeVersion));
 
-        exec(Commands.createDirectory(logsDirectory), handler, null);
+        FileSystemUtils.createDirectory(logsDirectory, handler, null);
 
-        exec(Commands.createDirectory(bundlesDirectory), handler, null);
+        FileSystemUtils.createDirectory(bundlesDirectory, handler, null);
 
-        exec(Commands.compileArchetype(mavenDir, logsDirectory, bundlesDirectory),
-                handler, installPath + "/" + artifactId);
+        mavenUtils.createPackage(installPath + "/" + artifactId, logsDirectory, bundlesDirectory);
     }
 
 }
