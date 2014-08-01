@@ -20,13 +20,11 @@ package org.apache.syncope.core.propagation.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.MappingPurpose;
@@ -54,7 +52,6 @@ import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.ExceptionUtil;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
@@ -169,25 +166,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
 
         if (beforeObj == null) {
-            // 1. get name
-            final Name name = (Name) AttributeUtil.find(Name.NAME, attributes);
-
-            // 2. check if:
-            //      * accountId is not blank;
-            //      * accountId is not equal to Name.
-            if (StringUtils.isNotBlank(accountId) && (name == null || !accountId.equals(name.getNameValue()))) {
-                // 2.a retrieve uid
-                final Uid uid = (Uid) AttributeUtil.find(Uid.NAME, attributes);
-
-                // 2.b add Uid if not provided
-                if (uid == null) {
-                    attributes.add(AttributeBuilder.build(Uid.NAME, Collections.singleton(accountId)));
-                }
-            }
-
-            // 3. provision entry
             LOG.debug("Create {} on {}", attributes, resource);
-
             connector.create(propagationMode, oclass, attributes, null, propagationAttempted);
         } else {
             // 1. check if rename is really required
@@ -195,8 +174,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             LOG.debug("Rename required with value {}", newName);
 
-            if (newName != null && newName.equals(beforeObj.getName())
-                    && !newName.getNameValue().equals(beforeObj.getUid().getUidValue())) {
+                if (newName != null && newName.equals(beforeObj.getName())
+                        && !newName.getNameValue().equals(beforeObj.getUid().getUidValue())) {
 
                 LOG.debug("Remote object name unchanged");
                 attributes.remove(newName);

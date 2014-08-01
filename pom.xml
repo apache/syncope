@@ -310,7 +310,7 @@ under the License.
     <javax.el.version>3.0-b02</javax.el.version>
     <jax-rs.version>2.0</jax-rs.version>
         
-    <connid.version>1.3.3</connid.version>
+    <connid.version>1.4.0.0</connid.version>
     <connid.soap.version>1.2.8</connid.soap.version>
     <connid.db.table.version>2.1.7</connid.db.table.version>
     <connid.csvdir.version>0.7</connid.csvdir.version>
@@ -462,16 +462,21 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>org.connid</groupId>
-        <artifactId>connid-framework</artifactId>
+        <groupId>net.tirasa.connid</groupId>
+        <artifactId>connector-framework</artifactId>
         <version>${connid.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.connid</groupId>
-        <artifactId>connid-framework-internal</artifactId>
+        <groupId>net.tirasa.connid</groupId>
+        <artifactId>connector-framework-internal</artifactId>
         <version>${connid.version}</version>
       </dependency>
-
+      <dependency>
+        <groupId>net.tirasa.connid</groupId>
+        <artifactId>slf4j-logging</artifactId>
+        <version>${connid.version}</version>
+      </dependency>
+      
       <dependency>
         <groupId>org.jasypt</groupId>
         <artifactId>jasypt</artifactId>

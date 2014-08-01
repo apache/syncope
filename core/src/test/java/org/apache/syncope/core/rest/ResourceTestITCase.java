@@ -63,7 +63,7 @@ public class ResourceTestITCase extends AbstractTest {
         MappingTO mapping = new MappingTO();
 
         MappingItemTO item = new MappingItemTO();
-        item.setExtAttrName("uid");
+        item.setExtAttrName("userId");
         item.setIntAttrName("userId");
         item.setIntMappingType(IntMappingType.UserSchema);
         item.setPurpose(MappingPurpose.BOTH);
@@ -175,6 +175,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         MappingItemTO item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.UserId);
+        item.setExtAttrName("userId");
         item.setAccountid(true);
         item.setPurpose(MappingPurpose.PROPAGATION);
         umapping.setAccountIdItem(item);
@@ -185,6 +186,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.RoleId);
+        item.setExtAttrName("roleId");
         item.setAccountid(true);
         item.setPurpose(MappingPurpose.SYNCHRONIZATION);
         rmapping.setAccountIdItem(item);
@@ -214,6 +216,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         MappingItemTO item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.UserId);
+        item.setExtAttrName("userId");
         item.setAccountid(true);
         mapping.setAccountIdItem(item);
 
@@ -245,6 +248,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         MappingItemTO item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.UserId);
+        item.setExtAttrName("userId");
         item.setAccountid(true);
         mapping.setAccountIdItem(item);
 
@@ -270,7 +274,7 @@ public class ResourceTestITCase extends AbstractTest {
         MappingTO mapping = new MappingTO();
 
         MappingItemTO item = new MappingItemTO();
-        item.setExtAttrName("uid");
+        item.setExtAttrName("userId");
         item.setIntAttrName("userId");
         item.setIntMappingType(IntMappingType.UserSchema);
         item.setAccountid(true);
@@ -500,9 +504,10 @@ public class ResourceTestITCase extends AbstractTest {
 
         MappingItemTO item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.RoleName);
+        item.setExtAttrName("cn");
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setAccountIdItem(item);
-
+            
         item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.RoleOwnerSchema);
         item.setExtAttrName("owner");
@@ -556,6 +561,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         MappingItemTO item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.UserId);
+        item.setExtAttrName("userId");
         item.setAccountid(true);
         item.setPurpose(MappingPurpose.PROPAGATION);
         umapping.setAccountIdItem(item);

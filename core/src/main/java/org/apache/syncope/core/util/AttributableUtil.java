@@ -32,6 +32,7 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.SyncPolicySpec;
+import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrTemplate;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
@@ -85,6 +86,7 @@ import org.apache.syncope.core.persistence.beans.user.UVirAttr;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
 import org.apache.syncope.core.sync.SyncCorrelationRule;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -287,6 +289,18 @@ public final class AttributableUtil {
         }
 
         return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractMappingItem> List<T> getUidToMappingItems(
+            final ExternalResource resource, final MappingPurpose purpose, final AttributableType type) {
+        final List<T> items = getMappingItems(resource, MappingPurpose.SYNCHRONIZATION);
+        final AbstractMappingItem uidItem = type == AttributableType.USER ? new UMappingItem() : new RMappingItem();
+        BeanUtils.copyProperties(getAccountIdItem(resource), uidItem);
+        uidItem.setExtAttrName(Uid.NAME);
+        uidItem.setAccountid(false);
+        items.add((T) uidItem);
+        return items;
     }
 
     public <T extends AbstractMappingItem> Class<T> mappingItemClass() {

@@ -352,8 +352,7 @@ public class ResourceMappingPanel extends Panel {
                 ((AjaxTextFieldPanel) extAttrNames).setChoices(schemaNames);
 
                 boolean required = false;
-                boolean accountIdOrPassword = mapItem.isAccountid() || mapItem.isPassword();
-                if (accountIdOrPassword) {
+                if (mapItem.isPassword()) {
                     ((AjaxTextFieldPanel) extAttrNames).setModelObject(null);
                 } else {
                     required = true;
@@ -379,11 +378,6 @@ public class ResourceMappingPanel extends Panel {
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-                        extAttrNames.setEnabled(!accountId.getModelObject() && !mapItem.isPassword());
-                        extAttrNames.setModelObject(null);
-                        extAttrNames.setRequired(!accountId.getModelObject());
-                        target.add(extAttrNames);
-
                         if (accountId.getModelObject()) {
                             mapItem.setMandatoryCondition("true");
                             mandatory.setEnabled(false);
@@ -615,7 +609,7 @@ public class ResourceMappingPanel extends Panel {
                 case RoleVirtualSchema:
                 case MembershipVirtualSchema:
                 // Virtual accountId is not permitted
-                case Password:
+                case Password:  
                     // AccountId cannot be derived from password.
                     accountId.setReadOnly(true);
                     accountId.setModelObject(false);

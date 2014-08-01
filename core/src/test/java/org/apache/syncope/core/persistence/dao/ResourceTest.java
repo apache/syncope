@@ -202,6 +202,7 @@ public class ResourceTest extends AbstractDAOTest {
 
         UMappingItem item = new UMappingItem();
         item.setIntAttrName("fullname");
+        item.setExtAttrName("fullname");
         item.setIntMappingType(IntMappingType.UserSchema);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setAccountIdItem(item);

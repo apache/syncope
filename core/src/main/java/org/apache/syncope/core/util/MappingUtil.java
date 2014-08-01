@@ -208,6 +208,12 @@ public final class MappingUtil {
             }
         }
 
+        final Attribute accountIdExtAttr = 
+                AttributeUtil.find(attrUtil.getAccountIdItem(resource).getExtAttrName(), attributes);
+        if (accountIdExtAttr != null) {
+            attributes.remove(accountIdExtAttr);
+            attributes.add(AttributeBuilder.build(attrUtil.getAccountIdItem(resource).getExtAttrName(), accountId));
+        }
         attributes.add(MappingUtil.evaluateNAME(subject, resource, accountId));
 
         if (enable != null) {

@@ -122,14 +122,14 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
         final UserSyncResultHandler uhandler =
                 (UserSyncResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
                 getApplicationContext().getBeanFactory()).createBean(
-                UserSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                        UserSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         uhandler.setProfile(profile);
 
         // Prepare handler for SyncDelta objects (roles/groups)
         final RoleSyncResultHandler rhandler =
                 (RoleSyncResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
                 getApplicationContext().getBeanFactory()).createBean(
-                RoleSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                        RoleSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         rhandler.setProfile(profile);
 
         if (!profile.isDryRun()) {

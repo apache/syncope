@@ -71,7 +71,7 @@ public class MappingTO extends AbstractBaseBean {
             throw new IllegalArgumentException("Password attributes cannot be set as accountId");
         }
 
-        accountIdItem.setExtAttrName(null);
+        accountIdItem.setExtAttrName(accountIdItem.getExtAttrName());
         accountIdItem.setAccountid(true);
 
         return this.addItem(accountIdItem);
