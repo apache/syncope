@@ -33,8 +33,6 @@ under the License.
   <artifactId>syncope-deb-core</artifactId>
   <packaging>war</packaging>
 
-
-
   <dependencies>
     <dependency>
       <groupId>org.apache.syncope</groupId>
@@ -148,7 +146,6 @@ under the License.
               <controlDir>${project.basedir}/src/deb/control</controlDir>
               <deb>${project.build.directory}/apache-syncope-${project.version}.deb</deb>
               <dataSet>
-                <!-- Template example -->
                 <data>
                   <type>template</type>
                   <paths>
@@ -210,6 +207,14 @@ under the License.
                     <prefix>${bundles.directory}</prefix>
                     <user>tomcat7</user>
                     <group>tomcat7</group>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${basedir}/../../legal_ext</src>
+                  <type>directory</type>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/usr/share/doc/apache-syncope</prefix>
                   </mapper>
                 </data>
               </dataSet>
