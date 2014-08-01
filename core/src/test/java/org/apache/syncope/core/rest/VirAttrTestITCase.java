@@ -457,6 +457,7 @@ public class VirAttrTestITCase extends AbstractTest {
         MappingItemTO item = new MappingItemTO();
         item.setIntAttrName("aLong");
         item.setIntMappingType(IntMappingType.UserSchema);
+        item.setExtAttrName(roleName);
         item.setPurpose(MappingPurpose.PROPAGATION);
         item.setAccountid(true);
         mapping.setAccountIdItem(item);

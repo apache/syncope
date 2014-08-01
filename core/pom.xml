@@ -293,14 +293,18 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>org.connid</groupId>
-      <artifactId>connid-framework</artifactId>
+      <groupId>net.tirasa.connid</groupId>
+      <artifactId>connector-framework</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.connid</groupId>
-      <artifactId>connid-framework-internal</artifactId>
+      <groupId>net.tirasa.connid</groupId>
+      <artifactId>connector-framework-internal</artifactId>
     </dependency>
-    
+    <dependency>
+      <groupId>net.tirasa.connid</groupId>
+      <artifactId>slf4j-logging</artifactId>
+    </dependency>
+          
     <dependency>
       <groupId>org.jasypt</groupId>
       <artifactId>jasypt</artifactId>

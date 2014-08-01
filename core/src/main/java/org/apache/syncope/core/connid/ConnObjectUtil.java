@@ -256,9 +256,8 @@ public class ConnObjectUtil {
         final T subjectTO = attrUtil.newSubjectTO();
 
         // 1. fill with data from connector object
-        for (AbstractMappingItem item : attrUtil.getMappingItems(
-                syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)) {
-
+        for (AbstractMappingItem item : attrUtil.getUidToMappingItems(syncTask.getResource(),
+                MappingPurpose.SYNCHRONIZATION, attrUtil.getType())) {
             Attribute attribute = obj.getAttributeByName(item.getExtAttrName());
 
             AttributeTO attributeTO;
