@@ -29,19 +29,4 @@ under the License.
   <bean id="uwfAdapter" class="${uwfAdapter}"/>
   <bean id="rwfAdapter" class="${rwfAdapter}"/>
 
-  <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
-    <property name="velocityProperties">
-      <value>
-        resource.loader=class
-        class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
-      </value>
-    </property>
-  </bean>
-  
-  <bean id="velocityToolManager" class="org.apache.velocity.tools.ToolManager">
-    <!-- autoConfigure -->
-    <constructor-arg index="0" value="true"/>
-    <!-- include default velocity tools -->
-    <constructor-arg index="1" value="true"/>
-  </bean>
 </beans>

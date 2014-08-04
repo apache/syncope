@@ -57,6 +57,7 @@ under the License.
         <includes>
           <include>*.properties</include>
           <include>*.xml</include>
+          <include>mailTemplates/*.vm</include>
         </includes>
         <excludes>
           <exclude>*Context*.xml</exclude>

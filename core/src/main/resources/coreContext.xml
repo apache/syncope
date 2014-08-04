@@ -96,8 +96,6 @@ under the License.
   <bean id="propagationTaskExecutor" class="org.apache.syncope.core.propagation.impl.PriorityPropagationTaskExecutor"/>
   <bean id="propagationReporter" class="org.apache.syncope.core.propagation.impl.DefaultPropagationReporter" scope="prototype"/>
 
-  <bean id="notificationManager" class="org.apache.syncope.core.notification.NotificationManager"/>
-
   <bean id="auditManager" class="org.apache.syncope.core.audit.AuditManager"/>
   
   <bean id="connIdBundleManager" class="org.apache.syncope.core.util.ConnIdBundleManager" scope="singleton">
@@ -108,6 +106,8 @@ under the License.
 
   <bean id="syncUtilities" class="org.apache.syncope.core.sync.SyncUtilities"/>
   
+  <bean id="notificationManager" class="org.apache.syncope.core.notification.NotificationManager"/>
+
   <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
     <property name="defaultEncoding" value="${smtpEncoding}"/>
     <property name="host" value="${smtpHost}"/>
@@ -122,6 +122,20 @@ under the License.
         <prop key="mail.debug">${mailDebug}</prop>
       </props>
     </property>
+  </bean>
+
+  <bean id="velocityResourceLoader" class="org.apache.syncope.core.util.ResourceWithFallbackLoader">
+    <property name="primary" value="file:${conf.directory}/"/>
+    <property name="fallback" value="classpath:"/>
+  </bean>
+  <bean id="velocityEngine" class="org.apache.syncope.core.util.VelocityEngineFactoryBean">
+    <property name="resourceLoader" ref="velocityResourceLoader"/>
+  </bean>
+  <bean id="velocityToolManager" class="org.apache.velocity.tools.ToolManager">
+    <!-- autoConfigure -->
+    <constructor-arg index="0" value="true"/>
+    <!-- include default velocity tools -->
+    <constructor-arg index="1" value="true"/>
   </bean>
 
   <task:annotation-driven executor="connectorExecutor"/>

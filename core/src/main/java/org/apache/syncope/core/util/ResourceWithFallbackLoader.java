@@ -18,13 +18,17 @@
  */
 package org.apache.syncope.core.util;
 
+import java.io.IOException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
-public class ResourceWithFallbackLoader implements ResourceLoaderAware {
+public class ResourceWithFallbackLoader implements ResourceLoaderAware, ResourcePatternResolver {
 
-    private ResourceLoader resourceLoader;
+    private ResourcePatternResolver resolver;
 
     private String primary;
 
@@ -32,7 +36,7 @@ public class ResourceWithFallbackLoader implements ResourceLoaderAware {
 
     @Override
     public void setResourceLoader(final ResourceLoader resourceLoader) {
-        this.resourceLoader = resourceLoader;
+        this.resolver = (ResourcePatternResolver) resourceLoader;
     }
 
     public void setPrimary(final String primary) {
@@ -43,16 +47,36 @@ public class ResourceWithFallbackLoader implements ResourceLoaderAware {
         this.fallback = fallback;
     }
 
-    public Resource getResource() {
-        Resource resource = resourceLoader.getResource(primary);
+    @Override
+    public Resource getResource(final String location) {
+        Resource resource = resolver.getResource(primary + location);
         if (!resource.exists()) {
-            resource = resourceLoader.getResource(fallback);
-        }
-        if (!resource.exists()) {
-            throw new IllegalArgumentException("Neither " + primary + " nor " + fallback + " were found.");
+            resource = resolver.getResource(fallback + location);
         }
 
         return resource;
     }
 
+    public Resource getResource() {
+        return getResource(StringUtils.EMPTY);
+    }
+
+    @Override
+    public Resource[] getResources(final String locationPattern) throws IOException {
+        Resource[] resources = resolver.getResources(primary + locationPattern);
+        if (ArrayUtils.isEmpty(resources)) {
+            resources = resolver.getResources(fallback + locationPattern);
+        }
+
+        return resources;
+    }
+
+    public Resource[] getResources() throws IOException {
+        return getResources(StringUtils.EMPTY);
+    }
+
+    @Override
+    public ClassLoader getClassLoader() {
+        return resolver.getClassLoader();
+    }
 }

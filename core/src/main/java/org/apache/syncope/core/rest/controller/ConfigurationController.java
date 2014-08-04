@@ -27,15 +27,16 @@ import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConfTO;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.init.WorkflowAdapterLoader;
+import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.conf.CAttr;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.validation.attrvalue.Validator;
 import org.apache.syncope.core.rest.data.ConfigurationDataBinder;
 import org.apache.syncope.core.util.ContentExporter;
+import org.apache.syncope.core.util.ResourceWithFallbackLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,8 +56,8 @@ public class ConfigurationController extends AbstractTransactionalController<Con
     @Autowired
     private ImplementationClassNamesLoader classNamesLoader;
 
-    @Autowired
-    private ResourcePatternResolver resResolver;
+    @javax.annotation.Resource(name = "velocityResourceLoader")
+    private ResourceWithFallbackLoader resourceLoader;
 
     @Autowired
     private WorkflowAdapterLoader wfAdapterLoader;
@@ -97,14 +98,16 @@ public class ConfigurationController extends AbstractTransactionalController<Con
         Set<String> textTemplates = new HashSet<String>();
 
         try {
-            for (Resource resource : resResolver.getResources("classpath:/mailTemplates/*.vm")) {
+            for (Resource resource : resourceLoader.getResources(NotificationManager.MAIL_TEMPLATES + "*.vm")) {
                 String template = resource.getURL().toExternalForm();
-                if (template.endsWith(".html.vm")) {
+                if (template.endsWith(NotificationManager.MAIL_TEMPLATE_HTML_SUFFIX)) {
                     htmlTemplates.add(
-                            template.substring(template.indexOf("mailTemplates/") + 14, template.indexOf(".html.vm")));
-                } else if (template.endsWith(".txt.vm")) {
+                            template.substring(template.indexOf(NotificationManager.MAIL_TEMPLATES) + 14,
+                                    template.indexOf(NotificationManager.MAIL_TEMPLATE_HTML_SUFFIX)));
+                } else if (template.endsWith(NotificationManager.MAIL_TEMPLATE_TEXT_SUFFIX)) {
                     textTemplates.add(
-                            template.substring(template.indexOf("mailTemplates/") + 14, template.indexOf(".txt.vm")));
+                            template.substring(template.indexOf(NotificationManager.MAIL_TEMPLATES) + 14,
+                                    template.indexOf(NotificationManager.MAIL_TEMPLATE_TEXT_SUFFIX)));
                 } else {
                     LOG.warn("Unexpected template found: {}, ignoring...", template);
                 }
