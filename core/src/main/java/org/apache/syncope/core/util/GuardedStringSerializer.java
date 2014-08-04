@@ -42,7 +42,7 @@ class GuardedStringSerializer extends JsonSerializer<GuardedString> {
 
         boolean readOnly = false;
         try {
-            Field field = GuardedString.class.getDeclaredField("_readOnly");
+            Field field = GuardedString.class.getDeclaredField("readOnly");
             field.setAccessible(true);
             readOnly = field.getBoolean(source);
         } catch (Exception e) {
@@ -52,7 +52,7 @@ class GuardedStringSerializer extends JsonSerializer<GuardedString> {
 
         boolean disposed = false;
         try {
-            Field field = GuardedString.class.getDeclaredField("_disposed");
+            Field field = GuardedString.class.getDeclaredField("disposed");
             field.setAccessible(true);
             disposed = field.getBoolean(source);
         } catch (Exception e) {
@@ -74,7 +74,7 @@ class GuardedStringSerializer extends JsonSerializer<GuardedString> {
 
         String base64SHA1Hash = null;
         try {
-            Field field = GuardedString.class.getDeclaredField("_base64SHA1Hash");
+            Field field = GuardedString.class.getDeclaredField("base64SHA1Hash");
             field.setAccessible(true);
             base64SHA1Hash = field.get(source).toString();
         } catch (Exception e) {
