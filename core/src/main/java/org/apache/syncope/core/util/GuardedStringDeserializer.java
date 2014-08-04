@@ -63,7 +63,7 @@ class GuardedStringDeserializer extends JsonDeserializer<GuardedString> {
         GuardedString dest = new GuardedString(new String(clearBytes).toCharArray());
 
         try {
-            Field field = GuardedString.class.getDeclaredField("_readOnly");
+            Field field = GuardedString.class.getDeclaredField("readOnly");
             field.setAccessible(true);
             field.setBoolean(dest, readOnly);
         } catch (Exception e) {
@@ -71,7 +71,7 @@ class GuardedStringDeserializer extends JsonDeserializer<GuardedString> {
         }
 
         try {
-            Field field = GuardedString.class.getDeclaredField("_disposed");
+            Field field = GuardedString.class.getDeclaredField("disposed");
             field.setAccessible(true);
             field.setBoolean(dest, disposed);
         } catch (Exception e) {
@@ -80,7 +80,7 @@ class GuardedStringDeserializer extends JsonDeserializer<GuardedString> {
 
         if (base64SHA1Hash != null) {
             try {
-                Field field = GuardedString.class.getDeclaredField("_base64SHA1Hash");
+                Field field = GuardedString.class.getDeclaredField("base64SHA1Hash");
                 field.setAccessible(true);
                 field.set(dest, base64SHA1Hash);
             } catch (Exception e) {
