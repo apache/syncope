@@ -1154,6 +1154,11 @@ under the License.
                 <artifactId>org.connid.bundles.csvdir</artifactId>
                 <version>${connid.csvdir.version}</version>
               </artifactItem>
+              <dependency>
+                <groupId>org.connid.bundles.db</groupId>
+                <artifactId>org.connid.bundles.db.table</artifactId>
+                <version>${connid.db.table.version}</version>
+              </dependency>   
               <artifactItem>
                 <groupId>org.connid.bundles</groupId>
                 <artifactId>org.connid.bundles.ldap</artifactId>
