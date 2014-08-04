@@ -78,20 +78,5 @@ under the License.
   <bean id="formService" factory-bean="processEngine" factory-method="getFormService"/>
 
   <context:component-scan base-package="org.apache.syncope.core.workflow.user.activiti"/>
-  
-  <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
-    <property name="velocityProperties">
-      <value>
-        resource.loader=class
-        class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
-      </value>
-    </property>
-  </bean>
-  
-  <bean id="velocityToolManager" class="org.apache.velocity.tools.ToolManager">
-    <!-- autoConfigure -->
-    <constructor-arg index="0" value="true"/>
-    <!-- include default velocity tools -->
-    <constructor-arg index="1" value="true"/>
-  </bean>
+    
 </beans>

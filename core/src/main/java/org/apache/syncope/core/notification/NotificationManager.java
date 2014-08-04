@@ -83,6 +83,12 @@ public class NotificationManager {
      */
     private static final Logger LOG = LoggerFactory.getLogger(NotificationManager.class);
 
+    public static final String MAIL_TEMPLATES = "mailTemplates/";
+
+    public static final String MAIL_TEMPLATE_HTML_SUFFIX = ".html.vm";
+
+    public static final String MAIL_TEMPLATE_TEXT_SUFFIX = ".txt.vm";
+
     /**
      * Notification DAO.
      */
@@ -209,8 +215,10 @@ public class NotificationManager {
         task.setSender(notification.getSender());
         task.setSubject(notification.getSubject());
 
-        String htmlBody = mergeTemplateIntoString("mailTemplates/" + notification.getTemplate() + ".html.vm", model);
-        String textBody = mergeTemplateIntoString("mailTemplates/" + notification.getTemplate() + ".txt.vm", model);
+        String htmlBody = mergeTemplateIntoString(
+                MAIL_TEMPLATES + notification.getTemplate() + MAIL_TEMPLATE_HTML_SUFFIX, model);
+        String textBody = mergeTemplateIntoString(
+                MAIL_TEMPLATES + notification.getTemplate() + MAIL_TEMPLATE_TEXT_SUFFIX, model);
 
         task.setHtmlBody(htmlBody);
         task.setTextBody(textBody);
