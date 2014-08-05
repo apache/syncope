@@ -141,15 +141,6 @@ under the License.
                 <copy todir="${activiti-modeler.directory}/libs">
                   <fileset dir="${project.build.directory}/activiti-webapp-explorer2/libs"/>
                 </copy>
-                
-                <fixcrlf srcdir="${project.build.directory}/activiti-webapp-explorer2/editor/" 
-                         includes="oryx.debug.js"
-                         eol="unix"/>
-                <patch patchfile="${basedir}/src/main/resources/oryx.debug.js.patch"
-                       originalfile="${project.build.directory}/activiti-webapp-explorer2/editor/oryx.debug.js"
-                       destfile="${activiti-modeler.directory}/editor/oryx.debug.js"/>
-                
-                <delete dir="${project.build.directory}/activiti-webapp-explorer2"/>
               </target>
             </configuration>
             <goals>
@@ -185,7 +176,26 @@ under the License.
           </execution>
         </executions>
       </plugin>
-
+      
+      <plugin>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>replacer</artifactId>
+        <executions>
+          <execution>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>                   
+          </execution>
+        </executions>
+        <configuration>
+          <file>${activiti-modeler.directory}/editor/oryx.debug.js</file>
+          <tokenValueMap>${basedir}/src/main/resources/oryx.debug.js-tokenValueMap.properties</tokenValueMap>
+          <unescape>true</unescape>
+          <regex>false</regex>
+        </configuration>
+      </plugin>
+      
       <plugin>
         <groupId>org.codehaus.cargo</groupId>
         <artifactId>cargo-maven2-plugin</artifactId>
