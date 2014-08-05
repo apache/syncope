@@ -27,6 +27,7 @@ under the License.
       <arg>$mvn.artifactid</arg>
       <arg>$mvn.secretkey</arg>
       <arg>$mvn.anonymous.key</arg>
+      <arg>$mvn.conf.directory</arg>
       <arg>$mvn.log.directory</arg>
       <arg>$mvn.bundle.directory</arg>
       <arg>$mvn.syncope.version</arg>
@@ -57,15 +58,16 @@ under the License.
       <arg>$tomcat.container.user</arg><!-- 7 -->
       <arg>$tomcat.container.pwd</arg><!-- 8 -->
       <arg>$glassfish.container.dir</arg><!-- 9 -->
-      <arg>$mvn.log.directory</arg><!-- 10 -->
-      <arg>$mvn.bundle.directory</arg><!-- 11 -->
-      <arg>$with.datasuorce</arg><!-- 12 -->
-      <arg>$jboss.container.ssl</arg><!-- 13 -->
-      <arg>$jboss.container.host</arg><!-- 14 -->
-      <arg>$jboss.container.port</arg><!-- 15 -->
-      <arg>$jboss.container.jdbc.module</arg><!-- 16 -->
-      <arg>$jboss.container.user</arg><!-- 17 -->
-      <arg>$jboss.container.pwd</arg><!-- 18 -->
+      <arg>$mvn.conf.directory</arg><!-- 10 -->
+      <arg>$mvn.log.directory</arg><!-- 11 -->
+      <arg>$mvn.bundle.directory</arg><!-- 12 -->
+      <arg>$with.datasuorce</arg><!-- 13 -->
+      <arg>$jboss.container.ssl</arg><!-- 14 -->
+      <arg>$jboss.container.host</arg><!-- 15 -->
+      <arg>$jboss.container.port</arg><!-- 16 -->
+      <arg>$jboss.container.jdbc.module</arg><!-- 17 -->
+      <arg>$jboss.container.user</arg><!-- 18 -->
+      <arg>$jboss.container.pwd</arg><!-- 19 -->
     </executeclass>
   </job>
   <onFail previous="true" next="false" />

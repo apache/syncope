@@ -23,6 +23,7 @@ under the License.
   <str id="archetype.mvn.artifactid" txt="ArtifactId:"/>
   <str id="archetype.mvn.secretkey" txt="SecretKey:"/>
   <str id="mvn.anonymous.key.id" txt="Anonymous Key:"/>
+  <str id="archetype.mvn.conf.directory" txt="Conf directory name:"/>
   <str id="archetype.mvn.log.directory" txt="Log directory name:"/>
   <str id="archetype.mvn.bundle.directory" txt="Bundle directory name:"/>
   <str id="mvn.syncope.version.id" txt="Syncope Version:"/>

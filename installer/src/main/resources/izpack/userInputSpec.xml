@@ -44,6 +44,10 @@ under the License.
       <spec id="mvn.anonymous.key.id" size="20" set="123456789asdfghj"/>
     </field>
     <field type="space"/>
+    <field type="dir" variable="mvn.conf.directory">
+      <spec id="archetype.mvn.conf.directory" size="20" set=""/>
+    </field>
+    <field type="space"/>
     <field type="dir" variable="mvn.log.directory">
       <spec id="archetype.mvn.log.directory" size="20" set=""/>
     </field>
