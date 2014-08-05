@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.installer.files;
 
-public class WebXml {
+public class CoreWebXml {
 
     public static final String PATH = "/core/src/main/webapp/WEB-INF/web.xml";
 

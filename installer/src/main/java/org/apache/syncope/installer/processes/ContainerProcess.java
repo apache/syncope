@@ -25,10 +25,10 @@ import org.apache.syncope.installer.containers.Glassfish;
 import org.apache.syncope.installer.containers.Tomcat;
 import org.apache.syncope.installer.containers.jboss.JBoss;
 import org.apache.syncope.installer.enums.Containers;
-import org.apache.syncope.installer.files.GlassfishWebXml;
+import org.apache.syncope.installer.files.GlassfishCoreWebXml;
 import org.apache.syncope.installer.files.JBossDeploymentStructureXml;
 import org.apache.syncope.installer.files.PersistenceContextEMFactoryXml;
-import org.apache.syncope.installer.files.WebXml;
+import org.apache.syncope.installer.files.CoreWebXml;
 import org.apache.syncope.installer.utilities.MavenUtils;
 
 public class ContainerProcess {
@@ -50,6 +50,8 @@ public class ContainerProcess {
     private String tomcatPort;
 
     private String glassfishDir;
+
+    private String confDirectory;
 
     private String logsDirectory;
 
@@ -81,22 +83,23 @@ public class ContainerProcess {
         tomcatUser = args[7];
         tomcatPassword = args[8];
         glassfishDir = args[9];
-        logsDirectory = args[10];
-        bundlesDirectory = args[11];
-        withDataSource = Boolean.valueOf(args[12]);
-        jbossSsl = Boolean.valueOf(args[13]);
-        jbossHost = args[14];
-        jbossPort = args[15];
-        jbossJdbcModuleName = args[16];
-        jbossAdminUsername = args[17];
-        jbossAdminPassword = args[18];
+        confDirectory = args[10];
+        logsDirectory = args[11];
+        bundlesDirectory = args[12];
+        withDataSource = Boolean.valueOf(args[13]);
+        jbossSsl = Boolean.valueOf(args[14]);
+        jbossHost = args[15];
+        jbossPort = args[16];
+        jbossJdbcModuleName = args[17];
+        jbossAdminUsername = args[18];
+        jbossAdminPassword = args[19];
 
         if (withDataSource) {
-            FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + WebXml.PATH), WebXml.withDataSource());
+            FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + CoreWebXml.PATH), CoreWebXml.withDataSource());
             switch (selectedContainer) {
                 case JBOSS:
-                    FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + WebXml.PATH),
-                            WebXml.withDataSourceForJBoss());
+                    FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + CoreWebXml.PATH),
+                            CoreWebXml.withDataSourceForJBoss());
                     FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId
                             + PersistenceContextEMFactoryXml.PATH), PersistenceContextEMFactoryXml.FILE);
                     FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId
@@ -104,14 +107,14 @@ public class ContainerProcess {
                             String.format(JBossDeploymentStructureXml.FILE, jbossJdbcModuleName));
                     break;
                 case GLASSFISH:
-                    FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + GlassfishWebXml.PATH),
-                            GlassfishWebXml.withDataSource());
+                    FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + GlassfishCoreWebXml.PATH),
+                            GlassfishCoreWebXml.withDataSource());
                     break;
             }
         }
 
         final MavenUtils mavenUtils = new MavenUtils(mavenDir);
-        mavenUtils.createPackage(installPath + "/" + artifactId, logsDirectory, bundlesDirectory);
+        mavenUtils.createPackage(installPath + "/" + artifactId, confDirectory, logsDirectory, bundlesDirectory);
 
         switch (selectedContainer) {
             case TOMCAT:
@@ -155,8 +158,10 @@ public class ContainerProcess {
 
                 final Glassfish glassfish = new Glassfish(installPath, artifactId);
 
-                FileSystemUtils.exec("sh " + glassfishDir + Glassfish.DEPLOY_COMMAND + glassfish.deployCore(), handler, null);
-                FileSystemUtils.exec("sh " + glassfishDir + Glassfish.DEPLOY_COMMAND + glassfish.deployConsole(), handler, null);
+                FileSystemUtils.exec("sh " + glassfishDir + Glassfish.DEPLOY_COMMAND + glassfish.deployCore(), handler,
+                        null);
+                FileSystemUtils.exec("sh " + glassfishDir + Glassfish.DEPLOY_COMMAND + glassfish.deployConsole(),
+                        handler, null);
                 break;
         }
     }

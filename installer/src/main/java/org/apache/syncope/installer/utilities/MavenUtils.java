@@ -41,13 +41,13 @@ public class MavenUtils {
     }
 
     public void archetypeGenerate(final String archetypeVersion, final String groupId,
-            final String artifactId, final String secretKey, final String anonymousKey, final String path) {
+            final String artifactId, final String secretKey, final String anonymousKey, final String installPath) {
 
         final InvocationRequest request = new DefaultInvocationRequest();
         request.setGoals(Collections.singletonList("archetype:generate"));
         request.setInteractive(false);
         request.setProperties(archetypeProperties(archetypeVersion, groupId, artifactId, secretKey, anonymousKey));
-        invoke(request, "/tmp/syncope");
+        invoke(request, installPath);
     }
 
     private Properties archetypeProperties(final String archetypeVersion, final String groupId,
@@ -64,10 +64,11 @@ public class MavenUtils {
         return properties;
     }
 
-    public void createPackage(final String path, final String logDirectory, final String bundlesDirectory) {
+    public void createPackage(final String path, final String confDirectory,
+            final String logDirectory, final String bundlesDirectory) {
 
         final InvocationRequest request = new DefaultInvocationRequest();
-        request.setProperties(packageProperties(logDirectory, bundlesDirectory));
+        request.setProperties(packageProperties(confDirectory, logDirectory, bundlesDirectory));
         final List<String> mavenGoals = new ArrayList<String>();
         mavenGoals.add("clean");
         mavenGoals.add("package");
@@ -75,8 +76,10 @@ public class MavenUtils {
         invoke(request, path);
     }
 
-    private Properties packageProperties(final String logDirectory, final String bundlesDirectory) {
+    private Properties packageProperties(final String confDirectory, final String logDirectory,
+            final String bundlesDirectory) {
         Properties properties = new Properties();
+        properties.setProperty("conf.directory", confDirectory);
         properties.setProperty("log.directory", logDirectory);
         properties.setProperty("bundles.directory", bundlesDirectory);
         return properties;

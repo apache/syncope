@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.installer.files;
 
-public class GlassfishWebXml {
+public class GlassfishCoreWebXml {
 
     public static final String PATH = "/core/src/main/webapp/WEB-INF/glassfish-web.xml";
 
