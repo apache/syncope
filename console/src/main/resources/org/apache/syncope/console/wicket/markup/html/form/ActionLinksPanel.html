@@ -19,7 +19,7 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:head>
     <style>
-      span#action{
+      span#actionLink{
         margin-left: 1px;
         margin-right: 1px;
       }
@@ -54,107 +54,107 @@ under the License.
     <span wicket:id="panelProvision">[plus]</span>
 
     <wicket:fragment wicket:id="fragmentClaim">
-      <a href="#" wicket:id="claimLink"><img id="action" src="img/actions/claim.png" alt="claim icon" title="Claim"/></a>
+      <a href="#" wicket:id="claimLink"><img id="actionLink" src="img/actions/claim.png" alt="claim icon" title="Claim"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentManageResources">
-      <a href="#" wicket:id="manageResourcesLink"><img id="action" src="img/actions/resources-icon.png" alt="manage resources icon" title="Manage resources"/></a>
+      <a href="#" wicket:id="manageResourcesLink"><img id="actionLink" src="img/actions/resources-icon.png" alt="manage resources icon" title="Manage resources"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentManageUsers">
-      <a href="#" wicket:id="manageUsersLink"><img id="action" src="img/actions/users-icon.png" alt="manage users icon" title="Manage users"/></a>
+      <a href="#" wicket:id="manageUsersLink"><img id="actionLink" src="img/actions/users-icon.png" alt="manage users icon" title="Manage users"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentManageRoles">
-      <a href="#" wicket:id="manageRolesLink"><img id="action" src="img/actions/roles-icon.png" alt="manage roles icon" title="Manage roles"/></a>
+      <a href="#" wicket:id="manageRolesLink"><img id="actionLink" src="img/actions/roles-icon.png" alt="manage roles icon" title="Manage roles"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentCreate">
-      <a href="#" wicket:id="createLink"><img id="action" src="img/actions/create.png" alt="create icon" title="Create"/></a>
+      <a href="#" wicket:id="createLink"><img id="actionLink" src="img/actions/create.png" alt="create icon" title="Create"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentSearch">
-      <a href="#" wicket:id="searchLink"><img id="action" src="img/actions/search.png" alt="search icon" title="Search and modify"/></a>
+      <a href="#" wicket:id="searchLink"><img id="actionLink" src="img/actions/search.png" alt="search icon" title="Search and modify"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentEnable">
-      <a href="#" wicket:id="enableLink"><img id="action" src="img/actions/enable.png" alt="enable icon" title="Enable / Disable"/></a>
+      <a href="#" wicket:id="enableLink"><img id="actionLink" src="img/actions/enable.png" alt="enable icon" title="Enable / Disable"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentEdit">
-      <a href="#" wicket:id="editLink"><img id="action" src="img/actions/edit.png" alt="edit icon" title="Edit"/></a>
+      <a href="#" wicket:id="editLink"><img id="actionLink" src="img/actions/edit.png" alt="edit icon" title="Edit"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentReset">
-      <a href="#" wicket:id="resetLink"><img id="action" src="img/actions/reset.png" alt="reset icon" title="Reset sync token"/></a>
+      <a href="#" wicket:id="resetLink"><img id="actionLink" src="img/actions/reset.png" alt="reset icon" title="Reset sync token"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentUserTemplate">
-      <a href="#" wicket:id="userTemplateLink"><img id="action" src="img/actions/user_template.png" alt="user template icon" title="Specify user template"/></a>
+      <a href="#" wicket:id="userTemplateLink"><img id="actionLink" src="img/actions/user_template.png" alt="user template icon" title="Specify user template"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentRoleTemplate">
-      <a href="#" wicket:id="roleTemplateLink"><img id="action" src="img/actions/roles-icon.png" alt="role template icon"  title="Specify role template"/></a>
+      <a href="#" wicket:id="roleTemplateLink"><img id="actionLink" src="img/actions/roles-icon.png" alt="role template icon"  title="Specify role template"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentDelete">
-      <a href="#" wicket:id="deleteLink"><img id="action" src="img/actions/delete.png" alt="delete icon" title="Delete"/></a>
+      <a href="#" wicket:id="deleteLink"><img id="actionLink" src="img/actions/delete.png" alt="delete icon" title="Delete"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentDryRun">
-      <a href="#" wicket:id="dryRunLink"><img id="action" src="img/actions/dryrun.png" alt="dryrun icon" title="DryRun"/></a>
+      <a href="#" wicket:id="dryRunLink"><img id="actionLink" src="img/actions/dryrun.png" alt="dryrun icon" title="DryRun"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentExecute">
-      <a href="#" wicket:id="executeLink"><img id="action" src="img/actions/execute.png" alt="execute icon" title="Execute"/></a>
+      <a href="#" wicket:id="executeLink"><img id="actionLink" src="img/actions/execute.png" alt="execute icon" title="Execute"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentSelect">
-      <a href="#" wicket:id="selectLink"><img id="action" src="img/actions/select.png" alt="select icon" title="Select"/></a>
+      <a href="#" wicket:id="selectLink"><img id="actionLink" src="img/actions/select.png" alt="select icon" title="Select"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentExport">
-      <a href="#" wicket:id="exportLink"><img id="action" src="img/actions/export.png" alt="export icon" title="Export"/></a>
+      <a href="#" wicket:id="exportLink"><img id="actionLink" src="img/actions/export.png" alt="export icon" title="Export"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentSuspend">
-      <a href="#" wicket:id="suspendLink"><img id="action" src="img/actions/suspend.png" alt="suspend icon" title="Suspend"/></a>
+      <a href="#" wicket:id="suspendLink"><img id="actionLink" src="img/actions/suspend.png" alt="suspend icon" title="Suspend"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentReactivate">
-      <a href="#" wicket:id="reactivateLink"><img id="action" src="img/actions/reactivate.png" alt="reactivate icon" title="Reactivate"/></a>
+      <a href="#" wicket:id="reactivateLink"><img id="actionLink" src="img/actions/reactivate.png" alt="reactivate icon" title="Reactivate"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentReload">
-      <a href="#" wicket:id="reloadLink"><img id="action" src="img/actions/reload.png" alt="reload icon" title="Reload"/></a>
+      <a href="#" wicket:id="reloadLink"><img id="actionLink" src="img/actions/reload.png" alt="reload icon" title="Reload"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentChangeView">
-      <a href="#" wicket:id="changeViewLink"><img id="action" src="img/actions/settings-icon.png" alt="Change view icon" title="Change view"/></a>
+      <a href="#" wicket:id="changeViewLink"><img id="actionLink" src="img/actions/settings-icon.png" alt="Change view icon" title="Change view"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentUnlink">
-      <a href="#" wicket:id="unlinkLink"><img id="action" src="img/actions/unlink-icon.png" alt="Unlink icon"  title="Unlink"/></a>
+      <a href="#" wicket:id="unlinkLink"><img id="actionLink" src="img/actions/unlink-icon.png" alt="Unlink icon"  title="Unlink"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentLink">
-      <a href="#" wicket:id="linkLink"><img id="action" src="img/actions/link-icon.png" alt="Link icon"  title="Link"/></a>
+      <a href="#" wicket:id="linkLink"><img id="actionLink" src="img/actions/link-icon.png" alt="Link icon"  title="Link"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentUnassign">
-      <a href="#" wicket:id="unassignLink"><img id="action" src="img/actions/unassign-icon.png" alt="Unassign icon"  title="Unassign"/></a>
+      <a href="#" wicket:id="unassignLink"><img id="actionLink" src="img/actions/unassign-icon.png" alt="Unassign icon"  title="Unassign"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentAssign">
-      <a href="#" wicket:id="assignLink"><img id="action" src="img/actions/assign-icon.png" alt="Assign icon"  title="Assign"/></a>
+      <a href="#" wicket:id="assignLink"><img id="actionLink" src="img/actions/assign-icon.png" alt="Assign icon"  title="Assign"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentDeprovision">
-      <a href="#" wicket:id="deprovisionLink"><img id="action" src="img/actions/deprovision-icon.png" alt="De-provision icon"  title="De-provision"/></a>
+      <a href="#" wicket:id="deprovisionLink"><img id="actionLink" src="img/actions/deprovision-icon.png" alt="De-provision icon"  title="De-provision"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentProvision">
-      <a href="#" wicket:id="provisionLink"><img id="action" src="img/actions/provision-icon.png" alt="Provision icon"  title="Provision"/></a>
+      <a href="#" wicket:id="provisionLink"><img id="actionLink" src="img/actions/provision-icon.png" alt="Provision icon"  title="Provision"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="emptyFragment">
