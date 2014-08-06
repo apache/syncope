@@ -78,7 +78,7 @@ public class MavenUtils {
 
     private Properties packageProperties(final String confDirectory, final String logDirectory,
             final String bundlesDirectory) {
-        Properties properties = new Properties();
+        final Properties properties = new Properties();
         properties.setProperty("conf.directory", confDirectory);
         properties.setProperty("log.directory", logDirectory);
         properties.setProperty("bundles.directory", bundlesDirectory);
