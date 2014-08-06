@@ -43,17 +43,17 @@ public class ArchetypeProcess {
         if (!new File(installPath).exists()) {
             FileSystemUtils.createDirectory(installPath, handler, null);
         }
-        
+
         final MavenUtils mavenUtils = new MavenUtils(mavenDir);
-        
+
         mavenUtils.archetypeGenerate(
                 syncopeVersion, groupId, artifactId, secretKey, anonymousKey, installPath);
 
         FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + Pom.PATH),
                 String.format(Pom.FILE, syncopeVersion, syncopeVersion, groupId, artifactId));
 
+        FileSystemUtils.createDirectory(confDirectory, handler, null);
         FileSystemUtils.createDirectory(logsDirectory, handler, null);
-
         FileSystemUtils.createDirectory(bundlesDirectory, handler, null);
 
         mavenUtils.createPackage(installPath + "/" + artifactId, confDirectory, logsDirectory, bundlesDirectory);

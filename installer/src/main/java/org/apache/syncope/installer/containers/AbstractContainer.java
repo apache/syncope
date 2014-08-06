@@ -20,8 +20,12 @@ package org.apache.syncope.installer.containers;
 
 public abstract class AbstractContainer {
 
-    protected static final String CORE_RELATIVE_PATH = "%s/%s/core/target/syncope.war";
+    protected static final String UNIX_CORE_RELATIVE_PATH = "%s/%s/core/target/syncope.war";
 
-    protected static final String CONSOLE_RELATIVE_PATH = "%s/%s/console/target/syncope-console.war";
+    protected static final String WIN_CORE_RELATIVE_PATH = "%s\\%s\\core\\target\\syncope.war";
+
+    protected static final String UNIX_CONSOLE_RELATIVE_PATH = "%s/%s/console/target/syncope-console.war";
+
+    protected static final String WIN_CONSOLE_RELATIVE_PATH = "%s\\%s\\console\\target\\syncope-console.war";
 
 }

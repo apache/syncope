@@ -30,11 +30,11 @@ public class Glassfish extends AbstractContainer {
     }
 
     public String deployCore() {
-        return deploy(CORE_RELATIVE_PATH);
+        return deploy(UNIX_CORE_RELATIVE_PATH);
     }
 
     public String deployConsole() {
-        return deploy(CONSOLE_RELATIVE_PATH);
+        return deploy(UNIX_CONSOLE_RELATIVE_PATH);
     }
 
     public String deploy(final String what) {

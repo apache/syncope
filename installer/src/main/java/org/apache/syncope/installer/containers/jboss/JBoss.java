@@ -53,11 +53,11 @@ public class JBoss extends AbstractContainer {
     }
 
     public boolean deployCore() {
-        return deploy(CORE_RELATIVE_PATH, "syncope.war");
+        return deploy(UNIX_CORE_RELATIVE_PATH, "syncope.war");
     }
 
     public boolean deployConsole() {
-        return deploy(CONSOLE_RELATIVE_PATH, "syncope-console.war");
+        return deploy(UNIX_CONSOLE_RELATIVE_PATH, "syncope-console.war");
     }
 
     public boolean deploy(final String whatDeploy, final String warName) {

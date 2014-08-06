@@ -25,17 +25,9 @@ import org.apache.syncope.installer.utilities.HttpUtils;
 
 public class Tomcat extends AbstractContainer {
 
-    private static final String UNIX_DEPLOY_SYNCOPE_CORE_QUERY
-            = "/manager/text/deploy?path=/syncope&war=file:" + CORE_RELATIVE_PATH;
+    private static final String DEPLOY_SYNCOPE_CORE_QUERY = "/manager/text/deploy?path=/syncope&war=file:";
 
-    private static final String WIN_DEPLOY_SYNCOPE_CORE_QUERY
-            = "/manager/text/deploy?path=/syncope&war=file:%s\\%s\\core\\target\\syncope.war";
-
-    private static final String UNIX_DEPLOY_SYNCOPE_CONSOLE_QUERY
-            = "/manager/text/deploy?path=/syncope-console&war=file:" + CONSOLE_RELATIVE_PATH;
-
-    private static final String WIN_DEPLOY_SYNCOPE_CONSOLE_QUERY
-            = "/manager/text/deploy?path=/syncope-console&war=file:%s\\%s\\console\\target\\syncope-console.war";
+    private static final String DEPLOY_SYNCOPE_CONSOLE_QUERY = "/manager/text/deploy?path=/syncope-console&war=file:";
 
     private final String installPath;
 
@@ -53,9 +45,10 @@ public class Tomcat extends AbstractContainer {
     public boolean deployCore() {
         int status;
         if (FileSystemUtils.IS_WIN) {
-            status = httpUtils.getWithBasicAuth(pathEncoded(WIN_DEPLOY_SYNCOPE_CORE_QUERY));
+            status = httpUtils.getWithBasicAuth(DEPLOY_SYNCOPE_CORE_QUERY
+                    + pathEncoded(String.format(WIN_CORE_RELATIVE_PATH, installPath, artifactId)));
         } else {
-            status = httpUtils.getWithBasicAuth(path(UNIX_DEPLOY_SYNCOPE_CORE_QUERY));
+            status = httpUtils.getWithBasicAuth(path(DEPLOY_SYNCOPE_CORE_QUERY + UNIX_CORE_RELATIVE_PATH));
         }
 
         return status == 200;
@@ -64,24 +57,25 @@ public class Tomcat extends AbstractContainer {
     public boolean deployConsole() {
         int status;
         if (FileSystemUtils.IS_WIN) {
-            status = httpUtils.getWithBasicAuth(pathEncoded(WIN_DEPLOY_SYNCOPE_CONSOLE_QUERY));
+            status = httpUtils.getWithBasicAuth(DEPLOY_SYNCOPE_CONSOLE_QUERY
+                    + pathEncoded(String.format(WIN_CONSOLE_RELATIVE_PATH, installPath, artifactId)));
         } else {
-            status = httpUtils.getWithBasicAuth(path(UNIX_DEPLOY_SYNCOPE_CONSOLE_QUERY));
+            status = httpUtils.getWithBasicAuth(path(DEPLOY_SYNCOPE_CONSOLE_QUERY + UNIX_CONSOLE_RELATIVE_PATH));
         }
 
         return status == 200;
     }
 
-    public String pathEncoded(final String what) {
+    private String pathEncoded(final String what) {
         String path = "";
         try {
-            path = URLEncoder.encode(String.format(what, installPath, artifactId), "UTF-8");
+            path = URLEncoder.encode(what, "UTF-8");
         } catch (UnsupportedEncodingException uee) {
         }
         return path;
     }
 
-    public String path(final String what) {
+    private String path(final String what) {
         return String.format(what, installPath, artifactId);
     }
 }
