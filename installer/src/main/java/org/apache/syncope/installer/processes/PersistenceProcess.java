@@ -54,6 +54,8 @@ public class PersistenceProcess {
         mysqlInnoDB = Boolean.valueOf(args[6]);
         oracleTableSpace = args[7];
 
+        final FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
+
         final StringBuilder persistenceProperties = new StringBuilder(PersistenceProperties.HEADER);
 
         switch (dbSelected) {
@@ -74,23 +76,22 @@ public class PersistenceProcess {
                 persistenceProperties.append(String.format(
                         PersistenceProperties.ORACLE, persistenceUrl, persistenceUser, persistencePassword,
                         oracleTableSpace));
-                writeOrmFile(handler, OrmXml.ORACLE_ORM);
+                writeOrmFile(fileSystemUtils, OrmXml.ORACLE_ORM);
                 break;
             case SQLSERVER:
                 persistenceProperties.append(String.format(
                         PersistenceProperties.SQLSERVER, persistenceUrl, persistenceUser, persistencePassword));
-                writeOrmFile(handler, OrmXml.SQLSERVER_ORM);
+                writeOrmFile(fileSystemUtils, OrmXml.SQLSERVER_ORM);
                 break;
         }
 
-        FileSystemUtils.writeToFile(new File(
+        fileSystemUtils.writeToFile(new File(
                 installPath + "/" + artifactId + PersistenceProperties.PATH), persistenceProperties.toString());
 
     }
 
-    private void writeOrmFile(final AbstractUIProcessHandler handler, final String content) {
-        FileSystemUtils.createDirectory(installPath + "/" + artifactId + OrmXml.PATH_DIR, handler, null);
-        final File orm = new File(installPath + "/" + artifactId + OrmXml.PATH_COMPLETE);
-        FileSystemUtils.writeToFile(orm, content);
+    private void writeOrmFile(final FileSystemUtils fileSystemUtils, final String content) {
+        fileSystemUtils.createDirectory(installPath + "/" + artifactId + OrmXml.PATH_DIR, null);
+        fileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + OrmXml.PATH_COMPLETE), content);
     }
 }

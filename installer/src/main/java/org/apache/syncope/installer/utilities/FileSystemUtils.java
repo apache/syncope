@@ -31,26 +31,33 @@ public class FileSystemUtils {
 
     public static final boolean IS_WIN = System.getProperty("os.name").toLowerCase().contains("win");
 
-    public static void createDirectory(final String directoryPath,
-            final AbstractUIProcessHandler handler, final String path) {
-        exec(String.format(CREATE_DIRECTORY, directoryPath), null, path);
+    private final AbstractUIProcessHandler handler;
+    
+    public FileSystemUtils(final AbstractUIProcessHandler handler) {
+        this.handler = handler;
+    }
+    
+    public void createDirectory(final String directoryPath, final String path) {
+        exec(String.format(CREATE_DIRECTORY, directoryPath), path);
     }
 
     private static final String CREATE_DIRECTORY = "mkdir -p %s";
 
-    public static void exec(final String cmd, final AbstractUIProcessHandler handler, final String path) {
+    public void exec(final String cmd, final String path) {
         try {
             final ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
             if (path != null && !path.isEmpty()) {
                 builder.directory(new File(path));
             }
             final Process process = builder.start();
-            readResponse(process.getInputStream(), handler);
-        } catch (IOException ex) {
+            readResponse(process.getInputStream());
+        } catch (final IOException ex) {
+            handler.emitError("Error executing " + cmd + ": " + ex.getMessage(),
+                    "Error executing " + cmd + ": " + ex.getMessage());
         }
     }
 
-    private static void readResponse(final InputStream inputStream, final AbstractUIProcessHandler handler) throws
+    private void readResponse(final InputStream inputStream) throws
             IOException {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String line = reader.readLine();
@@ -61,13 +68,15 @@ public class FileSystemUtils {
         inputStream.close();
     }
 
-    public static void writeToFile(final File orm, final String content) {
+    public void writeToFile(final File file, final String content) {
         try {
-            final FileWriter fw = new FileWriter(orm.getAbsoluteFile());
+            final FileWriter fw = new FileWriter(file.getAbsoluteFile());
             final BufferedWriter bw = new BufferedWriter(fw);
             bw.write(content);
             bw.close();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
+            handler.emitError("Error writing file" + file.getAbsolutePath() + ": " + ex.getMessage(),
+                    "Error writing file" + file.getAbsolutePath() + ": " + ex.getMessage());
         }
     }
 

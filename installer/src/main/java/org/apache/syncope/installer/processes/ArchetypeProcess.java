@@ -40,21 +40,23 @@ public class ArchetypeProcess {
         final String syncopeVersion = args[9];
         final String syncopeAdminPassword = args[10];
 
+        final FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
+
         if (!new File(installPath).exists()) {
-            FileSystemUtils.createDirectory(installPath, handler, null);
+            fileSystemUtils.createDirectory(installPath, null);
         }
 
-        final MavenUtils mavenUtils = new MavenUtils(mavenDir);
+        final MavenUtils mavenUtils = new MavenUtils(mavenDir, handler);
 
         mavenUtils.archetypeGenerate(
                 syncopeVersion, groupId, artifactId, secretKey, anonymousKey, installPath);
 
-        FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + Pom.PATH),
+        fileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + Pom.PATH),
                 String.format(Pom.FILE, syncopeVersion, syncopeVersion, groupId, artifactId));
 
-        FileSystemUtils.createDirectory(confDirectory, handler, null);
-        FileSystemUtils.createDirectory(logsDirectory, handler, null);
-        FileSystemUtils.createDirectory(bundlesDirectory, handler, null);
+        fileSystemUtils.createDirectory(confDirectory, null);
+        fileSystemUtils.createDirectory(logsDirectory, null);
+        fileSystemUtils.createDirectory(bundlesDirectory, null);
 
         mavenUtils.createPackage(installPath + "/" + artifactId, confDirectory, logsDirectory, bundlesDirectory);
     }

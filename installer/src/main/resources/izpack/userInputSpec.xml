@@ -25,7 +25,7 @@ under the License.
     <field type="space"/>
     
     <field type="dir" variable="mvn.directory">
-      <spec id="mvn.directory.id" size="20" set=""/>
+      <spec id="mvn.directory.id" size="20" set="/usr"/>
     </field>
     <field type="space"/>
     <field type="text" variable="mvn.groupid">
@@ -45,15 +45,15 @@ under the License.
     </field>
     <field type="space"/>
     <field type="dir" variable="mvn.conf.directory">
-      <spec id="archetype.mvn.conf.directory" size="20" set=""/>
+      <spec id="archetype.mvn.conf.directory" size="20" set="/var/tmp/syncope/conf"/>
     </field>
     <field type="space"/>
     <field type="dir" variable="mvn.log.directory">
-      <spec id="archetype.mvn.log.directory" size="20" set=""/>
+      <spec id="archetype.mvn.log.directory" size="20" set="/var/tmp/syncope/log"/>
     </field>
     <field type="space"/>
     <field type="dir" variable="mvn.bundle.directory">
-      <spec id="archetype.mvn.bundle.directory" size="20" set=""/>
+      <spec id="archetype.mvn.bundle.directory" size="20" set="/var/tmp/syncope/bundles"/>
     </field>
     <field type="space"/>
     <field type="text" variable="mvn.syncope.version">
