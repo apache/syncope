@@ -22,19 +22,13 @@ under the License.
                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                      xsi:schemaLocation="http://izpack.org/schema/installation
                      http://izpack.org/schema/5.0/izpack-installation-5.0.xsd">
-  <properties>
-    <property name="info.appName" value="Apache Syncope"/>
-    <property name="info.url" value="http://syncope.apache.org"/>
-    <property name="info.company.name" value="Tirasa S.r.l."/>
-    <property name="info.company.email" value="info@tirasa.net"/>
-  </properties>
   
   <info>
-    <appname>@{info.appName}</appname>
-    <appversion>@{info.appVersion}</appversion>
-    <url>@{info.url}</url>
+    <appname>Apache Syncope Installer</appname>
+    <appversion>@{syncope.version}</appversion>
+    <url>http://syncope.apache.org</url>
     <authors>
-      <author name="@{info.company.name}" email="@{info.company.email"/>
+      <author name="Tirasa S.r.l." email="info@tirasa.net"/>
     </authors>
     <javaversion>1.7</javaversion>
   </info>
@@ -60,7 +54,7 @@ under the License.
   
   <locale>
     <langpack iso3="eng"/>
-    <langpack iso3="ita"/>
+    <!--<langpack iso3="ita"/>-->
   </locale>
   
   <variables>
@@ -174,7 +168,7 @@ under the License.
   
   <packs>
     <pack name="Apache Syncope" required="yes">
-      <description>Apache Syncope</description>
+      <description>Apache Syncope Installer</description>
     </pack>
   </packs>
   

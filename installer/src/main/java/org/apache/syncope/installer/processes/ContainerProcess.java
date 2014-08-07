@@ -94,26 +94,29 @@ public class ContainerProcess {
         jbossAdminUsername = args[18];
         jbossAdminPassword = args[19];
 
+        final FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
+
         if (withDataSource) {
-            FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + CoreWebXml.PATH), CoreWebXml.withDataSource());
+            fileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + CoreWebXml.PATH), CoreWebXml.
+                    withDataSource());
             switch (selectedContainer) {
                 case JBOSS:
-                    FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + CoreWebXml.PATH),
+                    fileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + CoreWebXml.PATH),
                             CoreWebXml.withDataSourceForJBoss());
-                    FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId
+                    fileSystemUtils.writeToFile(new File(installPath + "/" + artifactId
                             + PersistenceContextEMFactoryXml.PATH), PersistenceContextEMFactoryXml.FILE);
-                    FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId
+                    fileSystemUtils.writeToFile(new File(installPath + "/" + artifactId
                             + JBossDeploymentStructureXml.PATH),
                             String.format(JBossDeploymentStructureXml.FILE, jbossJdbcModuleName));
                     break;
                 case GLASSFISH:
-                    FileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + GlassfishCoreWebXml.PATH),
+                    fileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + GlassfishCoreWebXml.PATH),
                             GlassfishCoreWebXml.withDataSource());
                     break;
             }
         }
 
-        final MavenUtils mavenUtils = new MavenUtils(mavenDir);
+        final MavenUtils mavenUtils = new MavenUtils(mavenDir, handler);
         mavenUtils.createPackage(installPath + "/" + artifactId, confDirectory, logsDirectory, bundlesDirectory);
 
         switch (selectedContainer) {
@@ -154,14 +157,12 @@ public class ContainerProcess {
                 break;
             case GLASSFISH:
                 final String createJavaOptCommand = "sh " + glassfishDir + Glassfish.CREATE_JAVA_OPT_COMMAND;
-                FileSystemUtils.exec(createJavaOptCommand, handler, null);
+                fileSystemUtils.exec(createJavaOptCommand, null);
 
                 final Glassfish glassfish = new Glassfish(installPath, artifactId);
 
-                FileSystemUtils.exec("sh " + glassfishDir + Glassfish.DEPLOY_COMMAND + glassfish.deployCore(), handler,
-                        null);
-                FileSystemUtils.exec("sh " + glassfishDir + Glassfish.DEPLOY_COMMAND + glassfish.deployConsole(),
-                        handler, null);
+                fileSystemUtils.exec("sh " + glassfishDir + Glassfish.DEPLOY_COMMAND + glassfish.deployCore(), null);
+                fileSystemUtils.exec("sh " + glassfishDir + Glassfish.DEPLOY_COMMAND + glassfish.deployConsole(), null);
                 break;
         }
     }

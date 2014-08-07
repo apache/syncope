@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.installer.utilities;
 
+import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,10 +35,13 @@ public class MavenUtils {
 
     private static final String MAVEN_HOME_PROPERTY = "maven.home";
 
-    public MavenUtils(final String mavenHomeDirectory) {
+    private final AbstractUIProcessHandler handler;
+
+    public MavenUtils(final String mavenHomeDirectory, final AbstractUIProcessHandler handler) {
         if (System.getProperty(MAVEN_HOME_PROPERTY) == null || System.getProperty(MAVEN_HOME_PROPERTY).isEmpty()) {
             System.setProperty(MAVEN_HOME_PROPERTY, mavenHomeDirectory);
         }
+        this.handler = handler;
     }
 
     public void archetypeGenerate(final String archetypeVersion, final String groupId,
@@ -88,11 +92,12 @@ public class MavenUtils {
     private InvocationResult invoke(final InvocationRequest request, final String path) {
         InvocationResult result = null;
         final Invoker invoker = new DefaultInvoker();
+        invoker.setOutputHandler(null);
         invoker.setWorkingDirectory(new File(path));
         try {
             result = invoker.execute(request);
         } catch (MavenInvocationException ex) {
-
+            handler.emitError("Maven exception: " + ex.getMessage(), "Maven exception: " + ex.getMessage());
         }
         return result;
     }
