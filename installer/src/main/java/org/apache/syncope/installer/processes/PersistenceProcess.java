@@ -24,6 +24,7 @@ import java.io.File;
 import org.apache.syncope.installer.enums.DBs;
 import org.apache.syncope.installer.files.OrmXml;
 import org.apache.syncope.installer.files.PersistenceProperties;
+import org.apache.syncope.installer.utilities.InstallLog;
 
 public class PersistenceProcess {
 
@@ -58,6 +59,9 @@ public class PersistenceProcess {
 
         final StringBuilder persistenceProperties = new StringBuilder(PersistenceProperties.HEADER);
 
+        handler.logOutput("Configure persistence file according to " + dbSelected + " properties", true);
+        InstallLog.getInstance().info("Configure persistence file according to " + dbSelected + " properties");
+        
         switch (dbSelected) {
             case POSTGRES:
                 persistenceProperties.append(String.format(

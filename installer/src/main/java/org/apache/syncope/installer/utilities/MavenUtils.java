@@ -50,7 +50,11 @@ public class MavenUtils {
         final InvocationRequest request = new DefaultInvocationRequest();
         request.setGoals(Collections.singletonList("archetype:generate"));
         request.setInteractive(false);
-        request.setProperties(archetypeProperties(archetypeVersion, groupId, artifactId, secretKey, anonymousKey));
+        final Properties properties
+                = archetypeProperties(archetypeVersion, groupId, artifactId, secretKey, anonymousKey);
+        request.setProperties(properties);
+        logToHandler(request.getGoals(), properties);
+        logToFile(request.getGoals(), properties);
         invoke(request, installPath);
     }
 
@@ -72,12 +76,39 @@ public class MavenUtils {
             final String logDirectory, final String bundlesDirectory) {
 
         final InvocationRequest request = new DefaultInvocationRequest();
-        request.setProperties(packageProperties(confDirectory, logDirectory, bundlesDirectory));
+        final Properties properties = packageProperties(confDirectory, logDirectory, bundlesDirectory);
+        request.setProperties(properties);
         final List<String> mavenGoals = new ArrayList<String>();
         mavenGoals.add("clean");
         mavenGoals.add("package");
         request.setGoals(mavenGoals);
+        logToHandler(request.getGoals(), properties);
+        logToFile(request.getGoals(), properties);
         invoke(request, path);
+    }
+
+    private void logToHandler(final List<String> goals, final Properties properties) {
+        handler.logOutput("Executing maven command:", true);
+        final StringBuilder mavenCommand = new StringBuilder("mvn ");
+        for (final String goal : goals) {
+            mavenCommand.append(goal).append(" ");
+        }
+        handler.logOutput(mavenCommand.toString(), true);
+        for (final String propertyName : properties.stringPropertyNames()) {
+            handler.logOutput("-D " + propertyName + "=" + properties.getProperty(propertyName), true);
+        }
+    }
+
+    private void logToFile(final List<String> goals, final Properties properties) {
+        InstallLog.getInstance().info("Executing maven command:");
+        final StringBuilder mavenCommand = new StringBuilder("mvn ");
+        for (final String goal : goals) {
+            mavenCommand.append(goal).append(" ");
+        }
+        InstallLog.getInstance().info(mavenCommand.toString());
+        for (final String propertyName : properties.stringPropertyNames()) {
+            InstallLog.getInstance().info("-D " + propertyName + "=" + properties.getProperty(propertyName));
+        }
     }
 
     private Properties packageProperties(final String confDirectory, final String logDirectory,
@@ -97,7 +128,9 @@ public class MavenUtils {
         try {
             result = invoker.execute(request);
         } catch (MavenInvocationException ex) {
-            handler.emitError("Maven exception: " + ex.getMessage(), "Maven exception: " + ex.getMessage());
+            final String messageError = "Maven exception: " + ex.getMessage();
+            handler.emitError(messageError, messageError);
+            InstallLog.getInstance().info(messageError);
         }
         return result;
     }

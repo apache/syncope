@@ -22,6 +22,7 @@ import org.apache.syncope.installer.utilities.FileSystemUtils;
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
 import org.apache.syncope.installer.files.Pom;
+import org.apache.syncope.installer.utilities.InstallLog;
 import org.apache.syncope.installer.utilities.MavenUtils;
 
 public class ArchetypeProcess {
@@ -44,6 +45,7 @@ public class ArchetypeProcess {
 
         if (!new File(installPath).exists()) {
             fileSystemUtils.createDirectory(installPath, null);
+            InstallLog.initialize(installPath, handler);
         }
 
         final MavenUtils mavenUtils = new MavenUtils(mavenDir, handler);

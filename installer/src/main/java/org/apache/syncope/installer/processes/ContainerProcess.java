@@ -29,6 +29,7 @@ import org.apache.syncope.installer.files.GlassfishCoreWebXml;
 import org.apache.syncope.installer.files.JBossDeploymentStructureXml;
 import org.apache.syncope.installer.files.PersistenceContextEMFactoryXml;
 import org.apache.syncope.installer.files.CoreWebXml;
+import org.apache.syncope.installer.utilities.InstallLog;
 import org.apache.syncope.installer.utilities.MavenUtils;
 
 public class ContainerProcess {
@@ -96,6 +97,9 @@ public class ContainerProcess {
 
         final FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
 
+        handler.logOutput("Configure web.xml file according to " + selectedContainer + " properties", true);
+        InstallLog.getInstance().info("Configure web.xml file according to " + selectedContainer + " properties");
+
         if (withDataSource) {
             fileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + CoreWebXml.PATH), CoreWebXml.
                     withDataSource());
@@ -122,37 +126,50 @@ public class ContainerProcess {
         switch (selectedContainer) {
             case TOMCAT:
                 final Tomcat tomcat = new Tomcat(
-                        tomcatSsl, tomcatHost, tomcatPort, installPath, artifactId, tomcatUser, tomcatPassword);
+                        tomcatSsl, tomcatHost, tomcatPort, installPath, artifactId, tomcatUser, tomcatPassword, handler);
                 boolean deployCoreResult = tomcat.deployCore();
                 if (deployCoreResult) {
                     handler.logOutput("Core successfully deployed ", true);
+                    InstallLog.getInstance().info("Core successfully deployed ");
                 } else {
-                    handler.emitError("Deploy core on Tomcat failed", "Deploy core on Tomcat failed");
+                    final String messageError = "Deploy core on Tomcat failed";
+                    handler.emitError(messageError, messageError);
+                    InstallLog.getInstance().error(messageError);
                 }
 
                 boolean deployConsoleResult = tomcat.deployConsole();
                 if (deployConsoleResult) {
                     handler.logOutput("Console successfully deployed ", true);
+                    InstallLog.getInstance().info("Console successfully deployed ");
                 } else {
-                    handler.emitError("Deploy console on Tomcat failed", "Deploy console on Tomcat failed");
+                    final String messageError = "Deploy console on Tomcat failed";
+                    handler.emitError(messageError, messageError);
+                    InstallLog.getInstance().error(messageError);
                 }
                 break;
             case JBOSS:
                 final JBoss jBoss = new JBoss(
-                        jbossSsl, jbossHost, jbossPort, jbossAdminUsername, jbossAdminPassword, installPath, artifactId);
+                        jbossSsl, jbossHost, jbossPort, jbossAdminUsername,
+                        jbossAdminPassword, installPath, artifactId, handler);
 
                 boolean deployCoreJboss = jBoss.deployCore();
                 if (deployCoreJboss) {
                     handler.logOutput("Core successfully deployed ", true);
+                    InstallLog.getInstance().info("Core successfully deployed ");
                 } else {
-                    handler.emitError("Deploy core on JBoss failed", "Deploy core on JBoss failed");
+                    final String messageError = "Deploy core on JBoss failed";
+                    handler.emitError(messageError, messageError);
+                    InstallLog.getInstance().error(messageError);
                 }
 
                 boolean deployConsoleJBoss = jBoss.deployConsole();
                 if (deployConsoleJBoss) {
                     handler.logOutput("Console successfully deployed ", true);
+                    InstallLog.getInstance().info("Console successfully deployed ");
                 } else {
-                    handler.emitError("Deploy console on JBoss failed", "Deploy console on JBoss failed");
+                    final String messageError = "Deploy console on JBoss failed";
+                    handler.emitError(messageError, messageError);
+                    InstallLog.getInstance().error(messageError);
                 }
                 break;
             case GLASSFISH:

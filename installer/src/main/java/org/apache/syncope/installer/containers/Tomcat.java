@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.installer.containers;
 
+import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import org.apache.syncope.installer.utilities.FileSystemUtils;
@@ -32,14 +33,15 @@ public class Tomcat extends AbstractContainer {
     private final String installPath;
 
     private final String artifactId;
-
+    
     private final HttpUtils httpUtils;
 
     public Tomcat(final boolean tomcatSsl, final String tomcatHost, final String tomcatPort,
-            final String installPath, final String artifactId, final String tomcatUser, final String tomcatPassword) {
+            final String installPath, final String artifactId, final String tomcatUser, final String tomcatPassword,
+            final AbstractUIProcessHandler handler) {
         this.installPath = installPath;
         this.artifactId = artifactId;
-        httpUtils = new HttpUtils(tomcatSsl, tomcatHost, tomcatPort, tomcatUser, tomcatPassword);
+        httpUtils = new HttpUtils(tomcatSsl, tomcatHost, tomcatPort, tomcatUser, tomcatPassword, handler);
     }
 
     public boolean deployCore() {

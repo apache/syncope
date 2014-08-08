@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.installer.utilities;
 
+import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -69,8 +70,10 @@ public class HttpUtils {
 
     private final HttpHost targetHost;
 
+    private final AbstractUIProcessHandler handler;
+
     public HttpUtils(final boolean isSsl, final String host,
-            final String port, final String username, final String password) {
+            final String port, final String username, final String password, final AbstractUIProcessHandler handler) {
 
         this.isSsl = isSsl;
         this.host = host;
@@ -83,9 +86,11 @@ public class HttpUtils {
             httpClient = HttpClients.createDefault();
             this.targetHost = new HttpHost(this.host, this.port, "http");
         }
-        
+
         this.username = username;
         this.password = password;
+
+        this.handler = handler;
     }
 
     public int getWithBasicAuth(final String path) {
@@ -97,11 +102,18 @@ public class HttpUtils {
         }
         int status = 0;
         try {
+            handler.logOutput("Calling " + httpGet.getURI(), true);
+            InstallLog.getInstance().info("Calling " + httpGet.getURI());
             final CloseableHttpResponse response = httpClient.execute(
                     targetHost, httpGet, setAuth(targetHost, new BasicScheme()));
             status = response.getStatusLine().getStatusCode();
+            handler.logOutput("Calling status " + status, true);
+            InstallLog.getInstance().info("Calling status " + status);
             response.close();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
+            final String messageError = "Error in " + path + ": " + ex.getMessage();
+            handler.emitError(messageError, messageError);
+            InstallLog.getInstance().error(messageError);
         }
         return status;
     }
@@ -113,8 +125,13 @@ public class HttpUtils {
                     httpPost(url, MultipartEntityBuilder.create().addPart("bin", new FileBody(new File(file))).build()),
                     setAuth(targetHost, new DigestScheme()));
             responseBodyAsString = IOUtils.toString(response.getEntity().getContent());
+            handler.logOutput("Http status: " + response.getStatusLine().getStatusCode(), true);
+            InstallLog.getInstance().info("Http status: " + response.getStatusLine().getStatusCode());
             response.close();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
+            final String messageError = "Error calling " + url + ": " + ex.getMessage();
+            handler.emitError(messageError, messageError);
+            InstallLog.getInstance().error(messageError);
         }
 
         return responseBodyAsString;
@@ -128,8 +145,15 @@ public class HttpUtils {
             final CloseableHttpResponse response = httpClient.execute(
                     targetHost, httPost, setAuth(targetHost, new DigestScheme()));
             status = response.getStatusLine().getStatusCode();
+            handler.logOutput("Http status: " + status, true);
+            InstallLog.getInstance().info("Http status: " + status);
+
             response.close();
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
+            final String messageError = "Error calling " + url + ": " + ioe.getMessage();
+            handler.emitError(messageError, messageError);
+            InstallLog.getInstance().error(messageError);
+
         }
         return status;
     }
@@ -149,6 +173,8 @@ public class HttpUtils {
     private HttpPost httpPost(final String url, final HttpEntity reqEntity) {
         final HttpPost httppost = new HttpPost(url);
         httppost.setEntity(reqEntity);
+        handler.logOutput("Calling " + httppost.getURI(), true);
+        InstallLog.getInstance().info("Calling " + httppost.getURI());
         return httppost;
     }
 
