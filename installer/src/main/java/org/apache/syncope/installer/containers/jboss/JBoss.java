@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.installer.containers.jboss;
 
+import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import org.apache.syncope.installer.containers.AbstractContainer;
 import org.apache.syncope.installer.utilities.HttpUtils;
 import org.apache.syncope.installer.utilities.JsonUtils;
@@ -42,13 +43,13 @@ public class JBoss extends AbstractContainer {
 
     public JBoss(final boolean jbossSsl, final String jbossHost, final String jbossPort,
             final String jbossAdminUsername, final String jbossAdminPassword,
-            final String installPath, final String artifactId) {
+            final String installPath, final String artifactId, final AbstractUIProcessHandler handler) {
         this.jbossSsl = jbossSsl;
         this.jbossHost = jbossHost;
         this.jbossPort = jbossPort;
         this.installPath = installPath;
         this.artifactId = artifactId;
-        httpUtils = new HttpUtils(jbossSsl, jbossHost, jbossPort, jbossAdminUsername, jbossAdminPassword);
+        httpUtils = new HttpUtils(jbossSsl, jbossHost, jbossPort, jbossAdminUsername, jbossAdminPassword, handler);
 
     }
 
