@@ -21,10 +21,11 @@ package org.apache.syncope.installer.containers;
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import org.apache.syncope.installer.utilities.FileSystemUtils;
 import org.apache.syncope.installer.utilities.HttpUtils;
 
 public class Tomcat extends AbstractContainer {
+
+    private static final boolean IS_WIN = System.getProperty("os.name").toLowerCase().contains("win");
 
     private static final String DEPLOY_SYNCOPE_CORE_QUERY = "/manager/text/deploy?path=/syncope&war=file:";
 
@@ -33,7 +34,7 @@ public class Tomcat extends AbstractContainer {
     private final String installPath;
 
     private final String artifactId;
-    
+
     private final HttpUtils httpUtils;
 
     public Tomcat(final boolean tomcatSsl, final String tomcatHost, final String tomcatPort,
@@ -46,7 +47,7 @@ public class Tomcat extends AbstractContainer {
 
     public boolean deployCore() {
         int status;
-        if (FileSystemUtils.IS_WIN) {
+        if (IS_WIN) {
             status = httpUtils.getWithBasicAuth(DEPLOY_SYNCOPE_CORE_QUERY
                     + pathEncoded(String.format(WIN_CORE_RELATIVE_PATH, installPath, artifactId)));
         } else {
@@ -58,7 +59,7 @@ public class Tomcat extends AbstractContainer {
 
     public boolean deployConsole() {
         int status;
-        if (FileSystemUtils.IS_WIN) {
+        if (IS_WIN) {
             status = httpUtils.getWithBasicAuth(DEPLOY_SYNCOPE_CONSOLE_QUERY
                     + pathEncoded(String.format(WIN_CONSOLE_RELATIVE_PATH, installPath, artifactId)));
         } else {
