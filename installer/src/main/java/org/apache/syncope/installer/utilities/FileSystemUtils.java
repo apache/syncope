@@ -30,25 +30,17 @@ import java.io.PrintWriter;
 
 public class FileSystemUtils {
 
-    public static final boolean IS_WIN = System.getProperty("os.name").toLowerCase().contains("win");
-
-    private static final String UNIX_CREATE_DIRECTORY = "mkdir -p %s";
-
-    private static final String WIN_CREATE_DIRECTORY = "mkdir %s";
-
     private final AbstractUIProcessHandler handler;
 
     public FileSystemUtils(final AbstractUIProcessHandler handler) {
         this.handler = handler;
     }
 
-    public void createDirectory(final String directoryPath, final String path) {
-        if (IS_WIN) {
-            exec(String.format(WIN_CREATE_DIRECTORY, directoryPath), path);
-        } else {
-            exec(String.format(UNIX_CREATE_DIRECTORY, directoryPath), path);
+    public void createDirectory(final String directoryPath) {
+        final File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            directory.mkdirs();
         }
-
     }
 
     public void exec(final String cmd, final String path) {

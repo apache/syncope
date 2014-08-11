@@ -61,7 +61,7 @@ public class PersistenceProcess {
 
         handler.logOutput("Configure persistence file according to " + dbSelected + " properties", true);
         InstallLog.getInstance().info("Configure persistence file according to " + dbSelected + " properties");
-        
+
         switch (dbSelected) {
             case POSTGRES:
                 persistenceProperties.append(String.format(
@@ -95,7 +95,9 @@ public class PersistenceProcess {
     }
 
     private void writeOrmFile(final FileSystemUtils fileSystemUtils, final String content) {
-        fileSystemUtils.createDirectory(installPath + "/" + artifactId + OrmXml.PATH_DIR, null);
-        fileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + OrmXml.PATH_COMPLETE), content);
+        fileSystemUtils.createDirectory(
+                installPath + File.separator + artifactId + OrmXml.PATH_DIR);
+        fileSystemUtils.writeToFile(
+                new File(installPath + File.separator + artifactId + OrmXml.PATH_COMPLETE), content);
     }
 }
