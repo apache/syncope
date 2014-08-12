@@ -408,7 +408,7 @@ under the License.
   <dependencyManagement>
 
     <dependencies>
-            
+      
       <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>javax.servlet-api</artifactId>
@@ -1624,6 +1624,7 @@ under the License.
     <module>console</module>
     <module>standalone</module>
     <module>installer</module>
+    <module>core-upgrader</module>
     <module>deb</module>
   </modules>
 </project>

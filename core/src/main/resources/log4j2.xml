@@ -142,7 +142,7 @@ under the License.
     <asyncLogger name="org.apache.cxf" additivity="false" level="ERROR">
       <appender-ref ref="rest"/>
     </asyncLogger>
-            
+     
     <logger name="syncope.audit" additivity="false" level="DEBUG">
       <appender-ref ref="audit"/>
     </logger>
