@@ -253,7 +253,7 @@ public class ContentUpgrader implements InitializingBean {
             try {
                 final String oldConf = (String) jsonConf.get(resource);
                 if (StringUtils.isNotBlank(oldConf)) {
-                    LOG.debug("Upgrading resource {} jsonConf", resource.getName());
+                    LOG.info("Upgrading resource {} jsonConf", resource.getName());
                     resource.setConnInstanceConfiguration(
                             XMLDeserializer.<HashSet<ConnConfProperty>>deserialize(oldConf));
                 }
@@ -262,11 +262,11 @@ public class ContentUpgrader implements InitializingBean {
                 final String oldRSyncToken = (String) rSyncToken.get(resource);
 
                 if (StringUtils.isNotBlank(oldUSyncToken)) {
-                    LOG.debug("Upgrading resource {} userializedSyncToken", resource.getName());
+                    LOG.info("Upgrading resource {} userializedSyncToken", resource.getName());
                     resource.setUsyncToken(XMLDeserializer.<SyncToken>deserialize(oldUSyncToken));
                 }
                 if (StringUtils.isNotBlank(oldRSyncToken)) {
-                    LOG.debug("Upgrading resource {} rserializedSyncToken", resource.getName());
+                    LOG.info("Upgrading resource {} rserializedSyncToken", resource.getName());
                     resource.setRsyncToken(XMLDeserializer.<SyncToken>deserialize(oldRSyncToken));
                 }
             } catch (Exception e) {
@@ -282,7 +282,7 @@ public class ContentUpgrader implements InitializingBean {
         final Field jsonConf = ReflectionUtils.findField(ConnInstance.class, "jsonConf");
         jsonConf.setAccessible(true);
         for (ConnInstance connInstance : connInstanceDAO.findAll()) {
-            LOG.debug("Upgrading connInstance {} jsonConf", connInstance);
+            LOG.info("Upgrading connInstance {} jsonConf", connInstance);
             try {
                 final String oldConf = (String) jsonConf.get(connInstance);
                 connInstance.setConfiguration(XMLDeserializer.<HashSet<ConnConfProperty>>deserialize(oldConf));
@@ -299,7 +299,7 @@ public class ContentUpgrader implements InitializingBean {
         final Field specification = ReflectionUtils.findField(Policy.class, "specification");
         specification.setAccessible(true);
         for (Policy policy : policyDAO.findAll()) {
-            LOG.debug("Upgrading policy {} specification", policy.getDescription());
+            LOG.info("Upgrading policy {} specification", policy.getDescription());
             try {
                 final String oldConf = (String) specification.get(policy);
                 policy.setSpecification(XMLDeserializer.<AbstractPolicySpec>deserialize(oldConf));
@@ -319,14 +319,14 @@ public class ContentUpgrader implements InitializingBean {
         roleTemplate.setAccessible(true);
         for (SyncTask task : taskDAO.findAll(SyncTask.class)) {
             try {
-                LOG.debug("Upgrading syncTask {} userTemplate", task.getName());
+                LOG.info("Upgrading syncTask {} userTemplate", task.getName());
                 final String oldUserTemplate = (String) userTemplate.get(task);
                 final String oldRoleTemplate = (String) roleTemplate.get(task);
                 if (oldUserTemplate != null) {
                     task.setUserTemplate(XMLDeserializer.<UserTO>deserialize(oldUserTemplate));
                 }
                 if (oldRoleTemplate != null) {
-                    LOG.debug("Upgrading syncTask {} roleTemplate", task.getName());
+                    LOG.info("Upgrading syncTask {} roleTemplate", task.getName());
                     task.setRoleTemplate(XMLDeserializer.<RoleTO>deserialize(oldRoleTemplate));
                 }
             } catch (Exception e) {
@@ -345,7 +345,7 @@ public class ContentUpgrader implements InitializingBean {
             try {
                 final String oldXmlAttr = (String) xmlAttributes.get(task);
                 if (StringUtils.isNotBlank(oldXmlAttr)) {
-                    LOG.debug("Upgrading propagationTask {} xmlAttributes", task.getId());
+                    LOG.info("Upgrading propagationTask {} xmlAttributes", task.getId());
                     task.setAttributes(XMLDeserializer.<HashSet<Attribute>>deserialize(oldXmlAttr));
                 }
             } catch (Exception e) {
@@ -364,7 +364,7 @@ public class ContentUpgrader implements InitializingBean {
             for (Map<String, Object> row : reportletConfs) {
                 final String serializedInstance = (String) row.get("serializedInstance");
                 if (StringUtils.isNotBlank(serializedInstance)) {
-                    LOG.debug("Upgrading ReportletConf {} serializedInstance", row.get("id"));
+                    LOG.info("Upgrading ReportletConf {} serializedInstance", row.get("id"));
                     final UserReportletConf set = XMLDeserializer.<UserReportletConf>deserialize(serializedInstance);
                     final String newSerializedInst = POJOHelper.serialize(set);
                     jdbcTemplate.update("UPDATE ReportletConfInstance set serializedInstance = ? WHERE id = ?",
@@ -441,7 +441,7 @@ public class ContentUpgrader implements InitializingBean {
             }
             if (userWorkflowBytes != null && userWorkflowBytes.length > 0) {
                 // write default workflow value to database
-                LOG.debug("Importing default workflow for Syncope 1.2.X");
+                LOG.info("Importing default workflow for Syncope 1.2.X");
 
                 importUtils.fromXML(userWorkflowBytes);
 
@@ -486,13 +486,13 @@ public class ContentUpgrader implements InitializingBean {
                 final List<RVirAttr> newRVirattrs = new ArrayList<RVirAttr>();
                 final List<RVirAttrTemplate> newRVirattrTemplates = new ArrayList<RVirAttrTemplate>();
 
-                LOG.debug("Adding role templates to role {}", role);
+                LOG.info("Adding role templates to role {}", role);
 
                 //Create normal attributes templates
                 for (AbstractAttr attr : role.getAttrs()) {
                     final RAttrTemplate rAttrTemplate = new RAttrTemplate();
                     rAttrTemplate.setOwner(role);
-                    LOG.debug("Creating template for role normal attribute {}", attr);
+                    LOG.info("Creating template for role normal attribute {}", attr);
                     final String schemaName = jdbcTemplate.queryForObject(
                             "SELECT schema_name FROM RAttr WHERE id = ?;", String.class, attr.getId());
 
@@ -504,7 +504,7 @@ public class ContentUpgrader implements InitializingBean {
                 for (AbstractDerAttr derAttr : role.getDerAttrs()) {
                     final RDerAttrTemplate rDerattrTemplate = new RDerAttrTemplate();
                     rDerattrTemplate.setOwner(role);
-                    LOG.debug("Creating template for role derived attribute {}", derAttr);
+                    LOG.info("Creating template for role derived attribute {}", derAttr);
                     final String derSchemaName = jdbcTemplate.queryForObject(
                             "SELECT DERIVEDSCHEMA_NAME FROM RDerAttr WHERE id = ?;", String.class, derAttr.getId());
 
@@ -516,7 +516,7 @@ public class ContentUpgrader implements InitializingBean {
                 for (AbstractVirAttr virAttr : role.getVirAttrs()) {
                     final RVirAttrTemplate rVirattrTemplate = new RVirAttrTemplate();
                     rVirattrTemplate.setOwner(role);
-                    LOG.debug("Creating template for role virtual attribute {}", virAttr);
+                    LOG.info("Creating template for role virtual attribute {}", virAttr);
                     final String virSchemaName = jdbcTemplate.queryForObject(
                             "SELECT VIRTUALSCHEMA_NAME FROM RVirAttr WHERE id = ?;", String.class, virAttr.getId());
                     rVirattrTemplate.setSchema(virSchemaDAO.find(virSchemaName, RVirSchema.class));
@@ -548,7 +548,7 @@ public class ContentUpgrader implements InitializingBean {
                         role.getId())) {
                     final RAttr rAttr = attrDAO.find(attrId, RAttr.class);
 
-                    LOG.debug("Adding template to role attribute {}", rAttr);
+                    LOG.info("Adding template to role attribute {}", rAttr);
 
                     final String schemaName = jdbcTemplate.queryForObject(
                             "SELECT schema_name FROM RAttr WHERE id = ?;", String.class, attrId);
@@ -562,7 +562,7 @@ public class ContentUpgrader implements InitializingBean {
                         role.getId())) {
                     final RDerAttr rDerAttr = derAttrDAO.find(attrId, RDerAttr.class);
 
-                    LOG.debug("Adding template to role attribute {}", rDerAttr);
+                    LOG.info("Adding template to role attribute {}", rDerAttr);
 
                     final String derSchemaName = jdbcTemplate.queryForObject(
                             "SELECT DERIVEDSCHEMA_NAME FROM RDerAttr WHERE id = ?;", String.class, attrId);
@@ -576,7 +576,7 @@ public class ContentUpgrader implements InitializingBean {
                         role.getId())) {
                     final RVirAttr rVirAttr = virAttrDAO.find(attrId, RVirAttr.class);
 
-                    LOG.debug("Adding template to role attribute {}", rVirAttr);
+                    LOG.info("Adding template to role attribute {}", rVirAttr);
 
                     final String virSchemaName = jdbcTemplate.queryForObject(
                             "SELECT VIRTUALSCHEMA_NAME FROM RVirAttr WHERE id = ?;", String.class, attrId);
@@ -613,7 +613,7 @@ public class ContentUpgrader implements InitializingBean {
                 final List<MVirAttr> newMVirattrs = new ArrayList<MVirAttr>();
                 final List<MVirAttrTemplate> newMVirattrTemplates = new ArrayList<MVirAttrTemplate>();
 
-                LOG.debug("Adding template to membership {}", membership);
+                LOG.info("Adding template to membership {}", membership);
 
                 //Create normal attributes templates
                 for (AbstractAttr attr : membership.getAttrs()) {
@@ -673,7 +673,7 @@ public class ContentUpgrader implements InitializingBean {
                         membership.getId())) {
                     final MAttr mAttr = attrDAO.find(attrId, MAttr.class);
 
-                    LOG.debug("Adding template to membership normal attribute {}", mAttr);
+                    LOG.info("Adding template to membership normal attribute {}", mAttr);
 
                     final String schemaName = jdbcTemplate.queryForObject(
                             "SELECT schema_name FROM MAttr WHERE id = ?;", String.class, attrId);
@@ -687,7 +687,7 @@ public class ContentUpgrader implements InitializingBean {
                         membership.getId())) {
                     final MDerAttr mDerAttr = derAttrDAO.find(attrId, MDerAttr.class);
 
-                    LOG.debug("Adding template to membership derived attribute {}", mDerAttr);
+                    LOG.info("Adding template to membership derived attribute {}", mDerAttr);
 
                     final String derSchemaName = jdbcTemplate.queryForObject(
                             "SELECT DERIVEDSCHEMA_NAME FROM MDerAttr WHERE id = ?;", String.class, attrId);
@@ -701,7 +701,7 @@ public class ContentUpgrader implements InitializingBean {
                         membership.getId())) {
                     final MVirAttr mVirAttr = virAttrDAO.find(attrId, MVirAttr.class);
 
-                    LOG.debug("Adding template to membership virtual attribute {}", mVirAttr);
+                    LOG.info("Adding template to membership virtual attribute {}", mVirAttr);
 
                     final String virSchemaName = jdbcTemplate.queryForObject(
                             "SELECT VIRTUALSCHEMA_NAME FROM MVirAttr WHERE id = ?;", String.class, attrId);

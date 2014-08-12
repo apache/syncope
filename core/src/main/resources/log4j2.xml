@@ -69,19 +69,6 @@ under the License.
       </Policies>
     </RollingRandomAccessFile>
 
-    <!--upgrader-->
-    <RollingRandomAccessFile name="upgrader" fileName="${log.directory}/upgrader.log"
-                             filePattern="${log.directory}/upgrader-%d{yyyy-MM-dd}.log.gz"
-                             immediateFlush="false" append="true">
-      <PatternLayout>
-        <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
-      </PatternLayout>
-      <Policies>
-        <TimeBasedTriggeringPolicy/>
-        <SizeBasedTriggeringPolicy size="250 MB"/>
-      </Policies>
-    </RollingRandomAccessFile>
-
     <!-- Audit -->    
     <Jdbc name="audit" tableName="SYNCOPEAUDIT">
       <ConnectionFactory class="org.apache.syncope.core.audit.AuditConnectionFactory" method="getConnection" />
@@ -156,11 +143,6 @@ under the License.
       <appender-ref ref="rest"/>
     </asyncLogger>
      
-    <!--upgrader logger-->               
-    <asyncLogger name="org.apache.syncope.upgrader" additivity="false" level="OFF">
-      <appender-ref ref="upgrader"/>
-    </asyncLogger>
-
     <logger name="syncope.audit" additivity="false" level="DEBUG">
       <appender-ref ref="audit"/>
     </logger>
