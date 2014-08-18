@@ -321,14 +321,14 @@ under the License.
     <commons-lang.version>3.3.2</commons-lang.version>
     <commons-codec.version>1.9</commons-codec.version>
 
-    <activiti.version>5.16</activiti.version>
+    <activiti.version>5.16.1</activiti.version>
     
-    <aspectj.version>1.8.0</aspectj.version>
+    <aspectj.version>1.8.2</aspectj.version>
 
     <cxf.version>3.0.1</cxf.version>	
     <spring.version>4.0.6.RELEASE</spring.version>
-    <spring-security.version>3.2.4.RELEASE</spring-security.version>
-    <jackson.version>2.4.1</jackson.version>
+    <spring-security.version>3.2.5.RELEASE</spring-security.version>
+    <jackson.version>2.4.2</jackson.version>
     <velocity.version>1.7</velocity.version>
     <velocitytools.version>2.0</velocitytools.version>
     <quartz.version>2.2.1</quartz.version>
@@ -709,12 +709,12 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-core</artifactId>
-        <version>${jackson.version}.1</version>
+        <version>${jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}.3</version>
+        <version>${jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>

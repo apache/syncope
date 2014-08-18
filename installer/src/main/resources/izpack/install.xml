@@ -28,9 +28,9 @@ under the License.
     <appversion>@{syncope.version}</appversion>
     <url>http://syncope.apache.org</url>
     <authors>
-      <author name="Tirasa S.r.l." email="info@tirasa.net"/>
+      <author name="Apache Syncope" email="dev@syncope.apache.org"/>
     </authors>
-    <javaversion>1.7</javaversion>
+    <javaversion>${targetJdk}</javaversion>
   </info>
   
   <guiprefs resizable="no" width="800" height="600">
@@ -132,8 +132,8 @@ under the License.
   <jar src="lib/httpclient-@{httpclient.version}.jar"/>
   <jar src="lib/httpmime-@{httpclient.version}.jar"/>
   <jar src="lib/httpcore-4.3.2.jar"/>
-  <jar src="lib/jackson-databind-@{jackson.version}.3.jar"/>
-  <jar src="lib/jackson-core-@{jackson.version}.1.jar"/>
+  <jar src="lib/jackson-databind-@{jackson.version}.jar"/>
+  <jar src="lib/jackson-core-@{jackson.version}.jar"/>
   <jar src="lib/jackson-annotations-@{jackson.version}.jar"/>
   
   <jar src="lib/maven-invoker-@{maven-invoker.version}.jar"/>
