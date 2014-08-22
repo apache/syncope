@@ -46,7 +46,7 @@ public class PersistenceProperties {
             + "quartz.jobstore=org.quartz.impl.jdbcjobstore.PostgreSQLDelegate\n"
             + "quartz.sql=tables_postgres.sql\n"
             + "audit.sql=audit.sql\n"
-            + "database.schema=";
+            + "database.schema=\n";
 
     public static final String MYSQL = ""
             + "jpa.driverClassName=com.mysql.jdbc.Driver\n"
@@ -57,7 +57,7 @@ public class PersistenceProperties {
             + "jpa.pool.validationQuery=SELECT 1\n"
             + "quartz.jobstore=org.quartz.impl.jdbcjobstore.StdJDBCDelegate\n"
             + "audit.sql=audit.sql\n"
-            + "database.schema=";
+            + "database.schema=\n";
 
     public static final String ORACLE = ""
             + "jpa.driverClassName=oracle.jdbc.OracleDriver\n"
@@ -80,7 +80,7 @@ public class PersistenceProperties {
             + "quartz.jobstore=org.quartz.impl.jdbcjobstore.MSSQLDelegate\n"
             + "quartz.sql=tables_sqlServer.sql\n"
             + "audit.sql=audit.sql\n"
-            + "database.schema=";
+            + "database.schema=\n";
 
     public static final String QUARTZ_INNO_DB = "quartz.sql=tables_mysql_innodb.sql";
 
