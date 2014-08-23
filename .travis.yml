@@ -17,9 +17,9 @@ language: java
 jdk:
   - openjdk6
 # default install is mvn install --quiet -DskipTests=true
-install: mvn --show-version --errors -P skipTests
+install: mvn --show-version --quiet -P skipTests
 #invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
-script: mvn --show-version --errors clean install -Dinvoker.streamLogs=true
+script: mvn --show-version --quiet clean install -Dinvoker.streamLogs=true
 notifications:
   email:
     - dev@syncope.apache.org
