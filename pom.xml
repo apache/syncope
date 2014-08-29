@@ -315,13 +315,13 @@ under the License.
     <connid.db.table.version>2.1.7</connid.db.table.version>
     <connid.csvdir.version>0.7</connid.csvdir.version>
     <connid.ldap.version>1.3.7</connid.ldap.version>
-    <connid.ad.version>1.1.2</connid.ad.version>
+    <connid.ad.version>1.1.3</connid.ad.version>
 
     <commons-jexl.version>2.1.1</commons-jexl.version>
     <commons-lang.version>3.3.2</commons-lang.version>
     <commons-codec.version>1.9</commons-codec.version>
 
-    <activiti.version>5.16.1</activiti.version>
+    <activiti.version>5.16.2</activiti.version>
     
     <aspectj.version>1.8.2</aspectj.version>
 
