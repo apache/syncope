@@ -36,7 +36,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
  * Help in XStream serialization of GuardedString by (de)serializing instances using the default Encryptor (which works
  * consistently across class loading) instead of a random Encryptor instance.
  *
- * @see XMLSerializer
+ * @see XMLDeserializer
  * @see GuardedString
  */
 public class GuardedStringConverter implements Converter {

@@ -28,10 +28,8 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
 /**
- * Similar to Spring's equivalent, does not implement {@link org.springframework.context.ResourceLoaderAware} thus
- * allowing custom injection.
- *
- * @see org.springframework.ui.velocity.VelocityEngineFactoryBean
+ * Similar to Spring's equivalent (<tt>org.springframework.ui.velocity.VelocityEngineFactoryBean</tt>), does not
+ * implement {@link org.springframework.context.ResourceLoaderAware} thus allowing custom injection.
  */
 public class VelocityEngineFactoryBean implements FactoryBean<VelocityEngine>, InitializingBean {
 

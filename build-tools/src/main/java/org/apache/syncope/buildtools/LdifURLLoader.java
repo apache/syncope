@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Support for commands to load an LDIF from an URL into a DirContext.
  *
- * @see org.apache.directory.server.protocol.shared.store.LdifFileLoader
+ * Inspired from <tt>org.apache.directory.server.protocol.shared.store.LdifFileLoader</tt>.
  */
 public class LdifURLLoader {
 

@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Velocity ResourceLoader adapter that loads via a Spring ResourceLoader.
- * Similar to {@link org.springframework.ui.velocity.SpringResourceLoader} but more integrated with
+ * Similar to <tt>org.springframework.ui.velocity.SpringResourceLoader</tt> but more integrated with
  * {@link VelocityEngineFactoryBean}.
  */
 public class SpringVelocityResourceLoader extends ResourceLoader {

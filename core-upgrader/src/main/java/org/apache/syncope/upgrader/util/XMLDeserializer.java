@@ -25,9 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Helper class for deserialization of configuration objects, empowering XStream.
- *
- * @see http://xstream.codehaus.org/
+ * Helper class for deserialization of configuration objects, empowering
+ * <a href="http://xstream.codehaus.org">XStream</a>.
  */
 public final class XMLDeserializer {
 
