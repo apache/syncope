@@ -24,7 +24,7 @@ under the License.
                      http://izpack.org/schema/5.0/izpack-installation-5.0.xsd">
   
   <info>
-    <appname>Apache Syncope Installer</appname>
+    <appname>Apache Syncope</appname>
     <appversion>@{syncope.version}</appversion>
     <url>http://syncope.apache.org</url>
     <authors>

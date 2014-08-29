@@ -118,6 +118,7 @@ under the License.
                   <directory>..</directory>
                   <includes>
                     <include>LICENSE</include>
+                    <include>NOTICE</include>
                   </includes>
                 </resource>
               </resources>
@@ -166,7 +167,7 @@ under the License.
     
     <resources>
       <resource>
-        <directory>..</directory>
+        <directory>../legal_ext</directory>
         <targetPath>META-INF</targetPath>
         <includes>
           <include>LICENSE</include>
