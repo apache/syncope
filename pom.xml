@@ -311,7 +311,7 @@ under the License.
     <connid.db.table.version>2.1.6</connid.db.table.version>
     <connid.csvdir.version>0.7</connid.csvdir.version>
     <connid.ldap.version>1.3.6</connid.ldap.version>
-    <connid.ad.version>1.1.2</connid.ad.version>
+    <connid.ad.version>1.1.3</connid.ad.version>
 
     <commons-jexl.version>2.1.1</commons-jexl.version>
     <commons-lang.version>3.3.2</commons-lang.version>
