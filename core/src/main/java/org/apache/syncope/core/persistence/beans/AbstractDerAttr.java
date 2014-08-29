@@ -41,7 +41,6 @@ public abstract class AbstractDerAttr extends AbstractBaseBean {
     }
 
     /**
-     * @see http://commons.apache.org/jexl/reference/index.html
      * @param attributes the set of attributes against which evaluate this derived attribute
      * @return the value of this derived attribute
      */

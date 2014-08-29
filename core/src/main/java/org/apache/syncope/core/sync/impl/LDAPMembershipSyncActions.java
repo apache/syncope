@@ -119,7 +119,8 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
 
     /**
      * Keep track of members of the role being updated <b>before</b> actual update takes place. This is not needed on
-     * <ul> <li>beforeProvision() - because the synchronizing role does not exist yet on Syncope</li> <li>beforeDelete() -
+     * <ul> <li>beforeProvision() - because the synchronizing role does not exist yet on Syncope</li> <li>beforeDelete()
+     * -
      * because role delete cascades as membership removal for all users involved</li> </ul>
      *
      * {@inheritDoc}
@@ -177,8 +178,8 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      *
      * @param delta representing the synchronizing role
      * @param connector associated to the current resource
-     * @return value of attribute returned by getGroupMembershipAttrName()
-     * @see getGroupMembershipAttrName()
+     * @return value of attribute returned by
+     * {@link #getGroupMembershipAttrName(org.apache.syncope.core.propagation.Connector) }
      */
     protected List<Object> getMembAttrValues(final SyncDelta delta, final Connector connector) {
         List<Object> result = Collections.<Object>emptyList();
@@ -256,13 +257,14 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     /**
      * Synchronize Syncope memberships with the situation read on the external resource's group.
      *
-     * @param handler syncope sync result handler
+     * @param profile sync profile
      * @param delta representing the synchronizing role
      * @param roleTO role after modification performed by the handler
      * @throws JobExecutionException if anything goes wrong
      */
     protected void synchronizeMemberships(
             final SyncProfile<?, ?> profile, final SyncDelta delta, final RoleTO roleTO) throws JobExecutionException {
+
         final AbstractSyncTask task = profile.getSyncTask();
         final ExternalResource resource = task.getResource();
         final Connector connector = profile.getConnector();

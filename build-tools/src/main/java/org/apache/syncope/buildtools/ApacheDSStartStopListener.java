@@ -49,8 +49,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Start and stop an embedded ApacheDS instance alongside with Servlet Context.
- *
- * @see http://svn.apache.org/repos/asf/directory/documentation/samples/trunk/embedded-sample/
  */
 public class ApacheDSStartStopListener implements ServletContextListener {
 
@@ -200,9 +198,9 @@ public class ApacheDSStartStopListener implements ServletContextListener {
     public void contextInitialized(final ServletContextEvent sce) {
         File workDir = (File) sce.getServletContext().getAttribute("javax.servlet.context.tempdir");
         workDir = new File(workDir, "server-work");
-        
+
         final boolean loadDefaultContent = !workDir.exists();
-        
+
         if (loadDefaultContent && !workDir.mkdirs()) {
             throw new RuntimeException("Could not create " + workDir.getAbsolutePath());
         }

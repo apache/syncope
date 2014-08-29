@@ -224,20 +224,20 @@ public class SyncopeClient {
      *
      * @param subjectType user / role
      * @return whether Activiti workflow is enabled for given attributable type
-     * @see WorkflowService#getOptions(org.apache.syncope.common.types.AttributableType)
+     * @see WorkflowService#getOptions(org.apache.syncope.common.types.SubjectType)
      */
     public boolean isActivitiEnabledFor(final SubjectType subjectType) {
         Response options = getService(WorkflowService.class).getOptions(subjectType);
 
         boolean result;
         switch (subjectType) {
+            case ROLE:
+                result = Boolean.valueOf(options.getHeaderString(RESTHeaders.ACTIVITI_ROLE_ENABLED));
+                break;
+
             case USER:
             default:
                 result = Boolean.valueOf(options.getHeaderString(RESTHeaders.ACTIVITI_USER_ENABLED));
-                break;
-
-            case ROLE:
-                result = Boolean.valueOf(options.getHeaderString(RESTHeaders.ACTIVITI_ROLE_ENABLED));
                 break;
         }
 

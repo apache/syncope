@@ -51,7 +51,7 @@ public class PropagationTask extends Task {
     private PropagationMode propagationMode;
 
     /**
-     * @see PropagationOperation
+     * @see ResourceOperation
      */
     @Enumerated(EnumType.STRING)
     private ResourceOperation propagationOperation;

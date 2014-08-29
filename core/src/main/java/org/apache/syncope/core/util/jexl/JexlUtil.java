@@ -45,7 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @see http://commons.apache.org/jexl/reference/index.html
+ * JEXL <a href="http://commons.apache.org/jexl/reference/index.html">reference</a> is available.
  */
 public final class JexlUtil {
 

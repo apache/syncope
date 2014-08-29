@@ -56,13 +56,14 @@ public final class VirAttrCache {
      * @param type user or role
      * @param id user or role id
      * @param schemaName virtual attribute name
-     * @param values virtual attribute values
+     * @param value virtual attribute values
      */
     public void put(
             final AttributableType type,
             final Long id,
             final String schemaName,
             final VirAttrCacheValue value) {
+
         synchronized (cache) {
             // this operations (retrieve cache space and put entry on) have to be thread safe.
             if (this.cache.size() >= this.maxCacheSize) {
