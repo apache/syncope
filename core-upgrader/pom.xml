@@ -31,13 +31,13 @@ under the License.
   <artifactId>core-upgrader</artifactId>
   <packaging>jar</packaging>
  
-  <name>Apache Syncope Upgrader</name>
-  <description>Apache Syncope Upgrader from 1.1.X to 1.2.X</description>
+  <name>Apache Syncope Core Upgrader</name>
+  <description>Apache Syncope Core Upgrader from 1.1.X to 1.2.X</description>
   
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <xstream.version>1.4.7</xstream.version>
   </properties>
+  
   <dependencies>
 
     <dependency>
