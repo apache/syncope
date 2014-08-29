@@ -104,7 +104,35 @@ under the License.
           </execution>
         </executions>
       </plugin>
-            
+
+      <!-- Put NOTICE and LICENSE files in all javadoc artifacts -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.6</version>
+        <executions>
+          <execution>
+            <id>copy-javadoc-legal-files</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/apidocs/META-INF</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>../..</directory>
+                  <includes>
+                    <include>LICENSE</include>
+                    <include>NOTICE</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+                              
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
@@ -222,8 +250,26 @@ under the License.
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin>       
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>apache-release</id>
+      
+      <build>
+        <plugins>      
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>           
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
