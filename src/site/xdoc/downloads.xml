@@ -38,25 +38,94 @@ under the License.
         See the <tt>LICENSE</tt> and <tt>NOTICE</tt> files included in each artifact for additional license 
         information.
       </p>
-      <p>Use the links below to download a source distribution of Apache Syncope.
+      <p>Use the links below to download a distribution of Apache Syncope.
         It is good practice to <a href="#Verifying_Releases">verify the integrity</a> of the distribution files.
       </p>
-      <div style="border: 1px solid black; border-radius: 15px;padding:5px;background-color:#F5F5F5;margin-top:5px;margin-bottom:10px;">
-        <div style="margin-left:20px;">
-          <p>
-            <b>Note</b> that the preferred way to work with Apache Syncope is to 
-            <a class="externalLink" href="https://cwiki.apache.org/confluence/display/SYNCOPE/Create+a+new+Syncope+project">generate a Maven project</a>
-            starting from published archetype.
-          </p>
-          <p>
-            If evaluating Apache Syncope, the simplest way is via the 
-            <a class="externalLink" href="https://cwiki.apache.org/confluence/display/SYNCOPE/Run+Syncope+standalone+distribution">standalone distribution</a>.
-          </p>
-        </div>
-      </div>
+      <subsection name="Which distribution to download?">
+        <ul>
+          <li>Evaluating? <a class="externalLink" href="https://cwiki.apache.org/confluence/display/SYNCOPE/Run+Syncope+standalone+distribution">Standalone distribution</a></li>
+          <li>Building your own IdM solution?
+            <ul>
+              <li>GUI lover?
+                <a class="externalLink" href="https://cwiki.apache.org/confluence/display/SYNCOPE/Install+Syncope+from+installer">Use the installer</a>
+              </li>                
+              <li>Prefer CLI?
+                <a class="externalLink" href="https://cwiki.apache.org/confluence/display/SYNCOPE/Create+a+new+Syncope+project">Generate a Maven project</a>
+              </li>
+            </ul>
+          </li>
+          <li>Deploying on Debian GNU / Linux - Ubuntu?</li>
+        </ul>
+      </subsection>
     </section>
 
     <section name="Current Releases">
+      <subsection name="1.2.0-M1 Intermezzo">
+        <p>Release date: ???</p>
+        <p>
+          <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Intermezzo">Release notes</a>
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Artifact</th>
+              <th>Signatures</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.2.0-M1/syncope-1.2.0-M1-source-release.zip">syncope-1.2.0-M1-source-release.zip</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/syncope-1.2.0-M1-source-release.zip.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/syncope-1.2.0-M1-source-release.zip.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/syncope-1.2.0-M1-source-release.zip.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.2.0-M1/syncope-standalone-1.2.0-M1-distribution.zip">syncope-standalone-1.2.0-M1-distribution.zip</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/syncope-standalone-1.2.0-M1-distribution.zip.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/syncope-standalone-1.2.0-M1-distribution.zip.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/syncope-standalone-1.2.0-M1-distribution.zip.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.2.0-M1/syncope-installer-1.2.0-M1.jar">syncope-installer-1.2.0-M1.jar</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/syncope-installer-1.2.0-M1.jar.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/syncope-installer-1.2.0-M1.jar.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/syncope-installer-1.2.0-M1.jar.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.2.0-M1/apache-syncope-1.2.0-M1.deb">apache-syncope-1.2.0-M1.deb</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/apache-syncope-1.2.0-M1.deb.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/apache-syncope-1.2.0-M1.deb.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/apache-syncope-1.2.0-M1.deb.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.2.0-M1/apache-syncope-console-1.2.0-M1.deb">apache-syncope-console-1.2.0-M1.deb</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/apache-syncope-console-1.2.0-M1.deb.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/apache-syncope-console-1.2.0-M1.deb.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/apache-syncope-console-1.2.0-M1.deb.sha1">sha1</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </subsection>
       <subsection name="1.1.8 Ad libitum">
         <p>Release date: Jul 3rd, 2014</p>
         <p>
