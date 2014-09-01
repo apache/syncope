@@ -47,8 +47,8 @@ public final class CollectionWrapper {
         return response;
     }
 
-    public static <E, T extends AbstractWrappable<E>> List<E> unwrap(final Collection<T> collection) {
-        List<E> response = new ArrayList<E>();
+    public static <T extends AbstractWrappable<String>> List<String> unwrap(final Collection<T> collection) {
+        List<String> response = new ArrayList<String>();
         for (T item : collection) {
             response.add(item.getElement());
         }
