@@ -224,56 +224,69 @@ cd <version>]]></source>
       <subsection name="Perform the release">
         <ol>
           <li>
-            <b>Staging site</b>
-            <ul>
-              <li>1_1_X
-                <source><![CDATA[
-svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
-svn checkout https://svn.apache.org/repos/asf/syncope/tags/syncope-<version> syncope-<version>
+            <b>Staging artifacts</b>
+            <source><![CDATA[
+# let $SYNCOPE_RELEASE_DIR be the directory from which you have launched release:prepare above
+                  
+svn co https://dist.apache.org/repos/dist/dev/syncope syncope-dist-dev
+cd syncope-dist-dev              
+mkdir <version>                  
+cd <version>
+                                    
+cp $SYNCOPE_RELEASE_DIR/target/syncope-*-source-release.zip .
+cp $SYNCOPE_RELEASE_DIR/target/syncope-*-source-release.zip.asc .
+cp $SYNCOPE_RELEASE_DIR/standalone/target/syncope-standalone-*-distribution.zip .
+cp $SYNCOPE_RELEASE_DIR/standalone/target/syncope-standalone-*-distribution.zip.asc .
+# only for 1_2_X
+cp $SYNCOPE_RELEASE_DIR/installer/target/syncope-installer-*.jar .
+cp $SYNCOPE_RELEASE_DIR/installer/target/syncope-installer-*.jar.asc .
+cp $SYNCOPE_RELEASE_DIR/deb/core/target/apache-syncope-*.deb .           
+cp $SYNCOPE_RELEASE_DIR/deb/core/target/apache-syncope-*.deb.asc .
+cp $SYNCOPE_RELEASE_DIR/deb/console/target/apache-syncope-console-*.deb .
+cp $SYNCOPE_RELEASE_DIR/deb/console/target/apache-syncope-console-*.deb.asc .
 
-cd syncope-<version>
-mvn clean install
-mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>
-
-cd ../site/<version>
-rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-common syncope-standalone project-reports.html apidocs/1.html
-
+for file in `find . -name '*.deb' -or -name '*.jar' -or -name '*.zip'`; do
+ openssl md5 $file | sed 's/.*= //' > $file.md5
+ openssl sha1 $file | sed 's/.*= //' > $file.sha1
+done
+              
 cd ..
 svn add <version>
-svn copy apidocs/1.0 <version>/apidocs/
-svn commit -m "Staging site for release"]]></source>
-              </li>
-              <li>1_0_X
-                <source><![CDATA[
-svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
-svn checkout https://svn.apache.org/repos/asf/syncope/tags/syncope-<version> syncope-<version>
-                  
-cd syncope-<version>
-mvn clean install
-mvn -f parent/pom.xml -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>
-                  
-cd ../site/<version>
-rm -rf images css syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-hibernate-enhancer syncope-quality project-reports.html apidocs/1.html
-
-cd ../..
-svn checkout https://svn.apache.org/repos/asf/syncope/branches/1_1_X syncope-1_1_X
-
-cd syncope-1_1_X
-mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>
-
-cd ../site/<version>
-rm -rf syncope-console syncope-client syncope-archetype syncope-core syncope-build-tools syncope-common syncope-standalone project-reports.html apidocs/1.html apidocs/1.1
-
-cd ..
-svn add <version>
-svn copy apidocs/1.1 <version>/apidocs/
-svn commit -m "Staging site for release"]]></source>
-              </li>
-            </ul>
+svn commit -m "Staging artifacts for <version> vote"]]></source>
           </li>
           <li>
-            From the directory where you have launched <code>release:prepare</code> execute (this step will create a maven 
-            staging repository):
+            <b>Staging site</b>
+            <source><![CDATA[
+svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
+svn checkout https://svn.apache.org/repos/asf/syncope/tags/syncope-<version> syncope-<version>
+
+cd syncope-<version>
+mvn -P skipTests
+mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>
+cd common
+mvn -P offline-doc                            
+
+cd ../site/<version>
+rm -rf syncope-* project-reports.html apidocs/1.html
+
+# if releasing from 1_2_X              
+mkdir rest
+cp -r ../syncope-<version>/common/target/generated/wadl/ rest/1.2
+              
+cd ..
+svn add <version>
+
+svn copy apidocs/1.0 <version>/apidocs/
+# if releasing from 1_2_X              
+svn copy apidocs/1.1 <version>/apidocs/
+# if releasing from 1_1_X              
+svn copy apidocs/1.2 <version>/apidocs/
+svn copy rest <version>/rest
+              
+svn commit -m "Staging site for release"]]></source>
+          </li>
+          <li>
+            From <code>$SYNCOPE_RELEASE_DIR</code> execute (this step will create a maven staging repository):
             <source>mvn -P apache-release release:perform [-Duser.name=&lt;your_apache_uid&gt;]</source>
         
             <p>
@@ -353,11 +366,11 @@ https://svn.apache.org/repos/asf/syncope/tags/<version>/
 List of changes:
 https://svn.apache.org/repos/asf/syncope/tags/<version>/CHANGES
 
+Staging artifacts:
+https://dist.apache.org/repos/dist/dev/syncope/<version>
+
 Maven staging repo:
 https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
-
-Source release (checksums and signatures are available at the same location):
-https://repository.apache.org/content/repositories/orgapachesyncope-YYY/org/apache/syncope/syncope/<version>/syncope-<version>-source-release.zip
 
 Staging site:
 http://syncope.apache.org/<version>/
@@ -452,36 +465,11 @@ Best regards.
           <li>
             Add the distribution artifacts to the distribution area (execute the commands below preferably on
             <code>people.apache.org</code>)
-            <ul>
-              <li>1_1_X
-                <source><![CDATA[
-svn co https://dist.apache.org/repos/dist/dev/syncope syncope-dist-dev
-cd syncope-dist-dev
-
-wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
-https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope/<version>/
-wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
-https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-standalone/<version>/
-
-rm <version>/syncope-*asc.asc
-
-svn add <version>
-svn commit -m "Promoting the voted release artifacts to dist-dev area"
-
+            <source><![CDATA[
 svn mkdir -m "Creating root dir for new release" https://dist.apache.org/repos/dist/release/syncope/<version>
 
-svn mv -m "Moving the voted release artifacts to dist/release (source)" \
-https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip \
-https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip.asc \
-https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip.md5 \
-https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip.sha1 \
-https://dist.apache.org/repos/dist/release/syncope/<version>
-  
-svn mv -m "Moving the voted release artifacts to dist/release (standalone)" \
-https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-standalone-<version>-distribution.zip \
-https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-standalone-<version>-distribution.zip.asc \
-https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-standalone-<version>-distribution.zip.md5 \
-https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-standalone-<version>-distribution.zip.sha1 \
+svn mv -m "Moving the voted release artifacts to dist/release" \
+https://dist.apache.org/repos/dist/dev/syncope/<version>
 https://dist.apache.org/repos/dist/release/syncope/<version>
 
 svn rm -m "Cleaning up older releases" https://dist.apache.org/repos/dist/dev/syncope/<version>
@@ -490,33 +478,6 @@ svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
 cd syncope-dist-release
 svn rm <any older release artifact (if present)>
 svn commit -m "Cleaning up older releases"]]></source>
-              </li>
-              <li>1_0_X
-                <source><![CDATA[
-svn co https://dist.apache.org/repos/dist/dev/syncope syncope-dist-dev
-cd syncope-dist-dev
-
-wget -e robots=off -nH --cut-dirs=7 -np --no-check-certificate -m -A *.zip*  -R .asc.sha1,.asc.md5 \
-https://repository.apache.org/content/repositories/releases/org/apache/syncope/syncope-root/<version>/
-
-rm <version>/syncope-*asc.asc
-
-svn add <version>
-svn commit -m "Promoting the voted release artifacts to dist-dev area"
-
-svn mv -m "Moving the voted release artifacts to dist/release" \
-https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip \
-https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip.asc \
-https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip.md5 \
-https://dist.apache.org/repos/dist/dev/syncope/<version>/syncope-<version>-source-release.zip.sha1 \
-https://dist.apache.org/repos/dist/release/syncope/<version>
-
-svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
-cd syncope-dist-release
-svn rm <any older release artifact (if present)>;
-svn commit -m "Cleaning up older releases"]]></source>
-              </li>
-            </ul>
           </li>
           <li>
             Add appropriate release notes to

@@ -66,7 +66,9 @@ under the License.
       <item name="Architecture" href="architecture.html"/>
       <item name="Downloads" href="downloads.html"/>
       <item name="Security Advisories" href="security.html"/>
-      <item name="API Docs" href="apidocs/1.1/index.html">
+      <item name="References" href="apidocs/1.2/index.html">
+        <item name="REST 1.2" href="rest/1.2/index.html"/>
+        <item name="Javadocs 1.2" href="apidocs/1.2/index.html"/>
         <item name="Javadocs 1.1" href="apidocs/1.1/index.html"/>
         <item name="Javadocs 1.0" href="apidocs/1.0/index.html"/>
       </item>
