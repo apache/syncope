@@ -266,12 +266,12 @@ mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>
 cd common
 mvn -P offline-doc                            
 
-cd ../site/<version>
+cd ../../site/<version>
 rm -rf syncope-* project-reports.html apidocs/1.html
 
 # if releasing from 1_2_X              
 mkdir rest
-cp -r ../syncope-<version>/common/target/generated/wadl/ rest/1.2
+cp -r ../../syncope-<version>/common/target/generated/wadl/ rest/1.2
               
 cd ..
 svn add <version>
@@ -466,8 +466,6 @@ Best regards.
             Add the distribution artifacts to the distribution area (execute the commands below preferably on
             <code>people.apache.org</code>)
             <source><![CDATA[
-svn mkdir -m "Creating root dir for new release" https://dist.apache.org/repos/dist/release/syncope/<version>
-
 svn mv -m "Moving the voted release artifacts to dist/release" \
 https://dist.apache.org/repos/dist/dev/syncope/<version>
 https://dist.apache.org/repos/dist/release/syncope/<version>
