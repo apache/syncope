@@ -54,7 +54,7 @@ under the License.
               </li>
             </ul>
           </li>
-          <li>Deploying on Debian GNU / Linux - Ubuntu?</li>
+          <li>Deploying on Debian GNU / Linux - Ubuntu? <a class="externalLink" href="https://cwiki.apache.org/confluence/display/SYNCOPE/Install+Syncope+from+.deb+packages">.deb packages</a></li>
         </ul>
       </subsection>
     </section>
