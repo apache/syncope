@@ -238,8 +238,8 @@ cp $SYNCOPE_RELEASE_DIR/target/syncope-*-source-release.zip.asc .
 cp $SYNCOPE_RELEASE_DIR/standalone/target/syncope-standalone-*-distribution.zip .
 cp $SYNCOPE_RELEASE_DIR/standalone/target/syncope-standalone-*-distribution.zip.asc .
 # only for 1_2_X
-cp $SYNCOPE_RELEASE_DIR/installer/target/syncope-installer-*.jar .
-cp $SYNCOPE_RELEASE_DIR/installer/target/syncope-installer-*.jar.asc .
+cp $SYNCOPE_RELEASE_DIR/installer/target/syncope-installer-*-uber.jar .
+cp $SYNCOPE_RELEASE_DIR/installer/target/syncope-installer-*-uber.jar.asc .
 cp $SYNCOPE_RELEASE_DIR/deb/core/target/apache-syncope-*.deb .           
 cp $SYNCOPE_RELEASE_DIR/deb/core/target/apache-syncope-*.deb.asc .
 cp $SYNCOPE_RELEASE_DIR/deb/console/target/apache-syncope-console-*.deb .
