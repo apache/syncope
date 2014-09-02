@@ -158,7 +158,7 @@ under the License.
             <configuration>
               <baseDir>${staging.dir}</baseDir>
               <installFile>${staging.dir}/install.xml</installFile>
-              <output>${project.build.directory}/${project.artifactId}.jar</output>
+              <classifier>uber</classifier>
             </configuration>
           </execution>
         </executions>

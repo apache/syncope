@@ -95,12 +95,12 @@ under the License.
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.2.0-M1/syncope-installer-1.2.0-M1.jar">syncope-installer-1.2.0-M1.jar</a>
+                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.2.0-M1/syncope-installer-1.2.0-M1-uber.jar">syncope-installer-1.2.0-M1.jar</a>
               </td>
               <td>
-                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/syncope-installer-1.2.0-M1.jar.asc">asc</a> 
-                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/syncope-installer-1.2.0-M1.jar.md5">md5</a> 
-                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/syncope-installer-1.2.0-M1.jar.sha1">sha1</a>
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/syncope-installer-1.2.0-M1-uber.jar.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/syncope-installer-1.2.0-M1-uber.jar.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.0-M1/syncope-installer-1.2.0-M1-uber.jar.sha1">sha1</a>
               </td>
             </tr>
             <tr>
