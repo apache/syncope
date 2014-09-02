@@ -96,6 +96,20 @@ under the License.
       <artifactId>org.connid.bundles.db.table</artifactId>
       <version>${connid.db.table.version}</version>
       <scope>runtime</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.connid</groupId>
+          <artifactId>connid-framework</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.connid</groupId>
+          <artifactId>connid-framework-internal</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.connid</groupId>
+          <artifactId>connid-test-common</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>     
     
     <dependency>
