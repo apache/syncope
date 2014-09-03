@@ -159,6 +159,7 @@ under the License.
               <baseDir>${staging.dir}</baseDir>
               <installFile>${staging.dir}/install.xml</installFile>
               <classifier>uber</classifier>
+              <excludeGroupIds>junit</excludeGroupIds>
             </configuration>
           </execution>
         </executions>
