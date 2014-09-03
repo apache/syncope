@@ -22,4 +22,4 @@ install: mvn --show-version --quiet -P skipTests
 script: mvn --show-version --quiet clean install -Dinvoker.streamLogs=true
 notifications:
   email:
-    - dev@syncope.apache.org
+    - syncope.travis@gmail.com
