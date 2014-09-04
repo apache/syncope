@@ -41,7 +41,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> {
 
     public AjaxTextFieldPanel(final String id, final String name, final IModel<String> model) {
 
-        super(id, name, model);
+        super(id, model);
 
         final AutoCompleteSettings settings = new AutoCompleteSettings();
         settings.setShowCompleteListOnFocusGain(true);

@@ -20,6 +20,7 @@ package org.apache.syncope.console.wicket.markup.html.form;
 
 import java.io.Serializable;
 import java.util.List;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.FormComponent;
@@ -36,17 +37,14 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
 
     final protected String id;
 
-    final protected String name;
-
     protected String title = null;
 
     protected boolean isRequiredLabelAdded = false;
 
-    public FieldPanel(final String id, final String name, final IModel<T> model) {
+    public FieldPanel(final String id, final IModel<T> model) {
         super(id, model);
 
         this.id = id;
-        this.name = name;
 
         final Fragment fragment = new Fragment("required", "notRequiredFragment", this);
         add(fragment);
@@ -162,16 +160,10 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
     }
 
     @Override
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public FieldPanel clone() {
-        final FieldPanel panel;
-        try {
-            panel = this.getClass().getConstructor(new Class[]{String.class, String.class, IModel.class})
-                    .newInstance(id, name, new Model(null));
-        } catch (Exception e) {
-            LOG.error("Error cloning field panel", e);
-            return null;
-        }
-
+        final FieldPanel panel = SerializationUtils.clone(this);
+        panel.setModelObject(null);
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());
         panel.setTitle(title);

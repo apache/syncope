@@ -31,7 +31,7 @@ public class AjaxNumberFieldPanel extends FieldPanel<Number> {
 
     public AjaxNumberFieldPanel(final String id, final String name, final IModel<Number> model, final Class reference) {
 
-        super(id, name, model);
+        super(id, model);
 
         field = new TextField<Number>("numberField", model, reference);
 

@@ -31,7 +31,7 @@ public class AjaxPasswordFieldPanel extends FieldPanel<String> {
 
     public AjaxPasswordFieldPanel(final String id, final String name, final IModel<String> model) {
 
-        super(id, name, model);
+        super(id, model);
 
         field = new PasswordTextField("passwordField", model);
 

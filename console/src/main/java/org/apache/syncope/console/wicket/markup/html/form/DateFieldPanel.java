@@ -35,15 +35,18 @@ public class DateFieldPanel extends FieldPanel<Date> implements Cloneable {
 
     private static final long serialVersionUID = -428975732068281726L;
 
+    protected final String name;
+
     protected final String datePattern;
 
     protected DateFieldPanel(final String id, final String name, final IModel<Date> model, final String datePattern) {
-        super(id, name, model);
+        super(id, model);
+        this.name = name;
         this.datePattern = datePattern;
     }
 
     @Override
-    public FieldPanel setNewModel(final ListItem item) {
+    public FieldPanel<Date> setNewModel(final ListItem item) {
         final SimpleDateFormat formatter;
 
         if (datePattern != null) {
@@ -52,12 +55,12 @@ public class DateFieldPanel extends FieldPanel<Date> implements Cloneable {
             formatter = new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN, Locale.getDefault());
         }
 
-        IModel<Date> model = new Model() {
+        IModel<Date> model = new Model<Date>() {
 
             private static final long serialVersionUID = 6799404673615637845L;
 
             @Override
-            public Serializable getObject() {
+            public Date getObject() {
                 Date date = null;
 
                 final Object obj = item.getModelObject();
@@ -83,9 +86,10 @@ public class DateFieldPanel extends FieldPanel<Date> implements Cloneable {
             }
 
             @Override
-            public void setObject(final Serializable object) {
-                if (object instanceof Date) {
-                    item.setModelObject(formatter.format((Date) object));
+            @SuppressWarnings("unchecked")
+            public void setObject(final Date object) {
+                if (object != null) {
+                    item.setModelObject(formatter.format(object));
                 } else {
                     item.setModelObject(null);
                 }
@@ -97,7 +101,7 @@ public class DateFieldPanel extends FieldPanel<Date> implements Cloneable {
     }
 
     @Override
-    public FieldPanel setNewModel(final List<Serializable> list) {
+    public FieldPanel<Date> setNewModel(final List<Serializable> list) {
         final SimpleDateFormat formatter;
 
         if (datePattern != null) {
@@ -106,12 +110,12 @@ public class DateFieldPanel extends FieldPanel<Date> implements Cloneable {
             formatter = new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN, Locale.getDefault());
         }
 
-        setNewModel(new Model() {
+        setNewModel(new Model<Date>() {
 
             private static final long serialVersionUID = 527651414610325237L;
 
             @Override
-            public Serializable getObject() {
+            public Date getObject() {
                 Date date = null;
 
                 if (list != null && !list.isEmpty() && StringUtils.hasText(list.get(0).toString())) {
@@ -127,10 +131,10 @@ public class DateFieldPanel extends FieldPanel<Date> implements Cloneable {
             }
 
             @Override
-            public void setObject(final Serializable object) {
-                if (object != null && object instanceof Date) {
-                    list.clear();
-                    list.add((String) formatter.format((Date) object));
+            public void setObject(final Date object) {
+                list.clear();
+                if (object != null) {
+                    list.add(formatter.format(object));
                 }
             }
         });

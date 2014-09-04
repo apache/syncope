@@ -34,7 +34,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
     public AjaxCheckBoxPanel(final String id, final String name, final IModel<Boolean> model) {
 
-        super(id, name, model);
+        super(id, model);
 
         field = new CheckBox("checkboxField", model);
         add(field.setLabel(new Model(name)).setOutputMarkupId(true));
