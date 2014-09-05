@@ -321,7 +321,7 @@ under the License.
     <activiti.version>5.15.1</activiti.version>
 
     <cxf.version>2.7.12</cxf.version>	
-    <spring.version>3.2.10.RELEASE</spring.version>
+    <spring.version>3.2.11.RELEASE</spring.version>
     <spring-security.version>3.1.7.RELEASE</spring-security.version>
     <aspectj.version>1.7.4</aspectj.version>
     <jackson.version>1.9.13</jackson.version>
@@ -336,7 +336,7 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <wicket.version>6.16.0</wicket.version>
+    <wicket.version>6.17.0</wicket.version>
 
     <groovy.version>2.2.2</groovy.version>
 
