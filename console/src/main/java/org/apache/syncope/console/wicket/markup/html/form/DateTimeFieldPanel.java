@@ -53,12 +53,11 @@ public class DateTimeFieldPanel extends DateFieldPanel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                if (((DateTimeField) field).getHours() > 12) {
-                    cal.set(Calendar.HOUR_OF_DAY, ((DateTimeField) field).getHours());
-                } else {
-                    cal.set(Calendar.HOUR, ((DateTimeField) field).getHours());
+                final Integer hours = ((DateTimeField) field).getHours();
+                if (hours != null) {
+                    cal.set(hours > 12 ? Calendar.HOUR_OF_DAY : Calendar.HOUR, hours);
+                    field.setModelObject(cal.getTime());
                 }
-                field.setModelObject(cal.getTime());
             }
         });
 
@@ -68,8 +67,11 @@ public class DateTimeFieldPanel extends DateFieldPanel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                cal.set(Calendar.MINUTE, ((DateTimeField) field).getMinutes());
-                field.setModelObject(cal.getTime());
+                final Integer minutes = ((DateTimeField) field).getMinutes();
+                if (minutes != null) {
+                    cal.set(Calendar.MINUTE, minutes);
+                    field.setModelObject(cal.getTime());
+                }
             }
         });
 
@@ -79,15 +81,15 @@ public class DateTimeFieldPanel extends DateFieldPanel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                cal.setTime(((DateTimeField) field).getDate());
-
-                if ("PM".equals("" + ((DateTimeField) field).getAmOrPm())) {
-                    cal.set(Calendar.AM_PM, Calendar.PM);
+                final Date date = ((DateTimeField) field).getDate();
+                if (date == null) {
+                    field.setModelObject(null);
                 } else {
-                    cal.set(Calendar.AM_PM, Calendar.AM);
+                    cal.setTime(date);
+                    cal.set(Calendar.AM_PM, "PM".equals("" + ((DateTimeField) field).getAmOrPm()) ? Calendar.PM
+                            : Calendar.AM);
+                    field.setModelObject(cal.getTime());
                 }
-
-                field.setModelObject(cal.getTime());
             }
         });
 
@@ -97,12 +99,8 @@ public class DateTimeFieldPanel extends DateFieldPanel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                if ("PM".equals("" + ((DateTimeField) field).getAmOrPm())) {
-                    cal.set(Calendar.AM_PM, Calendar.PM);
-                } else {
-                    cal.set(Calendar.AM_PM, Calendar.AM);
-                }
-
+                cal.set(Calendar.AM_PM, "PM".equals("" + ((DateTimeField) field).getAmOrPm()) ? Calendar.PM
+                        : Calendar.AM);
                 field.setModelObject(cal.getTime());
             }
         });
@@ -124,7 +122,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
                 throw new IllegalArgumentException("argument dateTimeComponent cannot be null");
             }
 
-            dateTimeComponents = new FormComponent[]{dateTimeComponent};
+            dateTimeComponents = new FormComponent[] { dateTimeComponent };
         }
 
         @Override
