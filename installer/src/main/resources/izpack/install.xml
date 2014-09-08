@@ -45,16 +45,10 @@ under the License.
     <modifier key="headingBackgroundColor" value="0x00ffffff"/>
     <modifier key="headingPanelCounter" value="progressbar"/>
     <modifier key="headingPanelCounterPos" value="inNavigationPanel"/>
-    <laf name="substance">
-      <os family="windows" />
-      <os family="unix" />
-      <param name="variant" value="metouia" />
-    </laf>
   </guiprefs>
   
   <locale>
     <langpack iso3="eng"/>
-    <!--<langpack iso3="ita"/>-->
   </locale>
   
   <variables>
