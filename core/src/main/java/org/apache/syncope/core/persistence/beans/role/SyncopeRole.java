@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.beans.role;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -448,27 +447,23 @@ public class SyncopeRole extends AbstractSubject {
      * @return a list of inherited and only inherited attributes.
      */
     @SuppressWarnings("unchecked")
-    public List<RAttr> findInheritedAttrs() {
+    public List<RAttr> findLastInheritedAncestorAttributes() {
         final Map<RSchema, RAttr> result = new HashMap<RSchema, RAttr>();
 
+        if (!isInheritAttrs()) {
+            return attrs;
+        }
         if (isInheritAttrs() && getParent() != null) {
             final Map<AbstractNormalSchema, AbstractAttr> attrMap = getAttrMap();
 
-            // Add attributes not specialized
-            for (RAttr attr : (Collection<RAttr>) getParent().getAttrs()) {
-                if (!attrMap.containsKey(attr.getSchema())) {
-                    result.put((RSchema) attr.getSchema(), attr);
+            // Add inherit attributes
+            for (RAttr attr : getParent().findLastInheritedAncestorAttributes()) {
+                if (attrMap.containsKey(attr.getSchema())) {
+                    result.remove((RSchema) attr.getSchema());
                 }
-            }
-
-            // Add attributes not specialized and not already added
-            for (RAttr attr : getParent().findInheritedAttrs()) {
-                if (!attrMap.containsKey(attr.getSchema()) && !result.containsKey((RSchema) attr.getSchema())) {
-                    result.put((RSchema) attr.getSchema(), attr);
-                }
+                result.put((RSchema) attr.getSchema(), attr);
             }
         }
-
         return new ArrayList<RAttr>(result.values());
     }
 
@@ -487,29 +482,23 @@ public class SyncopeRole extends AbstractSubject {
      * @return a list of inherited and only inherited attributes.
      */
     @SuppressWarnings("unchecked")
-    public List<RDerAttr> findInheritedDerAttrs() {
+    public List<RDerAttr> findLastInheritedAncestorDerivedAttributes() {
         final Map<RDerSchema, RDerAttr> result = new HashMap<RDerSchema, RDerAttr>();
 
+        if (!isInheritDerAttrs()) {
+            return derAttrs;
+        }
         if (isInheritDerAttrs() && getParent() != null) {
-            final Map<AbstractDerSchema, AbstractDerAttr> attrMap = getDerAttrMap();
+            final Map<AbstractDerSchema, AbstractDerAttr> attrDerMap = getDerAttrMap();
 
-            // Add attributes not specialized
-            for (RDerAttr attr : (Collection<RDerAttr>) getParent().getDerAttrs()) {
-                if (!attrMap.containsKey(attr.getSchema())) {
-                    result.put((RDerSchema) attr.getSchema(), attr);
+            // Add inherit derived attributes
+            for (RDerAttr attr : getParent().findLastInheritedAncestorDerivedAttributes()) {
+                if (attrDerMap.containsKey(attr.getSchema())) {
+                    result.remove((RDerSchema) attr.getSchema());
                 }
-            }
-
-            // Add attributes not specialized and not already added
-            for (RDerAttr attr : getParent().findInheritedDerAttrs()) {
-                if (!attrMap.containsKey(attr.getSchema())
-                        && !result.containsKey((RDerSchema) attr.getSchema())) {
-
-                    result.put((RDerSchema) attr.getSchema(), attr);
-                }
+                result.put((RDerSchema) attr.getSchema(), attr);
             }
         }
-
         return new ArrayList<RDerAttr>(result.values());
     }
 
@@ -528,29 +517,24 @@ public class SyncopeRole extends AbstractSubject {
      * @return a list of inherited and only inherited attributes.
      */
     @SuppressWarnings("unchecked")
-    public List<RVirAttr> findInheritedVirAttrs() {
+    public List<RVirAttr> findLastInheritedAncestorVirtualAttributes() {
         final Map<RVirSchema, RVirAttr> result = new HashMap<RVirSchema, RVirAttr>();
 
-        if (isInheritVirAttrs() && getParent() != null) {
-            final Map<AbstractVirSchema, AbstractVirAttr> attrMap = getVirAttrMap();
-
-            // Add attributes not specialized
-            for (RVirAttr attr : (Collection<RVirAttr>) getParent().getVirAttrs()) {
-                if (!attrMap.containsKey(attr.getSchema())) {
-                    result.put((RVirSchema) attr.getSchema(), attr);
-                }
-            }
-
-            // Add attributes not specialized and not already added
-            for (RVirAttr attr : getParent().findInheritedVirAttrs()) {
-                if (!attrMap.containsKey(attr.getSchema())
-                        && !result.containsKey((RVirSchema) attr.getSchema())) {
-
-                    result.put((RVirSchema) attr.getSchema(), attr);
-                }
-            }
+        if (!isInheritVirAttrs()) {
+            return virAttrs;
         }
 
+        if (isInheritVirAttrs() && getParent() != null) {
+            final Map<AbstractVirSchema, AbstractVirAttr> attrVirMap = getVirAttrMap();
+
+            // Add inherit virtual attributes
+            for (RVirAttr attr : getParent().findLastInheritedAncestorVirtualAttributes()) {
+                if (attrVirMap.containsKey(attr.getSchema())) {
+                    result.remove((RVirSchema) attr.getSchema());
+                }
+                result.put((RVirSchema) attr.getSchema(), attr);
+            }
+        }
         return new ArrayList<RVirAttr>(result.values());
     }
 
