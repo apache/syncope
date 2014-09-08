@@ -313,15 +313,15 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
 
         // -------------------------
         // Retrieve all [derived/virtual] attributes (inherited and not)
-        // -------------------------
-        final List<RAttr> allAttributes = role.findInheritedAttributes();
-        allAttributes.addAll((List<RAttr>) role.getAttributes());
+        // -------------------------        
+        final List<RAttr> allAttributes = role.findLastInheritedAncestorAttributes();
+        //allAttributes.addAll((List<RAttr>) role.getAttributes());
 
-        final List<RDerAttr> allDerAttributes = role.findInheritedDerivedAttributes();
-        allDerAttributes.addAll((List<RDerAttr>) role.getDerivedAttributes());
+        final List<RDerAttr> allDerAttributes = role.findLastInheritedAncestorDerivedAttributes();
+        //allDerAttributes.addAll((List<RDerAttr>) role.getDerivedAttributes());
 
-        final List<RVirAttr> allVirAttributes = role.findInheritedVirtualAttributes();
-        allVirAttributes.addAll((List<RVirAttr>) role.getVirtualAttributes());
+        final List<RVirAttr> allVirAttributes = role.findLastInheritedAncestorVirtualAttributes();
+        //allVirAttributes.addAll((List<RVirAttr>) role.getVirtualAttributes());
         // -------------------------
 
         fillTO(roleTO, allAttributes, allDerAttributes, allVirAttributes, role.getResources());

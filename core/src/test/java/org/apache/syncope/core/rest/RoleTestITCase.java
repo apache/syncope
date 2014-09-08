@@ -432,4 +432,65 @@ public class RoleTestITCase extends AbstractTest {
         assertNull(getLdapRemoteObject(parentRemoteObject.getAttributeMap().get(Name.NAME).getValues().get(0)));
         assertNull(getLdapRemoteObject(childRemoteObject.getAttributeMap().get(Name.NAME).getValues().get(0)));
     }
+
+    @Test
+    public void issueSYNCOPE543() {
+        final String ancestorName = "issueSYNCOPE543-ARole";
+        final String parentName = "issueSYNCOPE543-PRole";
+        final String childName = "issueSYNCOPE543-CRole";
+
+        // 1. create ancestor role
+        RoleTO ancestor = buildBasicRoleTO(ancestorName);
+        ancestor.setParent(0L);
+        ancestor.addAttribute(attributeTO("icon", "ancestorIcon"));
+        ancestor = createRole(roleService, ancestor);
+        assertEquals("ancestorIcon", ancestor.getAttributeMap().get("icon").getValues().get(0));
+
+        // 2. create parent role
+        RoleTO parent = buildBasicRoleTO(parentName);
+        parent.setParent(ancestor.getId());
+        parent.addAttribute(attributeTO("icon", "parentIcon"));
+        parent = createRole(roleService, parent);
+        assertEquals("parentIcon", parent.getAttributeMap().get("icon").getValues().get(0));
+
+        // 3. create child role
+        RoleTO child = buildBasicRoleTO(childName);
+        child.setParent(parent.getId());
+        child.addAttribute(attributeTO("icon", "childIcon"));
+        child = createRole(roleService, child);
+        assertEquals("childIcon", child.getAttributeMap().get("icon").getValues().get(0));
+
+        final RoleMod roleChildMod = new RoleMod();
+        roleChildMod.setId(child.getId());
+        roleChildMod.setInheritAttributes(Boolean.TRUE);
+        roleService.update(roleChildMod.getId(), roleChildMod);
+
+        child = roleService.read(child.getId());
+        assertNotNull(child);
+        assertNotNull(child.getAttributeMap().get("icon").getValues());
+        assertEquals("parentIcon", child.getAttributeMap().get("icon").getValues().get(0));
+
+        final RoleMod roleParentMod = new RoleMod();
+        roleParentMod.setId(parent.getId());
+        roleParentMod.setInheritAttributes(Boolean.TRUE);
+        roleService.update(roleParentMod.getId(), roleParentMod);
+
+        child = roleService.read(child.getId());
+        assertNotNull(child);
+        assertNotNull(child.getAttributeMap().get("icon").getValues());
+        assertEquals("ancestorIcon", child.getAttributeMap().get("icon").getValues().get(0));
+
+        parent = roleService.read(parent.getId());
+        assertNotNull(parent);
+        assertNotNull(parent.getAttributeMap().get("icon").getValues());
+        assertEquals("ancestorIcon", parent.getAttributeMap().get("icon").getValues().get(0));
+
+        roleParentMod.setInheritAttributes(Boolean.FALSE);
+        roleService.update(roleParentMod.getId(), roleParentMod);
+
+        child = roleService.read(child.getId());
+        assertNotNull(child);
+        assertNotNull(child.getAttributeMap().get("icon").getValues());
+        assertEquals("parentIcon", child.getAttributeMap().get("icon").getValues().get(0));
+    }
 }
