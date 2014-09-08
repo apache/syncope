@@ -51,6 +51,12 @@ under the License.
     <dependency>
       <groupId>org.codehaus.izpack</groupId>
       <artifactId>izpack-compiler</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.incors</groupId>
+          <artifactId>kunstoff-laf</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.codehaus.izpack</groupId>
@@ -168,7 +174,7 @@ under the License.
     
     <resources>
       <resource>
-        <directory>../legal_ext</directory>
+        <directory>${basedir}</directory>
         <targetPath>META-INF</targetPath>
         <includes>
           <include>LICENSE</include>

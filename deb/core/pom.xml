@@ -142,7 +142,7 @@ under the License.
           <attachClasses>false</attachClasses>
           <webResources>
             <resource>
-              <directory>${basedir}/../../legal_ext</directory>
+              <directory>${basedir}/../../core</directory>
               <targetPath>META-INF</targetPath>
               <includes>
                 <include>LICENSE</include>
@@ -239,8 +239,9 @@ under the License.
                   </mapper>
                 </data>
                 <data>
-                  <src>${basedir}/../../legal_ext</src>
+                  <src>${basedir}/../../core</src>
                   <type>directory</type>
+                  <includes>LICENSE,NOTICE</includes>
                   <mapper>
                     <type>perm</type>
                     <prefix>/usr/share/doc/apache-syncope</prefix>

@@ -93,8 +93,8 @@ under the License.
                 
                 <!-- legal stuff -->
                 <copy file="${project.build.outputDirectory}/README" todir="${work.dir}"/>
-                <copy file="../legal_ext/LICENSE" todir="${work.dir}"/>
-                <copy file="../legal_ext/NOTICE" todir="${work.dir}"/>
+                <copy file="LICENSE" todir="${work.dir}"/>
+                <copy file="NOTICE" todir="${work.dir}"/>
 
                 <!-- Unzip Tomcat and remove docs and examples from webapps (space saving) -->
                 <unzip src="${settings.localRepository}/org/codehaus/cargo/cargo-container-archives/apache-tomcat-${tomcat.version}.zip" 
