@@ -2,6 +2,223 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.2.0-M1
+================================================================================
+
+** Sub-task
+    * [SYNCOPE-246] - Remove collection setters in transfer objects for JAXB marshalling
+    * [SYNCOPE-271] - Review REST interface methods and introduce @Deprecated
+    * [SYNCOPE-286] - Remove Spring MVC
+    * [SYNCOPE-471] - Provide matching/unmatchig rule management for push tasks
+    * [SYNCOPE-472] - Provide user filter rule management for push task
+    * [SYNCOPE-473] - Provide configuration interface for push tasks
+    * [SYNCOPE-521] - use newer HttpClient 4.3 instead on legacy 3.1
+    * [SYNCOPE-522] - Use newer Jackson
+    * [SYNCOPE-523] - Remove dependencies of MySQL and PostgreSQL JDBC drivers
+    * [SYNCOPE-525] - Https support
+    * [SYNCOPE-526] - Test in Windows environment
+    * [SYNCOPE-528] - Check Oracle and SqlServer database connection
+    * [SYNCOPE-530] - Wiki page
+    * [SYNCOPE-541] - Add configuration directory field
+    * [SYNCOPE-542] - Improve feedback massages and logs
+
+** Bug
+    * [SYNCOPE-285] - Complete CXF migration
+    * [SYNCOPE-349] - Sorting scope is limited to each page
+    * [SYNCOPE-351] - Errors when editing role membership assignment in notifications (About and Recipients)
+    * [SYNCOPE-352] - No connectors available on clean install
+    * [SYNCOPE-353] - UserTemplate evaluation generates unjustified attributes to be removed
+    * [SYNCOPE-354] - LDAP Membership propagation does not remove memberships
+    * [SYNCOPE-356] - Unable to set resource for role via the console
+    * [SYNCOPE-357] - When deleting role on external resource, also remove from there users with resource assigned only via that role
+    * [SYNCOPE-358] - ConnectorService#list invocation with null parameter actually calls ConnectorService#readByResource
+    * [SYNCOPE-360] - Removing Role mapping from External Resource fails
+    * [SYNCOPE-361] - When creating new report, the modal window does not close and an exception is logged
+    * [SYNCOPE-363] - ApacheDS not available since second run of the standalone distribution
+    * [SYNCOPE-364] - Rejected users are anyway propagate to associated resources
+    * [SYNCOPE-365] - External attribute disabled in case of schema info not available
+    * [SYNCOPE-366] - Uniform constraint violation building
+    * [SYNCOPE-367] - ConfigurationTestITCase#browseAccountPolicy Selenium test fails
+    * [SYNCOPE-368] - Cannot add 'RoleOwnerSchema' mapping item via console
+    * [SYNCOPE-369] - Wrong error message on failed login
+    * [SYNCOPE-370] - HTTP Status 404 adding a role to a user with IE8 
+    * [SYNCOPE-371] - Console RuntimeException with multiple sessions for the same user
+    * [SYNCOPE-372] - Connector error before save
+    * [SYNCOPE-373] - 500 when self reading admin user
+    * [SYNCOPE-375] - QUARTZ tables are not written into an innodb mysql DB for an mvn generated and created project
+    * [SYNCOPE-376] - Console webapp does not start on Glassfish
+    * [SYNCOPE-377] - Exporting configuration via console causes exceptions to be thrown
+    * [SYNCOPE-380] - Deleting a role from admin console throws an exception
+    * [SYNCOPE-381] - Adding and saving roles with resources during save
+    * [SYNCOPE-382] - Core hangs for a very long time (1h+ and then resumes) after a CLI role create and list
+    * [SYNCOPE-383] - Failure assigning resource to an existing user
+    * [SYNCOPE-384] - Issues with CXF and Glassfish
+    * [SYNCOPE-385] - NPE when reading user assigned to resource with no mapping
+    * [SYNCOPE-386] - Database sync (no full reconciliation) fails with "Unsupported object class"
+    * [SYNCOPE-387] - Unable to synchronize deleted objects from OpenDJ
+    * [SYNCOPE-394] - Scheduled tasks are executed without transaction support
+    * [SYNCOPE-396] - removeAll and retainAll in PropagationByResource dont evaluate correctly boolean expression
+    * [SYNCOPE-397] - Double update propagation with virtual attributes on already associated resource when changing password and adding new resource
+    * [SYNCOPE-398] - secretKey does not get resolved during archetype:generate
+    * [SYNCOPE-399] - Role attribute mapping for user mapping item doesn't result in a multivalue property
+    * [SYNCOPE-400] - Poor search performance on MySQL
+    * [SYNCOPE-401] - Deploying syncope.war with MSSQL server settings to Tomcat on Windows results in Error listenerStart
+    * [SYNCOPE-404] - LDAP Roles lose entitlement upon LDAP synchronization
+    * [SYNCOPE-414] - Cannot successfully deploy on Weblogic 12c (12.1.1)
+    * [SYNCOPE-417] - Users are made active when updating in NoOpWorkflowAdapter
+    * [SYNCOPE-418] - Special chars break REST URLs
+    * [SYNCOPE-419] - Meaningless error message when attempting to delete user owning role
+    * [SYNCOPE-423] - Improve notifications
+    * [SYNCOPE-426] - UserService#update and RoleService#update require entity id to be specified twice
+    * [SYNCOPE-433] - Counting search results fails with MySQL when OR condition is used
+    * [SYNCOPE-434] - Users can log in the admin console despite of their status
+    * [SYNCOPE-435] - Password not mandatory when subscribing external resource
+    * [SYNCOPE-436] - Read-only virtual attribute values not retrieved from external resource
+    * [SYNCOPE-437] - Wrong ID generation for new Notification instances
+    * [SYNCOPE-440] - Timestamp based synchronization miss events
+    * [SYNCOPE-452] - Generated project not starting in embedded mode
+    * [SYNCOPE-453] - Propagation problem with role virtual attribute mapped in user mapping 
+    * [SYNCOPE-454] - Update user without password specification involving resource with "Generate password if missing" enabled, sends password out anyway
+    * [SYNCOPE-455] - Role child implicit delete won't be propagated during parent delete
+    * [SYNCOPE-457] - Must be able to configure JavaMailSender used by NotificationJob
+    * [SYNCOPE-458] - Change membership virtual attribute management
+    * [SYNCOPE-459] - Read-only virtual attribute cannot be added for a user by admin console
+    * [SYNCOPE-462] - Upgrade Spring to 3.2.7
+    * [SYNCOPE-465] - Selected items lost browsing paged results
+    * [SYNCOPE-466] - Server error when updating an existing policy to its global counterpart
+    * [SYNCOPE-475] - After session expired, console shows split screen
+    * [SYNCOPE-476] - NPE opening Roles tab
+    * [SYNCOPE-477] - Alert popup appears through page navigation after modal window closing
+    * [SYNCOPE-482] - Updating workflow definition throught console XML editor doesn't really update
+    * [SYNCOPE-483] - Configured CSVDir connector doesn't work fine
+    * [SYNCOPE-489] - Feedback panel not working in workflow xml editor popup
+    * [SYNCOPE-490] - Problem returning to login page with manual url insertion after typing invalid username and/or password
+    * [SYNCOPE-495] - List of role(s) assigned to user is deleted in edit user modal page if cancel button of role modal page is clicked
+    * [SYNCOPE-497] - JEXL Frame positioning error
+    * [SYNCOPE-498] - Connector SpinnerFieldPanel required values
+    * [SYNCOPE-499] - Deletion of role set as parent role in template generates exception
+    * [SYNCOPE-500] - Wrong (unwanted) derived attribute insertion addition in membership modal page
+    * [SYNCOPE-501] - Virtual attribute propagation not working when updating only virtual attributes
+    * [SYNCOPE-504] - Sync/Push actions shouldn't be executed in dryrun
+    * [SYNCOPE-506] - Connector configuration tab in connector modal page does not accept new values
+    * [SYNCOPE-509] - In Task page after change of number of rows (to display) is erroneously added a column to tasks table
+    * [SYNCOPE-510] - Class cast exception in AbstractSearchPanel
+    * [SYNCOPE-512] - If there are no roles in edit user modal page is possible to create membership between root (fake) role and user
+    * [SYNCOPE-514] - Core doesn't deploy on Glassfish
+    * [SYNCOPE-515] - Bad integration test causes role ownership conflicts
+    * [SYNCOPE-518] - ApacheDS connector in test samples cannot be modified
+    * [SYNCOPE-527] - Stacktrace on BulkAction result
+    * [SYNCOPE-531] - Failed login counter not reset if log.lastlogindate==false
+    * [SYNCOPE-532] - Installer does not pick Syncope version from POM
+    * [SYNCOPE-539] - Edit user with resources causes Ajax failure
+    * [SYNCOPE-540] - Console build fails on Windows
+    * [SYNCOPE-543] - Role's "Inherit Attributes" does not inherit from parent role for check box attribute
+    * [SYNCOPE-545] - Date field without conversion pattern specified goes in NPE if deleting date
+
+** Improvement
+    * [SYNCOPE-15] - Manage creator, lastmodifier and approvers information about each SyncopeUser bean
+    * [SYNCOPE-131] - Assign membership and role schemas to either all memberships / roles or only some memberships / roles
+    * [SYNCOPE-132] - Don't expose some REST list methods for anonymous
+    * [SYNCOPE-133] - Add UserRequestController.execute() that will execute the provided UserRequest and remove it on success
+    * [SYNCOPE-145] - Configurable user request approval
+    * [SYNCOPE-149] - Easier and cleaner way to override REST methods
+    * [SYNCOPE-151] - Document RESTful services
+    * [SYNCOPE-153] - Use logback-audit
+    * [SYNCOPE-290] - Typed SyncopeConf
+    * [SYNCOPE-298] - Persistence beans: change AUTO Id generation strategy to TABLE
+    * [SYNCOPE-300] - Supporting Feed Item Query Language (FIQL)
+    * [SYNCOPE-303] - Mapping to SyncopeClientCompositeException on client side
+    * [SYNCOPE-304] - Mapping low level exceptions in core
+    * [SYNCOPE-313] - Support synchronizing non-cleartext passwords from external resources
+    * [SYNCOPE-359] - Ignore propagation if no schema mapping is provided
+    * [SYNCOPE-362] - Disable mapping tab when the underlying connector does not support correspondent ObjectClass
+    * [SYNCOPE-374] - SyncopeUser tokens do not use secure random strings
+    * [SYNCOPE-390] - Default Reportlets improvements
+    * [SYNCOPE-391] - Make password management optional
+    * [SYNCOPE-392] - Full reconciliation from syncope to resource
+    * [SYNCOPE-393] - Resource unlink
+    * [SYNCOPE-395] - Role Reportlet
+    * [SYNCOPE-402] - Inconsistent status of user edit form after exception returned by bad propagation on primary resource
+    * [SYNCOPE-403] - Enrich PropagationStatusTO to report possible propagation exception message
+    * [SYNCOPE-405] - Replace logback with log4j 2
+    * [SYNCOPE-406] - Invoke bean validation via JPA entity listener
+    * [SYNCOPE-407] - Add claim for user requests and trace user request history into SyncopeUser bean
+    * [SYNCOPE-408] - Add index on task.executed
+    * [SYNCOPE-409] - Allow notifications with empty about field
+    * [SYNCOPE-410] - Make username pattern configurable via account policy
+    * [SYNCOPE-411] - Perform retries on failed notifications
+    * [SYNCOPE-413] - Clean activiti history for unused variables
+    * [SYNCOPE-415] - Reduce log level of bean validation errors
+    * [SYNCOPE-416] - AttributableSearchDAOImpl / Avoid query construction with string concatenation
+    * [SYNCOPE-420] - Provide user / role pre-processing mechanism
+    * [SYNCOPE-421] - Provide an attribute value pre-processing mechanism
+    * [SYNCOPE-422] - Improve audit info
+    * [SYNCOPE-424] - Resolve OpenJPA dependency overlap
+    * [SYNCOPE-425] - Further REST refactoring
+    * [SYNCOPE-427] - Add CSV report format
+    * [SYNCOPE-428] - Provide resource link, associate and provision independent features
+    * [SYNCOPE-429] - Support ETag-based conditional requests for users and roles
+    * [SYNCOPE-430] - Support returning no content after create / update
+    * [SYNCOPE-431] - Provide debug logging for controller methods' input and output
+    * [SYNCOPE-432] - Replace role action labels with icons
+    * [SYNCOPE-438] - Provide values for ConnId's APIConfiguration via ConnInstance entities
+    * [SYNCOPE-439] - Embed Activiti modeler for graphical workflow editing
+    * [SYNCOPE-441] - Index on Activiti table boosts overall performance
+    * [SYNCOPE-442] - Use cached virtual attribute values with offline resources
+    * [SYNCOPE-443] - Use WebJars to avoid including 3rd party JS and CSS files
+    * [SYNCOPE-444] - Notification: improve 'selfAsRecipient' management
+    * [SYNCOPE-445] - Provide a text field to specify whatever notification recipient
+    * [SYNCOPE-446] - Notification: let admins specify "About" for roles
+    * [SYNCOPE-447] - Provide the ability to have a single (cumulative) notification for task execution
+    * [SYNCOPE-450] - Support JAX-RS 2.0
+    * [SYNCOPE-460] - Default datasource uses BasicDataSource
+    * [SYNCOPE-461] - Use BeanValidation 1.1 with JAX-RS services
+    * [SYNCOPE-464] - Report error information in HTTP body 
+    * [SYNCOPE-468] - Add information to what components refer to a certain policy
+    * [SYNCOPE-469] - Group policies and logs under configuration
+    * [SYNCOPE-479] - Use X-Application-Error-Code Response header instead of ExceptionType
+    * [SYNCOPE-480] - Change feedback panel into a smart animated notification panel
+    * [SYNCOPE-485] - Upgrade to Activiti 5.15.1
+    * [SYNCOPE-486] - Update Selenium test configuration
+    * [SYNCOPE-487] - make Velocity tools available in templates for notifications
+    * [SYNCOPE-488] - Use CXF Maven WADL plugin
+    * [SYNCOPE-491] - Use consistent icon set
+    * [SYNCOPE-492] - Provide possibility to activate/deactivate notifications
+    * [SYNCOPE-493] - Provide new user and role mapping purpose "NONE"
+    * [SYNCOPE-502] - Allow list of PropagationActions for Resource, SyncActions for SyncTask and PushActions for PushTask
+    * [SYNCOPE-505] - Support propagating non-cleartext passwords to external resources
+    * [SYNCOPE-507] - User login date conditional logging
+    * [SYNCOPE-511] - Enhance synchronization report information
+    * [SYNCOPE-513] - Make value encryption parametric
+    * [SYNCOPE-516] - Binary Schema UI enhancements
+    * [SYNCOPE-517] - Empower ETag from console
+    * [SYNCOPE-519] - Report default values for connector properties
+    * [SYNCOPE-520] - Move reset sync token to resource actions
+    * [SYNCOPE-524] - Use JSON for serialized POJOs in the internal storage
+    * [SYNCOPE-536] - Upgrade to Activiti 5.16
+    * [SYNCOPE-538] - Externalize all WAR configuration
+
+** New Feature
+    * [SYNCOPE-123] - Binary schema
+    * [SYNCOPE-150] - Rich client library
+    * [SYNCOPE-164] - Passthrough authentication
+    * [SYNCOPE-270] - Encrypted schema
+
+** Task
+    * [SYNCOPE-448] - Provide build instructions
+    * [SYNCOPE-449] - Fix support for Eclipse IDE
+    * [SYNCOPE-451] - Upgrade to OpenJPA 2.3.0
+    * [SYNCOPE-463] - Update notification docs after SYNCOPE-423
+    * [SYNCOPE-467] - Update notification docs with latest improvements
+    * [SYNCOPE-478] - Upgrade to Wicket 6.14.0
+    * [SYNCOPE-496] - Upgrade jboss-it profile to Wildfly 8
+    * [SYNCOPE-537] - Upgrade to ConnId 1.4.0.0
+    * [SYNCOPE-544] - Review LICENSE & NOTICE for binary artifacts
+
+** Wish
+    * [SYNCOPE-340] - Translate items of Syncope UI and config files labels for Portuguese language 
+    * [SYNCOPE-535] - Provide Debian packages for Apache Syncope
+
 Release Notes - Syncope - Version 1.1.8
 ================================================================================
 ** Bug
