@@ -28,29 +28,23 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessControlException;
-import java.util.Collection;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.SyncopeClientException;
-import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.ReferenceMod;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.to.ConnObjectTO;
-import org.apache.syncope.common.to.MappingItemTO;
-import org.apache.syncope.common.to.MappingTO;
-import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ClientExceptionType;
-import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.Preference;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
@@ -738,81 +732,66 @@ public class RoleTestITCase extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE493() {
-        // 1.  create role and check that title is propagated on resource with mapping for title set to BOTH
-        RoleTO roleTO = buildBasicRoleTO("issueSYNCOPE493-Role");
-        roleTO.getResources().add(RESOURCE_NAME_LDAP);
-        roleTO.getRAttrTemplates().add("title");
-        roleTO.getAttrs().add(attributeTO("title", "TITLE"));
+    public void issueSYNCOPE543() {
+        final String ancestorName = "issueSYNCOPE543-ARole";
+        final String parentName = "issueSYNCOPE543-PRole";
+        final String childName = "issueSYNCOPE543-CRole";
 
-        roleTO = createRole(roleTO);
-        assertTrue(roleTO.getResources().contains(RESOURCE_NAME_LDAP));
+        // 1. create ancestor role
+        RoleTO ancestor = buildBasicRoleTO(ancestorName);
+        ancestor.setParent(0L);
+        ancestor.getRAttrTemplates().add("icon");
+        ancestor.getAttrs().add(attributeTO("icon", "ancestorIcon"));
+        ancestor = createRole(ancestor);
+        assertEquals("ancestorIcon", ancestor.getAttrMap().get("icon").getValues().get(0));
 
-        ConnObjectTO actual = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE,
-                roleTO.getId());
-        assertNotNull(actual);
+        // 2. create parent role
+        RoleTO parent = buildBasicRoleTO(parentName);
+        parent.setParent(ancestor.getId());
+        parent.getRAttrTemplates().add("icon");
+        parent.getAttrs().add(attributeTO("icon", "parentIcon"));
+        parent = createRole(parent);
+        assertEquals("parentIcon", parent.getAttrMap().get("icon").getValues().get(0));
 
-        // check if mapping attribute with purpose BOTH has really been propagated
-        assertNotNull(actual.getAttrMap().get("description"));
-        assertEquals("TITLE", actual.getAttrMap().get("description").getValues().get(0));
+        // 3. create child role
+        RoleTO child = buildBasicRoleTO(childName);
+        child.setParent(parent.getId());
+        child.getRAttrTemplates().add("icon");
+        child.getAttrs().add(attributeTO("icon", "childIcon"));
+        child = createRole(child);
+        assertEquals("childIcon", child.getAttrMap().get("icon").getValues().get(0));
 
-        // 2.  update resource LDAP
-        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
-        assertNotNull(ldap);
+        final RoleMod roleChildMod = new RoleMod();
+        roleChildMod.setId(child.getId());
+        roleChildMod.setInheritAttributes(Boolean.TRUE);
+        updateRole(roleChildMod);
 
-        MappingTO ldapNewRMapping = ldap.getRmapping();
-        // change purpose from BOTH to NONE
-        for (MappingItemTO itemTO : ldapNewRMapping.getItems()) {
-            if ("title".equals(itemTO.getIntAttrName())) {
-                itemTO.setPurpose(MappingPurpose.NONE);
-            }
-        }
+        child = roleService.read(child.getId());
+        assertNotNull(child);
+        assertNotNull(child.getAttrMap().get("icon").getValues());
+        assertEquals("parentIcon", child.getAttrMap().get("icon").getValues().get(0));
 
-        ldap.setRmapping(ldapNewRMapping);
-        ldap.setUmapping(ldap.getUmapping());
+        final RoleMod roleParentMod = new RoleMod();
+        roleParentMod.setId(parent.getId());
+        roleParentMod.setInheritAttributes(Boolean.TRUE);
+        updateRole(roleParentMod);
 
-        resourceService.update(RESOURCE_NAME_LDAP, ldap);
-        ResourceTO newLdap = resourceService.read(ldap.getName());
-        assertNotNull(newLdap);
+        child = roleService.read(child.getId());
+        assertNotNull(child);
+        assertNotNull(child.getAttrMap().get("icon").getValues());
+        assertEquals("ancestorIcon", child.getAttrMap().get("icon").getValues().get(0));
 
-        // check for existence
-        Collection<MappingItemTO> mapItems = newLdap.getRmapping().getItems();
-        assertNotNull(mapItems);
-        assertEquals(4, mapItems.size());
+        parent = roleService.read(parent.getId());
+        assertNotNull(parent);
+        assertNotNull(parent.getAttrMap().get("icon").getValues());
+        assertEquals("ancestorIcon", parent.getAttrMap().get("icon").getValues().get(0));
 
-        // 3.  update role and check that title han not been propagated, external attribute description must not be present
-        // in role mapping
-        RoleMod roleMod = new RoleMod();
-        roleMod.setId(roleTO.getId());
+        roleParentMod.setInheritAttributes(Boolean.FALSE);
+        updateRole(roleParentMod);
 
-        AttributeMod attr = attributeMod("title", "TITLENEW");
-        attr.getValuesToBeRemoved().add("TITLE");
-        roleMod.getAttrsToUpdate().add(attr);
-        roleTO = updateRole(roleMod);
-        assertNotNull(roleTO);
-        assertEquals(1, roleTO.getPropagationStatusTOs().size());
-        assertTrue(roleTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
-        // check update on Syncope
-        assertEquals("TITLENEW", roleTO.getAttrMap().get("title").getValues().get(0));
-
-        final ConnObjectTO newRole = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE,
-                roleTO.getId());
-
-        // due to NONE mapping for attribute title external attribute description must not be present
-        assertNull(newRole.getAttrMap().get("description"));
-
-        // 4.  restore resource LDAP mapping
-        ldapNewRMapping = newLdap.getRmapping();
-        // restore purpose from NONE to BOTH
-        for (MappingItemTO itemTO : ldapNewRMapping.getItems()) {
-            if ("title".equals(itemTO.getIntAttrName())) {
-                itemTO.setPurpose(MappingPurpose.BOTH);
-            }
-        }
-
-        newLdap.setRmapping(ldapNewRMapping);
-        newLdap.setUmapping(newLdap.getUmapping());
-
-        resourceService.update(RESOURCE_NAME_LDAP, newLdap);
+        child = roleService.read(child.getId());
+        assertNotNull(child);
+        assertNotNull(child.getAttrMap().get("icon").getValues());
+        assertEquals("parentIcon", child.getAttrMap().get("icon").getValues().get(0));
     }
 }
