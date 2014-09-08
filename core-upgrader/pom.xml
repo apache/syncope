@@ -28,7 +28,7 @@ under the License.
   </parent>
  
   <groupId>org.apache.syncope</groupId>
-  <artifactId>core-upgrader</artifactId>
+  <artifactId>syncope-core-upgrader</artifactId>
   <packaging>jar</packaging>
  
   <name>Apache Syncope Core Upgrader</name>
