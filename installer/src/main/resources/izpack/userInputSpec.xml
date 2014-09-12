@@ -45,15 +45,15 @@ under the License.
     </field>
     <field type="space"/>
     <field type="dir" variable="mvn.conf.directory">
-      <spec id="archetype.mvn.conf.directory" size="20" set="/var/tmp/syncope/conf"/>
+      <spec id="archetype.mvn.conf.directory" size="20" set="/var/tmp/syncope/conf" mustExist="false" create="true"/>
     </field>
     <field type="space"/>
     <field type="dir" variable="mvn.log.directory">
-      <spec id="archetype.mvn.log.directory" size="20" set="/var/tmp/syncope/log"/>
+      <spec id="archetype.mvn.log.directory" size="20" set="/var/tmp/syncope/log" mustExist="false" create="true"/>
     </field>
     <field type="space"/>
     <field type="dir" variable="mvn.bundle.directory">
-      <spec id="archetype.mvn.bundle.directory" size="20" set="/var/tmp/syncope/bundles"/>
+      <spec id="archetype.mvn.bundle.directory" size="20" set="/var/tmp/syncope/bundles" mustExist="false" create="true"/>
     </field>
     <field type="space"/>
     <field type="text" variable="mvn.syncope.version">

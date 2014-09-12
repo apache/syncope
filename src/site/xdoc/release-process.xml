@@ -125,16 +125,16 @@ under the License.
             <b>Resolved</b> issues to the <b>Closed</b> state.
           </li>
           <li>
-            Update the <code>CHANGES</code> file, in a SVN working copy <u>of the branch under release</u> (currently 
-            1_0_X or 1_1_X), based on the text release reports from JIRA.
+            Update the <code>CHANGES</code> file, in a SVN working copy <u>of the branch under release</u>,
+            based on the text release reports from JIRA.
           </li>
           <li>
             Commit any changes back to SVN:
             <source>svn commit -m "Updating CHANGES for release"</source>
           </li>
           <li>
-            Update the <a href="https://svn.apache.org/repos/asf/syncope/branches/1_1_X/src/site/xdoc/downloads.xml">downloads</a>
-            site page from a SVN working copy <u>of the branch used for managing the web site</u> (currenly 1_1_X):
+            Update the <a href="https://svn.apache.org/repos/asf/syncope/branches/1_2_X/src/site/xdoc/downloads.xml">downloads</a>
+            site page from a SVN working copy <u>of the branch used for managing the web site</u> (currenly 1_2_X):
             <ul>
               <li>add new release artifacts with base URL
                 <source>http://www.apache.org/dyn/closer.cgi/syncope/&lt;version&gt;/</source>
@@ -319,8 +319,7 @@ svn commit -m "Staging site for release"]]></source>
                     <a href="http://people.apache.org/~henkp/repo/faq.html">Repository FAQ</a> and 
                     <a href="http://www.apache.org/dev/release-signing.html#openpgp-ascii-detach-sig">Detached Signatures</a>).
                     <br/>
-                    The <code>syncope-&lt;version&gt;-source-release.zip</code> (for 1_1_X) or
-                    <code>syncope-root-&lt;version&gt;-source-release.zip</code> (for 1_0_X)
+                    The <code>syncope-&lt;version&gt;-source-release.zip</code>
                     should likewise have signature and checksum files.
                   </li>
                 </ol>
