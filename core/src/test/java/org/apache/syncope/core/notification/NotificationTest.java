@@ -176,8 +176,6 @@ public class NotificationTest {
         sender.setDefaultEncoding(SyncopeConstants.DEFAULT_ENCODING);
         sender.setHost(SMTP_HOST);
         sender.setPort(SMTP_PORT);
-        sender.setUsername(MAIL_ADDRESS);
-        sender.setPassword(MAIL_PASSWORD);
     }
 
     private boolean verifyMail(final String sender, final String subject) throws Exception {
