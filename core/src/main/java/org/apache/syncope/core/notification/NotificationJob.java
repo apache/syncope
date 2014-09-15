@@ -19,6 +19,7 @@
 package org.apache.syncope.core.notification;
 
 import java.util.Date;
+import java.util.Properties;
 
 import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
 /**
@@ -92,6 +94,14 @@ public class NotificationJob implements Job {
         } catch (NumberFormatException e) {
             LOG.error("Invalid maximum number of retries, retries disabled", e);
             maxRetries = 0;
+        }
+
+        if (mailSender instanceof JavaMailSenderImpl
+                && StringUtils.isNotBlank(((JavaMailSenderImpl) mailSender).getUsername())) {
+
+            Properties javaMailProperties = new Properties();
+            javaMailProperties.setProperty("mail.smtp.auth", "true");
+            ((JavaMailSenderImpl) mailSender).setJavaMailProperties(javaMailProperties);
         }
     }
 
