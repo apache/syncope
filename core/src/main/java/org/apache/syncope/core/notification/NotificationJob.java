@@ -99,7 +99,7 @@ public class NotificationJob implements Job {
         if (mailSender instanceof JavaMailSenderImpl
                 && StringUtils.isNotBlank(((JavaMailSenderImpl) mailSender).getUsername())) {
 
-            Properties javaMailProperties = new Properties();
+            Properties javaMailProperties = ((JavaMailSenderImpl) mailSender).getJavaMailProperties();
             javaMailProperties.setProperty("mail.smtp.auth", "true");
             ((JavaMailSenderImpl) mailSender).setJavaMailProperties(javaMailProperties);
         }
