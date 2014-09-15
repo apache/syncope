@@ -62,7 +62,7 @@ under the License.
   </bean>
 
   <bean id="activitiModelerDirectory" class="java.lang.String">
-    <constructor-arg value="${activiti-modeler.directory}"/>
+    <constructor-arg value="${activitiModelerDirectory}"/>
   </bean>
 
   <bean id="syncopeApplication" class="org.apache.syncope.console.SyncopeApplication"/>

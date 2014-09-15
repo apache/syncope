@@ -213,7 +213,8 @@ under the License.
             <phase>process-resources</phase>
             <configuration>
               <target>
-                <unzip src="${settings.localRepository}/org/activiti/activiti-webapp-explorer2/${activiti.version}/activiti-webapp-explorer2-${activiti.version}.war" dest="${project.build.directory}/activiti-webapp-explorer2" />
+                <unzip src="${settings.localRepository}/org/activiti/activiti-webapp-explorer2/${activiti.version}/activiti-webapp-explorer2-${activiti.version}.war" 
+                       dest="${project.build.directory}/activiti-webapp-explorer2" />
                 
                 <mkdir dir="${activiti-modeler.directory}" />
                 
@@ -223,8 +224,10 @@ under the License.
                     <exclude name="oryx.js" />
                   </fileset>
                 </copy>
-                <copy file="${project.build.directory}/activiti-webapp-explorer2/WEB-INF/classes/plugins.xml" todir="${activiti-modeler.directory}/editor" />
-                <copy file="${project.build.directory}/activiti-webapp-explorer2/WEB-INF/classes/stencilset.json" todir="${activiti-modeler.directory}/editor" />
+                <copy file="${project.build.directory}/activiti-webapp-explorer2/WEB-INF/classes/plugins.xml" 
+                      todir="${activiti-modeler.directory}/editor" />
+                <copy file="${project.build.directory}/activiti-webapp-explorer2/WEB-INF/classes/stencilset.json" 
+                      todir="${activiti-modeler.directory}/editor" />
                 
                 <mkdir dir="${activiti-modeler.directory}/explorer" />
                 <copy todir="${activiti-modeler.directory}/explorer">
