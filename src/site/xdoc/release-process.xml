@@ -469,8 +469,6 @@ svn mv -m "Moving the voted release artifacts to dist/release" \
 https://dist.apache.org/repos/dist/dev/syncope/<version>
 https://dist.apache.org/repos/dist/release/syncope/<version>
 
-svn rm -m "Cleaning up older releases" https://dist.apache.org/repos/dist/dev/syncope/<version>
-
 svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
 cd syncope-dist-release
 svn rm <any older release artifact (if present)>
