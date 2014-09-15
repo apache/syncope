@@ -21,6 +21,7 @@ package org.apache.syncope.core.notification;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
+import java.util.Properties;
 import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.SyncopeConstants;
@@ -160,6 +161,10 @@ public class NotificationJob implements Job {
                     sender.setDefaultEncoding(SyncopeConstants.DEFAULT_ENCODING);
                     if (StringUtils.isNotBlank(smtpUsername)) {
                         sender.setUsername(smtpUsername);
+
+                        Properties javaMailProperties = new Properties();
+                        javaMailProperties.setProperty("mail.smtp.auth", "true");
+                        sender.setJavaMailProperties(javaMailProperties);
                     }
                     if (StringUtils.isNotBlank(smtpPassword)) {
                         sender.setPassword(smtpPassword);
