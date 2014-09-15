@@ -34,6 +34,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
@@ -155,10 +156,15 @@ public class ConnInstance extends AbstractBaseBean {
     }
 
     public Set<ConnConfProperty> getConfiguration() {
-        return StringUtils.isBlank(jsonConf)
-                ? Collections.<ConnConfProperty>emptySet()
-                : new HashSet<ConnConfProperty>(
-                        Arrays.asList(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
+        Set<ConnConfProperty> configuration = Collections.<ConnConfProperty>emptySet();
+        if (!StringUtils.isBlank(jsonConf)) {
+            ConnConfProperty[] deserialized = POJOHelper.deserialize(jsonConf, ConnConfProperty[].class);
+            if (ArrayUtils.isNotEmpty(deserialized)) {
+                configuration = new HashSet<ConnConfProperty>(Arrays.asList(deserialized));
+            }
+        }
+
+        return configuration;
     }
 
     public void setConfiguration(final Set<ConnConfProperty> configuration) {

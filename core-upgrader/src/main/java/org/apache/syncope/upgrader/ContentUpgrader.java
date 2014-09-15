@@ -593,7 +593,6 @@ public class ContentUpgrader implements InitializingBean {
             jdbcTemplate.update("ALTER TABLE RAttr DROP COLUMN schema_name;");
             jdbcTemplate.update("ALTER TABLE RDerAttr DROP COLUMN DERIVEDSCHEMA_NAME;");
             jdbcTemplate.update("ALTER TABLE RVirAttr DROP COLUMN VIRTUALSCHEMA_NAME;");
-
         } catch (DataAccessException ex) {
             LOG.error("Error accessing RAttr or RAttrTemplate table", ex);
         }
@@ -671,6 +670,7 @@ public class ContentUpgrader implements InitializingBean {
                 // add template to normal attributes
                 for (Long attrId : jdbcTemplate.queryForList("SELECT id FROM MAttr WHERE OWNER_ID = ?", Long.class,
                         membership.getId())) {
+                    
                     final MAttr mAttr = attrDAO.find(attrId, MAttr.class);
 
                     LOG.info("Adding template to membership normal attribute {}", mAttr);
@@ -685,6 +685,7 @@ public class ContentUpgrader implements InitializingBean {
                 // add template to derived attributes
                 for (Long attrId : jdbcTemplate.queryForList("SELECT id FROM MDerAttr WHERE OWNER_ID = ?", Long.class,
                         membership.getId())) {
+                    
                     final MDerAttr mDerAttr = derAttrDAO.find(attrId, MDerAttr.class);
 
                     LOG.info("Adding template to membership derived attribute {}", mDerAttr);
@@ -699,6 +700,7 @@ public class ContentUpgrader implements InitializingBean {
                 // add template to virtual attributes
                 for (Long attrId : jdbcTemplate.queryForList("SELECT id FROM MVirAttr WHERE OWNER_ID = ?", Long.class,
                         membership.getId())) {
+                    
                     final MVirAttr mVirAttr = virAttrDAO.find(attrId, MVirAttr.class);
 
                     LOG.info("Adding template to membership virtual attribute {}", mVirAttr);
@@ -725,12 +727,14 @@ public class ContentUpgrader implements InitializingBean {
 
     private <T extends AbstractAttrTemplate<K>, K extends AbstractSchema> T getTemplate(final Object obj,
             final String schemaName, final Class<T> reference) {
+
         T attrTemplate = null;
         for (Number number : attrTemplateDAO.findBySchemaName(schemaName, reference)) {
             final T attrTemplateTemp = attrTemplateDAO.find((Long) number, reference);
 
-            if (attrTemplateTemp.getOwner().equals(obj instanceof SyncopeRole ? (SyncopeRole) obj : ((Membership) obj).
-                    getSyncopeRole())) {
+            if (attrTemplateTemp.getOwner().equals(obj instanceof SyncopeRole
+                    ? (SyncopeRole) obj : ((Membership) obj).getSyncopeRole())) {
+
                 attrTemplate = attrTemplateTemp;
             }
         }
