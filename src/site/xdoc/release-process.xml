@@ -245,6 +245,11 @@ cp $SYNCOPE_RELEASE_DIR/deb/core/target/apache-syncope-*.deb.asc .
 cp $SYNCOPE_RELEASE_DIR/deb/console/target/apache-syncope-console-*.deb .
 cp $SYNCOPE_RELEASE_DIR/deb/console/target/apache-syncope-console-*.deb.asc .
 
+for file in `find . -type f -iname '*.asc'`
+do
+  gpg --verify ${file} 
+done
+          
 for file in `find . -name '*.deb' -or -name '*.jar' -or -name '*.zip'`; do
  openssl md5 $file | sed 's/.*= //' > $file.md5
  openssl sha1 $file | sed 's/.*= //' > $file.sha1
