@@ -49,7 +49,7 @@ public class PreferenceManager {
 
     private static final int ONE_YEAR_TIME = 60 * 60 * 24 * 365;
 
-    private static final TypeReference MAP_TYPE_REF = new TypeReference<Map<String, String>>() {
+    private static final TypeReference<Map<String, String>> MAP_TYPE_REF = new TypeReference<Map<String, String>>() {
     };
 
     private static final List<Integer> PAGINATOR_CHOICES = Arrays.asList(new Integer[] { 10, 25, 50 });
