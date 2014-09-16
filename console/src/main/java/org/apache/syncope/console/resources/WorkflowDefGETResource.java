@@ -35,9 +35,11 @@ public class WorkflowDefGETResource extends AbstractResource {
 
     private static final long serialVersionUID = 4637304868056148970L;
 
+    
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
         ResourceResponse response = new ResourceResponse();
+        response.disableCaching();
         response.setContentType(MediaType.APPLICATION_JSON);
 
         response.setWriteCallback(new WriteCallback() {
