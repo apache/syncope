@@ -97,6 +97,6 @@ public abstract class AbstractContentDealer {
             }
         }
 
-        LOG.debug("Ciews created");
+        LOG.debug("Views created");
     }
 }
