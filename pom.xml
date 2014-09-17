@@ -321,7 +321,7 @@ under the License.
     <commons-lang.version>3.3.2</commons-lang.version>
     <commons-codec.version>1.9</commons-codec.version>
 
-    <activiti.version>5.16.2</activiti.version>
+    <activiti.version>5.16.3</activiti.version>
     
     <aspectj.version>1.8.2</aspectj.version>
 
