@@ -25,7 +25,7 @@ under the License.
     <field type="space"/>
     
     <field type="dir" variable="mvn.directory">
-      <spec id="mvn.directory.id" size="20" set="/usr"/>
+      <spec id="mvn.directory.id" size="20" set="${ENV[M2_HOME]}"/>
     </field>
     <field type="space"/>
     <field type="text" variable="mvn.groupid">
