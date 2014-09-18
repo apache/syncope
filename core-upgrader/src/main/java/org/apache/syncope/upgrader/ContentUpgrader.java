@@ -41,6 +41,8 @@ import org.apache.syncope.common.types.AbstractPolicySpec;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.ConnConfProperty;
+import org.apache.syncope.common.types.MatchingRule;
+import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractAttrTemplate;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
@@ -220,7 +222,7 @@ public class ContentUpgrader implements InitializingBean {
         upgradeSyncopeConf();
         upgradeExternalResource();
         upgradeConnInstance();
-        updgradePropagationTask();
+        upgradePropagationTask();
         upgradeSyncTask();
         upgradePolicy();
         upgradeReportletConf();
@@ -323,12 +325,18 @@ public class ContentUpgrader implements InitializingBean {
                 final String oldUserTemplate = (String) userTemplate.get(task);
                 final String oldRoleTemplate = (String) roleTemplate.get(task);
                 if (oldUserTemplate != null) {
-                    task.setUserTemplate(XMLDeserializer.<UserTO>deserialize(oldUserTemplate));
+                    task.setUserTemplate(XMLDeserializer.<UserTO>deserialize(oldUserTemplate.replaceAll(
+                            "attributes", "attrs").replaceAll("derivedAttributes", "derAttrs").replaceAll(
+                                    "virtualAttributes", "virAttrs")));
                 }
                 if (oldRoleTemplate != null) {
                     LOG.info("Upgrading syncTask {} roleTemplate", task.getName());
-                    task.setRoleTemplate(XMLDeserializer.<RoleTO>deserialize(oldRoleTemplate));
+                    task.setRoleTemplate(XMLDeserializer.<RoleTO>deserialize(oldRoleTemplate.replaceAll(
+                            "attributes", "attrs").replaceAll("derivedAttributes", "derAttrs").replaceAll(
+                                    "virtualAttributes", "virAttrs")));
                 }
+                task.setUnmatchingRule(UnmatchingRule.IGNORE);
+                task.setMatchingRule(MatchingRule.IGNORE);
             } catch (Exception e) {
                 LOG.error("While upgrading syncTask {}", task, e);
                 continueUpgrade = false;
@@ -337,7 +345,7 @@ public class ContentUpgrader implements InitializingBean {
         }
     }
 
-    private void updgradePropagationTask() throws Exception {
+    private void upgradePropagationTask() throws Exception {
         LOG.info("Upgrading Task table (propagation tasks)...");
         final Field xmlAttributes = ReflectionUtils.findField(PropagationTask.class, "xmlAttributes");
         xmlAttributes.setAccessible(true);
@@ -670,7 +678,7 @@ public class ContentUpgrader implements InitializingBean {
                 // add template to normal attributes
                 for (Long attrId : jdbcTemplate.queryForList("SELECT id FROM MAttr WHERE OWNER_ID = ?", Long.class,
                         membership.getId())) {
-                    
+
                     final MAttr mAttr = attrDAO.find(attrId, MAttr.class);
 
                     LOG.info("Adding template to membership normal attribute {}", mAttr);
@@ -685,7 +693,7 @@ public class ContentUpgrader implements InitializingBean {
                 // add template to derived attributes
                 for (Long attrId : jdbcTemplate.queryForList("SELECT id FROM MDerAttr WHERE OWNER_ID = ?", Long.class,
                         membership.getId())) {
-                    
+
                     final MDerAttr mDerAttr = derAttrDAO.find(attrId, MDerAttr.class);
 
                     LOG.info("Adding template to membership derived attribute {}", mDerAttr);
@@ -700,7 +708,7 @@ public class ContentUpgrader implements InitializingBean {
                 // add template to virtual attributes
                 for (Long attrId : jdbcTemplate.queryForList("SELECT id FROM MVirAttr WHERE OWNER_ID = ?", Long.class,
                         membership.getId())) {
-                    
+
                     final MVirAttr mVirAttr = virAttrDAO.find(attrId, MVirAttr.class);
 
                     LOG.info("Adding template to membership virtual attribute {}", mVirAttr);
