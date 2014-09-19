@@ -56,10 +56,16 @@ under the License.
   <CAttr id="6" owner_id="1" schema_name="selfRegistration.allowed"/>
   <CAttrValue id="6" attribute_id="6" booleanValue="1"/>
 
+  <CSchema name="passwordReset.allowed" type="Boolean"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="7" owner_id="1" schema_name="passwordReset.allowed"/>
+  <CAttrValue id="7" attribute_id="7" booleanValue="1"/>
+
   <CSchema name="authentication.statuses" type="String"
            mandatoryCondition="true" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CAttr id="7" owner_id="1" schema_name="authentication.statuses"/>
-  <CAttrValue id="7" attribute_id="7" stringValue="active"/>
+  <CAttr id="8" owner_id="1" schema_name="authentication.statuses"/>
+  <CAttrValue id="8" attribute_id="8" stringValue="created"/>
+  <CAttrValue id="9" attribute_id="8" stringValue="active"/>
 
   <!-- Save user login date upon successful authentication -->
   <CSchema name="log.lastlogindate" type="Boolean"
@@ -67,6 +73,22 @@ under the License.
   <CAttr id="10" owner_id="1" schema_name="log.lastlogindate"/>
   <CAttrValue id="10" attribute_id="10" booleanValue="1"/>
     
+  <!-- User pre-defined schemas -->
+  <USchema name="email" type="String"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+           validatorClass="org.apache.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>  
+  
+  <!-- Password reset notifications -->
+  <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserSchema" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset request" template="requestPasswordReset" 
+                traceLevel="FAILURES" userAbout="token!=$null"/> 
+  <Notification_events Notification_id="1" events="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
+  
+  <Notification id="2" active="1" recipientAttrName="email" recipientAttrType="UserSchema" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset successful" template="confirmPasswordReset" 
+                traceLevel="FAILURES" userAbout="token!=$null"/> 
+  <Notification_events Notification_id="2" events="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>  
+  
   <!-- Authentication and authorization -->
   <Entitlement name="SCHEMA_LIST"/>
   <Entitlement name="SCHEMA_CREATE"/>
@@ -136,5 +158,10 @@ under the License.
   <Entitlement name="AUDIT_LIST"/>
   <Entitlement name="AUDIT_ENABLE"/>
   <Entitlement name="AUDIT_DISABLE"/>
+  <Entitlement name="SECURITY_QUESTION_LIST"/>
+  <Entitlement name="SECURITY_QUESTION_READ"/>
+  <Entitlement name="SECURITY_QUESTION_CREATE"/>
+  <Entitlement name="SECURITY_QUESTION_UPDATE"/>
+  <Entitlement name="SECURITY_QUESTION_DELETE"/>
 
 </dataset>

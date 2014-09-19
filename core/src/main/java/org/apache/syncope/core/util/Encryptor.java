@@ -35,6 +35,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.dao.ConfDAO;
+import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.jasypt.commons.CommonUtils;
 import org.jasypt.digest.StandardStringDigester;
 import org.slf4j.Logger;
@@ -129,6 +131,22 @@ public final class Encryptor {
         if (ulssc == null) {
             ulssc = DEFAULT_ULSSC;
             LOG.debug("digester.useLenientSaltSizeCheck not found, reverting to default");
+        }
+    }
+
+    /**
+     * Get predefined password cipher algorithm from SyncopeConf.
+     *
+     * @return cipher algorithm.
+     */
+    public static CipherAlgorithm getPredefinedCipherAlgoritm() {
+        ConfDAO confDAO = ApplicationContextProvider.getApplicationContext().getBean(ConfDAO.class);
+        final String algorithm = confDAO.find(
+                "password.cipher.algorithm", CipherAlgorithm.AES.name()).getValues().get(0).getStringValue();
+        try {
+            return CipherAlgorithm.valueOf(algorithm);
+        } catch (IllegalArgumentException e) {
+            throw new NotFoundException("Cipher algorithm " + algorithm);
         }
     }
 

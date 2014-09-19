@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.core.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncToken;
@@ -46,6 +48,7 @@ public final class POJOHelper {
 
         MAPPER = new ObjectMapper();
         MAPPER.registerModule(pojoModule);
+        MAPPER.registerModule(new AfterburnerModule());
     }
 
     public static String serialize(final Object object) {

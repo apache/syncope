@@ -26,6 +26,8 @@ import org.apache.syncope.common.AbstractBaseBean;
 @XmlType
 public class ConnPoolConfTO extends AbstractBaseBean {
 
+    private static final long serialVersionUID = -214360178113476623L;
+
     private Integer maxObjects;
 
     private Integer minIdle;

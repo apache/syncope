@@ -43,6 +43,10 @@ public class UserMod extends AbstractSubjectMod {
 
     private StatusMod pwdPropRequest;
 
+    private Long securityQuestion;
+
+    private String securityAnswer;
+
     public UserMod() {
         super();
 
@@ -88,6 +92,22 @@ public class UserMod extends AbstractSubjectMod {
         this.pwdPropRequest = pwdPropRequest;
     }
 
+    public Long getSecurityQuestion() {
+        return securityQuestion;
+    }
+
+    public void setSecurityQuestion(final Long securityQuestion) {
+        this.securityQuestion = securityQuestion;
+    }
+
+    public String getSecurityAnswer() {
+        return securityAnswer;
+    }
+
+    public void setSecurityAnswer(final String securityAnswer) {
+        this.securityAnswer = securityAnswer;
+    }
+
     @JsonIgnore
     @Override
     public boolean isEmpty() {
@@ -96,6 +116,8 @@ public class UserMod extends AbstractSubjectMod {
                 && username == null
                 && membershipsToAdd.isEmpty()
                 && membershipsToRemove.isEmpty()
-                && pwdPropRequest == null;
+                && pwdPropRequest == null
+                && securityQuestion == null
+                && securityAnswer == null;
     }
 }

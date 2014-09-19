@@ -55,7 +55,7 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
         }
         assertNotNull(password);
 
-        user.setPassword(password, CipherAlgorithm.AES, 0);
+        user.setPassword(password, CipherAlgorithm.AES);
 
         SyncopeUser actual = userDAO.save(user);
         assertNotNull(actual);
@@ -73,7 +73,7 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
             fail(ex.getMessage());
         }
         assertNotNull(password);
-        user.setPassword(password, CipherAlgorithm.SHA, 0);
+        user.setPassword(password, CipherAlgorithm.SHA);
         userDAO.save(user);
     }
 

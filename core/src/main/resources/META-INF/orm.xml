@@ -344,4 +344,12 @@ under the License.
       </id>
     </attributes>
   </entity>
+  <entity class="org.apache.syncope.core.persistence.beans.SecurityQuestion">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_SecurityQuestion" strategy="TABLE"/>
+        <table-generator name="SEQ_SecurityQuestion" pk-column-value="SEQ_SecurityQuestion" initial-value="100"/>
+      </id>
+    </attributes>
+  </entity>
 </entity-mappings>

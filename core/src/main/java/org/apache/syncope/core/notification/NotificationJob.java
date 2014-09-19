@@ -89,12 +89,7 @@ public class NotificationJob implements Job {
     private long maxRetries;
 
     private void init() {
-        try {
-            maxRetries = confDAO.find("notification.maxRetries", "0").getValues().get(0).getLongValue();
-        } catch (NumberFormatException e) {
-            LOG.error("Invalid maximum number of retries, retries disabled", e);
-            maxRetries = 0;
-        }
+        maxRetries = confDAO.find("notification.maxRetries", "0").getValues().get(0).getLongValue();
 
         if (mailSender instanceof JavaMailSenderImpl
                 && StringUtils.isNotBlank(((JavaMailSenderImpl) mailSender).getUsername())) {

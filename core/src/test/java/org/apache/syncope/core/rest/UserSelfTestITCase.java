@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -247,5 +248,49 @@ public class UserSelfTestITCase extends AbstractTest {
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
+    }
+
+    @Test
+    public void passwordReset() {
+        // 1. create an user with security question and answer
+        UserTO user = UserTestITCase.getUniqueSampleTO("pwdReset@syncope.apache.org");
+        user.setSecurityQuestion(1L);
+        user.setSecurityAnswer("Rossi");
+        createUser(user);
+
+        // 2. verify that new user is able to authenticate
+        SyncopeClient authClient = clientFactory.create(user.getUsername(), "password123");
+        UserTO read = authClient.getService(UserSelfService.class).read();
+        assertNotNull(read);
+
+        // 3. request password reset (as anonymous) providing the expected security answer
+        SyncopeClient anonClient = clientFactory.createAnonymous();
+        try {
+            anonClient.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "WRONG");
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSecurityAnswer, e.getType());
+        }
+        anonClient.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "Rossi");
+
+        // 4. get token (normally sent via e-mail, now reading as admin)
+        String token = userService.read(read.getId()).getToken();
+        assertNotNull(token);
+
+        // 5. confirm password reset
+        try {
+            anonClient.getService(UserSelfService.class).confirmPasswordReset("WRONG TOKEN", "newPassword");
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
+            assertTrue(e.getMessage().contains("WRONG TOKEN"));
+        }
+        anonClient.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword");
+
+        // 6. verify that password was reset and token removed
+        authClient = clientFactory.create(user.getUsername(), "newPassword");
+        read = authClient.getService(UserSelfService.class).read();
+        assertNotNull(read);
+        assertNull(read.getToken());
     }
 }

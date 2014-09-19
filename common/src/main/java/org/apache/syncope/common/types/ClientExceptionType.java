@@ -28,6 +28,7 @@ public enum ClientExceptionType {
     DataIntegrityViolation(Response.Status.BAD_REQUEST),
     EntityExists(Response.Status.CONFLICT),
     GenericPersistence(Response.Status.BAD_REQUEST),
+    InvalidSecurityAnswer(Response.Status.BAD_REQUEST),
     InvalidLogger(Response.Status.BAD_REQUEST),
     InvalidConnInstance(Response.Status.BAD_REQUEST),
     InvalidConnIdConf(Response.Status.BAD_REQUEST),

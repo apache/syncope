@@ -40,6 +40,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     public Response getOptions() {
         return Response.ok().header(HttpHeaders.ALLOW, OPTIONS_ALLOW).
                 header(RESTHeaders.SELFREGISTRATION_ALLOWED, controller.isSelfRegistrationAllowed()).
+                header(RESTHeaders.PASSWORDRESET_ALLOWED, controller.isSelfRegistrationAllowed()).
                 build();
     }
 
@@ -47,7 +48,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     public Response create(final UserTO userTO, final boolean storePassword) {
         if (!controller.isSelfRegistrationAllowed()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unauthorized);
-            sce.getElements().add("SelfRegistration forbidden by configuration");
+            sce.getElements().add("Self registration forbidden by configuration");
             throw sce;
         }
 
@@ -71,6 +72,28 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     public Response delete() {
         UserTO deleted = controller.deleteSelf();
         return modificationResponse(deleted);
+    }
+
+    @Override
+    public void requestPasswordReset(final String username, final String securityAnswer) {
+        if (!controller.isPasswordResetAllowed()) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unauthorized);
+            sce.getElements().add("Password reset forbidden by configuration");
+            throw sce;
+        }
+
+        controller.requestPasswordReset(username, securityAnswer);
+    }
+
+    @Override
+    public void confirmPasswordReset(final String token, final String password) {
+        if (!controller.isPasswordResetAllowed()) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unauthorized);
+            sce.getElements().add("Password reset forbidden by configuration");
+            throw sce;
+        }
+
+        controller.confirmPasswordReset(token, password);
     }
 
 }

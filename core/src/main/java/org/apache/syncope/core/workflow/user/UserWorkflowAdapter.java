@@ -135,6 +135,27 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
     WorkflowResult<Long> reactivate(Long userId) throws UnauthorizedRoleException, WorkflowException;
 
     /**
+     * Request password reset for an user.
+     *
+     * @param userId user requesting password reset
+     * @throws UnauthorizedRoleException authorization exception
+     * @throws WorkflowException workflow exception
+     */
+    void requestPasswordReset(Long userId) throws UnauthorizedRoleException, WorkflowException;
+
+    /**
+     * Confirm password reset for an user.
+     *
+     * @param userId user confirming password reset
+     * @param token security token
+     * @param password new password value
+     * @throws UnauthorizedRoleException authorization exception
+     * @throws WorkflowException workflow exception
+     */
+    void confirmPasswordReset(Long userId, String token, String password) 
+            throws UnauthorizedRoleException, WorkflowException;
+
+    /**
      * Delete an user.
      *
      * @param userId user to be deleted

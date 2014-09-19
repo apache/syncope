@@ -46,6 +46,7 @@ import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
+import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
@@ -105,6 +106,11 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
     @Transactional(readOnly = true)
     public boolean isSelfRegistrationAllowed() {
         return confDAO.find("selfRegistration.allowed", "false").getValues().get(0).getBooleanValue();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isPasswordResetAllowed() {
+        return confDAO.find("passwordReset.allowed", "false").getValues().get(0).getBooleanValue();
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -359,6 +365,46 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
         return savedTO;
     }
 
+    @PreAuthorize("isAnonymous() or hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
+    @Transactional
+    public void requestPasswordReset(final String username, final String securityAnswer) {
+        if (username == null) {
+            throw new NotFoundException("Null username");
+        }
+
+        SyncopeUser user = userDAO.find(username);
+        if (user == null) {
+            throw new NotFoundException("User " + username);
+        }
+
+        if (securityAnswer == null || !securityAnswer.equals(user.getSecurityAnswer())) {
+            throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
+        }
+
+        uwfAdapter.requestPasswordReset(user.getId());
+    }
+
+    @PreAuthorize("isAnonymous() or hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
+    @Transactional
+    public void confirmPasswordReset(final String token, final String password) {
+        SyncopeUser user = userDAO.findByToken(token);
+        if (user == null) {
+            throw new NotFoundException("User with token " + token);
+        }
+
+        uwfAdapter.confirmPasswordReset(user.getId(), token, password);
+
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(user, null, null);
+        PropagationReporter propReporter =
+                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+        try {
+            taskExecutor.execute(tasks, propReporter);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propReporter.onPrimaryResourceFailure(tasks);
+        }
+    }
+
     @PreAuthorize("isAuthenticated() "
             + "and not(hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT))")
     public UserTO deleteSelf() {
@@ -564,14 +610,11 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
         return original;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected UserTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
         Object id = null;
 
-        if (ArrayUtils.isNotEmpty(args)) {
+        if (!"confirmPasswordReset".equals(method.getName()) && ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; id == null && i < args.length; i++) {
                 if (args[i] instanceof Long) {
                     id = (Long) args[i];

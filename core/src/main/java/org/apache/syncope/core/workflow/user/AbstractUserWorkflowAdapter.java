@@ -119,6 +119,23 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
         return doReactivate(user);
     }
 
+    protected abstract void doRequestPasswordReset(SyncopeUser user) throws WorkflowException;
+
+    @Override
+    public void requestPasswordReset(final Long userId) throws UnauthorizedRoleException, WorkflowException {
+        doRequestPasswordReset(dataBinder.getUserFromId(userId));
+    }
+
+    protected abstract void doConfirmPasswordReset(SyncopeUser user, String token, String password) 
+            throws WorkflowException;
+
+    @Override
+    public void confirmPasswordReset(final Long userId, final String token, final String password)
+            throws UnauthorizedRoleException, WorkflowException {
+
+        doConfirmPasswordReset(dataBinder.getUserFromId(userId), token, password);
+    }
+
     protected abstract void doDelete(SyncopeUser user) throws WorkflowException;
 
     @Override

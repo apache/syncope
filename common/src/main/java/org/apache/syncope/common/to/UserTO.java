@@ -58,6 +58,10 @@ public class UserTO extends AbstractSubjectTO {
 
     private Integer failedLogins;
 
+    private Long securityQuestion;
+
+    private String securityAnswer;
+
     public String getPassword() {
         return password;
     }
@@ -148,6 +152,22 @@ public class UserTO extends AbstractSubjectTO {
 
     public void setLastLoginDate(final Date lastLoginDate) {
         this.lastLoginDate = lastLoginDate;
+    }
+
+    public Long getSecurityQuestion() {
+        return securityQuestion;
+    }
+
+    public void setSecurityQuestion(final Long securityQuestion) {
+        this.securityQuestion = securityQuestion;
+    }
+
+    public String getSecurityAnswer() {
+        return securityAnswer;
+    }
+
+    public void setSecurityAnswer(final String securityAnswer) {
+        this.securityAnswer = securityAnswer;
     }
 
     @Override

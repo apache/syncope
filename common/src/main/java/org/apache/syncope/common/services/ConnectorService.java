@@ -155,12 +155,12 @@ public interface ConnectorService extends JAXRSService {
      * Updates the connector instance matching the provided id.
      *
      * @param connInstanceId connector instance id to be updated
-     * @param connInstaceTO connector instance to be stored
+     * @param connInstanceTO connector instance to be stored
      */
     @PUT
     @Path("{connInstanceId}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("connInstanceId") Long connInstanceId, @NotNull ConnInstanceTO connInstaceTO);
+    void update(@NotNull @PathParam("connInstanceId") Long connInstanceId, @NotNull ConnInstanceTO connInstanceTO);
 
     /**
      * Deletes the connector instance matching the provided id.
@@ -172,14 +172,14 @@ public interface ConnectorService extends JAXRSService {
     void delete(@NotNull @PathParam("connInstanceId") Long connInstanceId);
 
     /**
-     * @param connInstaceTO connector instance to be used for connection check
+     * @param connInstanceTO connector instance to be used for connection check
      * @return true if connection could be established
      */
     @POST
     @Path("check")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    boolean check(@NotNull ConnInstanceTO connInstaceTO);
+    boolean check(@NotNull ConnInstanceTO connInstanceTO);
 
     /**
      * Reload all connector bundles and instances.

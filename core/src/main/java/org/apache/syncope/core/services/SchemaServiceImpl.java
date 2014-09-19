@@ -42,11 +42,11 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
     public <T extends AbstractSchemaTO> Response create(final AttributableType attrType, final SchemaType schemaType,
             final T schemaTO) {
 
-        T response = controller.create(attrType, schemaType, schemaTO);
+        T created = controller.create(attrType, schemaType, schemaTO);
 
-        URI location = uriInfo.getAbsolutePathBuilder().path(response.getName()).build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(created.getName()).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, response.getName()).
+                header(RESTHeaders.RESOURCE_ID, created.getName()).
                 build();
     }
 
