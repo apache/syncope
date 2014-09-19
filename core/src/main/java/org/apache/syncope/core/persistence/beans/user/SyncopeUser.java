@@ -39,6 +39,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -53,6 +54,7 @@ import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.SecurityQuestion;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.validation.entity.SyncopeUserCheck;
@@ -154,7 +156,13 @@ public class SyncopeUser extends AbstractSubject {
             @JoinColumn(name = "resource_name"))
     @Valid
     private Set<ExternalResource> resources;
-    
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    private SecurityQuestion securityQuestion;
+
+    @Column(nullable = true)
+    private String securityAnswer;
+
     public SyncopeUser() {
         super();
 
@@ -267,7 +275,7 @@ public class SyncopeUser extends AbstractSubject {
         this.cipherAlgorithm = cipherAlgoritm;
     }
 
-    public void setPassword(final String password, final CipherAlgorithm cipherAlgoritm, final int historySize) {
+    public void setPassword(final String password, final CipherAlgorithm cipherAlgoritm) {
         // clear password
         this.clearPassword = password;
 
@@ -494,8 +502,8 @@ public class SyncopeUser extends AbstractSubject {
                 res = passwordHistory.subList(size >= passwordHistory.size()
                         ? 0
                         : passwordHistory.size() - size, passwordHistory.size()).contains(cipherAlgorithm == null
-                                ? password
-                                : Encryptor.getInstance().encode(password, cipherAlgorithm));
+                                        ? password
+                                        : Encryptor.getInstance().encode(password, cipherAlgorithm));
             } catch (Exception e) {
                 LOG.error("Error evaluating password history", e);
             }
@@ -503,4 +511,21 @@ public class SyncopeUser extends AbstractSubject {
 
         return res;
     }
+
+    public SecurityQuestion getSecurityQuestion() {
+        return securityQuestion;
+    }
+
+    public void setSecurityQuestion(final SecurityQuestion securityQuestion) {
+        this.securityQuestion = securityQuestion;
+    }
+
+    public String getSecurityAnswer() {
+        return securityAnswer;
+    }
+
+    public void setSecurityAnswer(final String securityAnswer) {
+        this.securityAnswer = securityAnswer;
+    }
+
 }

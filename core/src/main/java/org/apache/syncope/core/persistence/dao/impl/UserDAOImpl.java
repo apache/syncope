@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.SecurityQuestion;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
@@ -78,7 +79,7 @@ public class UserDAOImpl extends AbstractSubjectDAOImpl implements UserDAO {
     @Override
     public SyncopeUser find(final String username) {
         TypedQuery<SyncopeUser> query = entityManager.createQuery("SELECT e FROM " + SyncopeUser.class.getSimpleName()
-                + " e " + "WHERE e.username = :username", SyncopeUser.class);
+                + " e WHERE e.username = :username", SyncopeUser.class);
         query.setParameter("username", username);
 
         SyncopeUser result = null;
@@ -94,7 +95,7 @@ public class UserDAOImpl extends AbstractSubjectDAOImpl implements UserDAO {
     @Override
     public SyncopeUser findByWorkflowId(final String workflowId) {
         TypedQuery<SyncopeUser> query = entityManager.createQuery("SELECT e FROM " + SyncopeUser.class.getSimpleName()
-                + " e " + "WHERE e.workflowId = :workflowId", SyncopeUser.class);
+                + " e WHERE e.workflowId = :workflowId", SyncopeUser.class);
         query.setParameter("workflowId", workflowId);
 
         SyncopeUser result = null;
@@ -105,6 +106,31 @@ public class UserDAOImpl extends AbstractSubjectDAOImpl implements UserDAO {
         }
 
         return result;
+    }
+
+    @Override
+    public SyncopeUser findByToken(final String token) {
+        TypedQuery<SyncopeUser> query = entityManager.createQuery("SELECT e FROM " + SyncopeUser.class.getSimpleName()
+                + " e WHERE e.token = :token", SyncopeUser.class);
+        query.setParameter("token", token);
+
+        SyncopeUser result = null;
+        try {
+            result = query.getSingleResult();
+        } catch (NoResultException e) {
+            LOG.debug("No user found with token {}", token, e);
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<SyncopeUser> findBySecurityQuestion(final SecurityQuestion securityQuestion) {
+        TypedQuery<SyncopeUser> query = entityManager.createQuery("SELECT e FROM " + SyncopeUser.class.getSimpleName()
+                + " e WHERE e.securityQuestion = :securityQuestion", SyncopeUser.class);
+        query.setParameter("securityQuestion", securityQuestion);
+
+        return query.getResultList();
     }
 
     @Override

@@ -30,12 +30,15 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
+import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.workflow.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.WorkflowResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -44,7 +47,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = { Throwable.class })
 public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
-    public static final String ENABLED = "enabled";
+    @Autowired
+    private PolicyDAO policyDAO;
+
+    @Autowired
+    private ConfDAO confDAO;
 
     @Override
     public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
@@ -124,9 +131,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doSuspend(final SyncopeUser user)
-            throws WorkflowException {
-
+    protected WorkflowResult<Long> doSuspend(final SyncopeUser user) throws WorkflowException {
         user.setStatus("suspended");
         SyncopeUser updated = userDAO.save(user);
 
@@ -134,9 +139,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doReactivate(final SyncopeUser user)
-            throws WorkflowException {
-
+    protected WorkflowResult<Long> doReactivate(final SyncopeUser user) throws WorkflowException {
         user.setStatus("active");
         SyncopeUser updated = userDAO.save(user);
 
@@ -144,9 +147,28 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doDelete(final SyncopeUser user)
+    protected void doRequestPasswordReset(final SyncopeUser user) throws WorkflowException {
+        user.generateToken(
+                confDAO.find("token.length", "256").getValues().get(0).getLongValue().intValue(),
+                confDAO.find("token.expireTime", "60").getValues().get(0).getLongValue().intValue());
+        userDAO.save(user);
+    }
+
+    @Override
+    protected void doConfirmPasswordReset(final SyncopeUser user, final String token, final String password)
             throws WorkflowException {
 
+        if (!user.checkToken(token)) {
+            throw new WorkflowException(new IllegalArgumentException("Wrong token: " + token + " for " + user));
+        }
+
+        user.removeToken();
+        user.setPassword(password, user.getCipherAlgorithm());
+        userDAO.save(user);
+    }
+
+    @Override
+    protected void doDelete(final SyncopeUser user) throws WorkflowException {
         userDAO.delete(user);
     }
 

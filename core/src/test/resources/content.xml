@@ -54,11 +54,16 @@ under the License.
   <CAttr id="6" owner_id="1" schema_name="selfRegistration.allowed"/>
   <CAttrValue id="6" attribute_id="6" booleanValue="1"/>
 
+  <CSchema name="passwordReset.allowed" type="Boolean"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="7" owner_id="1" schema_name="passwordReset.allowed"/>
+  <CAttrValue id="7" attribute_id="7" booleanValue="1"/>
+
   <CSchema name="authentication.statuses" type="String"
            mandatoryCondition="true" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CAttr id="7" owner_id="1" schema_name="authentication.statuses"/>
-  <CAttrValue id="7" attribute_id="7" stringValue="created"/>
-  <CAttrValue id="8" attribute_id="7" stringValue="active"/>
+  <CAttr id="8" owner_id="1" schema_name="authentication.statuses"/>
+  <CAttrValue id="8" attribute_id="8" stringValue="created"/>
+  <CAttrValue id="9" attribute_id="8" stringValue="active"/>
 
   <!-- Save user login date upon successful authentication -->
   <CSchema name="log.lastlogindate" type="Boolean"
@@ -68,7 +73,7 @@ under the License.
 
   <!-- sample policies -->
   <Policy DTYPE="SyncPolicy" id="1" description="global sync policy" type="GLOBAL_SYNC" 
-          specification='{"userJavaRule":null,"roleJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],":q!AltSearchSchemas":[]}'/>
+          specification='{"userJavaRule":null,"roleJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"AltSearchSchemas":[]}'/>
   <Policy DTYPE="PasswordPolicy" id="2" description="global password policy" type="GLOBAL_PASSWORD" 
           specification='{"historyLength":1,"maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[],"allowNullPassword":true}'/>
   <Policy DTYPE="SyncPolicy" id="3" description="sync policy 2" type="SYNC" 
@@ -965,15 +970,26 @@ under the License.
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
         jobClassName="org.apache.syncope.core.sync.impl.SyncJob" unmatchingRule="ASSIGN" matchingRule="IGNORE"/>
 
-  <Notification id="1" sender="test@syncope.apache.org" subject="Test subject" template="test" selfAsRecipient="0" traceLevel="ALL"
+  <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserSchema" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset request" template="requestPasswordReset" 
+                traceLevel="FAILURES" userAbout="token!=$null"/> 
+  <Notification_events Notification_id="1" events="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
+  
+  <Notification id="2" active="1" recipientAttrName="email" recipientAttrType="UserSchema" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset successful" template="confirmPasswordReset" 
+                traceLevel="FAILURES" userAbout="token!=$null"/> 
+  <Notification_events Notification_id="2" events="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>
+
+  <Notification id="10" sender="test@syncope.apache.org" subject="Test subject" template="test" selfAsRecipient="0" 
+                traceLevel="FAILURES"
                 userAbout="fullname==*o*;fullname==*i*"
                 recipients="$roles==7"
                 recipientAttrType="UserSchema" recipientAttrName="email" active="1"/>
-  <Notification_events Notification_id="1" events="[CUSTOM]:[]:[]:[unexisting1]:[FAILURE]"/>
-  <Notification_events Notification_id="1" events="[CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]"/>
+  <Notification_events Notification_id="10" events="[CUSTOM]:[]:[]:[unexisting1]:[FAILURE]"/>
+  <Notification_events Notification_id="10" events="[CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]"/>
     
-  <NotificationTask_recipients notificationtask_id="8" address="recipient@prova.org"/>
-
+  <NotificationTask_recipients notificationtask_id="8" address="recipient@prova.org"/>  
+  
   <Report id="1" name="test"/>
   <ReportletConfInstance id="1" Report_id="1" 
                          serializedInstance='{"@class":"org.apache.syncope.common.report.UserReportletConf","name":"testUserReportlet","matchingCond":null,"attributes":["fullname","gender"],"derivedAttributes":["cn"],"virtualAttributes":["virtualdata"],"features":["id","username","workflowId","status","creationDate","lastLoginDate","changePwdDate","passwordHistorySize","failedLoginCount","memberships","resources"]}'/>
@@ -1067,6 +1083,11 @@ under the License.
   <Entitlement name="AUDIT_LIST"/>
   <Entitlement name="AUDIT_ENABLE"/>
   <Entitlement name="AUDIT_DISABLE"/>
+  <Entitlement name="SECURITY_QUESTION_LIST"/>
+  <Entitlement name="SECURITY_QUESTION_READ"/>
+  <Entitlement name="SECURITY_QUESTION_CREATE"/>
+  <Entitlement name="SECURITY_QUESTION_UPDATE"/>
+  <Entitlement name="SECURITY_QUESTION_DELETE"/>
   <Entitlement name="ROLE_1"/>
   <Entitlement name="ROLE_2"/>
   <Entitlement name="ROLE_3"/>
@@ -1098,4 +1119,6 @@ under the License.
   <SyncopeRole_Entitlement entitlement_name="SCHEMA_READ" role_id="8"/>
   <SyncopeRole_Entitlement entitlement_name="ROLE_READ" role_id="8"/>
   <SyncopeRole_Entitlement entitlement_name="WORKFLOW_FORM_CLAIM" role_id="8"/>
+  
+  <SecurityQuestion id="1" content="What's your mother's maiden name?"/>
 </dataset>

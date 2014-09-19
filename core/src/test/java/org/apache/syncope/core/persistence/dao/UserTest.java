@@ -138,7 +138,7 @@ public class UserTest extends AbstractDAOTest {
         user.setUsername("username");
         user.setCreationDate(new Date());
 
-        user.setPassword("pass", CipherAlgorithm.SHA256, 0);
+        user.setPassword("pass", CipherAlgorithm.SHA256);
 
         Throwable t = null;
         try {
@@ -148,7 +148,7 @@ public class UserTest extends AbstractDAOTest {
         }
         assertNotNull(t);
 
-        user.setPassword("password", CipherAlgorithm.SHA256, 1);
+        user.setPassword("password", CipherAlgorithm.SHA256);
 
         user.setUsername("username!");
 
@@ -183,7 +183,7 @@ public class UserTest extends AbstractDAOTest {
         user.setUsername("username");
         user.setCreationDate(new Date());
 
-        user.setPassword("password", CipherAlgorithm.AES, 0);
+        user.setPassword("password", CipherAlgorithm.AES);
 
         SyncopeUser actual = userDAO.save(user);
         assertNotNull(actual);
@@ -193,7 +193,7 @@ public class UserTest extends AbstractDAOTest {
     public void issueSYNCOPE391() {
         SyncopeUser user = new SyncopeUser();
         user.setUsername("username");
-        user.setPassword(null, CipherAlgorithm.AES, 0);
+        user.setPassword(null, CipherAlgorithm.AES);
 
         SyncopeUser actual = null;
         Throwable t = null;

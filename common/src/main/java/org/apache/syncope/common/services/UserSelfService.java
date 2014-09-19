@@ -46,12 +46,15 @@ public interface UserSelfService extends JAXRSService {
     /**
      * Checks whether self-registration is allowed.
      *
-     * @return <tt>Response</tt> contains special Syncope HTTP header indicating if user self registration is allowed
+     * @return <tt>Response</tt> contains special Syncope HTTP header indicating if user self registration and / or
+     * password reset is allowed
      * @see org.apache.syncope.common.types.RESTHeaders#SELFREGISTRATION_ALLOWED
+     * @see org.apache.syncope.common.types.RESTHeaders#PASSWORDRESET_ALLOWED
      */
     @Descriptions({
         @Description(target = DocTarget.RESPONSE,
-                value = "Contains special Syncope HTTP header indicating if user self registration is allowed")
+                value = "Contains special Syncope HTTP header indicating if user self registration "
+                + "and / or password reset is allowed")
     })
     @OPTIONS
     Response getOptions();
@@ -114,4 +117,28 @@ public interface UserSelfService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response delete();
 
+    /**
+     * Provides answer for the security question configured for user matching the given username, if any.
+     * If provided anwser matches the one stored for that user, a password reset token is internally generated,
+     * otherwise an error is returned.
+     *
+     * @param username username for which the security answer is provided
+     * @param securityAnswer actual answer text
+     */
+    @POST
+    @Path("requestPasswordReset")
+    void requestPasswordReset(@NotNull @QueryParam("username") String username, String securityAnswer);
+
+    /**
+     * Reset the password value for the user matching the provided token, if available and still valid.
+     * If the token actually matches one of users, and if it is still valid at the time of submission, the matching
+     * user's password value is set as provided. The new password value will need anyway to comply with all relevant
+     * password policies.
+     *
+     * @param token password reset token
+     * @param password new password to be set
+     */
+    @POST
+    @Path("confirmPasswordReset")
+    void confirmPasswordReset(@NotNull @QueryParam("token") String token, String password);
 }

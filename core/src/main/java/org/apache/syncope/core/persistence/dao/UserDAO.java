@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.syncope.core.persistence.beans.ExternalResource;
+import org.apache.syncope.core.persistence.beans.SecurityQuestion;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.beans.user.UAttrValue;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
@@ -34,6 +35,10 @@ public interface UserDAO extends SubjectDAO {
     SyncopeUser find(String username);
 
     SyncopeUser findByWorkflowId(String workflowId);
+
+    SyncopeUser findByToken(String token);
+
+    List<SyncopeUser> findBySecurityQuestion(SecurityQuestion securityQuestion);
 
     List<SyncopeUser> findByDerAttrValue(String schemaName, String value);
 
@@ -54,4 +59,5 @@ public interface UserDAO extends SubjectDAO {
     void delete(Long id);
 
     void delete(SyncopeUser user);
+
 }

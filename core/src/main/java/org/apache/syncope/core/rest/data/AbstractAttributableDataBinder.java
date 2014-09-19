@@ -73,7 +73,6 @@ import org.apache.syncope.core.persistence.beans.user.UVirAttr;
 import org.apache.syncope.core.persistence.beans.user.UVirSchema;
 import org.apache.syncope.core.persistence.dao.AttrDAO;
 import org.apache.syncope.core.persistence.dao.AttrValueDAO;
-import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.dao.MembershipDAO;
@@ -99,9 +98,6 @@ public abstract class AbstractAttributableDataBinder {
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractAttributableDataBinder.class);
-
-    @Autowired
-    protected ConfDAO confDAO;
 
     @Autowired
     protected RoleDAO roleDAO;
@@ -215,8 +211,8 @@ public abstract class AbstractAttributableDataBinder {
         List<String> valuesProvided = schema.isMultivalue()
                 ? values
                 : (values.isEmpty()
-                ? Collections.<String>emptyList()
-                : Collections.singletonList(values.iterator().next()));
+                        ? Collections.<String>emptyList()
+                        : Collections.singletonList(values.iterator().next()));
 
         for (String value : valuesProvided) {
             if (value == null || value.isEmpty()) {

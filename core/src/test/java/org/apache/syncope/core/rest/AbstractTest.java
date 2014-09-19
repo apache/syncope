@@ -33,7 +33,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
-
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.client.SyncopeClientFactoryBean;
 import org.apache.syncope.common.mod.AttributeMod;
@@ -49,6 +48,7 @@ import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.services.SchemaService;
+import org.apache.syncope.common.services.SecurityQuestionService;
 import org.apache.syncope.common.services.TaskService;
 import org.apache.syncope.common.services.UserSelfService;
 import org.apache.syncope.common.services.UserService;
@@ -172,9 +172,11 @@ public abstract class AbstractTest {
 
     protected static PolicyService policyService;
 
+    protected static SecurityQuestionService securityQuestionService;
+
     @Autowired
     protected DataSource testDataSource;
-    
+
     @BeforeClass
     public static void securitySetup() {
         InputStream propStream = null;
@@ -220,6 +222,7 @@ public abstract class AbstractTest {
         workflowService = adminClient.getService(WorkflowService.class);
         notificationService = adminClient.getService(NotificationService.class);
         schemaService = adminClient.getService(SchemaService.class);
+        securityQuestionService = adminClient.getService(SecurityQuestionService.class);
     }
 
     protected static String getUUIDString() {
@@ -243,7 +246,7 @@ public abstract class AbstractTest {
     protected UserTO createUser(final UserTO userTO) {
         return createUser(userTO, true);
     }
-    
+
     protected UserTO createUser(final UserTO userTO, final boolean storePassword) {
         Response response = userService.create(userTO, storePassword);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {

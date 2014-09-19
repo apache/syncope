@@ -59,7 +59,7 @@ public class NotificationTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        NotificationTO notificationTO = notificationService.read(1L);
+        NotificationTO notificationTO = notificationService.read(10L);
         assertNotNull(notificationTO);
     }
 
@@ -90,7 +90,7 @@ public class NotificationTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        NotificationTO notificationTO = notificationService.read(1L);
+        NotificationTO notificationTO = notificationService.read(10L);
         notificationTO.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
 
         notificationService.update(notificationTO.getId(), notificationTO);

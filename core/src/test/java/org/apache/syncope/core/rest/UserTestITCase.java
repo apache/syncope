@@ -705,7 +705,7 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(userTO.getCreationDate().before(userTO.getLastChangeDate()));
 
         SyncopeUser passwordTestUser = new SyncopeUser();
-        passwordTestUser.setPassword("new2Password", CipherAlgorithm.SHA, 0);
+        passwordTestUser.setPassword("new2Password", CipherAlgorithm.SHA);
         assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
 
         assertEquals(1, userTO.getMemberships().size());

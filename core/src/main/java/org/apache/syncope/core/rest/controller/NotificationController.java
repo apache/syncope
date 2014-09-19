@@ -66,7 +66,7 @@ public class NotificationController extends AbstractTransactionalController<Noti
 
     @PreAuthorize("hasRole('NOTIFICATION_CREATE')")
     public NotificationTO create(final NotificationTO notificationTO) {
-        return binder.getNotificationTO(notificationDAO.save(binder.createNotification(notificationTO)));
+        return binder.getNotificationTO(notificationDAO.save(binder.create(notificationTO)));
     }
 
     @PreAuthorize("hasRole('NOTIFICATION_UPDATE')")
@@ -77,7 +77,7 @@ public class NotificationController extends AbstractTransactionalController<Noti
             throw new NotFoundException(String.valueOf(notificationTO.getId()));
         }
 
-        binder.updateNotification(notification, notificationTO);
+        binder.update(notification, notificationTO);
         notification = notificationDAO.save(notification);
 
         return binder.getNotificationTO(notification);
@@ -87,19 +87,16 @@ public class NotificationController extends AbstractTransactionalController<Noti
     public NotificationTO delete(final Long notificationId) {
         Notification notification = notificationDAO.find(notificationId);
         if (notification == null) {
-            LOG.error("Could not find notificatin '" + notificationId + "'");
+            LOG.error("Could not find notification '" + notificationId + "'");
 
             throw new NotFoundException(String.valueOf(notificationId));
         }
 
-        NotificationTO notificationToDelete = binder.getNotificationTO(notification);
+        NotificationTO deleted = binder.getNotificationTO(notification);
         notificationDAO.delete(notificationId);
-        return notificationToDelete;
+        return deleted;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected NotificationTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {

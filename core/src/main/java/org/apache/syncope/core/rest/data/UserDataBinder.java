@@ -30,9 +30,7 @@ import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.common.types.IntMappingType;
-import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.util.BeanUtils;
@@ -45,7 +43,7 @@ import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.beans.PasswordPolicy;
+import org.apache.syncope.core.persistence.beans.SecurityQuestion;
 import org.apache.syncope.core.persistence.beans.membership.MAttr;
 import org.apache.syncope.core.persistence.beans.membership.MDerAttr;
 import org.apache.syncope.core.persistence.beans.membership.MVirAttr;
@@ -53,6 +51,7 @@ import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
+import org.apache.syncope.core.persistence.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -68,11 +67,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserDataBinder extends AbstractAttributableDataBinder {
 
     private static final String[] IGNORE_USER_PROPERTIES = {
-        "memberships", "attrs", "derAttrs", "virAttrs", "resources"
+        "memberships", "attrs", "derAttrs", "virAttrs", "resources", "securityQuestion"
     };
 
     @Autowired
     private ConnObjectUtil connObjectUtil;
+
+    @Autowired
+    private SecurityQuestionDAO securityQuestionDAO;
 
     @Resource(name = "adminUser")
     private String adminUser;
@@ -82,17 +84,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
     private final Encryptor encryptor = Encryptor.getInstance();
 
-    @Transactional(readOnly = true)
-    public SyncopeUser getUserFromId(final Long userId) {
-        if (userId == null) {
-            throw new NotFoundException("Null user id");
-        }
-
-        SyncopeUser user = userDAO.find(userId);
-        if (user == null) {
-            throw new NotFoundException("User " + userId);
-        }
-
+    private void securityChecks(final SyncopeUser user) {
         // Allows anonymous (during self-registration) and self (during self-update) to read own SyncopeUser,
         // otherwise goes thorugh security checks to see if needed role entitlements are owned
         if (!EntitlementUtil.getAuthenticatedUsername().equals(anonymousUser)
@@ -105,6 +97,36 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 throw new UnauthorizedRoleException(roleIds);
             }
         }
+    }
+
+    @Transactional(readOnly = true)
+    public SyncopeUser getUserFromId(final Long userId) {
+        if (userId == null) {
+            throw new NotFoundException("Null user id");
+        }
+
+        SyncopeUser user = userDAO.find(userId);
+        if (user == null) {
+            throw new NotFoundException("User " + userId);
+        }
+
+        securityChecks(user);
+
+        return user;
+    }
+
+    @Transactional(readOnly = true)
+    public SyncopeUser getUserFromUsername(final String username) {
+        if (username == null) {
+            throw new NotFoundException("Null username");
+        }
+
+        SyncopeUser user = userDAO.find(username);
+        if (user == null) {
+            throw new NotFoundException("User " + username);
+        }
+
+        securityChecks(user);
 
         return user;
     }
@@ -159,55 +181,11 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         return encryptor.verify(password, user.getCipherAlgorithm(), user.getPassword());
     }
 
-    @Transactional(readOnly = true)
-    public SyncopeUser getUserFromUsername(final String username) {
-        if (username == null) {
-            throw new NotFoundException("Null username");
-        }
-
-        SyncopeUser user = userDAO.find(username);
-        if (user == null) {
-            throw new NotFoundException("User " + username);
-        }
-
-        Set<Long> roleIds = user.getRoleIds();
-        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-        roleIds.removeAll(adminRoleIds);
-
-        if (!roleIds.isEmpty()) {
-            throw new UnauthorizedRoleException(roleIds);
-        }
-
-        return user;
-    }
-
-    /**
-     * Get predefined password cipher algorithm from SyncopeConf.
-     *
-     * @return cipher algorithm.
-     */
-    private CipherAlgorithm getPredefinedCipherAlgoritm() {
-        final String algorithm = confDAO.find(
-                "password.cipher.algorithm", CipherAlgorithm.AES.name()).getValues().get(0).getStringValue();
-
-        try {
-            return CipherAlgorithm.valueOf(algorithm);
-        } catch (IllegalArgumentException e) {
-            throw new NotFoundException("Cipher algorithm " + algorithm);
-        }
-    }
-
     private void setPassword(final SyncopeUser user, final String password,
             final SyncopeClientCompositeException scce) {
 
-        int passwordHistorySize = 0;
-        PasswordPolicy policy = policyDAO.getGlobalPasswordPolicy();
-        if (policy != null && policy.getSpecification(PasswordPolicySpec.class) != null) {
-            passwordHistorySize = policy.getSpecification(PasswordPolicySpec.class).getHistoryLength();
-        }
-
         try {
-            user.setPassword(password, getPredefinedCipherAlgoritm(), passwordHistorySize);
+            user.setPassword(password, Encryptor.getPredefinedCipherAlgoritm());
         } catch (NotFoundException e) {
             final SyncopeClientException invalidCiperAlgorithm =
                     SyncopeClientException.build(ClientExceptionType.NotFound);
@@ -261,6 +239,15 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // set username
         user.setUsername(userTO.getUsername());
+
+        // security question / answer
+        if (userTO.getSecurityQuestion() != null) {
+            SecurityQuestion securityQuestion = securityQuestionDAO.find(userTO.getSecurityQuestion());
+            if (securityQuestion != null) {
+                user.setSecurityQuestion(securityQuestion);
+            }
+        }
+        user.setSecurityAnswer(userTO.getSecurityAnswer());
     }
 
     /**
@@ -301,6 +288,21 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                         propByRes.addOldAccountId(resource.getName(), oldUsername);
                     }
                 }
+            }
+        }
+
+        // security question / answer:
+        // userMod.getSecurityQuestion() is null => remove user security question and answer
+        // userMod.getSecurityQuestion() == 0 => don't change anything
+        // userMod.getSecurityQuestion() > 0 => update user security question and answer
+        if (userMod.getSecurityQuestion() == null) {
+            user.setSecurityQuestion(null);
+            user.setSecurityAnswer(null);
+        } else if (userMod.getSecurityQuestion() > 0) {
+            SecurityQuestion securityQuestion = securityQuestionDAO.find(userMod.getSecurityQuestion());
+            if (securityQuestion != null) {
+                user.setSecurityQuestion(securityQuestion);
+                user.setSecurityAnswer(userMod.getSecurityAnswer());
             }
         }
 
@@ -413,8 +415,11 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         BeanUtils.copyProperties(user, userTO, IGNORE_USER_PROPERTIES);
 
-        connObjectUtil.retrieveVirAttrValues(user, AttributableUtil.getInstance(AttributableType.USER));
+        if (user.getSecurityQuestion() != null) {
+            userTO.setSecurityQuestion(user.getSecurityQuestion().getId());
+        }
 
+        connObjectUtil.retrieveVirAttrValues(user, AttributableUtil.getInstance(AttributableType.USER));
         fillTO(userTO, user.getAttrs(), user.getDerAttrs(), user.getVirAttrs(), user.getResources());
 
         MembershipTO membershipTO;
@@ -495,8 +500,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 ? fillVirtual(
                         membership,
                         membership.getVirAttrs() == null
-                        ? Collections.<String>emptySet()
-                        : getAttributeNames(membership.getVirAttrs()),
+                                ? Collections.<String>emptySet()
+                                : getAttributeNames(membership.getVirAttrs()),
                         vAttrsToBeUpdated,
                         AttributableUtil.getInstance(AttributableType.MEMBERSHIP))
                 : fillVirtual(

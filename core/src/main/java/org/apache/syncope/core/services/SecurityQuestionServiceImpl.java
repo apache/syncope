@@ -20,49 +20,54 @@ package org.apache.syncope.core.services;
 
 import java.net.URI;
 import java.util.List;
-
 import javax.ws.rs.core.Response;
-
-import org.apache.syncope.common.services.NotificationService;
-import org.apache.syncope.common.to.NotificationTO;
+import org.apache.syncope.common.services.SecurityQuestionService;
+import org.apache.syncope.common.to.SecurityQuestionTO;
 import org.apache.syncope.common.types.RESTHeaders;
-import org.apache.syncope.core.rest.controller.NotificationController;
+import org.apache.syncope.core.rest.controller.SecurityQuestionController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class NotificationServiceImpl extends AbstractServiceImpl implements NotificationService {
+public class SecurityQuestionServiceImpl extends AbstractServiceImpl implements SecurityQuestionService {
 
     @Autowired
-    private NotificationController controller;
+    private SecurityQuestionController controller;
 
     @Override
-    public Response create(final NotificationTO notificationTO) {
-        NotificationTO created = controller.create(notificationTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getId())).build();
-        return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, created.getId()).
-                build();
-    }
-
-    @Override
-    public NotificationTO read(final Long notificationId) {
-        return controller.read(notificationId);
-    }
-
-    @Override
-    public List<NotificationTO> list() {
+    public List<SecurityQuestionTO> list() {
         return controller.list();
     }
 
     @Override
-    public void update(final Long notificationId, final NotificationTO notificationTO) {
-        notificationTO.setId(notificationId);
-        controller.update(notificationTO);
+    public SecurityQuestionTO read(final Long securityQuestionId) {
+        return controller.read(securityQuestionId);
     }
 
     @Override
-    public void delete(final Long notificationId) {
-        controller.delete(notificationId);
+    public Response create(final SecurityQuestionTO securityQuestionTO) {
+        SecurityQuestionTO created = controller.create(securityQuestionTO);
+
+        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getId())).build();
+        return Response.created(location).
+                header(RESTHeaders.RESOURCE_ID, String.valueOf(created.getId())).
+                build();
     }
+
+    @Override
+    public void update(final Long securityQuestionId, final SecurityQuestionTO securityQuestionTO) {
+        securityQuestionTO.setId(securityQuestionId);
+        controller.update(securityQuestionTO);
+    }
+
+    @Override
+    public void delete(final Long securityQuestionId) {
+        controller.delete(securityQuestionId);
+    }
+
+    @Override
+    public SecurityQuestionTO readByUser(final String username) {
+        return controller.read(username);
+    }
+
 }

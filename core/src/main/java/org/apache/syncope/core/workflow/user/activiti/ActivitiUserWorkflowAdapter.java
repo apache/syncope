@@ -70,6 +70,7 @@ import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
+import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.WorkflowException;
@@ -115,6 +116,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     public static final String TOKEN = "token";
 
+    public static final String PASSWORD = "password";
+
     public static final String PROP_BY_RESOURCE = "propByResource";
 
     public static final String PROPAGATE_ENABLE = "propagateEnable";
@@ -126,6 +129,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public static final String MODEL_DATA_JSON_MODEL = "model";
 
     public static final String STORE_PASSWORD = "storePassword";
+
+    public static final String EVENT = "event";
 
     @Resource(name = "adminUser")
     private String adminUser;
@@ -147,6 +152,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Autowired
     private ActivitiImportUtils importUtils;
+
+    @Autowired
+    private UserDataBinder userDataBinder;
 
     @Override
     public Class<? extends WorkflowInstanceLoader> getLoaderClass() {
@@ -355,9 +363,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     @Transactional(rollbackFor = { Throwable.class })
-    protected WorkflowResult<Long> doSuspend(final SyncopeUser user)
-            throws WorkflowException {
-
+    protected WorkflowResult<Long> doSuspend(final SyncopeUser user) throws WorkflowException {
         Set<String> performedTasks = doExecuteTask(user, "suspend", null);
         updateStatus(user);
         SyncopeUser updated = userDAO.save(user);
@@ -366,9 +372,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doReactivate(final SyncopeUser user)
-            throws WorkflowException {
-
+    protected WorkflowResult<Long> doReactivate(final SyncopeUser user) throws WorkflowException {
         Set<String> performedTasks = doExecuteTask(user, "reactivate", null);
         updateStatus(user);
 
@@ -378,9 +382,31 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doDelete(final SyncopeUser user)
+    protected void doRequestPasswordReset(final SyncopeUser user) throws WorkflowException {
+        Map<String, Object> variables = new HashMap<String, Object>(2);
+        variables.put(USER_TO, userDataBinder.getUserTO(user));
+        variables.put(EVENT, "requestPasswordReset");
+
+        doExecuteTask(user, "requestPasswordReset", variables);
+        userDAO.save(user);
+    }
+
+    @Override
+    protected void doConfirmPasswordReset(final SyncopeUser user, final String token, final String password)
             throws WorkflowException {
 
+        Map<String, Object> variables = new HashMap<String, Object>(4);
+        variables.put(TOKEN, token);
+        variables.put(PASSWORD, password);
+        variables.put(USER_TO, userDataBinder.getUserTO(user));
+        variables.put(EVENT, "confirmPasswordReset");
+
+        doExecuteTask(user, "confirmPasswordReset", variables);
+        userDAO.save(user);
+    }
+
+    @Override
+    protected void doDelete(final SyncopeUser user) throws WorkflowException {
         doExecuteTask(user, "delete", null);
 
         PropagationByResource propByRes = new PropagationByResource();
