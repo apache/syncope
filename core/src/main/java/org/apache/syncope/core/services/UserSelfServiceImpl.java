@@ -40,7 +40,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     public Response getOptions() {
         return Response.ok().header(HttpHeaders.ALLOW, OPTIONS_ALLOW).
                 header(RESTHeaders.SELFREGISTRATION_ALLOWED, controller.isSelfRegistrationAllowed()).
-                header(RESTHeaders.PASSWORDRESET_ALLOWED, controller.isSelfRegistrationAllowed()).
+                header(RESTHeaders.PASSWORDRESET_ALLOWED, controller.isPasswordResetAllowed()).
                 build();
     }
 

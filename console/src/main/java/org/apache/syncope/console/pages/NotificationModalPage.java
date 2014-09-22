@@ -32,6 +32,7 @@ import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.LoggerCategoryPanel;
 import org.apache.syncope.console.pages.panels.RoleSearchPanel;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
+import org.apache.syncope.console.rest.ConfigurationRestClient;
 import org.apache.syncope.console.rest.LoggerRestClient;
 import org.apache.syncope.console.rest.NotificationRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -62,6 +63,9 @@ class NotificationModalPage extends BaseModalPage {
     private NotificationRestClient restClient;
 
     @SpringBean
+    private ConfigurationRestClient confRestClient;
+
+    @SpringBean
     private LoggerRestClient loggerRestClient;
 
     public NotificationModalPage(final PageReference pageRef, final ModalWindow window,
@@ -84,7 +88,7 @@ class NotificationModalPage extends BaseModalPage {
         final AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<String>(
                 "template", getString("template"),
                 new PropertyModel<String>(notificationTO, "template"));
-        template.setChoices(restClient.getMailTemplates());
+        template.setChoices(confRestClient.getMailTemplates());
         template.addRequiredLabel();
         form.add(template);
 
@@ -289,6 +293,7 @@ class NotificationModalPage extends BaseModalPage {
                 if (!selfAsRecipient.getModelObject()
                         && !checkRecipients.getModelObject()
                         && !checkStaticRecipients.getModelObject()) {
+
                     checkRecipients.getField().setDefaultModelObject(Boolean.TRUE);
                     target.add(checkRecipients);
                     recipients.setEnabled(checkRecipients.getModelObject());
@@ -307,6 +312,7 @@ class NotificationModalPage extends BaseModalPage {
                 if (!checkRecipients.getModelObject()
                         && !selfAsRecipient.getModelObject()
                         && !checkStaticRecipients.getModelObject()) {
+
                     checkStaticRecipients.getField().setDefaultModelObject(Boolean.TRUE);
                     target.add(checkStaticRecipients);
                     staticRecipients.setEnabled(Boolean.TRUE);
@@ -359,9 +365,9 @@ class NotificationModalPage extends BaseModalPage {
 
                 try {
                     if (createFlag) {
-                        restClient.createNotification(notificationTO);
+                        restClient.create(notificationTO);
                     } else {
-                        restClient.updateNotification(notificationTO);
+                        restClient.update(notificationTO);
                     }
                     info(getString(Constants.OPERATION_SUCCEEDED));
 

@@ -18,14 +18,10 @@
  */
 package org.apache.syncope.console.rest;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.services.NotificationService;
-import org.apache.syncope.common.wrap.MailTemplate;
 import org.apache.syncope.common.to.NotificationTO;
-import org.apache.syncope.common.util.CollectionWrapper;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -37,24 +33,19 @@ public class NotificationRestClient extends BaseRestClient {
         return getService(NotificationService.class).list();
     }
 
-    public NotificationTO readNotification(final Long id) {
+    public NotificationTO read(final Long id) {
         return getService(NotificationService.class).read(id);
     }
 
-    public void createNotification(final NotificationTO notificationTO) {
+    public void create(final NotificationTO notificationTO) {
         getService(NotificationService.class).create(notificationTO);
     }
 
-    public void updateNotification(final NotificationTO notificationTO) {
+    public void update(final NotificationTO notificationTO) {
         getService(NotificationService.class).update(notificationTO.getId(), notificationTO);
     }
 
-    public void deleteNotification(final Long id) {
+    public void delete(final Long id) {
         getService(NotificationService.class).delete(id);
-    }
-
-    public List<String> getMailTemplates() {
-        return CollectionWrapper.unwrap(
-                new ArrayList<MailTemplate>(getService(ConfigurationService.class).getMailTemplates()));
     }
 }

@@ -27,11 +27,13 @@ import org.apache.syncope.console.commons.status.StatusBean;
 import org.apache.syncope.console.pages.panels.AccountInformationPanel;
 import org.apache.syncope.console.pages.panels.MembershipsPanel;
 import org.apache.syncope.console.pages.panels.ResourcesPanel;
+import org.apache.syncope.console.pages.panels.SecurityQuestionPanel;
 import org.apache.syncope.console.pages.panels.StatusPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.ResourceModel;
@@ -68,11 +70,14 @@ public class EditUserModalPage extends UserModalPage {
 
             form.addOrReplace(new AccountInformationPanel("accountinformation", userTO));
 
-            form.addOrReplace(new ResourcesPanel.Builder("resources").attributableTO(userTO).statusPanel(
-                    statusPanel).build());
+            form.addOrReplace(new ResourcesPanel.Builder("resources").attributableTO(userTO).
+                    statusPanel(statusPanel).build());
 
             form.addOrReplace(new MembershipsPanel("memberships", userTO, false, statusPanel, getPageReference()));
         }
+
+        // Security question / answer
+        form.addOrReplace(new SecurityQuestionPanel("securityQuestion", userTO));
     }
 
     @SuppressWarnings("rawtypes")

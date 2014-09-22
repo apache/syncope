@@ -37,6 +37,7 @@ import org.apache.syncope.common.types.LoggerLevel;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConfTO;
+import org.apache.syncope.common.to.SecurityQuestionTO;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.HttpResourceStream;
 import org.apache.syncope.console.commons.PreferenceManager;
@@ -46,6 +47,7 @@ import org.apache.syncope.console.pages.panels.PoliciesPanel;
 import org.apache.syncope.console.rest.ConfigurationRestClient;
 import org.apache.syncope.console.rest.LoggerRestClient;
 import org.apache.syncope.console.rest.NotificationRestClient;
+import org.apache.syncope.console.rest.SecurityQuestionRestClient;
 import org.apache.syncope.console.rest.WorkflowRestClient;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
@@ -96,6 +98,14 @@ public class Configuration extends BasePage {
 
     private static final long serialVersionUID = -2838270869037702214L;
 
+    private static final int NOTIFICATION_WIN_HEIGHT = 500;
+
+    private static final int NOTIFICATION_WIN_WIDTH = 1100;
+
+    private static final int SECURITY_QUESTION_WIN_HEIGHT = 300;
+
+    private static final int SECURITY_QUESTION_WIN_WIDTH = 900;
+
     @SpringBean
     private ConfigurationRestClient confRestClient;
 
@@ -104,6 +114,9 @@ public class Configuration extends BasePage {
 
     @SpringBean
     private NotificationRestClient notificationRestClient;
+
+    @SpringBean
+    private SecurityQuestionRestClient securityQuestionRestClient;
 
     @SpringBean
     private WorkflowRestClient wfRestClient;
@@ -115,11 +128,13 @@ public class Configuration extends BasePage {
 
     private final ModalWindow editNotificationWin;
 
-    private static final int NOTIFICATION_WIN_HEIGHT = 500;
+    private final ModalWindow createSecurityQuestionWin;
 
-    private static final int NOTIFICATION_WIN_WIDTH = 1100;
+    private final ModalWindow editSecurityQuestionWin;
 
     private WebMarkupContainer notificationContainer;
+
+    private WebMarkupContainer securityQuestionContainer;
 
     private int notificationPaginatorRows;
 
@@ -135,6 +150,10 @@ public class Configuration extends BasePage {
         add(createNotificationWin = new ModalWindow("createNotificationWin"));
         add(editNotificationWin = new ModalWindow("editNotificationWin"));
         setupNotification();
+
+        add(createSecurityQuestionWin = new ModalWindow("createSecurityQuestionWin"));
+        add(editSecurityQuestionWin = new ModalWindow("editSecurityQuestionWin"));
+        setupSecurityQuestion();
 
         // Workflow definition stuff
         WebMarkupContainer noActivitiEnabledForUsers = new WebMarkupContainer("noActivitiEnabledForUsers");
@@ -335,7 +354,6 @@ public class Configuration extends BasePage {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-
                         editNotificationWin.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = -7834632442532690940L;
@@ -358,7 +376,7 @@ public class Configuration extends BasePage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            notificationRestClient.deleteNotification(notificationTO.getId());
+                            notificationRestClient.delete(notificationTO.getId());
                         } catch (SyncopeClientException e) {
                             LOG.error("While deleting a notification", e);
                             error(e.getMessage());
@@ -398,13 +416,12 @@ public class Configuration extends BasePage {
         setWindowClosedCallback(createNotificationWin, notificationContainer);
         setWindowClosedCallback(editNotificationWin, notificationContainer);
 
-        AjaxLink createNotificationLink = new AjaxLink("createNotificationLink") {
+        AjaxLink<Void> createNotificationLink = new AjaxLink<Void>("createNotificationLink") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-
                 createNotificationWin.setPageCreator(new ModalWindow.PageCreator() {
 
                     private static final long serialVersionUID = -7834632442532690940L;
@@ -449,11 +466,131 @@ public class Configuration extends BasePage {
         add(notificationPaginatorForm);
     }
 
+    private void setupSecurityQuestion() {
+        final List<IColumn<SecurityQuestionTO, String>> securityQuestionCols =
+                new ArrayList<IColumn<SecurityQuestionTO, String>>();
+        securityQuestionCols.add(new PropertyColumn<SecurityQuestionTO, String>(
+                new ResourceModel("id"), "id", "id"));
+        securityQuestionCols.add(new PropertyColumn<SecurityQuestionTO, String>(
+                new ResourceModel("content"), "content", "content"));
+
+        securityQuestionCols.add(new AbstractColumn<SecurityQuestionTO, String>(new ResourceModel("actions", "")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
+
+            @Override
+            public void populateItem(final Item<ICellPopulator<SecurityQuestionTO>> cellItem, final String componentId,
+                    final IModel<SecurityQuestionTO> model) {
+
+                final SecurityQuestionTO securityQuestionTO = model.getObject();
+
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        editSecurityQuestionWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID = -7834632442532690940L;
+
+                            @Override
+                            public Page createPage() {
+                                return new SecurityQuestionModalPage(Configuration.this.getPageReference(),
+                                        editSecurityQuestionWin, securityQuestionTO, false);
+                            }
+                        });
+
+                        editSecurityQuestionWin.show(target);
+                    }
+                }, ActionLink.ActionType.EDIT, "SecurityQuestion");
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        try {
+                            securityQuestionRestClient.delete(securityQuestionTO.getId());
+                        } catch (SyncopeClientException e) {
+                            LOG.error("While deleting a security question", e);
+                            error(e.getMessage());
+                            return;
+                        }
+
+                        info(getString(Constants.OPERATION_SUCCEEDED));
+                        feedbackPanel.refresh(target);
+                        target.add(securityQuestionContainer);
+                    }
+                }, ActionLink.ActionType.DELETE, "SecurityQuestion");
+
+                cellItem.add(panel);
+            }
+        });
+
+        final AjaxFallbackDefaultDataTable<SecurityQuestionTO, String> securityQuestionTable =
+                new AjaxFallbackDefaultDataTable<SecurityQuestionTO, String>("securityQuestionTable",
+                        securityQuestionCols, new SecurityQuestionProvider(), 50);
+
+        securityQuestionContainer = new WebMarkupContainer("securityQuestionContainer");
+        securityQuestionContainer.add(securityQuestionTable);
+        securityQuestionContainer.setOutputMarkupId(true);
+
+        add(securityQuestionContainer);
+
+        createSecurityQuestionWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        createSecurityQuestionWin.setInitialHeight(SECURITY_QUESTION_WIN_HEIGHT);
+        createSecurityQuestionWin.setInitialWidth(SECURITY_QUESTION_WIN_WIDTH);
+        createSecurityQuestionWin.setCookieName("create-security-question-modal");
+
+        editSecurityQuestionWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editSecurityQuestionWin.setInitialHeight(SECURITY_QUESTION_WIN_HEIGHT);
+        editSecurityQuestionWin.setInitialWidth(SECURITY_QUESTION_WIN_WIDTH);
+        editSecurityQuestionWin.setCookieName("edit-security-question-modal");
+
+        setWindowClosedCallback(createSecurityQuestionWin, securityQuestionContainer);
+        setWindowClosedCallback(editSecurityQuestionWin, securityQuestionContainer);
+
+        AjaxLink<Void> createSecurityQuestionLink = new AjaxLink<Void>("createSecurityQuestionLink") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+
+                createSecurityQuestionWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID = -7834632442532690940L;
+
+                    @Override
+                    public Page createPage() {
+                        return new SecurityQuestionModalPage(Configuration.this.getPageReference(),
+                                createSecurityQuestionWin, new SecurityQuestionTO(), true);
+                    }
+                });
+
+                createSecurityQuestionWin.show(target);
+            }
+        };
+
+        MetaDataRoleAuthorizationStrategy.authorize(createSecurityQuestionLink, ENABLE, xmlRolesReader.
+                getAllAllowedRoles("SecurityQuestion", "create"));
+        add(createSecurityQuestionLink);
+    }
+
     private class NotificationProvider extends SortableDataProvider<NotificationTO, String> {
 
         private static final long serialVersionUID = -276043813563988590L;
 
-        private SortableDataProviderComparator<NotificationTO> comparator;
+        private final SortableDataProviderComparator<NotificationTO> comparator;
 
         public NotificationProvider() {
             //Default sorting
@@ -477,7 +614,6 @@ public class Configuration extends BasePage {
 
         @Override
         public IModel<NotificationTO> model(final NotificationTO notification) {
-
             return new AbstractReadOnlyModel<NotificationTO>() {
 
                 private static final long serialVersionUID = 774694801558497248L;
@@ -485,6 +621,46 @@ public class Configuration extends BasePage {
                 @Override
                 public NotificationTO getObject() {
                     return notification;
+                }
+            };
+        }
+    }
+
+    private class SecurityQuestionProvider extends SortableDataProvider<SecurityQuestionTO, String> {
+
+        private static final long serialVersionUID = -1458398823626281188L;
+
+        private final SortableDataProviderComparator<SecurityQuestionTO> comparator;
+
+        public SecurityQuestionProvider() {
+            //Default sorting
+            setSort("id", SortOrder.ASCENDING);
+            comparator = new SortableDataProviderComparator<SecurityQuestionTO>(this);
+        }
+
+        @Override
+        public Iterator<SecurityQuestionTO> iterator(final long first, final long count) {
+            List<SecurityQuestionTO> list = securityQuestionRestClient.list();
+
+            Collections.sort(list, comparator);
+
+            return list.subList((int) first, (int) first + (int) count).iterator();
+        }
+
+        @Override
+        public long size() {
+            return securityQuestionRestClient.list().size();
+        }
+
+        @Override
+        public IModel<SecurityQuestionTO> model(final SecurityQuestionTO securityQuestionTO) {
+            return new AbstractReadOnlyModel<SecurityQuestionTO>() {
+
+                private static final long serialVersionUID = 5079291243768775704L;
+
+                @Override
+                public SecurityQuestionTO getObject() {
+                    return securityQuestionTO;
                 }
             };
         }

@@ -94,6 +94,13 @@ public class SyncopeSession extends WebSession {
         return client.isSelfRegistrationAllowed();
     }
 
+    public boolean isPasswordResetAllowed() {
+        SyncopeClient client = clients.isEmpty()
+                ? clientFactory.createAnonymous()
+                : clients.values().iterator().next();
+        return client.isPasswordResetAllowed();
+    }
+
     public boolean isActivitiEnabledFor(final SubjectType type) {
         SyncopeClient client = clients.isEmpty()
                 ? clientFactory.createAnonymous()

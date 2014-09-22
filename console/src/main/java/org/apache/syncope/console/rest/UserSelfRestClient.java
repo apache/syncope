@@ -58,4 +58,26 @@ public class UserSelfRestClient extends BaseRestClient {
     public void delete() {
         getService(UserSelfService.class).delete();
     }
+
+    public boolean isPasswordResetAllowed() {
+        Boolean result = null;
+        try {
+            result = SyncopeSession.get().isPasswordResetAllowed();
+        } catch (SyncopeClientException e) {
+            LOG.error("While seeking if password reset is allowed", e);
+        }
+
+        return result == null
+                ? false
+                : result.booleanValue();
+    }
+
+    public void requestPasswordReset(final String username, final String securityAnswer) {
+        getService(UserSelfService.class).requestPasswordReset(username, securityAnswer);
+    }
+
+    public void confirmPasswordReset(final String token, final String password) {
+        getService(UserSelfService.class).confirmPasswordReset(token, password);
+    }
+
 }

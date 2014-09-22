@@ -224,8 +224,9 @@ public final class AttributableOperations {
         diff(updated, original, result, incremental);
 
         // 1. password
-        if (updated.getPassword() != null && (original.getPassword() == null || !original.getPassword().
-                equals(updated.getPassword()))) {
+        if (updated.getPassword() != null && (original.getPassword() == null
+                || !original.getPassword().equals(updated.getPassword()))) {
+
             result.setPassword(updated.getPassword());
         }
 
@@ -234,7 +235,11 @@ public final class AttributableOperations {
             result.setUsername(updated.getUsername());
         }
 
-        // 3. memberships
+        // 3. security question / answer
+        result.setSecurityQuestion(updated.getSecurityQuestion());
+        result.setSecurityAnswer(updated.getSecurityAnswer());
+
+        // 4. memberships
         Map<Long, MembershipTO> updatedMembs = updated.getMembershipMap();
         Map<Long, MembershipTO> originalMembs = original.getMembershipMap();
 

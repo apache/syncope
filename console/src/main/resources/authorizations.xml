@@ -260,6 +260,28 @@ under the License.
     </action>
   </page>
 
+  <page id="SecurityQuestion">
+    <action id="list">
+      <entitlement>SECURITY_QUESTION_LIST</entitlement>
+    </action>
+
+    <action id="create">
+      <entitlement>SECURITY_QUESTION_CREATE</entitlement>
+    </action>
+
+    <action id="read">
+      <entitlement>SECURITY_QUESTION_READ</entitlement>
+    </action>
+
+    <action id="update">
+      <entitlement>SECURITY_QUESTION_UPDATE</entitlement>
+    </action>
+
+    <action id="delete">
+      <entitlement>SECURITY_QUESTION_DELETE</entitlement>
+    </action>
+  </page>
+  
   <page id="Tasks">
     <action id="list">
       <entitlement>TASK_LIST</entitlement>

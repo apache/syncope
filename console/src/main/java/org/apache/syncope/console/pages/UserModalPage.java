@@ -117,6 +117,8 @@ public abstract class UserModalPage extends BaseModalPage {
         form.add(new Label("statuspanel", ""));
 
         form.add(new Label("pwdChangeInfo", ""));
+        
+        form.add(new Label("securityQuestion", ""));
 
         form.add(new Label("accountinformation", ""));
         //--------------------------------
@@ -154,7 +156,7 @@ public abstract class UserModalPage extends BaseModalPage {
         //--------------------------------
         // Resources panel
         //--------------------------------
-        form.add(new ResourcesPanel.Builder("resources").attributableTO(userTO).statusPanel(null).build());
+        form.add(new ResourcesPanel.Builder("resources").attributableTO(userTO).build());
         //--------------------------------
 
         //--------------------------------

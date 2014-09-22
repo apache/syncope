@@ -65,7 +65,10 @@ under the License.
         <input type="submit" wicket:id="submit"/>
       </form>
 
-      <span style="display: inline-table; margin-bottom: 10px;" wicket:id="selfRegistration"/>
+      <div style="display: inline-table; margin: 10px; width:380px;">
+        <div style="display: inline-table-cell; text-align: left; float: left;" wicket:id="selfRegistration"/>
+        <div style="display: inline-table-cell; text-align: left; float: right;" wicket:id="passwordReset"/>
+      </div>
 
       <wicket:fragment wicket:id="selfRegNotAllowed"/>
       <wicket:fragment wicket:id="selfRegAllowed">
@@ -73,6 +76,13 @@ under the License.
       </wicket:fragment>
 
       <div wicket:id="selfRegModal"></div>
+
+      <wicket:fragment wicket:id="pwdResetNotAllowed"/>
+      <wicket:fragment wicket:id="pwdResetAllowed">
+        <span wicket:id="passwordReset"/>
+      </wicket:fragment>
+
+      <div wicket:id="pwdResetModal"></div>
     </div>
   </body>
 </html>
