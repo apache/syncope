@@ -62,6 +62,10 @@ public class Login extends WebPage {
 
     private final static int SELF_REG_WIN_WIDTH = 800;
 
+    private final static int PWD_RESET_WIN_HEIGHT = 300;
+
+    private final static int PWD_RESET_WIN_WIDTH = 800;
+
     @SpringBean(name = "version")
     private String version;
 
@@ -74,13 +78,13 @@ public class Login extends WebPage {
     @SpringBean
     private UserSelfRestClient userSelfRestClient;
 
-    private Form<Void> form;
+    private final Form<Void> form;
 
-    private TextField<String> userIdField;
+    private final TextField<String> userIdField;
 
-    private TextField<String> passwordField;
+    private final TextField<String> passwordField;
 
-    private DropDownChoice<Locale> languageSelect;
+    private final DropDownChoice<Locale> languageSelect;
 
     private final NotificationPanel feedbackPanel;
 
@@ -132,12 +136,12 @@ public class Login extends WebPage {
         add(form);
 
         // Modal window for self registration
-        final ModalWindow editProfileModalWin = new ModalWindow("selfRegModal");
-        editProfileModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        editProfileModalWin.setInitialHeight(SELF_REG_WIN_HEIGHT);
-        editProfileModalWin.setInitialWidth(SELF_REG_WIN_WIDTH);
-        editProfileModalWin.setCookieName("self-reg-modal");
-        add(editProfileModalWin);
+        final ModalWindow selfRegModalWin = new ModalWindow("selfRegModal");
+        selfRegModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        selfRegModalWin.setInitialHeight(SELF_REG_WIN_HEIGHT);
+        selfRegModalWin.setInitialWidth(SELF_REG_WIN_WIDTH);
+        selfRegModalWin.setCookieName("self-reg-modal");
+        add(selfRegModalWin);
 
         Fragment selfRegFrag;
         if (userSelfRestClient.isSelfRegistrationAllowed()) {
@@ -149,7 +153,7 @@ public class Login extends WebPage {
 
                 @Override
                 protected void onClickInternal(final AjaxRequestTarget target) {
-                    editProfileModalWin.setPageCreator(new ModalWindow.PageCreator() {
+                    selfRegModalWin.setPageCreator(new ModalWindow.PageCreator() {
 
                         private static final long serialVersionUID = -7834632442532690940L;
 
@@ -159,11 +163,11 @@ public class Login extends WebPage {
                             authenticate(anonymousUser, anonymousKey);
 
                             return new UserSelfModalPage(
-                                    Login.this.getPageReference(), editProfileModalWin, new UserTO());
+                                    Login.this.getPageReference(), selfRegModalWin, new UserTO());
                         }
                     });
 
-                    editProfileModalWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+                    selfRegModalWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
                         private static final long serialVersionUID = 251794406325329768L;
 
@@ -173,7 +177,7 @@ public class Login extends WebPage {
                         }
                     });
 
-                    editProfileModalWin.show(target);
+                    selfRegModalWin.show(target);
                 }
             };
             selfRegLink.add(new Label("linkTitle", getString("selfRegistration")));
@@ -185,6 +189,60 @@ public class Login extends WebPage {
             selfRegFrag = new Fragment("selfRegistration", "selfRegNotAllowed", this);
         }
         add(selfRegFrag);
+
+        // Modal window for password reset
+        final ModalWindow pwdResetModalWin = new ModalWindow("pwdResetModal");
+        pwdResetModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        pwdResetModalWin.setInitialHeight(PWD_RESET_WIN_HEIGHT);
+        pwdResetModalWin.setInitialWidth(PWD_RESET_WIN_WIDTH);
+        pwdResetModalWin.setCookieName("pwd-reset-modal");
+        add(pwdResetModalWin);
+
+        Fragment pwdResetFrag;
+        if (userSelfRestClient.isPasswordResetAllowed()) {
+            pwdResetFrag = new Fragment("passwordReset", "pwdResetAllowed", this);
+
+            final AjaxLink<Void> pwdResetLink = new ClearIndicatingAjaxLink<Void>("link", getPageReference()) {
+
+                private static final long serialVersionUID = -6957616042924610290L;
+
+                @Override
+                protected void onClickInternal(final AjaxRequestTarget target) {
+                    pwdResetModalWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                        private static final long serialVersionUID = -7834632442532690940L;
+
+                        @Override
+                        public Page createPage() {
+                            // anonymous authentication needed for password reset request
+                            authenticate(anonymousUser, anonymousKey);
+
+                            return null;
+                        }
+                    });
+
+                    pwdResetModalWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+                        private static final long serialVersionUID = 8804221891699487139L;
+
+                        @Override
+                        public void onClose(final AjaxRequestTarget target) {
+                            SyncopeSession.get().invalidate();
+                        }
+                    });
+
+                    pwdResetModalWin.show(target);
+                }
+            };
+            pwdResetLink.add(new Label("linkTitle", getString("passwordReset")));
+
+            Panel panel = new LinkPanel("passwordReset", new ResourceModel("passwordReset"));
+            panel.add(pwdResetLink);
+            pwdResetFrag.add(panel);
+        } else {
+            pwdResetFrag = new Fragment("passwordReset", "pwdResetNotAllowed", this);
+        }
+        add(pwdResetFrag);
     }
 
     private void authenticate(final String username, final String password) {

@@ -220,6 +220,17 @@ public class SyncopeClient {
     }
 
     /**
+     * Checks whether password reset is allowed by calling <tt>UserSelfService</tt>'s options.
+     *
+     * @return whether password reset is allowed
+     * @see UserSelfService#getOptions()
+     */
+    public boolean isPasswordResetAllowed() {
+        return Boolean.valueOf(restClientFactory.createServiceInstance(UserSelfService.class, mediaType, null, null).
+                getOptions().getHeaderString(RESTHeaders.PASSWORDRESET_ALLOWED));
+    }
+
+    /**
      * Checks whether Activiti workflow is enabled for users / roles, by calling <tt>WorkflowService</tt>'s options.
      *
      * @param subjectType user / role

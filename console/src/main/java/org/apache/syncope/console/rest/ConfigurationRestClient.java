@@ -18,10 +18,14 @@
  */
 package org.apache.syncope.console.rest;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConfTO;
+import org.apache.syncope.common.util.CollectionWrapper;
+import org.apache.syncope.common.wrap.MailTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -43,6 +47,11 @@ public class ConfigurationRestClient extends BaseRestClient {
 
     public void delete(final String key) {
         getService(ConfigurationService.class).delete(key);
+    }
+
+    public List<String> getMailTemplates() {
+        return CollectionWrapper.unwrap(
+                new ArrayList<MailTemplate>(getService(ConfigurationService.class).getMailTemplates()));
     }
 
     public Response dbExport() {

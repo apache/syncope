@@ -35,6 +35,7 @@ under the License.
         </li>
         <li><a href="#policies"><span><wicket:message key="policies"/></span></a></li>
         <li><a href="#notifications"><span><wicket:message key="notifications"/></span></a></li>
+        <li><a href="#securityQuestions"><span><wicket:message key="securityQuestions"/></span></a></li>
         <li><a href="#workflow"><span><wicket:message key="workflow"/></span></a></li>
         <li><a href="#logs"><span><wicket:message key="logs"/></span></a></li>
       </ul>
@@ -88,6 +89,22 @@ under the License.
 
         <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
            wicket:id="createNotificationLink">
+          <wicket:message key="create"/>
+        </a>
+      </div>
+      <div id="securityQuestions">
+        <div id="users-contain" class="ui-widget" style="width:inherit">
+          <span wicket:id="securityQuestionContainer">
+            <table class="ui-widget ui-widget-content table-hover"
+                   wicket:id="securityQuestionTable"/>
+          </span>
+        </div>
+
+        <div wicket:id="createSecurityQuestionWin">[Show modal window for creating security questions]</div>
+        <div wicket:id="editSecurityQuestionWin">[Show modal window for editing security questions]</div>
+
+        <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+           wicket:id="createSecurityQuestionLink">
           <wicket:message key="create"/>
         </a>
       </div>
