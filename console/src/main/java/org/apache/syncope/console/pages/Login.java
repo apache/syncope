@@ -217,7 +217,7 @@ public class Login extends WebPage {
                             // anonymous authentication needed for password reset request
                             authenticate(anonymousUser, anonymousKey);
 
-                            return null;
+                            return new RequestPasswordResetModalPage(pwdResetModalWin);
                         }
                     });
 
