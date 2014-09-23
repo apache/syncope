@@ -53,7 +53,7 @@ public class RoleRestClient extends AbstractSubjectRestClient {
     }
 
     public List<RoleTO> list() {
-        return getService(RoleService.class).list().getResult();
+        return getService(RoleService.class).list(1, 1000).getResult();
     }
 
     @Override
