@@ -18,70 +18,43 @@
  */
 package org.apache.syncope.console.pages;
 
-import org.apache.syncope.common.to.SecurityQuestionTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.rest.SecurityQuestionRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
+import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.StatelessForm;
+import org.apache.wicket.markup.html.form.validation.EqualPasswordInputValidator;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class RequestPasswordResetModalPage extends BaseModalPage {
+public class ConfirmPasswordResetModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -8419445804421211904L;
 
-    @SpringBean
-    private SecurityQuestionRestClient securityQuestionRestClient;
-
-    public RequestPasswordResetModalPage(final ModalWindow window) {
+    public ConfirmPasswordResetModalPage(final ModalWindow window, final String token) {
         super();
         setOutputMarkupId(true);
 
         final StatelessForm<?> form = new StatelessForm<Object>(FORM);
         form.setOutputMarkupId(true);
 
-        final AjaxTextFieldPanel securityQuestion =
-                new AjaxTextFieldPanel("securityQuestion", "securityQuestion", new Model<String>());
-        securityQuestion.setReadOnly(true);
-        securityQuestion.setRequired(true);
-        securityQuestion.getField().setOutputMarkupId(true);
-        form.add(securityQuestion);
+        final FieldPanel<String> password =
+                new AjaxPasswordFieldPanel("password", "password", new Model<String>()).setRequired(true);
+        ((PasswordTextField) password.getField()).setResetPassword(true);
+        form.add(password);
 
-        final AjaxTextFieldPanel username =
-                new AjaxTextFieldPanel("username", "username", new Model<String>());
-        username.setRequired(true);
-        username.getField().setOutputMarkupId(true);
-        username.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        final FieldPanel<String> confirmPassword =
+                new AjaxPasswordFieldPanel("confirmPassword", "confirmPassword", new Model<String>());
+        ((PasswordTextField) confirmPassword.getField()).setResetPassword(true);
+        form.add(confirmPassword);
 
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                try {
-                    SecurityQuestionTO read = securityQuestionRestClient.readByUser(username.getModelObject());
-                    securityQuestion.setModelObject(read.getContent());
-                    target.add(securityQuestion);
-                } catch (Exception e) {
-                    LOG.error("While fetching security question for {}", username.getModelObject(), e);
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    feedbackPanel.refresh(target);
-                }
-            }
-        });
-        form.add(username);
-
-        final AjaxTextFieldPanel securityAnswer =
-                new AjaxTextFieldPanel("securityAnswer", "securityAnswer", new Model<String>());
-        securityAnswer.setRequired(true);
-        form.add(securityAnswer);
+        form.add(new EqualPasswordInputValidator(password.getField(), confirmPassword.getField()));
 
         final AjaxButton submit = new IndicatingAjaxButton(APPLY, new ResourceModel(SUBMIT, SUBMIT)) {
 
@@ -90,12 +63,12 @@ public class RequestPasswordResetModalPage extends BaseModalPage {
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 try {
-                    userSelfRestClient.requestPasswordReset(username.getModelObject(), securityAnswer.getModelObject());
+                    userSelfRestClient.confirmPasswordReset(token, password.getModelObject());
 
                     setResponsePage(new ResultStatusModalPage.Builder(window, new UserTO()).
                             mode(UserModalPage.Mode.SELF).build());
                 } catch (Exception e) {
-                    LOG.error("While requesting password reset for {}", username.getModelObject(), e);
+                    LOG.error("While confirming password reset for {}", token, e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                     feedbackPanel.refresh(target);
                 }

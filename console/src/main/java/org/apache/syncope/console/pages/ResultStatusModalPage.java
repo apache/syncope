@@ -33,7 +33,6 @@ import org.apache.syncope.common.to.PropagationStatus;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
-import org.apache.syncope.console.SyncopeSession;
 import org.apache.syncope.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.status.Status;
@@ -135,10 +134,10 @@ public class ResultStatusModalPage extends BaseModalPage {
 
             fragment.add(new Label("info",
                     ((subject instanceof UserTO) && ((UserTO) subject).getUsername() != null)
-                    ? ((UserTO) subject).getUsername()
-                    : ((subject instanceof RoleTO) && ((RoleTO) subject).getName() != null)
-                    ? ((RoleTO) subject).getName()
-                    : String.valueOf(subject.getId())));
+                            ? ((UserTO) subject).getUsername()
+                            : ((subject instanceof RoleTO) && ((RoleTO) subject).getName() != null)
+                                    ? ((RoleTO) subject).getName()
+                                    : String.valueOf(subject.getId())));
 
             final ListView<PropagationStatus> propRes = new ListView<PropagationStatus>("resources",
                     propagations) {
@@ -164,7 +163,7 @@ public class ResultStatusModalPage extends BaseModalPage {
                             attrhead.add(new Label("resource", propTO.getResource()));
 
                             attrhead.add(new Label("propagation", propTO.getStatus() == null
-                                            ? "UNDEFINED" : propTO.getStatus().toString()));
+                                                    ? "UNDEFINED" : propTO.getStatus().toString()));
 
                             final Image image;
                             final String alt, title;
@@ -243,9 +242,6 @@ public class ResultStatusModalPage extends BaseModalPage {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                if (mode == UserModalPage.Mode.SELF && anonymousUser.equals(SyncopeSession.get().getUsername())) {
-                    SyncopeSession.get().invalidate();
-                }
                 builder.window.close(target);
             }
         };

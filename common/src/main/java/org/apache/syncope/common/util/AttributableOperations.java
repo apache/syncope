@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.mod.AbstractSubjectMod;
 import org.apache.syncope.common.mod.AttributeMod;
@@ -236,8 +237,15 @@ public final class AttributableOperations {
         }
 
         // 3. security question / answer
-        result.setSecurityQuestion(updated.getSecurityQuestion());
-        result.setSecurityAnswer(updated.getSecurityAnswer());
+        if (updated.getSecurityQuestion() == null) {
+            result.setSecurityQuestion(null);
+            result.setSecurityAnswer(null);
+        } else if (!updated.getSecurityQuestion().equals(original.getSecurityQuestion())
+                || StringUtils.isNotBlank(updated.getSecurityAnswer())) {
+
+            result.setSecurityQuestion(updated.getSecurityQuestion());
+            result.setSecurityAnswer(updated.getSecurityAnswer());
+        }
 
         // 4. memberships
         Map<Long, MembershipTO> updatedMembs = updated.getMembershipMap();

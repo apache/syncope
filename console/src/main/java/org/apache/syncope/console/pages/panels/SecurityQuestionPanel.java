@@ -55,6 +55,7 @@ public class SecurityQuestionPanel extends Panel {
         final AjaxTextFieldPanel securityAnswer = new AjaxTextFieldPanel("securityAnswer", "securityAnswer",
                 new PropertyModel<String>(userTO, "securityAnswer"));
         securityAnswer.getField().setOutputMarkupId(true);
+        securityAnswer.setEnabled(false);
         add(securityAnswer);
 
         final AjaxDropDownChoicePanel<Long> securityQuestion =
@@ -86,11 +87,12 @@ public class SecurityQuestionPanel extends Panel {
             protected void onUpdate(final AjaxRequestTarget target) {
                 if (securityQuestion.getModelObject() == null) {
                     securityAnswer.setModelObject(null);
-                    target.add(SecurityQuestionPanel.this);
+                } else {
+                    securityAnswer.setEnabled(true);
                 }
+                target.add(SecurityQuestionPanel.this);
             }
         });
         add(securityQuestion);
     }
-
 }

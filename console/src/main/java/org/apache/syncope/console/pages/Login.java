@@ -21,6 +21,7 @@ package org.apache.syncope.console.pages;
 import java.security.AccessControlException;
 import java.util.List;
 import java.util.Locale;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.services.EntitlementService;
 import org.apache.syncope.common.wrap.EntitlementTO;
 import org.apache.syncope.common.to.UserTO;
@@ -31,23 +32,29 @@ import org.apache.syncope.console.pages.panels.NotificationPanel;
 import org.apache.syncope.console.rest.UserSelfRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
+import org.apache.wicket.Component;
 import org.apache.wicket.Page;
+import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
+import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -78,7 +85,7 @@ public class Login extends WebPage {
     @SpringBean
     private UserSelfRestClient userSelfRestClient;
 
-    private final Form<Void> form;
+    private final StatelessForm<Void> form;
 
     private final TextField<String> userIdField;
 
@@ -90,11 +97,12 @@ public class Login extends WebPage {
 
     public Login(final PageParameters parameters) {
         super(parameters);
+        setStatelessHint(true);
 
         feedbackPanel = new NotificationPanel(Constants.FEEDBACK);
         add(feedbackPanel);
 
-        form = new Form<Void>("login");
+        form = new StatelessForm<Void>("login");
 
         userIdField = new TextField<String>("userId", new Model<String>());
         userIdField.setMarkupId("userId");
@@ -190,13 +198,13 @@ public class Login extends WebPage {
         }
         add(selfRegFrag);
 
-        // Modal window for password reset
-        final ModalWindow pwdResetModalWin = new ModalWindow("pwdResetModal");
-        pwdResetModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        pwdResetModalWin.setInitialHeight(PWD_RESET_WIN_HEIGHT);
-        pwdResetModalWin.setInitialWidth(PWD_RESET_WIN_WIDTH);
-        pwdResetModalWin.setCookieName("pwd-reset-modal");
-        add(pwdResetModalWin);
+        // Modal window for password reset request
+        final ModalWindow pwdResetReqModalWin = new ModalWindow("pwdResetReqModal");
+        pwdResetReqModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        pwdResetReqModalWin.setInitialHeight(PWD_RESET_WIN_HEIGHT);
+        pwdResetReqModalWin.setInitialWidth(PWD_RESET_WIN_WIDTH);
+        pwdResetReqModalWin.setCookieName("pwd-reset-req-modal");
+        add(pwdResetReqModalWin);
 
         Fragment pwdResetFrag;
         if (userSelfRestClient.isPasswordResetAllowed()) {
@@ -208,7 +216,7 @@ public class Login extends WebPage {
 
                 @Override
                 protected void onClickInternal(final AjaxRequestTarget target) {
-                    pwdResetModalWin.setPageCreator(new ModalWindow.PageCreator() {
+                    pwdResetReqModalWin.setPageCreator(new ModalWindow.PageCreator() {
 
                         private static final long serialVersionUID = -7834632442532690940L;
 
@@ -217,21 +225,22 @@ public class Login extends WebPage {
                             // anonymous authentication needed for password reset request
                             authenticate(anonymousUser, anonymousKey);
 
-                            return new RequestPasswordResetModalPage(pwdResetModalWin);
+                            return new RequestPasswordResetModalPage(pwdResetReqModalWin);
                         }
                     });
 
-                    pwdResetModalWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+                    pwdResetReqModalWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
                         private static final long serialVersionUID = 8804221891699487139L;
 
                         @Override
                         public void onClose(final AjaxRequestTarget target) {
                             SyncopeSession.get().invalidate();
+                            setResponsePage(Login.class);
                         }
                     });
 
-                    pwdResetModalWin.show(target);
+                    pwdResetReqModalWin.show(target);
                 }
             };
             pwdResetLink.add(new Label("linkTitle", getString("passwordReset")));
@@ -243,6 +252,55 @@ public class Login extends WebPage {
             pwdResetFrag = new Fragment("passwordReset", "pwdResetNotAllowed", this);
         }
         add(pwdResetFrag);
+
+        // Modal window for password reset confirm - automatically shown when token is available as request parameter
+        final String pwdResetToken = RequestCycle.get().getRequest().getRequestParameters().
+                getParameterValue(Constants.PARAM_PASSWORD_RESET_TOKEN).toOptionalString();
+        final ModalWindow pwdResetConfModalWin = new ModalWindow("pwdResetConfModal");
+        if (StringUtils.isNotBlank(pwdResetToken)) {
+            pwdResetConfModalWin.add(new AbstractDefaultAjaxBehavior() {
+
+                private static final long serialVersionUID = 3109256773218160485L;
+
+                @Override
+                protected void respond(final AjaxRequestTarget target) {
+                    ModalWindow window = (ModalWindow) getComponent();
+                    window.show(target);
+                }
+
+                @Override
+                public void renderHead(final Component component, final IHeaderResponse response) {
+                    response.render(JavaScriptHeaderItem.forScript(getCallbackScript(), null));
+                }
+            });
+        }
+        pwdResetConfModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        pwdResetConfModalWin.setInitialHeight(PWD_RESET_WIN_HEIGHT);
+        pwdResetConfModalWin.setInitialWidth(PWD_RESET_WIN_WIDTH);
+        pwdResetConfModalWin.setCookieName("pwd-reset-conf-modal");
+        pwdResetConfModalWin.setPageCreator(new ModalWindow.PageCreator() {
+
+            private static final long serialVersionUID = -7834632442532690940L;
+
+            @Override
+            public Page createPage() {
+                // anonymous authentication needed for password reset confirm
+                authenticate(anonymousUser, anonymousKey);
+
+                return new ConfirmPasswordResetModalPage(pwdResetConfModalWin, pwdResetToken);
+            }
+        });
+        pwdResetConfModalWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                SyncopeSession.get().invalidate();
+                setResponsePage(Login.class);
+            }
+        });
+        add(pwdResetConfModalWin);
     }
 
     private void authenticate(final String username, final String password) {

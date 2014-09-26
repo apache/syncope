@@ -74,7 +74,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
 
-        selenium.click("//div[@id='tabs']/ul/li[5]/a");
+        selenium.click("//div[@id='tabs']/ul/li[6]/a");
 
         selenium.select("//div[@id='core']/div/span/table/tbody/tr/td[2]/select", "label=ERROR");
 
@@ -151,7 +151,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.click("//div[@class='eventSelectionWidzard']/div[2]/div[3]/span/div/input");
 
-        selenium.click("//div[2]/form/div[3]/ul/li[4]/a/span");
+        selenium.click("//div[2]/form/div[3]/ul/li[4]/a");
 
         selenium.click("//div[2]/form/div[3]/div[4]/div/div/span/input");
 

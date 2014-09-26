@@ -68,6 +68,7 @@ import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
+import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.UserDataBinder;
@@ -167,6 +168,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 throw (SyncopeClientException) e.getCause().getCause();
             } else if (e.getCause().getCause() instanceof ParsingValidationException) {
                 throw (ParsingValidationException) e.getCause().getCause();
+            } else if (e.getCause().getCause() instanceof InvalidEntityException) {
+                throw (InvalidEntityException) e.getCause().getCause();
             }
         }
 
