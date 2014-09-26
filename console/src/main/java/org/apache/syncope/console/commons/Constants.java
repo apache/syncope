@@ -38,6 +38,8 @@ public final class Constants {
 
     public static final String ERROR = "error";
 
+    public static final String PARAM_PASSWORD_RESET_TOKEN = "pwdResetToken";
+
     public static final String PREF_USERS_DETAILS_VIEW = "users.details.view";
 
     public static final String PREF_USERS_ATTRIBUTES_VIEW = "users.attributes.view";

@@ -67,7 +67,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserDataBinder extends AbstractAttributableDataBinder {
 
     private static final String[] IGNORE_USER_PROPERTIES = {
-        "memberships", "attrs", "derAttrs", "virAttrs", "resources", "securityQuestion"
+        "memberships", "attrs", "derAttrs", "virAttrs", "resources", "securityQuestion", "securityAnswer"
     };
 
     @Autowired
