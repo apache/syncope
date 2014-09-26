@@ -18,19 +18,21 @@
  */
 package org.apache.syncope.installer.utilities;
 
+import java.net.Authenticator;
 import java.net.MalformedURLException;
+import java.net.PasswordAuthentication;
 import org.apache.syncope.installer.enums.DBs;
 
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Driver;
 
-public class DriverLoader extends URLClassLoader {
+public final class DriverLoader extends URLClassLoader {
 
     private final static String POSTGRES_JAR = "http://jdbc.postgresql.org/download/postgresql-9.3-1101.jdbc41.jar";
 
-    private final static String MYSQL_JAR
-            = "http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.6/mysql-connector-java-5.1.6.jar";
+    private final static String MYSQL_JAR =
+            "http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.6/mysql-connector-java-5.1.6.jar";
 
     private static final String POSTGRES_CLASS_DRIVER = "org.postgresql.Driver";
 
@@ -43,14 +45,17 @@ public class DriverLoader extends URLClassLoader {
 
     private static DriverLoader driverLoader;
 
-    public static Driver load(final DBs selectedDB) {
+    public static Driver load(final DBs selectedDB, final boolean isProxyEnabled, final String proxyHost,
+            final String proxyPort, final String proxyUser, final String proxyPwd) {
         Driver driver = null;
         switch (selectedDB) {
             case POSTGRES:
-                driver = downloadDriver(POSTGRES_JAR, POSTGRES_CLASS_DRIVER);
+                driver = downloadDriver(POSTGRES_JAR, POSTGRES_CLASS_DRIVER, isProxyEnabled, proxyHost, proxyPort,
+                        proxyUser, proxyPwd);
                 break;
             case MYSQL:
-                driver = downloadDriver(MYSQL_JAR, MYSQL_CLASS_DRIVER);
+                driver = downloadDriver(MYSQL_JAR, MYSQL_CLASS_DRIVER, isProxyEnabled, proxyHost, proxyPort,
+                        proxyUser, proxyPwd);
                 break;
             case SQLSERVER:
                 break;
@@ -62,10 +67,27 @@ public class DriverLoader extends URLClassLoader {
         return driver;
     }
 
-    private static Driver downloadDriver(final String driverUrl, final String driverClassName) {
+    private static Driver downloadDriver(final String driverUrl, final String driverClassName,
+            final boolean isProxyEnabled, final String proxyHost, final String proxyPort, final String proxyUser,
+            final String proxyPwd) {
         Driver driver = null;
         try {
-            final URL[] url = {new URL(driverUrl)};
+            if (isProxyEnabled) {
+                System.setProperty("http.proxyHost", proxyHost);
+                System.setProperty("http.proxyPort", proxyPort);
+                if (proxyUser != null && !proxyUser.isEmpty() && proxyPwd != null) {
+                    Authenticator.setDefault(new Authenticator() {
+
+                        @Override
+                        public PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(proxyUser, proxyPwd.toCharArray());
+                        }
+                    });
+                    System.setProperty("http.proxyUser", proxyUser);
+                    System.setProperty("http.proxyPassword", proxyPwd);
+                }
+            }
+            final URL[] url = { new URL(driverUrl) };
             driverLoader = new DriverLoader(url);
             driver = (Driver) driverLoader.loadClass(driverClassName).newInstance();
         } catch (ClassNotFoundException e) {

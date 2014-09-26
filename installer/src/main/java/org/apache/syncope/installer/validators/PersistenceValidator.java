@@ -20,7 +20,6 @@ package org.apache.syncope.installer.validators;
 
 import com.izforge.izpack.api.data.InstallData;
 import java.sql.Driver;
-import java.sql.SQLException;
 import java.util.Properties;
 import org.apache.syncope.installer.enums.DBs;
 import org.apache.syncope.installer.utilities.DriverLoader;
@@ -37,6 +36,16 @@ public class PersistenceValidator extends AbstractValidator {
 
     private StringBuilder warning;
 
+    private boolean isProxyEnabled;
+
+    private String proxyHost;
+
+    private String proxyPort;
+
+    private String proxyUser;
+
+    private String proxyPwd;
+
     @Override
     public Status validateData(final InstallData installData) {
 
@@ -46,6 +55,11 @@ public class PersistenceValidator extends AbstractValidator {
         persistenceUrl = installData.getVariable("persistence.url");
         persistenceDbuser = installData.getVariable("persistence.dbuser");
         persistenceDbPassword = installData.getVariable("persistence.dbpassword");
+        isProxyEnabled = Boolean.valueOf(installData.getVariable("mvn.proxy"));
+        proxyHost = installData.getVariable("mvn.proxy.host");
+        proxyPort = installData.getVariable("mvn.proxy.port");
+        proxyUser = installData.getVariable("mvn.proxy.user");
+        proxyPwd = installData.getVariable("mvn.proxy.pwd");
 
         boolean verified = true;
         error = new StringBuilder("Required fields:\n");
@@ -84,16 +98,21 @@ public class PersistenceValidator extends AbstractValidator {
     }
 
     private Status checkConnection(final DBs selectedDb) {
-
+        Driver driver = null;
         try {
-            final Driver driver = DriverLoader.load(selectedDb);
+            driver = DriverLoader.load(selectedDb, isProxyEnabled, proxyHost, proxyPort, proxyUser,
+                    proxyPwd);
             final Properties props = new Properties();
             props.put("user", persistenceDbuser);
             props.put("password", persistenceDbPassword);
             driver.connect(persistenceUrl, props);
             return Status.OK;
-        } catch (SQLException ex) {
-            error = new StringBuilder("Db connection error: please check your insert data");
+        } catch (Exception ex) {
+            error =
+                    new StringBuilder(
+                            "Error during connection to database: please check inserted data.");
+            error.append(driver == null ? new StringBuilder(" Unable to get ").append(selectedDb.getName()).append(
+                    " driver!").toString() : "");
             return Status.ERROR;
         }
     }

@@ -20,16 +20,26 @@ package org.apache.syncope.installer.utilities;
 
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 public class MavenUtils {
 
@@ -45,14 +55,18 @@ public class MavenUtils {
     }
 
     public void archetypeGenerate(final String archetypeVersion, final String groupId,
-            final String artifactId, final String secretKey, final String anonymousKey, final String installPath) {
+            final String artifactId, final String secretKey, final String anonymousKey, final String installPath,
+            final File customSettingsFile) {
 
         final InvocationRequest request = new DefaultInvocationRequest();
         request.setGoals(Collections.singletonList("archetype:generate"));
         request.setInteractive(false);
-        final Properties properties
-                = archetypeProperties(archetypeVersion, groupId, artifactId, secretKey, anonymousKey);
+        final Properties properties =
+                archetypeProperties(archetypeVersion, groupId, artifactId, secretKey, anonymousKey);
         request.setProperties(properties);
+        if (customSettingsFile != null && FileUtils.sizeOf(customSettingsFile) > 0) {
+            request.setUserSettingsFile(customSettingsFile);
+        }
         logToHandler(request.getGoals(), properties);
         logToFile(request.getGoals(), properties);
         invoke(request, installPath);
@@ -73,11 +87,13 @@ public class MavenUtils {
     }
 
     public void createPackage(final String path, final String confDirectory,
-            final String logDirectory, final String bundlesDirectory) {
-
+            final String logDirectory, final String bundlesDirectory, final File customSettingsFile) {
         final InvocationRequest request = new DefaultInvocationRequest();
         final Properties properties = packageProperties(confDirectory, logDirectory, bundlesDirectory);
         request.setProperties(properties);
+        if (customSettingsFile != null && FileUtils.sizeOf(customSettingsFile) > 0) {
+            request.setUserSettingsFile(customSettingsFile);
+        }
         final List<String> mavenGoals = new ArrayList<String>();
         mavenGoals.add("clean");
         mavenGoals.add("package");
@@ -135,4 +151,56 @@ public class MavenUtils {
         return result;
     }
 
+    public static File createSettingsWithProxy(final String path, final String proxyHost, final String proxyPort,
+            final String proxyUser, final String proxyPassword) throws IOException, ParserConfigurationException,
+            TransformerException, SAXException {
+        final File settingsXML = new File(System.getProperty(MAVEN_HOME_PROPERTY) + (System.getProperty(
+                MAVEN_HOME_PROPERTY).endsWith("/") ? "conf/settings.xml" : "/conf/settings.xml"));
+        final File tempSettingsXML = new File(path + (path.endsWith("/") ? "settings_temp.xml" : "/settings_temp.xml"));
+        if (settingsXML.canRead() && !tempSettingsXML.exists()) {
+            tempSettingsXML.createNewFile();
+
+            final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            final DocumentBuilder builder = dbf.newDocumentBuilder();
+            // parse settings.xml
+            final Document settings = builder.parse(settingsXML);
+
+            final Element proxies = (Element) settings.getDocumentElement().getElementsByTagName("proxies").item(0);
+
+            final Element proxy = settings.createElement("proxy");
+
+            final Element id = settings.createElement("id");
+            final Element active = settings.createElement("active");
+            final Element protocol = settings.createElement("protocol");
+            final Element host = settings.createElement("host");
+            final Element port = settings.createElement("port");
+            final Element nonProxyHosts = settings.createElement("nonProxyHosts");
+            id.appendChild(settings.createTextNode("optional"));
+            active.appendChild(settings.createTextNode("true"));
+            protocol.appendChild(settings.createTextNode("http"));
+            host.appendChild(settings.createTextNode(proxyHost));
+            port.appendChild(settings.createTextNode(proxyPort));
+            proxy.appendChild(id);
+            proxy.appendChild(active);
+            proxy.appendChild(protocol);
+            // create username and password tags only if required
+            if (proxyUser != null && !proxyUser.isEmpty() && proxyPassword != null) {
+                final Element username = settings.createElement("username");
+                final Element password = settings.createElement("password");
+                username.appendChild(settings.createTextNode(proxyUser));
+                password.appendChild(settings.createTextNode(proxyPassword));
+                proxy.appendChild(username);
+                proxy.appendChild(password);
+            }
+            proxy.appendChild(host);
+            proxy.appendChild(port);
+            proxy.appendChild(nonProxyHosts);
+
+            proxies.appendChild(proxy);
+
+            FileSystemUtils.writeXML(settings, new FileOutputStream(tempSettingsXML));
+
+        }
+        return tempSettingsXML;
+    }
 }

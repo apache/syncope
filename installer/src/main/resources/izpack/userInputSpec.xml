@@ -61,8 +61,38 @@ under the License.
     </field>
     <!--    <field type="space"/>
     <field type="password" variable="mvn.syncope.admin.password">
-      <spec id="mvn.syncope.admin.password.id" size="20" set="password"/>
+      <spec>
+        <pwd id="mvn.syncope.admin.password.id" size="20" set="password"/>
+      </spec>
     </field>-->
+    <field type="space"/>
+    <field type="divider" align="top"/>
+    <field type="check" variable="mvn.proxy">
+      <spec id="mvn.proxy.id" true="true" false="false" set="false"/>
+    </field>
+    <field type="space"/>
+    <field type="check" variable="mvn.proxy.autoconf" conditionid="mvn.choice.proxy">
+      <description id="mvn.proxy.autoconf.desc.id"/>
+      <spec id="mvn.proxy.autoconf.id" true="true" false="false" set="false"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="mvn.proxy.host" conditionid="mvn.choice.proxy">
+      <spec id="mvn.proxy.host.id" size="20" set="localhost"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="mvn.proxy.port" conditionid="mvn.choice.proxy">
+      <spec id="mvn.proxy.port.id" size="5" set="3128"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="mvn.proxy.user" conditionid="mvn.choice.proxy">
+      <spec id="mvn.proxy.user.id" size="20"/>
+    </field>
+    <field type="space"/>
+    <field type="password" variable="mvn.proxy.pwd" conditionid="mvn.choice.proxy">
+      <spec>
+        <pwd id="mvn.proxy.pwd.id" size="20"/>
+      </spec>
+    </field>
   </panel>
   
   <panel id="persistence" order="2" border="false">

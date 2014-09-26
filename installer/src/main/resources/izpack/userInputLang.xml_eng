@@ -17,7 +17,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<langpack>+
+<langpack>
   <str id="mvn.directory.id" txt="Maven home directory:"/>
   <str id="archetype.mvn.groupid" txt="GroupId:"/>
   <str id="archetype.mvn.artifactid" txt="ArtifactId:"/>
@@ -28,6 +28,13 @@ under the License.
   <str id="archetype.mvn.bundle.directory" txt="Bundle directory name:"/>
   <str id="mvn.syncope.version.id" txt="Syncope Version:"/>
   <str id="mvn.syncope.admin.password.id" txt="Admin Password:"/>
+  <str id="mvn.proxy.id" txt="Use Proxy Server:"/>
+  <str id="mvn.proxy.autoconf.id" txt="Automatically configure Maven proxy"/>
+  <str id="mvn.proxy.autoconf.desc.id" txt="Check this field if Maven is not yet configured to use proxy:"/>
+  <str id="mvn.proxy.host.id" txt="Proxy Host:"/>
+  <str id="mvn.proxy.port.id" txt="Proxy Port:"/>
+  <str id="mvn.proxy.user.id" txt="Proxy User (if required):"/>
+  <str id="mvn.proxy.pwd.id" txt="Proxy Password (if required):"/>
   
   <str id="persistence.jdbc.url" txt="Database JDBC url:"/>
   <str id="persistence.db.user" txt="Username:"/>
