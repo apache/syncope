@@ -65,6 +65,12 @@ under the License.
   </dynamicvariables>
   
   <conditions>
+    
+    <condition type="variable" id="mvn.choice.proxy">
+      <name>mvn.proxy</name>
+      <value>true</value>
+    </condition>
+    
     <condition type="variable" id="postgres.choice">
       <name>install.type.selection</name>
       <value>postgres</value>

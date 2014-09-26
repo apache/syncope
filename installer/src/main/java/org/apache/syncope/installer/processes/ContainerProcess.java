@@ -21,6 +21,9 @@ package org.apache.syncope.installer.processes;
 import org.apache.syncope.installer.utilities.FileSystemUtils;
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
+import java.io.IOException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import org.apache.syncope.installer.containers.Glassfish;
 import org.apache.syncope.installer.containers.Tomcat;
 import org.apache.syncope.installer.containers.jboss.JBoss;
@@ -31,6 +34,7 @@ import org.apache.syncope.installer.files.PersistenceContextEMFactoryXml;
 import org.apache.syncope.installer.files.CoreWebXml;
 import org.apache.syncope.installer.utilities.InstallLog;
 import org.apache.syncope.installer.utilities.MavenUtils;
+import org.xml.sax.SAXException;
 
 public class ContainerProcess {
 
@@ -72,6 +76,18 @@ public class ContainerProcess {
 
     private String jbossAdminPassword;
 
+    private boolean isProxyEnabled;
+
+    private String proxyHost;
+
+    private String proxyPort;
+
+    private String proxyUser;
+
+    private String proxyPwd;
+
+    private boolean mavenProxyAutoconf;
+
     public void run(final AbstractUIProcessHandler handler, final String[] args) {
 
         installPath = args[0];
@@ -94,6 +110,12 @@ public class ContainerProcess {
         jbossJdbcModuleName = args[17];
         jbossAdminUsername = args[18];
         jbossAdminPassword = args[19];
+        isProxyEnabled = Boolean.valueOf(args[20]);
+        proxyHost = args[21];
+        proxyPort = args[22];
+        proxyUser = args[23];
+        proxyPwd = args[24];
+        mavenProxyAutoconf = Boolean.valueOf(args[25]);
 
         final FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
 
@@ -121,7 +143,46 @@ public class ContainerProcess {
         }
 
         final MavenUtils mavenUtils = new MavenUtils(mavenDir, handler);
-        mavenUtils.createPackage(installPath + "/" + artifactId, confDirectory, logsDirectory, bundlesDirectory);
+        File customMavenProxySettings = null;
+        try {
+            if (isProxyEnabled && mavenProxyAutoconf) {
+                customMavenProxySettings = MavenUtils.createSettingsWithProxy(installPath, proxyHost, proxyPort,
+                        proxyUser, proxyPwd);
+            }
+        } catch (IOException ex) {
+            final StringBuilder messageError = new StringBuilder(
+                    "I/O error during creation of Maven custom settings.xml");
+            final String emittedError = messageError.toString();
+            handler.emitError(emittedError, emittedError);
+            InstallLog.getInstance().error(messageError.append(ex.getMessage() == null ? "" : ex.getMessage()).
+                    toString());
+        } catch (ParserConfigurationException ex) {
+            final StringBuilder messageError = new StringBuilder(
+                    "Parser configuration error during creation of Maven custom settings.xml");
+            final String emittedError = messageError.toString();
+            handler.emitError(emittedError, emittedError);
+            InstallLog.getInstance().error(messageError.append(ex.getMessage() == null ? "" : ex.getMessage()).
+                    toString());
+        } catch (TransformerException ex) {
+            final StringBuilder messageError = new StringBuilder(
+                    "Transformer error during creation of Maven custom settings.xml");
+            final String emittedError = messageError.toString();
+            handler.emitError(emittedError, emittedError);
+            InstallLog.getInstance().error(messageError.append(ex.getMessage() == null ? "" : ex.getMessage()).
+                    toString());
+        } catch (SAXException ex) {
+            final StringBuilder messageError = new StringBuilder(
+                    "XML parsing error during creation of Maven custom settings.xml");
+            final String emittedError = messageError.toString();
+            handler.emitError(emittedError, emittedError);
+            InstallLog.getInstance().error(messageError.append(ex.getMessage() == null ? "" : ex.getMessage()).
+                    toString());
+        }
+        mavenUtils.createPackage(installPath + "/" + artifactId, confDirectory, logsDirectory, bundlesDirectory,
+                customMavenProxySettings);
+        if (isProxyEnabled && mavenProxyAutoconf) {
+            FileSystemUtils.delete(customMavenProxySettings);
+        }
 
         switch (selectedContainer) {
             case TOMCAT:

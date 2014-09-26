@@ -32,6 +32,12 @@ under the License.
       <arg>$mvn.bundle.directory</arg>
       <arg>$mvn.syncope.version</arg>
       <arg>$mvn.syncope.admin.password</arg>
+      <arg>$mvn.proxy</arg><!-- 11 -->
+      <arg>$mvn.proxy.host</arg><!-- 12 -->
+      <arg>$mvn.proxy.port</arg><!-- 13 -->
+      <arg>$mvn.proxy.user</arg><!-- 14 -->
+      <arg>$mvn.proxy.pwd</arg><!-- 15 -->
+      <arg>$mvn.proxy.autoconf</arg><!-- 16 -->
     </executeclass>
   </job>
   <job name="Persistence configuration...">
@@ -68,6 +74,12 @@ under the License.
       <arg>$jboss.container.jdbc.module</arg><!-- 17 -->
       <arg>$jboss.container.user</arg><!-- 18 -->
       <arg>$jboss.container.pwd</arg><!-- 19 -->
+      <arg>$mvn.proxy</arg><!-- 20 -->
+      <arg>$mvn.proxy.host</arg><!-- 21 -->
+      <arg>$mvn.proxy.port</arg><!-- 22 -->
+      <arg>$mvn.proxy.user</arg><!-- 23 -->
+      <arg>$mvn.proxy.pwd</arg><!-- 24 -->
+      <arg>$mvn.proxy.autoconf</arg><!-- 25 -->
     </executeclass>
   </job>
   <onFail previous="true" next="false" />
