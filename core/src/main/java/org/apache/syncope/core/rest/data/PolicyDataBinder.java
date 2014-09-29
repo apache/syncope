@@ -170,7 +170,10 @@ public class PolicyDataBinder {
                 }
                 policy.setSpecification(((AccountPolicyTO) policyTO).getSpecification());
 
-                ((AccountPolicy) policy).getResources().clear();
+                if (((AccountPolicy) policy).getResources() != null
+                        && !((AccountPolicy) policy).getResources().isEmpty()) {
+                    ((AccountPolicy) policy).getResources().clear();
+                }
                 for (String resourceName : ((AccountPolicyTO) policyTO).getResources()) {
                     ExternalResource resource = getResource(resourceName);
 

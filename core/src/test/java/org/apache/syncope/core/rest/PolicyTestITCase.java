@@ -29,6 +29,7 @@ import java.util.List;
 import org.apache.syncope.common.to.AccountPolicyTO;
 import org.apache.syncope.common.to.PasswordPolicyTO;
 import org.apache.syncope.common.to.SyncPolicyTO;
+import org.apache.syncope.common.types.AccountPolicySpec;
 import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.common.types.SyncPolicySpec;
@@ -220,5 +221,19 @@ public class PolicyTestITCase extends AbstractTest {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPolicy, e.getType());
         }
+    }
+
+    @Test
+    public void issueSYNCOPE553() {
+        AccountPolicyTO policy = new AccountPolicyTO(false);
+        policy.setDescription("SYNCOPE553");
+        
+        final AccountPolicySpec accountPolicySpec = new AccountPolicySpec();
+        accountPolicySpec.setMinLength(3);
+        accountPolicySpec.setMaxLength(8);
+        policy.setSpecification(accountPolicySpec);
+        
+        policy = createPolicy(policy);
+        assertNotNull(policy);
     }
 }
