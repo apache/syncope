@@ -86,7 +86,21 @@ public class MavenUtils {
         return properties;
     }
 
-    public void createPackage(final String path, final String confDirectory,
+    public void mvnCleanPackage(final String path, final File customSettingsFile) {
+        final InvocationRequest request = new DefaultInvocationRequest();
+        if (customSettingsFile != null && FileUtils.sizeOf(customSettingsFile) > 0) {
+            request.setUserSettingsFile(customSettingsFile);
+        }
+        final List<String> mavenGoals = new ArrayList<String>();
+        mavenGoals.add("clean");
+        mavenGoals.add("package");
+        request.setGoals(mavenGoals);
+        logToHandler(request.getGoals(), new Properties());
+        logToFile(request.getGoals(), new Properties());
+        invoke(request, path);
+    }
+    
+    public void mvnCleanPackageWithProperties(final String path, final String confDirectory,
             final String logDirectory, final String bundlesDirectory, final File customSettingsFile) {
         final InvocationRequest request = new DefaultInvocationRequest();
         final Properties properties = packageProperties(confDirectory, logDirectory, bundlesDirectory);

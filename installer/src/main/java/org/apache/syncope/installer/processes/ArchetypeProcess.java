@@ -24,7 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-import org.apache.syncope.installer.files.Pom;
+import org.apache.syncope.installer.files.ModelerPom;
+import org.apache.syncope.installer.files.ModelerTokenValueMap;
+import org.apache.syncope.installer.files.ParentPom;
 import org.apache.syncope.installer.utilities.InstallLog;
 import org.apache.syncope.installer.utilities.MavenUtils;
 import org.xml.sax.SAXException;
@@ -41,14 +43,15 @@ public class ArchetypeProcess {
         final String confDirectory = args[6];
         final String logsDirectory = args[7];
         final String bundlesDirectory = args[8];
-        final String syncopeVersion = args[9];
-        final String syncopeAdminPassword = args[10];
-        final boolean isProxyEnabled = Boolean.valueOf(args[11]);
-        final String proxyHost = args[12];
-        final String proxyPort = args[13];
-        final String proxyUser = args[14];
-        final String proxyPwd = args[15];
-        final boolean mavenProxyAutoconf = Boolean.valueOf(args[16]);
+        final String modelerDirectory = args[9];
+        final String syncopeVersion = args[10];
+        final String syncopeAdminPassword = args[11];
+        final boolean isProxyEnabled = Boolean.valueOf(args[12]);
+        final String proxyHost = args[13];
+        final String proxyPort = args[14];
+        final String proxyUser = args[15];
+        final String proxyPwd = args[16];
+        final boolean mavenProxyAutoconf = Boolean.valueOf(args[17]);
 
         final FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
         fileSystemUtils.createDirectory(installPath);
@@ -92,12 +95,17 @@ public class ArchetypeProcess {
         mavenUtils.archetypeGenerate(
                 syncopeVersion, groupId, artifactId, secretKey, anonymousKey, installPath, customMavenProxySettings);
 
-        fileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + Pom.PATH),
-                String.format(Pom.FILE, syncopeVersion, syncopeVersion, groupId, artifactId));
+        fileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + ParentPom.PATH),
+                String.format(ParentPom.FILE, syncopeVersion, syncopeVersion, groupId, artifactId));
         fileSystemUtils.createDirectory(confDirectory);
         fileSystemUtils.createDirectory(logsDirectory);
         fileSystemUtils.createDirectory(bundlesDirectory);
-        mavenUtils.createPackage(installPath + "/" + artifactId, confDirectory, logsDirectory, bundlesDirectory,
-                customMavenProxySettings);
+        fileSystemUtils.createDirectory(modelerDirectory);
+        fileSystemUtils.writeToFile(new File(modelerDirectory + ModelerPom.PATH),
+                String.format(ModelerPom.FILE, modelerDirectory, modelerDirectory));
+        fileSystemUtils.writeToFile(new File(modelerDirectory + ModelerTokenValueMap.PATH), ModelerTokenValueMap.FILE);
+        mavenUtils.mvnCleanPackage(modelerDirectory, customMavenProxySettings);
+        mavenUtils.mvnCleanPackageWithProperties(
+                installPath + "/" + artifactId, confDirectory, logsDirectory, bundlesDirectory, customMavenProxySettings);
     }
 }
