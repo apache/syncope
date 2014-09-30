@@ -183,7 +183,7 @@ public class PolicyController extends AbstractTransactionalController<AbstractPo
             }
         }
 
-        if (id != null) {
+        if ((id != null) && !id.equals(0l)) {
             try {
                 return binder.getPolicyTO(policyDAO.find(id));
             } catch (Throwable ignore) {

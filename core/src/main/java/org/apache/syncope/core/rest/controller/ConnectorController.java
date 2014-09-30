@@ -326,7 +326,7 @@ public class ConnectorController extends AbstractTransactionalController<ConnIns
             }
         }
 
-        if (id != null) {
+        if ((id != null) && !id.equals(0l)) {
             try {
                 return binder.getConnInstanceTO(connInstanceDAO.find(id));
             } catch (Throwable ignore) {

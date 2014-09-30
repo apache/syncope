@@ -628,7 +628,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
             }
         }
 
-        if (id != null) {
+        if ((id != null) && !id.equals(0l)) {
             try {
                 return id instanceof Long ? binder.getUserTO((Long) id) : binder.getUserTO((String) id);
             } catch (Throwable ignore) {
