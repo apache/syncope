@@ -52,6 +52,10 @@ under the License.
       <spec id="archetype.mvn.log.directory" size="20" set="/var/tmp/syncope/log" mustExist="false" create="true"/>
     </field>
     <field type="space"/>
+    <field type="dir" variable="mvn.modeler.directory">
+      <spec id="archetype.mvn.modeler.directory" size="20" set="/var/tmp/syncope/modeler" mustExist="false" create="true"/>
+    </field>
+    <field type="space"/>
     <field type="dir" variable="mvn.bundle.directory">
       <spec id="archetype.mvn.bundle.directory" size="20" set="/var/tmp/syncope/bundles" mustExist="false" create="true"/>
     </field>

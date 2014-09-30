@@ -178,7 +178,7 @@ public class ContainerProcess {
             InstallLog.getInstance().error(messageError.append(ex.getMessage() == null ? "" : ex.getMessage()).
                     toString());
         }
-        mavenUtils.createPackage(installPath + "/" + artifactId, confDirectory, logsDirectory, bundlesDirectory,
+        mavenUtils.mvnCleanPackageWithProperties(installPath + "/" + artifactId, confDirectory, logsDirectory, bundlesDirectory,
                 customMavenProxySettings);
         if (isProxyEnabled && mavenProxyAutoconf) {
             FileSystemUtils.delete(customMavenProxySettings);
