@@ -136,7 +136,7 @@ public class SecurityQuestionController extends AbstractTransactionalController<
             }
         }
 
-        if (id != null) {
+        if ((id != null) && !id.equals(0l)) {
             try {
                 return binder.getSecurityQuestionTO(securityQuestionDAO.find(id));
             } catch (Throwable ignore) {

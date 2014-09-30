@@ -389,7 +389,7 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
             }
         }
 
-        if (id != null) {
+        if ((id != null) && !id.equals(0l)) {
             try {
                 final Task task = taskDAO.find(id);
                 return binder.getTaskTO(task, TaskUtil.getInstance(task));
