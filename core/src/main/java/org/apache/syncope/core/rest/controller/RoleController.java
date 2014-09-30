@@ -365,7 +365,7 @@ public class RoleController extends AbstractController<RoleTO> {
             }
         }
 
-        if (id != null) {
+        if ((id != null) && !id.equals(0l)) {
             try {
                 return binder.getRoleTO(id);
             } catch (Throwable ignore) {

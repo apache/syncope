@@ -134,7 +134,7 @@ public class NotificationController extends AbstractTransactionalController<Noti
             }
         }
 
-        if (id != null) {
+        if ((id != null) && !id.equals(0l)) {
             try {
                 return binder.getNotificationTO(notificationDAO.find(id));
             } catch (Throwable ignore) {

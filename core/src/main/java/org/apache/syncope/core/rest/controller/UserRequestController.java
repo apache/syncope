@@ -156,7 +156,7 @@ public class UserRequestController extends AbstractController<UserRequestTO> {
     protected UserRequestTO resolveReference(final Method method, final Object... obj) {
         final UserRequestTO result;
 
-        if (ArrayUtils.isNotEmpty(obj) && obj[0] instanceof Long
+        if (ArrayUtils.isNotEmpty(obj) && obj[0] instanceof Long && !obj[0].equals(0l)
                 && ("deleteRequest".equals(method.getName()) || "read".equals(method.getName()))) {
 
             UserRequest request = userRequestDAO.find((Long) obj[0]);

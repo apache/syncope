@@ -215,7 +215,7 @@ public class PolicyController extends AbstractTransactionalController<PolicyTO> 
             }
         }
 
-        if (id != null) {
+        if ((id != null) && !id.equals(0l)) {
             try {
                 return binder.getPolicyTO(policyDAO.find(id));
             } catch (Throwable ignore) {

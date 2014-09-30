@@ -710,7 +710,7 @@ public class UserController extends AbstractController<UserTO> {
             }
         }
 
-        if (id != null) {
+        if ((id != null) && !id.equals(0l)) {
             try {
                 return id instanceof Long ? binder.getUserTO((Long) id) : binder.getUserTO((String) id);
             } catch (Throwable ignore) {

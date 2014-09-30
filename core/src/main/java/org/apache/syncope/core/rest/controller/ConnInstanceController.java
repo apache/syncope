@@ -366,7 +366,7 @@ public class ConnInstanceController extends AbstractTransactionalController<Conn
             }
         }
 
-        if (id != null) {
+        if ((id != null) && !id.equals(0l)) {
             try {
                 return binder.getConnInstanceTO(connInstanceDAO.find(id));
             } catch (Throwable ignore) {

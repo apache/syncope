@@ -409,7 +409,7 @@ public class ReportController extends AbstractTransactionalController<ReportTO> 
             }
         }
 
-        if (id != null) {
+        if ((id != null) && !id.equals(0l)) {
             try {
                 return binder.getReportTO(reportDAO.find(id));
             } catch (Throwable ignore) {
