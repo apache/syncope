@@ -30,8 +30,11 @@ public class InstallLog {
 
     private final FileSystemUtils fileSystemUtils;
 
+    private final String fileAbsolutePath;
+
     private InstallLog(final String installPath, final AbstractUIProcessHandler handler) {
-        log = new File(installPath + "/install.log");
+        fileAbsolutePath = installPath + "/install.log";
+        log = new File(fileAbsolutePath);
         fileSystemUtils = new FileSystemUtils(handler);
     }
 
@@ -54,6 +57,10 @@ public class InstallLog {
 
     public void info(final String msg) {
         writeToFile("Info", msg);
+    }
+
+    public String getFileAbsolutePath() {
+        return fileAbsolutePath;
     }
 
     private void writeToFile(final String what, final String msg) {

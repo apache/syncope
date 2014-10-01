@@ -92,6 +92,9 @@ public class ArchetypeProcess {
             InstallLog.getInstance().error(messageError.append(ex.getMessage() == null ? "" : ex.getMessage()).
                     toString());
         }
+        handler.logOutput("########################## IMPORTANT ##########################", true);
+        handler.logOutput("See " + InstallLog.getInstance().getFileAbsolutePath() + " for the maven logs", true);
+        handler.logOutput("########################## IMPORTANT ##########################", true);
         mavenUtils.archetypeGenerate(
                 syncopeVersion, groupId, artifactId, secretKey, anonymousKey, installPath, customMavenProxySettings);
 
