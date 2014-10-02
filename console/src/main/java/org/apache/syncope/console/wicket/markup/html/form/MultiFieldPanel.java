@@ -77,6 +77,15 @@ public class MultiFieldPanel<E> extends AbstractFieldPanel<List<E>> {
                     });
                 }
 
+		fieldPanel.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
+                    
+                    private static final long serialVersionUID = -1107858522700306810L;
+  
+                        @Override
+                        protected void onUpdate(final AjaxRequestTarget target) {
+                        }
+                    });
+
                 fieldPanel.setNewModel(item);
                 item.add(fieldPanel);
 
@@ -90,7 +99,7 @@ public class MultiFieldPanel<E> extends AbstractFieldPanel<List<E>> {
                         model.getObject().remove(item.getModelObject());
                         fieldPanel.getField().clearInput();
                         target.add(container);
-
+                        
                         if (eventTemplate) {
                             send(getPage(), Broadcast.BREADTH, new MultiValueSelectorEvent(target));
                         }
