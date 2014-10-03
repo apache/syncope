@@ -2,6 +2,29 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.2.0
+================================================================================
+
+** Sub-task
+    * [SYNCOPE-529] - Install through HTTP proxy
+    * [SYNCOPE-552] - Provide Activiti modeler installation feature to installer
+
+** Bug
+    * [SYNCOPE-547] - Cannot send e-mails out when SMTP server requires authentication
+    * [SYNCOPE-548] - Provide Activiti Modeler setup instructions
+    * [SYNCOPE-549] - Activiti Modeler always show the default workflow definition
+    * [SYNCOPE-551] - Admin console shows 24 roles at most in the role tree
+    * [SYNCOPE-553] - Internal Server Error when creating account policy
+    * [SYNCOPE-556] - Error in the enum schema when trying to add new enumeration value/label
+
+** Improvement
+    * [SYNCOPE-550] - Provide cleaner user workflow definition for production
+    * [SYNCOPE-555] - check for id != 0 in *Controller.resolveReference()
+
+** New Feature
+    * [SYNCOPE-135] - Password reset
+    * [SYNCOPE-143] - GUI Installer
+
 Release Notes - Syncope - Version 1.2.0-M1
 ================================================================================
 
