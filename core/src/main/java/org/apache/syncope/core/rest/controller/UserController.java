@@ -104,13 +104,18 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
     protected AttributableTransformer attrTransformer;
 
     @Transactional(readOnly = true)
-    public boolean isSelfRegistrationAllowed() {
+    public boolean isSelfRegAllowed() {
         return confDAO.find("selfRegistration.allowed", "false").getValues().get(0).getBooleanValue();
     }
 
     @Transactional(readOnly = true)
-    public boolean isPasswordResetAllowed() {
+    public boolean isPwdResetAllowed() {
         return confDAO.find("passwordReset.allowed", "false").getValues().get(0).getBooleanValue();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isPwdResetRequiringSecurityQuestions() {
+        return confDAO.find("passwordReset.securityQuestion", "true").getValues().get(0).getBooleanValue();
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -377,7 +382,9 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
             throw new NotFoundException("User " + username);
         }
 
-        if (securityAnswer == null || !securityAnswer.equals(user.getSecurityAnswer())) {
+        if (isPwdResetRequiringSecurityQuestions()
+                && (securityAnswer == null || !securityAnswer.equals(user.getSecurityAnswer()))) {
+
             throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
         }
 

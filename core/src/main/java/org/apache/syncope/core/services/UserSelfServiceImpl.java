@@ -39,14 +39,15 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     @Override
     public Response getOptions() {
         return Response.ok().header(HttpHeaders.ALLOW, OPTIONS_ALLOW).
-                header(RESTHeaders.SELFREGISTRATION_ALLOWED, controller.isSelfRegistrationAllowed()).
-                header(RESTHeaders.PASSWORDRESET_ALLOWED, controller.isPasswordResetAllowed()).
+                header(RESTHeaders.SELFREG_ALLOWED, controller.isSelfRegAllowed()).
+                header(RESTHeaders.PWDRESET_ALLOWED, controller.isPwdResetAllowed()).
+                header(RESTHeaders.PWDRESET_NEEDS_SECURITYQUESTIONS, controller.isPwdResetRequiringSecurityQuestions()).
                 build();
     }
 
     @Override
     public Response create(final UserTO userTO, final boolean storePassword) {
-        if (!controller.isSelfRegistrationAllowed()) {
+        if (!controller.isSelfRegAllowed()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unauthorized);
             sce.getElements().add("Self registration forbidden by configuration");
             throw sce;
@@ -76,7 +77,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
 
     @Override
     public void requestPasswordReset(final String username, final String securityAnswer) {
-        if (!controller.isPasswordResetAllowed()) {
+        if (!controller.isPwdResetAllowed()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unauthorized);
             sce.getElements().add("Password reset forbidden by configuration");
             throw sce;
@@ -87,7 +88,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
 
     @Override
     public void confirmPasswordReset(final String token, final String password) {
-        if (!controller.isPasswordResetAllowed()) {
+        if (!controller.isPwdResetAllowed()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unauthorized);
             sce.getElements().add("Password reset forbidden by configuration");
             throw sce;

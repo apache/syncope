@@ -278,8 +278,8 @@ public class ConnObjectUtil {
                     if (subjectTO instanceof UserTO) {
                         ((UserTO) subjectTO).setUsername(attribute == null || attribute.getValue().isEmpty()
                                 || attribute.getValue().get(0) == null
-                                ? null
-                                : attribute.getValue().get(0).toString());
+                                        ? null
+                                        : attribute.getValue().get(0).toString());
                     }
                     break;
 
@@ -287,8 +287,8 @@ public class ConnObjectUtil {
                     if (subjectTO instanceof RoleTO) {
                         ((RoleTO) subjectTO).setName(attribute == null || attribute.getValue().isEmpty()
                                 || attribute.getValue().get(0) == null
-                                ? null
-                                : attribute.getValue().get(0).toString());
+                                        ? null
+                                        : attribute.getValue().get(0).toString());
                     }
                     break;
 
@@ -319,22 +319,28 @@ public class ConnObjectUtil {
                             ? Collections.emptyList()
                             : attribute.getValue()) {
 
+                        AttributeSchemaType schemaType = schema == null ? AttributeSchemaType.String : schema.getType();
                         if (value != null) {
                             final AbstractAttrValue attrValue = attrUtil.newAttrValue();
-                            if (schema == null) {
-                                attrValue.setStringValue(value.toString());
-                            } else if (schema.getType() == AttributeSchemaType.Binary) {
-                                attrValue.setBinaryValue((byte[]) value);
-                            } else {
-                                try {
-                                    attrValue.parseValue(schema, value.toString());
-                                } catch (ParsingValidationException e) {
-                                    LOG.error("While parsing provided value {}", value, e);
+                            switch (schemaType) {
+                                case String:
                                     attrValue.setStringValue(value.toString());
-                                }
+                                    break;
+
+                                case Binary:
+                                    attrValue.setBinaryValue((byte[]) value);
+                                    break;
+
+                                default:
+                                    try {
+                                        attrValue.parseValue(schema, value.toString());
+                                    } catch (ParsingValidationException e) {
+                                        LOG.error("While parsing provided value {}", value, e);
+                                        attrValue.setStringValue(value.toString());
+                                        schemaType = AttributeSchemaType.String;
+                                    }
                             }
-                            attributeTO.getValues().add(attrValue.getValueAsString(
-                                    schema == null ? AttributeSchemaType.String : schema.getType()));
+                            attributeTO.getValues().add(attrValue.getValueAsString(schemaType));
                         }
                     }
 
@@ -540,7 +546,7 @@ public class ConnObjectUtil {
 
         final IntMappingType type = attrUtil.getType() == AttributableType.USER
                 ? IntMappingType.UserVirtualSchema : attrUtil.getType() == AttributableType.ROLE
-                ? IntMappingType.RoleVirtualSchema : IntMappingType.MembershipVirtualSchema;
+                        ? IntMappingType.RoleVirtualSchema : IntMappingType.MembershipVirtualSchema;
 
         final Map<String, ConnectorObject> externalResources = new HashMap<String, ConnectorObject>();
 

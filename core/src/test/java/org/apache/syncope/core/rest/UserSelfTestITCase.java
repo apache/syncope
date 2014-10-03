@@ -59,7 +59,7 @@ public class UserSelfTestITCase extends AbstractTest {
 
     @Test
     public void selfRegistrationAllowed() {
-        assertTrue(clientFactory.createAnonymous().isSelfRegistrationAllowed());
+        assertTrue(clientFactory.createAnonymous().isSelfRegAllowed());
     }
 
     @Test
@@ -293,4 +293,49 @@ public class UserSelfTestITCase extends AbstractTest {
         assertNotNull(read);
         assertNull(read.getToken());
     }
+
+    @Test
+    public void passwordResetWithoutSecurityQuestion() {
+        // 0. disable security question for password reset
+        configurationService.set("passwordReset.securityQuestion",
+                attributeTO("passwordReset.securityQuestion", "false"));
+
+        // 1. create an user with security question and answer
+        UserTO user = UserTestITCase.getUniqueSampleTO("pwdResetNoSecurityQuestion@syncope.apache.org");
+        createUser(user);
+
+        // 2. verify that new user is able to authenticate
+        SyncopeClient authClient = clientFactory.create(user.getUsername(), "password123");
+        UserTO read = authClient.getService(UserSelfService.class).read();
+        assertNotNull(read);
+
+        // 3. request password reset (as anonymous) with no security answer
+        SyncopeClient anonClient = clientFactory.createAnonymous();
+        anonClient.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), null);
+
+        // 4. get token (normally sent via e-mail, now reading as admin)
+        String token = userService.read(read.getId()).getToken();
+        assertNotNull(token);
+
+        // 5. confirm password reset
+        try {
+            anonClient.getService(UserSelfService.class).confirmPasswordReset("WRONG TOKEN", "newPassword");
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
+            assertTrue(e.getMessage().contains("WRONG TOKEN"));
+        }
+        anonClient.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword");
+
+        // 6. verify that password was reset and token removed
+        authClient = clientFactory.create(user.getUsername(), "newPassword");
+        read = authClient.getService(UserSelfService.class).read();
+        assertNotNull(read);
+        assertNull(read.getToken());
+
+        // 7. re-enable security question for password reset
+        configurationService.set("passwordReset.securityQuestion",
+                attributeTO("passwordReset.securityQuestion", "true"));
+    }
+
 }

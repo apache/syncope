@@ -28,6 +28,7 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.model.Model;
@@ -45,42 +46,58 @@ public class RequestPasswordResetModalPage extends BaseModalPage {
         super();
         setOutputMarkupId(true);
 
+        final boolean handleSecurityQuestion = userSelfRestClient.isPwdResetRequiringSecurityQuestions();
+
         final StatelessForm<?> form = new StatelessForm<Object>(FORM);
         form.setOutputMarkupId(true);
 
+        final Label securityQuestionLabel = new Label("securityQuestionLabel", getString("securityQuestion"));
+        securityQuestionLabel.setOutputMarkupPlaceholderTag(true);
+        securityQuestionLabel.setVisible(handleSecurityQuestion);
+        form.add(securityQuestionLabel);
         final AjaxTextFieldPanel securityQuestion =
                 new AjaxTextFieldPanel("securityQuestion", "securityQuestion", new Model<String>());
         securityQuestion.setReadOnly(true);
         securityQuestion.setRequired(true);
         securityQuestion.getField().setOutputMarkupId(true);
+        securityQuestion.setOutputMarkupPlaceholderTag(true);
+        securityQuestion.setVisible(handleSecurityQuestion);
         form.add(securityQuestion);
 
         final AjaxTextFieldPanel username =
                 new AjaxTextFieldPanel("username", "username", new Model<String>());
         username.setRequired(true);
         username.getField().setOutputMarkupId(true);
-        username.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        if (handleSecurityQuestion) {
+            username.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
-            private static final long serialVersionUID = -1107858522700306810L;
+                private static final long serialVersionUID = -1107858522700306810L;
 
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                try {
-                    SecurityQuestionTO read = securityQuestionRestClient.readByUser(username.getModelObject());
-                    securityQuestion.setModelObject(read.getContent());
-                    target.add(securityQuestion);
-                } catch (Exception e) {
-                    LOG.error("While fetching security question for {}", username.getModelObject(), e);
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    feedbackPanel.refresh(target);
+                @Override
+                protected void onUpdate(final AjaxRequestTarget target) {
+                    try {
+                        SecurityQuestionTO read = securityQuestionRestClient.readByUser(username.getModelObject());
+                        securityQuestion.setModelObject(read.getContent());
+                        target.add(securityQuestion);
+                    } catch (Exception e) {
+                        LOG.error("While fetching security question for {}", username.getModelObject(), e);
+                        error(getString(Constants.ERROR) + ": " + e.getMessage());
+                        feedbackPanel.refresh(target);
+                    }
                 }
-            }
-        });
+            });
+        }
         form.add(username);
 
+        final Label securityAnswerLabel = new Label("securityAnswerLabel", getString("securityAnswer"));
+        securityAnswerLabel.setOutputMarkupPlaceholderTag(true);
+        securityAnswerLabel.setVisible(handleSecurityQuestion);
+        form.add(securityAnswerLabel);
         final AjaxTextFieldPanel securityAnswer =
                 new AjaxTextFieldPanel("securityAnswer", "securityAnswer", new Model<String>());
-        securityAnswer.setRequired(true);
+        securityAnswer.setRequired(handleSecurityQuestion);
+        securityAnswer.setOutputMarkupPlaceholderTag(true);
+        securityAnswer.setVisible(handleSecurityQuestion);
         form.add(securityAnswer);
 
         final AjaxButton submit = new IndicatingAjaxButton(APPLY, new ResourceModel(SUBMIT, SUBMIT)) {

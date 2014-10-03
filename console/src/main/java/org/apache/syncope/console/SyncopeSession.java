@@ -87,18 +87,25 @@ public class SyncopeSession extends WebSession {
         clients.clear();
     }
 
-    public boolean isSelfRegistrationAllowed() {
+    public boolean isSelfRegAllowed() {
         SyncopeClient client = clients.isEmpty()
                 ? clientFactory.createAnonymous()
                 : clients.values().iterator().next();
-        return client.isSelfRegistrationAllowed();
+        return client.isSelfRegAllowed();
     }
 
-    public boolean isPasswordResetAllowed() {
+    public boolean isPwdResetAllowed() {
         SyncopeClient client = clients.isEmpty()
                 ? clientFactory.createAnonymous()
                 : clients.values().iterator().next();
-        return client.isPasswordResetAllowed();
+        return client.isPwdResetAllowed();
+    }
+
+    public boolean isPwdResetRequiringSecurityQuestions() {
+        SyncopeClient client = clients.isEmpty()
+                ? clientFactory.createAnonymous()
+                : clients.values().iterator().next();
+        return client.isPwdResetRequiringSecurityQuestions();
     }
 
     public boolean isActivitiEnabledFor(final SubjectType type) {

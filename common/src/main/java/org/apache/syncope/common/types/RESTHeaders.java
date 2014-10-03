@@ -36,12 +36,17 @@ public final class RESTHeaders {
     /**
      * Option key stating if user request create is allowed or not.
      */
-    public static final String SELFREGISTRATION_ALLOWED = "Syncope.SelfRegistration.Allowed";
+    public static final String SELFREG_ALLOWED = "Syncope.SelfRegistration.Allowed";
 
     /**
-     * Option key stating if user request create is allowed or not.
+     * Option key stating if password reset is allowed or not.
      */
-    public static final String PASSWORDRESET_ALLOWED = "Syncope.PasswordReset.Allowed";
+    public static final String PWDRESET_ALLOWED = "Syncope.PasswordReset.Allowed";
+
+    /**
+     * Option key stating if password reset requires security question or not.
+     */
+    public static final String PWDRESET_NEEDS_SECURITYQUESTIONS = "Syncope.PasswordReset.SecurityQuestions";
 
     /**
      * Option key stating if Activiti workflow adapter is in use for users.
