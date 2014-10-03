@@ -214,9 +214,9 @@ public class SyncopeClient {
      * @return whether self-registration is allowed
      * @see UserSelfService#getOptions()
      */
-    public boolean isSelfRegistrationAllowed() {
+    public boolean isSelfRegAllowed() {
         return Boolean.valueOf(restClientFactory.createServiceInstance(UserSelfService.class, mediaType, null, null).
-                getOptions().getHeaderString(RESTHeaders.SELFREGISTRATION_ALLOWED));
+                getOptions().getHeaderString(RESTHeaders.SELFREG_ALLOWED));
     }
 
     /**
@@ -225,9 +225,20 @@ public class SyncopeClient {
      * @return whether password reset is allowed
      * @see UserSelfService#getOptions()
      */
-    public boolean isPasswordResetAllowed() {
+    public boolean isPwdResetAllowed() {
         return Boolean.valueOf(restClientFactory.createServiceInstance(UserSelfService.class, mediaType, null, null).
-                getOptions().getHeaderString(RESTHeaders.PASSWORDRESET_ALLOWED));
+                getOptions().getHeaderString(RESTHeaders.PWDRESET_ALLOWED));
+    }
+
+    /**
+     * Checks whether password reset requires security question by calling <tt>UserSelfService</tt>'s options.
+     *
+     * @return whether password reset requires security question
+     * @see UserSelfService#getOptions()
+     */
+    public boolean isPwdResetRequiringSecurityQuestions() {
+        return Boolean.valueOf(restClientFactory.createServiceInstance(UserSelfService.class, mediaType, null, null).
+                getOptions().getHeaderString(RESTHeaders.PWDRESET_NEEDS_SECURITYQUESTIONS));
     }
 
     /**
