@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.report.RoleReportletConf;
 import org.apache.syncope.common.report.RoleReportletConf.Feature;
 import org.apache.syncope.common.to.AbstractAttributableTO;
@@ -64,7 +65,7 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
     private List<SyncopeRole> getPagedRoles(final int page) {
         final Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(entitlementDAO.findAll());
         final List<SyncopeRole> result;
-        if (conf.getMatchingCond() == null) {
+        if (StringUtils.isBlank(conf.getMatchingCond())) {
             result = roleDAO.findAll();
         } else {
             result = searchDAO.search(adminRoleIds, SearchCondConverter.convert(conf.getMatchingCond()),
@@ -77,7 +78,7 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
     private int count() {
         Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(entitlementDAO.findAll());
 
-        return conf.getMatchingCond() == null
+        return StringUtils.isBlank(conf.getMatchingCond())
                 ? roleDAO.findAll().size()
                 : searchDAO.count(adminRoleIds, SearchCondConverter.convert(conf.getMatchingCond()), SubjectType.ROLE);
     }
