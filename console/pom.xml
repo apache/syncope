@@ -408,8 +408,8 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
+	<inherited>true</inherited>
         <configuration>
-          <attachClasses>true</attachClasses>
           <webResources>
             <resource>
               <directory>src/main/webapp</directory>
