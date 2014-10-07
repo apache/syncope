@@ -48,8 +48,9 @@ public interface UserSelfService extends JAXRSService {
      *
      * @return <tt>Response</tt> contains special Syncope HTTP header indicating if user self registration and / or
      * password reset is allowed
-     * @see org.apache.syncope.common.types.RESTHeaders#SELFREGISTRATION_ALLOWED
-     * @see org.apache.syncope.common.types.RESTHeaders#PASSWORDRESET_ALLOWED
+     * @see org.apache.syncope.common.types.RESTHeaders#SELFREG_ALLOWED
+     * @see org.apache.syncope.common.types.RESTHeaders#PWDRESET_ALLOWED
+     * @see org.apache.syncope.common.types.RESTHeaders#PWDRESET_NEEDS_SECURITYQUESTIONS
      */
     @Descriptions({
         @Description(target = DocTarget.RESPONSE,
