@@ -156,9 +156,11 @@ under the License.
           <h5>THIS USER ISN'T ASSIGNED TO A ROLE</h5>
         </xsl:otherwise>
       </xsl:choose>
-      <xsl:call-template name="resources">
-        <xsl:with-param name="node" select="resources/resource"/>
-      </xsl:call-template>
+      <xsl:if test="string-length(resources) &gt; 0">
+          <xsl:call-template name="resources">
+              <xsl:with-param name="node" select="resources/resource"/>
+          </xsl:call-template>
+      </xsl:if>
       <hr/>
     </xsl:for-each>
        
