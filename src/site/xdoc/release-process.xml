@@ -271,7 +271,7 @@ mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>
 cd common
 mvn -P offline-doc                            
 
-cd ../../site/<version>
+cd ../../../site/<version>
 rm -rf syncope-* project-reports.html apidocs/1.html
 
 # if releasing from 1_2_X              
@@ -498,7 +498,7 @@ svn commit -m "Cleaning up older releases"]]></source>
             <source><![CDATA[
 svn co https://svn.apache.org/repos/asf/syncope/site/
 cd site
-svn rm *.html apidocs css images img js
+svn rm *.html apidocs rest css images img js
 svn mv <version>/* .
 svn rm <version>
 svn commit -m "Promoting the staging site"]]></source>
