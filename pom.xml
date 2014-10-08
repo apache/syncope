@@ -357,7 +357,7 @@ under the License.
     
     <httpclient.version>4.3.5</httpclient.version>
 
-    <tomcat.version>7.0.55</tomcat.version>
+    <tomcat.version>8.0.14</tomcat.version>
 
     <jasypt.version>1.9.2</jasypt.version>
  
@@ -1154,9 +1154,9 @@ under the License.
           <version>1.4.10</version>
           <configuration>
             <container>
-              <containerId>tomcat7x</containerId>
+              <containerId>tomcat8x</containerId>
               <zipUrlInstaller>
-                <url>http://archive.apache.org/dist/tomcat/tomcat-7/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip</url>
+                <url>http://archive.apache.org/dist/tomcat/tomcat-8/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip</url>
                 <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                 <extractDir>${project.build.directory}/cargo/extract</extractDir>
               </zipUrlInstaller>
