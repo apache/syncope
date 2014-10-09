@@ -48,9 +48,11 @@ import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.Notification;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.conf.CAttr;
+import org.apache.syncope.core.persistence.beans.conf.CSchema;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.NotificationDAO;
+import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.rest.UserTestITCase;
 import org.apache.syncope.core.rest.controller.RoleController;
@@ -119,6 +121,9 @@ public class NotificationTest {
 
     @Autowired
     private TaskDAO taskDAO;
+
+    @Autowired
+    private SchemaDAO schemaDAO;
 
     @Autowired
     private ConfDAO confDAO;
@@ -400,8 +405,8 @@ public class NotificationTest {
         userController.create(userTO, true);
 
         // 3. Set number of retries
-        CAttr maxRetries = confDAO.find("notification.maxRetries", "5");
-        maxRetries.getValues().clear();
+        CAttr maxRetries = new CAttr();
+        maxRetries.setSchema(schemaDAO.find("notification.maxRetries", CSchema.class));
         maxRetries.addValue("5", AttributableUtil.getInstance(AttributableType.CONFIGURATION));
         confDAO.save(maxRetries);
         confDAO.flush();
@@ -429,8 +434,8 @@ public class NotificationTest {
         startGreenMail();
 
         // 8. reset number of retries
-        maxRetries = confDAO.find("notification.maxRetries", "5");
-        maxRetries.getValues().clear();
+        maxRetries = new CAttr();
+        maxRetries.setSchema(schemaDAO.find("notification.maxRetries", CSchema.class));
         maxRetries.addValue("0", AttributableUtil.getInstance(AttributableType.CONFIGURATION));
         confDAO.save(maxRetries);
         confDAO.flush();
