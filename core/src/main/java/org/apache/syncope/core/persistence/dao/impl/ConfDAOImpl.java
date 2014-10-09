@@ -22,6 +22,7 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.persistence.beans.conf.CAttr;
 import org.apache.syncope.core.persistence.beans.conf.CSchema;
 import org.apache.syncope.core.persistence.beans.conf.SyncopeConf;
+import org.apache.syncope.core.persistence.dao.AttrDAO;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -34,6 +35,9 @@ public class ConfDAOImpl extends AbstractDAOImpl implements ConfDAO {
 
     @Autowired
     private SchemaDAO schemaDAO;
+
+    @Autowired
+    private AttrDAO attrDAO;
 
     @Override
     public SyncopeConf get() {
@@ -70,10 +74,19 @@ public class ConfDAOImpl extends AbstractDAOImpl implements ConfDAO {
 
     @Override
     public SyncopeConf save(final CAttr attr) {
-        delete(attr.getSchema().getName());
-
         SyncopeConf instance = get();
+
+        CAttr old = instance.getAttr(attr.getSchema().getName());
+        if (old != null && (!attr.getSchema().isUniqueConstraint()
+                || (!attr.getUniqueValue().getStringValue().equals(old.getUniqueValue().getStringValue())))) {
+
+            instance.removeAttr(old);
+            attrDAO.delete(old.getId(), CAttr.class);
+        }
+
         instance.addAttr(attr);
+        attr.setOwner(instance);
+
         return entityManager.merge(instance);
     }
 
