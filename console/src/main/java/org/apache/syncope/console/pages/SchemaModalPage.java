@@ -102,6 +102,8 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
         conversionParams.add(conversionPattern);
         schemaForm.add(conversionParams);
 
+        final WebMarkupContainer typeParams = new WebMarkupContainer("typeParams");
+        typeParams.setOutputMarkupPlaceholderTag(true);
         // -- enum
         final AjaxTextFieldPanel enumerationValuesPanel =
                 new AjaxTextFieldPanel("panel", "enumerationValues", new Model<String>(null));
@@ -121,7 +123,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
         enumParams.setOutputMarkupPlaceholderTag(true);
         enumParams.add(enumerationValues);
         enumParams.add(enumerationKeys);
-        schemaForm.add(enumParams);
+        typeParams.add(enumParams);
 
         // -- encrypted
         final AjaxTextFieldPanel secretKey = new AjaxTextFieldPanel("secretKey",
@@ -136,7 +138,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
         encryptedParams.setOutputMarkupPlaceholderTag(true);
         encryptedParams.add(secretKey);
         encryptedParams.add(cipherAlgorithm);
-        schemaForm.add(encryptedParams);
+        typeParams.add(encryptedParams);
 
         // -- binary
         final AjaxTextFieldPanel mimeType = new AjaxTextFieldPanel("mimeType",
@@ -146,8 +148,10 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
         final WebMarkupContainer binaryParams = new WebMarkupContainer("binaryParams");
         binaryParams.setOutputMarkupPlaceholderTag(true);
         binaryParams.add(mimeType);
-        schemaForm.add(binaryParams);
+        typeParams.add(binaryParams);
 
+        schemaForm.add(typeParams);
+        
         // -- show or hide
         showHide(schema, type,
                 conversionParams, conversionPattern,
@@ -165,7 +169,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
                         enumParams, enumerationValuesPanel, enumerationValues, enumerationKeys,
                         encryptedParams, secretKey, cipherAlgorithm,
                         binaryParams, mimeType);
-                target.add(schemaForm);
+                target.add(typeParams);
             }
         });
 
