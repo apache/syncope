@@ -78,7 +78,7 @@ under the License.
 
   <!-- sample policies -->
   <Policy DTYPE="SyncPolicy" id="1" description="global sync policy" type="GLOBAL_SYNC" 
-          specification='{"userJavaRule":null,"roleJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"AltSearchSchemas":[]}'/>
+          specification='{"userJavaRule":null,"roleJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"roleAltSearchSchemas":[]}'/>
   <Policy DTYPE="PasswordPolicy" id="2" description="global password policy" type="GLOBAL_PASSWORD" 
           specification='{"historyLength":1,"maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[],"allowNullPassword":true}'/>
   <Policy DTYPE="SyncPolicy" id="3" description="sync policy 2" type="SYNC" 

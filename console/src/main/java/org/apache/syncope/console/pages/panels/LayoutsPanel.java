@@ -152,17 +152,21 @@ public class LayoutsPanel extends Panel {
         add(container);
     }
 
-    private AttributeTO getConfiguration(
-            final LayoutType layoutType, final AttributableType type) {
-        AttributeTO attributeTO = confRestClient.read(layoutType.getParameter());
-        if (attributeTO != null) {
-            return attributeTO;
-        } else {
+    private AttributeTO getConfiguration(final LayoutType layoutType, final AttributableType type) {
+        AttributeTO attributeTO = null;
+        try {
+            attributeTO = confRestClient.read(layoutType.getParameter());
+        } catch (Exception e) {
+            // ignore
+        }
+
+        if (attributeTO == null) {
             attributeTO = new AttributeTO();
             attributeTO.setSchema(layoutType.getParameter());
             attributeTO.getValues().addAll(getAllFields(type));
-            return attributeTO;
         }
+
+        return attributeTO;
     }
 
     private List<String> getAllFields(final AttributableType type) {
