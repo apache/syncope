@@ -25,6 +25,7 @@ import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.util.AttributableOperations;
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.Mode;
 import org.apache.syncope.console.pages.panels.RolePanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -43,13 +44,6 @@ import org.apache.wicket.model.ResourceModel;
 public class RoleModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -1732493223434085205L;
-
-    public enum Mode {
-
-        ADMIN,
-        TEMPLATE;
-
-    }
 
     protected final PageReference pageRef;
 

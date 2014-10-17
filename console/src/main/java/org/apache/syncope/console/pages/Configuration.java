@@ -29,20 +29,23 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.apache.syncope.common.SyncopeConstants;
-import org.apache.syncope.common.to.LoggerTO;
-import org.apache.syncope.common.to.NotificationTO;
-import org.apache.syncope.common.types.PolicyType;
-import org.apache.syncope.common.types.LoggerLevel;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConfTO;
+import org.apache.syncope.common.to.LoggerTO;
+import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.to.SecurityQuestionTO;
+import org.apache.syncope.console.commons.LayoutType;
+import org.apache.syncope.common.types.LoggerLevel;
+import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.HttpResourceStream;
+import org.apache.syncope.console.commons.Mode;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.console.pages.panels.AttributesPanel;
+import org.apache.syncope.console.pages.panels.LayoutsPanel;
 import org.apache.syncope.console.pages.panels.PoliciesPanel;
 import org.apache.syncope.console.rest.ConfigurationRestClient;
 import org.apache.syncope.console.rest.LoggerRestClient;
@@ -241,6 +244,13 @@ public class Configuration extends BasePage {
         MetaDataRoleAuthorizationStrategy.authorize(consoleLoggerContainer, ENABLE, xmlRolesReader.getAllAllowedRoles(
                 "Configuration", "logList"));
         add(consoleLoggerContainer);
+
+        add(new LayoutsPanel("adminUserLayoutPanel", LayoutType.ADMIN_USER, feedbackPanel));
+        add(new LayoutsPanel("selfUserLayoutPanel", LayoutType.SELF_USER, feedbackPanel));
+        add(new LayoutsPanel("adminRoleLayoutPanel", LayoutType.ADMIN_ROLE, feedbackPanel));
+        add(new LayoutsPanel("selfRoleLayoutPanel", LayoutType.SELF_ROLE, feedbackPanel));
+        add(new LayoutsPanel("adminMembershipLayoutPanel", LayoutType.ADMIN_MEMBERSHIP, feedbackPanel));
+        add(new LayoutsPanel("selfMembershipLayoutPanel", LayoutType.SELF_MEMBERSHIP, feedbackPanel));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -252,11 +262,20 @@ public class Configuration extends BasePage {
 
         final ConfTO conf = confRestClient.list();
 
+        for (Iterator<AttributeTO> it = conf.getAttrs().iterator(); it.hasNext();) {
+            AttributeTO attr = it.next();
+            for (LayoutType type : LayoutType.values()) {
+                if (type.getParameter().equals(attr.getSchema())) {
+                    it.remove();
+                }
+            }
+        }
+
         final Form<?> form = new Form<Void>("confForm");
         form.setModel(new CompoundPropertyModel(conf));
         parameters.add(form);
 
-        form.add(new AttributesPanel("parameters", conf, form, false));
+        form.add(new AttributesPanel("parameters", conf, form, Mode.ADMIN));
 
         IndicatingAjaxLink<Void> save = new IndicatingAjaxLink<Void>("saveParameters") {
 

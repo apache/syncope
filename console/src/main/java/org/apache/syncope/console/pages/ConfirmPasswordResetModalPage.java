@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.Mode;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -65,8 +66,7 @@ public class ConfirmPasswordResetModalPage extends BaseModalPage {
                 try {
                     userSelfRestClient.confirmPasswordReset(token, password.getModelObject());
 
-                    setResponsePage(new ResultStatusModalPage.Builder(window, new UserTO()).
-                            mode(UserModalPage.Mode.SELF).build());
+                    setResponsePage(new ResultStatusModalPage.Builder(window, new UserTO()).mode(Mode.SELF).build());
                 } catch (Exception e) {
                     LOG.error("While confirming password reset for {}", token, e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());

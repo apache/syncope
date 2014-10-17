@@ -53,7 +53,7 @@ public abstract class EventSelectionPanel extends Panel {
 
     private static final long serialVersionUID = 752233163798301002L;
 
-    private Set<String> selected = new HashSet<String>();
+    private final Set<String> selected = new HashSet<String>();
 
     public EventSelectionPanel(
             final String id, final EventCategoryTO eventCategoryTO, final IModel<List<String>> model) {
@@ -131,11 +131,11 @@ public abstract class EventSelectionPanel extends Panel {
 
                 final Check<String> successCheck = new Check<String>("successCheck",
                         new Model<String>(LoggerEventUtils.buildEvent(
-                        eventCategoryTO.getType(),
-                        eventCategoryTO.getCategory(),
-                        eventCategoryTO.getSubcategory(),
-                        event,
-                        AuditElements.Result.SUCCESS)),
+                                        eventCategoryTO.getType(),
+                                        eventCategoryTO.getCategory(),
+                                        eventCategoryTO.getSubcategory(),
+                                        event,
+                                        AuditElements.Result.SUCCESS)),
                         successGroup);
                 item.add(successCheck);
             }
@@ -195,11 +195,11 @@ public abstract class EventSelectionPanel extends Panel {
 
                 final Check<String> failureCheck = new Check<String>("failureCheck",
                         new Model<String>(LoggerEventUtils.buildEvent(
-                        eventCategoryTO.getType(),
-                        eventCategoryTO.getCategory(),
-                        eventCategoryTO.getSubcategory(),
-                        event,
-                        AuditElements.Result.FAILURE)),
+                                        eventCategoryTO.getType(),
+                                        eventCategoryTO.getCategory(),
+                                        eventCategoryTO.getSubcategory(),
+                                        event,
+                                        AuditElements.Result.FAILURE)),
                         failureGroup);
                 item.add(failureCheck);
             }

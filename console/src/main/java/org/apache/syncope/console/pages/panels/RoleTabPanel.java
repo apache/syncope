@@ -19,9 +19,10 @@
 package org.apache.syncope.console.pages.panels;
 
 import org.apache.syncope.client.SyncopeClient;
-import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.Mode;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.pages.ResultStatusModalPage;
 import org.apache.syncope.console.pages.RoleModalPage;
@@ -165,7 +166,7 @@ public class RoleTabPanel extends Panel {
         form.setOutputMarkupId(true);
 
         final RolePanel rolePanel = new RolePanel.Builder("rolePanel").form(form).roleTO(selectedNode).
-                roleModalPageMode(RoleModalPage.Mode.ADMIN).build();
+                roleModalPageMode(Mode.ADMIN).build();
         rolePanel.setEnabled(false);
         form.add(rolePanel);
 

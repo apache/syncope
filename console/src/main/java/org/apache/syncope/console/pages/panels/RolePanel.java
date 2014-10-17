@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.console.commons.status.StatusBean;
+import org.apache.syncope.console.commons.Mode;
 import org.apache.syncope.console.commons.XMLRolesReader;
+import org.apache.syncope.console.commons.status.StatusBean;
 import org.apache.syncope.console.pages.RoleModalPage;
 import org.apache.syncope.console.rest.AuthRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -62,7 +62,7 @@ public class RolePanel extends Panel {
 
         private RoleTO roleTO;
 
-        private RoleModalPage.Mode mode;
+        private Mode mode;
 
         private PageReference pageReference;
 
@@ -80,7 +80,7 @@ public class RolePanel extends Panel {
             return this;
         }
 
-        public Builder roleModalPageMode(final RoleModalPage.Mode mode) {
+        public Builder roleModalPageMode(final Mode mode) {
             this.mode = mode;
             return this;
         }
@@ -98,7 +98,7 @@ public class RolePanel extends Panel {
     private RolePanel(final Builder builder) {
         super(builder.id);
 
-        this.add(new RoleDetailsPanel("details", builder.roleTO, builder.mode == RoleModalPage.Mode.TEMPLATE));
+        this.add(new RoleDetailsPanel("details", builder.roleTO, builder.mode == Mode.TEMPLATE));
 
         if (builder.pageReference == null || builder.roleTO.getId() == 0) {
             this.add(new Label("statuspanel", ""));
@@ -123,7 +123,7 @@ public class RolePanel extends Panel {
         // Attributes panel
         //--------------------------------
         this.add(new AttributesPanel(
-                "attrs", builder.roleTO, builder.form, builder.mode == RoleModalPage.Mode.TEMPLATE, attrTemplates));
+                "attrs", builder.roleTO, builder.form, builder.mode, attrTemplates));
 
         final AjaxCheckBoxPanel inhAttributes = new AjaxCheckBoxPanel("inheritAttrs", "inheritAttrs",
                 new PropertyModel<Boolean>(builder.roleTO, "inheritAttrs"));
@@ -146,7 +146,7 @@ public class RolePanel extends Panel {
         // Virtual attributes panel
         //--------------------------------
         this.add(new VirtualAttributesPanel(
-                "virAttrs", builder.roleTO, builder.mode == RoleModalPage.Mode.TEMPLATE, attrTemplates));
+                "virAttrs", builder.roleTO, builder.mode == Mode.TEMPLATE, attrTemplates));
 
         final AjaxCheckBoxPanel inhVirtualAttributes = new AjaxCheckBoxPanel("inheritVirAttrs",
                 "inheritVirAttrs", new PropertyModel<Boolean>(builder.roleTO, "inheritVirAttrs"));

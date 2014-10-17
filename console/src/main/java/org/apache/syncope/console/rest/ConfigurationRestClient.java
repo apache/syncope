@@ -21,6 +21,7 @@ package org.apache.syncope.console.rest;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConfTO;
@@ -38,7 +39,12 @@ public class ConfigurationRestClient extends BaseRestClient {
     }
 
     public AttributeTO read(final String key) {
-        return getService(ConfigurationService.class).read(key);
+        try {
+            return getService(ConfigurationService.class).read(key);
+        } catch (SyncopeClientException e) {
+            LOG.error("While reading a configuration schema", e);
+        }
+        return null;
     }
 
     public void set(final AttributeTO attributeTO) {

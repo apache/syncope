@@ -23,6 +23,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.AttributableOperations;
+import org.apache.syncope.console.commons.Mode;
 import org.apache.syncope.console.commons.status.StatusBean;
 import org.apache.syncope.console.pages.panels.AccountInformationPanel;
 import org.apache.syncope.console.pages.panels.MembershipsPanel;
@@ -33,7 +34,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.ResourceModel;
@@ -73,7 +73,7 @@ public class EditUserModalPage extends UserModalPage {
             form.addOrReplace(new ResourcesPanel.Builder("resources").attributableTO(userTO).
                     statusPanel(statusPanel).build());
 
-            form.addOrReplace(new MembershipsPanel("memberships", userTO, false, statusPanel, getPageReference()));
+            form.addOrReplace(new MembershipsPanel("memberships", userTO, mode, statusPanel, getPageReference()));
         }
 
         // Security question / answer

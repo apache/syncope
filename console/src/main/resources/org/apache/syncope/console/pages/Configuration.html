@@ -19,9 +19,10 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:head>
     <script type="text/javascript">
-      $(document).ready(function() {
+      $(document).ready(function () {
         $("#policies").tabs();
         $("#logs").tabs();
+        $("#layouts").tabs();
       });
     </script>
   </wicket:head>
@@ -33,13 +34,43 @@ under the License.
         <li class="tabs-selected">
           <a href="#parameters"><span><wicket:message key="parameters"/></span></a>
         </li>
+        <li><a href="#layouts"><span><wicket:message key="layouts"/></span></a></li>
         <li><a href="#policies"><span><wicket:message key="policies"/></span></a></li>
         <li><a href="#notifications"><span><wicket:message key="notifications"/></span></a></li>
         <li><a href="#securityQuestions"><span><wicket:message key="securityQuestions"/></span></a></li>
         <li><a href="#workflow"><span><wicket:message key="workflow"/></span></a></li>
         <li><a href="#logs"><span><wicket:message key="logs"/></span></a></li>
       </ul>
-
+      <div id="layouts">
+        <ul>
+          <li class="tabs-selected">
+            <a href="#adminUser"><span><wicket:message key="adminUser"/></span></a>
+          </li>
+          <li><a href="#selfUser"><span><wicket:message key="selfUser"/></span></a></li>
+          <li><a href="#adminRole"><span><wicket:message key="adminRole"/></span></a></li>
+          <li><a href="#selfRole"><span><wicket:message key="selfRole"/></span></a></li>
+          <li><a href="#adminMembership"><span><wicket:message key="adminMembership"/></span></a></li>
+          <li><a href="#selfMembership"><span><wicket:message key="selfMembership"/></span></a></li>
+        </ul>
+        <div id="adminUser" style="border-width: 1px;border-top-width: 0px;">
+          <span wicket:id="adminUserLayoutPanel">[admin user layout panel]</span>
+        </div>
+        <div id="selfUser" style="border-width: 1px;border-top-width: 0px;">
+          <span wicket:id="selfUserLayoutPanel">[self user layout panel]</span>
+        </div>
+        <div id="adminRole" style="border-width: 1px;border-top-width: 0px;">
+          <span wicket:id="adminRoleLayoutPanel">[admin role layout panel]</span>
+        </div>
+        <div id="selfRole" style="border-width: 1px;border-top-width: 0px;">
+          <span wicket:id="selfRoleLayoutPanel">[self role layout panel]</span>
+        </div>
+        <div id="adminMembership" style="border-width: 1px;border-top-width: 0px;">
+          <span wicket:id="adminMembershipLayoutPanel">[admin membership layout panel]</span>
+        </div>
+        <div id="selfMembership" style="border-width: 1px;border-top-width: 0px;">
+          <span wicket:id="selfMembershipLayoutPanel">[self membership layout panel]</span>
+        </div>
+      </div>
       <div id="parameters" wicket:id="parameters" style="width: 700px;">
         <form wicket:id="confForm">
           <span wicket:id="parameters">[parameters]</span>
@@ -194,7 +225,6 @@ under the License.
                alt="DB export" title="title" wicket:message="title:db_export"/>
         </a>
       </div>    
-
     </div>
   </wicket:extend>
 </html>

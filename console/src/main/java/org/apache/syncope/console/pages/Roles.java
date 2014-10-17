@@ -102,7 +102,7 @@ public class Roles extends BasePage {
         });
 
         final AbstractSearchResultPanel searchResult =
-                 new RoleSearchResultPanel("searchResult", true, null, getPageReference(), restClient);
+                new RoleSearchResultPanel("searchResult", true, null, getPageReference(), restClient);
         add(searchResult);
 
         final Form searchForm = new Form("searchForm");

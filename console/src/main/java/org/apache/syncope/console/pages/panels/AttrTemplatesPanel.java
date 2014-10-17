@@ -98,33 +98,33 @@ public class AttrTemplatesPanel extends Panel {
         return new NonI18nPalette<String>(type.name(), new PropertyModel<List<String>>(roleTO, type.name()),
                 availableSchemas, new SelectChoiceRenderer<String>(), 8, false) {
 
-            private static final long serialVersionUID = 2295567122085510330L;
+                    private static final long serialVersionUID = 2295567122085510330L;
 
-            @Override
-            protected Recorder<String> newRecorderComponent() {
-                final Recorder<String> recorder = super.newRecorderComponent();
+                    @Override
+                    protected Recorder<String> newRecorderComponent() {
+                        final Recorder<String> recorder = super.newRecorderComponent();
 
-                switch (type) {
-                    case rAttrTemplates:
-                    case rDerAttrTemplates:
-                    case rVirAttrTemplates:
-                        recorder.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                        switch (type) {
+                            case rAttrTemplates:
+                            case rDerAttrTemplates:
+                            case rVirAttrTemplates:
+                                recorder.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
-                            private static final long serialVersionUID = -1107858522700306810L;
+                                    private static final long serialVersionUID = -1107858522700306810L;
 
-                            @Override
-                            protected void onUpdate(final AjaxRequestTarget target) {
-                                send(getPage(), Broadcast.BREADTH, new RoleAttrTemplatesChange(type, target));
-                            }
-                        });
-                        break;
+                                    @Override
+                                    protected void onUpdate(final AjaxRequestTarget target) {
+                                        send(getPage(), Broadcast.BREADTH, new RoleAttrTemplatesChange(type, target));
+                                    }
+                                });
+                                break;
 
-                    default:
-                }
+                            default:
+                        }
 
-                return recorder;
-            }
-        };
+                        return recorder;
+                    }
+                };
     }
 
     public Collection<String> getSelected(final Type type) {

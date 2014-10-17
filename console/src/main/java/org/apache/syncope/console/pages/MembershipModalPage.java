@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.console.commons.Mode;
 import org.apache.syncope.console.pages.panels.AttributesPanel;
 import org.apache.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.apache.syncope.console.pages.panels.SysInfoPanel;
@@ -37,10 +38,10 @@ public class MembershipModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -4360802478081432549L;
 
-    private AjaxButton submit;
+    private final AjaxButton submit;
 
     public MembershipModalPage(final PageReference pageRef, final ModalWindow window, final MembershipTO membershipTO,
-            final boolean templateMode) {
+            final Mode mode) {
 
         final Form<MembershipTO> form = new Form<MembershipTO>("MembershipForm");
 
@@ -92,7 +93,7 @@ public class MembershipModalPage extends BaseModalPage {
         //--------------------------------
         // Attributes panel
         //--------------------------------
-        form.add(new AttributesPanel("attrs", membershipTO, form, templateMode));
+        form.add(new AttributesPanel("attrs", membershipTO, form, mode));
         form.add(new SysInfoPanel("systeminformation", membershipTO));
         //--------------------------------
 
@@ -105,7 +106,7 @@ public class MembershipModalPage extends BaseModalPage {
         //--------------------------------
         // Virtual attributes container
         //--------------------------------
-        form.add(new VirtualAttributesPanel("virAttrs", membershipTO, templateMode));
+        form.add(new VirtualAttributesPanel("virAttrs", membershipTO, mode == Mode.TEMPLATE));
         //--------------------------------
 
         add(form);

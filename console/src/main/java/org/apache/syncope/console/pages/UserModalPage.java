@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.Mode;
 import org.apache.syncope.console.pages.panels.AttributesPanel;
 import org.apache.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.apache.syncope.console.pages.panels.MembershipsPanel;
@@ -44,14 +45,6 @@ import org.apache.wicket.model.ResourceModel;
  * Modal window with User form.
  */
 public abstract class UserModalPage extends BaseModalPage {
-
-    public enum Mode {
-
-        ADMIN,
-        SELF,
-        TEMPLATE;
-
-    }
 
     private static final long serialVersionUID = 5002005009737457667L;
 
@@ -117,7 +110,7 @@ public abstract class UserModalPage extends BaseModalPage {
         form.add(new Label("statuspanel", ""));
 
         form.add(new Label("pwdChangeInfo", ""));
-        
+
         form.add(new Label("securityQuestion", ""));
 
         form.add(new Label("accountinformation", ""));
@@ -138,7 +131,7 @@ public abstract class UserModalPage extends BaseModalPage {
         //--------------------------------
         // Attributes panel
         //--------------------------------
-        form.add(new AttributesPanel("attrs", userTO, form, mode == Mode.TEMPLATE));
+        form.add(new AttributesPanel("attrs", userTO, form, mode));
         //--------------------------------
 
         //--------------------------------
@@ -162,7 +155,7 @@ public abstract class UserModalPage extends BaseModalPage {
         //--------------------------------
         // Roles panel
         //--------------------------------
-        form.add(new MembershipsPanel("memberships", userTO, mode == Mode.TEMPLATE, null, getPageReference()));
+        form.add(new MembershipsPanel("memberships", userTO, mode, null, getPageReference()));
         //--------------------------------
 
         final AjaxButton submit = getOnSubmit();
