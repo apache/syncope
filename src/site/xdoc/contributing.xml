@@ -57,11 +57,11 @@ under the License.
       <subsection name="Documentation">
         <p>The website is managed via the 
           <a href="http://maven.apache.org/plugins/maven-site-plugin/">maven-site-plugin</a>, hence contributing site 
-          content is similar to contributing source code: Create a new issue on JIRA and attach an SVN patch to it.
+          content is similar to contributing source code: Create a new issue on JIRA and attach a GIT patch to it.
         </p>
         <p>The project 
           <a href="http://cwiki.apache.org/confluence/display/SYNCOPE">Wiki</a> is also available to gather any other 
-          kind of documentation or contribution you would like to contribute, and does not require any SVN, Maven or 
+          kind of documentation or contribution you would like to contribute, and does not require any GIT, Maven or 
           other technical skills.
         </p>
       </subsection>
@@ -87,8 +87,8 @@ under the License.
     <section name="How do I become a contributor or a committer?">
       <p>Everyone can contribute to Syncope as a contributor; contributors who build up a history of successful 
         contributions over time are invited to become committers. The difference is that committers have direct write 
-        access to the project SVN repositories, while contributors post their contributions to JIRA issues where they're
-        first reviewed, and then committed by a committer to the project's SVN repository. See 
+        access to the project GIT repositories, while contributors post their contributions to JIRA issues where they're
+        first reviewed, and then committed by a committer to the project's GIT repository. See 
         <a href="http://www.apache.org/dev/contributors.html">http://www.apache.org/dev/contributors.html</a> for a good
         overview of working as a contributor.
       </p>
@@ -112,11 +112,7 @@ under the License.
           <a href="mailto:root@apache.org">root@apache.org</a> with your committer account information, change your 
           initial password using the 
           <a href="https://id.apache.org">Apache Account Utility</a>. For more details see 
-          <a rel="nofollow" href="http://apache.org/dev/version-control.html">Committer Subversion Access</a>.
-        </li>
-        <li>
-          Test your SVN account by checking out the Syncope sources: 
-          <a href="http://svn.apache.org/viewvc/syncope/">Subversion Repository</a>.
+          <a rel="nofollow" href="http://apache.org/dev/version-control.html">Committer GIT Access</a>.
         </li>
       </ul>
       <p>All Committers and Contributors should:</p>
