@@ -41,9 +41,9 @@ under the License.
     </section>
     
     <section name="Prerequisites">
-      <subsection name="Apache Subversion">
-        <p>Install Apache Subversion 1.7.0 or higher; 
-          <a href="http://subversion.apache.org/packages.html">binary packages</a> for various platforms are available.
+      <subsection name="GIT">
+        <p>Install GIT; 
+          <a href="http://www.git-scm.com/downloads">binary packages</a> for various platforms are available.
         </p>
       </subsection>
       
@@ -125,16 +125,15 @@ under the License.
             <b>Resolved</b> issues to the <b>Closed</b> state.
           </li>
           <li>
-            Update the <code>CHANGES</code> file, in a SVN working copy <u>of the branch under release</u>,
-            based on the text release reports from JIRA.
+            Update the <code>CHANGES</code> file, in a GIT local clone, based on the text release reports from JIRA.
           </li>
           <li>
-            Commit any changes back to SVN:
-            <source>svn commit -m "Updating CHANGES for release"</source>
+            Commit and push any changes back to GIT:
+            <source><![CDATA[git commit -m "Updating CHANGES for release" CHANGES
+git push]]></source>
           </li>
           <li>
-            Update the <a href="https://svn.apache.org/repos/asf/syncope/branches/1_2_X/src/site/xdoc/downloads.xml">downloads</a>
-            site page from a SVN working copy <u>of the branch used for managing the web site</u> (currenly 1_2_X):
+            Update the <source>downloads.xml</source> site page from a GIT local clone:
             <ul>
               <li>add new release artifacts with base URL
                 <source>http://www.apache.org/dyn/closer.cgi/syncope/&lt;version&gt;/</source>
@@ -145,8 +144,9 @@ under the License.
             </ul>
           </li>
           <li>
-            Commit any changes back to SVN:
-            <source>svn commit -m "Updating downloads site page for release"</source>
+            Commit and push any changes back to GIT:
+            <source><![CDATA[git commit -m "Updating downloads site page for release" src/site/xdoc/downloads.xml
+git push]]></source>
           </li>
         </ol>
       </subsection>
@@ -157,7 +157,7 @@ under the License.
             Do a dry run of the <code>release:prepare</code> step.
             <source>mvn -P apache-release release:prepare -DdryRun=true</source>
 
-            The dry run will not commit any changes back to SVN and gives you the opportunity to verify that the 
+            The dry run will not commit any changes and gives you the opportunity to verify that the 
             release process will complete as expected.
           
             <p>
@@ -171,12 +171,12 @@ under the License.
             Verify that the release process completed as expected:
             <ol>
               <li>The release plugin will create <code>pom.xml.tag</code> files which contain the changes that would 
-                have been committed to SVN. The only differences between <code>pom.xml.tag</code> and its corresponding 
+                have been committed. The only differences between <code>pom.xml.tag</code> and its corresponding 
                 <code>pom.xml</code> file should be the version number.
               </li>
               <li>
                 If other formatting changes have been made you should review the changes and then commit them:
-                <source>svn commit -m "Fixing formatting for release"</source>
+                <source>git commit -a -m "Fixing formatting for release"</source>
               </li>
               <li>
                 Assuming the <code>.tag</code> files look OK you may proceed and do any other validation you feel 
@@ -200,7 +200,7 @@ gpg: Signature made ...]]></source>
                 </ol>
               </li>
               <li>
-                Once any failures or required updates have been committed to svn, rollback the release prepare files:
+                Once any failures or required updates have been committed to GIT, rollback the release prepare files:
                 <source>mvn -P apache-release release:rollback</source>
               </li>
             </ol>
@@ -263,9 +263,8 @@ svn commit -m "Staging artifacts for <version> vote"]]></source>
             <b>Staging site</b>
             <source><![CDATA[
 svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
-svn checkout https://svn.apache.org/repos/asf/syncope/tags/syncope-<version> syncope-<version>
 
-cd syncope-<version>
+(from a GIT local clone) git pull && git checkout syncope-<version>
 mvn -P skipTests
 mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>
 cd common
@@ -364,11 +363,11 @@ Subject: [VOTE] Apache Syncope <version>
 
 I've created a <version> release, with the following artifacts up for a vote:
 
-SVN source tag (r9999999):
-https://svn.apache.org/repos/asf/syncope/tags/<version>/
+GIT source tag (XXXXXXXXXXXXXXXX):
+https://git-wip-us.apache.org/repos/asf?p=syncope.git;a=tag;h=XXXXXXXXXXXXXXXX
 
 List of changes:
-https://svn.apache.org/repos/asf/syncope/tags/<version>/CHANGES
+https://git-wip-us.apache.org/repos/asf?p=syncope.git;a=blob_plain;f=CHANGES;h=0a7fb550234f89f4ad315272cf934f2e050250f7;hb=acbc816bdd6a75b27d8fb12b46905fe07e2cd977              
 
 Staging artifacts:
 https://dist.apache.org/repos/dist/dev/syncope/<version>
@@ -394,13 +393,13 @@ Vote will be open for 72 hours.
 To: dev@syncope.apache.org
 Subject: [DISCUSS] Apache Syncope <version>
 
-Discussion thread for vote on <version> release, with SVN source tag (r9999999).
+Discussion thread for vote on <version> release, with GIT source tag (XXXXXXXXXXXXXXXX).
 
 For more information on the release process, check out http://www.apache.org/dev/release.html
 
 Some of the things to check before voting are:
 - does "mvn apache-rat:check" pass on the source
-- can you build the contents of source release zip and SVN tag
+- can you build the contents of source release zip and GIT tag
 - do all of the staged jars/wars/zips contain the required LICENSE and NOTICE files
 - are all of the staged jars/wars/zips signed and the signature verifiable
 - is the signing key in the project's KEYS file and on a public server (i.e. http://www.apache.org/dist/syncope/)]]>
@@ -533,15 +532,15 @@ svn commit -m "Promoting the staging site"]]></source>
             </li>
             <li>             
               <em>or</em>
-              manually revert the versions in the branch under release to the prior version and commit
+              manually revert the version numbers in the branch under release to the prior version and commit
             </li>
           </ol>
         </li>
         <li>
-          <p>Delete the svn tag created by the 
+          <p>Delete the GIT tag created by the 
             <code>release:perform</code> step:
           </p>
-          <source>svn remove https://svn.apache.org/repos/asf/syncope/tags/&lt;version&gt; -m "Deleting tag from rolled back release"</source>
+          <source>git tag -d &lt;version&gt; &amp;&amp; git push origin</source>
         </li>
         <li>
           <p>Delete the staging site:
