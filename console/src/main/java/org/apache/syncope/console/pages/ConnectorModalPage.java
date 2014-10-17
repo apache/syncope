@@ -388,6 +388,11 @@ public class ConnectorModalPage extends BaseModalPage {
             public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 final ConnInstanceTO conn = (ConnInstanceTO) form.getModelObject();
 
+                // ensure that connector bundle information is in sync
+                conn.setBundleName(bundleTO.getBundleName());
+                conn.setVersion(bundleTO.getVersion());
+                conn.setConnectorName(bundleTO.getConnectorName());               
+
                 if (restClient.check(conn)) {
                     info(getString("success_connection"));
                 } else {
