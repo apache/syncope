@@ -20,7 +20,6 @@ package org.apache.syncope.core.report;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Date;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
@@ -140,7 +139,6 @@ public class ReportJob implements Job {
 
         // 3. actual report execution
         StringBuilder reportExecutionMessage = new StringBuilder();
-        StringWriter exceptionWriter = new StringWriter();
         try {
             // report header
             handler.startDocument();
@@ -153,7 +151,8 @@ public class ReportJob implements Job {
                 Class<Reportlet> reportletClass =
                         dataBinder.findReportletClassHavingConfClass(reportletConf.getClass());
                 if (reportletClass != null) {
-                    Reportlet autowired = (Reportlet) ApplicationContextProvider.getBeanFactory().
+                    Reportlet<ReportletConf> autowired =
+                            (Reportlet<ReportletConf>) ApplicationContextProvider.getBeanFactory().
                             createBean(reportletClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
                     autowired.setConf(reportletConf);
 
