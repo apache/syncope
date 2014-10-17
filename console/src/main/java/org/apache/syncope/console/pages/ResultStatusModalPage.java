@@ -35,6 +35,7 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.Mode;
 import org.apache.syncope.console.commons.status.Status;
 import org.apache.syncope.console.commons.status.StatusUtils;
 import org.apache.wicket.Component;
@@ -68,7 +69,7 @@ public class ResultStatusModalPage extends BaseModalPage {
 
     private final AbstractSubjectTO subject;
 
-    private final UserModalPage.Mode mode;
+    private final Mode mode;
 
     /**
      * Status management utilities.
@@ -81,7 +82,7 @@ public class ResultStatusModalPage extends BaseModalPage {
 
         private ModalWindow window;
 
-        private UserModalPage.Mode mode;
+        private Mode mode;
 
         private AbstractSubjectTO subject;
 
@@ -90,7 +91,7 @@ public class ResultStatusModalPage extends BaseModalPage {
             this.subject = attributable;
         }
 
-        public ResultStatusModalPage.Builder mode(final UserModalPage.Mode mode) {
+        public ResultStatusModalPage.Builder mode(final Mode mode) {
             this.mode = mode;
             return this;
         }
@@ -105,7 +106,7 @@ public class ResultStatusModalPage extends BaseModalPage {
         this.subject = builder.subject;
         statusUtils = new StatusUtils(this.userRestClient);
         if (builder.mode == null) {
-            this.mode = UserModalPage.Mode.ADMIN;
+            this.mode = Mode.ADMIN;
         } else {
             this.mode = builder.mode;
         }
@@ -116,13 +117,13 @@ public class ResultStatusModalPage extends BaseModalPage {
         container.setOutputMarkupId(true);
         add(container);
 
-        final Fragment fragment = new Fragment("resultFrag", mode == UserModalPage.Mode.SELF
+        final Fragment fragment = new Fragment("resultFrag", mode == Mode.SELF
                 ? "userSelfResultFrag"
                 : "propagationResultFrag", this);
         fragment.setOutputMarkupId(true);
         container.add(fragment);
 
-        if (mode == UserModalPage.Mode.ADMIN) {
+        if (mode == Mode.ADMIN) {
             // add Syncope propagation status
             PropagationStatus syncope = new PropagationStatus();
             syncope.setResource("Syncope");

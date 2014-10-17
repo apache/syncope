@@ -107,7 +107,7 @@ public class ResourceSecurityPanel extends Panel {
         // -------------------------------
         final AjaxDropDownChoicePanel<Long> passwordPolicy = new AjaxDropDownChoicePanel<Long>("passwordPolicy",
                 new ResourceModel("passwordPolicy", "passwordPolicy").getObject(), new PropertyModel<Long>(resourceTO,
-                "passwordPolicy"));
+                        "passwordPolicy"));
 
         passwordPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.PASSWORD));
 
@@ -123,7 +123,7 @@ public class ResourceSecurityPanel extends Panel {
         // -------------------------------
         final AjaxDropDownChoicePanel<Long> accountPolicy = new AjaxDropDownChoicePanel<Long>("accountPolicy",
                 new ResourceModel("accountPolicy", "accountPolicy").getObject(), new PropertyModel<Long>(resourceTO,
-                "accountPolicy"));
+                        "accountPolicy"));
 
         accountPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.ACCOUNT));
 
@@ -139,7 +139,7 @@ public class ResourceSecurityPanel extends Panel {
         // -------------------------------
         final AjaxDropDownChoicePanel<Long> syncPolicy = new AjaxDropDownChoicePanel<Long>("syncPolicy",
                 new ResourceModel("syncPolicy", "syncPolicy").getObject(), new PropertyModel<Long>(resourceTO,
-                "syncPolicy"));
+                        "syncPolicy"));
 
         syncPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.SYNC));
 

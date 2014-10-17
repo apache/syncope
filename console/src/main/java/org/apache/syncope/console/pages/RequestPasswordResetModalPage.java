@@ -21,6 +21,7 @@ package org.apache.syncope.console.pages;
 import org.apache.syncope.common.to.SecurityQuestionTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.Mode;
 import org.apache.syncope.console.rest.SecurityQuestionRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -114,7 +115,7 @@ public class RequestPasswordResetModalPage extends BaseModalPage {
                     userSelfRestClient.requestPasswordReset(username.getModelObject(), securityAnswer.getModelObject());
 
                     setResponsePage(new ResultStatusModalPage.Builder(window, new UserTO()).
-                            mode(UserModalPage.Mode.SELF).build());
+                            mode(Mode.SELF).build());
                 } catch (Exception e) {
                     LOG.error("While requesting password reset for {}", username.getModelObject(), e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());

@@ -19,9 +19,12 @@
 package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -31,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.ConfTO;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchemaTO;
@@ -38,8 +42,11 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.console.commons.JexlHelpUtil;
+import org.apache.syncope.console.commons.LayoutType;
+import org.apache.syncope.console.commons.Mode;
 import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.pages.panels.AttrTemplatesPanel.RoleAttrTemplatesChange;
+import org.apache.syncope.console.rest.ConfigurationRestClient;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -72,28 +79,33 @@ public class AttributesPanel extends Panel {
     private SchemaRestClient schemaRestClient;
 
     @SpringBean
+    private ConfigurationRestClient confRestClient;
+
+    @SpringBean
     private RoleRestClient roleRestClient;
 
     private final AbstractAttributableTO entityTO;
 
-    private final boolean templateMode;
+    private final Mode mode;
 
     private final AttrTemplatesPanel attrTemplates;
 
-    private final Map<String, SchemaTO> schemas = new TreeMap<String, SchemaTO>();
+    private AttributeTO confAttributeTO;
+
+    private Map<String, SchemaTO> schemas = new LinkedHashMap<String, SchemaTO>();
 
     public <T extends AbstractAttributableTO> AttributesPanel(final String id, final T entityTO, final Form form,
-            final boolean templateMode) {
+            final Mode mode) {
 
-        this(id, entityTO, form, templateMode, null);
+        this(id, entityTO, form, mode, null);
     }
 
     public <T extends AbstractAttributableTO> AttributesPanel(final String id, final T entityTO, final Form form,
-            final boolean templateMode, final AttrTemplatesPanel attrTemplates) {
+            final Mode mode, final AttrTemplatesPanel attrTemplates) {
 
         super(id);
         this.entityTO = entityTO;
-        this.templateMode = templateMode;
+        this.mode = mode;
         this.attrTemplates = attrTemplates;
         this.setOutputMarkupId(true);
 
@@ -117,7 +129,7 @@ public class AttributesPanel extends Panel {
                         item.add(questionMarkJexlHelp);
                         questionMarkJexlHelp.add(jexlHelp);
 
-                        if (!templateMode) {
+                        if (mode != Mode.TEMPLATE) {
                             questionMarkJexlHelp.setVisible(false);
                         }
 
@@ -125,7 +137,7 @@ public class AttributesPanel extends Panel {
 
                         final FieldPanel panel = getFieldPanel(schemas.get(attributeTO.getSchema()), form, attributeTO);
 
-                        if (templateMode || !schemas.get(attributeTO.getSchema()).isMultivalue()) {
+                        if (mode == Mode.TEMPLATE || !schemas.get(attributeTO.getSchema()).isMultivalue()) {
                             item.add(panel);
                         } else {
                             item.add(new MultiFieldPanel<String>(
@@ -137,7 +149,7 @@ public class AttributesPanel extends Panel {
         add(attributeView);
     }
 
-    private void filter(final List<SchemaTO> schemaTOs, final Set<String> allowed) {
+    private void filter(final List<SchemaTO> schemaTOs, final Collection<String> allowed) {
         for (ListIterator<SchemaTO> itor = schemaTOs.listIterator(); itor.hasNext();) {
             SchemaTO schema = itor.next();
             if (!allowed.contains(schema.getName())) {
@@ -152,6 +164,7 @@ public class AttributesPanel extends Panel {
         if (entityTO instanceof RoleTO) {
             final RoleTO roleTO = (RoleTO) entityTO;
 
+            setLayoutConfiguration(mode, AttributableType.ROLE);
             schemaTOs = schemaRestClient.getSchemas(AttributableType.ROLE);
             Set<String> allowed;
             if (attrTemplates == null) {
@@ -165,19 +178,51 @@ public class AttributesPanel extends Panel {
             filter(schemaTOs, allowed);
         } else if (entityTO instanceof UserTO) {
             schemaTOs = schemaRestClient.getSchemas(AttributableType.USER);
+            setLayoutConfiguration(mode, AttributableType.USER);
         } else if (entityTO instanceof MembershipTO) {
             schemaTOs = schemaRestClient.getSchemas(AttributableType.MEMBERSHIP);
+            setLayoutConfiguration(mode, AttributableType.MEMBERSHIP);
             Set<String> allowed = new HashSet<String>(
                     roleRestClient.read(((MembershipTO) entityTO).getRoleId()).getMAttrTemplates());
             filter(schemaTOs, allowed);
         } else {
+            schemas = new TreeMap<String, SchemaTO>();
             schemaTOs = schemaRestClient.getSchemas(AttributableType.CONFIGURATION);
+            for (Iterator<SchemaTO> it = schemaTOs.iterator(); it.hasNext();) {
+                SchemaTO schemaTO = it.next();
+                for (LayoutType type : LayoutType.values()) {
+                    if (type.getParameter().equals(schemaTO.getName())) {
+                        it.remove();
+                    }
+                }
+            }
         }
 
         schemas.clear();
 
+        if (confAttributeTO != null && mode != Mode.TEMPLATE && !(entityTO instanceof ConfTO)) {
+            filter(schemaTOs, confAttributeTO.getValues());
+        }
         for (SchemaTO schemaTO : schemaTOs) {
             schemas.put(schemaTO.getName(), schemaTO);
+        }
+    }
+
+    private void setLayoutConfiguration(final Mode mode, final AttributableType type) {
+        switch (type) {
+            case USER:
+            default:
+                confAttributeTO = confRestClient.read(mode == Mode.ADMIN
+                        ? LayoutType.ADMIN_USER.getParameter() : LayoutType.ADMIN_USER.getParameter());
+                break;
+            case ROLE:
+                confAttributeTO = confRestClient.read(mode == Mode.ADMIN
+                        ? LayoutType.ADMIN_ROLE.getParameter() : LayoutType.SELF_ROLE.getParameter());
+                break;
+            case MEMBERSHIP:
+                confAttributeTO = confRestClient.read(mode == Mode.ADMIN
+                        ? LayoutType.ADMIN_MEMBERSHIP.getParameter() : LayoutType.SELF_MEMBERSHIP.getParameter());
+                break;
         }
     }
 
@@ -187,7 +232,7 @@ public class AttributesPanel extends Panel {
         final Map<String, AttributeTO> attrMap = entityTO.getAttrMap();
 
         for (SchemaTO schema : schemas.values()) {
-            AttributeTO attributeTO = new AttributeTO();
+            final AttributeTO attributeTO = new AttributeTO();
             attributeTO.setSchema(schema.getName());
 
             if (attrMap.get(schema.getName()) == null || attrMap.get(schema.getName()).getValues().isEmpty()) {
@@ -207,11 +252,12 @@ public class AttributesPanel extends Panel {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private FieldPanel getFieldPanel(final SchemaTO schemaTO, final Form form, final AttributeTO attributeTO) {
-        final boolean required = templateMode ? false : schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
+        final boolean required = mode == Mode.TEMPLATE ? false : schemaTO.getMandatoryCondition().equalsIgnoreCase(
+                "true");
 
-        final boolean readOnly = templateMode ? false : schemaTO.isReadonly();
+        final boolean readOnly = mode == Mode.TEMPLATE ? false : schemaTO.isReadonly();
 
-        final AttributeSchemaType type = templateMode ? AttributeSchemaType.String : schemaTO.getType();
+        final AttributeSchemaType type = mode == Mode.TEMPLATE ? AttributeSchemaType.String : schemaTO.getType();
 
         final FieldPanel panel;
         switch (type) {

@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.console.commons.Mode;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -32,7 +33,7 @@ public class UserTemplateModalPage extends UserModalPage {
 
     private static final long serialVersionUID = 511003221213581368L;
 
-    private SyncTaskTO syncTaskTO;
+    private final SyncTaskTO syncTaskTO;
 
     public UserTemplateModalPage(final PageReference callerPageRef, final ModalWindow window,
             final SyncTaskTO syncTaskTO) {

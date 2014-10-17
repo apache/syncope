@@ -26,6 +26,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.console.commons.Mode;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.syncope.console.commons.RoleUtils;
 import org.apache.syncope.console.commons.status.StatusUtils;
@@ -72,7 +73,7 @@ public class MembershipsPanel extends Panel {
 
     private final NestedTree<DefaultMutableTreeNode> tree;
 
-    public MembershipsPanel(final String id, final UserTO userTO, final boolean templateMode,
+    public MembershipsPanel(final String id, final UserTO userTO, final Mode mode,
             final StatusPanel statusPanel, final PageReference pageRef) {
 
         super(id);
@@ -127,14 +128,14 @@ public class MembershipsPanel extends Panel {
 
                                     for (MembershipTO membTO : membView.getList()) {
                                         if (membTO.getRoleId() == roleTO.getId()) {
-                                            return new MembershipModalPage(pageRef, membWin, membTO, templateMode);
+                                            return new MembershipModalPage(pageRef, membWin, membTO, mode);
                                         }
                                     }
                                     MembershipTO membTO = new MembershipTO();
                                     membTO.setRoleId(roleTO.getId());
                                     membTO.setRoleName(roleTO.getName());
 
-                                    return new MembershipModalPage(pageRef, membWin, membTO, templateMode);
+                                    return new MembershipModalPage(pageRef, membWin, membTO, mode);
                                 }
                             });
                             membWin.show(target);
@@ -175,7 +176,7 @@ public class MembershipsPanel extends Panel {
                                     @Override
                                     public Page createPage() {
                                         return new MembershipModalPage(getPage().getPageReference(), membWin,
-                                                membershipTO, templateMode);
+                                                membershipTO, mode);
 
                                     }
                                 });

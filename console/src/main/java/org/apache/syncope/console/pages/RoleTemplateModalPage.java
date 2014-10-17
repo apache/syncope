@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages;
 
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SyncTaskTO;
+import org.apache.syncope.console.commons.Mode;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -29,7 +30,7 @@ public class RoleTemplateModalPage extends RoleModalPage {
 
     private static final long serialVersionUID = -3849135555203409845L;
 
-    private SyncTaskTO syncTaskTO;
+    private final SyncTaskTO syncTaskTO;
 
     public RoleTemplateModalPage(final PageReference callerPageRef, final ModalWindow window,
             final SyncTaskTO syncTaskTO) {
@@ -42,7 +43,7 @@ public class RoleTemplateModalPage extends RoleModalPage {
     }
 
     @Override
-    protected void submitAction(AjaxRequestTarget target, Form form) {
+    protected void submitAction(final AjaxRequestTarget target, final Form form) {
         syncTaskTO.setRoleTemplate((RoleTO) form.getModelObject());
         taskRestClient.updateSyncTask(syncTaskTO);
     }
