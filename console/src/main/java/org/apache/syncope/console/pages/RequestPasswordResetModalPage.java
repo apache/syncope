@@ -69,20 +69,24 @@ public class RequestPasswordResetModalPage extends BaseModalPage {
         username.setRequired(true);
         username.getField().setOutputMarkupId(true);
         if (handleSecurityQuestion) {
-            username.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            username.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
+                    getFeedbackMessages().clear();
+                    target.add(feedbackPanel);
                     try {
                         SecurityQuestionTO read = securityQuestionRestClient.readByUser(username.getModelObject());
                         securityQuestion.setModelObject(read.getContent());
-                        target.add(securityQuestion);
                     } catch (Exception e) {
                         LOG.error("While fetching security question for {}", username.getModelObject(), e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
                         feedbackPanel.refresh(target);
+                        securityQuestion.setModelObject(null);
+                    } finally {
+                        target.add(securityQuestion);
                     }
                 }
             });
@@ -137,6 +141,7 @@ public class RequestPasswordResetModalPage extends BaseModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                // do nothing
             }
         };
         cancel.setDefaultFormProcessing(false);
