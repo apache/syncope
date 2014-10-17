@@ -47,11 +47,9 @@ import org.apache.syncope.console.wicket.markup.html.form.MultiValueSelectorPane
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -279,8 +277,8 @@ public class ConnectorModalPage extends BaseModalPage {
                         final Label label = new Label("connPropAttrSchema",
                                 property.getSchema().getDisplayName() == null
                                 || property.getSchema().getDisplayName().isEmpty()
-                                ? property.getSchema().getName()
-                                : property.getSchema().getDisplayName());
+                                        ? property.getSchema().getName()
+                                        : property.getSchema().getDisplayName());
                         item.add(label);
 
                         final FieldPanel field;
@@ -357,17 +355,15 @@ public class ConnectorModalPage extends BaseModalPage {
         connPropView.setOutputMarkupId(true);
         connectorPropForm.add(connPropView);
 
-        final AjaxLink<String> check = new IndicatingAjaxLink<String>("check", new ResourceModel("check")) {
+        final AjaxButton check = new IndicatingAjaxButton("check", new ResourceModel("check")) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
-                connInstanceTO.setBundleName(bundleTO.getBundleName());
-                connInstanceTO.setVersion(bundleTO.getVersion());
-                connInstanceTO.setConnectorName(bundleTO.getConnectorName());
+            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                final ConnInstanceTO conn = (ConnInstanceTO) form.getModelObject();
 
-                if (restClient.check(connInstanceTO)) {
+                if (restClient.check(conn)) {
                     info(getString("success_connection"));
                 } else {
                     error(getString("error_connection"));
