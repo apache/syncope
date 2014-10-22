@@ -103,7 +103,7 @@ public class ResourceConnConfPanel extends Panel {
                     error(getString("error_connection"));
                 }
 
-                target.add(((BaseModalPage) getPage()).getFeedbackPanel());
+                ((BaseModalPage) getPage()).getFeedbackPanel().refresh(target);
             }
         };
 
