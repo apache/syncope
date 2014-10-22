@@ -18,21 +18,23 @@
  */
 package org.apache.syncope.console;
 
-import com.thoughtworks.selenium.Selenium;
-import com.thoughtworks.selenium.webdriven.WebDriverBackedSelenium;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:consoleContext.xml" })
+@ContextConfiguration(locations = {"classpath:consoleContext.xml"})
 public abstract class AbstractTest extends TestCase {
 
     /**
@@ -46,9 +48,9 @@ public abstract class AbstractTest extends TestCase {
 
     protected static final String BASE_URL = "http://localhost:9080/syncope-console/";
 
-    protected Selenium selenium;
-
     protected WebDriver seleniumDriver;
+    
+    protected WebDriverWait wait;
 
     @Override
     @Before
@@ -56,21 +58,24 @@ public abstract class AbstractTest extends TestCase {
         super.setUp();
 
         seleniumDriver = new FirefoxDriver();
-        selenium = new WebDriverBackedSelenium(seleniumDriver, BASE_URL);
-
-        selenium.open("/syncope-console/");
-        selenium.type("name=userId", ADMIN);
-        selenium.type("name=password", PASSWORD);
-        selenium.click("name=:submit");
-
-        selenium.waitForCondition("selenium.isElementPresent(\"//img[@alt='Logout']\");", "60000");
+        seleniumDriver.get(BASE_URL);
+        wait = new WebDriverWait(seleniumDriver, 6);
+        
+        WebElement element = seleniumDriver.findElement(By.name("userId"));
+        element.sendKeys(ADMIN);
+        element = seleniumDriver.findElement(By.name("password"));
+        element.sendKeys(PASSWORD);
+        seleniumDriver.findElement(By.name(":submit")).click();
+        
+        (new WebDriverWait(seleniumDriver, 6))
+                .until(ExpectedConditions.presenceOfElementLocated(By.xpath("//img[@alt='Logout']")));
     }
 
     @Override
     @After
     public void tearDown() throws Exception {
-        selenium.click("css=img[alt=\"Logout\"]");
-        selenium.stop();
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Logout\"]")).click();
+        seleniumDriver.quit();
         super.tearDown();
     }
 }
