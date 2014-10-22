@@ -81,7 +81,11 @@ public class MavenUtils {
         final Properties properties = new Properties();
         properties.setProperty("archetypeGroupId", "org.apache.syncope");
         properties.setProperty("archetypeArtifactId", "syncope-archetype");
-        properties.setProperty("archetypeRepository", "http://repository.apache.org/content/repositories/snapshots");
+        if (archetypeVersion.contains("SNAPSHOT")) {
+            properties.setProperty("archetypeRepository", "http://repository.apache.org/content/repositories/snapshots");
+        } else {
+            properties.setProperty("archetypeRepository", "http://repo1.maven.org/maven2");
+        }
         properties.setProperty("archetypeVersion", archetypeVersion);
         properties.setProperty("groupId", groupId);
         properties.setProperty("artifactId", artifactId);
@@ -158,7 +162,7 @@ public class MavenUtils {
         InvocationResult result = null;
         final Invoker invoker = new DefaultInvoker();
         try {
-            invoker.setLogger( new PrintStreamLogger(
+            invoker.setLogger(new PrintStreamLogger(
                     new PrintStream(InstallLog.getInstance().getFileAbsolutePath()), 1000));
             invoker.setOutputHandler(new PrintStreamHandler(
                     new PrintStream(InstallLog.getInstance().getFileAbsolutePath()), true));
