@@ -19,97 +19,100 @@
 package org.apache.syncope.console;
 
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void execute() {
-        selenium.click("css=img[alt=\"Tasks\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Tasks\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//div[@id='tabs']/ul/li[1]/a");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[1]/a")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//tr[4]/td[10]/div/span[6]/a/img\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//tr[4]/td[10]/div/span[6]/a/img")));
 
-        selenium.click("//tr[4]/td[10]/div/span[6]/a/img");
+        seleniumDriver.findElement(By.xpath("//tr[4]/td[10]/div/span[6]/a/img")).click();
 
-        selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("feedback")));
+        assertTrue(seleniumDriver.findElement(By.tagName("body")).getText().contains("Operation executed successfully"));
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//tr[4]/td[10]/div/span[13]/a/img\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//tr[4]/td[10]/div/span[13]/a/img")));
 
-        selenium.click("//tr[4]/td[10]/div/span[13]/a/img");
+        seleniumDriver.findElement(By.xpath("//tr[4]/td[10]/div/span[13]/a/img")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
-        selenium.selectFrame("index=0");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[2]/form/div[2]/ul/li[2]/a\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[2]/form/div[2]/ul/li[2]/a")));
 
-        selenium.click("//div[2]/form/div[2]/ul/li[2]/a");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[2]/ul/li[2]/a"));
 
-        assertTrue(selenium.isElementPresent("//div[2]/form/div[2]/div[2]/span/table/tbody/tr/td[4]"));
+        assertTrue(seleniumDriver.findElements(
+                By.xpath("//div[2]/form/div[2]/div[2]/span/table/tbody/tr/td[4]")).size()>0);
 
         seleniumDriver.switchTo().defaultContent();
 
-        selenium.click("css=a.w_close");
+        seleniumDriver.findElement(By.xpath("//a[@class='w_close']")).click();
     }
 
     @Test
     public void delete() {
-        selenium.click("css=img[alt=\"Tasks\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Tasks\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//div[@id='tabs']/ul/li[3]/a");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[3]/a")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"xpath=(//img[@alt='delete icon'])[6]\");", "30000");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("(//img[@alt='delete icon'])[6]")));
 
-        selenium.click("xpath=(//img[@alt='delete icon'])[6]"); // 
+        seleniumDriver.findElement(By.xpath("(//img[@alt='delete icon'])[6]")).click();
+        seleniumDriver.switchTo().alert().accept();
 
-        selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("feedback")));
+        assertTrue(seleniumDriver.findElement(By.tagName("body")).getText().contains("Operation executed successfully"));
     }
 
     @Test
     public void issueSYNCOPE148() {
-        selenium.click("css=img[alt=\"Tasks\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Tasks\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
-        selenium.click("//a[contains(text(),'Create')]");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[3]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//a[contains(text(),'Create')]")).click();
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//div[2]/form/div[2]/div/div/span/div/div[2]/div/label\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
+        
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//div[2]/form/div[2]/div/div/span/div/div[2]/div/label")));        
 
-        selenium.selectFrame("index=0");
-
-        selenium.click("//div[2]/form/div[3]/input[2]");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/input[2]")).click();
 
         seleniumDriver.switchTo().defaultContent();
 
-        selenium.waitForCondition("selenium.isTextPresent(\"Id\");", "30000");
+        assertTrue(seleniumDriver.findElement(By.tagName("body")).getText().contains("Id"));
     }
 
     @Test
     public void issueSYNCOPE473() {
-        selenium.click("css=img[alt=\"Tasks\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Tasks\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
-        selenium.click("//div[5]/span/a");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[5]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[5]/span/a")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
 
-        selenium.selectFrame("index=0");
-
-        selenium.isElementPresent("//div[@id='userFilter']");
+        assertTrue(seleniumDriver.findElements(By.xpath("//div[@id='userFilter']")).size()>0);        
 
         seleniumDriver.switchTo().defaultContent();
 
-        selenium.click("css=a.w_close");
+        seleniumDriver.findElement(By.xpath("//a[@class='w_close']")).click();
     }
 }

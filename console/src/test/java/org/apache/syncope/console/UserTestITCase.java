@@ -18,155 +18,167 @@
  */
 package org.apache.syncope.console;
 
+import static junit.framework.TestCase.assertTrue;
 import org.junit.Test;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 
 public class UserTestITCase extends AbstractTest {
 
     @Test
     @SuppressWarnings("SleepWhileHoldingLock")
     public void browseCreateModal() {
-        selenium.click("css=img[alt=\"Users\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Users\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//div[@id='tabs-1']/a");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs-1']/a")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
-        selenium.selectFrame("index=0");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//span[contains(text(),'Attributes')]\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[contains(text(),'Attributes')]")));
 
-        selenium.click("//div/form/div[3]/div[1]/span[2]/div/div[2]/span");
+        seleniumDriver.findElement(By.xpath("//div/form/div[3]/div[1]/span[2]/div/div[2]/span")).click();
         
-        selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
-        selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
-        selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
-        selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
-        selenium.click("//div[@id='tabs']/ul/li[6]/a/span");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[2]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[3]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[4]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[5]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[6]/a/span")).click();
 
         seleniumDriver.switchTo().defaultContent();
 
-        selenium.click("css=a.w_close");
+        seleniumDriver.findElement(By.xpath("//a[@class='w_close']")).click();
     }
 
     @Test
     @SuppressWarnings("SleepWhileHoldingLock")
     public void browseEditModal() {
-        selenium.click("css=img[alt=\"Users\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Users\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
         //Edit vivaldi
-        selenium.click("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[13]/a");
+        seleniumDriver.findElement(By.xpath("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[13]/a")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
-        selenium.selectFrame("index=0");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
 
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='Antonio Vivaldi']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@value='Antonio Vivaldi']")));
 
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='Vivaldi']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@value='Vivaldi']")));
 
-        selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
-        selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
-        selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
-        selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
-        selenium.click("//div[@id='tabs']/ul/li[6]/a/span");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[2]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[3]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[4]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[5]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[6]/a/span")).click();
 
         seleniumDriver.switchTo().defaultContent();
 
-        selenium.click("css=a.w_close");
+        seleniumDriver.findElement(By.xpath("//a[@class='w_close']")).click();
     }
 
     @Test
     public void search() {
-        selenium.click("css=img[alt=\"Users\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Users\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("link=Search");
-        selenium.select("//td[2]/select", "label=MEMBERSHIP");
+        seleniumDriver.findElement(By.xpath("//span[contains(text(),'Search')]")).click();
+        Select select = new Select(seleniumDriver.findElement(By.xpath("//td[2]/select")));
+        select.selectByVisibleText("MEMBERSHIP");
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//td[3]/select[option='3 citizen']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//td[3]/select[option='3 citizen']")));
 
-        selenium.select("//td[3]/select", "label=3 citizen");
-        selenium.click("//form/a");
+        select = new Select(seleniumDriver.findElement(By.xpath("//td[3]/select")));
+        select.selectByVisibleText("3 citizen");
+        seleniumDriver.findElement(By.xpath("//form/a")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//*[@id='users-contain']//*[div=2]\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id='users-contain']//*[div=2]")));
     }
 
     @Test
     public void delete() {
-        selenium.click("css=img[alt=\"Users\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Users\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//*[@id=\"users-contain\"]//*[div=4]/../td[5]/div/span[15]/a");
+        seleniumDriver.findElement(By.xpath("//*[@id=\"users-contain\"]//*[div=4]/../td[5]/div/span[15]/a")).click();
 
-        assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
+        Alert alert = seleniumDriver.switchTo().alert();
+        assertTrue(alert.getText().equals("Do you really want to delete the selected item(s)?"));
+        alert.accept();
+        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
+        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='propagation']/span")));       
 
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//div[@id='propagation']/span\");", "30000");
-
-        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
-        selenium.selectFrame("index=0");
-
-        selenium.click("//*[@id=\"users-contain\"]/a");
+        seleniumDriver.findElement(By.xpath("//*[@id=\"users-contain\"]/a")).click();
 
         seleniumDriver.switchTo().defaultContent();
 
-        selenium.waitForCondition("selenium.isTextPresent(" + "\"Operation executed successfully\");", "30000");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("feedback")));
+        assertTrue(seleniumDriver.findElement(By.tagName("body")).getText().contains("Operation executed successfully"));
     }
 
     @Test
     public void browseProvisioningFeatures() {
-        selenium.click("css=img[alt=\"Users\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Users\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
         //Edit vivaldi
-        selenium.click("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[2]/a");
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//td[div='ws-target-resource-1']\");", "30000");
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//td[div='resource-testdb']\");", "30000");
+        seleniumDriver.findElement(By.xpath("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[2]/a")).click();
+        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
+        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//td[div='ws-target-resource-1']")));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//td[div='resource-testdb']")));
 
-        selenium.selectFrame("index=0");
+        seleniumDriver.findElement(By.xpath("//div[@class='navigator']/div/span[4]/a")).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//td[div='resource-ldap']")));
 
-        selenium.click("//div[@class='navigator']/div/span[4]/a");
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//td[div='resource-ldap']\");", "30000");
-
-        selenium.click("//div[@class='navigator']/div/span/a");
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//td[div='ws-target-resource-1']\");", "30000");
+        seleniumDriver.findElement(By.xpath("//div[@class='navigator']/div/span/a")).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//td[div='ws-target-resource-1']")));
 
         seleniumDriver.switchTo().defaultContent();
 
-        selenium.click("css=a.w_close");
+        seleniumDriver.findElement(By.xpath("//a[@class='w_close']")).click();
     }
 
     @Test
     @SuppressWarnings("SleepWhileHoldingLock")
     public void issueSYNCOPE495() {
-        selenium.click("css=img[alt=\"Users\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Users\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[13]/a");
+        seleniumDriver.findElement(By.xpath("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[13]/a")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
-        selenium.selectFrame("index=0");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
 
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='Antonio Vivaldi']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@value='Antonio Vivaldi']")));
 
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//input[@value='Vivaldi']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@value='Vivaldi']")));
 
-        selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
-        selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
-        selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
-        selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
-        selenium.click("//div[@id='tabs']/ul/li[6]/a/span");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[2]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[3]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[4]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[5]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[6]/a/span")).click();
 
-        selenium.click("//span[2]/a/span");
+        seleniumDriver.findElement(By.xpath("//span[2]/a/span")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@class='infolabel']\");", "30000");
-        selenium.selectFrame("relative=up");
-        selenium.click("css=a.w_close");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='infolabel']")));
+        seleniumDriver.switchTo().defaultContent();
+        seleniumDriver.findElement(By.xpath("//a[@class='w_close']")).click();
     }
 }

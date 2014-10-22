@@ -19,90 +19,95 @@
 package org.apache.syncope.console;
 
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 
 public class ReportTestITCase extends AbstractTest {
 
     @Test
     public void readReportlet() {
-        selenium.click("css=img[alt=\"Reports\"]");
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Reports\"]")).click();        
 
-        selenium.click("//table/tbody/tr/td[8]/div/span[13]/a");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
+        seleniumDriver.findElement(By.xpath("//table/tbody/tr/td[8]/div/span[13]/a")).click();
+        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
+        
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//div[2]/form/div[2]/div/div/span/div/div/div/span")));
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
-        selenium.selectFrame("index=0");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[2]/div/div/span/div/div[5]/div[2]/div/div[2]/div/a"))
+                .click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//div[2]/form/div[2]/div/div/span/div/div[5]/div[2]/div/div/select")));
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[2]/form/div[2]/div/div/span/div/div/div/span\");", "30000");
+        Select select = new Select(seleniumDriver.findElement(
+                By.xpath("//div[2]/form/div[2]/div/div/span/div/div[5]/div[2]/div/div/select")));
+        select.selectByVisibleText("testUserReportlet");
+        
+        seleniumDriver.findElement(
+                By.xpath("//div[2]/form/div[2]/div/div/span/div/div[5]/div[2]/div[2]/div[2]/a")).click();
 
-        selenium.click("//div[2]/form/div[2]/div/div/span/div/div[5]/div[2]/div/div[2]/div/a");
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[2]/form/div[2]/div/div/span/div/div[5]/div[2]/div/div/select\");", "30000");
+        seleniumDriver.switchTo().defaultContent();
+        wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(
+                By.xpath("//div[7]/form/div/div[2]/div/div/div/div[2]/div/div/iframe")));       
+        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.name("reportletClass:dropDownChoiceField")));
 
-        selenium.select("//div[2]/form/div[2]/div/div/span/div/div[5]/div[2]/div/div/select", "testUserReportlet");
-        selenium.click("//div[2]/form/div[2]/div/div/span/div/div[5]/div[2]/div[2]/div[2]/a");
+        select = new Select(seleniumDriver.findElement(By.name("reportletClass:dropDownChoiceField")));
+        select.selectByVisibleText("org.apache.syncope.common.report.StaticReportletConf");
+
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/input")).click();
 
         seleniumDriver.switchTo().defaultContent();
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"name=reportletClass:dropDownChoiceField\");", "30000");
-
-        selenium.selectFrame("index=1");
-
-        selenium.select("name=reportletClass:dropDownChoiceField",
-                "org.apache.syncope.common.report.StaticReportletConf");
-
-        selenium.click("//div[2]/form/div[3]/input");
-
-        seleniumDriver.switchTo().defaultContent();
-
-        selenium.click("css=a.w_close");
+        seleniumDriver.findElement(By.xpath("//a[@class='w_close']")).click();
     }
 
     @Test
     public void executeReport() {
-        selenium.click("css=img[alt=\"Reports\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Reports\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//table/tbody/tr/td[8]/div/span[6]/a");
+        seleniumDriver.findElement(By.xpath("//table/tbody/tr/td[8]/div/span[6]/a")).click();
 
-        selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("feedback")));
+        assertTrue(seleniumDriver.findElement(By.tagName("body")).getText().contains("Operation executed successfully"));
     }
 
     @Test
     public void navigateAudit() {
-        selenium.click("css=img[alt=\"Reports\"]");
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Reports\"]")).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[2]/a/span")).click();
 
-        selenium.waitForCondition(
-                "selenium.isTextPresent(\"[REST]:[EntitlementController]:[]:[getOwn]:[SUCCESS]\");",
-                "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//option[contains(text(),'[REST]:[EntitlementController]:[]:[getOwn]:[SUCCESS]')]")));        
 
-        selenium.select(
-                "//select[@name='events:categoryContainer:type:dropDownChoiceField']",
-                "label=PROPAGATION");
+        Select select = new Select(seleniumDriver.findElement(By.xpath(
+                "//select[@name='events:categoryContainer:type:dropDownChoiceField']")));
+        select.selectByVisibleText("PROPAGATION");
 
-        selenium.waitForCondition("selenium.isElementPresent(\""
-                + "//select[@name='events:categoryContainer:category:dropDownChoiceField']/option[text()='user']\");",
-                "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//select[@name='events:categoryContainer:category:dropDownChoiceField']/option[text()='user']")));                
 
-        selenium.select(
-                "//select[@name='events:categoryContainer:category:dropDownChoiceField']",
-                "label=user");
+        select = new Select(seleniumDriver.findElement(By.xpath(
+                "//select[@name='events:categoryContainer:category:dropDownChoiceField']")));
+        select.selectByVisibleText("user");
 
-        selenium.waitForCondition("selenium.isElementPresent(\""
-                + "//select[@name='events:categoryContainer:subcategory:dropDownChoiceField']/option[text()='resource-csv']\");",
-                "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//select[@name='events:categoryContainer:subcategory:dropDownChoiceField']"
+                        + "/option[text()='resource-csv']")));               
 
-        selenium.select(
-                "//select[@name='events:categoryContainer:subcategory:dropDownChoiceField']",
-                "label=resource-csv");
+        select = new Select(seleniumDriver.findElement(By.xpath(
+                "//select[@name='events:categoryContainer:subcategory:dropDownChoiceField']")));
+        select.selectByVisibleText("resource-csv");
 
-        selenium.waitForCondition(
-                "selenium.isElementPresent(\"//input[@name='events:eventsContainer:eventsPanel:successGroup']\");",
-                "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//input[@name='events:eventsContainer:eventsPanel:successGroup']")));
     }
 }

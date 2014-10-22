@@ -97,9 +97,12 @@ public class ArchetypeProcess {
         handler.logOutput("########################## IMPORTANT ##########################", true);
         mavenUtils.archetypeGenerate(
                 syncopeVersion, groupId, artifactId, secretKey, anonymousKey, installPath, customMavenProxySettings);
-
-        fileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + ParentPom.PATH),
-                String.format(ParentPom.FILE, syncopeVersion, syncopeVersion, groupId, artifactId));
+        
+        if (syncopeVersion.contains("SNAPSHOT")) {
+            fileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + ParentPom.PATH),
+                    String.format(ParentPom.FILE, syncopeVersion, syncopeVersion, groupId, artifactId));
+        }
+        
         fileSystemUtils.createDirectory(confDirectory);
         fileSystemUtils.createDirectory(logsDirectory);
         fileSystemUtils.createDirectory(bundlesDirectory);
