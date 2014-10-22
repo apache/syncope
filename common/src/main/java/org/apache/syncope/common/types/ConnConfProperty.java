@@ -25,6 +25,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.syncope.common.AbstractBaseBean;
 
 @XmlRootElement
@@ -64,6 +65,6 @@ public class ConnConfProperty extends AbstractBaseBean implements Comparable<Con
 
     @Override
     public int compareTo(final ConnConfProperty connConfProperty) {
-        return this.getSchema().compareTo(connConfProperty.getSchema());
+        return ObjectUtils.compare(this.getSchema(), connConfProperty.getSchema());
     }
 }
