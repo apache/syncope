@@ -125,7 +125,6 @@ under the License.
   <Entitlement name="CONNECTOR_RELOAD"/>
   <Entitlement name="CONFIGURATION_EXPORT"/>
   <Entitlement name="CONFIGURATION_LIST"/>
-  <Entitlement name="CONFIGURATION_READ"/>
   <Entitlement name="CONFIGURATION_SET"/>
   <Entitlement name="CONFIGURATION_DELETE"/>
   <Entitlement name="TASK_LIST"/>

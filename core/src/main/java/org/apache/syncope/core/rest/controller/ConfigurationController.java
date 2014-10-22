@@ -72,7 +72,7 @@ public class ConfigurationController extends AbstractTransactionalController<Con
         return binder.getConfTO(confDAO.get());
     }
 
-    @PreAuthorize("hasRole('CONFIGURATION_READ')")
+    @PreAuthorize("isAuthenticated()")
     public AttributeTO read(final String key) {
         CAttr conf = confDAO.find(key);
         if (conf == null) {

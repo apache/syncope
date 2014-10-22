@@ -205,10 +205,6 @@ under the License.
       <entitlement>CONFIGURATION_EXPORT</entitlement>
     </action>
 
-    <action id="read">
-      <entitlement>CONFIGURATION_READ</entitlement>
-    </action>
-
     <action id="set">
       <entitlement>CONFIGURATION_SET</entitlement>
     </action>
