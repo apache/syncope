@@ -19,63 +19,62 @@
 package org.apache.syncope.console;
 
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class AccessTestITCase extends AbstractTest {
 
     @Test
     public void clickAround() {
-        selenium.click("css=img[alt=\"Schema\"]");
-        selenium.waitForPageToLoad("30000");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Schema\"]")).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']/ul/li[2]/a")));
 
-        selenium.click("//div[@id='tabs']/ul/li[2]/a");
-        selenium.waitForCondition("selenium.isElementPresent(\"xpath=//div[@id='uschema']/div/div/span/ul/li[2]/a\");",
-                "30000");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[2]/a")).click();
 
-        selenium.click("//div[@id='uschema']/div/div/span/ul/li[2]/a");
-        selenium.click("//div[@id='uschema']/div/div/span/ul/li[3]/a");
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//div[@id='uschema']/div/div/span/ul/li[2]/a")));
 
-        selenium.click("//div[@id='tabs']/ul/li[3]/a");
+        seleniumDriver.findElement(By.xpath("//div[@id='uschema']/div/div/span/ul/li[2]/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='uschema']/div/div/span/ul/li[3]/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[3]/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='mschema']/div/div/span/ul/li[2]/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='mschema']/div/div/span/ul/li[3]/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[4]/a")).click();
 
-        selenium.click("//div[@id='mschema']/div/div/span/ul/li[2]/a");
-        selenium.click("//div[@id='mschema']/div/div/span/ul/li[3]/a");
+        seleniumDriver.findElement(By.xpath("//div[@id='rschema']/div/div/span/ul/li[2]/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='rschema']/div/div/span/ul/li[3]/a")).click();
 
-        selenium.click("//div[@id='tabs']/ul/li[4]/a");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Users\"]")).click();
 
-        selenium.click("//div[@id='rschema']/div/div/span/ul/li[2]/a");
-        selenium.click("//div[@id='rschema']/div/div/span/ul/li[3]/a");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[3]/ul/li[2]/a/span")));
+        seleniumDriver.findElement(By.xpath("//div[3]/ul/li[2]/a/span")).click();
 
-        selenium.click("css=img[alt=\"Users\"]");
-        selenium.waitForPageToLoad("30000");
-        selenium.click("link=Search");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Roles\"]")).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//img[@alt=\"Resources\"]")));
 
-        selenium.click("css=img[alt=\"Roles\"]");
-        selenium.waitForPageToLoad("30000");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Resources\"]")).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//img[@alt=\"TODO\"]")));
 
-        selenium.click("css=img[alt=\"Resources\"]");
-        selenium.waitForPageToLoad("30000");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"TODO\"]")).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//img[@alt=\"Reports\"]")));
 
-        selenium.click("css=img[alt=\"TODO\"]");
-        selenium.waitForPageToLoad("30000");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Reports\"]")).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//img[@alt=\"Configuration\"]")));
 
-        selenium.click("css=img[alt=\"Reports\"]");
-        selenium.waitForPageToLoad("30000");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Configuration\"]")).click();
 
-        selenium.click("css=img[alt=\"Configuration\"]");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']/ul/li[2]/a/span")));
 
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//div[@id='tabs']/ul/li[2]/a/span\");", "30000");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[3]/a/span")).click();
 
-        selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//div[@id='tabs']/ul/li[3]/a/span\");", "30000");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[3]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Tasks\"]")).click();
 
-        selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']/ul/li[2]/a/span")));
 
-        selenium.click("css=img[alt=\"Tasks\"]");
-
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//div[@id='tabs']/ul/li[2]/a/span\");", "30000");
-
-        selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
-        selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
-        selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
-        selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[2]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Tasks\"]")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[4]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[5]/a/span")).click();
     }
 }

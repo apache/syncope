@@ -18,42 +18,53 @@
  */
 package org.apache.syncope.console;
 
+import static junit.framework.TestCase.assertTrue;
 import org.junit.Test;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 
 public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void create() {
-        selenium.click("css=img[alt=\"Schema\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Schema\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//div[@id='tabs']/ul/li[4]/a");
-        selenium.click("//div[@id='rschema']/div/div/div/a");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[4]/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='rschema']/div/div/div/a")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//*[@id='_wicket_window_0']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
 
-        selenium.waitForCondition("selenium.isElementPresent(" + "\"//*[@name='name:textField']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@name='name:textField']")));
 
-        selenium.selectFrame("index=0");
-
-        selenium.select("name=type:dropDownChoiceField", "value=0");
-        selenium.type("name=name:textField", "newschema");
-        selenium.click("name=apply");
+        Select select = new Select(seleniumDriver.findElement(By.name("type:dropDownChoiceField")));
+        select.selectByValue("0");
+        WebElement textField = seleniumDriver.findElement(By.name("name:textField"));
+        textField.sendKeys("newschema");
+        seleniumDriver.findElement(By.name("apply")).click();
 
         seleniumDriver.switchTo().defaultContent();
 
-        selenium.waitForCondition("selenium.isTextPresent(\"newschema\");", "30000");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("feedback")));
+        assertTrue(seleniumDriver.findElement(By.tagName("body")).getText().contains("newschema"));
     }
 
     @Test
     public void delete() {
-        selenium.click("css=img[alt=\"Schema\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Schema\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//div[3]/div/div/div/div/div/span/table/tbody/tr/td[7]/div/span[15]/a");
-
-        assertTrue(selenium.getConfirmation().equals("Do you really want to delete the selected item(s)?"));
+        seleniumDriver.findElement(
+                By.xpath("//div[3]/div/div/div/div/div/span/table/tbody/tr/td[7]/div/span[15]/a")).click();
+        
+        Alert alert = seleniumDriver.switchTo().alert();
+        assertTrue(alert.getText().equals("Do you really want to delete the selected item(s)?"));
+        alert.accept();
     }
 }

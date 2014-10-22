@@ -18,11 +18,16 @@
  */
 package org.apache.syncope.console;
 
-import com.thoughtworks.selenium.webdriven.WebDriverBackedSelenium;
+import java.util.concurrent.TimeUnit;
+import static org.apache.syncope.console.AbstractTest.ADMIN;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class EditProfileTestITCase extends AbstractTest {
 
@@ -30,47 +35,57 @@ public class EditProfileTestITCase extends AbstractTest {
     @Before
     public void setUp() throws Exception {
         seleniumDriver = new FirefoxDriver();
-        selenium = new WebDriverBackedSelenium(seleniumDriver, BASE_URL);
-
-        selenium.open("/syncope-console/");
+        //selenium = new WebDriverBackedSelenium(seleniumDriver, BASE_URL);
+        seleniumDriver.get(BASE_URL);        
+        wait = new WebDriverWait(seleniumDriver, 6);
+        
     }
 
     @Test
     public void selfRegistration() {
-        selenium.click("//div/span/span/a");
+        seleniumDriver.findElement(By.xpath("//div/div[2]/div[1]/span/a/span")).click();
+        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//span[contains(text(),'Attributes')]\");", "30000");
-
-        selenium.click("css=a.w_close");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[contains(text(),'Attributes')]")));
+        seleniumDriver.switchTo().defaultContent();
+        seleniumDriver.findElement(By.xpath("//a[@class='w_close']")).click();               
 
         // only to have some "Logout" available for @After
-        selenium.open("/syncope-console/");
-        selenium.waitForPageToLoad("30000");
-        selenium.type("name=userId", ADMIN);
-        selenium.type("name=password", PASSWORD);
-        selenium.click("name=:submit");
-        selenium.waitForPageToLoad("30000");
+        seleniumDriver.get(BASE_URL);
+        seleniumDriver.manage().timeouts().pageLoadTimeout(30, TimeUnit.SECONDS);
+        WebElement element = seleniumDriver.findElement(By.name("userId"));
+        element.sendKeys(ADMIN);
+        element = seleniumDriver.findElement(By.name("password"));
+        element.sendKeys(PASSWORD);
+        seleniumDriver.findElement(By.name(":submit")).click();
+        seleniumDriver.manage().timeouts().pageLoadTimeout(30, TimeUnit.SECONDS);
     }
-
+    
     @Test
     public void editUserProfile() {
-        selenium.type("name=userId", "rossini");
-        selenium.type("name=password", "password");
-        selenium.click("name=:submit");
+        WebElement element = seleniumDriver.findElement(By.name("userId"));
+        element.sendKeys("rossini");
+        element = seleniumDriver.findElement(By.name("password"));
+        element.sendKeys("password");
+        seleniumDriver.findElement(By.name(":submit")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='username']/a\");", "30000");
-        selenium.click("//div[@id='username']/a");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='username']/a")));
+        seleniumDriver.findElement(By.xpath("//div[@id='username']/a")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//span[contains(text(),'Attributes')]\");", "30000");
-        selenium.waitForCondition("selenium.isElementPresent(\"//input[@value='rossini']\");", "30000");
-
-        selenium.click("css=a.w_close");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[contains(text(),'Attributes')]")));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@value='rossini']")));
+        seleniumDriver.switchTo().defaultContent();
+        seleniumDriver.findElement(By.xpath("//a[@class='w_close']")).click();
     }
 
     @Override
     @After
     public void tearDown() throws Exception {
         super.tearDown();
-        selenium.stop();
+        //seleniumDriver.stop();
     }
 }

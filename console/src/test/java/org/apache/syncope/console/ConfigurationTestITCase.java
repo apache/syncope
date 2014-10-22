@@ -19,331 +19,367 @@
 package org.apache.syncope.console;
 
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 
 public class ConfigurationTestITCase extends AbstractTest {
 
     @Test
     public void editParameters() {
-        selenium.click("css=img[alt=\"Configuration\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Configuration\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//span[contains(text(), 'log.lastlogindate')]/../../div[2]/span/input");
-        selenium.click("//div[@id='parameters']/form/a");
+        seleniumDriver.findElement(By.xpath("//span[contains(text(), 'log.lastlogindate')]/../../div[2]/span/input")).
+                click();
+        seleniumDriver.findElement(By.xpath("//div[@id='parameters']/form/a")).click();
 
-        selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("feedback")));
+        assertTrue(seleniumDriver.findElement(By.tagName("body")).getText().contains("Operation executed successfully"));
     }
 
     @Test
     public void browsePasswordPolicy() {
-        selenium.click("css=img[alt=\"Configuration\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Configuration\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//div[@id='tabs']/ul/li[2]/a");
-        selenium.click("//div[@id='policies']/ul/li[2]/a");
-        selenium.click("//div[@id='password']/span/div/a");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[3]/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='policies']/ul/li[2]/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='password']/span/div/a")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='id:textField']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@name='id:textField']")));        
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
-        selenium.selectFrame("index=0");
+        WebElement element = seleniumDriver.findElement(By.name("description:textField"));
+        element.sendKeys("new description");
 
-        selenium.type("name=description:textField", "new description");
-        selenium.click("//div[2]/form/div[3]/input[@type='submit']");
-
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/input[@type='submit']")).click();
         seleniumDriver.switchTo().defaultContent();
 
-        selenium.waitForCondition("selenium.isTextPresent(\"new description\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("feedback")));
+        assertTrue(seleniumDriver.findElement(By.tagName("body")).getText().contains("Operation executed successfully"));
     }
 
     @Test
     public void browseWorkflowDef() {
-        selenium.click("css=img[alt=\"Configuration\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Configuration\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[5]/a/span")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='workflow']/div/span/img\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='workflow']/div/span/img")));
     }
 
     @Test
     public void setLogLevel() {
-        selenium.click("css=img[alt=\"Configuration\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Configuration\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//div[@id='tabs']/ul/li[6]/a");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[7]/a")).click();
 
-        selenium.select("//div[@id='core']/div/span/table/tbody/tr/td[2]/select", "label=ERROR");
+        final Select select = new Select(
+                seleniumDriver.findElement(By.xpath("//div[@id='core']/div/span/table/tbody/tr/td[2]/select")));
+        select.selectByVisibleText("ERROR");
 
-        selenium.waitForCondition("selenium.isTextPresent(\"Operation executed successfully\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='workflow']/div/span/img")));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("feedback")));
+        assertTrue(seleniumDriver.findElement(By.tagName("body")).getText().contains("Operation executed successfully"));        
     }
 
     @Test
     public void createNotification() {
-        selenium.click("css=img[alt=\"Configuration\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Configuration\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//div[@id='tabs']/ul/li[3]/a");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[4]/a")).click();
 
-        selenium.click("//div[@id='notifications']/a");
+        seleniumDriver.findElement(By.xpath("//div[@id='notifications']/a")).click();
+        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[2]/form/div[3]/div/div/div/div/label\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[2]/form/div[3]/div/div/div/div/label")));
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='sender:textField']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@name='sender:textField']")));        
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
-        selenium.selectFrame("index=0");
+        seleniumDriver.findElement(By.name("sender:textField")).sendKeys("test@syncope.it");
 
-        selenium.type("name=sender:textField", "test@syncope.it");
+        seleniumDriver.findElement(By.name("subject:textField")).sendKeys("test@syncope.it");
 
-        selenium.type("name=subject:textField", "test@syncope.it");
+        Select select = new Select(
+                seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div/div/div[3]/div[2]/span/select")));
+        select.selectByVisibleText("UserSchema");
 
-        selenium.select("//div[2]/form/div[3]/div/div/div[3]/div[2]/span/select", "label=UserSchema");
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//div[2]/form/div[3]/div/div/div[4]/div[2]/span/select/option[2]")));
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[2]/form/div[3]/div/div/div[4]/div[2]/span/select/option[2]\");", "30000");
+        select = new Select(
+                seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div/div/div[4]/div[2]/span/select")));
+        select.selectByVisibleText("fullname");
 
-        selenium.select("//div[2]/form/div[3]/div/div/div[4]/div[2]/span/select", "label=fullname");
+        select = new Select(
+                seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div/div/div[5]/div[2]/span/select")));
+        select.selectByVisibleText("optin");
 
-        selenium.select("//div[2]/form/div[3]/div/div/div[5]/div[2]/span/select", "label=optin");
+        select = new Select(
+                seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div/div/div[6]/div[2]/span/select")));
+        select.selectByVisibleText("ALL");
 
-        selenium.select("//div[2]/form/div[3]/div/div/div[6]/div[2]/span/select", "label=ALL");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/ul/li[3]/a/span")).click();
 
-        selenium.click("//div[2]/form/div[3]/ul/li[3]/a/span");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/ul/li[2]/a/span")).click();
 
-        selenium.click("//div[2]/form/div[3]/ul/li[2]/a/span");
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']"
+                        + "/option[text()='PROPAGATION']")));
 
-        selenium.waitForCondition("selenium.isElementPresent(\""
-                + "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']"
-                + "/option[text()='PROPAGATION']\");",
-                "30000");
+        select = new Select(seleniumDriver.findElement(By.xpath(
+                "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']")));
+        select.selectByVisibleText("PROPAGATION");
 
-        selenium.select(
-                "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']",
-                "label=PROPAGATION");
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']"
+                        + "/option[text()='role']")));
 
-        selenium.waitForCondition("selenium.isElementPresent(\""
-                + "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']"
-                + "/option[text()='role']\");",
-                "30000");
+        select = new Select(seleniumDriver.findElement(By.xpath(
+                "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']")));
+        select.selectByVisibleText("role");
 
-        selenium.select(
-                "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']",
-                "label=role");
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']"
+                        + "/option[text()='resource-db-sync']")));
 
-        selenium.waitForCondition("selenium.isElementPresent(\""
-                + "//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']"
-                + "/option[text()='resource-db-sync']\");",
-                "30000");
+        select = new Select(seleniumDriver.findElement(By.xpath(
+                "//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']")));
+        select.selectByVisibleText("resource-db-sync");
 
-        selenium.select(
-                "//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']",
-                "label=resource-db-sync");
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//input[@name='eventSelection:eventsContainer:eventsPanel:failureGroup']")));
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//input[@name='eventSelection:eventsContainer:eventsPanel:failureGroup']\");",
-                "30000");
+        seleniumDriver.findElement(By.xpath("//div[@class='eventSelectionWidzard']/div[2]/div[3]/span/div/input")).
+                click();
 
-        selenium.click("//div[@class='eventSelectionWidzard']/div[2]/div[3]/span/div/input");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/ul/li[4]/a")).click();
 
-        selenium.click("//div[2]/form/div[3]/ul/li[4]/a");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div[4]/div/div/span/input")).click();
 
-        selenium.click("//div[2]/form/div[3]/div[4]/div/div/span/input");
+        wait.until(ExpectedConditions.elementToBeClickable(By.name("staticRecipients:multiValueContainer:view:0:panel:textField")));
+        
+        seleniumDriver.findElement(By.name(
+                "staticRecipients:multiValueContainer:view:0:panel:textField")).
+                sendKeys("syncope445@syncope.apache.org");
 
-        selenium.type(
-                "name=staticRecipients:multiValueContainer:view:0:panel:textField", "syncope445@syncope.apache.org");
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//div[2]/form/div[3]/div[4]/div/div[2]/label")));
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[2]/form/div[3]/div[4]/div/div[2]/label\");", "30000");
-
-        selenium.click("//div[2]/form/div[4]/input");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[4]/input")).click();
 
         seleniumDriver.switchTo().defaultContent();
     }
 
     @Test
     public void createDisabledNotification() {
-        selenium.click("css=img[alt=\"Configuration\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Configuration\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//div[@id='tabs']/ul/li[3]/a");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[4]/a")).click();
 
-        selenium.click("//div[@id='notifications']/a");
+        seleniumDriver.findElement(By.xpath("//div[@id='notifications']/a")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[2]/form/div[3]/div/div/div/div/label\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
+        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[2]/form/div[3]/div/div/div/div/label")));
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='sender:textField']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@name='sender:textField']")));
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
-        selenium.selectFrame("index=0");
+        seleniumDriver.findElement(By.name("sender:textField")).sendKeys("test@syncope.it");
 
-        selenium.type("name=sender:textField", "test@syncope.it");
+        Select select = new Select(seleniumDriver.findElement(
+                By.xpath("//div[2]/form/div[3]/div/div[1]/div[3]/div[2]/span/select")));
+        select.selectByVisibleText("UserSchema");
 
-        selenium.type("name=sender:textField", "test@syncope.it");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//div[2]/form/div[3]/div/div/div[4]/div[2]/span/select/option[2]")));
 
-        selenium.select("//div[2]/form/div[3]/div/div/div[3]/div[2]/span/select", "label=UserSchema");
+        select = new Select(
+                seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div/div/div[4]/div[2]/span/select")));
+        select.selectByVisibleText("fullname");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[2]/form/div[3]/div/div/div[4]/div[2]/span/select/option[2]\");", "30000");
+        select = new Select(
+                seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div/div/div[5]/div[2]/span/select")));
+        select.selectByVisibleText("optin");
 
-        selenium.select("//div[2]/form/div[3]/div/div/div[4]/div[2]/span/select", "label=fullname");
-
-        selenium.select("//div[2]/form/div[3]/div/div/div[5]/div[2]/span/select", "label=optin");
-
-        selenium.select("//div[2]/form/div[3]/div/div/div[6]/div[2]/span/select", "label=ALL");
+        select = new Select(
+                seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div/div/div[6]/div[2]/span/select")));
+        select.selectByVisibleText("ALL");
 
         // disable notification
-        selenium.click("//div[2]/form/div[3]/div/div/div[7]/div[2]/span/input");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div/div/div[7]/div[2]/span/input")).click();
 
-        selenium.click("//div[2]/form/div[3]/ul/li[3]/a/span");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/ul/li[3]/a/span")).click();
 
-        selenium.click("//div[2]/form/div[3]/ul/li[2]/a/span");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/ul/li[2]/a/span")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\""
-                + "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']"
-                + "/option[text()='PROPAGATION']\");",
-                "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']"
+                + "/option[text()='PROPAGATION']")));
 
-        selenium.select(
-                "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']",
-                "label=PROPAGATION");
+        select = new Select(
+                seleniumDriver.findElement(By.xpath(
+                                "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']")));
+        select.selectByVisibleText("PROPAGATION");
 
-        selenium.waitForCondition("selenium.isElementPresent(\""
-                + "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']"
-                + "/option[text()='role']\");",
-                "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']"
+                + "/option[text()='role']")));
 
-        selenium.select(
-                "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']",
-                "label=role");
+        select = new Select(
+                seleniumDriver.findElement(By.xpath(
+                                "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']")));
+        select.selectByVisibleText("role");
 
-        selenium.waitForCondition("selenium.isElementPresent(\""
-                + "//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']"
-                + "/option[text()='resource-db-sync']\");",
-                "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']"
+                + "/option[text()='resource-db-sync']")));
 
-        selenium.select(
-                "//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']",
-                "label=resource-db-sync");
+        select = new Select(
+                seleniumDriver.findElement(By.xpath("//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']")));
+        select.selectByVisibleText("resource-db-sync");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//input[@name='eventSelection:eventsContainer:eventsPanel:failureGroup']\");",
-                "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//input[@name='eventSelection:eventsContainer:eventsPanel:failureGroup']")));
 
-        selenium.click("//div[@class='eventSelectionWidzard']/div[2]/div[3]/span/div/input");
+        seleniumDriver.findElement(By.xpath("//div[@class='eventSelectionWidzard']/div[2]/div[3]/span/div/input")).
+                click();
 
-        selenium.click("//div[2]/form/div[3]/ul/li[4]/a/span");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/ul/li[4]/a/span")).click();
 
-        selenium.click("//div[2]/form/div[3]/div[4]/div/div/span/input");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div[4]/div/div/span/input")).click();
+                                             
+        wait.until(ExpectedConditions.elementToBeClickable(By.name("staticRecipients:multiValueContainer:view:0:panel:textField")));
+        
+        seleniumDriver.findElement(
+                By.name("staticRecipients:multiValueContainer:view:0:panel:textField"))
+                .sendKeys("syncope492@syncope.apache.org");
 
-        selenium.type(
-                "name=staticRecipients:multiValueContainer:view:0:panel:textField", "syncope492@syncope.apache.org");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                                        "//div[2]/form/div[3]/div[4]/div/div[2]/label")));
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[2]/form/div[3]/div[4]/div/div[2]/label\");", "30000");
-
-        selenium.click("//div[2]/form/div[4]/input");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[4]/input")).click();
 
         seleniumDriver.switchTo().defaultContent();
     }
 
     @Test
     public void issueSYNCOPE446() {
-        selenium.click("css=img[alt=\"Configuration\"]");
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Configuration\"]")).click();
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//div[@id='tabs']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        selenium.click("//div[@id='tabs']/ul/li[3]/a");
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[4]/a")).click();
 
-        selenium.click("//div[@id='notifications']/a");
+        seleniumDriver.findElement(By.xpath("//div[@id='notifications']/a")).click();
+        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[2]/form/div[3]/div/div/div/div/label\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[2]/form/div[3]/div/div/div/div/label")));
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//input[@name='sender:textField']\");", "30000");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@name='sender:textField']")));        
 
-        selenium.waitForCondition("selenium.isElementPresent(\"//iframe\");", "30000");
-        selenium.selectFrame("index=0");
+        seleniumDriver.findElement(By.name("sender:textField")).sendKeys("syncope446@syncope.it");
+        seleniumDriver.findElement(By.name("subject:textField")).sendKeys("Test issue Syncope 446");
 
-        selenium.type("name=sender:textField", "syncope446@syncope.it");
+        Select select = new Select(
+                seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div/div/div[3]/div[2]/span/select")));
+        select.selectByVisibleText("UserSchema");
 
-        selenium.type("name=subject:textField", "Test issue Syncope 446");
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//div[2]/form/div[3]/div/div/div[4]/div[2]/span/select/option[2]")));
 
-        selenium.select("//div[2]/form/div[3]/div/div/div[3]/div[2]/span/select", "label=UserSchema");
+        select = new Select(
+                seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div/div/div[4]/div[2]/span/select")));
+        select.selectByVisibleText("email");
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//div[2]/form/div[3]/div/div/div[4]/div[2]/span/select/option[2]\");", "30000");
+        select = new Select(
+                seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div/div/div[5]/div[2]/span/select")));
+        select.selectByVisibleText("optin");
 
-        selenium.select("//div[2]/form/div[3]/div/div/div[4]/div[2]/span/select", "label=email");
+        select = new Select(
+                seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div/div/div[6]/div[2]/span/select")));
+        select.selectByVisibleText("ALL");
 
-        selenium.select("//div[2]/form/div[3]/div/div/div[5]/div[2]/span/select", "label=optin");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/ul/li[3]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/ul/li[2]/a/span")).click();
 
-        selenium.select("//div[2]/form/div[3]/div/div/div[6]/div[2]/span/select", "label=ALL");
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']"
+                        + "/option[text()='REST']")));
 
-        selenium.click("//div[2]/form/div[3]/ul/li[3]/a/span");
+        select = new Select(
+                seleniumDriver.findElement(By.xpath(
+                                "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']")));
+        select.selectByVisibleText("REST");
 
-        selenium.click("//div[2]/form/div[3]/ul/li[2]/a/span");
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']"
+                        + "/option[text()='RoleController']")));
 
-        selenium.waitForCondition("selenium.isElementPresent(\""
-                + "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']"
-                + "/option[text()='REST']\");",
-                "30000");
+        select = new Select(
+                seleniumDriver.findElement(By.xpath(
+                                "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']")));
+        select.selectByVisibleText("RoleController");
 
-        selenium.select(
-                "//select[@name='eventSelection:categoryContainer:type:dropDownChoiceField']",
-                "label=REST");
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//input[@name='eventSelection:eventsContainer:eventsPanel:successGroup']")));
 
-        selenium.waitForCondition("selenium.isElementPresent(\""
-                + "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']"
-                + "/option[text()='RoleController']\");",
-                "30000");
+        seleniumDriver.findElement(
+                By.xpath("//div[@class='eventSelectionWidzard']/div[2]/div[3]/span/div/input")).click();
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/ul/li[3]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div[3]/span/div[4]/div/span/input")).click();
 
-        selenium.select(
-                "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']",
-                "label=RoleController");
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:type']"
+                        + "/option[text()='ENTITLEMENT']")));
+        
+        wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:type']")));
 
-        selenium.waitForCondition("selenium.isElementPresent("
-                + "\"//input[@name='eventSelection:eventsContainer:eventsPanel:successGroup']\");",
-                "30000");
+        select = new Select(
+                seleniumDriver.findElement(By.xpath(
+                                "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:type']")));
+        select.selectByVisibleText("ENTITLEMENT");
 
-        selenium.click("//div[@class='eventSelectionWidzard']/div[2]/div[3]/span/div/input");
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:property']"
+                + "/option[text()='ROLE_CREATE']")));
 
-        selenium.click("//div[2]/form/div[3]/ul/li[3]/a/span");
-        selenium.click("//div[2]/form/div[3]/div[3]/span/div[4]/div/span/input");
+        select = new Select(
+                seleniumDriver.findElement(By.xpath(
+                                "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:property']")));
+        select.selectByVisibleText("ROLE_CREATE");
 
-        selenium.waitForCondition("selenium.isElementPresent(\""
-                + "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:type']"
-                + "/option[text()='ENTITLEMENT']\");",
-                "30000");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/ul/li[4]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//input[@name='recipientsContainer:checkRecipients:checkboxField']")).
+                click();
 
-        selenium.select(
-                "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:type']",
-                "label=ENTITLEMENT");
+        wait.until(ExpectedConditions.elementToBeClickable(By.name("staticRecipients:multiValueContainer:view:0:panel:textField")));
+        
+        seleniumDriver.findElement(By.name("staticRecipients:multiValueContainer:view:0:panel:textField")).sendKeys(
+                "syncope446@syncope.apache.org");
 
-        selenium.waitForCondition("selenium.isElementPresent(\""
-                + "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:property']"
-                + "/option[text()='ROLE_CREATE']\");",
-                "30000");
-
-        selenium.select(
-                "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:property']",
-                "label=ROLE_CREATE");
-
-        selenium.click("//div[2]/form/div[3]/ul/li[4]/a/span");
-
-        selenium.click("//input[@name='recipientsContainer:checkRecipients:checkboxField']");
-
-        selenium.type(
-                "name=staticRecipients:multiValueContainer:view:0:panel:textField", "syncope446@syncope.apache.org");
-
-        selenium.click("//div[2]/form/div[4]/input");
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[4]/input")).click();
 
         seleniumDriver.switchTo().defaultContent();
     }
