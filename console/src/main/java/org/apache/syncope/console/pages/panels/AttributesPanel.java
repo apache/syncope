@@ -210,19 +210,20 @@ public class AttributesPanel extends Panel {
 
     private void setLayoutConfiguration(final Mode mode, final AttributableType type) {
         switch (type) {
-            case USER:
-            default:
-                confAttributeTO = confRestClient.read(mode == Mode.ADMIN
-                        ? LayoutType.ADMIN_USER.getParameter() : LayoutType.ADMIN_USER.getParameter());
-                break;
             case ROLE:
                 confAttributeTO = confRestClient.read(mode == Mode.ADMIN
                         ? LayoutType.ADMIN_ROLE.getParameter() : LayoutType.SELF_ROLE.getParameter());
                 break;
+
             case MEMBERSHIP:
                 confAttributeTO = confRestClient.read(mode == Mode.ADMIN
                         ? LayoutType.ADMIN_MEMBERSHIP.getParameter() : LayoutType.SELF_MEMBERSHIP.getParameter());
                 break;
+
+            case USER:
+            default:
+                confAttributeTO = confRestClient.read(mode == Mode.ADMIN
+                        ? LayoutType.ADMIN_USER.getParameter() : LayoutType.SELF_USER.getParameter());
         }
     }
 
@@ -337,8 +338,8 @@ public class AttributesPanel extends Panel {
             case Binary:
                 panel = new BinaryFieldPanel("panel", schemaTO.getName(), new Model<String>(),
                         schemas.containsKey(schemaTO.getName())
-                        ? schemas.get(schemaTO.getName()).getMimeType()
-                        : null);
+                                ? schemas.get(schemaTO.getName()).getMimeType()
+                                : null);
 
                 if (required) {
                     panel.addRequiredLabel();

@@ -25,6 +25,7 @@ import org.apache.syncope.console.pages.panels.AttributesPanel;
 import org.apache.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.apache.syncope.console.pages.panels.MembershipsPanel;
 import org.apache.syncope.console.pages.panels.ResourcesPanel;
+import org.apache.syncope.console.pages.panels.SecurityQuestionPanel;
 import org.apache.syncope.console.pages.panels.UserDetailsPanel;
 import org.apache.syncope.console.pages.panels.VirtualAttributesPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -112,6 +113,7 @@ public abstract class UserModalPage extends BaseModalPage {
         form.add(new Label("pwdChangeInfo", ""));
 
         form.add(new Label("securityQuestion", ""));
+        form.addOrReplace(new SecurityQuestionPanel("securityQuestion", userTO));
 
         form.add(new Label("accountinformation", ""));
         //--------------------------------
