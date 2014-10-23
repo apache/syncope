@@ -1087,8 +1087,6 @@ under the License.
   <Entitlement name="AUDIT_LIST"/>
   <Entitlement name="AUDIT_ENABLE"/>
   <Entitlement name="AUDIT_DISABLE"/>
-  <Entitlement name="SECURITY_QUESTION_LIST"/>
-  <Entitlement name="SECURITY_QUESTION_READ"/>
   <Entitlement name="SECURITY_QUESTION_CREATE"/>
   <Entitlement name="SECURITY_QUESTION_UPDATE"/>
   <Entitlement name="SECURITY_QUESTION_DELETE"/>
