@@ -78,7 +78,7 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.connid.bundles.soap</groupId>
+      <groupId>net.tirasa.connid.bundles.soap</groupId>
       <artifactId>wssample</artifactId>
       <type>war</type>
       <scope>test</scope>
@@ -233,7 +233,7 @@ under the License.
               </properties>
             </deployable>
             <deployable>
-              <groupId>org.connid.bundles.soap</groupId>
+              <groupId>net.tirasa.connid.bundles.soap</groupId>
               <artifactId>wssample</artifactId>
               <type>war</type>
               <properties>

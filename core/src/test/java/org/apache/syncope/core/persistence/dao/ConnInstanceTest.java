@@ -51,9 +51,9 @@ public class ConnInstanceTest extends AbstractDAOTest {
         assertNotNull("findById did not work", connectorInstance);
 
         assertEquals("invalid connector name",
-                "org.connid.bundles.soap.WebServiceConnector", connectorInstance.getConnectorName());
+                "net.tirasa.connid.bundles.soap.WebServiceConnector", connectorInstance.getConnectorName());
 
-        assertEquals("invalid bundle name", "org.connid.bundles.soap", connectorInstance.getBundleName());
+        assertEquals("invalid bundle name", "net.tirasa.connid.bundles.soap", connectorInstance.getBundleName());
 
         assertEquals("invalid bundle version", connidSoapVersion, connectorInstance.getVersion());
     }

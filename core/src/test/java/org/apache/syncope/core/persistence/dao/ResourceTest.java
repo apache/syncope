@@ -56,8 +56,8 @@ public class ResourceTest extends AbstractDAOTest {
         ConnInstance connector = resource.getConnector();
         assertNotNull("connector not found", connector);
         assertEquals("invalid connector name",
-                "org.connid.bundles.soap.WebServiceConnector", connector.getConnectorName());
-        assertEquals("invalid bundle name", "org.connid.bundles.soap", connector.getBundleName());
+                "net.tirasa.connid.bundles.soap.WebServiceConnector", connector.getConnectorName());
+        assertEquals("invalid bundle name", "net.tirasa.connid.bundles.soap", connector.getBundleName());
         assertEquals("invalid bundle version", connidSoapVersion, connector.getVersion());
 
         assertFalse("no mapping specified", resource.getUmapping().getItems().isEmpty());

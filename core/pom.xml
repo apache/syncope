@@ -342,7 +342,7 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.connid.bundles.soap</groupId>
+      <groupId>net.tirasa.connid.bundles.soap</groupId>
       <artifactId>wssample</artifactId>
       <type>war</type>
       <scope>test</scope>
@@ -524,7 +524,7 @@ under the License.
           </configuration>
           <deployables>
             <deployable>
-              <groupId>org.connid.bundles.soap</groupId>
+              <groupId>net.tirasa.connid.bundles.soap</groupId>
               <artifactId>wssample</artifactId>
               <type>war</type>
               <properties>
@@ -812,7 +812,8 @@ under the License.
                   <dependency>commons-dbcp:commons-dbcp</dependency>
                   <dependency>commons-collections:commons-collections</dependency>
                   <dependency>org.apache.commons:commons-jexl</dependency>
-                  <dependency>org.connid:connid-framework</dependency>
+                  <dependency>net.tirasa.connid:connector-framework</dependency>
+                  <dependency>net.tirasa.connid:connector-framework-internal</dependency>
                   <dependency>com.h2database:h2</dependency>
                   <dependency>org.slf4j:slf4j-api</dependency>
                   <dependency>org.apache.logging.log4j:log4j-api</dependency>
@@ -1285,7 +1286,7 @@ under the License.
                   </properties>
                 </deployable>
                 <deployable>
-                  <groupId>org.connid.bundles.soap</groupId>
+                  <groupId>net.tirasa.connid.bundles.soap</groupId>
                   <artifactId>wssample</artifactId>
                   <type>war</type>
                   <properties>
@@ -1405,7 +1406,7 @@ under the License.
               </configuration>
               <deployables>
                 <deployable>
-                  <groupId>org.connid.bundles.soap</groupId>
+                  <groupId>net.tirasa.connid.bundles.soap</groupId>
                   <artifactId>wssample</artifactId>
                   <type>war</type>
                   <properties>

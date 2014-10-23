@@ -113,8 +113,8 @@ public class ConnectorTestITCase extends AbstractTest {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
         connectorTO.setLocation(connectorService.read(100L).getLocation());
         connectorTO.setVersion(connidSoapVersion);
-        connectorTO.setConnectorName("org.connid.bundles.soap.WebServiceConnector");
-        connectorTO.setBundleName("org.connid.bundles.soap");
+        connectorTO.setConnectorName("net.tirasa.connid.bundles.soap.WebServiceConnector");
+        connectorTO.setBundleName("net.tirasa.connid.bundles.soap");
         connectorTO.setDisplayName("Display name");
         connectorTO.setConnRequestTimeout(15);
 
@@ -220,10 +220,10 @@ public class ConnectorTestITCase extends AbstractTest {
         connectorTO.setVersion(connidSoapVersion);
 
         // set connector name
-        connectorTO.setConnectorName("org.connid.bundles.soap.WebServiceConnector");
+        connectorTO.setConnectorName("net.tirasa.connid.bundles.soap.WebServiceConnector");
 
         // set bundle name
-        connectorTO.setBundleName("org.connid.bundles.soap");
+        connectorTO.setBundleName("net.tirasa.connid.bundles.soap");
 
         connectorTO.setConnRequestTimeout(20);
 
@@ -412,8 +412,7 @@ public class ConnectorTestITCase extends AbstractTest {
 
         Map<String, ConnConfProperty> instanceConfMap;
         for (ConnInstanceTO instance : connectorInstanceTOs) {
-            if ("org.connid.bundles.db.table".equals(instance.getBundleName())) {
-
+            if ("net.tirasa.connid.bundles.db.table".equals(instance.getBundleName())) {
                 instanceConfMap = instance.getConfigurationMap();
                 assertEquals("Utente", instanceConfMap.get("user").getSchema().getDisplayName());
             }
@@ -423,8 +422,7 @@ public class ConnectorTestITCase extends AbstractTest {
         connectorInstanceTOs = connectorService.list(null);
 
         for (ConnInstanceTO instance : connectorInstanceTOs) {
-            if ("org.connid.bundles.db.table".equals(instance.getBundleName())) {
-
+            if ("net.tirasa.connid.bundles.db.table".equals(instance.getBundleName())) {
                 instanceConfMap = instance.getConfigurationMap();
                 assertEquals("User", instanceConfMap.get("user").getSchema().getDisplayName());
             }
@@ -436,8 +434,8 @@ public class ConnectorTestITCase extends AbstractTest {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
         connectorTO.setLocation(connectorServerLocation);
         connectorTO.setVersion(connidDbTableVersion);
-        connectorTO.setConnectorName("org.connid.bundles.db.table.DatabaseTableConnector");
-        connectorTO.setBundleName("org.connid.bundles.db.table");
+        connectorTO.setConnectorName("net.tirasa.connid.bundles.db.table.DatabaseTableConnector");
+        connectorTO.setBundleName("net.tirasa.connid.bundles.db.table");
         connectorTO.setDisplayName("H2Test");
 
         // set the connector configuration using PropertyTO
@@ -577,10 +575,10 @@ public class ConnectorTestITCase extends AbstractTest {
         connectorTO.setVersion(connidSoapVersion);
 
         // set connector name
-        connectorTO.setConnectorName("org.connid.bundles.soap.WebServiceConnector");
+        connectorTO.setConnectorName("net.tirasa.connid.bundles.soap.WebServiceConnector");
 
         // set bundle name
-        connectorTO.setBundleName("org.connid.bundles.soap");
+        connectorTO.setBundleName("net.tirasa.connid.bundles.soap");
 
         // set display name
         connectorTO.setDisplayName("WSSoap");
@@ -603,7 +601,7 @@ public class ConnectorTestITCase extends AbstractTest {
         keyColumnSchema.setRequired(true);
         ConnConfProperty servicename = new ConnConfProperty();
         servicename.setSchema(keyColumnSchema);
-        servicename.getValues().add("org.connid.bundles.soap.provisioning.interfaces.Provisioning");
+        servicename.getValues().add("net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning");
         servicename.setOverridable(false);
 
         conf.add(endpoint);
