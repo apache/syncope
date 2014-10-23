@@ -41,19 +41,19 @@ under the License.
   </context-param>
   <context-param>
     <param-name>testconnectorserver.soap.bundle</param-name>
-    <param-value>org.connid.bundles.soap-${connid.soap.version}.jar</param-value>
+    <param-value>net.tirasa.connid.bundles.soap-${connid.soap.version}.jar</param-value>
   </context-param>
   <context-param>
     <param-name>testconnectorserver.db.bundle</param-name>
-    <param-value>org.connid.bundles.db.table-${connid.db.table.version}.jar</param-value>
+    <param-value>net.tirasa.connid.bundles.db.table-${connid.db.table.version}.jar</param-value>
   </context-param>
   <context-param>
     <param-name>testconnectorserver.csvdir.bundle</param-name>
-    <param-value>org.connid.bundles.csvdir-${connid.csvdir.version}.jar</param-value>
+    <param-value>net.tirasa.connid.bundles.csvdir-${connid.csvdir.version}.jar</param-value>
   </context-param>
   <context-param>
     <param-name>testconnectorserver.ldap.bundle</param-name>
-    <param-value>org.connid.bundles.ldap-${connid.ldap.version}.jar</param-value>
+    <param-value>net.tirasa.connid.bundles.ldap-${connid.ldap.version}.jar</param-value>
   </context-param>
   <context-param>
     <param-name>contextConfigLocation</param-name>

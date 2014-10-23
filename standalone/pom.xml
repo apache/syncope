@@ -50,7 +50,7 @@ under the License.
 
   <dependencies>
     <dependency>
-      <groupId>org.connid.bundles.soap</groupId>
+      <groupId>net.tirasa.connid.bundles.soap</groupId>
       <artifactId>wssample</artifactId>
       <type>war</type>
     </dependency>
@@ -118,7 +118,7 @@ under the License.
                 </copy>
                                 
                 <!-- ConnId's SOAP wssample (provides endpoint for SOAP resources) -->
-                <copy file="${settings.localRepository}/org/connid/bundles/soap/wssample/${connid.soap.version}/wssample-${connid.soap.version}.war" tofile="${work.dir}/apache-tomcat-${tomcat.version}/webapps/wssample.war" />
+                <copy file="${settings.localRepository}/net/tirasa/connid/bundles/soap/wssample/${connid.soap.version}/wssample-${connid.soap.version}.war" tofile="${work.dir}/apache-tomcat-${tomcat.version}/webapps/wssample.war" />
 
                 <!-- Syncope build tools (provide H2 and Apache DS resources + ConnId connector server) -->
                 <unzip src="../build-tools/target/syncope-build-tools-${project.version}.war" dest="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools" />

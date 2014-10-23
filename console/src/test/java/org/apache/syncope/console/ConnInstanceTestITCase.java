@@ -52,7 +52,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         select = new Select(
                 seleniumDriver.findElement(By.xpath("//form/div[2]/div[1]/div[1]/div[3]/div[2]/span/select")));
-        select.selectByVisibleText("org.connid.bundles.soap");
+        select.selectByVisibleText("net.tirasa.connid.bundles.soap");
 
         seleniumDriver.findElement(By.xpath("//div[2]/form/div[2]/ul/li[1]/a/span")).click();
 
@@ -81,7 +81,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertEquals("ConnInstance103",  
                 seleniumDriver.findElement(By.xpath("//input[@name='displayName:textField']")).getAttribute("value"));
 
-        assertEquals("org.connid.bundles.soap",(new Select(seleniumDriver.findElement(
+        assertEquals("net.tirasa.connid.bundles.soap",(new Select(seleniumDriver.findElement(
                 By.xpath("//select[@name='connectorName:dropDownChoiceField']")))).getFirstSelectedOption().getText());
 
         seleniumDriver.findElement(By.xpath("//div[2]/form/div[2]/ul/li[2]/a/span")).click();

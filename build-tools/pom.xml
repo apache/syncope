@@ -92,24 +92,10 @@ under the License.
     </dependency>
       
     <dependency>
-      <groupId>org.connid.bundles.db</groupId>
-      <artifactId>org.connid.bundles.db.table</artifactId>
+      <groupId>net.tirasa.connid.bundles.db</groupId>
+      <artifactId>net.tirasa.connid.bundles.db.table</artifactId>
       <version>${connid.db.table.version}</version>
       <scope>runtime</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.connid</groupId>
-          <artifactId>connid-framework</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.connid</groupId>
-          <artifactId>connid-framework-internal</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.connid</groupId>
-          <artifactId>connid-test-common</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>     
     
     <dependency>
