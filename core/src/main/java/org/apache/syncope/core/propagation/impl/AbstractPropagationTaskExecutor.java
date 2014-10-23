@@ -174,8 +174,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             LOG.debug("Rename required with value {}", newName);
 
-                if (newName != null && newName.equals(beforeObj.getName())
-                        && !newName.getNameValue().equals(beforeObj.getUid().getUidValue())) {
+            if (newName != null && newName.equals(beforeObj.getName())
+                    && !newName.getNameValue().equals(beforeObj.getUid().getUidValue())) {
 
                 LOG.debug("Remote object name unchanged");
                 attributes.remove(newName);
@@ -355,7 +355,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             if (e instanceof ConnectorException && e.getCause() != null) {
                 taskExecutionMessage = e.getCause().getMessage();
-                failureReason = e.getMessage() + "\n\n Cause: " + e.getCause().getMessage().split("\n")[0];
+                if (e.getCause().getMessage() == null) {
+                    failureReason = e.getMessage();
+                } else {
+                    failureReason = e.getMessage() + "\n\n Cause: " + e.getCause().getMessage().split("\n")[0];
+                }
             } else {
                 taskExecutionMessage = ExceptionUtil.getFullStackTrace(e);
                 if (e.getCause() == null) {
