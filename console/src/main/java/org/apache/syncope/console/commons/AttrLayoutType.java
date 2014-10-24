@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.console.commons;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.syncope.common.types.AttributableType;
 
 public enum AttrLayoutType {
@@ -51,6 +53,15 @@ public enum AttrLayoutType {
 
     public AttributableType getAttrType() {
         return attrType;
+    }
+
+    public static List<String> confKeys() {
+        List<String> confKeys = new ArrayList<String>();
+        for (AttrLayoutType value : values()) {
+            confKeys.add(value.getConfKey());
+        }
+
+        return confKeys;
     }
 
     public static AttrLayoutType valueOf(final Mode mode, final AttributableType attrType) {
