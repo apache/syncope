@@ -323,7 +323,7 @@ under the License.
 
     <activiti.version>5.16.4</activiti.version>
     
-    <aspectj.version>1.8.2</aspectj.version>
+    <aspectj.version>1.8.3</aspectj.version>
 
     <cxf.version>3.0.2</cxf.version>	
     <spring.version>4.0.7.RELEASE</spring.version>
@@ -346,12 +346,12 @@ under the License.
 
     <h2.version>1.4.182</h2.version>
 
-    <log4j.version>2.0</log4j.version>
+    <log4j.version>2.1</log4j.version>
     <slf4j.version>1.7.7</slf4j.version>
     <disruptor.version>3.3.0</disruptor.version>
 
     <junit.version>4.11</junit.version>
-    <selenium.version>2.43.1</selenium.version>
+    <selenium.version>2.44.0</selenium.version>
 
     <apacheds.version>1.5.7</apacheds.version>
     
