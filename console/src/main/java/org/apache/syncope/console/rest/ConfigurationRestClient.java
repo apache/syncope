@@ -27,12 +27,17 @@ import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConfTO;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.wrap.MailTemplate;
+import org.apache.syncope.console.commons.AttrLayoutType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConfigurationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 7692363064029538722L;
+
+    @Autowired
+    private SchemaRestClient schemaRestClient;
 
     public ConfTO list() {
         return getService(ConfigurationService.class).list();
@@ -45,6 +50,19 @@ public class ConfigurationRestClient extends BaseRestClient {
             LOG.error("While reading a configuration schema", e);
         }
         return null;
+    }
+
+    public AttributeTO readAttrLayout(final AttrLayoutType type) {
+        AttributeTO attrLayout = read(type.getConfKey());
+        if (attrLayout == null) {
+            attrLayout = new AttributeTO();
+            attrLayout.setSchema(type.getConfKey());
+        }
+        if (attrLayout.getValues().isEmpty()) {
+            attrLayout.getValues().addAll(schemaRestClient.getSchemaNames(type.getAttrType()));
+        }
+
+        return attrLayout;
     }
 
     public void set(final AttributeTO attributeTO) {

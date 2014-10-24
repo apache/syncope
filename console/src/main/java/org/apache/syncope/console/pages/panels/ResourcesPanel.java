@@ -125,15 +125,15 @@ public class ResourcesPanel extends Panel {
         public AjaxRecordingPalettePanel(final String id, final IModel<List<T>> model, final ListModel<T> choices,
                 final StatusPanel statusPanel) {
 
-            super(id, model, choices, new SelectChoiceRenderer<T>(), false);
+            super(id, model, choices, new SelectChoiceRenderer<T>(), false, false);
             this.statusPanel = statusPanel;
         }
 
         @Override
         protected Palette<T> createPalette(final IModel<List<T>> model, final ListModel<T> choices,
-                final IChoiceRenderer<T> renderer, final boolean allowOrder) {
+                final IChoiceRenderer<T> renderer, final boolean allowOrder, final boolean allowMoveAll) {
 
-            return new NonI18nPalette<T>("paletteField", model, choices, renderer, 8, allowOrder) {
+            return new NonI18nPalette<T>("paletteField", model, choices, renderer, 8, allowOrder, false) {
 
                 private static final long serialVersionUID = -3415146226879212841L;
 

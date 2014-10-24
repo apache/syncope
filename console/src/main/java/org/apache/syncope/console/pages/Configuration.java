@@ -36,7 +36,7 @@ import org.apache.syncope.common.to.ConfTO;
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.to.SecurityQuestionTO;
-import org.apache.syncope.console.commons.LayoutType;
+import org.apache.syncope.console.commons.AttrLayoutType;
 import org.apache.syncope.common.types.LoggerLevel;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.console.commons.Constants;
@@ -245,12 +245,12 @@ public class Configuration extends BasePage {
                 "Configuration", "logList"));
         add(consoleLoggerContainer);
 
-        add(new LayoutsPanel("adminUserLayoutPanel", LayoutType.ADMIN_USER, feedbackPanel));
-        add(new LayoutsPanel("selfUserLayoutPanel", LayoutType.SELF_USER, feedbackPanel));
-        add(new LayoutsPanel("adminRoleLayoutPanel", LayoutType.ADMIN_ROLE, feedbackPanel));
-        add(new LayoutsPanel("selfRoleLayoutPanel", LayoutType.SELF_ROLE, feedbackPanel));
-        add(new LayoutsPanel("adminMembershipLayoutPanel", LayoutType.ADMIN_MEMBERSHIP, feedbackPanel));
-        add(new LayoutsPanel("selfMembershipLayoutPanel", LayoutType.SELF_MEMBERSHIP, feedbackPanel));
+        add(new LayoutsPanel("adminUserLayoutPanel", AttrLayoutType.ADMIN_USER, feedbackPanel));
+        add(new LayoutsPanel("selfUserLayoutPanel", AttrLayoutType.SELF_USER, feedbackPanel));
+        add(new LayoutsPanel("adminRoleLayoutPanel", AttrLayoutType.ADMIN_ROLE, feedbackPanel));
+        add(new LayoutsPanel("selfRoleLayoutPanel", AttrLayoutType.SELF_ROLE, feedbackPanel));
+        add(new LayoutsPanel("adminMembershipLayoutPanel", AttrLayoutType.ADMIN_MEMBERSHIP, feedbackPanel));
+        add(new LayoutsPanel("selfMembershipLayoutPanel", AttrLayoutType.SELF_MEMBERSHIP, feedbackPanel));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -264,8 +264,8 @@ public class Configuration extends BasePage {
 
         for (Iterator<AttributeTO> it = conf.getAttrs().iterator(); it.hasNext();) {
             AttributeTO attr = it.next();
-            for (LayoutType type : LayoutType.values()) {
-                if (type.getParameter().equals(attr.getSchema())) {
+            for (AttrLayoutType type : AttrLayoutType.values()) {
+                if (type.getConfKey().equals(attr.getSchema())) {
                     it.remove();
                 }
             }
