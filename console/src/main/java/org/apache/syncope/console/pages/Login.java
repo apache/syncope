@@ -170,8 +170,7 @@ public class Login extends WebPage {
                             // anonymous authentication needed for self-registration
                             authenticate(anonymousUser, anonymousKey);
 
-                            return new UserSelfModalPage(
-                                    Login.this.getPageReference(), selfRegModalWin, new UserTO());
+                            return new UserSelfModalPage(Login.this.getPageReference(), selfRegModalWin, new UserTO());
                         }
                     });
 

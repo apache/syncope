@@ -29,18 +29,12 @@ public class NonI18nPalette<T> extends Palette<T> {
     private static final long serialVersionUID = 2659070187837941889L;
 
     public NonI18nPalette(final String id,
-            final IModel<? extends Collection<? extends T>> choicesModel,
-            final IChoiceRenderer<T> choiceRenderer, final int rows, final boolean allowOrder) {
-
-        super(id, choicesModel, choiceRenderer, rows, allowOrder);
-    }
-
-    public NonI18nPalette(final String id,
             final IModel<? extends List<? extends T>> model,
             final IModel<? extends Collection<? extends T>> choicesModel,
-            final IChoiceRenderer<T> choiceRenderer, final int rows, final boolean allowOrder) {
+            final IChoiceRenderer<T> choiceRenderer, final int rows,
+            final boolean allowOrder, final boolean allowMoveAll) {
 
-        super(id, model, choicesModel, choiceRenderer, rows, allowOrder);
+        super(id, model, choicesModel, choiceRenderer, rows, allowOrder, allowMoveAll);
     }
 
     @Override
