@@ -88,11 +88,7 @@ public enum AttrLayoutType {
                 default:
             }
         }
-
-        if (result == null) {
-            throw new IllegalArgumentException("Could not find any valid instance for " + mode + " and " + attrType);
-        }
-
+        
         return result;
     }
 }
