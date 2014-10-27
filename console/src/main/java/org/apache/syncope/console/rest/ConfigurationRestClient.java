@@ -53,6 +53,10 @@ public class ConfigurationRestClient extends BaseRestClient {
     }
 
     public AttributeTO readAttrLayout(final AttrLayoutType type) {
+        if (type == null) {
+            return null;
+        }
+
         AttributeTO attrLayout = read(type.getConfKey());
         if (attrLayout == null) {
             attrLayout = new AttributeTO();
