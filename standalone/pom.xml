@@ -168,9 +168,6 @@ under the License.
         <directory>../core/src/test/resources</directory>
         <filtering>true</filtering>
         <targetPath>core</targetPath>
-        <includes>
-          <include>content.xml</include>
-        </includes>
       </resource>
       <resource>
         <directory>../core/src/main/resources</directory>
@@ -184,9 +181,6 @@ under the License.
         <directory>../console/src/test/resources</directory>
         <filtering>true</filtering>
         <targetPath>console</targetPath>
-        <includes>
-          <include>console.properties</include>
-        </includes>
       </resource>
       <resource>
         <directory>../console/src/main/resources</directory>

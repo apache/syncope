@@ -19,8 +19,10 @@
 package org.apache.syncope.console.rest;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.services.SchemaService;
@@ -33,6 +35,7 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.console.commons.AttrLayoutType;
 import org.springframework.stereotype.Component;
 
 /**
@@ -43,6 +46,23 @@ public class SchemaRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2479730152700312373L;
 
+    public void filter(
+            final List<? extends AbstractSchemaTO> schemaTOs, final Collection<String> allowed, final boolean exclude) {
+
+        for (ListIterator<? extends AbstractSchemaTO> itor = schemaTOs.listIterator(); itor.hasNext();) {
+            AbstractSchemaTO schema = itor.next();
+            if (exclude) {
+                if (!allowed.contains(schema.getName())) {
+                    itor.remove();
+                }
+            } else {
+                if (allowed.contains(schema.getName())) {
+                    itor.remove();
+                }
+            }
+        }
+    }
+
     public List<? extends AbstractSchemaTO> getSchemas(final AttributableType attrType, final SchemaType schemaType) {
         List<? extends AbstractSchemaTO> schemas = Collections.emptyList();
 
@@ -50,6 +70,10 @@ public class SchemaRestClient extends BaseRestClient {
             schemas = getService(SchemaService.class).list(attrType, schemaType);
         } catch (SyncopeClientException e) {
             LOG.error("While getting all schemas for {} and {}", attrType, schemaType, e);
+        }
+
+        if (attrType == AttributableType.CONFIGURATION) {
+            filter(schemas, AttrLayoutType.confKeys(), false);
         }
 
         return schemas;

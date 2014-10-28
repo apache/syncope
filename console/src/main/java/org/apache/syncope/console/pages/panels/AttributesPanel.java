@@ -145,15 +145,6 @@ public class AttributesPanel extends Panel {
         );
     }
 
-    private void filter(final List<SchemaTO> schemaTOs, final Collection<String> allowed) {
-        for (ListIterator<SchemaTO> itor = schemaTOs.listIterator(); itor.hasNext();) {
-            SchemaTO schema = itor.next();
-            if (!allowed.contains(schema.getName())) {
-                itor.remove();
-            }
-        }
-    }
-
     private void setSchemas() {
         AttributeTO attrLayout = null;
         List<SchemaTO> schemaTOs;
@@ -172,7 +163,7 @@ public class AttributesPanel extends Panel {
                     allowed.addAll(roleRestClient.read(roleTO.getParent()).getRAttrTemplates());
                 }
             }
-            filter(schemaTOs, allowed);
+            schemaRestClient.filter(schemaTOs, allowed, true);
         } else if (entityTO instanceof UserTO) {
             attrLayout = confRestClient.readAttrLayout(AttrLayoutType.valueOf(mode, AttributableType.USER));
             schemaTOs = schemaRestClient.getSchemas(AttributableType.USER);
@@ -181,7 +172,7 @@ public class AttributesPanel extends Panel {
             schemaTOs = schemaRestClient.getSchemas(AttributableType.MEMBERSHIP);
             Set<String> allowed = new HashSet<String>(
                     roleRestClient.read(((MembershipTO) entityTO).getRoleId()).getMAttrTemplates());
-            filter(schemaTOs, allowed);
+            schemaRestClient.filter(schemaTOs, allowed, true);
         } else {
             schemas = new TreeMap<String, SchemaTO>();
             schemaTOs = schemaRestClient.getSchemas(AttributableType.CONFIGURATION);
@@ -199,7 +190,7 @@ public class AttributesPanel extends Panel {
 
         if (attrLayout != null && mode != Mode.TEMPLATE && !(entityTO instanceof ConfTO)) {
             // 1. remove attributes not selected for display
-            filter(schemaTOs, attrLayout.getValues());
+            schemaRestClient.filter(schemaTOs, attrLayout.getValues(), true);
             // 2. sort remainig attributes according to configuration, e.g. attrLayout
             final Map<String, Integer> attrLayoutMap = new HashMap<String, Integer>(attrLayout.getValues().size());
             for (int i = 0; i < attrLayout.getValues().size(); i++) {
