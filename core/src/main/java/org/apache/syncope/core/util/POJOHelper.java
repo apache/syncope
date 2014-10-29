@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.util;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -42,6 +41,7 @@ public final class POJOHelper {
         SimpleModule pojoModule = new SimpleModule("POJOModule", new Version(1, 0, 0, null, null, null));
         pojoModule.addSerializer(GuardedString.class, new GuardedStringSerializer());
         pojoModule.addSerializer(Attribute.class, new AttributeSerializer());
+        pojoModule.addSerializer(SyncToken.class, new SyncTokenSerializer());
         pojoModule.addDeserializer(GuardedString.class, new GuardedStringDeserializer());
         pojoModule.addDeserializer(Attribute.class, new AttributeDeserializer());
         pojoModule.addDeserializer(SyncToken.class, new SyncTokenDeserializer());

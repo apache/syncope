@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import org.identityconnectors.framework.common.objects.SyncToken;
+import org.springframework.security.crypto.codec.Base64;
 
 class SyncTokenDeserializer extends JsonDeserializer<SyncToken> {
 
@@ -49,6 +50,13 @@ class SyncTokenDeserializer extends JsonDeserializer<SyncToken> {
                     : node.isInt()
                     ? node.asInt()
                     : node.asText();
+            
+            if (value instanceof String) {
+                byte[] bytes = ((String)value).getBytes();
+                if (Base64.isBase64(bytes)) {
+                   value = Base64.decode(bytes);
+                }
+            }
         }
 
         return new SyncToken(value);
