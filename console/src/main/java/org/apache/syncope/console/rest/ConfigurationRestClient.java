@@ -19,6 +19,7 @@
 package org.apache.syncope.console.rest;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.SyncopeClientException;
@@ -40,7 +41,18 @@ public class ConfigurationRestClient extends BaseRestClient {
     private SchemaRestClient schemaRestClient;
 
     public ConfTO list() {
-        return getService(ConfigurationService.class).list();
+        ConfTO conf = getService(ConfigurationService.class).list();
+
+        for (Iterator<AttributeTO> it = conf.getAttrs().iterator(); it.hasNext();) {
+            AttributeTO attr = it.next();
+            for (AttrLayoutType type : AttrLayoutType.values()) {
+                if (type.getConfKey().equals(attr.getSchema())) {
+                    it.remove();
+                }
+            }
+        }
+
+        return conf;
     }
 
     public AttributeTO read(final String key) {

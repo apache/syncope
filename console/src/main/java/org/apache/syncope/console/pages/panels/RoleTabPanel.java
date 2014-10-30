@@ -84,8 +84,7 @@ public class RoleTabPanel extends Panel {
                     public Page createPage() {
                         RoleTO roleTO = new RoleTO();
                         roleTO.setParent(selectedNode.getId());
-                        RoleModalPage form = new RoleModalPage(pageRef, window, roleTO);
-                        return form;
+                        return new RoleModalPage(pageRef, window, roleTO);
                     }
                 });
 
@@ -124,8 +123,7 @@ public class RoleTabPanel extends Panel {
                     @Override
                     public Page createPage() {
                         RoleTO roleTO = roleRestClient.read(selectedNode.getId());
-                        RoleModalPage form = new RoleModalPage(pageRef, window, roleTO);
-                        return form;
+                        return new RoleModalPage(pageRef, window, roleTO);
                     }
                 });
 

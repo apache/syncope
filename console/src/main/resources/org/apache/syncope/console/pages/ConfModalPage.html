@@ -20,24 +20,11 @@ under the License.
   <wicket:extend>
     <div style="margin: 5px;">
       <p class="ui-widget ui-corner-all ui-widget-header">
-        <wicket:message key="title"/>&nbsp;<span wicket:id="displayName"/>
+        <wicket:message key="title"/>
       </p>
-      <form wicket:id="roleForm">
-        <div id="tabs">
-          <div style="display: block; clear: both">
-            <ul>
-              <li><a href="#details"><span><wicket:message key="details"/></span></a></li>
-              <li><a href="#templates"><span><wicket:message key="templates"/></span></a></li>
-              <li><a href="#attrs"><span><wicket:message key="attrs"/></span></a></li>
-              <li><a href="#derAttrs"><span><wicket:message key="derAttrs"/></span></a></li>
-              <li><a href="#virAttrs"><span><wicket:message key="virAttrs"/></span></a></li>
-              <li><a href="#resources"><span><wicket:message key="resources"/></span></a></li>
-              <li><a href="#entitlements"><span><wicket:message key="entitlements"/></span></a></li>
-              <li><a href="#security"><span><wicket:message key="security"/></span></a></li>
-            </ul>
-          </div>
-          <div wicket:id="rolePanel"></div>
-        </div>
+      <form wicket:id="confForm">
+        <span wicket:id="paramAttrs"/>
+
         <div style="bottom:0;margin:10px">
           <input type="submit"
                  class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
@@ -45,7 +32,7 @@ under the License.
           <input type="button"
                  class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
                  wicket:id="cancel"/>
-        </div>
+        </div>        
       </form>
     </div>
   </wicket:extend>

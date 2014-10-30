@@ -32,9 +32,8 @@ under the License.
     <div id="tabs">
       <ul>
         <li class="tabs-selected">
-          <a href="#parameters"><span><wicket:message key="parameters"/></span></a>
+          <a href="#layouts"><span><wicket:message key="layouts"/></span></a>
         </li>
-        <li><a href="#layouts"><span><wicket:message key="layouts"/></span></a></li>
         <li><a href="#policies"><span><wicket:message key="policies"/></span></a></li>
         <li><a href="#notifications"><span><wicket:message key="notifications"/></span></a></li>
         <li><a href="#securityQuestions"><span><wicket:message key="securityQuestions"/></span></a></li>
@@ -70,17 +69,7 @@ under the License.
         <div id="selfMembership" style="border-width: 1px;border-top-width: 0px;">
           <span wicket:id="selfMembershipLayoutPanel">[self membership layout panel]</span>
         </div>
-      </div>
-      <div id="parameters" wicket:id="parameters" style="width: 700px;">
-        <form wicket:id="confForm">
-          <span wicket:id="parameters">[parameters]</span>
-
-          <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-             wicket:id="saveParameters">
-            <wicket:message key="apply"/>
-          </a>        
-        </form>
-      </div>
+      </div>      
       <div id="policies">
         <ul>
           <li class="tabs-selected">
@@ -220,8 +209,16 @@ under the License.
         </div>
       </div>
       <div>
+        <div wicket:id="parameters">
+          <a style="position: absolute; top: 2px; right:50px;" wicket:id="confLink">
+            <img src="img/actions/settings-icon.png" width="30" height="30"
+                 alt="Parameters" title="title" wicket:message="title:parameters"/>
+          </a>
+        </div>
+        <div wicket:id="syncopeConfWin">[Show modal window for conf parameters]</div>        
+
         <a style="position: absolute; top: 2px; right:20px;" wicket:id="dbExportLink">
-          <img src="img/db_export.png"width="30" height="30"
+          <img src="img/db_export.png" width="30" height="30"
                alt="DB export" title="title" wicket:message="title:db_export"/>
         </a>
       </div>    
