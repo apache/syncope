@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.rest.BaseRestClient;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
@@ -83,6 +84,7 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
                 dataProvider,
                 Integer.MAX_VALUE).setVisible(items != null && !items.isEmpty()));
 
+        @SuppressWarnings("rawtypes")
         final ActionLinksPanel actionPanel = new ActionLinksPanel("actions", new Model(), getPageReference());
         add(actionPanel);
 
@@ -128,7 +130,9 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
 
                         setResponsePage(new BulkActionResultModalPage<T, S>(window, items, columns, res, idFieldName));
                     } catch (Exception e) {
-                        LOG.error("Operation {} not supported", bulkAction.getOperation(), e);
+                        error(getString(Constants.ERROR)
+                                + ": Operation " + bulkAction.getOperation() + " not supported");
+                        feedbackPanel.refresh(target);
                     }
 
                 }

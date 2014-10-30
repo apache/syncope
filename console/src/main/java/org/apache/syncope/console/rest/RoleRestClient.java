@@ -108,7 +108,7 @@ public class RoleRestClient extends AbstractSubjectRestClient {
 
     @Override
     public BulkActionResult bulkAction(final BulkAction action) {
-        return getService(RoleRestClient.class).bulkAction(action);
+        return getService(RoleService.class).bulk(action);
     }
 
     public void unlink(final String etag, final long roleId, final List<StatusBean> statuses) {

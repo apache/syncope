@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.mod.RoleMod;
+import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.reqres.PagedResult;
@@ -218,5 +219,10 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
         }
 
         return modificationResponse(res);
+    }
+
+    @Override
+    public BulkActionResult bulk(final BulkAction bulkAction) {
+        return controller.bulk(bulkAction);
     }
 }

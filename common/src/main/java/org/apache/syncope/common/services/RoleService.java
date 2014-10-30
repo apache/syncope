@@ -37,6 +37,8 @@ import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.mod.RoleMod;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.types.ResourceDeassociationActionType;
@@ -296,4 +298,16 @@ public interface RoleService extends JAXRSService {
     Response bulkAssociation(@NotNull @PathParam("roleId") Long roleId,
             @NotNull @PathParam("type") ResourceAssociationActionType type,
             @NotNull List<ResourceName> resourceNames);
+
+    /**
+     * Executes the provided bulk action.
+     *
+     * @param bulkAction list of role ids against which the bulk action will be performed.
+     * @return Bulk action result
+     */
+    @POST
+    @Path("bulk")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    BulkActionResult bulk(@NotNull BulkAction bulkAction);
 }
