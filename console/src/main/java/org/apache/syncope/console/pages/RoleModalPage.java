@@ -74,7 +74,7 @@ public class RoleModalPage extends BaseModalPage {
             originalRoleTO = SerializationUtils.clone(roleTO);
         }
 
-        final Form<RoleTO> form = new Form<RoleTO>("RoleForm");
+        final Form<RoleTO> form = new Form<RoleTO>("roleForm");
         form.setMultiPart(true);
 
         add(new Label("displayName", roleTO.getId() == 0 ? "" : roleTO.getDisplayName()));
@@ -110,6 +110,8 @@ public class RoleModalPage extends BaseModalPage {
                 feedbackPanel.refresh(target);
             }
         };
+        form.add(submit);
+        form.setDefaultButton(submit);
 
         final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
@@ -120,29 +122,24 @@ public class RoleModalPage extends BaseModalPage {
                 closeAction(target, form);
             }
         };
-
         cancel.setDefaultFormProcessing(false);
+        form.add(cancel);
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Roles",
                 createFlag
-                ? "create"
-                : "update"));
-
-        form.add(submit);
-        form.setDefaultButton(submit);
-
-        form.add(cancel);
+                        ? "create"
+                        : "update"));
 
         add(form);
     }
 
-    protected void submitAction(final AjaxRequestTarget target, final Form form) {
+    protected void submitAction(final AjaxRequestTarget target, final Form<?> form) {
         final RoleTO roleTO = (RoleTO) form.getDefaultModelObject();
         final List<String> entitlementList = new ArrayList<String>(rolePanel.getSelectedEntitlements());
         roleTO.getEntitlements().clear();
         roleTO.getEntitlements().addAll(entitlementList);
 
-        final RoleTO result;
+        RoleTO result;
         if (createFlag) {
             result = roleRestClient.create(roleTO);
         } else {
@@ -159,7 +156,7 @@ public class RoleModalPage extends BaseModalPage {
         setResponsePage(new ResultStatusModalPage.Builder(window, result).build());
     }
 
-    protected void closeAction(final AjaxRequestTarget target, final Form form) {
+    protected void closeAction(final AjaxRequestTarget target, final Form<?> form) {
         window.close(target);
     }
 }

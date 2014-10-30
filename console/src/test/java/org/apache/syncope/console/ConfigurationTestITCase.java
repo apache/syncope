@@ -31,14 +31,23 @@ public class ConfigurationTestITCase extends AbstractTest {
         seleniumDriver.findElement(By.xpath("//img[@alt=\"Configuration\"]")).click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//img[@title='Parameters']")));
 
-        seleniumDriver.findElement(By.xpath("//span[contains(text(), 'log.lastlogindate')]/../../div[2]/span/input")).
-                click();
-        seleniumDriver.findElement(By.xpath("//div[@id='parameters']/form/a")).click();
+        seleniumDriver.findElement(By.xpath("//img[@title='Parameters']/ancestor::a")).click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
+        
+        seleniumDriver.findElement(
+                By.xpath("//span[contains(text(), 'log.lastlogindate')]/../../div[2]/span/input")).click();
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/input[@type='submit']")).click();
+        
+        seleniumDriver.switchTo().defaultContent();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("feedback")));
-        assertTrue(seleniumDriver.findElement(By.tagName("body")).getText().contains("Operation executed successfully"));
+        assertTrue(
+                seleniumDriver.findElement(By.tagName("body")).getText().contains("Operation executed successfully"));
     }
 
     @Test
@@ -47,13 +56,13 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[3]/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[2]/a")).click();
         seleniumDriver.findElement(By.xpath("//div[@id='policies']/ul/li[2]/a")).click();
         seleniumDriver.findElement(By.xpath("//div[@id='password']/span/div/a")).click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@name='id:textField']")));        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@name='id:textField']")));
 
         WebElement element = seleniumDriver.findElement(By.name("description:textField"));
         element.sendKeys("new description");
@@ -63,7 +72,8 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("feedback")));
-        assertTrue(seleniumDriver.findElement(By.tagName("body")).getText().contains("Operation executed successfully"));
+        assertTrue(
+                seleniumDriver.findElement(By.tagName("body")).getText().contains("Operation executed successfully"));
     }
 
     @Test
@@ -83,7 +93,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[7]/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[6]/a")).click();
 
         final Select select = new Select(
                 seleniumDriver.findElement(By.xpath("//div[@id='core']/div/span/table/tbody/tr/td[2]/select")));
@@ -91,7 +101,8 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='workflow']/div/span/img")));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("feedback")));
-        assertTrue(seleniumDriver.findElement(By.tagName("body")).getText().contains("Operation executed successfully"));        
+        assertTrue(
+                seleniumDriver.findElement(By.tagName("body")).getText().contains("Operation executed successfully"));
     }
 
     @Test
@@ -100,16 +111,16 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[4]/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[3]/a")).click();
 
         seleniumDriver.findElement(By.xpath("//div[@id='notifications']/a")).click();
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[2]/form/div[3]/div/div/div/div/label")));
 
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@name='sender:textField']")));        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@name='sender:textField']")));
 
         seleniumDriver.findElement(By.name("sender:textField")).sendKeys("test@syncope.it");
 
@@ -172,8 +183,9 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div[4]/div/div/span/input")).click();
 
-        wait.until(ExpectedConditions.elementToBeClickable(By.name("staticRecipients:multiValueContainer:view:0:panel:textField")));
-        
+        wait.until(ExpectedConditions.elementToBeClickable(By.name(
+                "staticRecipients:multiValueContainer:view:0:panel:textField")));
+
         seleniumDriver.findElement(By.name(
                 "staticRecipients:multiValueContainer:view:0:panel:textField")).
                 sendKeys("syncope445@syncope.apache.org");
@@ -192,13 +204,13 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[4]/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[3]/a")).click();
 
         seleniumDriver.findElement(By.xpath("//div[@id='notifications']/a")).click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[2]/form/div[3]/div/div/div/div/label")));
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@name='sender:textField']")));
@@ -254,7 +266,8 @@ public class ConfigurationTestITCase extends AbstractTest {
                 + "/option[text()='resource-db-sync']")));
 
         select = new Select(
-                seleniumDriver.findElement(By.xpath("//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']")));
+                seleniumDriver.findElement(By.xpath(
+                                "//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']")));
         select.selectByVisibleText("resource-db-sync");
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
@@ -266,15 +279,16 @@ public class ConfigurationTestITCase extends AbstractTest {
         seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/ul/li[4]/a/span")).click();
 
         seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div[4]/div/div/span/input")).click();
-                                             
-        wait.until(ExpectedConditions.elementToBeClickable(By.name("staticRecipients:multiValueContainer:view:0:panel:textField")));
-        
+
+        wait.until(ExpectedConditions.elementToBeClickable(By.name(
+                "staticRecipients:multiValueContainer:view:0:panel:textField")));
+
         seleniumDriver.findElement(
                 By.name("staticRecipients:multiValueContainer:view:0:panel:textField"))
                 .sendKeys("syncope492@syncope.apache.org");
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
-                                        "//div[2]/form/div[3]/div[4]/div/div[2]/label")));
+                "//div[2]/form/div[3]/div[4]/div/div[2]/label")));
 
         seleniumDriver.findElement(By.xpath("//div[2]/form/div[4]/input")).click();
 
@@ -287,16 +301,16 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[4]/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[3]/a")).click();
 
         seleniumDriver.findElement(By.xpath("//div[@id='notifications']/a")).click();
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[2]/form/div[3]/div/div/div/div/label")));
 
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@name='sender:textField']")));        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@name='sender:textField']")));
 
         seleniumDriver.findElement(By.name("sender:textField")).sendKeys("syncope446@syncope.it");
         seleniumDriver.findElement(By.name("subject:textField")).sendKeys("Test issue Syncope 446");
@@ -352,7 +366,7 @@ public class ConfigurationTestITCase extends AbstractTest {
         wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:type']"
                         + "/option[text()='ENTITLEMENT']")));
-        
+
         wait.until(ExpectedConditions.elementToBeClickable(
                 By.xpath("//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:type']")));
 
@@ -365,19 +379,19 @@ public class ConfigurationTestITCase extends AbstractTest {
                 "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:property']"
                 + "/option[text()='ROLE_CREATE']")));
 
-        select = new Select(
-                seleniumDriver.findElement(By.xpath(
-                                "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:property']")));
+        select = new Select(seleniumDriver.findElement(By.xpath(
+                "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:property']")));
         select.selectByVisibleText("ROLE_CREATE");
 
         seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/ul/li[4]/a/span")).click();
         seleniumDriver.findElement(By.xpath("//input[@name='recipientsContainer:checkRecipients:checkboxField']")).
                 click();
 
-        wait.until(ExpectedConditions.elementToBeClickable(By.name("staticRecipients:multiValueContainer:view:0:panel:textField")));
-        
-        seleniumDriver.findElement(By.name("staticRecipients:multiValueContainer:view:0:panel:textField")).sendKeys(
-                "syncope446@syncope.apache.org");
+        wait.until(ExpectedConditions.elementToBeClickable(By.name(
+                "staticRecipients:multiValueContainer:view:0:panel:textField")));
+
+        seleniumDriver.findElement(By.name("staticRecipients:multiValueContainer:view:0:panel:textField")).
+                sendKeys("syncope446@syncope.apache.org");
 
         seleniumDriver.findElement(By.xpath("//div[2]/form/div[4]/input")).click();
 
