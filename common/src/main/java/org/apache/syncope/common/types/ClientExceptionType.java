@@ -31,7 +31,6 @@ public enum ClientExceptionType {
     InvalidSecurityAnswer(Response.Status.BAD_REQUEST),
     InvalidLogger(Response.Status.BAD_REQUEST),
     InvalidConnInstance(Response.Status.BAD_REQUEST),
-    InvalidResource(Response.Status.BAD_REQUEST),
     InvalidConnIdConf(Response.Status.BAD_REQUEST),
     InvalidPolicy(Response.Status.BAD_REQUEST),
     InvalidSyncopeConf(Response.Status.BAD_REQUEST),

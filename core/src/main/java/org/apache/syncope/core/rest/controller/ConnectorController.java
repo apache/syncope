@@ -75,10 +75,12 @@ public class ConnectorController extends AbstractTransactionalController<ConnIns
         ConnInstance connInstance = binder.getConnInstance(connInstanceTO);
         try {
             connInstance = connInstanceDAO.save(connInstance);
+        } catch (SyncopeClientException e) {
+            throw e;
         } catch (Exception e) {
-            SyncopeClientException exception = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
-            exception.getElements().add(e.getMessage());
-            throw exception;
+            SyncopeClientException ex = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
+            ex.getElements().add(e.getMessage());
+            throw ex;
         }
 
         return binder.getConnInstanceTO(connInstance);
@@ -89,10 +91,12 @@ public class ConnectorController extends AbstractTransactionalController<ConnIns
         ConnInstance connInstance = binder.updateConnInstance(connInstanceTO.getId(), connInstanceTO);
         try {
             connInstance = connInstanceDAO.save(connInstance);
+        } catch (SyncopeClientException e) {
+            throw e;
         } catch (Exception e) {
-            SyncopeClientException exception = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
-            exception.getElements().add(e.getMessage());
-            throw exception;
+            SyncopeClientException ex = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
+            ex.getElements().add(e.getMessage());
+            throw ex;
         }
 
         return binder.getConnInstanceTO(connInstance);
