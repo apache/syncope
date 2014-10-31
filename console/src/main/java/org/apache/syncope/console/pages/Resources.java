@@ -38,6 +38,7 @@ import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLin
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.console.wicket.markup.html.form.LinkPanel;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -62,6 +63,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -224,10 +226,34 @@ public class Resources extends BasePage {
                     }
                 });
 
+        columns.add(new AbstractColumn<ResourceTO, String>(
+                new StringResourceModel("propagationPrimary", this, null)) {
+
+                    private static final long serialVersionUID = -3503023501954863131L;
+
+                    @Override
+                    public void populateItem(final Item<ICellPopulator<ResourceTO>> item,
+                            final String componentId, final IModel<ResourceTO> model) {
+
+                        item.add(new Label(componentId, ""));
+                        item.add(new AttributeModifier("class", new Model<String>(
+                                                Boolean.toString(model.getObject().isPropagationPrimary()))));
+                    }
+
+                    @Override
+                    public String getCssClass() {
+                        return "narrowcolumn";
+                    }
+                });
+
         columns.add(new PropertyColumn<ResourceTO, String>(new StringResourceModel(
-                "propagationPrimary", this, null), "propagationPrimary", "propagationPrimary"));
-        columns.add(new PropertyColumn<ResourceTO, String>(new StringResourceModel(
-                "propagationPriority", this, null), "propagationPriority", "propagationPriority"));
+                "propagationPriority", this, null), "propagationPriority", "propagationPriority") {
+
+                    @Override
+                    public String getCssClass() {
+                        return "narrowcolumn";
+                    }
+                });
 
         columns.add(new AbstractColumn<ResourceTO, String>(new StringResourceModel("actions", this, null, "")) {
 
