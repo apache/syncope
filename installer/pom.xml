@@ -41,7 +41,7 @@ under the License.
       <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
     </site>
   </distributionManagement>
-  
+
   <properties>
     <staging.dir>${project.build.directory}/staging</staging.dir>
   </properties>
@@ -65,7 +65,7 @@ under the License.
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-invoker</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
@@ -74,7 +74,7 @@ under the License.
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpmime</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
@@ -83,7 +83,7 @@ under the License.
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
@@ -95,9 +95,9 @@ under the License.
   </dependencies>
 
   <build>
-  
+
     <defaultGoal>package</defaultGoal>
-  
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -131,7 +131,7 @@ under the License.
           </execution>
         </executions>
       </plugin>
-      
+
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
@@ -147,7 +147,7 @@ under the License.
           </execution>
         </executions>
       </plugin>
-      
+
       <plugin>
         <groupId>org.codehaus.izpack</groupId>
         <artifactId>izpack-maven-plugin</artifactId>
@@ -170,7 +170,7 @@ under the License.
         </executions>
       </plugin>
     </plugins>
-    
+
     <resources>
       <resource>
         <directory>${basedir}</directory>
@@ -182,23 +182,23 @@ under the License.
       </resource>
     </resources>
   </build>
-  
+
   <profiles>
     <profile>
       <id>apache-release</id>
-      
+
       <build>
-        <plugins>      
+        <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-deploy-plugin</artifactId>
             <configuration>
               <skip>true</skip>
             </configuration>
-          </plugin>           
+          </plugin>
         </plugins>
       </build>
     </profile>
   </profiles>
-    
+
 </project>

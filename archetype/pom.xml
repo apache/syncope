@@ -40,7 +40,7 @@ under the License.
       <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
     </site>
   </distributionManagement>
-  
+
   <build>
     <extensions>
       <extension>
@@ -106,7 +106,7 @@ under the License.
           </transformationSets>
         </configuration>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -129,7 +129,7 @@ under the License.
           <include>NOTICE</include>
         </includes>
       </resource>
-      
+
       <resource>
         <directory>../core/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
