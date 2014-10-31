@@ -242,12 +242,18 @@ public class Resources extends BasePage {
 
                     @Override
                     public String getCssClass() {
-                        return "small_fixedsize";
+                        return "narrowcolumn";
                     }
                 });
 
         columns.add(new PropertyColumn<ResourceTO, String>(new StringResourceModel(
-                "propagationPriority", this, null), "propagationPriority", "propagationPriority"));
+                "propagationPriority", this, null), "propagationPriority", "propagationPriority") {
+
+                    @Override
+                    public String getCssClass() {
+                        return "narrowcolumn";
+                    }
+                });
 
         columns.add(new AbstractColumn<ResourceTO, String>(new StringResourceModel("actions", this, null, "")) {
 
