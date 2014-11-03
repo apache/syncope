@@ -41,7 +41,7 @@ under the License.
       <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
     </site>
   </distributionManagement>
-  
+
   <dependencies>
 
     <dependency>
@@ -55,7 +55,7 @@ under the License.
       <artifactId>syncope-client</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -131,8 +131,8 @@ under the License.
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>codemirror</artifactId>
-    </dependency>      
-      
+    </dependency>
+
     <!-- TEST -->
     <dependency>
       <groupId>org.activiti</groupId>
@@ -283,7 +283,7 @@ under the License.
             <phase>process-resources</phase>
             <goals>
               <goal>replace</goal>
-            </goals>                   
+            </goals>
           </execution>
         </executions>
         <configuration>
@@ -356,7 +356,7 @@ under the License.
           </deployables>
         </configuration>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -489,7 +489,7 @@ under the License.
               </execution>
             </executions>
           </plugin>
-          
+
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
@@ -505,7 +505,7 @@ under the License.
               </execution>
             </executions>
           </plugin>
-      
+
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
@@ -522,7 +522,7 @@ under the License.
               <skipTests>${skipTests}</skipTests>
             </configuration>
           </plugin>
-          
+
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
@@ -544,11 +544,11 @@ under the License.
 
     <profile>
       <id>debug</id>
-      
+
       <properties>
         <skipTests>true</skipTests>
       </properties>
-      
+
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
@@ -568,7 +568,7 @@ under the License.
                       <mappedresources>
                         <fileset dir="${project.build.directory}/test-classes" includes="web.xml" />
                         <globmapper from="web.xml" to="WEB-INF/web.xml" />
-                      </mappedresources>                      
+                      </mappedresources>
                     </war>
                   </target>
                 </configuration>
@@ -643,7 +643,7 @@ under the License.
               </execution>
             </executions>
           </plugin>
-          
+
           <plugin>
             <groupId>org.zeroturnaround</groupId>
             <artifactId>jrebel-maven-plugin</artifactId>
@@ -658,7 +658,7 @@ under the License.
               </execution>
             </executions>
           </plugin>
-          
+
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
@@ -682,18 +682,18 @@ under the License.
                 <phase>none</phase>
               </execution>
             </executions>
-          </plugin>          
+          </plugin>
         </plugins>
       </build>
     </profile>
 
     <profile>
       <id>selenium</id>
-      
+
       <properties>
         <javaagent />
       </properties>
-      
+
       <build>
         <defaultGoal>clean verify</defaultGoal>
         <plugins>
