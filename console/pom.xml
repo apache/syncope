@@ -41,7 +41,7 @@ under the License.
       <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
     </site>
   </distributionManagement>
-  
+
   <dependencies>
 
     <dependency>
@@ -296,7 +296,7 @@ under the License.
           </deployables>
         </configuration>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -405,7 +405,7 @@ under the License.
               </execution>
             </executions>
           </plugin>
-          
+
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
@@ -421,7 +421,7 @@ under the License.
               </execution>
             </executions>
           </plugin>
-      
+
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
@@ -438,7 +438,7 @@ under the License.
               <skipTests>${skipTests}</skipTests>
             </configuration>
           </plugin>
-          
+
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
@@ -460,11 +460,11 @@ under the License.
 
     <profile>
       <id>debug</id>
-      
+
       <properties>
         <skipTests>true</skipTests>
       </properties>
-      
+
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
@@ -484,7 +484,7 @@ under the License.
                       <mappedresources>
                         <fileset dir="${project.build.directory}/test-classes" includes="web.xml" />
                         <globmapper from="web.xml" to="WEB-INF/web.xml" />
-                      </mappedresources>                      
+                      </mappedresources>
                     </war>
                   </target>
                 </configuration>
@@ -559,7 +559,7 @@ under the License.
               </execution>
             </executions>
           </plugin>
-          
+
           <plugin>
             <groupId>org.zeroturnaround</groupId>
             <artifactId>jrebel-maven-plugin</artifactId>

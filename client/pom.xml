@@ -40,14 +40,14 @@ under the License.
       <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
     </site>
   </distributionManagement>
-  
+
   <dependencies>
     <dependency>
       <groupId>org.apache.syncope</groupId>
       <artifactId>syncope-common</artifactId>
       <version>${project.version}</version>
     </dependency>
-  
+
     <dependency>
       <groupId>javax.ws.rs</groupId>
       <artifactId>javax.ws.rs-api</artifactId>
@@ -119,7 +119,7 @@ under the License.
         <artifactId>maven-pmd-plugin</artifactId>
       </plugin>
     </plugins>
-    
+
     <resources>
       <resource>
         <directory>..</directory>

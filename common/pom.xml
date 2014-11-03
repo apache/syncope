@@ -111,7 +111,7 @@ under the License.
         <artifactId>maven-pmd-plugin</artifactId>
       </plugin>
     </plugins>
-    
+
     <resources>
       <resource>
         <directory>..</directory>

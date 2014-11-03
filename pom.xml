@@ -17,13 +17,13 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <name>Apache Syncope</name>
   <description>Apache Syncope parent POM</description>
-        
+
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope</artifactId>
   <version>1.1.9-SNAPSHOT</version>
@@ -53,7 +53,7 @@ under the License.
     <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/syncope.git</developerConnection>
     <url>https://git-wip-us.apache.org/repos/asf?p=syncope.git</url>
   </scm>
-  
+
   <issueManagement>
     <system>jira</system>
     <url>https://issues.apache.org/jira/browse/SYNCOPE</url>
@@ -71,7 +71,7 @@ under the License.
       <url>${site.deploymentBaseUrl}</url>
     </site>
   </distributionManagement>
-  
+
   <mailingLists>
     <mailingList>
       <name>Syncope User List</name>
@@ -109,7 +109,7 @@ under the License.
       </otherArchives>
     </mailingList>
   </mailingLists>
-    
+
   <developers>
     <developer>
       <id>ilgrosso</id>
@@ -142,10 +142,10 @@ under the License.
         <role>PMC member</role>
       </roles>
       <url>http://people.apache.org/~mdisabatino/</url>
-    </developer>    
+    </developer>
     <developer>
       <id>massi</id>
-      <name>Massimiliano Perrone</name>            
+      <name>Massimiliano Perrone</name>
       <organization>Tirasa</organization>
       <organizationUrl>http://www.tirasa.net/</organizationUrl>
       <roles>
@@ -155,17 +155,17 @@ under the License.
     </developer>    
     <developer>
       <id>rene</id>
-      <name>René Mulder</name>            
+      <name>René Mulder</name>
       <organization>Everett</organization>
       <organizationUrl>http://www.everett.nl/</organizationUrl>
       <roles>
         <role>committer</role>
       </roles>
       <url>http://people.apache.org/~rene/</url>
-    </developer>    
+    </developer>
     <developer>
       <id>simonetripodi</id>
-      <name>Simone Tripodi</name>            
+      <name>Simone Tripodi</name>
       <organization>The Apache Software Foundation</organization>
       <organizationUrl>http://www.apache.org/</organizationUrl>
       <roles>
@@ -176,7 +176,7 @@ under the License.
     </developer>
     <developer>
       <id>elecharny</id>
-      <name>Emmanuel Lecharny</name>            
+      <name>Emmanuel Lecharny</name>
       <organization>The Apache Software Foundation</organization>
       <organizationUrl>http://www.apache.org/</organizationUrl>
       <roles>
@@ -508,7 +508,7 @@ under the License.
         <artifactId>commons-dbcp</artifactId>
         <version>${commons-dbcp.version}</version>
       </dependency>
-      
+
       <dependency>
         <groupId>javax.validation</groupId>
         <artifactId>validation-api</artifactId>
@@ -525,7 +525,7 @@ under the License.
         <artifactId>velocity</artifactId>
         <version>${velocity.version}</version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.apache.velocity</groupId>
         <artifactId>velocity-tools</artifactId>
@@ -721,7 +721,7 @@ under the License.
         <artifactId>quartz-weblogic</artifactId>
         <version>${quartz.version}</version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.apache.cocoon.sax</groupId>
         <artifactId>cocoon-sax</artifactId>
@@ -814,7 +814,7 @@ under the License.
         <artifactId>h2</artifactId>
         <version>${h2.version}</version>
       </dependency>
-            
+
       <dependency>
         <groupId>org.apache.directory.server</groupId>
         <artifactId>apacheds-all</artifactId>
@@ -962,7 +962,7 @@ under the License.
             <dependency>
               <groupId>xalan</groupId>
               <artifactId>xalan</artifactId>
-              <version>2.7.1</version>              
+              <version>2.7.1</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -1124,8 +1124,8 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>2.12.1</version>        
-          <dependencies>    
+          <version>2.12.1</version>
+          <dependencies>
             <dependency>
               <groupId>org.apache.syncope</groupId>
               <artifactId>syncope-build-tools</artifactId>
@@ -1419,11 +1419,11 @@ under the License.
   </build>
 
   <profiles>
-    
+
     <profile>
       <id>apache-release</id>
 
-      <build>        
+      <build>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -1448,13 +1448,13 @@ under the License.
         </plugins>
       </build>
     </profile>
-        
+
     <profile>
       <id>site</id>
       <build>
         <defaultGoal>clean site-deploy</defaultGoal>
-        
-        <plugins>          
+
+        <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
@@ -1507,7 +1507,7 @@ under the License.
         </plugins>
       </build>
     </profile>
-    
+
     <profile>
       <id>skipTests</id>
       <properties>
@@ -1517,7 +1517,7 @@ under the License.
         <defaultGoal>clean install</defaultGoal>
       </build>
     </profile>
-    
+
   </profiles>
 
   <modules>
