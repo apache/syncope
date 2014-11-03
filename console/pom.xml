@@ -215,9 +215,9 @@ under the License.
               <target>
                 <unzip src="${settings.localRepository}/org/activiti/activiti-webapp-explorer2/${activiti.version}/activiti-webapp-explorer2-${activiti.version}.war" 
                        dest="${project.build.directory}/activiti-webapp-explorer2" />
-                
+
                 <mkdir dir="${activiti-modeler.directory}" />
-                
+
                 <mkdir dir="${activiti-modeler.directory}/editor" />
                 <copy todir="${activiti-modeler.directory}/editor">
                   <fileset dir="${project.build.directory}/activiti-webapp-explorer2/editor">
@@ -228,12 +228,12 @@ under the License.
                       todir="${activiti-modeler.directory}/editor" />
                 <copy file="${project.build.directory}/activiti-webapp-explorer2/WEB-INF/classes/stencilset.json" 
                       todir="${activiti-modeler.directory}/editor" />
-                
+
                 <mkdir dir="${activiti-modeler.directory}/explorer" />
                 <copy todir="${activiti-modeler.directory}/explorer">
                   <fileset dir="${project.build.directory}/activiti-webapp-explorer2/explorer" />
                 </copy>
-                
+
                 <mkdir dir="${activiti-modeler.directory}/libs" />
                 <copy todir="${activiti-modeler.directory}/libs">
                   <fileset dir="${project.build.directory}/activiti-webapp-explorer2/libs" />
