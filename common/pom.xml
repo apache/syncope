@@ -40,12 +40,12 @@ under the License.
       <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
     </site>
   </distributionManagement>
-  
+
   <dependencies>
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
-    </dependency>      
+    </dependency>
 
     <dependency>
       <groupId>javax.ws.rs</groupId>
@@ -63,27 +63,27 @@ under the License.
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-service-description</artifactId>
     </dependency>
-          
+
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
     </dependency>
-      
+
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -105,7 +105,7 @@ under the License.
             </goals>
           </execution>
         </executions>
-      </plugin>      
+      </plugin>
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
@@ -138,7 +138,7 @@ under the License.
         <artifactId>maven-pmd-plugin</artifactId>
       </plugin>
     </plugins>
-    
+
     <resources>
       <resource>
         <directory>..</directory>
@@ -150,14 +150,14 @@ under the License.
       </resource>
     </resources>
   </build>
-  
+
   <profiles>
     <profile>
       <id>offline-doc</id>
-      
+
       <build>
         <defaultGoal>clean verify</defaultGoal>
-        
+
         <plugins>
           <!-- 1. Generate offline WADL -->
           <plugin>
@@ -268,7 +268,7 @@ under the License.
                 </transformationSet>
               </transformationSets>
             </configuration>
-          </plugin>   
+          </plugin>
           <!-- 3. Replace CSS and JS local includes with hosted -->
           <plugin>
             <groupId>com.google.code.maven-replacer-plugin</groupId>
@@ -279,38 +279,38 @@ under the License.
                 <phase>package</phase>
                 <goals>
                   <goal>replace</goal>
-                </goals>                   
+                </goals>
               </execution>
             </executions>
             <configuration>
               <regex>false</regex>
               <includes>
                 <include>${project.build.directory}/generated/wadl/*.html</include>
-              </includes>              
+              </includes>
               <replacements>
                 <replacement>
                   <token>/restdocs/${project.version}/webjars/highlightjs/$/styles/default.min.css</token>
                   <value>http://yandex.st/highlightjs/${highlightjs.version}/styles/default.min.css</value>
-                </replacement>         
+                </replacement>
                 <replacement>
                   <token>/restdocs/${project.version}/webjars/highlightjs/$/highlight.min.js</token>
                   <value>http://yandex.st/highlightjs/${highlightjs.version}/highlight.min.js"</value>
-                </replacement>         
+                </replacement>
                 <replacement>
                   <token>/restdocs/${project.version}/webjars/jquery-ui/$/themes/base/minified/jquery-ui.min.css</token>
                   <value>http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/base/minified/jquery-ui.min.css</value>
-                </replacement>  
+                </replacement>
                 <replacement>
                   <token>/restdocs/${project.version}/webjars/jquery-ui/$/ui/minified/jquery-ui.min.js</token>
                   <value>http://ajax.googleapis.com/ajax/libs/jqueryui/${jquery-ui.version}/jquery-ui.min.js</value>
-                </replacement>  
+                </replacement>
                 <replacement>
                   <token>/restdocs/${project.version}/webjars/jquery/$/jquery.min.js</token>
                   <value>http://ajax.googleapis.com/ajax/libs/jquery/${jquery.version}/jquery.min.js</value>
-                </replacement>  
+                </replacement>
               </replacements>
             </configuration>
-          </plugin>                 
+          </plugin>
         </plugins>
       </build>
     </profile>
