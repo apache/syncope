@@ -110,7 +110,7 @@ public class Reports extends BasePage {
         setWindowClosedCallback(window, reportContainer);
 
         MetaDataRoleAuthorizationStrategy.authorize(reportContainer, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Reports", "list"));
+                xmlRolesReader.getEntitlement("Reports", "list"));
 
         paginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_REPORT_PAGINATOR_ROWS);
 
@@ -226,7 +226,7 @@ public class Reports extends BasePage {
         Form paginatorForm = new Form("paginatorForm");
 
         MetaDataRoleAuthorizationStrategy.authorize(paginatorForm, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Reports", "list"));
+                xmlRolesReader.getEntitlement("Reports", "list"));
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
@@ -269,7 +269,7 @@ public class Reports extends BasePage {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createLink, RENDER, xmlRolesReader.getAllAllowedRoles("Reports",
+        MetaDataRoleAuthorizationStrategy.authorize(createLink, RENDER, xmlRolesReader.getEntitlement("Reports",
                 "create"));
 
         add(createLink);
@@ -282,7 +282,7 @@ public class Reports extends BasePage {
         add(auditContainer);
 
         MetaDataRoleAuthorizationStrategy.authorize(
-                auditContainer, RENDER, xmlRolesReader.getAllAllowedRoles("Audit", "list"));
+                auditContainer, RENDER, xmlRolesReader.getEntitlement("Audit", "list"));
 
         final Form form = new Form("auditForm");
         auditContainer.add(form);
@@ -309,15 +309,15 @@ public class Reports extends BasePage {
                     @Override
                     protected String[] getListRoles() {
                         return new String[] {
-                            xmlRolesReader.getAllAllowedRoles("Audit", "list")
+                            xmlRolesReader.getEntitlement("Audit", "list")
                         };
                     }
 
                     @Override
                     protected String[] getChangeRoles() {
                         return new String[] {
-                            xmlRolesReader.getAllAllowedRoles("Audit", "enable"),
-                            xmlRolesReader.getAllAllowedRoles("Audit", "disable")
+                            xmlRolesReader.getEntitlement("Audit", "enable"),
+                            xmlRolesReader.getEntitlement("Audit", "disable")
                         };
                     }
 
@@ -338,7 +338,7 @@ public class Reports extends BasePage {
                                             eventCategory.getKey().getCategory(),
                                             eventCategory.getKey().getSubcategory(),
                                             CollectionUtils.isEmpty(eventCategory.getKey().getEvents())
-                                            ? null : eventCategory.getKey().getEvents().iterator().next(),
+                                                    ? null : eventCategory.getKey().getEvents().iterator().next(),
                                             eventCategory.getValue());
 
                                     loggerRestClient.disableAudit(auditLoggerName);
@@ -356,7 +356,7 @@ public class Reports extends BasePage {
                                             eventCategory.getKey().getCategory(),
                                             eventCategory.getKey().getSubcategory(),
                                             CollectionUtils.isEmpty(eventCategory.getKey().getEvents())
-                                            ? null : eventCategory.getKey().getEvents().iterator().next(),
+                                                    ? null : eventCategory.getKey().getEvents().iterator().next(),
                                             eventCategory.getValue());
 
                                     loggerRestClient.enableAudit(auditLoggerName);
@@ -385,7 +385,7 @@ public class Reports extends BasePage {
         @Override
         public Iterator<ReportTO> iterator(final long first, final long count) {
             final int page = ((int) first / paginatorRows);
-            
+
             final List<ReportTO> list =
                     reportRestClient.list((page < 0 ? 0 : page) + 1, paginatorRows, getSort());
             Collections.sort(list, comparator);

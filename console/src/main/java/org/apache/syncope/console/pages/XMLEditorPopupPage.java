@@ -56,7 +56,7 @@ public class XMLEditorPopupPage extends BasePopupPage {
         wfForm.add(workflowDefArea);
 
         AjaxButton submit =
-                 new ClearIndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT)), getPageReference()) {
+                new ClearIndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT)), getPageReference()) {
 
                     private static final long serialVersionUID = -958724007591692537L;
 
@@ -80,8 +80,8 @@ public class XMLEditorPopupPage extends BasePopupPage {
 
         final Button close = new Button("closePage", new Model<String>(getString(CANCEL)));
 
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Configuration", "workflowDefUpdate"));
+        MetaDataRoleAuthorizationStrategy.authorize(
+                submit, ENABLE, xmlRolesReader.getEntitlement("Configuration", "workflowDefUpdate"));
         wfForm.add(submit);
         wfForm.add(close);
         this.add(wfForm);

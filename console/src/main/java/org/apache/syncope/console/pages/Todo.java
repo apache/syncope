@@ -82,8 +82,8 @@ public class Todo extends BasePage {
 
         container = new WebMarkupContainer("approvalContainer");
 
-        MetaDataRoleAuthorizationStrategy.authorize(container, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Approval", "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(
+                container, RENDER, xmlRolesReader.getEntitlement("Approval", "list"));
 
         paginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_TODO_PAGINATOR_ROWS);
 
@@ -170,7 +170,7 @@ public class Todo extends BasePage {
         Form approvalPaginatorForm = new Form("paginatorForm");
 
         MetaDataRoleAuthorizationStrategy.authorize(approvalPaginatorForm, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Approval", "list"));
+                xmlRolesReader.getEntitlement("Approval", "list"));
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",

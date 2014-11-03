@@ -164,7 +164,7 @@ public class Resources extends BasePage {
                 attributes.getAjaxCallListeners().add(ajaxCallListener);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(reloadLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(reloadLink, ENABLE, xmlRolesReader.getEntitlement(
                 "Connectors", "reload"));
         add(reloadLink);
 
@@ -220,8 +220,7 @@ public class Resources extends BasePage {
 
                         cellItem.add(editConnPanel);
 
-                        MetaDataRoleAuthorizationStrategy.authorize(editConnPanel, ENABLE, xmlRolesReader.
-                                getAllAllowedRoles(
+                        MetaDataRoleAuthorizationStrategy.authorize(editConnPanel, ENABLE, xmlRolesReader.getEntitlement(
                                         "Connectors", "read"));
                     }
                 });
@@ -435,7 +434,7 @@ public class Resources extends BasePage {
                     }
                 };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createResourceLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(createResourceLink, ENABLE, xmlRolesReader.getEntitlement(
                 "Resources", "create"));
 
         add(createResourceLink);
@@ -555,7 +554,7 @@ public class Resources extends BasePage {
         connectorContainer.add(table);
         connectorContainer.setOutputMarkupId(true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(connectorContainer, RENDER, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(connectorContainer, RENDER, xmlRolesReader.getEntitlement(
                 "Connectors", "list"));
 
         add(connectorContainer);
@@ -596,7 +595,7 @@ public class Resources extends BasePage {
                     }
                 };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createConnectorLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(createConnectorLink, ENABLE, xmlRolesReader.getEntitlement(
                 "Connectors", "create"));
 
         add(createConnectorLink);
@@ -604,7 +603,7 @@ public class Resources extends BasePage {
         @SuppressWarnings("rawtypes")
         Form paginatorForm = new Form("connectorPaginatorForm");
 
-        MetaDataRoleAuthorizationStrategy.authorize(paginatorForm, RENDER, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(paginatorForm, RENDER, xmlRolesReader.getEntitlement(
                 "Connectors", "list"));
 
         final DropDownChoice<Integer> rowsChooser = new DropDownChoice<Integer>(

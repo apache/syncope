@@ -69,7 +69,7 @@ under the License.
 
   <bean id="preferenceManager" class="org.apache.syncope.console.commons.PreferenceManager"/>
 
-  <bean id="xmlRolesReader" class="org.apache.syncope.console.commons.XMLRolesReader">
+  <bean id="xmlRolesReader" class="org.apache.syncope.console.commons.XMLRolesReader" scope="singleton">
     <property name="authorizations" value="authorizations.xml"/>
   </bean>
 

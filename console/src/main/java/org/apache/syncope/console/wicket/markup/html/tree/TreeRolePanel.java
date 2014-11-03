@@ -104,7 +104,7 @@ public class TreeRolePanel extends Panel {
 
         DefaultMutableTreeNodeExpansion.get().expandAll();
 
-        MetaDataRoleAuthorizationStrategy.authorize(tree, ENABLE, xmlRolesReader.getAllAllowedRoles("Roles", "read"));
+        MetaDataRoleAuthorizationStrategy.authorize(tree, ENABLE, xmlRolesReader.getEntitlement("Roles", "read"));
 
         treeContainer.addOrReplace(tree);
     }

@@ -79,7 +79,7 @@ public class ActionLinksPanel extends Panel {
     public void add(
             final ActionLink link, final ActionLink.ActionType type, final String pageId, final String actionId) {
 
-        addWithRoles(link, type, xmlRolesReader.getAllAllowedRoles(pageId, actionId), true);
+        addWithRoles(link, type, xmlRolesReader.getEntitlement(pageId, actionId), true);
     }
 
     public void add(
@@ -91,7 +91,7 @@ public class ActionLinksPanel extends Panel {
     public void add(
             final ActionLink link, final ActionLink.ActionType type, final String pageId, final boolean enabled) {
 
-        addWithRoles(link, type, xmlRolesReader.getAllAllowedRoles(pageId, type.getActionId()), enabled);
+        addWithRoles(link, type, xmlRolesReader.getEntitlement(pageId, type.getActionId()), enabled);
     }
 
     public void addWithRoles(

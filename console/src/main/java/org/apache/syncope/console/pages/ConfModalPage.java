@@ -44,7 +44,7 @@ public class ConfModalPage extends BaseModalPage {
         super();
 
         MetaDataRoleAuthorizationStrategy.authorize(
-                parameters, ENABLE, xmlRolesReader.getAllAllowedRoles("Configuration", "list"));
+                parameters, ENABLE, xmlRolesReader.getEntitlement("Configuration", "list"));
         final ConfTO conf = confRestClient.list();
 
         final Form<ConfTO> form = new Form<ConfTO>("confForm");
@@ -88,9 +88,9 @@ public class ConfModalPage extends BaseModalPage {
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(
-                submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Configuration", "set"));
+                submit, ENABLE, xmlRolesReader.getEntitlement("Configuration", "set"));
         MetaDataRoleAuthorizationStrategy.authorize(
-                submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Configuration", "delete"));
+                submit, ENABLE, xmlRolesReader.getEntitlement("Configuration", "delete"));
         form.add(submit);
         form.setDefaultButton(submit);
 
