@@ -139,11 +139,11 @@ public class Schema extends BasePage {
     @SpringBean
     private PreferenceManager prefMan;
 
-    private final String allowedCreateRoles = xmlRolesReader.getAllAllowedRoles("Schema", "create");
+    private final String allowedCreateRoles = xmlRolesReader.getEntitlement("Schema", "create");
 
-    private final String allowedReadRoles = xmlRolesReader.getAllAllowedRoles("Schema", "read");
+    private final String allowedReadRoles = xmlRolesReader.getEntitlement("Schema", "read");
 
-    private final String allowedDeleteRoles = xmlRolesReader.getAllAllowedRoles("Schema", "delete");
+    private final String allowedDeleteRoles = xmlRolesReader.getEntitlement("Schema", "delete");
 
     public Schema() {
         super();

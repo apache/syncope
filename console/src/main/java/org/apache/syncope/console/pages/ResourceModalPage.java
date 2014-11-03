@@ -84,8 +84,8 @@ public class ResourceModalPage extends BaseModalPage {
         // Resource connector configuration panel
         //--------------------------------
         ResourceConnConfPanel resourceConnConfPanel = new ResourceConnConfPanel("connconf", resourceTO, createFlag);
-        MetaDataRoleAuthorizationStrategy.authorize(resourceConnConfPanel, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Connectors", "read"));
+        MetaDataRoleAuthorizationStrategy.authorize(
+                resourceConnConfPanel, ENABLE, xmlRolesReader.getEntitlement("Connectors", "read"));
         form.add(resourceConnConfPanel);
         //--------------------------------
 
@@ -180,7 +180,7 @@ public class ResourceModalPage extends BaseModalPage {
 
         add(form);
 
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Resources",
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getEntitlement("Resources",
                 createFlag
                         ? "create"
                         : "update"));

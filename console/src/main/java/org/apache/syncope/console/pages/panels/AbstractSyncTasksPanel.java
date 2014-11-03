@@ -149,7 +149,7 @@ public abstract class AbstractSyncTasksPanel<T extends AbstractSyncTaskTO> exten
         };
 
         MetaDataRoleAuthorizationStrategy.authorize(
-                createLink, RENDER, xmlRolesReader.getAllAllowedRoles(TASKS, "create"));
+                createLink, RENDER, xmlRolesReader.getEntitlement(TASKS, "create"));
 
         add(createLink);
 

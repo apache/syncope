@@ -164,8 +164,8 @@ public abstract class UserModalPage extends BaseModalPage {
 
         if (mode == Mode.ADMIN) {
             String allowedRoles = userTO.getId() == 0
-                    ? xmlRolesReader.getAllAllowedRoles("Users", "create")
-                    : xmlRolesReader.getAllAllowedRoles("Users", "update");
+                    ? xmlRolesReader.getEntitlement("Users", "create")
+                    : xmlRolesReader.getEntitlement("Users", "update");
             MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, allowedRoles);
         }
 
