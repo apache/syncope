@@ -63,7 +63,7 @@ public class EditUserModalPage extends UserModalPage {
             statusPanel = new StatusPanel("statuspanel", userTO, new ArrayList<StatusBean>(), getPageReference());
             statusPanel.setOutputMarkupId(true);
             MetaDataRoleAuthorizationStrategy.authorize(
-                    statusPanel, RENDER, xmlRolesReader.getAllAllowedRoles("Resources", "getConnectorObject"));
+                    statusPanel, RENDER, xmlRolesReader.getEntitlement("Resources", "getConnectorObject"));
             form.addOrReplace(statusPanel);
 
             form.addOrReplace(new AccountInformationPanel("accountinformation", userTO));

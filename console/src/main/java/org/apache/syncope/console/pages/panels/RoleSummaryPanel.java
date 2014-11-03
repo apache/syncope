@@ -138,7 +138,7 @@ public class RoleSummaryPanel extends Panel {
 
                         builder.window.show(target);
                     }
-                }, ActionLink.ActionType.CREATE, xmlRolesReader.getAllAllowedRoles("Roles", "create"));
+                }, ActionLink.ActionType.CREATE, xmlRolesReader.getEntitlement("Roles", "create"));
             } else {
                 RoleTabPanel roleTabPanel =
                         new RoleTabPanel("nodeViewPanel", selectedNode, builder.window, builder.callerPageRef);

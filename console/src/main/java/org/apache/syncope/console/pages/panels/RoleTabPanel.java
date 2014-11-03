@@ -91,7 +91,7 @@ public class RoleTabPanel extends Panel {
 
                 window.show(target);
             }
-        }, ActionLink.ActionType.CREATE, xmlRolesReader.getAllAllowedRoles("Roles", "create"));
+        }, ActionLink.ActionType.CREATE, xmlRolesReader.getEntitlement("Roles", "create"));
         links.addWithRoles(new ActionLink() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -110,7 +110,7 @@ public class RoleTabPanel extends Panel {
 
                 window.show(target);
             }
-        }, ActionLink.ActionType.SEARCH, xmlRolesReader.getAllAllowedRoles("Roles", "update"));
+        }, ActionLink.ActionType.SEARCH, xmlRolesReader.getEntitlement("Roles", "update"));
         links.addWithRoles(new ActionLink() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -131,7 +131,7 @@ public class RoleTabPanel extends Panel {
 
                 window.show(target);
             }
-        }, ActionLink.ActionType.EDIT, xmlRolesReader.getAllAllowedRoles("Roles", "update"));
+        }, ActionLink.ActionType.EDIT, xmlRolesReader.getEntitlement("Roles", "update"));
         links.addWithRoles(new ActionLink() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -159,7 +159,7 @@ public class RoleTabPanel extends Panel {
                     target.add(((Roles) pageRef.getPage()).getFeedbackPanel());
                 }
             }
-        }, ActionLink.ActionType.DELETE, xmlRolesReader.getAllAllowedRoles("Roles", "delete"));
+        }, ActionLink.ActionType.DELETE, xmlRolesReader.getEntitlement("Roles", "delete"));
 
         final Form form = new Form("roleForm");
         form.setModel(new CompoundPropertyModel(selectedNode));

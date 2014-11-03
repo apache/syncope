@@ -107,7 +107,7 @@ public class RolePanel extends Panel {
                     "statuspanel", builder.roleTO, new ArrayList<StatusBean>(), builder.pageReference);
             statusPanel.setOutputMarkupId(true);
             MetaDataRoleAuthorizationStrategy.authorize(
-                    statusPanel, RENDER, xmlRolesReader.getAllAllowedRoles("Resources", "getConnectorObject"));
+                    statusPanel, RENDER, xmlRolesReader.getEntitlement("Resources", "getConnectorObject"));
             this.add(statusPanel);
         }
 

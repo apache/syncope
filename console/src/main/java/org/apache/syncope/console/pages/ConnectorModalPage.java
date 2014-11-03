@@ -437,8 +437,8 @@ public class ConnectorModalPage extends BaseModalPage {
             }
         };
         String roles = connInstanceTO.getId() == 0
-                ? xmlRolesReader.getAllAllowedRoles("Connectors", "create")
-                : xmlRolesReader.getAllAllowedRoles("Connectors", "update");
+                ? xmlRolesReader.getEntitlement("Connectors", "create")
+                : xmlRolesReader.getEntitlement("Connectors", "update");
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, roles);
         connectorForm.add(submit);
 

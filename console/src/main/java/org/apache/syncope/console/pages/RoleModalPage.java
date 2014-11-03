@@ -136,7 +136,7 @@ public class RoleModalPage extends BaseModalPage {
 
         cancel.setDefaultFormProcessing(false);
 
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Roles",
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getEntitlement("Roles",
                 createFlag
                 ? "create"
                 : "update"));

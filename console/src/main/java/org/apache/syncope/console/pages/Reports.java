@@ -110,7 +110,7 @@ public class Reports extends BasePage {
         reportContainer = new WebMarkupContainer("reportContainer");
         setWindowClosedCallback(window, reportContainer);
 
-        MetaDataRoleAuthorizationStrategy.authorize(reportContainer, RENDER, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(reportContainer, RENDER, xmlRolesReader.getEntitlement(
                 "Reports", "list"));
 
         paginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_REPORT_PAGINATOR_ROWS);
@@ -223,7 +223,7 @@ public class Reports extends BasePage {
 
         Form paginatorForm = new Form("paginatorForm");
 
-        MetaDataRoleAuthorizationStrategy.authorize(paginatorForm, RENDER, xmlRolesReader.getAllAllowedRoles("Reports",
+        MetaDataRoleAuthorizationStrategy.authorize(paginatorForm, RENDER, xmlRolesReader.getEntitlement("Reports",
                 "list"));
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this, "paginatorRows"),
@@ -266,7 +266,7 @@ public class Reports extends BasePage {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createLink, RENDER, xmlRolesReader.getAllAllowedRoles("Reports",
+        MetaDataRoleAuthorizationStrategy.authorize(createLink, RENDER, xmlRolesReader.getEntitlement("Reports",
                 "create"));
 
         add(createLink);
@@ -279,7 +279,7 @@ public class Reports extends BasePage {
         add(auditContainer);
 
         MetaDataRoleAuthorizationStrategy.authorize(
-                auditContainer, RENDER, xmlRolesReader.getAllAllowedRoles("Audit", "list"));
+                auditContainer, RENDER, xmlRolesReader.getEntitlement("Audit", "list"));
 
         final Form form = new Form("auditForm");
         auditContainer.add(form);
@@ -306,15 +306,15 @@ public class Reports extends BasePage {
                     @Override
                     protected String[] getListRoles() {
                         return new String[] {
-                            xmlRolesReader.getAllAllowedRoles("Audit", "list")
+                            xmlRolesReader.getEntitlement("Audit", "list")
                         };
                     }
 
                     @Override
                     protected String[] getChangeRoles() {
                         return new String[] {
-                            xmlRolesReader.getAllAllowedRoles("Audit", "enable"),
-                            xmlRolesReader.getAllAllowedRoles("Audit", "disable")
+                            xmlRolesReader.getEntitlement("Audit", "enable"),
+                            xmlRolesReader.getEntitlement("Audit", "disable")
                         };
                     }
 

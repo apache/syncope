@@ -276,8 +276,8 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         cancel.setDefaultFormProcessing(false);
 
         String allowedRoles = createFlag
-                ? xmlRolesReader.getAllAllowedRoles("Schema", "create")
-                : xmlRolesReader.getAllAllowedRoles("Schema", "update");
+                ? xmlRolesReader.getEntitlement("Schema", "create")
+                : xmlRolesReader.getEntitlement("Schema", "update");
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 

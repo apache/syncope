@@ -50,7 +50,7 @@ public class StatusModalPage extends BaseModalPage {
 
         final StatusPanel statusPanel = new StatusPanel("statuspanel", attributable, statuses, null);
         MetaDataRoleAuthorizationStrategy.authorize(
-                statusPanel, RENDER, xmlRolesReader.getAllAllowedRoles("Resources", "getConnectorObject"));
+                statusPanel, RENDER, xmlRolesReader.getEntitlement("Resources", "getConnectorObject"));
         form.add(statusPanel);
 
         final AjaxButton disable;

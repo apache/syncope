@@ -92,7 +92,7 @@ public class Users extends BasePage {
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(
-                createLink, ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "create"));
+                createLink, ENABLE, xmlRolesReader.getEntitlement("Users", "create"));
         add(createLink);
 
         setWindowClosedReloadCallback(editModalWin);

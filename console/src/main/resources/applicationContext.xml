@@ -63,10 +63,6 @@ under the License.
     <constructor-arg value="${licenseUrl}"/>
   </bean>
 
-  <bean id="authorizations" class="java.lang.String">
-    <constructor-arg value="authorizations.xml"/>
-  </bean>
-
   <bean id="syncopeApplication" class="org.apache.syncope.console.SyncopeApplication"/>
 
   <bean id="jacksonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
@@ -133,7 +129,9 @@ under the License.
 
   <bean id="preferenceManager" class="org.apache.syncope.console.commons.PreferenceManager"/>
 
-  <bean id="xmlRolesReader" class="org.apache.syncope.console.commons.XMLRolesReader"/>
+  <bean id="xmlRolesReader" class="org.apache.syncope.console.commons.XMLRolesReader" scope="singleton">
+    <property name="authorizations" value="authorizations.xml"/>
+  </bean>
 
   <bean id="roleTreeBuilder" class="org.apache.syncope.console.commons.RoleTreeBuilder"/>
 

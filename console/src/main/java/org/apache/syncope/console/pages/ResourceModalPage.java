@@ -173,7 +173,7 @@ public class ResourceModalPage extends BaseModalPage {
 
         add(form);
 
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Resources",
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getEntitlement("Resources",
                 createFlag
                 ? "create"
                 : "update"));

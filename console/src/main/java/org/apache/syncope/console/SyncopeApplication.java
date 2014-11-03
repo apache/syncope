@@ -120,7 +120,7 @@ public class SyncopeApplication
                 : "") + "schema" + Constants.PNG_EXT)));
 
         BookmarkablePageLink<Void> usersLink = new BookmarkablePageLink<Void>("users", Users.class);
-        String allowedUsersRoles = xmlRolesReader.getAllAllowedRoles("Users", "list");
+        String allowedUsersRoles = xmlRolesReader.getEntitlement("Users", "list");
         MetaDataRoleAuthorizationStrategy.authorize(usersLink, WebPage.ENABLE, allowedUsersRoles);
         page.add(usersLink);
         usersLink.add(new Image("usersIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
@@ -142,7 +142,7 @@ public class SyncopeApplication
                 : "") + "resources" + Constants.PNG_EXT)));
 
         BookmarkablePageLink<Void> todoLink = new BookmarkablePageLink<Void>("todo", Todo.class);
-        MetaDataRoleAuthorizationStrategy.authorize(todoLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(todoLink, WebPage.ENABLE, xmlRolesReader.getEntitlement(
                 "Approval", "list"));
         page.add(todoLink);
         todoLink.add(new Image("todoIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
@@ -150,7 +150,7 @@ public class SyncopeApplication
                 : "") + "todo" + Constants.PNG_EXT)));
 
         BookmarkablePageLink<Void> reportLink = new BookmarkablePageLink<Void>("reports", Reports.class);
-        String allowedReportRoles = xmlRolesReader.getAllAllowedRoles("Reports", "list");
+        String allowedReportRoles = xmlRolesReader.getEntitlement("Reports", "list");
         MetaDataRoleAuthorizationStrategy.authorize(reportLink, WebPage.ENABLE, allowedReportRoles);
         page.add(reportLink);
         reportLink.add(new Image("reportsIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
@@ -159,7 +159,7 @@ public class SyncopeApplication
 
         BookmarkablePageLink<Void> configurationLink = new BookmarkablePageLink<Void>("configuration",
                 Configuration.class);
-        String allowedConfigurationRoles = xmlRolesReader.getAllAllowedRoles("Configuration", "list");
+        String allowedConfigurationRoles = xmlRolesReader.getEntitlement("Configuration", "list");
         MetaDataRoleAuthorizationStrategy.authorize(configurationLink, WebPage.ENABLE, allowedConfigurationRoles);
         page.add(configurationLink);
         configurationLink.add(new Image("configurationIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
@@ -167,7 +167,7 @@ public class SyncopeApplication
                 : "") + "configuration" + Constants.PNG_EXT)));
 
         BookmarkablePageLink<Void> taskLink = new BookmarkablePageLink<Void>("tasks", Tasks.class);
-        String allowedTasksRoles = xmlRolesReader.getAllAllowedRoles("Tasks", "list");
+        String allowedTasksRoles = xmlRolesReader.getEntitlement("Tasks", "list");
         MetaDataRoleAuthorizationStrategy.authorize(taskLink, WebPage.ENABLE, allowedTasksRoles);
         page.add(taskLink);
         taskLink.add(new Image("tasksIcon", new ContextRelativeResource(IMG_PREFIX + (notsel

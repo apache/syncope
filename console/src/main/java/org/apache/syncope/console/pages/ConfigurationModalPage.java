@@ -121,8 +121,8 @@ public class ConfigurationModalPage extends BaseModalPage {
         form.add(cancel);
 
         String allowedRoles = createFlag
-                ? xmlRolesReader.getAllAllowedRoles("Configuration", "create")
-                : xmlRolesReader.getAllAllowedRoles("Configuration", "update");
+                ? xmlRolesReader.getEntitlement("Configuration", "create")
+                : xmlRolesReader.getEntitlement("Configuration", "update");
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 

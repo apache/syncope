@@ -161,10 +161,10 @@ public class ReportModalPage extends BaseModalPage {
                 };
 
         if (reportTO.getId() > 0) {
-            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getAllAllowedRoles("Reports",
+            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getEntitlement("Reports",
                     "update"));
         } else {
-            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getAllAllowedRoles("Reports",
+            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getEntitlement("Reports",
                     "create"));
         }
 

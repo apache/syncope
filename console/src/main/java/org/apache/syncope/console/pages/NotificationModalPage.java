@@ -270,8 +270,8 @@ class NotificationModalPage extends BaseModalPage {
         cancel.setDefaultFormProcessing(false);
 
         String allowedRoles = createFlag
-                ? xmlRolesReader.getAllAllowedRoles("Notification", "create")
-                : xmlRolesReader.getAllAllowedRoles("Notification", "update");
+                ? xmlRolesReader.getEntitlement("Notification", "create")
+                : xmlRolesReader.getEntitlement("Notification", "update");
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 
         form.add(submit);

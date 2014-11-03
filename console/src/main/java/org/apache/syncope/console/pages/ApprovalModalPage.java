@@ -188,7 +188,7 @@ public class ApprovalModalPage extends BaseModalPage {
                     }
                 };
         MetaDataRoleAuthorizationStrategy.authorize(userDetails, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Users", "read"));
+                xmlRolesReader.getEntitlement("Users", "read"));
 
         final AjaxButton submit = new IndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT))) {
 
@@ -267,7 +267,7 @@ public class ApprovalModalPage extends BaseModalPage {
         form.add(submit);
         form.add(cancel);
 
-        MetaDataRoleAuthorizationStrategy.authorize(form, ENABLE, xmlRolesReader.getAllAllowedRoles("Approval",
+        MetaDataRoleAuthorizationStrategy.authorize(form, ENABLE, xmlRolesReader.getEntitlement("Approval",
                 SUBMIT));
 
         editUserWin = new ModalWindow("editUserWin");

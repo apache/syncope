@@ -105,7 +105,7 @@ public class Todo extends BasePage {
     private void setupApproval() {
         approvalContainer = new WebMarkupContainer("approvalContainer");
 
-        MetaDataRoleAuthorizationStrategy.authorize(approvalContainer, RENDER, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(approvalContainer, RENDER, xmlRolesReader.getEntitlement(
                 "Approval", "list"));
 
         approvalPaginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_APPROVAL_PAGINATOR_ROWS);
@@ -186,7 +186,7 @@ public class Todo extends BasePage {
 
         Form approvalPaginatorForm = new Form("approvalPaginatorForm");
 
-        MetaDataRoleAuthorizationStrategy.authorize(approvalPaginatorForm, RENDER, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(approvalPaginatorForm, RENDER, xmlRolesReader.getEntitlement(
                 "Approval", "list"));
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,
@@ -220,7 +220,7 @@ public class Todo extends BasePage {
     private void setupUserRequest() {
         userRequestContainer = new WebMarkupContainer("userRequestContainer");
 
-        MetaDataRoleAuthorizationStrategy.authorize(userRequestContainer, RENDER, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(userRequestContainer, RENDER, xmlRolesReader.getEntitlement(
                 "UserRequest", "list"));
 
         userRequestPaginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_USER_REQUEST_PAGINATOR_ROWS);
@@ -326,7 +326,7 @@ public class Todo extends BasePage {
 
         Form userRequestPaginatorForm = new Form("userRequestPaginatorForm");
 
-        MetaDataRoleAuthorizationStrategy.authorize(userRequestPaginatorForm, RENDER, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(userRequestPaginatorForm, RENDER, xmlRolesReader.getEntitlement(
                 "UserRequest", "list"));
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser", new PropertyModel(this,

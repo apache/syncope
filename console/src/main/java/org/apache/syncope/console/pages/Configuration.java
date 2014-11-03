@@ -178,13 +178,13 @@ public class Configuration extends BasePage {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getAllAllowedRoles("Configuration",
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getEntitlement("Configuration",
                 "workflowDefUpdate"));
         wfForm.add(submit);
 
         workflowDefContainer.add(wfForm);
 
-        MetaDataRoleAuthorizationStrategy.authorize(workflowDefContainer, ENABLE, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(workflowDefContainer, ENABLE, xmlRolesReader.getEntitlement(
                 "Configuration", "workflowDefRead"));
         add(workflowDefContainer);
 
@@ -195,7 +195,7 @@ public class Configuration extends BasePage {
         coreLoggerContainer.add(coreLoggerList);
         coreLoggerContainer.setOutputMarkupId(true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(coreLoggerContainer, ENABLE, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(coreLoggerContainer, ENABLE, xmlRolesReader.getEntitlement(
                 "Configuration", "logList"));
         add(coreLoggerContainer);
 
@@ -206,7 +206,7 @@ public class Configuration extends BasePage {
         consoleLoggerContainer.add(consoleLoggerList);
         consoleLoggerContainer.setOutputMarkupId(true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(consoleLoggerContainer, ENABLE, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(consoleLoggerContainer, ENABLE, xmlRolesReader.getEntitlement(
                 "Configuration", "logList"));
         add(consoleLoggerContainer);
     }
@@ -327,7 +327,7 @@ public class Configuration extends BasePage {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createConfigurationLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(createConfigurationLink, ENABLE, xmlRolesReader.getEntitlement(
                 "Configuration", "create"));
         add(createConfigurationLink);
 
@@ -351,7 +351,7 @@ public class Configuration extends BasePage {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(dbExportLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(dbExportLink, ENABLE, xmlRolesReader.getEntitlement(
                 "Configuration", "read"));
         add(dbExportLink);
 
@@ -502,7 +502,7 @@ public class Configuration extends BasePage {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createNotificationLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(createNotificationLink, ENABLE, xmlRolesReader.getEntitlement(
                 "Notification", "create"));
         add(createNotificationLink);
 
@@ -673,7 +673,7 @@ public class Configuration extends BasePage {
                 }
             });
 
-            MetaDataRoleAuthorizationStrategy.authorize(level, ENABLE, xmlRolesReader.getAllAllowedRoles(
+            MetaDataRoleAuthorizationStrategy.authorize(level, ENABLE, xmlRolesReader.getEntitlement(
                     "Configuration", "logSetLevel"));
 
             item.add(level);
