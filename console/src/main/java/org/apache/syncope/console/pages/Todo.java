@@ -216,7 +216,6 @@ public class Todo extends BasePage {
 
         @Override
         public Iterator<WorkflowFormTO> iterator(final long first, final long count) {
-
             final List<WorkflowFormTO> list = restClient.getForms();
 
             Collections.sort(list, comparator);
@@ -231,7 +230,6 @@ public class Todo extends BasePage {
 
         @Override
         public IModel<WorkflowFormTO> model(final WorkflowFormTO configuration) {
-
             return new AbstractReadOnlyModel<WorkflowFormTO>() {
 
                 private static final long serialVersionUID = -2566070996511906708L;
