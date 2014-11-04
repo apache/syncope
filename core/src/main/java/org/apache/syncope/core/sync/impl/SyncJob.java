@@ -45,7 +45,6 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 /**
  * Job for executing synchronization (from external resource) tasks.
@@ -107,6 +106,7 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
             final UMapping uMapping,
             final RMapping rMapping,
             final boolean dryRun) throws JobExecutionException {
+
         LOG.debug("Execute synchronization with token {}", syncTask.getResource().getUsyncToken());
 
         final List<SyncResult> results = new ArrayList<SyncResult>();
@@ -120,15 +120,13 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
 
         // Prepare handler for SyncDelta objects (users)
         final UserSyncResultHandler uhandler =
-                (UserSyncResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
-                getApplicationContext().getBeanFactory()).createBean(
+                (UserSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().createBean(
                         UserSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         uhandler.setProfile(profile);
 
         // Prepare handler for SyncDelta objects (roles/groups)
         final RoleSyncResultHandler rhandler =
-                (RoleSyncResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
-                getApplicationContext().getBeanFactory()).createBean(
+                (RoleSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().createBean(
                         RoleSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         rhandler.setProfile(profile);
 
