@@ -690,8 +690,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 taskService.createTaskQuery().processInstanceId(workflowId).taskName(name).
                 taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE));
 
-        forms.addAll(getForms(historyService.createHistoricTaskInstanceQuery().taskName(name)
-                .taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
+        forms.addAll(getForms(historyService.createHistoricTaskInstanceQuery().taskName(name).
+                taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
 
         return forms;
     }
