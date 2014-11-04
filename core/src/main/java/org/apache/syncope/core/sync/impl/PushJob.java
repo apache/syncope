@@ -43,7 +43,6 @@ import org.apache.syncope.core.util.EntitlementUtil;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 /**
  * Job for executing synchronization (towards external resource) tasks.
@@ -94,15 +93,13 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
         profile.setResults(results);
 
         final UserPushResultHandler uhandler =
-                (UserPushResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
-                getApplicationContext().getBeanFactory()).createBean(
-                UserPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                (UserPushResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().createBean(
+                        UserPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         uhandler.setProfile(profile);
 
         final RolePushResultHandler rhandler =
-                (RolePushResultHandler) ((DefaultListableBeanFactory) ApplicationContextProvider.
-                getApplicationContext().getBeanFactory()).createBean(
-                RolePushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                (RolePushResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().createBean(
+                        RolePushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         rhandler.setProfile(profile);
 
         if (!profile.isDryRun()) {
