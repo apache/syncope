@@ -36,7 +36,7 @@ public class ParentPom {
             + "\"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n"
             + "KIND, either express or implied.  See the License for the\n"
             + "specific language governing permissions and limitations\n" + "under the License.\n" + "\n"
-            + "--><project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0          http://maven.apache.org/maven-v4_0_0.xsd\">\n"
+            + "--><project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n"
             + "\n" + "  <modelVersion>4.0.0</modelVersion>\n" + "\n" + "  <parent>\n"
             + "    <groupId>org.apache.syncope</groupId>\n" + "    <artifactId>syncope</artifactId>\n"
             + "    <version xmlns=\"\">%s</version>\n" + "  </parent>\n" + "\n" + "  <properties>\n"
