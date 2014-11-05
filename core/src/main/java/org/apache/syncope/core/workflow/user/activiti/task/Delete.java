@@ -28,7 +28,7 @@ public class Delete extends AbstractActivitiServiceTask {
     @Override
     protected void doExecute(final String executionId) {
         SyncopeUser user =
-                (SyncopeUser) runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER);
+                runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, SyncopeUser.class);
 
         // Do something with SyncopeUser...
         if (user != null) {
