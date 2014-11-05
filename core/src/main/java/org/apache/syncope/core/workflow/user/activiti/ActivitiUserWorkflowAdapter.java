@@ -802,7 +802,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         if (!checked.getKey().getOwner().equals(username)) {
             throw new WorkflowException(new IllegalArgumentException("Task " + form.getTaskId() + " assigned to "
-                    + checked.getKey().getOwner() + " but submited by " + username));
+                    + checked.getKey().getOwner() + " but submitted by " + username));
         }
 
         SyncopeUser user = userDAO.findByWorkflowId(checked.getKey().getProcessInstanceId());
