@@ -33,7 +33,7 @@ public class GenerateToken extends AbstractActivitiServiceTask {
     @Override
     protected void doExecute(final String executionId) {
         SyncopeUser user =
-                (SyncopeUser) runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER);
+                runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, SyncopeUser.class);
 
         user.generateToken(
                 confDAO.find("token.length", "256").getValues().get(0).getLongValue().intValue(),
