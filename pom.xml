@@ -355,7 +355,7 @@ under the License.
 
     <apacheds.version>1.5.7</apacheds.version>
     
-    <httpclient.version>4.3.5</httpclient.version>
+    <httpclient.version>4.3.6</httpclient.version>
 
     <tomcat.version>7.0.56</tomcat.version>
 
