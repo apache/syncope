@@ -73,9 +73,9 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
     protected abstract ConnectorObject getRemoteObject(final String accountId);
 
     @Transactional
-    public boolean handle(final AbstractSubject subject) {
+    public boolean handle(final long subjectId) {
         try {
-            doHandle(subject);
+            doHandle(subjectId);
             return true;
         } catch (JobExecutionException e) {
             LOG.error("Synchronization failed", e);
@@ -83,30 +83,30 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
         }
     }
 
-    protected final void doHandle(final AbstractSubject subject)
+    protected final void doHandle(final long subjectId)
             throws JobExecutionException {
 
         if (profile.getResults() == null) {
             profile.setResults(new ArrayList<SyncResult>());
         }
 
-        final AbstractSubject toBeHandled = getSubject(subject.getId());
+        final AbstractSubject subject = getSubject(subjectId);
 
-        final AttributableUtil attrUtil = AttributableUtil.getInstance(toBeHandled);
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(subject);
 
         final SyncResult result = new SyncResult();
         profile.getResults().add(result);
 
-        result.setId(toBeHandled.getId());
+        result.setId(subject.getId());
         result.setSubjectType(attrUtil.getType());
-        result.setName(getName(toBeHandled));
+        result.setName(getName(subject));
 
-        final Boolean enabled = toBeHandled instanceof SyncopeUser && profile.getSyncTask().isSyncStatus()
-                ? ((SyncopeUser) toBeHandled).isSuspended() ? Boolean.FALSE : Boolean.TRUE
+        final Boolean enabled = subject instanceof SyncopeUser && profile.getSyncTask().isSyncStatus()
+                ? ((SyncopeUser) subject).isSuspended() ? Boolean.FALSE : Boolean.TRUE
                 : null;
 
         LOG.debug("Propagating {} with ID {} towards {}",
-                attrUtil.getType(), toBeHandled.getId(), profile.getSyncTask().getResource());
+                attrUtil.getType(), subject.getId(), profile.getSyncTask().getResource());
 
         Object output = null;
         Result resultStatus = null;
@@ -138,37 +138,37 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
                     switch (profile.getSyncTask().getUnmatchingRule()) {
                         case ASSIGN:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeAssign(this.getProfile(), toBeHandled);
+                                action.beforeAssign(this.getProfile(), subject);
                             }
 
                             if (!profile.getSyncTask().isPerformCreate()) {
                                 LOG.debug("PushTask not configured for create");
                             } else {
-                                assign(toBeHandled, status);
+                                assign(subject, status);
                             }
 
                             break;
                         case PROVISION:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeProvision(this.getProfile(), toBeHandled);
+                                action.beforeProvision(this.getProfile(), subject);
                             }
 
                             if (!profile.getSyncTask().isPerformCreate()) {
                                 LOG.debug("PushTask not configured for create");
                             } else {
-                                provision(toBeHandled, status);
+                                provision(subject, status);
                             }
 
                             break;
                         case UNLINK:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUnlink(this.getProfile(), toBeHandled);
+                                action.beforeUnlink(this.getProfile(), subject);
                             }
 
                             if (!profile.getSyncTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
                             } else {
-                                link(toBeHandled, true);
+                                link(subject, true);
                             }
 
                             break;
@@ -183,60 +183,60 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
                     switch (profile.getSyncTask().getMatchingRule()) {
                         case UPDATE:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUpdate(this.getProfile(), toBeHandled);
+                                action.beforeUpdate(this.getProfile(), subject);
                             }
                             if (!profile.getSyncTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
                             } else {
-                                update(toBeHandled, status);
+                                update(subject, status);
                             }
 
                             break;
                         case DEPROVISION:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeDeprovision(this.getProfile(), toBeHandled);
+                                action.beforeDeprovision(this.getProfile(), subject);
                             }
 
                             if (!profile.getSyncTask().isPerformDelete()) {
                                 LOG.debug("PushTask not configured for delete");
                             } else {
-                                deprovision(toBeHandled);
+                                deprovision(subject);
                             }
 
                             break;
                         case UNASSIGN:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUnassign(this.getProfile(), toBeHandled);
+                                action.beforeUnassign(this.getProfile(), subject);
                             }
 
                             if (!profile.getSyncTask().isPerformDelete()) {
                                 LOG.debug("PushTask not configured for delete");
                             } else {
-                                unassign(toBeHandled);
+                                unassign(subject);
                             }
 
                             break;
                         case LINK:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeLink(this.getProfile(), toBeHandled);
+                                action.beforeLink(this.getProfile(), subject);
                             }
 
                             if (!profile.getSyncTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
                             } else {
-                                link(toBeHandled, false);
+                                link(subject, false);
                             }
 
                             break;
                         case UNLINK:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUnlink(this.getProfile(), toBeHandled);
+                                action.beforeUnlink(this.getProfile(), subject);
                             }
 
                             if (!profile.getSyncTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
                             } else {
-                                link(toBeHandled, true);
+                                link(subject, true);
                             }
 
                             break;
@@ -246,7 +246,7 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
                 }
 
                 for (PushActions action : profile.getActions()) {
-                    action.after(this.getProfile(), toBeHandled, result);
+                    action.after(this.getProfile(), subject, result);
                 }
 
                 result.setStatus(SyncResult.Status.SUCCESS);
@@ -258,7 +258,7 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
                 resultStatus = AuditElements.Result.FAILURE;
                 output = e;
 
-                LOG.warn("Error pushing {} towards {}", toBeHandled, profile.getSyncTask().getResource(), e);
+                LOG.warn("Error pushing {} towards {}", subject, profile.getSyncTask().getResource(), e);
                 throw new JobExecutionException(e);
             } finally {
                 notificationManager.createTasks(
@@ -269,7 +269,7 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
                         resultStatus,
                         beforeObj,
                         output,
-                        toBeHandled);
+                        subject);
                 auditManager.audit(
                         AuditElements.EventCategoryType.PUSH,
                         AttributableType.USER.name().toLowerCase(),
@@ -278,7 +278,7 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
                         resultStatus,
                         beforeObj,
                         output,
-                        toBeHandled);
+                        subject);
             }
         }
     }

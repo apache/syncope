@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest;
 
-import static org.apache.syncope.core.rest.AbstractTest.userService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -63,14 +62,22 @@ import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.reqres.PagedResult;
+import org.apache.syncope.common.services.ResourceService;
+import org.apache.syncope.common.to.MappingItemTO;
+import org.apache.syncope.common.to.MappingTO;
 import org.apache.syncope.common.to.PushTaskTO;
+import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.MatchingRule;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.ResourceDeassociationActionType;
+import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.common.types.SubjectType;
@@ -1267,5 +1274,115 @@ public class TaskTestITCase extends AbstractTest {
         property.getValues().add(Boolean.FALSE);
         connectorService.update(ldapResource.getConnectorId(), resourceConnector);
         deleteUser(updatedUser.getId());
+    }
+
+    @Test
+    public void issueSYNCOPE598() {
+        // create a new role schema
+        final SchemaTO schemaTO = new SchemaTO();
+        schemaTO.setName("LDAPGroupName" + getUUIDString());
+        schemaTO.setType(AttributeSchemaType.String);
+        schemaTO.setMandatoryCondition("true");
+
+        final SchemaTO newSchemaTO = createSchema(AttributableType.ROLE, SchemaType.NORMAL, schemaTO);
+        assertEquals(schemaTO, newSchemaTO);
+
+        // create a new sample role
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName("all" + getUUIDString());
+        roleTO.setParent(8L);
+
+        roleTO.getRAttrTemplates().add(newSchemaTO.getName());
+        roleTO.getAttrs().add(attributeTO(newSchemaTO.getName(), "all"));
+
+        roleTO = createRole(roleTO);
+        assertNotNull(roleTO);
+
+        String resourceName = "resource-ldap-roleonly";
+        ResourceTO newResourceTO = null;
+
+        try {
+            // Create resource ad-hoc
+            ResourceTO resourceTO = new ResourceTO();
+            resourceTO.setName(resourceName);
+            resourceTO.setConnectorId(105L);
+
+            final MappingTO umapping = new MappingTO();
+            MappingItemTO item = new MappingItemTO();
+            item.setIntMappingType(IntMappingType.Username);
+            item.setExtAttrName("cn");
+            item.setAccountid(true);
+            item.setPurpose(MappingPurpose.PROPAGATION);
+            item.setMandatoryCondition("true");
+            umapping.setAccountIdItem(item);
+
+            item = new MappingItemTO();
+            item.setIntMappingType(IntMappingType.UserSchema);
+            item.setExtAttrName("surname");
+            item.setIntAttrName("sn");
+            item.setPurpose(MappingPurpose.BOTH);
+            umapping.addItem(item);
+
+            item = new MappingItemTO();
+            item.setIntMappingType(IntMappingType.UserSchema);
+            item.setExtAttrName("email");
+            item.setIntAttrName("mail");
+            item.setPurpose(MappingPurpose.BOTH);
+            umapping.addItem(item);
+
+            item = new MappingItemTO();
+            item.setIntMappingType(IntMappingType.Password);
+            item.setPassword(true);
+            item.setPurpose(MappingPurpose.BOTH);
+            item.setMandatoryCondition("true");
+            umapping.addItem(item);
+
+            umapping.setAccountLink("'cn=' + username + ',ou=people,o=isp'");
+
+            final MappingTO rmapping = new MappingTO();
+
+            item = new MappingItemTO();
+            item.setIntMappingType(IntMappingType.RoleSchema);
+            item.setExtAttrName("cn");
+            item.setIntAttrName(newSchemaTO.getName());
+            item.setAccountid(true);
+            item.setPurpose(MappingPurpose.BOTH);
+            rmapping.setAccountIdItem(item);
+
+            rmapping.setAccountLink("'cn=' + " + newSchemaTO.getName() + " + ',ou=groups,o=isp'");
+
+            resourceTO.setRmapping(rmapping);
+
+            Response response = resourceService.create(resourceTO);
+            newResourceTO = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
+
+            assertNotNull(newResourceTO);
+            assertNull(newResourceTO.getUmapping());
+            assertNotNull(newResourceTO.getRmapping());
+
+            // create push task ad-hoc
+            final PushTaskTO task = new PushTaskTO();
+            task.setName("issueSYNCOPE598");
+            task.setResource(resourceName);
+            task.setPerformCreate(true);
+            task.setPerformDelete(true);
+            task.setPerformUpdate(true);
+            task.setUnmatchingRule(UnmatchingRule.ASSIGN);
+            task.setMatchingRule(MatchingRule.UPDATE);
+
+            response = taskService.create(task);
+            final PushTaskTO push = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
+
+            assertNotNull(push);
+
+            // execute the new task
+            final TaskExecTO pushExec = execSyncTask(push.getId(), 50, false);
+            assertTrue(PropagationTaskExecStatus.valueOf(pushExec.getStatus()).isSuccessful());
+        } finally {
+            roleService.delete(roleTO.getId());
+            if (newResourceTO != null) {
+                resourceService.delete(resourceName);
+            }
+        }
     }
 }

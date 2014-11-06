@@ -123,7 +123,7 @@ public class RolePushResultHandler extends AbstractSubjectPushResultHandler {
         try {
             return roleDataBinder.getRoleFromId(id);
         } catch (Exception e) {
-            LOG.warn("Error retrieving user {}", id, e);
+            LOG.warn("Error retrieving role {}", id, e);
             return null;
         }
     }
