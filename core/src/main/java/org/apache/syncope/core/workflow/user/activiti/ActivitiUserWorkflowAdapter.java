@@ -105,6 +105,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     public static final String WF_EXECUTOR = "wfExecutor";
 
+    public static final String FORM_SUBMITTER = "formSubmitter";
+
     public static final String USER_TO = "userTO";
 
     public static final String ENABLED = "enabled";
@@ -814,6 +816,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Set<String> preTasks = getPerformedTasks(user);
         try {
             formService.submitTaskFormData(form.getTaskId(), form.getPropertiesForSubmit());
+            runtimeService.setVariable(
+                    user.getWorkflowId(), FORM_SUBMITTER, EntitlementUtil.getAuthenticatedUsername());
         } catch (ActivitiException e) {
             throwException(e, "While submitting form for task " + form.getTaskId());
         }
