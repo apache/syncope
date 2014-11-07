@@ -43,6 +43,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.Session;
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.IUnauthorizedComponentInstantiationListener;
@@ -242,9 +243,16 @@ public class SyncopeApplication
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                final UserTO userTO = SyncopeSession.get().isAuthenticated()
-                        ? userSelfRestClient.read()
-                        : new UserTO();
+                final UserTO userTO;
+                if (SyncopeSession.get().isAuthenticated()) {
+                    try {
+                        userTO = userSelfRestClient.read();
+                    } catch (Exception e) {
+                        throw new WicketRuntimeException(e);
+                    }
+                } else {
+                    userTO = new UserTO();
+                }
 
                 editProfileModalWin.setPageCreator(new ModalWindow.PageCreator() {
 
