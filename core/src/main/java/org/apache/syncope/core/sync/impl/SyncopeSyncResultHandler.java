@@ -392,10 +392,15 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         for (String schema : altSearchSchemas) {
             Attribute value = extValues.get(schema);
 
+            if (value == null) {
+                throw new IllegalArgumentException(
+                        "Connector object does not contains the attributes to perform the search: " + schema);
+            }
+
             AttributeCond.Type type;
             String expression = null;
 
-            if (value == null || value.getValue() == null || value.getValue().isEmpty()
+            if (value.getValue() == null || value.getValue().isEmpty()
                     || (value.getValue().size() == 1 && value.getValue().get(0) == null)) {
                 type = AttributeCond.Type.ISNULL;
             } else {
@@ -487,15 +492,19 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
             }
 
             ConnectorObject connObj = found.iterator().next();
-            final List<Long> subjectIds = findExisting(connObj.getUid().getUidValue(), connObj, attrUtil);
-            if (subjectIds.isEmpty()) {
-                LOG.debug("No matching {} found for {}, aborting", attrUtil.getType(), connObj);
-            } else {
-                if (subjectIds.size() > 1) {
-                    LOG.warn("More than one {} found {} - taking first only", attrUtil.getType(), subjectIds);
-                }
+            try {
+                final List<Long> subjectIds = findExisting(connObj.getUid().getUidValue(), connObj, attrUtil);
+                if (subjectIds.isEmpty()) {
+                    LOG.debug("No matching {} found for {}, aborting", attrUtil.getType(), connObj);
+                } else {
+                    if (subjectIds.size() > 1) {
+                        LOG.warn("More than one {} found {} - taking first only", attrUtil.getType(), subjectIds);
+                    }
 
-                result = subjectIds.iterator().next();
+                    result = subjectIds.iterator().next();
+                }
+            } catch (IllegalArgumentException e) {
+                LOG.warn(e.getMessage());
             }
         }
 
@@ -951,63 +960,68 @@ public class SyncopeSyncResultHandler implements SyncResultsHandler {
         final String uid = delta.getPreviousUid() == null
                 ? delta.getUid().getUidValue()
                 : delta.getPreviousUid().getUidValue();
-        final List<Long> subjectIds = findExisting(uid, delta.getObject(), attrUtil);
 
-        if (SyncDeltaType.CREATE_OR_UPDATE == delta.getDeltaType()) {
-            if (subjectIds.isEmpty()) {
-                results.addAll(create(delta, attrUtil, dryRun));
-            } else if (subjectIds.size() == 1) {
-                results.addAll(update(delta, subjectIds.subList(0, 1), attrUtil, dryRun));
-            } else {
-                switch (resAct) {
-                    case IGNORE:
-                        LOG.error("More than one match {}", subjectIds);
-                        break;
+        try {
+            final List<Long> subjectIds = findExisting(uid, delta.getObject(), attrUtil);
 
-                    case FIRSTMATCH:
-                        results.addAll(update(delta, subjectIds.subList(0, 1), attrUtil, dryRun));
-                        break;
+            if (SyncDeltaType.CREATE_OR_UPDATE == delta.getDeltaType()) {
+                if (subjectIds.isEmpty()) {
+                    results.addAll(create(delta, attrUtil, dryRun));
+                } else if (subjectIds.size() == 1) {
+                    results.addAll(update(delta, subjectIds.subList(0, 1), attrUtil, dryRun));
+                } else {
+                    switch (resAct) {
+                        case IGNORE:
+                            LOG.error("More than one match {}", subjectIds);
+                            break;
 
-                    case LASTMATCH:
-                        results.addAll(update(delta, subjectIds.subList(subjectIds.size() - 1, subjectIds.size()),
-                                attrUtil, dryRun));
-                        break;
+                        case FIRSTMATCH:
+                            results.addAll(update(delta, subjectIds.subList(0, 1), attrUtil, dryRun));
+                            break;
 
-                    case ALL:
-                        results.addAll(update(delta, subjectIds, attrUtil, dryRun));
-                        break;
+                        case LASTMATCH:
+                            results.addAll(update(delta, subjectIds.subList(subjectIds.size() - 1, subjectIds.size()),
+                                    attrUtil, dryRun));
+                            break;
 
-                    default:
+                        case ALL:
+                            results.addAll(update(delta, subjectIds, attrUtil, dryRun));
+                            break;
+
+                        default:
+                    }
+                }
+            } else if (SyncDeltaType.DELETE == delta.getDeltaType()) {
+                if (subjectIds.isEmpty()) {
+                    LOG.debug("No match found for deletion");
+                } else if (subjectIds.size() == 1) {
+                    results.addAll(delete(delta, subjectIds, attrUtil, dryRun));
+                } else {
+                    switch (resAct) {
+                        case IGNORE:
+                            LOG.error("More than one match {}", subjectIds);
+                            break;
+
+                        case FIRSTMATCH:
+                            results.addAll(delete(delta, subjectIds.subList(0, 1), attrUtil, dryRun));
+                            break;
+
+                        case LASTMATCH:
+                            results.addAll(delete(delta, subjectIds.subList(subjectIds.size() - 1, subjectIds.size()),
+                                    attrUtil,
+                                    dryRun));
+                            break;
+
+                        case ALL:
+                            results.addAll(delete(delta, subjectIds, attrUtil, dryRun));
+                            break;
+
+                        default:
+                    }
                 }
             }
-        } else if (SyncDeltaType.DELETE == delta.getDeltaType()) {
-            if (subjectIds.isEmpty()) {
-                LOG.debug("No match found for deletion");
-            } else if (subjectIds.size() == 1) {
-                results.addAll(delete(delta, subjectIds, attrUtil, dryRun));
-            } else {
-                switch (resAct) {
-                    case IGNORE:
-                        LOG.error("More than one match {}", subjectIds);
-                        break;
-
-                    case FIRSTMATCH:
-                        results.addAll(delete(delta, subjectIds.subList(0, 1), attrUtil, dryRun));
-                        break;
-
-                    case LASTMATCH:
-                        results.addAll(delete(delta, subjectIds.subList(subjectIds.size() - 1, subjectIds.size()),
-                                attrUtil,
-                                dryRun));
-                        break;
-
-                    case ALL:
-                        results.addAll(delete(delta, subjectIds, attrUtil, dryRun));
-                        break;
-
-                    default:
-                }
-            }
+        } catch (IllegalArgumentException e) {
+            LOG.warn(e.getMessage());
         }
     }
 }
