@@ -319,7 +319,7 @@ under the License.
 
     <commons-jexl.version>2.1.1</commons-jexl.version>
     <commons-lang.version>3.3.2</commons-lang.version>
-    <commons-codec.version>1.9</commons-codec.version>
+    <commons-codec.version>1.10</commons-codec.version>
 
     <activiti.version>5.16.4</activiti.version>
 
