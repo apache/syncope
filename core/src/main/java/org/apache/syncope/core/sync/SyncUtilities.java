@@ -126,15 +126,19 @@ public class SyncUtilities {
             }
 
             ConnectorObject connObj = found.iterator().next();
-            final List<Long> subjectIds = findExisting(connObj.getUid().getUidValue(), connObj, resource, attrUtil);
-            if (subjectIds.isEmpty()) {
-                LOG.debug("No matching {} found for {}, aborting", attrUtil.getType(), connObj);
-            } else {
-                if (subjectIds.size() > 1) {
-                    LOG.warn("More than one {} found {} - taking first only", attrUtil.getType(), subjectIds);
-                }
+            try {
+                final List<Long> subjectIds = findExisting(connObj.getUid().getUidValue(), connObj, resource, attrUtil);
+                if (subjectIds.isEmpty()) {
+                    LOG.debug("No matching {} found for {}, aborting", attrUtil.getType(), connObj);
+                } else {
+                    if (subjectIds.size() > 1) {
+                        LOG.warn("More than one {} found {} - taking first only", attrUtil.getType(), subjectIds);
+                    }
 
-                result = subjectIds.iterator().next();
+                    result = subjectIds.iterator().next();
+                }
+            } catch (IllegalArgumentException e) {
+                LOG.warn(e.getMessage());
             }
         }
 
@@ -250,6 +254,11 @@ public class SyncUtilities {
 
         for (String schema : altSearchSchemas) {
             Attribute value = extValues.get(schema);
+
+            if (value == null) {
+                throw new IllegalArgumentException(
+                        "Connector object does not contains the attributes to perform the search: " + schema);
+            }
 
             AttributeCond.Type type;
             String expression = null;

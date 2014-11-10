@@ -599,6 +599,8 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
             }
         } catch (IllegalStateException e) {
             LOG.warn(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            LOG.warn(e.getMessage());
         }
     }
 
