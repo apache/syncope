@@ -72,7 +72,7 @@ public class ConnIdBundleManager {
     private void init() {
         if (locations == null) {
             locations = new ArrayList<URI>();
-            for (String location : stringLocations == null ? new String[0] : stringLocations.split(",")) {
+            for (String location : StringUtils.isBlank(stringLocations) ? new String[0] : stringLocations.split(",")) {
                 try {
                     locations.add(URIUtil.buildForConnId(location));
                     LOG.info("Valid ConnId location: {}", location.trim());
