@@ -41,7 +41,7 @@ under the License.
       <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
     </site>
   </distributionManagement>
-  
+
   <properties>
     <jdbcdriver.groupId>com.h2database</jdbcdriver.groupId>
     <jdbcdriver.artifactId>h2</jdbcdriver.artifactId>
@@ -65,7 +65,7 @@ under the License.
       <groupId>javax.el</groupId>
       <artifactId>javax.el-api</artifactId>
     </dependency>
-      
+
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-javamail_1.4_spec</artifactId>
@@ -74,12 +74,12 @@ under the License.
       <groupId>org.apache.geronimo.javamail</groupId>
       <artifactId>geronimo-javamail_1.4_provider</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-jexl</artifactId>
     </dependency>    
-      
+
     <dependency>
       <groupId>org.activiti</groupId>
       <artifactId>activiti-engine</artifactId>
@@ -90,9 +90,9 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.activiti</groupId>
-      <artifactId>activiti-json-converter</artifactId>            
+      <artifactId>activiti-json-converter</artifactId>
     </dependency>
-	
+
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxrs</artifactId>
@@ -117,7 +117,7 @@ under the License.
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-client</artifactId>
     </dependency>  
-            
+
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
@@ -170,7 +170,7 @@ under the License.
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
     </dependency>
-	
+
     <dependency>
       <groupId>org.aspectj</groupId>
       <artifactId>aspectjweaver</artifactId>
@@ -184,22 +184,22 @@ under the License.
       <groupId>com.fasterxml.jackson.module</groupId>
       <artifactId>jackson-module-afterburner</artifactId>
     </dependency>
-      
+
     <dependency>
       <groupId>org.apache.velocity</groupId>
       <artifactId>velocity</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.velocity</groupId>
       <artifactId>velocity-tools</artifactId>
     </dependency>
-	
+
     <dependency>
       <groupId>org.quartz-scheduler</groupId>
       <artifactId>quartz</artifactId>
     </dependency>
-      
+
     <dependency>
       <groupId>org.apache.cocoon.sax</groupId>
       <artifactId>cocoon-sax</artifactId>
@@ -308,7 +308,7 @@ under the License.
       <groupId>net.tirasa.connid</groupId>
       <artifactId>slf4j-logging</artifactId>
     </dependency>
-          
+
     <dependency>
       <groupId>org.jasypt</groupId>
       <artifactId>jasypt</artifactId>
@@ -342,7 +342,7 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.connid.bundles.soap</groupId>
+      <groupId>net.tirasa.connid.bundles.soap</groupId>
       <artifactId>wssample</artifactId>
       <type>war</type>
       <scope>test</scope>
@@ -374,7 +374,7 @@ under the License.
     <finalName>${project.parent.artifactId}</finalName>
 
     <plugins>
-      
+
       <plugin>
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa-maven-plugin</artifactId>
@@ -503,7 +503,7 @@ under the License.
                 <groupId>${jdbcdriver.groupId}</groupId>
                 <artifactId>${jdbcdriver.artifactId}</artifactId>
               </dependency>
-            </dependencies>            
+            </dependencies>
           </container>
           <configuration>
             <type>standalone</type>
@@ -524,7 +524,7 @@ under the License.
           </configuration>
           <deployables>
             <deployable>
-              <groupId>org.connid.bundles.soap</groupId>
+              <groupId>net.tirasa.connid.bundles.soap</groupId>
               <artifactId>wssample</artifactId>
               <type>war</type>
               <properties>
@@ -566,7 +566,7 @@ under the License.
           </execution>
         </executions>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -634,7 +634,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
-	<inherited>true</inherited>
+        <inherited>true</inherited>
         <configuration>
           <webResources>
             <resource>
@@ -700,7 +700,7 @@ under the License.
   </build>
 
   <profiles>
-    
+
     <profile>
       <id>skipTests</id>
 
@@ -710,9 +710,9 @@ under the License.
           <artifactId>h2</artifactId>
         </dependency>
       </dependencies>
-      
+
       <build>
-        <plugins>      
+        <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
@@ -729,7 +729,7 @@ under the License.
               <skipTests>${skipTests}</skipTests>
             </configuration>
           </plugin>
-          
+
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
@@ -765,7 +765,7 @@ under the License.
 
     <profile>
       <id>sqlgen</id>
-      
+
       <dependencies>
         <dependency>
           <groupId>com.h2database</groupId>
@@ -779,8 +779,8 @@ under the License.
       </dependencies>
 
       <build>
-        <defaultGoal>clean process-classes</defaultGoal>        
-        
+        <defaultGoal>clean process-classes</defaultGoal>
+
         <plugins>
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
@@ -788,7 +788,7 @@ under the License.
             <configuration>
               <includeProjectDependencies>false</includeProjectDependencies>
               <includePluginDependencies>true</includePluginDependencies>
-          
+
               <executable>java</executable>
               <arguments>
                 <argument>-DpersistenceXmlFile=${project.basedir}/src/main/resources/META-INF/spring-persistence.xml</argument>
@@ -796,7 +796,7 @@ under the License.
                 <argument>-DconnectionDriverName=org.apache.commons.dbcp.BasicDataSource</argument>
                 <argument>-DconnectionProperties=driverClassName;org.h2.Driver,url;jdbc:h2:mem:syncopedb,username;sa,password;</argument>
                 <argument>-DsqlFile=${project.build.directory}/database.sql</argument>
-          
+
                 <argument>-classpath</argument>
                 <classpath>
                   <dependency>org.apache.syncope:syncope-common</dependency>
@@ -812,7 +812,8 @@ under the License.
                   <dependency>commons-dbcp:commons-dbcp</dependency>
                   <dependency>commons-collections:commons-collections</dependency>
                   <dependency>org.apache.commons:commons-jexl</dependency>
-                  <dependency>org.connid:connid-framework</dependency>
+                  <dependency>net.tirasa.connid:connector-framework</dependency>
+                  <dependency>net.tirasa.connid:connector-framework-internal</dependency>
                   <dependency>com.h2database:h2</dependency>
                   <dependency>org.slf4j:slf4j-api</dependency>
                   <dependency>org.apache.logging.log4j:log4j-api</dependency>
@@ -856,11 +857,11 @@ under the License.
 
     <profile>
       <id>debug</id>
-      
+
       <properties>
         <skipTests>true</skipTests>
       </properties>
-      
+
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
@@ -897,7 +898,7 @@ under the License.
 
       <build>
         <defaultGoal>clean verify</defaultGoal>
-        
+
         <plugins>
           <!-- Strip Activiti-related entries from content.xml and indexes.xml -->
           <plugin>
@@ -934,7 +935,7 @@ under the License.
             </configuration>
           </plugin>
         </plugins>
-        
+
         <resources>
           <resource>
             <directory>src/main/resources</directory>
@@ -1013,10 +1014,10 @@ under the License.
         </testResources>
       </build>
     </profile>
-    
+
     <profile>
       <id>sqlserver-it</id>
-      
+
       <properties>
         <jdbcdriver.groupId>com.microsoft.sqlserver</jdbcdriver.groupId>
         <jdbcdriver.artifactId>sqljdbc4</jdbcdriver.artifactId>
@@ -1097,7 +1098,7 @@ under the License.
           <scope>test</scope>
         </dependency>
       </dependencies>
-      
+
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
@@ -1211,7 +1212,7 @@ under the License.
         <defaultGoal>clean verify</defaultGoal>
 
         <plugins>
-          
+
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
@@ -1220,7 +1221,7 @@ under the License.
               <skipTests>true</skipTests>
             </configuration>
           </plugin>
-      
+
           <!-- Disable MANIFEST.MF OSGi handling -->
           <plugin>
             <groupId>org.apache.felix</groupId>
@@ -1232,7 +1233,7 @@ under the License.
               </execution>
             </executions>
           </plugin>
-      
+
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
@@ -1254,7 +1255,7 @@ under the License.
               </execution>
             </executions>
           </plugin>
-                
+
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
@@ -1285,7 +1286,7 @@ under the License.
                   </properties>
                 </deployable>
                 <deployable>
-                  <groupId>org.connid.bundles.soap</groupId>
+                  <groupId>net.tirasa.connid.bundles.soap</groupId>
                   <artifactId>wssample</artifactId>
                   <type>war</type>
                   <properties>
@@ -1326,21 +1327,21 @@ under the License.
         </resources>
       </build>
     </profile>
-    
+
     <profile>
       <id>weblogic-it</id>
-      
+
       <properties>
         <weblogic.home>/opt/weblogic-12.1.1</weblogic.home>
       </properties>
-      
+
       <dependencies>
         <dependency>
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
         </dependency>
       </dependencies>
-        
+
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
@@ -1353,7 +1354,7 @@ under the License.
               <skipTests>true</skipTests>
             </configuration>
           </plugin>
-          
+
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
@@ -1391,7 +1392,7 @@ under the License.
                 <home>${weblogic.home}/wlserver</home>
 
                 <log>${cargo.log}</log>
-                <output>${cargo.output}</output>                
+                <output>${cargo.output}</output>
               </container>
               <configuration>
                 <properties>
@@ -1405,7 +1406,7 @@ under the License.
               </configuration>
               <deployables>
                 <deployable>
-                  <groupId>org.connid.bundles.soap</groupId>
+                  <groupId>net.tirasa.connid.bundles.soap</groupId>
                   <artifactId>wssample</artifactId>
                   <type>war</type>
                   <properties>
@@ -1434,7 +1435,7 @@ under the License.
             </configuration>
           </plugin>
         </plugins>
-        
+
         <resources>
           <resource>
             <directory>src/main/resources</directory>
@@ -1448,7 +1449,7 @@ under the License.
             <filtering>true</filtering>
             <includes>
               <include>persistence.properties</include>
-            </includes>            
+            </includes>
           </resource>
         </resources>
         <testResources>

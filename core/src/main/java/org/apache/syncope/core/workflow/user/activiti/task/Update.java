@@ -36,9 +36,9 @@ public class Update extends AbstractActivitiServiceTask {
     @Override
     protected void doExecute(final String executionId) {
         SyncopeUser user =
-                (SyncopeUser) runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER);
+                runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, SyncopeUser.class);
         UserMod userMod =
-                (UserMod) runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER_MOD);
+                runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER_MOD, UserMod.class);
 
         // update password internally only if required
         UserMod actualMod = SerializationUtils.clone(userMod);

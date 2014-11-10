@@ -96,7 +96,7 @@ public class AttrTemplatesPanel extends Panel {
         ListModel<String> availableSchemas = new ListModel<String>(allSchemas);
 
         return new NonI18nPalette<String>(type.name(), new PropertyModel<List<String>>(roleTO, type.name()),
-                availableSchemas, new SelectChoiceRenderer<String>(), 8, false) {
+                availableSchemas, new SelectChoiceRenderer<String>(), 8, false, true) {
 
                     private static final long serialVersionUID = 2295567122085510330L;
 

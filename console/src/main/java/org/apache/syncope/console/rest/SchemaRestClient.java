@@ -19,8 +19,10 @@
 package org.apache.syncope.console.rest;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.services.SchemaService;
@@ -33,6 +35,7 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.console.commons.AttrLayoutType;
 import org.springframework.stereotype.Component;
 
 /**
@@ -43,6 +46,23 @@ public class SchemaRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2479730152700312373L;
 
+    public void filter(
+            final List<? extends AbstractSchemaTO> schemaTOs, final Collection<String> allowed, final boolean exclude) {
+
+        for (ListIterator<? extends AbstractSchemaTO> itor = schemaTOs.listIterator(); itor.hasNext();) {
+            AbstractSchemaTO schema = itor.next();
+            if (exclude) {
+                if (!allowed.contains(schema.getName())) {
+                    itor.remove();
+                }
+            } else {
+                if (allowed.contains(schema.getName())) {
+                    itor.remove();
+                }
+            }
+        }
+    }
+
     public List<? extends AbstractSchemaTO> getSchemas(final AttributableType attrType, final SchemaType schemaType) {
         List<? extends AbstractSchemaTO> schemas = Collections.emptyList();
 
@@ -52,14 +72,13 @@ public class SchemaRestClient extends BaseRestClient {
             LOG.error("While getting all schemas for {} and {}", attrType, schemaType, e);
         }
 
+        if (attrType == AttributableType.CONFIGURATION) {
+            filter(schemas, AttrLayoutType.confKeys(), false);
+        }
+
         return schemas;
     }
 
-    /**
-     * Get schemas.
-     *
-     * @return List of schemas.
-     */
     public List<SchemaTO> getSchemas(final AttributableType type) {
         List<SchemaTO> schemas = null;
 
@@ -87,11 +106,6 @@ public class SchemaRestClient extends BaseRestClient {
         return schemaNames;
     }
 
-    /**
-     * Get schema names.
-     *
-     * @return List of schema names.
-     */
     public List<String> getSchemaNames(final AttributableType type) {
         final List<String> schemaNames = new ArrayList<String>();
 
@@ -107,12 +121,6 @@ public class SchemaRestClient extends BaseRestClient {
         return schemaNames;
     }
 
-    /**
-     * Get derived schemas.
-     *
-     * @return List of derived schemas.
-     */
-    @SuppressWarnings("unchecked")
     public List<DerSchemaTO> getDerSchemas(final AttributableType type) {
         List<DerSchemaTO> userDerSchemas = null;
 
@@ -125,11 +133,6 @@ public class SchemaRestClient extends BaseRestClient {
         return userDerSchemas;
     }
 
-    /**
-     * Get derived schema names.
-     *
-     * @return List of derived schema names.
-     */
     public List<String> getDerSchemaNames(final AttributableType type) {
         final List<String> userDerSchemasNames = new ArrayList<String>();
 
@@ -146,12 +149,6 @@ public class SchemaRestClient extends BaseRestClient {
         return userDerSchemasNames;
     }
 
-    /**
-     * Get virtual schemas.
-     *
-     * @return List of virtual schemas.
-     */
-    @SuppressWarnings("unchecked")
     public List<VirSchemaTO> getVirSchemas(final AttributableType type) {
         List<VirSchemaTO> userVirSchemas = null;
 
@@ -164,11 +161,6 @@ public class SchemaRestClient extends BaseRestClient {
         return userVirSchemas;
     }
 
-    /**
-     * Get virtual schema names.
-     *
-     * @return List of virtual schema names.
-     */
     public List<String> getVirSchemaNames(final AttributableType type) {
         final List<String> userVirSchemasNames = new ArrayList<String>();
 
@@ -185,21 +177,10 @@ public class SchemaRestClient extends BaseRestClient {
         return userVirSchemasNames;
     }
 
-    /**
-     * Create new user schema.
-     *
-     * @param schemaTO
-     */
     public void createSchema(final AttributableType type, final SchemaTO schemaTO) {
         getService(SchemaService.class).create(type, SchemaType.NORMAL, schemaTO);
     }
 
-    /**
-     * Load an already existent user schema by its name.
-     *
-     * @param name (e.g.:surname)
-     * @return schemaTO
-     */
     public SchemaTO readSchema(final AttributableType type, final String name) {
         SchemaTO schema = null;
 
@@ -211,51 +192,20 @@ public class SchemaRestClient extends BaseRestClient {
         return schema;
     }
 
-    /**
-     * Update an already existent user schema.
-     *
-     * @param schemaTO updated
-     */
     public void updateSchema(final AttributableType type, final SchemaTO schemaTO) {
         getService(SchemaService.class).update(type, SchemaType.NORMAL, schemaTO.getName(), schemaTO);
     }
 
-    /**
-     * Delete an already existent user schema by its name.
-     *
-     * @param name (e.g.:surname)
-     * @return schemaTO
-     */
     public SchemaTO deleteSchema(final AttributableType type, final String name) {
         SchemaTO response = getService(SchemaService.class).read(type, SchemaType.NORMAL, name);
         getService(SchemaService.class).delete(type, SchemaType.NORMAL, name);
         return response;
     }
 
-    /**
-     * Create new derived user schema.
-     *
-     * @param schemaTO
-     */
     public void createDerSchema(final AttributableType type, final DerSchemaTO schemaTO) {
         getService(SchemaService.class).create(type, SchemaType.DERIVED, schemaTO);
     }
 
-    /**
-     * Create new derived user schema.
-     *
-     * @param schemaTO
-     */
-    public void createVirSchema(final AttributableType type, final VirSchemaTO schemaTO) {
-        getService(SchemaService.class).create(type, SchemaType.VIRTUAL, schemaTO);
-    }
-
-    /**
-     * Load an already existent user derived schema by its name.
-     *
-     * @param name (e.g.:surname)
-     * @return DerSchemaTO
-     */
     public DerSchemaTO readDerSchema(final AttributableType type, final String name) {
         DerSchemaTO derivedSchemaTO = null;
         try {
@@ -266,40 +216,24 @@ public class SchemaRestClient extends BaseRestClient {
         return derivedSchemaTO;
     }
 
-    /**
-     * Update an already existent user derived schema.
-     *
-     * @param schemaTO updated
-     */
-    public void updateDerSchema(final AttributableType type, final DerSchemaTO schemaTO) {
-        getService(SchemaService.class).update(type, SchemaType.DERIVED, schemaTO.getName(), schemaTO);
-    }
-
-    /**
-     * Update an already existent user derived schema.
-     *
-     * @param schemaTO updated
-     */
     public void updateVirSchema(final AttributableType type, final VirSchemaTO schemaTO) {
         getService(SchemaService.class).update(type, SchemaType.VIRTUAL, schemaTO.getName(), schemaTO);
     }
 
-    /**
-     * Delete an already existent user derived schema by its name.
-     *
-     * @param name (e.g.:surname)
-     */
     public DerSchemaTO deleteDerSchema(final AttributableType type, final String name) {
         DerSchemaTO schemaTO = getService(SchemaService.class).read(type, SchemaType.DERIVED, name);
         getService(SchemaService.class).delete(type, SchemaType.DERIVED, name);
         return schemaTO;
     }
 
-    /**
-     * Delete an already existent user virtual schema by its name.
-     *
-     * @param name (e.g.:surname)
-     */
+    public void createVirSchema(final AttributableType type, final VirSchemaTO schemaTO) {
+        getService(SchemaService.class).create(type, SchemaType.VIRTUAL, schemaTO);
+    }
+
+    public void updateDerSchema(final AttributableType type, final DerSchemaTO schemaTO) {
+        getService(SchemaService.class).update(type, SchemaType.DERIVED, schemaTO.getName(), schemaTO);
+    }
+
     public VirSchemaTO deleteVirSchema(final AttributableType type, final String name) {
         VirSchemaTO schemaTO = getService(SchemaService.class).read(type, SchemaType.VIRTUAL, name);
         getService(SchemaService.class).delete(type, SchemaType.VIRTUAL, name);

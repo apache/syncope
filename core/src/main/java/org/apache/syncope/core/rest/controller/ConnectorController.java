@@ -38,7 +38,6 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
-import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.propagation.ConnectorFactory;
 import org.apache.syncope.core.rest.data.ConnInstanceDataBinder;
@@ -76,11 +75,12 @@ public class ConnectorController extends AbstractTransactionalController<ConnIns
         ConnInstance connInstance = binder.getConnInstance(connInstanceTO);
         try {
             connInstance = connInstanceDAO.save(connInstance);
-        } catch (InvalidEntityException e) {
-            SyncopeClientException invalidConnInstance = SyncopeClientException.build(
-                    ClientExceptionType.InvalidConnInstance);
-            invalidConnInstance.getElements().add(e.getMessage());
-            throw invalidConnInstance;
+        } catch (SyncopeClientException e) {
+            throw e;
+        } catch (Exception e) {
+            SyncopeClientException ex = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
+            ex.getElements().add(e.getMessage());
+            throw ex;
         }
 
         return binder.getConnInstanceTO(connInstance);
@@ -91,11 +91,12 @@ public class ConnectorController extends AbstractTransactionalController<ConnIns
         ConnInstance connInstance = binder.updateConnInstance(connInstanceTO.getId(), connInstanceTO);
         try {
             connInstance = connInstanceDAO.save(connInstance);
-        } catch (InvalidEntityException e) {
-            SyncopeClientException invalidConnInstance = SyncopeClientException.build(
-                    ClientExceptionType.InvalidConnInstance);
-            invalidConnInstance.getElements().add(e.getMessage());
-            throw invalidConnInstance;
+        } catch (SyncopeClientException e) {
+            throw e;
+        } catch (Exception e) {
+            SyncopeClientException ex = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
+            ex.getElements().add(e.getMessage());
+            throw ex;
         }
 
         return binder.getConnInstanceTO(connInstance);

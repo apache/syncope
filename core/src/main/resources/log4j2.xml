@@ -115,7 +115,7 @@ under the License.
     <asyncLogger name="org.identityconnectors" additivity="false" level="DEBUG">
       <appender-ref ref="connid"/>
     </asyncLogger>
-    <asyncLogger name="org.connid" additivity="false" level="DEBUG">
+    <asyncLogger name="net.tirasa.connid" additivity="false" level="DEBUG">
       <appender-ref ref="connid"/>
     </asyncLogger>
     <asyncLogger name="org.apache.syncope.core.connid" additivity="false" level="DEBUG">

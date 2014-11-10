@@ -19,6 +19,7 @@
 package org.apache.syncope.console.rest;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.SyncopeClientException;
@@ -27,6 +28,8 @@ import org.apache.syncope.common.to.AttributeTO;
 import org.apache.syncope.common.to.ConfTO;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.wrap.MailTemplate;
+import org.apache.syncope.console.commons.AttrLayoutType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,8 +37,22 @@ public class ConfigurationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 7692363064029538722L;
 
+    @Autowired
+    private SchemaRestClient schemaRestClient;
+
     public ConfTO list() {
-        return getService(ConfigurationService.class).list();
+        ConfTO conf = getService(ConfigurationService.class).list();
+
+        for (Iterator<AttributeTO> it = conf.getAttrs().iterator(); it.hasNext();) {
+            AttributeTO attr = it.next();
+            for (AttrLayoutType type : AttrLayoutType.values()) {
+                if (type.getConfKey().equals(attr.getSchema())) {
+                    it.remove();
+                }
+            }
+        }
+
+        return conf;
     }
 
     public AttributeTO read(final String key) {
@@ -45,6 +62,23 @@ public class ConfigurationRestClient extends BaseRestClient {
             LOG.error("While reading a configuration schema", e);
         }
         return null;
+    }
+
+    public AttributeTO readAttrLayout(final AttrLayoutType type) {
+        if (type == null) {
+            return null;
+        }
+
+        AttributeTO attrLayout = read(type.getConfKey());
+        if (attrLayout == null) {
+            attrLayout = new AttributeTO();
+            attrLayout.setSchema(type.getConfKey());
+        }
+        if (attrLayout.getValues().isEmpty()) {
+            attrLayout.getValues().addAll(schemaRestClient.getSchemaNames(type.getAttrType()));
+        }
+
+        return attrLayout;
     }
 
     public void set(final AttributeTO attributeTO) {

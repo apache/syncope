@@ -29,8 +29,10 @@ import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.init.WorkflowAdapterLoader;
 import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.conf.CAttr;
+import org.apache.syncope.core.persistence.beans.conf.CSchema;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
+import org.apache.syncope.core.persistence.dao.SchemaDAO;
 import org.apache.syncope.core.persistence.validation.attrvalue.Validator;
 import org.apache.syncope.core.rest.data.ConfigurationDataBinder;
 import org.apache.syncope.core.util.ContentExporter;
@@ -46,6 +48,9 @@ public class ConfigurationController extends AbstractTransactionalController<Con
 
     @Autowired
     private ConfDAO confDAO;
+
+    @Autowired
+    private SchemaDAO schemaDAO;
 
     @Autowired
     private ConfigurationDataBinder binder;
@@ -74,12 +79,22 @@ public class ConfigurationController extends AbstractTransactionalController<Con
 
     @PreAuthorize("isAuthenticated()")
     public AttributeTO read(final String key) {
+        AttributeTO result;
+
         CAttr conf = confDAO.find(key);
         if (conf == null) {
-            throw new NotFoundException("Configuration key " + key);
+            CSchema schema = schemaDAO.find(key, CSchema.class);
+            if (schema == null) {
+                throw new NotFoundException("Configuration key " + key);
+            }
+
+            result = new AttributeTO();
+            result.setSchema(key);
+        } else {
+            result = binder.getAttributeTO(conf);
         }
 
-        return binder.getAttributeTO(conf);
+        return result;
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_SET')")

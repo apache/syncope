@@ -34,14 +34,10 @@ import org.apache.syncope.common.types.ConnConfPropSchema;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
 import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.markup.html.list.AltListView;
+import org.apache.syncope.console.markup.html.list.ConnConfPropertyListView;
 import org.apache.syncope.console.rest.ConnectorRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
-import org.apache.syncope.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -51,12 +47,9 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.PasswordTextField;
-import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -66,7 +59,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.RangeValidator;
-import org.springframework.util.ClassUtils;
 
 /**
  * Modal window with Connector form.
@@ -285,98 +277,9 @@ public class ConnectorModalPage extends BaseModalPage {
         });
 
         // form - second tab (properties)
-        final ListView<ConnConfProperty> connPropView = new AltListView<ConnConfProperty>(
-                "connectorProperties", new PropertyModel<List<ConnConfProperty>>(this, "properties")) {
-
-                    private static final long serialVersionUID = 9101744072914090143L;
-
-                    @Override
-                    protected void populateItem(final ListItem<ConnConfProperty> item) {
-                        final ConnConfProperty property = item.getModelObject();
-
-                        final Label label = new Label("connPropAttrSchema",
-                                StringUtils.isBlank(property.getSchema().getDisplayName())
-                                        ? property.getSchema().getName()
-                                        : property.getSchema().getDisplayName());
-                        item.add(label);
-
-                        @SuppressWarnings("rawtypes")
-                        final FieldPanel field;
-                        boolean required = false;
-                        boolean isArray = false;
-                        if (property.getSchema().isConfidential()
-                        || Constants.GUARDED_STRING.equalsIgnoreCase(property.getSchema().getType())
-                        || Constants.GUARDED_BYTE_ARRAY.equalsIgnoreCase(property.getSchema().getType())) {
-
-                            field = new AjaxPasswordFieldPanel("panel",
-                                    label.getDefaultModelObjectAsString(), new Model<String>());
-
-                            ((PasswordTextField) field.getField()).setResetPassword(false);
-
-                            required = property.getSchema().isRequired();
-                        } else {
-                            Class<?> propertySchemaClass;
-
-                            try {
-                                propertySchemaClass =
-                                ClassUtils.forName(property.getSchema().getType(), ClassUtils.getDefaultClassLoader());
-                                if (ClassUtils.isPrimitiveOrWrapper(propertySchemaClass)) {
-                                    propertySchemaClass =
-                                    org.apache.commons.lang3.ClassUtils.primitiveToWrapper(propertySchemaClass);
-                                }
-                            } catch (Exception e) {
-                                LOG.error("Error parsing attribute type", e);
-                                propertySchemaClass = String.class;
-                            }
-                            if (ClassUtils.isAssignable(Number.class, propertySchemaClass)) {
-                                @SuppressWarnings("unchecked")
-                                final Class<Number> numberClass = (Class<Number>) propertySchemaClass;
-                                field = new SpinnerFieldPanel<Number>("panel", label.getDefaultModelObjectAsString(),
-                                        numberClass, new Model<Number>(), null, null);
-
-                                required = property.getSchema().isRequired();
-                            } else if (ClassUtils.isAssignable(Boolean.class, propertySchemaClass)) {
-                                field = new AjaxCheckBoxPanel("panel",
-                                        label.getDefaultModelObjectAsString(), new Model<Boolean>());
-                            } else {
-                                field = new AjaxTextFieldPanel("panel",
-                                        label.getDefaultModelObjectAsString(), new Model<String>());
-
-                                required = property.getSchema().isRequired();
-                            }
-
-                            if (propertySchemaClass.isArray()) {
-                                isArray = true;
-                            }
-                        }
-
-                        field.setTitle(property.getSchema().getHelpMessage());
-
-                        if (required) {
-                            field.addRequiredLabel();
-                        }
-
-                        if (isArray) {
-                            if (property.getValues().isEmpty()) {
-                                property.getValues().add(null);
-                            }
-
-                            @SuppressWarnings("unchecked")
-                            final MultiFieldPanel<String> multiFieldPanel = new MultiFieldPanel<String>(
-                                    "panel", new PropertyModel<List<String>>(property, "values"), field);
-                            item.add(multiFieldPanel);
-                        } else {
-                            setNewFieldModel(field, property.getValues());
-                            item.add(field);
-                        }
-
-                        final AjaxCheckBoxPanel overridable = new AjaxCheckBoxPanel("connPropAttrOverridable",
-                                "connPropAttrOverridable", new PropertyModel<Boolean>(property, "overridable"));
-
-                        item.add(overridable);
-                        connInstanceTO.getConfiguration().add(property);
-                    }
-                };
+        final ListView<ConnConfProperty> connPropView = new ConnConfPropertyListView("connectorProperties",
+                new PropertyModel<List<ConnConfProperty>>(this, "properties"), 
+                true, connInstanceTO.getConfiguration());
         connPropView.setOutputMarkupId(true);
         connectorPropForm.add(connPropView);
 
@@ -391,7 +294,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 // ensure that connector bundle information is in sync
                 conn.setBundleName(bundleTO.getBundleName());
                 conn.setVersion(bundleTO.getVersion());
-                conn.setConnectorName(bundleTO.getConnectorName());               
+                conn.setConnectorName(bundleTO.getConnectorName());
 
                 if (restClient.check(conn)) {
                     info(getString("success_connection"));
@@ -470,13 +373,12 @@ public class ConnectorModalPage extends BaseModalPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-
                 feedbackPanel.refresh(target);
             }
         };
         String roles = connInstanceTO.getId() == 0
-                ? xmlRolesReader.getAllAllowedRoles("Connectors", "create")
-                : xmlRolesReader.getAllAllowedRoles("Connectors", "update");
+                ? xmlRolesReader.getEntitlement("Connectors", "create")
+                : xmlRolesReader.getEntitlement("Connectors", "update");
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, roles);
         connectorForm.add(submit);
 
@@ -491,11 +393,6 @@ public class ConnectorModalPage extends BaseModalPage {
         };
         cancel.setDefaultFormProcessing(false);
         connectorForm.add(cancel);
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void setNewFieldModel(final FieldPanel field, final List<Object> values) {
-        field.setNewModel(values);
     }
 
     private ConnBundleTO getSelectedBundleTO(final ConnInstanceTO connInstanceTO) {

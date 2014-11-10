@@ -105,6 +105,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     public static final String WF_EXECUTOR = "wfExecutor";
 
+    public static final String FORM_SUBMITTER = "formSubmitter";
+
     public static final String USER_TO = "userTO";
 
     public static final String ENABLED = "enabled";
@@ -208,8 +210,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     private Set<String> getPerformedTasks(final SyncopeUser user) {
         final Set<String> result = new HashSet<String>();
 
-        for (HistoricActivityInstance task : historyService.createHistoricActivityInstanceQuery().executionId(user.
-                getWorkflowId()).list()) {
+        for (HistoricActivityInstance task
+                : historyService.createHistoricActivityInstanceQuery().executionId(user.getWorkflowId()).list()) {
+
             result.add(task.getActivityId());
         }
 
@@ -261,11 +264,11 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             throwException(e, "While starting " + WF_PROCESS_ID + " instance");
         }
 
-        SyncopeUser user = (SyncopeUser) runtimeService.getVariable(
-                processInstance.getProcessInstanceId(), SYNCOPE_USER);
+        SyncopeUser user =
+                runtimeService.getVariable(processInstance.getProcessInstanceId(), SYNCOPE_USER, SyncopeUser.class);
 
-        Boolean updatedEnabled = (Boolean) runtimeService.getVariable(
-                processInstance.getProcessInstanceId(), ENABLED);
+        Boolean updatedEnabled =
+                runtimeService.getVariable(processInstance.getProcessInstanceId(), ENABLED, Boolean.class);
         if (updatedEnabled != null) {
             user.setSuspended(!updatedEnabled);
         }
@@ -278,8 +281,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         updateStatus(user);
         user = userDAO.save(user);
 
-        Boolean propagateEnable = (Boolean) runtimeService.getVariable(
-                processInstance.getProcessInstanceId(), PROPAGATE_ENABLE);
+        Boolean propagateEnable =
+                runtimeService.getVariable(processInstance.getProcessInstanceId(), PROPAGATE_ENABLE, Boolean.class);
         if (propagateEnable == null) {
             propagateEnable = enabled;
         }
@@ -353,12 +356,12 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         updateStatus(user);
         SyncopeUser updated = userDAO.save(user);
 
-        PropagationByResource propByRes = (PropagationByResource) runtimeService.getVariable(
-                user.getWorkflowId(), PROP_BY_RESOURCE);
+        PropagationByResource propByRes =
+                runtimeService.getVariable(user.getWorkflowId(), PROP_BY_RESOURCE, PropagationByResource.class);
 
         saveForFormSubmit(updated, userMod.getPassword(), propByRes);
 
-        Boolean propagateEnable = (Boolean) runtimeService.getVariable(user.getWorkflowId(), PROPAGATE_ENABLE);
+        Boolean propagateEnable = runtimeService.getVariable(user.getWorkflowId(), PROPAGATE_ENABLE, Boolean.class);
 
         return new WorkflowResult<Map.Entry<UserMod, Boolean>>(
                 new SimpleEntry<UserMod, Boolean>(userMod, propagateEnable), propByRes, tasks);
@@ -690,8 +693,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 taskService.createTaskQuery().processInstanceId(workflowId).taskName(name).
                 taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE));
 
-        forms.addAll(getForms(historyService.createHistoricTaskInstanceQuery().taskName(name)
-                .taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
+        forms.addAll(getForms(historyService.createHistoricTaskInstanceQuery().taskName(name).
+                taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
 
         return forms;
     }
@@ -802,7 +805,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         if (!checked.getKey().getOwner().equals(username)) {
             throw new WorkflowException(new IllegalArgumentException("Task " + form.getTaskId() + " assigned to "
-                    + checked.getKey().getOwner() + " but submited by " + username));
+                    + checked.getKey().getOwner() + " but submitted by " + username));
         }
 
         SyncopeUser user = userDAO.findByWorkflowId(checked.getKey().getProcessInstanceId());
@@ -813,6 +816,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Set<String> preTasks = getPerformedTasks(user);
         try {
             formService.submitTaskFormData(form.getTaskId(), form.getPropertiesForSubmit());
+            runtimeService.setVariable(
+                    user.getWorkflowId(), FORM_SUBMITTER, EntitlementUtil.getAuthenticatedUsername());
         } catch (ActivitiException e) {
             throwException(e, "While submitting form for task " + form.getTaskId());
         }
@@ -826,16 +831,19 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         // see if there is any propagation to be done
         PropagationByResource propByRes =
-                (PropagationByResource) runtimeService.getVariable(user.getWorkflowId(), PROP_BY_RESOURCE);
+                runtimeService.getVariable(user.getWorkflowId(), PROP_BY_RESOURCE, PropagationByResource.class);
 
         // fetch - if available - the encrypted password
         String clearPassword = null;
-        String encryptedPwd = (String) runtimeService.getVariable(user.getWorkflowId(), ENCRYPTED_PWD);
+        String encryptedPwd = runtimeService.getVariable(user.getWorkflowId(), ENCRYPTED_PWD, String.class);
         if (StringUtils.isNotBlank(encryptedPwd)) {
             clearPassword = decrypt(encryptedPwd);
         }
 
-        UserMod userMod = (UserMod) runtimeService.getVariable(user.getWorkflowId(), USER_MOD);
+        // supports approval chains
+        saveForFormSubmit(user, clearPassword, propByRes);
+
+        UserMod userMod = runtimeService.getVariable(user.getWorkflowId(), USER_MOD, UserMod.class);
         if (userMod == null) {
             userMod = new UserMod();
             userMod.setId(updated.getId());

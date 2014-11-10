@@ -43,6 +43,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.Session;
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.IUnauthorizedComponentInstantiationListener;
@@ -161,7 +162,7 @@ public class SyncopeApplication
 
         BookmarkablePageLink<Page> schemaLink = new BookmarkablePageLink<Page>("schema", Schema.class);
         MetaDataRoleAuthorizationStrategy.authorize(
-                schemaLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Schema", "list"));
+                schemaLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Schema", "list"));
         page.add(schemaLink);
         schemaLink.add(new Image("schemaIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
@@ -169,7 +170,7 @@ public class SyncopeApplication
 
         BookmarkablePageLink<Page> usersLink = new BookmarkablePageLink<Page>("users", Users.class);
         MetaDataRoleAuthorizationStrategy.authorize(
-                usersLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Users", "list"));
+                usersLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Users", "list"));
         page.add(usersLink);
         usersLink.add(new Image("usersIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
@@ -177,7 +178,7 @@ public class SyncopeApplication
 
         BookmarkablePageLink<Page> rolesLink = new BookmarkablePageLink<Page>("roles", Roles.class);
         MetaDataRoleAuthorizationStrategy.authorize(
-                rolesLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Roles", "list"));
+                rolesLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Roles", "list"));
         page.add(rolesLink);
         rolesLink.add(new Image("rolesIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
@@ -185,7 +186,7 @@ public class SyncopeApplication
 
         BookmarkablePageLink<Page> resourcesLink = new BookmarkablePageLink<Page>("resources", Resources.class);
         MetaDataRoleAuthorizationStrategy.authorize(
-                resourcesLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Resources", "list"));
+                resourcesLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Resources", "list"));
         page.add(resourcesLink);
         resourcesLink.add(new Image("resourcesIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
@@ -193,7 +194,7 @@ public class SyncopeApplication
 
         BookmarkablePageLink<Page> todoLink = new BookmarkablePageLink<Page>("todo", Todo.class);
         MetaDataRoleAuthorizationStrategy.authorize(
-                todoLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Approval", "list"));
+                todoLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Approval", "list"));
         page.add(todoLink);
         todoLink.add(new Image("todoIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
@@ -201,7 +202,7 @@ public class SyncopeApplication
 
         BookmarkablePageLink<Page> reportLink = new BookmarkablePageLink<Page>("reports", Reports.class);
         MetaDataRoleAuthorizationStrategy.authorize(
-                reportLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Reports", "list"));
+                reportLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Reports", "list"));
         page.add(reportLink);
         reportLink.add(new Image("reportsIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
@@ -210,7 +211,7 @@ public class SyncopeApplication
         BookmarkablePageLink<Page> configurationLink = new BookmarkablePageLink<Page>("configuration",
                 Configuration.class);
         MetaDataRoleAuthorizationStrategy.authorize(
-                configurationLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Configuration", "list"));
+                configurationLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Configuration", "list"));
         page.add(configurationLink);
         configurationLink.add(new Image("configurationIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
@@ -218,7 +219,7 @@ public class SyncopeApplication
 
         BookmarkablePageLink<Page> taskLink = new BookmarkablePageLink<Page>("tasks", Tasks.class);
         MetaDataRoleAuthorizationStrategy.authorize(
-                taskLink, WebPage.ENABLE, xmlRolesReader.getAllAllowedRoles("Tasks", "list"));
+                taskLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Tasks", "list"));
         page.add(taskLink);
         taskLink.add(new Image("tasksIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
@@ -242,9 +243,16 @@ public class SyncopeApplication
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                final UserTO userTO = SyncopeSession.get().isAuthenticated()
-                        ? userSelfRestClient.read()
-                        : new UserTO();
+                final UserTO userTO;
+                if (SyncopeSession.get().isAuthenticated()) {
+                    try {
+                        userTO = userSelfRestClient.read();
+                    } catch (Exception e) {
+                        throw new WicketRuntimeException(e);
+                    }
+                } else {
+                    userTO = new UserTO();
+                }
 
                 editProfileModalWin.setPageCreator(new ModalWindow.PageCreator() {
 

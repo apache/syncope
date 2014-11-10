@@ -45,7 +45,7 @@ public class SecurityQuestionController extends AbstractTransactionalController<
     @Autowired
     private SecurityQuestionDataBinder binder;
 
-    @PreAuthorize("hasRole('SECURITY_QUESTION_LIST')")
+    @PreAuthorize("isAuthenticated()")
     public List<SecurityQuestionTO> list() {
         List<SecurityQuestionTO> result = new ArrayList<SecurityQuestionTO>();
         for (SecurityQuestion securityQuestion : securityQuestionDAO.findAll()) {
@@ -55,7 +55,7 @@ public class SecurityQuestionController extends AbstractTransactionalController<
         return result;
     }
 
-    @PreAuthorize("hasRole('SECURITY_QUESTION_READ')")
+    @PreAuthorize("isAuthenticated()")
     public SecurityQuestionTO read(final Long securityQuestionId) {
         SecurityQuestion securityQuestion = securityQuestionDAO.find(securityQuestionId);
         if (securityQuestion == null) {

@@ -257,16 +257,8 @@ under the License.
   </page>
 
   <page id="SecurityQuestion">
-    <action id="list">
-      <entitlement>SECURITY_QUESTION_LIST</entitlement>
-    </action>
-
     <action id="create">
       <entitlement>SECURITY_QUESTION_CREATE</entitlement>
-    </action>
-
-    <action id="read">
-      <entitlement>SECURITY_QUESTION_READ</entitlement>
     </action>
 
     <action id="update">

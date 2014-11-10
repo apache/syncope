@@ -20,6 +20,8 @@ package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,7 +44,7 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.console.commons.JexlHelpUtil;
-import org.apache.syncope.console.commons.LayoutType;
+import org.apache.syncope.console.commons.AttrLayoutType;
 import org.apache.syncope.console.commons.Mode;
 import org.apache.syncope.console.markup.html.list.AltListView;
 import org.apache.syncope.console.pages.panels.AttrTemplatesPanel.RoleAttrTemplatesChange;
@@ -65,7 +67,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -90,8 +91,6 @@ public class AttributesPanel extends Panel {
 
     private final AttrTemplatesPanel attrTemplates;
 
-    private AttributeTO confAttributeTO;
-
     private Map<String, SchemaTO> schemas = new LinkedHashMap<String, SchemaTO>();
 
     public <T extends AbstractAttributableTO> AttributesPanel(final String id, final T entityTO, final Form form,
@@ -112,59 +111,48 @@ public class AttributesPanel extends Panel {
         setSchemas();
         setAttrs();
 
-        final ListView<AttributeTO> attributeView = new AltListView<AttributeTO>("schemas",
-                new PropertyModel<List<? extends AttributeTO>>(entityTO, "attrs")) {
+        add(new AltListView<AttributeTO>("schemas", new PropertyModel<List<? extends AttributeTO>>(entityTO, "attrs")) {
 
-                    private static final long serialVersionUID = 9101744072914090143L;
+            private static final long serialVersionUID = 9101744072914090143L;
 
-                    @Override
-                    @SuppressWarnings({ "unchecked", "rawtypes" })
-                    protected void populateItem(final ListItem<AttributeTO> item) {
-                        final AttributeTO attributeTO = (AttributeTO) item.getDefaultModelObject();
+            @Override
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            protected void populateItem(final ListItem<AttributeTO> item) {
+                final AttributeTO attributeTO = (AttributeTO) item.getDefaultModelObject();
 
-                        final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
+                final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
 
-                        final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp,
-                                "questionMarkJexlHelp");
-                        item.add(questionMarkJexlHelp);
-                        questionMarkJexlHelp.add(jexlHelp);
+                final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
+                item.add(questionMarkJexlHelp);
+                questionMarkJexlHelp.add(jexlHelp);
 
-                        if (mode != Mode.TEMPLATE) {
-                            questionMarkJexlHelp.setVisible(false);
-                        }
+                if (mode != Mode.TEMPLATE) {
+                    questionMarkJexlHelp.setVisible(false);
+                }
 
-                        item.add(new Label("name", attributeTO.getSchema()));
+                item.add(new Label("name", attributeTO.getSchema()));
 
-                        final FieldPanel panel = getFieldPanel(schemas.get(attributeTO.getSchema()), form, attributeTO);
+                final FieldPanel panel = getFieldPanel(schemas.get(attributeTO.getSchema()), form, attributeTO);
 
-                        if (mode == Mode.TEMPLATE || !schemas.get(attributeTO.getSchema()).isMultivalue()) {
-                            item.add(panel);
-                        } else {
-                            item.add(new MultiFieldPanel<String>(
-                                            "panel", new PropertyModel<List<String>>(attributeTO, "values"), panel));
-                        }
-                    }
-                };
-
-        add(attributeView);
-    }
-
-    private void filter(final List<SchemaTO> schemaTOs, final Collection<String> allowed) {
-        for (ListIterator<SchemaTO> itor = schemaTOs.listIterator(); itor.hasNext();) {
-            SchemaTO schema = itor.next();
-            if (!allowed.contains(schema.getName())) {
-                itor.remove();
+                if (mode == Mode.TEMPLATE || !schemas.get(attributeTO.getSchema()).isMultivalue()) {
+                    item.add(panel);
+                } else {
+                    item.add(new MultiFieldPanel<String>(
+                            "panel", new PropertyModel<List<String>>(attributeTO, "values"), panel));
+                }
             }
         }
+        );
     }
 
     private void setSchemas() {
+        AttributeTO attrLayout = null;
         List<SchemaTO> schemaTOs;
 
         if (entityTO instanceof RoleTO) {
             final RoleTO roleTO = (RoleTO) entityTO;
 
-            setLayoutConfiguration(mode, AttributableType.ROLE);
+            attrLayout = confRestClient.readAttrLayout(AttrLayoutType.valueOf(mode, AttributableType.ROLE));
             schemaTOs = schemaRestClient.getSchemas(AttributableType.ROLE);
             Set<String> allowed;
             if (attrTemplates == null) {
@@ -175,23 +163,23 @@ public class AttributesPanel extends Panel {
                     allowed.addAll(roleRestClient.read(roleTO.getParent()).getRAttrTemplates());
                 }
             }
-            filter(schemaTOs, allowed);
+            schemaRestClient.filter(schemaTOs, allowed, true);
         } else if (entityTO instanceof UserTO) {
+            attrLayout = confRestClient.readAttrLayout(AttrLayoutType.valueOf(mode, AttributableType.USER));
             schemaTOs = schemaRestClient.getSchemas(AttributableType.USER);
-            setLayoutConfiguration(mode, AttributableType.USER);
         } else if (entityTO instanceof MembershipTO) {
+            attrLayout = confRestClient.readAttrLayout(AttrLayoutType.valueOf(mode, AttributableType.MEMBERSHIP));
             schemaTOs = schemaRestClient.getSchemas(AttributableType.MEMBERSHIP);
-            setLayoutConfiguration(mode, AttributableType.MEMBERSHIP);
             Set<String> allowed = new HashSet<String>(
                     roleRestClient.read(((MembershipTO) entityTO).getRoleId()).getMAttrTemplates());
-            filter(schemaTOs, allowed);
+            schemaRestClient.filter(schemaTOs, allowed, true);
         } else {
             schemas = new TreeMap<String, SchemaTO>();
             schemaTOs = schemaRestClient.getSchemas(AttributableType.CONFIGURATION);
             for (Iterator<SchemaTO> it = schemaTOs.iterator(); it.hasNext();) {
                 SchemaTO schemaTO = it.next();
-                for (LayoutType type : LayoutType.values()) {
-                    if (type.getParameter().equals(schemaTO.getName())) {
+                for (AttrLayoutType type : AttrLayoutType.values()) {
+                    if (type.getConfKey().equals(schemaTO.getName())) {
                         it.remove();
                     }
                 }
@@ -200,29 +188,32 @@ public class AttributesPanel extends Panel {
 
         schemas.clear();
 
-        if (confAttributeTO != null && mode != Mode.TEMPLATE && !(entityTO instanceof ConfTO)) {
-            filter(schemaTOs, confAttributeTO.getValues());
+        if (attrLayout != null && mode != Mode.TEMPLATE && !(entityTO instanceof ConfTO)) {
+            // 1. remove attributes not selected for display
+            schemaRestClient.filter(schemaTOs, attrLayout.getValues(), true);
+            // 2. sort remainig attributes according to configuration, e.g. attrLayout
+            final Map<String, Integer> attrLayoutMap = new HashMap<String, Integer>(attrLayout.getValues().size());
+            for (int i = 0; i < attrLayout.getValues().size(); i++) {
+                attrLayoutMap.put(attrLayout.getValues().get(i), i);
+            }
+            Collections.sort(schemaTOs, new Comparator<SchemaTO>() {
+
+                @Override
+                public int compare(final SchemaTO schema1, final SchemaTO schema2) {
+                    int value = 0;
+
+                    if (attrLayoutMap.get(schema1.getName()) > attrLayoutMap.get(schema2.getName())) {
+                        value = 1;
+                    } else if (attrLayoutMap.get(schema1.getName()) < attrLayoutMap.get(schema2.getName())) {
+                        value = -1;
+                    }
+
+                    return value;
+                }
+            });
         }
         for (SchemaTO schemaTO : schemaTOs) {
             schemas.put(schemaTO.getName(), schemaTO);
-        }
-    }
-
-    private void setLayoutConfiguration(final Mode mode, final AttributableType type) {
-        switch (type) {
-            case USER:
-            default:
-                confAttributeTO = confRestClient.read(mode == Mode.ADMIN
-                        ? LayoutType.ADMIN_USER.getParameter() : LayoutType.ADMIN_USER.getParameter());
-                break;
-            case ROLE:
-                confAttributeTO = confRestClient.read(mode == Mode.ADMIN
-                        ? LayoutType.ADMIN_ROLE.getParameter() : LayoutType.SELF_ROLE.getParameter());
-                break;
-            case MEMBERSHIP:
-                confAttributeTO = confRestClient.read(mode == Mode.ADMIN
-                        ? LayoutType.ADMIN_MEMBERSHIP.getParameter() : LayoutType.SELF_MEMBERSHIP.getParameter());
-                break;
         }
     }
 
@@ -252,8 +243,9 @@ public class AttributesPanel extends Panel {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private FieldPanel getFieldPanel(final SchemaTO schemaTO, final Form form, final AttributeTO attributeTO) {
-        final boolean required = mode == Mode.TEMPLATE ? false : schemaTO.getMandatoryCondition().equalsIgnoreCase(
-                "true");
+        final boolean required = mode == Mode.TEMPLATE
+                ? false
+                : schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
 
         final boolean readOnly = mode == Mode.TEMPLATE ? false : schemaTO.isReadonly();
 
@@ -337,8 +329,8 @@ public class AttributesPanel extends Panel {
             case Binary:
                 panel = new BinaryFieldPanel("panel", schemaTO.getName(), new Model<String>(),
                         schemas.containsKey(schemaTO.getName())
-                        ? schemas.get(schemaTO.getName()).getMimeType()
-                        : null);
+                                ? schemas.get(schemaTO.getName()).getMimeType()
+                                : null);
 
                 if (required) {
                     panel.addRequiredLabel();

@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import static org.apache.syncope.core.rest.controller.AbstractController.LOG;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +34,8 @@ import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.reqres.BulkAction;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
@@ -344,6 +348,26 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
         return roleTO;
     }
 
+    @PreAuthorize("(hasRole('ROLE_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE)")
+    public BulkActionResult bulk(final BulkAction bulkAction) {
+        BulkActionResult res = new BulkActionResult();
+
+        if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
+            for (String roleId : bulkAction.getTargets()) {
+                try {
+                    res.add(delete(Long.valueOf(roleId)).getId(), BulkActionResult.Status.SUCCESS);
+                } catch (Exception e) {
+                    LOG.error("Error performing delete for role {}", roleId, e);
+                    res.add(roleId, BulkActionResult.Status.FAILURE);
+                }
+            }
+        } else {
+            LOG.warn("Unsupported bulk action: {}", bulkAction.getOperation());
+        }
+
+        return res;
+    }
+
     @PreAuthorize("hasRole('ROLE_UPDATE')")
     @Transactional(rollbackFor = { Throwable.class })
     @Override
@@ -426,9 +450,6 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
         return original;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected RoleTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
         Long id = null;

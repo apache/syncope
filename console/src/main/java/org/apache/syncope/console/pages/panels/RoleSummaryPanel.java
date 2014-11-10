@@ -107,8 +107,8 @@ public class RoleSummaryPanel extends Panel {
 
         Fragment fragment = new Fragment("roleSummaryPanel",
                 builder.selectedNodeId == null
-                ? "fakerootFrag"
-                : (builder.selectedNodeId == 0 ? "rootPanel" : "roleViewPanel"),
+                        ? "fakerootFrag"
+                        : (builder.selectedNodeId == 0 ? "rootPanel" : "roleViewPanel"),
                 this);
 
         if (builder.selectedNodeId != null) {
@@ -130,15 +130,13 @@ public class RoleSummaryPanel extends Panel {
 
                             @Override
                             public Page createPage() {
-                                RoleTO roleTO = new RoleTO();
-                                RoleModalPage form = new RoleModalPage(builder.callerPageRef, builder.window, roleTO);
-                                return form;
+                                return new RoleModalPage(builder.callerPageRef, builder.window, new RoleTO());
                             }
                         });
 
                         builder.window.show(target);
                     }
-                }, ActionLink.ActionType.CREATE, xmlRolesReader.getAllAllowedRoles("Roles", "create"));
+                }, ActionLink.ActionType.CREATE, xmlRolesReader.getEntitlement("Roles", "create"));
             } else {
                 RoleTabPanel roleTabPanel =
                         new RoleTabPanel("nodeViewPanel", selectedNode, builder.window, builder.callerPageRef);

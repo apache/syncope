@@ -144,7 +144,7 @@ public class SchedTasks extends AbstractTasks {
         };
 
         MetaDataRoleAuthorizationStrategy.authorize(
-                createLink, RENDER, xmlRolesReader.getAllAllowedRoles(TASKS, "create"));
+                createLink, RENDER, xmlRolesReader.getEntitlement(TASKS, "create"));
 
         add(createLink);
     }

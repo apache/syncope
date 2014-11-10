@@ -28,7 +28,6 @@ import org.apache.syncope.console.commons.status.StatusBean;
 import org.apache.syncope.console.pages.panels.AccountInformationPanel;
 import org.apache.syncope.console.pages.panels.MembershipsPanel;
 import org.apache.syncope.console.pages.panels.ResourcesPanel;
-import org.apache.syncope.console.pages.panels.SecurityQuestionPanel;
 import org.apache.syncope.console.pages.panels.StatusPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -65,7 +64,7 @@ public class EditUserModalPage extends UserModalPage {
             statusPanel = new StatusPanel("statuspanel", userTO, new ArrayList<StatusBean>(), getPageReference());
             statusPanel.setOutputMarkupId(true);
             MetaDataRoleAuthorizationStrategy.authorize(
-                    statusPanel, RENDER, xmlRolesReader.getAllAllowedRoles("Resources", "getConnectorObject"));
+                    statusPanel, RENDER, xmlRolesReader.getEntitlement("Resources", "getConnectorObject"));
             form.addOrReplace(statusPanel);
 
             form.addOrReplace(new AccountInformationPanel("accountinformation", userTO));
@@ -75,9 +74,6 @@ public class EditUserModalPage extends UserModalPage {
 
             form.addOrReplace(new MembershipsPanel("memberships", userTO, mode, statusPanel, getPageReference()));
         }
-
-        // Security question / answer
-        form.addOrReplace(new SecurityQuestionPanel("securityQuestion", userTO));
     }
 
     @SuppressWarnings("rawtypes")

@@ -32,7 +32,6 @@ import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.pages.panels.LoggerCategoryPanel;
 import org.apache.syncope.console.pages.panels.RoleSearchPanel;
 import org.apache.syncope.console.pages.panels.UserSearchPanel;
-import org.apache.syncope.console.rest.ConfigurationRestClient;
 import org.apache.syncope.console.rest.LoggerRestClient;
 import org.apache.syncope.console.rest.NotificationRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -61,9 +60,6 @@ class NotificationModalPage extends BaseModalPage {
 
     @SpringBean
     private NotificationRestClient restClient;
-
-    @SpringBean
-    private ConfigurationRestClient confRestClient;
 
     @SpringBean
     private LoggerRestClient loggerRestClient;
@@ -400,8 +396,8 @@ class NotificationModalPage extends BaseModalPage {
         cancel.setDefaultFormProcessing(false);
 
         String allowedRoles = createFlag
-                ? xmlRolesReader.getAllAllowedRoles("Notification", "create")
-                : xmlRolesReader.getAllAllowedRoles("Notification", "update");
+                ? xmlRolesReader.getEntitlement("Notification", "create")
+                : xmlRolesReader.getEntitlement("Notification", "update");
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 
         form.add(submit);

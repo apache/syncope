@@ -22,6 +22,7 @@ import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.XMLRolesReader;
 import org.apache.syncope.console.init.MIMETypesInitializer;
 import org.apache.syncope.console.pages.panels.NotificationPanel;
+import org.apache.syncope.console.rest.ConfigurationRestClient;
 import org.apache.syncope.console.rest.ReportRestClient;
 import org.apache.syncope.console.rest.ResourceRestClient;
 import org.apache.syncope.console.rest.RoleRestClient;
@@ -85,7 +86,10 @@ public class AbstractBasePage extends WebPage {
 
     @SpringBean
     protected ReportRestClient reportRestClient;
-    
+
+    @SpringBean
+    protected ConfigurationRestClient confRestClient;
+
     @SpringBean
     protected MIMETypesInitializer mimeTypesInitializer;
 

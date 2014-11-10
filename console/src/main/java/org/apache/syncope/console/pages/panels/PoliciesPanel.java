@@ -229,8 +229,8 @@ public class PoliciesPanel extends Panel {
 
         add(createButton);
 
-        MetaDataRoleAuthorizationStrategy.authorize(createButton, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Policies", "create"));
+        MetaDataRoleAuthorizationStrategy.authorize(
+                createButton, ENABLE, xmlRolesReader.getEntitlement("Policies", "create"));
 
         @SuppressWarnings("rawtypes")
         final Form paginatorForm = new Form("PaginatorForm");

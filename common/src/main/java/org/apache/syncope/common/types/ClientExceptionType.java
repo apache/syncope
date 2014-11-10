@@ -33,6 +33,7 @@ public enum ClientExceptionType {
     InvalidConnInstance(Response.Status.BAD_REQUEST),
     InvalidConnIdConf(Response.Status.BAD_REQUEST),
     InvalidPolicy(Response.Status.BAD_REQUEST),
+    InvalidSyncopeConf(Response.Status.BAD_REQUEST),
     InvalidSyncopeRole(Response.Status.BAD_REQUEST),
     InvalidReportExec(Response.Status.BAD_REQUEST),
     InvalidRoles(Response.Status.BAD_REQUEST),

@@ -99,8 +99,8 @@ class SecurityQuestionModalPage extends BaseModalPage {
         cancel.setDefaultFormProcessing(false);
 
         String allowedRoles = createFlag
-                ? xmlRolesReader.getAllAllowedRoles("SecurityQuestion", "create")
-                : xmlRolesReader.getAllAllowedRoles("SecurityQuestion", "update");
+                ? xmlRolesReader.getEntitlement("SecurityQuestion", "create")
+                : xmlRolesReader.getEntitlement("SecurityQuestion", "update");
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 
         form.add(submit);

@@ -51,7 +51,7 @@ under the License.
       <artifactId>syncope-common</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>
@@ -62,7 +62,7 @@ under the License.
       <artifactId>commons-lang3</artifactId>
     </dependency>
   </dependencies>
-  
+
   <build>
     <resources>
       <resource>

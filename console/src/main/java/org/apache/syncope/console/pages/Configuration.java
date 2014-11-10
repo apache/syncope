@@ -25,29 +25,23 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.SyncopeConstants;
-import org.apache.syncope.common.to.AttributeTO;
-import org.apache.syncope.common.to.ConfTO;
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.to.SecurityQuestionTO;
-import org.apache.syncope.console.commons.LayoutType;
+import org.apache.syncope.console.commons.AttrLayoutType;
 import org.apache.syncope.common.types.LoggerLevel;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.HttpResourceStream;
-import org.apache.syncope.console.commons.Mode;
 import org.apache.syncope.console.commons.PreferenceManager;
 import org.apache.syncope.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.console.pages.panels.AttributesPanel;
 import org.apache.syncope.console.pages.panels.LayoutsPanel;
 import org.apache.syncope.console.pages.panels.PoliciesPanel;
-import org.apache.syncope.console.rest.ConfigurationRestClient;
 import org.apache.syncope.console.rest.LoggerRestClient;
 import org.apache.syncope.console.rest.NotificationRestClient;
 import org.apache.syncope.console.rest.SecurityQuestionRestClient;
@@ -81,7 +75,6 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.PropertyListView;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -101,6 +94,10 @@ public class Configuration extends BasePage {
 
     private static final long serialVersionUID = -2838270869037702214L;
 
+    private static final int SYNCOPECONF_WIN_HEIGHT = 300;
+
+    private static final int SYNCOPECONF_WIN_WIDTH = 900;
+
     private static final int NOTIFICATION_WIN_HEIGHT = 500;
 
     private static final int NOTIFICATION_WIN_WIDTH = 1100;
@@ -108,9 +105,6 @@ public class Configuration extends BasePage {
     private static final int SECURITY_QUESTION_WIN_HEIGHT = 300;
 
     private static final int SECURITY_QUESTION_WIN_WIDTH = 900;
-
-    @SpringBean
-    private ConfigurationRestClient confRestClient;
 
     @SpringBean
     private LoggerRestClient loggerRestClient;
@@ -126,6 +120,8 @@ public class Configuration extends BasePage {
 
     @SpringBean
     private PreferenceManager prefMan;
+
+    private final ModalWindow syncopeConfWin;
 
     private final ModalWindow createNotificationWin;
 
@@ -144,6 +140,11 @@ public class Configuration extends BasePage {
     public Configuration() {
         super();
 
+        add(syncopeConfWin = new ModalWindow("syncopeConfWin"));
+        syncopeConfWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        syncopeConfWin.setInitialHeight(SYNCOPECONF_WIN_HEIGHT);
+        syncopeConfWin.setInitialWidth(SYNCOPECONF_WIN_WIDTH);
+        syncopeConfWin.setCookieName("syncopeconf-modal");
         setupSyncopeConf();
 
         add(new PoliciesPanel("passwordPoliciesPanel", getPageReference(), PolicyType.PASSWORD));
@@ -151,11 +152,27 @@ public class Configuration extends BasePage {
         add(new PoliciesPanel("syncPoliciesPanel", getPageReference(), PolicyType.SYNC));
 
         add(createNotificationWin = new ModalWindow("createNotificationWin"));
+        createNotificationWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        createNotificationWin.setInitialHeight(NOTIFICATION_WIN_HEIGHT);
+        createNotificationWin.setInitialWidth(NOTIFICATION_WIN_WIDTH);
+        createNotificationWin.setCookieName("create-notification-modal");
         add(editNotificationWin = new ModalWindow("editNotificationWin"));
+        editNotificationWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editNotificationWin.setInitialHeight(NOTIFICATION_WIN_HEIGHT);
+        editNotificationWin.setInitialWidth(NOTIFICATION_WIN_WIDTH);
+        editNotificationWin.setCookieName("edit-notification-modal");
         setupNotification();
 
         add(createSecurityQuestionWin = new ModalWindow("createSecurityQuestionWin"));
+        createSecurityQuestionWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        createSecurityQuestionWin.setInitialHeight(SECURITY_QUESTION_WIN_HEIGHT);
+        createSecurityQuestionWin.setInitialWidth(SECURITY_QUESTION_WIN_WIDTH);
+        createSecurityQuestionWin.setCookieName("create-security-question-modal");
         add(editSecurityQuestionWin = new ModalWindow("editSecurityQuestionWin"));
+        editSecurityQuestionWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editSecurityQuestionWin.setInitialHeight(SECURITY_QUESTION_WIN_HEIGHT);
+        editSecurityQuestionWin.setInitialWidth(SECURITY_QUESTION_WIN_WIDTH);
+        editSecurityQuestionWin.setCookieName("edit-security-question-modal");
         setupSecurityQuestion();
 
         // Workflow definition stuff
@@ -176,7 +193,7 @@ public class Configuration extends BasePage {
                 new BookmarkablePageLink<Void>("activitiModeler", ActivitiModelerPopupPage.class);
         activitiModeler.setPopupSettings(new VeilPopupSettings().setHeight(600).setWidth(800));
         MetaDataRoleAuthorizationStrategy.authorize(activitiModeler, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Configuration", "workflowDefRead"));
+                xmlRolesReader.getEntitlement("Configuration", "workflowDefRead"));
         workflowDefContainer.add(activitiModeler);
         // Check if Activiti Modeler directory is found
         boolean activitiModelerEnabled = false;
@@ -194,7 +211,7 @@ public class Configuration extends BasePage {
                 new BookmarkablePageLink<Void>("xmlEditor", XMLEditorPopupPage.class);
         xmlEditor.setPopupSettings(new VeilPopupSettings().setHeight(480).setWidth(800));
         MetaDataRoleAuthorizationStrategy.authorize(xmlEditor, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Configuration", "workflowDefRead"));
+                xmlRolesReader.getEntitlement("Configuration", "workflowDefRead"));
         workflowDefContainer.add(xmlEditor);
 
         Image workflowDefDiagram = new Image("workflowDefDiagram", new Model()) {
@@ -215,12 +232,11 @@ public class Configuration extends BasePage {
                     }
                 };
             }
-
         };
         workflowDefContainer.add(workflowDefDiagram);
 
         MetaDataRoleAuthorizationStrategy.authorize(workflowDefContainer, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Configuration", "workflowDefRead"));
+                xmlRolesReader.getEntitlement("Configuration", "workflowDefRead"));
         add(workflowDefContainer);
 
         // Logger stuff
@@ -230,7 +246,7 @@ public class Configuration extends BasePage {
         coreLoggerContainer.add(coreLoggerList);
         coreLoggerContainer.setOutputMarkupId(true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(coreLoggerContainer, ENABLE, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(coreLoggerContainer, ENABLE, xmlRolesReader.getEntitlement(
                 "Configuration", "logList"));
         add(coreLoggerContainer);
 
@@ -241,73 +257,46 @@ public class Configuration extends BasePage {
         consoleLoggerContainer.add(consoleLoggerList);
         consoleLoggerContainer.setOutputMarkupId(true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(consoleLoggerContainer, ENABLE, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(consoleLoggerContainer, ENABLE, xmlRolesReader.getEntitlement(
                 "Configuration", "logList"));
         add(consoleLoggerContainer);
 
-        add(new LayoutsPanel("adminUserLayoutPanel", LayoutType.ADMIN_USER, feedbackPanel));
-        add(new LayoutsPanel("selfUserLayoutPanel", LayoutType.SELF_USER, feedbackPanel));
-        add(new LayoutsPanel("adminRoleLayoutPanel", LayoutType.ADMIN_ROLE, feedbackPanel));
-        add(new LayoutsPanel("selfRoleLayoutPanel", LayoutType.SELF_ROLE, feedbackPanel));
-        add(new LayoutsPanel("adminMembershipLayoutPanel", LayoutType.ADMIN_MEMBERSHIP, feedbackPanel));
-        add(new LayoutsPanel("selfMembershipLayoutPanel", LayoutType.SELF_MEMBERSHIP, feedbackPanel));
+        add(new LayoutsPanel("adminUserLayoutPanel", AttrLayoutType.ADMIN_USER, feedbackPanel));
+        add(new LayoutsPanel("selfUserLayoutPanel", AttrLayoutType.SELF_USER, feedbackPanel));
+        add(new LayoutsPanel("adminRoleLayoutPanel", AttrLayoutType.ADMIN_ROLE, feedbackPanel));
+        add(new LayoutsPanel("selfRoleLayoutPanel", AttrLayoutType.SELF_ROLE, feedbackPanel));
+        add(new LayoutsPanel("adminMembershipLayoutPanel", AttrLayoutType.ADMIN_MEMBERSHIP, feedbackPanel));
+        add(new LayoutsPanel("selfMembershipLayoutPanel", AttrLayoutType.SELF_MEMBERSHIP, feedbackPanel));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void setupSyncopeConf() {
-        WebMarkupContainer parameters = new WebMarkupContainer("parameters");
+        final WebMarkupContainer parameters = new WebMarkupContainer("parameters");
+        parameters.setOutputMarkupId(true);
         add(parameters);
-        MetaDataRoleAuthorizationStrategy.authorize(parameters, ENABLE, xmlRolesReader.getAllAllowedRoles(
-                "Configuration", "list"));
 
-        final ConfTO conf = confRestClient.list();
+        setWindowClosedCallback(syncopeConfWin, parameters);
 
-        for (Iterator<AttributeTO> it = conf.getAttrs().iterator(); it.hasNext();) {
-            AttributeTO attr = it.next();
-            for (LayoutType type : LayoutType.values()) {
-                if (type.getParameter().equals(attr.getSchema())) {
-                    it.remove();
-                }
-            }
-        }
-
-        final Form<?> form = new Form<Void>("confForm");
-        form.setModel(new CompoundPropertyModel(conf));
-        parameters.add(form);
-
-        form.add(new AttributesPanel("parameters", conf, form, Mode.ADMIN));
-
-        IndicatingAjaxLink<Void> save = new IndicatingAjaxLink<Void>("saveParameters") {
+        AjaxLink<Void> confLink = new IndicatingAjaxLink<Void>("confLink") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                final ConfTO updatedConf = (ConfTO) form.getModelObject();
+                syncopeConfWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                try {
-                    for (AttributeTO attr : updatedConf.getAttrs()) {
-                        if (attr.getValues().isEmpty()
-                                || attr.getValues().equals(Collections.singletonList(StringUtils.EMPTY))) {
+                    private static final long serialVersionUID = -7834632442532690940L;
 
-                            confRestClient.delete(attr.getSchema());
-                        } else {
-                            confRestClient.set(attr);
-                        }
+                    @Override
+                    public Page createPage() {
+                        return new ConfModalPage(getPageReference(), editNotificationWin, parameters);
                     }
+                });
 
-                    info(getString(Constants.OPERATION_SUCCEEDED));
-                    feedbackPanel.refresh(target);
-                } catch (Exception e) {
-                    LOG.error("While updating configuration parameters", e);
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    feedbackPanel.refresh(target);
-                }
+                syncopeConfWin.show(target);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(save, ENABLE, xmlRolesReader.getAllAllowedRoles(
-                "Configuration", "set"));
-        form.add(save);
+        parameters.add(confLink);
 
         Link<Void> dbExportLink = new Link<Void>("dbExportLink") {
 
@@ -328,8 +317,8 @@ public class Configuration extends BasePage {
                 }
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(dbExportLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
-                "Configuration", "export"));
+        MetaDataRoleAuthorizationStrategy.authorize(
+                dbExportLink, ENABLE, xmlRolesReader.getEntitlement("Configuration", "export"));
         add(dbExportLink);
     }
 
@@ -422,16 +411,6 @@ public class Configuration extends BasePage {
 
         add(notificationContainer);
 
-        createNotificationWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        createNotificationWin.setInitialHeight(NOTIFICATION_WIN_HEIGHT);
-        createNotificationWin.setInitialWidth(NOTIFICATION_WIN_WIDTH);
-        createNotificationWin.setCookieName("create-notification-modal");
-
-        editNotificationWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        editNotificationWin.setInitialHeight(NOTIFICATION_WIN_HEIGHT);
-        editNotificationWin.setInitialWidth(NOTIFICATION_WIN_WIDTH);
-        editNotificationWin.setCookieName("edit-notification-modal");
-
         setWindowClosedCallback(createNotificationWin, notificationContainer);
         setWindowClosedCallback(editNotificationWin, notificationContainer);
 
@@ -456,7 +435,7 @@ public class Configuration extends BasePage {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createNotificationLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
+        MetaDataRoleAuthorizationStrategy.authorize(createNotificationLink, ENABLE, xmlRolesReader.getEntitlement(
                 "Notification", "create"));
         add(createNotificationLink);
 
@@ -565,16 +544,6 @@ public class Configuration extends BasePage {
 
         add(securityQuestionContainer);
 
-        createSecurityQuestionWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        createSecurityQuestionWin.setInitialHeight(SECURITY_QUESTION_WIN_HEIGHT);
-        createSecurityQuestionWin.setInitialWidth(SECURITY_QUESTION_WIN_WIDTH);
-        createSecurityQuestionWin.setCookieName("create-security-question-modal");
-
-        editSecurityQuestionWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        editSecurityQuestionWin.setInitialHeight(SECURITY_QUESTION_WIN_HEIGHT);
-        editSecurityQuestionWin.setInitialWidth(SECURITY_QUESTION_WIN_WIDTH);
-        editSecurityQuestionWin.setCookieName("edit-security-question-modal");
-
         setWindowClosedCallback(createSecurityQuestionWin, securityQuestionContainer);
         setWindowClosedCallback(editSecurityQuestionWin, securityQuestionContainer);
 
@@ -600,8 +569,8 @@ public class Configuration extends BasePage {
             }
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(createSecurityQuestionLink, ENABLE, xmlRolesReader.
-                getAllAllowedRoles("SecurityQuestion", "create"));
+        MetaDataRoleAuthorizationStrategy.authorize(
+                createSecurityQuestionLink, ENABLE, xmlRolesReader.getEntitlement("SecurityQuestion", "create"));
         add(createSecurityQuestionLink);
     }
 
@@ -747,7 +716,7 @@ public class Configuration extends BasePage {
                 }
             });
 
-            MetaDataRoleAuthorizationStrategy.authorize(level, ENABLE, xmlRolesReader.getAllAllowedRoles(
+            MetaDataRoleAuthorizationStrategy.authorize(level, ENABLE, xmlRolesReader.getEntitlement(
                     "Configuration", "logSetLevel"));
 
             item.add(level);

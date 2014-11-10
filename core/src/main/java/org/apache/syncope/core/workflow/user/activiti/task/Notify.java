@@ -41,11 +41,9 @@ public class Notify extends AbstractActivitiServiceTask {
     @Override
     protected void doExecute(final String executionId) {
         SyncopeUser user =
-                (SyncopeUser) runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER);
-        UserTO userTO =
-                (UserTO) runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER_TO);
-        String event =
-                (String) runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.EVENT);
+                runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, SyncopeUser.class);
+        UserTO userTO = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER_TO, UserTO.class);
+        String event = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.EVENT, String.class);
 
         if (StringUtils.isNotBlank(event)) {
             notificationManager.createTasks(

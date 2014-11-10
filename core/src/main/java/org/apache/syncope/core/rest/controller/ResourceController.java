@@ -101,7 +101,16 @@ public class ResourceController extends AbstractTransactionalController<Resource
             throw new EntityExistsException("Resource '" + resourceTO.getName() + "'");
         }
 
-        ExternalResource resource = resourceDAO.save(binder.create(resourceTO));
+        ExternalResource resource = null;
+        try {
+            resource = resourceDAO.save(binder.create(resourceTO));
+        } catch (SyncopeClientException e) {
+            throw e;
+        } catch (Exception e) {
+            SyncopeClientException ex = SyncopeClientException.build(ClientExceptionType.InvalidExternalResource);
+            ex.getElements().add(e.getMessage());
+            throw ex;
+        }
 
         return binder.getResourceTO(resource);
     }
@@ -114,7 +123,15 @@ public class ResourceController extends AbstractTransactionalController<Resource
         }
 
         resource = binder.update(resource, resourceTO);
-        resource = resourceDAO.save(resource);
+        try {
+            resource = resourceDAO.save(resource);
+        } catch (SyncopeClientException e) {
+            throw e;
+        } catch (Exception e) {
+            SyncopeClientException ex = SyncopeClientException.build(ClientExceptionType.InvalidExternalResource);
+            ex.getElements().add(e.getMessage());
+            throw ex;
+        }
 
         return binder.getResourceTO(resource);
     }
