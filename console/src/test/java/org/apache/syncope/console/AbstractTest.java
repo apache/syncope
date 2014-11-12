@@ -65,7 +65,7 @@ public abstract class AbstractTest extends TestCase {
         element.sendKeys(ADMIN);
         element = seleniumDriver.findElement(By.name("password"));
         element.sendKeys(PASSWORD);
-        seleniumDriver.findElement(By.name(":submit")).click();
+        seleniumDriver.findElement(By.name("p::submit")).click();
         
         (new WebDriverWait(seleniumDriver, 6))
                 .until(ExpectedConditions.presenceOfElementLocated(By.xpath("//img[@alt='Logout']")));

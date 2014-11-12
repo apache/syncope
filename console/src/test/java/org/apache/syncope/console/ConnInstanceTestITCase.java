@@ -188,4 +188,43 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         seleniumDriver.findElement(By.xpath("//a[@class='w_close']")).click();
     }
+    
+    @Test
+    public void issueSyncope605() {
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Resources\"]")).click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
+
+        seleniumDriver.findElement(By.xpath("//div[3]/ul/li[2]/a")).click();
+        seleniumDriver.findElement(By.xpath("//tr[8]/td[7]/div/span[13]/a")).click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
+        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select")));     
+        
+        assertEquals("H2-testsync",  
+                seleniumDriver.findElement(By.xpath("//input[@name='displayName:textField']")).getAttribute("value"));
+
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[2]/ul/li[3]/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[2]/div[3]/span/input[7]")).click();
+
+        seleniumDriver.findElement(By.name("apply")).click();
+        
+        seleniumDriver.switchTo().defaultContent();
+        
+        seleniumDriver.findElement(By.xpath("//tr[8]/td[7]/div/span[13]/a")).click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
+        seleniumDriver.switchTo().frame(0);
+        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select")));     
+        
+        assertFalse(seleniumDriver.findElement(By.xpath("//div[2]/form/div[2]/div[3]/span/input[7]")).isSelected());
+
+        seleniumDriver.switchTo().defaultContent();
+        seleniumDriver.findElement(By.xpath("//a[@class='w_close']")).click();
+    }
 }

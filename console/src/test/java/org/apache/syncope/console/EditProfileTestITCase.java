@@ -59,7 +59,7 @@ public class EditProfileTestITCase extends AbstractTest {
         element.sendKeys(ADMIN);
         element = seleniumDriver.findElement(By.name("password"));
         element.sendKeys(PASSWORD);
-        seleniumDriver.findElement(By.name(":submit")).click();
+        seleniumDriver.findElement(By.name("p::submit")).click();
         seleniumDriver.manage().timeouts().pageLoadTimeout(30, TimeUnit.SECONDS);
     }
     
@@ -69,7 +69,7 @@ public class EditProfileTestITCase extends AbstractTest {
         element.sendKeys("rossini");
         element = seleniumDriver.findElement(By.name("password"));
         element.sendKeys("password");
-        seleniumDriver.findElement(By.name(":submit")).click();
+        seleniumDriver.findElement(By.name("p::submit")).click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='username']/a")));
         seleniumDriver.findElement(By.xpath("//div[@id='username']/a")).click();
