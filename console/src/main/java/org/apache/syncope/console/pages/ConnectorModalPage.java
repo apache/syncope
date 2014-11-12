@@ -41,6 +41,8 @@ import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.WicketEventJQueryResourceReference;
+import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -278,7 +280,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
         // form - second tab (properties)
         final ListView<ConnConfProperty> connPropView = new ConnConfPropertyListView("connectorProperties",
-                new PropertyModel<List<ConnConfProperty>>(this, "properties"), 
+                new PropertyModel<List<ConnConfProperty>>(this, "properties"),
                 true, connInstanceTO.getConfiguration());
         connPropView.setOutputMarkupId(true);
         connectorPropForm.add(connPropView);
@@ -321,6 +323,16 @@ public class ConnectorModalPage extends BaseModalPage {
         CheckBoxMultipleChoice<ConnectorCapability> capabilitiesPalette =
                 new CheckBoxMultipleChoice<ConnectorCapability>("capabilitiesPalette",
                         new PropertyModel<List<ConnectorCapability>>(this, "selectedCapabilities"), capabilities);
+
+        capabilitiesPalette.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(AjaxRequestTarget target) {
+            }
+        });
+
         connectorForm.add(capabilitiesPalette);
 
         // form - submit / cancel buttons
@@ -339,6 +351,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 conn.getConfiguration().addAll(connPropView.getModelObject());
 
                 // Set the model object's capabilities to capabilitiesPalette's converted Set
+                conn.getCapabilities().clear();
                 conn.getCapabilities().addAll(selectedCapabilities.isEmpty()
                         ? EnumSet.noneOf(ConnectorCapability.class)
                         : EnumSet.copyOf(selectedCapabilities));
