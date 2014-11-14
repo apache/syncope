@@ -2,6 +2,47 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.2.1
+================================================================================
+
+** Bug
+    * [SYNCOPE-554] - Class Cast Exception when syncronization task starts
+    * [SYNCOPE-557] - Exception during report execution when matching condition is not provided for user and role reportlets
+    * [SYNCOPE-560] - build-tools classes artifact not published to Maven repository
+    * [SYNCOPE-561] - HTML reports not displayed correctly with no external resources
+    * [SYNCOPE-562] - Duplicated configuration parameters in the CATTR table
+    * [SYNCOPE-564] - Error while viewing user details in approval request workflow from Approvers login
+    * [SYNCOPE-565] - Error on ResourceModalPage when override a SpinnerField in the ConnectorModalPage
+    * [SYNCOPE-566] - Name attribute value disappears after changing attribute type during schema manipulation
+    * [SYNCOPE-567] - Security question is not displayed correctly during password reset 
+    * [SYNCOPE-568] - Connectors configuration "check connection" 
+    * [SYNCOPE-569] - The user status is not propagated on the resources
+    * [SYNCOPE-571] - ResourceConnConfPanel feedback panel does not work
+    * [SYNCOPE-572] - overridable resource connector properties cannot be changed
+    * [SYNCOPE-574] - NullPointerException in ConnInstanceDataBinder with Java 8
+    * [SYNCOPE-576] - The values of configuration parameters are not saved
+    * [SYNCOPE-578] - Role bulk delete not working
+    * [SYNCOPE-596] - Standalone persistence not configured for H2
+    * [SYNCOPE-597] - Error when serializating SyncToken with byte array type during sync task from Active Directory
+    * [SYNCOPE-598] - Push Task fails on role with LDAP resource with rolemapping defined
+    * [SYNCOPE-600] - Approval chains do not work from second form onwards
+    * [SYNCOPE-601] - AD deleted object synchronization fails if a sync policy is specified on one or more attributes that can have no values on Syncope
+    * [SYNCOPE-603] - Remote unauthorized exception when a user makes a request to add a role to his profile
+    * [SYNCOPE-605] - Impossible to update the connector capabilities
+
+** Improvement
+    * [SYNCOPE-570] - Remove usage of deprecated com.thoughtworks.selenium.Selenium
+    * [SYNCOPE-575] - Choose between stable and snapshot release
+    * [SYNCOPE-599] - Enhance console's authorization.xml parsing
+    * [SYNCOPE-602] - Make form approver available as workflow variable
+    * [SYNCOPE-604] - allow configuring empty connid location list
+
+** New Feature
+    * [SYNCOPE-558] - Ability to configure which user, role and membership attributes to display, and in which order
+
+** Task
+    * [SYNCOPE-573] - Upgrade ConnId connectors to latest versions featuring ConnId 1.4.0.0
+
 Release Notes - Syncope - Version 1.2.0
 ================================================================================
 
