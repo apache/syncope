@@ -239,6 +239,12 @@ public class LoggerController extends AbstractTransactionalController<LoggerTO> 
                     }
                 }
             }
+            
+            //SYNCOPE-608
+            final EventCategoryTO authenticationControllerEvents = new EventCategoryTO();
+            authenticationControllerEvents.setCategory("AuthenticationController");
+            authenticationControllerEvents.getEvents().add("login");
+            events.add(authenticationControllerEvents);
 
             events.add(new EventCategoryTO(EventCategoryType.PROPAGATION));
             events.add(new EventCategoryTO(EventCategoryType.SYNCHRONIZATION));
