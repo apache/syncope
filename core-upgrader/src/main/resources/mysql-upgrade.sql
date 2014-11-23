@@ -16,7 +16,7 @@
 -- under the License.
 SET FOREIGN_KEY_CHECKS = 0;
 
---SYNCOPE-451 upgrade table definitions to comply with new Apache OpenJpa 2.3.0 version
+-- SYNCOPE-451 upgrade table definitions to comply with new Apache OpenJpa 2.3.0 version
 ALTER TABLE ConnInstance_capabilities CHANGE COLUMN capabilities capabilities VARCHAR(20);
 ALTER TABLE ExternalResource CHANGE COLUMN createTraceLevel createTraceLevel VARCHAR(20);
 ALTER TABLE ExternalResource CHANGE COLUMN deleteTraceLevel deleteTraceLevel VARCHAR(20);
