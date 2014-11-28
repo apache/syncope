@@ -342,7 +342,7 @@ under the License.
 
     <wicket.version>6.18.0</wicket.version>
 
-    <groovy.version>2.3.6</groovy.version>
+    <groovy.version>2.3.8</groovy.version>
 
     <h2.version>1.4.182</h2.version>
 

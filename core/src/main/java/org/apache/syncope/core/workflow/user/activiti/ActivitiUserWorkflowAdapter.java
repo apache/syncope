@@ -682,14 +682,42 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return formTO;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<WorkflowFormTO> getForms() {
-        return getForms(taskService.createTaskQuery().taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE));
+        List<WorkflowFormTO> forms = new ArrayList<WorkflowFormTO>();
+
+        String authUser = EntitlementUtil.getAuthenticatedUsername();
+        if (adminUser.equals(authUser)) {
+            forms.addAll(getForms(taskService.createTaskQuery().
+                    taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
+        } else {
+            SyncopeUser user = userDAO.find(authUser);
+            if (user == null) {
+                throw new NotFoundException("Syncope User " + authUser);
+            }
+
+            forms.addAll(getForms(taskService.createTaskQuery().
+                    taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE).
+                    taskCandidateOrAssigned(user.getId().toString())));
+
+            List<String> candidateGroups = new ArrayList<String>();
+            for (Long roleId : user.getRoleIds()) {
+                candidateGroups.add(roleId.toString());
+            }
+            if (!candidateGroups.isEmpty()) {
+                forms.addAll(getForms(taskService.createTaskQuery().
+                        taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE).
+                        taskCandidateGroupIn(candidateGroups)));
+            }
+        }
+
+        return forms;
     }
 
     @Override
     public List<WorkflowFormTO> getForms(final String workflowId, final String name) {
-        final List<WorkflowFormTO> forms = getForms(
+        List<WorkflowFormTO> forms = getForms(
                 taskService.createTaskQuery().processInstanceId(workflowId).taskName(name).
                 taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE));
 
@@ -700,7 +728,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     private <T extends Query<?, ?>, U extends Object> List<WorkflowFormTO> getForms(final Query<T, U> query) {
-        final List<WorkflowFormTO> forms = new ArrayList<WorkflowFormTO>();
+        List<WorkflowFormTO> forms = new ArrayList<WorkflowFormTO>();
 
         for (U obj : query.list()) {
             try {
@@ -772,6 +800,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return new SimpleEntry<Task, TaskFormData>(task, formData);
     }
 
+    @Transactional
     @Override
     public WorkflowFormTO claimForm(final String taskId, final String username)
             throws WorkflowException {
@@ -797,6 +826,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return getFormTO(task, checked.getValue());
     }
 
+    @Transactional
     @Override
     public WorkflowResult<UserMod> submitForm(final WorkflowFormTO form, final String username)
             throws WorkflowException {
