@@ -35,7 +35,6 @@ import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,7 +56,7 @@ public class UserWorkflowController extends AbstractTransactionalController<Work
     @PreAuthorize("hasRole('WORKFLOW_FORM_CLAIM')")
     @Transactional(rollbackFor = { Throwable.class })
     public WorkflowFormTO claimForm(final String taskId) {
-        return uwfAdapter.claimForm(taskId, SecurityContextHolder.getContext().getAuthentication().getName());
+        return uwfAdapter.claimForm(taskId);
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
@@ -100,8 +99,7 @@ public class UserWorkflowController extends AbstractTransactionalController<Work
     @PreAuthorize("hasRole('WORKFLOW_FORM_SUBMIT')")
     @Transactional(rollbackFor = { Throwable.class })
     public UserTO submitForm(final WorkflowFormTO form) {
-        WorkflowResult<? extends AbstractAttributableMod> updated =
-                uwfAdapter.submitForm(form, SecurityContextHolder.getContext().getAuthentication().getName());
+        WorkflowResult<? extends AbstractAttributableMod> updated = uwfAdapter.submitForm(form);
 
         // propByRes can be made empty by the workflow definition if no propagation should occur 
         // (for example, with rejected users)

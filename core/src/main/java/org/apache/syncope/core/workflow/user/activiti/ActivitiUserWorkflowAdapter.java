@@ -687,7 +687,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public List<WorkflowFormTO> getForms() {
         List<WorkflowFormTO> forms = new ArrayList<WorkflowFormTO>();
 
-        String authUser = EntitlementUtil.getAuthenticatedUsername();
+        final String authUser = EntitlementUtil.getAuthenticatedUsername();
         if (adminUser.equals(authUser)) {
             forms.addAll(getForms(taskService.createTaskQuery().
                     taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
@@ -775,7 +775,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return result;
     }
 
-    private Map.Entry<Task, TaskFormData> checkTask(final String taskId, final String username) {
+    private Map.Entry<Task, TaskFormData> checkTask(final String taskId, final String authUser) {
         Task task;
         try {
             task = taskService.createTaskQuery().taskId(taskId).singleResult();
@@ -790,10 +790,10 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             throw new NotFoundException("Form for Activiti Task " + taskId, e);
         }
 
-        if (!adminUser.equals(username)) {
-            SyncopeUser user = userDAO.find(username);
+        if (!adminUser.equals(authUser)) {
+            SyncopeUser user = userDAO.find(authUser);
             if (user == null) {
-                throw new NotFoundException("Syncope User " + username);
+                throw new NotFoundException("Syncope User " + authUser);
             }
         }
 
@@ -802,22 +802,23 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Transactional
     @Override
-    public WorkflowFormTO claimForm(final String taskId, final String username)
+    public WorkflowFormTO claimForm(final String taskId)
             throws WorkflowException {
 
-        Map.Entry<Task, TaskFormData> checked = checkTask(taskId, username);
+        final String authUser = EntitlementUtil.getAuthenticatedUsername();
+        Map.Entry<Task, TaskFormData> checked = checkTask(taskId, authUser);
 
-        if (!adminUser.equals(username)) {
-            List<Task> tasksForUser = taskService.createTaskQuery().taskId(taskId).taskCandidateUser(username).list();
+        if (!adminUser.equals(authUser)) {
+            List<Task> tasksForUser = taskService.createTaskQuery().taskId(taskId).taskCandidateUser(authUser).list();
             if (tasksForUser.isEmpty()) {
                 throw new WorkflowException(
-                        new IllegalArgumentException(username + " is not candidate for task " + taskId));
+                        new IllegalArgumentException(authUser + " is not candidate for task " + taskId));
             }
         }
 
         Task task;
         try {
-            taskService.setOwner(taskId, username);
+            taskService.setOwner(taskId, authUser);
             task = taskService.createTaskQuery().taskId(taskId).singleResult();
         } catch (ActivitiException e) {
             throw new WorkflowException("While reading task " + taskId, e);
@@ -828,14 +829,15 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Transactional
     @Override
-    public WorkflowResult<UserMod> submitForm(final WorkflowFormTO form, final String username)
+    public WorkflowResult<UserMod> submitForm(final WorkflowFormTO form)
             throws WorkflowException {
 
-        Map.Entry<Task, TaskFormData> checked = checkTask(form.getTaskId(), username);
+        final String authUser = EntitlementUtil.getAuthenticatedUsername();
+        Map.Entry<Task, TaskFormData> checked = checkTask(form.getTaskId(), authUser);
 
-        if (!checked.getKey().getOwner().equals(username)) {
+        if (!checked.getKey().getOwner().equals(authUser)) {
             throw new WorkflowException(new IllegalArgumentException("Task " + form.getTaskId() + " assigned to "
-                    + checked.getKey().getOwner() + " but submitted by " + username));
+                    + checked.getKey().getOwner() + " but submitted by " + authUser));
         }
 
         SyncopeUser user = userDAO.findByWorkflowId(checked.getKey().getProcessInstanceId());
@@ -846,8 +848,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Set<String> preTasks = getPerformedTasks(user);
         try {
             formService.submitTaskFormData(form.getTaskId(), form.getPropertiesForSubmit());
-            runtimeService.setVariable(
-                    user.getWorkflowId(), FORM_SUBMITTER, EntitlementUtil.getAuthenticatedUsername());
+            runtimeService.setVariable(user.getWorkflowId(), FORM_SUBMITTER, authUser);
         } catch (ActivitiException e) {
             throwException(e, "While submitting form for task " + form.getTaskId());
         }

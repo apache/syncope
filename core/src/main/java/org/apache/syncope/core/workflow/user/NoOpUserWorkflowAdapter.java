@@ -216,14 +216,14 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowFormTO claimForm(final String taskId, final String username)
+    public WorkflowFormTO claimForm(final String taskId)
             throws NotFoundException, WorkflowException {
 
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
     @Override
-    public WorkflowResult<UserMod> submitForm(final WorkflowFormTO form, final String username)
+    public WorkflowResult<UserMod> submitForm(final WorkflowFormTO form)
             throws NotFoundException, WorkflowException {
 
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));

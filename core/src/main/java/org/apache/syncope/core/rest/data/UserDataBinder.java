@@ -58,7 +58,6 @@ import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.Encryptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -154,7 +153,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     public UserTO getAuthenticatedUserTO() {
         final UserTO authUserTO;
 
-        final String authUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        final String authUsername = EntitlementUtil.getAuthenticatedUsername();
         if (anonymousUser.equals(authUsername)) {
             authUserTO = new UserTO();
             authUserTO.setId(-2);
