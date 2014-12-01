@@ -91,22 +91,20 @@ public interface WorkflowAdapter {
      * Claim a form for a given user.
      *
      * @param taskId Workflow task to which the form is associated
-     * @param username claiming username
      * @return updated form
      * @throws NotFoundException not found exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowFormTO claimForm(String taskId, String username) throws NotFoundException, WorkflowException;
+    WorkflowFormTO claimForm(String taskId) throws NotFoundException, WorkflowException;
 
     /**
      * Submit a form.
      *
      * @param form to be submitted
-     * @param username submitting username
      * @return user updated by this form submit
      * @throws NotFoundException not found exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<? extends AbstractAttributableMod> submitForm(WorkflowFormTO form, String username)
+    WorkflowResult<? extends AbstractAttributableMod> submitForm(WorkflowFormTO form)
             throws NotFoundException, WorkflowException;
 }

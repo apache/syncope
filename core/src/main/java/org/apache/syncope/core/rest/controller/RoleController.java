@@ -57,7 +57,6 @@ import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionInterceptor;
@@ -128,7 +127,7 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
         }
 
         Set<Long> ownedRoleIds;
-        SyncopeUser authUser = userDAO.find(SecurityContextHolder.getContext().getAuthentication().getName());
+        SyncopeUser authUser = userDAO.find(EntitlementUtil.getAuthenticatedUsername());
         if (authUser == null) {
             ownedRoleIds = Collections.<Long>emptySet();
         } else {
