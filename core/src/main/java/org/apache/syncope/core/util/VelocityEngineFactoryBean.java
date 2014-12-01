@@ -37,8 +37,8 @@ public class VelocityEngineFactoryBean implements FactoryBean<VelocityEngine>, I
 
     private ResourceLoader resourceLoader = new DefaultResourceLoader();
 
-	private boolean overrideLogging = true;
-    
+    private boolean overrideLogging = true;
+
     private VelocityEngine velocityEngine;
 
     public ResourceLoader getResourceLoader() {
@@ -50,15 +50,19 @@ public class VelocityEngineFactoryBean implements FactoryBean<VelocityEngine>, I
     }
 
     public boolean isOverrideLogging() {
-		return overrideLogging;
-	}
+        return overrideLogging;
+    }
 
-    /** Configure Velocity to use Commons Logging (true by default). */
-	public void setOverrideLogging(boolean overrideLogging) {
-		this.overrideLogging = overrideLogging;
-	}
+    /**
+     * Configure Velocity to use Commons Logging (true by default).
+     *
+     * @param overrideLogging whether default Velocity logging should be overriden or not.
+     */
+    public void setOverrideLogging(final boolean overrideLogging) {
+        this.overrideLogging = overrideLogging;
+    }
 
-	private void createVelocityEngine() throws IOException, VelocityException {
+    private void createVelocityEngine() throws IOException, VelocityException {
         velocityEngine = new VelocityEngine();
 
         velocityEngine.setProperty(
@@ -70,10 +74,10 @@ public class VelocityEngineFactoryBean implements FactoryBean<VelocityEngine>, I
                 SpringVelocityResourceLoader.SPRING_RESOURCE_LOADER_CACHE, "true");
         velocityEngine.setApplicationAttribute(
                 SpringVelocityResourceLoader.SPRING_RESOURCE_LOADER, getResourceLoader());
-        
-		if (this.overrideLogging) {
-			velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new CommonsLogLogChute());
-		}
+
+        if (this.overrideLogging) {
+            velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new CommonsLogLogChute());
+        }
 
         velocityEngine.init();
     }
