@@ -29,7 +29,6 @@ import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
-import org.apache.syncope.core.persistence.dao.ConfDAO;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.util.ExceptionUtil;
 import org.quartz.DisallowConcurrentExecution;
@@ -58,7 +57,7 @@ public class NotificationJob implements Job {
 
     }
 
-    public static String DEFAULT_CRON_EXP = "0 0/5 * * * ?";
+    public static final String DEFAULT_CRON_EXP = "0 0/5 * * * ?";
 
     /**
      * Logger.
@@ -80,16 +79,10 @@ public class NotificationJob implements Job {
     @Autowired
     private TaskDAO taskDAO;
 
-    /**
-     * Configuration DAO.
-     */
-    @Autowired
-    private ConfDAO confDAO;
-
     private long maxRetries;
 
     private void init() {
-        maxRetries = confDAO.find("notification.maxRetries", "0").getValues().get(0).getLongValue();
+        maxRetries = notificationManager.getMaxRetries();
 
         if (mailSender instanceof JavaMailSenderImpl
                 && StringUtils.isNotBlank(((JavaMailSenderImpl) mailSender).getUsername())) {
