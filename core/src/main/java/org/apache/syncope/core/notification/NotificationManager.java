@@ -155,6 +155,11 @@ public class NotificationManager {
     @Autowired
     private ConnObjectUtil connObjectUtil;
 
+    @Transactional(readOnly = true)
+    public long getMaxRetries() {
+        return confDAO.find("notification.maxRetries", "0").getValues().get(0).getLongValue();
+    }
+
     /**
      * Create a notification task.
      *
