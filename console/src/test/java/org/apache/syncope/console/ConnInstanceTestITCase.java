@@ -38,13 +38,13 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(("//iframe"))));
         seleniumDriver.switchTo().frame(0);
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.xpath("//form/div[2]/div/div/div[3]/div[2]/span/select")));        
+                By.xpath("//form/div[2]/div/div/div[3]/div[2]/span/select")));
 
         Select select = new Select(
                 seleniumDriver.findElement(By.xpath("//form/div[2]/div[1]/div[1]/div[2]/div[2]/span/select")));
-                                                     
+
         select.selectByValue("0");
 
         wait.until(ExpectedConditions.presenceOfElementLocated(
@@ -74,11 +74,11 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
-                "//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select")));     
-        
-        assertEquals("ConnInstance103",  
+                "//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select")));
+
+        assertEquals("ConnInstance103",
                 seleniumDriver.findElement(By.xpath("//input[@name='displayName:textField']")).getAttribute("value"));
 
         assertEquals("net.tirasa.connid.bundles.soap",(new Select(seleniumDriver.findElement(
@@ -90,7 +90,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         seleniumDriver.findElement(By.xpath("//a[@class='w_close']")).click();
     }
-    
+
     @Test
     public void delete() {
         seleniumDriver.findElement(By.xpath("//img[@alt=\"Resources\"]")).click();
@@ -107,7 +107,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("feedback")));
         assertTrue(seleniumDriver.findElement(By.tagName("body")).getText().contains("Error: "));
     }
-    
+
     @Test
     public void checkConnection() {
         seleniumDriver.findElement(By.xpath("//img[@alt=\"Resources\"]")).click();
@@ -116,10 +116,10 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         seleniumDriver.findElement(By.xpath("//div[3]/ul/li[2]/a")).click();
         seleniumDriver.findElement(By.xpath("//tr[2]/td[7]/div/span[13]/a")).click();
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//select[@name='version:dropDownChoiceField']")));
 
@@ -138,7 +138,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         seleniumDriver.switchTo().defaultContent();
     }
-    
+
     @Test
     public void issueSyncope506() {
         seleniumDriver.findElement(By.xpath("//img[@alt=\"Resources\"]")).click();
@@ -149,13 +149,14 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//select[@name='version:dropDownChoiceField']")));
 
         seleniumDriver.findElement(By.xpath("//div[2]/form/div[2]/ul/li[2]/a")).click();
 
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select")));
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select")));
 
         seleniumDriver.findElement(By.xpath(
                 "//div[2]/form/div[2]/div[2]/div/span/div[2]/div[30]/div[3]/span/div/div/span/a[2]/span/span")).click();
@@ -171,7 +172,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//select[@name='version:dropDownChoiceField']")));
 
@@ -188,7 +189,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         seleniumDriver.findElement(By.xpath("//a[@class='w_close']")).click();
     }
-    
+
     @Test
     public void issueSyncope605() {
         seleniumDriver.findElement(By.xpath("//img[@alt=\"Resources\"]")).click();
@@ -200,31 +201,34 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
-                "//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select")));     
-        
-        assertEquals("H2-testsync",  
+                "//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select")));
+
+        assertEquals("H2-testsync",
                 seleniumDriver.findElement(By.xpath("//input[@name='displayName:textField']")).getAttribute("value"));
 
         seleniumDriver.findElement(By.xpath("//div[2]/form/div[2]/ul/li[3]/a")).click();
         seleniumDriver.findElement(By.xpath("//div[2]/form/div[2]/div[3]/span/input[7]")).click();
 
-        seleniumDriver.findElement(By.name("apply")).click();
-        
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/input")).click();
+
         seleniumDriver.switchTo().defaultContent();
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("feedback")));
         
         seleniumDriver.findElement(By.xpath("//tr[8]/td[7]/div/span[13]/a")).click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);
-        
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
-                "//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select")));     
-        
-        assertFalse(seleniumDriver.findElement(By.xpath("//div[2]/form/div[2]/div[3]/span/input[7]")).isSelected());
 
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//div[2]/form/div[2]/div/div/div[3]/div[2]/span/select")));
+
+        seleniumDriver.findElement(By.xpath("//div[2]/form/div[2]/ul/li[3]/a")).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[2]/form/div[2]/div[3]/span/input[7]")));
+
+        assertFalse(seleniumDriver.findElement(By.xpath("//div[2]/form/div[2]/div[3]/span/input[7]")).isSelected());
         seleniumDriver.switchTo().defaultContent();
-        seleniumDriver.findElement(By.xpath("//a[@class='w_close']")).click();
     }
 }

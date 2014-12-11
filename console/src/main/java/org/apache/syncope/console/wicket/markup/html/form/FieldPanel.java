@@ -152,9 +152,7 @@ public abstract class FieldPanel<T> extends AbstractFieldPanel<T> implements Clo
 
             @Override
             public void setObject(final T object) {
-                if (object != null && !object.toString().isEmpty()) {
-                    item.setModelObject(object);
-                }
+                item.setModelObject(object);
             }
 
             @Override
