@@ -36,7 +36,7 @@ public class DateFieldPanel extends FieldPanel<Date> {
     private static final long serialVersionUID = -428975732068281726L;
 
     protected final String name;
-    
+
     protected final String datePattern;
 
     protected DateFieldPanel(final String id, final String name, final IModel<Date> model, final String datePattern) {
@@ -122,8 +122,8 @@ public class DateFieldPanel extends FieldPanel<Date> {
 
             @Override
             @SuppressWarnings("unchecked")
-            public void setObject(final Date object) {
-                item.setModelObject(formatter.format(object));
+            public void setObject(final Date object) {                
+                item.setModelObject(object != null ? formatter.format(object) : null);
             }
         };
 

@@ -62,6 +62,7 @@ public class ConfModalPage extends BaseModalPage {
 
                 try {
                     for (AttributeTO attr : updatedConf.getAttrs()) {
+                        attr.getValues().removeAll(Collections.singleton(null));
                         if (attr.getValues().isEmpty()
                                 || attr.getValues().equals(Collections.singletonList(StringUtils.EMPTY))) {
 
