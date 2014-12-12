@@ -51,18 +51,14 @@ public class PersistenceContextEMFactoryXml {
             + "        <property name=\"databasePlatform\" value=\"${jpa.dialect}\"/>\n" + "      </bean>\n"
             + "    </property>\n" + "    <property name=\"jpaPropertyMap\">\n" + "      <map>\n"
             + "        <!--<entry key=\"openjpa.Log\" value=\"SQL=TRACE\"/>\n"
-            + "        <entry key=\"openjpa.ConnectionFactoryProperties\" value=\"PrettyPrint=true, PrettyPrintLineLength=80\"/>-->\n"
+            + "        <entry key=\"openjpa.ConnectionFactoryProperties\" \n"
+            + "               value=\"PrintParameters=true, PrettyPrint=true, PrettyPrintLineLength=80\"/>-->\n"
             + "                \n" + "        <entry key=\"openjpa.NontransactionalWrite\" value=\"false\"/>\n"
             + "        <entry key=\"openjpa.AutoDetach\" value=\"close, commit, nontx-read, rollback\"/>\n" + "\n"
             + "        <entry key=\"openjpa.jdbc.SchemaFactory\" value=\"native(ForeignKeys=true)\"/>\n"
             + "        <entry key=\"openjpa.jdbc.MappingDefaults\" value=\"ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict\"/>\n"
-            + "                \n" + "        <entry key=\"openjpa.ReadLockLevel\" value=\"none\"/>\n"
-            + "        <entry key=\"openjpa.WriteLockLevel\" value=\"write\"/>\n"
-            + "        <entry key=\"openjpa.LockTimeout\" value=\"30000\"/>\n" + "                                \n"
-            + "        <entry key=\"openjpa.DataCache\" value=\"true\" />\n"
+            + "                \n" + "        <entry key=\"openjpa.DataCache\" value=\"true\"/>\n"
             + "        <entry key=\"openjpa.QueryCache\" value=\"true\"/>\n"
-            + "        <entry key=\"openjpa.RemoteCommitProvider\" value=\"sjvm\"/>\n" + "        \n"
-            + "        <entry key=\"openjpa.MetaDataFactory\" value=\"jpa(URLs=vfs:/content/${project.build.finalName}.war/WEB-INF/classes/, Resources=META-INF/orm.xml)\"/>\n"
-            + "      </map>\n" + "    </property>\n" + "  </bean>\n" + "\n" + "</beans>";
-
+            + "        <entry key=\"openjpa.RemoteCommitProvider\" value=\"sjvm\"/>\n" + "      </map>\n"
+            + "    </property>\n" + "  </bean>\n" + "\n" + "</beans>\n";
 }
