@@ -30,6 +30,7 @@ import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.PropagationStatus;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
@@ -85,22 +86,12 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
 
         RoleTO roleTO = RoleTO.class.cast(subjectTO);
 
-        WorkflowResult<Long> created = rwfAdapter.create(roleTO);
-        AttributeTO roleOwner = roleTO.getAttrMap().get(StringUtils.EMPTY);
-        if (roleOwner != null) {
-            roleOwnerMap.put(created.getResult(), roleOwner.getValues().iterator().next());
-        }
+        Map.Entry<Long, List<PropagationStatus>> created = roleProvisioningManager.createInSync
+                           (roleTO, roleOwnerMap, Collections.singleton(profile.getSyncTask().getResource().getName()));
 
-        EntitlementUtil.extendAuthContext(created.getResult());
+        roleTO = roleDataBinder.getRoleTO(created.getKey());
 
-        List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created,
-                roleTO.getVirAttrs(), Collections.singleton(profile.getSyncTask().getResource().getName()));
-
-        taskExecutor.execute(tasks);
-
-        roleTO = roleDataBinder.getRoleTO(created.getResult());
-
-        result.setId(created.getResult());
+        result.setId(created.getKey());
         result.setName(getName(subjectTO));
 
         return roleTO;
@@ -135,7 +126,9 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
 
         RoleMod roleMod = RoleMod.class.cast(subjectMod);
 
-        final WorkflowResult<Long> updated = rwfAdapter.update(roleMod);
+        Map.Entry<Long, List<PropagationStatus>> updated = roleProvisioningManager.update(roleMod);
+                
+        //moved after role provisioning manager
         String roleOwner = null;
         for (AttributeMod attrMod : roleMod.getAttrsToUpdate()) {
             if (attrMod.getSchema().isEmpty()) {
@@ -143,17 +136,11 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
             }
         }
         if (roleOwner != null) {
-            roleOwnerMap.put(updated.getResult(), roleOwner);
+            roleOwnerMap.put(updated.getKey(), roleOwner);
         }
 
-        List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
-                roleMod.getVirAttrsToRemove(),
-                roleMod.getVirAttrsToUpdate(),
-                Collections.singleton(profile.getSyncTask().getResource().getName()));
-
-        taskExecutor.execute(tasks);
-
-        final RoleTO after = roleDataBinder.getRoleTO(updated.getResult());
+        final RoleTO after = roleDataBinder.getRoleTO(updated.getKey());
+        
         result.setName(getName(after));
 
         return after;
@@ -183,6 +170,6 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
             LOG.error("Could not propagate user " + id, e);
         }
 
-        rwfAdapter.delete(id);
+        roleProvisioningManager.delete(id); 
     }
 }

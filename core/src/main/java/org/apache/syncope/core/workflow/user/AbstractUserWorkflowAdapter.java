@@ -19,9 +19,7 @@
 package org.apache.syncope.core.workflow.user;
 
 import java.util.Map;
-import java.util.Map.Entry;
 import org.apache.syncope.common.mod.UserMod;
-import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
@@ -59,13 +57,6 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     @Override
     public Class<? extends WorkflowInstanceLoader> getLoaderClass() {
         return null;
-    }
-
-    @Override
-    public WorkflowResult<Entry<Long, Boolean>> create(final UserTO userTO, final boolean storePassword)
-            throws UnauthorizedRoleException, WorkflowException {
-
-        return create(userTO, false, storePassword);
     }
 
     protected abstract WorkflowResult<Long> doActivate(SyncopeUser user, String token) throws WorkflowException;

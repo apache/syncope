@@ -32,6 +32,7 @@ import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.SyncopeConstants;
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.to.NotificationTO;
+import org.apache.syncope.common.to.RouteTO;
 import org.apache.syncope.common.to.SecurityQuestionTO;
 import org.apache.syncope.console.commons.AttrLayoutType;
 import org.apache.syncope.common.types.LoggerLevel;
@@ -44,6 +45,7 @@ import org.apache.syncope.console.pages.panels.LayoutsPanel;
 import org.apache.syncope.console.pages.panels.PoliciesPanel;
 import org.apache.syncope.console.rest.LoggerRestClient;
 import org.apache.syncope.console.rest.NotificationRestClient;
+import org.apache.syncope.console.rest.RouteRestClient;
 import org.apache.syncope.console.rest.SecurityQuestionRestClient;
 import org.apache.syncope.console.rest.WorkflowRestClient;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
@@ -117,6 +119,9 @@ public class Configuration extends BasePage {
 
     @SpringBean
     private WorkflowRestClient wfRestClient;
+    
+    @SpringBean
+    private RouteRestClient routeRestClient;
 
     @SpringBean
     private PreferenceManager prefMan;
@@ -130,12 +135,16 @@ public class Configuration extends BasePage {
     private final ModalWindow createSecurityQuestionWin;
 
     private final ModalWindow editSecurityQuestionWin;
+    
+    private final ModalWindow editRouteWin;
 
     private WebMarkupContainer notificationContainer;
 
     private WebMarkupContainer securityQuestionContainer;
 
     private int notificationPaginatorRows;
+    
+    private int routePaginatorRows;
 
     public Configuration() {
         super();
@@ -267,6 +276,10 @@ public class Configuration extends BasePage {
         add(new LayoutsPanel("selfRoleLayoutPanel", AttrLayoutType.SELF_ROLE, feedbackPanel));
         add(new LayoutsPanel("adminMembershipLayoutPanel", AttrLayoutType.ADMIN_MEMBERSHIP, feedbackPanel));
         add(new LayoutsPanel("selfMembershipLayoutPanel", AttrLayoutType.SELF_MEMBERSHIP, feedbackPanel));
+        
+        //Route Management
+        add(editRouteWin = new ModalWindow("editRouteWin"));
+        setupRoutes();
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -754,4 +767,111 @@ public class Configuration extends BasePage {
             ctx.updateLoggers();
         }
     }
+    
+    private void setupRoutes() {
+
+        routePaginatorRows = prefMan.getPaginatorRows(getRequest(), "route.paginator.rows");
+
+        final List<IColumn<RouteTO, String>> routeCols = new ArrayList<IColumn<RouteTO, String>>();
+        routeCols.add(new PropertyColumn<RouteTO, String>(
+                new ResourceModel("id"), "id", "id"));
+
+        routeCols.add(new PropertyColumn<RouteTO, String>(
+                new ResourceModel("name"), "name", "name"));
+
+        routeCols.add(new AbstractColumn<RouteTO, String>(new ResourceModel("actions", "")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
+
+            @Override
+            public void populateItem(final Item<ICellPopulator<RouteTO>> cellItem, final String componentId,
+                    final IModel<RouteTO> model) {
+
+                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
+
+                panel.add(new ActionLink() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+
+                        editRouteWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID = -7834632442532690940L;
+
+                            @Override
+                            public Page createPage() {
+                                return new RouteModalPage(Configuration.this.getPageReference(), editRouteWin, routeRestClient.readRoute(model.getObject().getId()), false);
+                                //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                            }
+
+                        });
+
+                        editRouteWin.show(target);
+                    }
+                }, ActionLink.ActionType.EDIT, "Routes");
+
+                cellItem.add(panel);
+            }
+        });
+
+        final AjaxFallbackDefaultDataTable<RouteTO, String> routeTable
+                = new AjaxFallbackDefaultDataTable<RouteTO, String>(
+                        "routeTable", routeCols, new RouteProvider(), routePaginatorRows);
+
+        WebMarkupContainer routeContainer = new WebMarkupContainer("routesContainer");
+        routeContainer.add(routeTable);
+        routeContainer.setOutputMarkupId(true);
+
+        add(routeContainer);
+
+        editRouteWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editRouteWin.setInitialHeight(NOTIFICATION_WIN_HEIGHT);
+        editRouteWin.setInitialWidth(NOTIFICATION_WIN_WIDTH);
+    }
+    
+    private class RouteProvider extends SortableDataProvider<RouteTO, String> {
+
+        private SortableDataProviderComparator<RouteTO> comparator;
+       
+        public RouteProvider() {
+            setSort("id", SortOrder.ASCENDING);
+            comparator = new SortableDataProviderComparator<RouteTO>(this);   
+        }
+
+        @Override
+        public Iterator<? extends RouteTO> iterator(long first, long count) {
+            List<RouteTO> list =  routeRestClient.readRoutes();
+
+            Collections.sort(list, comparator);
+
+            return list.subList((int) first, (int) first + (int) count).iterator();
+        }
+
+        @Override
+        public long size() {
+            return routeRestClient.readRoutes().size();
+        }
+
+        @Override
+        public IModel<RouteTO> model(final RouteTO route) {
+            return new AbstractReadOnlyModel<RouteTO>() {
+
+                private static final long serialVersionUID = 774694801558497248L;
+
+                @Override
+                public RouteTO getObject() {
+                    return route;
+                }
+            };
+        }
+       
+   }
+
 }

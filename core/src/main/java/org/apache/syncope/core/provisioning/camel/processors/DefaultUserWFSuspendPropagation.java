@@ -16,45 +16,49 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.workflow;
+
+package org.apache.syncope.core.provisioning.camel.processors;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Resource;
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.policy.UserSuspender;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
-import org.apache.syncope.core.provisioning.UserProvisioningManager;
-import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
+import org.apache.syncope.core.workflow.WorkflowResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
-public class WorkflowUserSuspender implements UserSuspender {
+public class DefaultUserWFSuspendPropagation implements Processor{
 
-    private static final Logger LOG = LoggerFactory.getLogger(WorkflowUserSuspender.class);
-
-    @Resource(name = "defaultUserProvisioningManager")
-    protected UserProvisioningManager provisioningManager;
-
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultUserWFSuspendPropagation.class);
+    
+    @Autowired
+    protected PropagationManager propagationManager;
+    @Autowired
+    protected PropagationTaskExecutor taskExecutor;
+    
     @Override
-    public void suspend(final SyncopeUser user, final boolean suspend) {
-        try {
-            LOG.debug("User {}:{} is over to max failed logins", user.getId(), user.getUsername());
+    public void process(Exchange exchange){
+                 
+        WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();            
+        Boolean suspend = exchange.getProperty("suspend", Boolean.class);
 
-            // reduce failed logins number to avoid multiple request
-            user.setFailedLogins(user.getFailedLogins() - 1);
+        if (suspend) {
+            UserMod userMod = new UserMod();
+            userMod.setId(updated.getResult());
 
-            // disable user and propagate suspension if and only if it is required by policy          
-            provisioningManager.innerSuspend(user, suspend);
-        } catch (Exception e) {
-            LOG.error("Error during user suspension", e);
+            final List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
+                    new WorkflowResult<Map.Entry<UserMod, Boolean>>(
+                            new SimpleEntry<UserMod, Boolean>(userMod, Boolean.FALSE),
+                            updated.getPropByRes(), updated.getPerformedTasks()));
+
+            taskExecutor.execute(tasks);
         }
     }
+    
 }

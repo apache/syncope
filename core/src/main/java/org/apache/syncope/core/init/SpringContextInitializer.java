@@ -49,6 +49,9 @@ public class SpringContextInitializer implements InitializingBean {
 
     @Autowired
     private WorkflowAdapterLoader workflowAdapterLoader;
+    
+    @Autowired
+    private CamelRouteLoader routeLoader;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -59,6 +62,8 @@ public class SpringContextInitializer implements InitializingBean {
         loggerLoader.load();
         classNamesLoader.load();
 
+        routeLoader.load();
+        
         workflowAdapterLoader.init();
     }
 }

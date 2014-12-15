@@ -18,15 +18,19 @@
  */
 package org.apache.syncope.core.rest.controller;
 
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Resource;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.mod.UserMod;
@@ -41,7 +45,10 @@ import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.types.SubjectType;
+import org.apache.syncope.common.to.PropagationStatus;
+import org.apache.syncope.core.persistence.beans.CamelRoute;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.provisioning.UserProvisioningManager;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
@@ -55,6 +62,7 @@ import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationReporter;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
+import org.apache.syncope.core.provisioning.camel.CamelUserProvisioningManager;
 import org.apache.syncope.core.rest.data.AttributableTransformer;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
@@ -92,9 +100,6 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
     protected UserDataBinder binder;
 
     @Autowired
-    protected UserWorkflowAdapter uwfAdapter;
-
-    @Autowired
     protected PropagationManager propagationManager;
 
     @Autowired
@@ -102,6 +107,12 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
 
     @Autowired
     protected AttributableTransformer attrTransformer;
+    
+    @Autowired
+    protected UserWorkflowAdapter uwfAdapter;
+    
+    @Resource(name = "defaultUserProvisioningManager")
+    protected UserProvisioningManager provisioningManager;
 
     @Transactional(readOnly = true)
     public boolean isSelfRegAllowed() {
@@ -215,24 +226,11 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
         UserTO actual = attrTransformer.transform(userTO);
         LOG.debug("Transformed: {}", actual);
 
-        /*
-         * Actual operations: workflow, propagation, notification
-         */
-        WorkflowResult<Map.Entry<Long, Boolean>> created = uwfAdapter.create(actual, storePassword);
+        Map.Entry<Long, List<PropagationStatus>>
+                created = provisioningManager.create(actual,storePassword);
 
-        List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(
-                created, actual.getPassword(), actual.getVirAttrs(), actual.getMemberships());
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
-                getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
-
-        final UserTO savedTO = binder.getUserTO(created.getResult().getKey());
-        savedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
+        final UserTO savedTO = binder.getUserTO(created.getKey());
+        savedTO.getPropagationStatusTOs().addAll(created.getValue());
         return savedTO;
     }
 
@@ -254,7 +252,8 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
         // AttributableMod transformation (if configured)
         UserMod actual = attrTransformer.transform(userMod);
         LOG.debug("Transformed: {}", actual);
-
+        
+        //CAMEL
         // SYNCOPE-501: check if there are memberships to be removed with virtual attributes assigned
         boolean removeMemberships = false;
         for (Long membershipId : actual.getMembershipsToRemove()) {
@@ -269,8 +268,9 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
                 removeMemberships = true;
             }
         }
+        
         //Actual operations: workflow, propagation, notification
-        WorkflowResult<Map.Entry<UserMod, Boolean>> updated = uwfAdapter.update(actual);
+        /*WorkflowResult<Map.Entry<UserMod, Boolean>> updated = uwfAdapter.update(actual);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated);
         if (tasks.isEmpty()) {
@@ -312,25 +312,29 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
         }
 
         final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey().getId());
-        updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
+        updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());*/
+        Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(actual,removeMemberships);
+
+        final UserTO updatedTO = binder.getUserTO(updated.getKey());
+        updatedTO.getPropagationStatusTOs().addAll(updated.getValue());
         return updatedTO;
     }
 
-    protected WorkflowResult<Long> setStatusOnWfAdapter(final SyncopeUser user, final StatusMod statusMod) {
-        WorkflowResult<Long> updated;
+     protected Map.Entry<Long, List<PropagationStatus>> setStatusOnWfAdapter(final SyncopeUser user, final StatusMod statusMod) {
+        Map.Entry<Long, List<PropagationStatus>> updated;
 
         switch (statusMod.getType()) {
             case SUSPEND:
-                updated = uwfAdapter.suspend(user.getId());
+                updated = provisioningManager.suspend(user, statusMod);
                 break;
 
             case REACTIVATE:
-                updated = uwfAdapter.reactivate(user.getId());
+                updated = provisioningManager.reactivate(user, statusMod);
                 break;
 
             case ACTIVATE:
             default:
-                updated = uwfAdapter.activate(user.getId(), statusMod.getToken());
+                updated = provisioningManager.activate(user, statusMod);
                 break;
 
         }
@@ -343,30 +347,10 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
     public UserTO status(final StatusMod statusMod) {
         SyncopeUser user = binder.getUserFromId(statusMod.getId());
 
-        WorkflowResult<Long> updated;
-        if (statusMod.isOnSyncope()) {
+        Map.Entry<Long, List<PropagationStatus>>
             updated = setStatusOnWfAdapter(user, statusMod);
-        } else {
-            updated = new WorkflowResult<Long>(user.getId(), null, statusMod.getType().name().toLowerCase());
-        }
-
-        // Resources to exclude from propagation
-        Set<String> resourcesToBeExcluded = new HashSet<String>(user.getResourceNames());
-        resourcesToBeExcluded.removeAll(statusMod.getResourceNames());
-
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
-                user, statusMod.getType() != StatusMod.ModType.SUSPEND, resourcesToBeExcluded);
-        PropagationReporter propReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propReporter.onPrimaryResourceFailure(tasks);
-        }
-
-        final UserTO savedTO = binder.getUserTO(updated.getResult());
-        savedTO.getPropagationStatusTOs().addAll(propReporter.getStatuses());
+        final UserTO savedTO = binder.getUserTO(updated.getKey());
+        savedTO.getPropagationStatusTOs().addAll(updated.getValue());
         return savedTO;
     }
 
@@ -435,23 +419,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
             throw sce;
         }
 
-        // Note here that we can only notify about "delete", not any other
-        // task defined in workflow process definition: this because this
-        // information could only be available after uwfAdapter.delete(), which
-        // will also effectively remove user from db, thus making virtually
-        // impossible by NotificationManager to fetch required user information
-        List<PropagationTask> tasks = propagationManager.getUserDeleteTaskIds(userId);
-
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
-                getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
-
-        uwfAdapter.delete(userId);
+        List<PropagationStatus> statuses = provisioningManager.delete(userId);
 
         final UserTO deletedTO;
         SyncopeUser deleted = userDAO.find(userId);
@@ -461,7 +429,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
         } else {
             deletedTO = binder.getUserTO(userId);
         }
-        deletedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
+        deletedTO.getPropagationStatusTOs().addAll(statuses);
 
         return deletedTO;
     }
@@ -526,7 +494,9 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
         final UserMod userMod = new UserMod();
         userMod.setId(userId);
         userMod.getResourcesToRemove().addAll(resources);
-        return binder.getUserTO(uwfAdapter.update(userMod).getResult().getKey().getId());
+        Long updatedId = provisioningManager.unlink(userMod);
+
+        return binder.getUserTO(updatedId);
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
@@ -536,7 +506,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
         final UserMod userMod = new UserMod();
         userMod.setId(userId);
         userMod.getResourcesToAdd().addAll(resources);
-        return binder.getUserTO(uwfAdapter.update(userMod).getResult().getKey().getId());
+        return binder.getUserTO(provisioningManager.link(userMod));
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
@@ -576,24 +546,12 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO deprovision(final Long userId, final Collection<String> resources) {
-        final SyncopeUser user = binder.getUserFromId(userId);
-
-        final Set<String> noPropResourceName = user.getResourceNames();
-        noPropResourceName.removeAll(resources);
-
-        final List<PropagationTask> tasks =
-                propagationManager.getUserDeleteTaskIds(userId, new HashSet<String>(resources), noPropResourceName);
-        final PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        final SyncopeUser user = binder.getUserFromId(userId);        
+        
+        List<PropagationStatus> statuses = provisioningManager.deprovision(userId, resources);
 
         final UserTO updatedUserTO = binder.getUserTO(user);
-        updatedUserTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
+        updatedUserTO.getPropagationStatusTOs().addAll(statuses);
         return updatedUserTO;
     }
 
@@ -645,5 +603,19 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
         }
 
         throw new UnresolvedReferenceException();
+    }
+    
+    public PrintStream getDefinition() throws FileNotFoundException{
+        /*String result = "";
+        if(provisioningManager instanceof CamelUserProvisioningManager){
+            List l = ((CamelUserProvisioningManager)provisioningManager).getRoutes();
+            Iterator<CamelRoute> it = l.iterator();
+            
+            while(it.hasNext()){
+                result += it.next().getRouteContent();
+            }                        
+        }
+        return new PrintStream(result);*/
+        return null;
     }
 }

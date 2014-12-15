@@ -29,6 +29,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.mod.AbstractSubjectMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.AbstractSubjectTO;
+import org.apache.syncope.common.to.PropagationStatus;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
@@ -80,19 +81,13 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
         UserTO userTO = UserTO.class.cast(subjectTO);
 
         Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getSyncTask());
-        WorkflowResult<Map.Entry<Long, Boolean>> created =
-                uwfAdapter.create(userTO, true, enabled, true);
+        //Delegate User Workflow Creation and its Propagation to provisioning manager
+        Map.Entry<Long, List<PropagationStatus>>
+            created = userProvisioningManager.create(userTO, true, true, enabled,Collections.singleton(profile.getSyncTask().getResource().getName()));                             
 
-        List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(created,
-                userTO.getPassword(), userTO.getVirAttrs(),
-                Collections.singleton(profile.getSyncTask().getResource().getName()),
-                userTO.getMemberships());
+        userTO = userDataBinder.getUserTO(created.getKey());
 
-        taskExecutor.execute(tasks);
-
-        userTO = userDataBinder.getUserTO(created.getResult().getKey());
-
-        result.setId(created.getResult().getKey());
+        result.setId(created.getKey());
 
         return userTO;
     }
@@ -126,7 +121,7 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
 
         final UserMod userMod = UserMod.class.cast(subjectMod);
 
-        WorkflowResult<Map.Entry<UserMod, Boolean>> updated;
+        /*WorkflowResult<Map.Entry<UserMod, Boolean>> updated;
         try {
             updated = uwfAdapter.update(userMod);
         } catch (Exception e) {
@@ -140,10 +135,10 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
                     new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, false),
                     new PropagationByResource(),
                     new HashSet<String>());
-        }
+        }*/
 
         final Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getSyncTask());
-        if (enabled != null) {
+        /*if (enabled != null) {
             SyncopeUser user = userDAO.find(before.getId());
 
             WorkflowResult<Long> enableUpdate = null;
@@ -168,9 +163,11 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
                 updated, updated.getResult().getKey().getPassword() != null,
                 Collections.singleton(profile.getSyncTask().getResource().getName()));
 
-        taskExecutor.execute(tasks);
+        taskExecutor.execute(tasks);*/
+                 
+        Map.Entry<Long, List<PropagationStatus>> updated = userProvisioningManager.updateInSync(userMod, before.getId(), result,enabled, Collections.singleton(profile.getSyncTask().getResource().getName()));        
 
-        return userDataBinder.getUserTO(updated.getResult().getKey().getId());
+        return userDataBinder.getUserTO(updated.getKey());
     }
 
     @Override
@@ -191,8 +188,8 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
     @Override
     protected void delete(final Long id) {
         try {
-            taskExecutor.execute(
-                    propagationManager.getUserDeleteTaskIds(id, profile.getSyncTask().getResource().getName()));
+            userProvisioningManager.
+                    delete(id,Collections.<String>singleton(profile.getSyncTask().getResource().getName()));
         } catch (Exception e) {
             // A propagation failure doesn't imply a synchronization failure.
             // The propagation exception status will be reported into the propagation task execution.
