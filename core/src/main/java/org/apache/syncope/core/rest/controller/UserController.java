@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,11 +42,8 @@ import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.mod.AttributeMod;
-import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.common.to.PropagationStatus;
-import org.apache.syncope.core.persistence.beans.CamelRoute;
-import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.provisioning.UserProvisioningManager;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -57,18 +53,11 @@ import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
-import org.apache.syncope.core.propagation.PropagationByResource;
-import org.apache.syncope.core.propagation.PropagationException;
-import org.apache.syncope.core.propagation.PropagationReporter;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
-import org.apache.syncope.core.provisioning.camel.CamelUserProvisioningManager;
 import org.apache.syncope.core.rest.data.AttributableTransformer;
 import org.apache.syncope.core.rest.data.UserDataBinder;
-import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.EntitlementUtil;
-import org.apache.syncope.core.workflow.WorkflowResult;
-import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -107,9 +96,6 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
 
     @Autowired
     protected AttributableTransformer attrTransformer;
-    
-    @Autowired
-    protected UserWorkflowAdapter uwfAdapter;
     
     @Resource(name = "defaultUserProvisioningManager")
     protected UserProvisioningManager provisioningManager;
@@ -269,50 +255,6 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
             }
         }
         
-        //Actual operations: workflow, propagation, notification
-        /*WorkflowResult<Map.Entry<UserMod, Boolean>> updated = uwfAdapter.update(actual);
-
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated);
-        if (tasks.isEmpty()) {
-            // SYNCOPE-459: take care of user virtual attributes ...
-            final PropagationByResource propByResVirAttr = binder.fillVirtual(
-                    updated.getResult().getKey().getId(),
-                    actual.getVirAttrsToRemove(),
-                    actual.getVirAttrsToUpdate());
-            // SYNCOPE-501: update only virtual attributes (if any of them changed), password propagation is
-            // not required, take care also of membership virtual attributes
-            boolean addOrUpdateMemberships = false;
-            for (MembershipMod membershipMod : actual.getMembershipsToAdd()) {
-                if (!binder.fillMembershipVirtual(
-                        updated.getResult().getKey().getId(),
-                        membershipMod.getRole(),
-                        null,
-                        membershipMod.getVirAttrsToRemove(),
-                        membershipMod.getVirAttrsToUpdate(),
-                        false).isEmpty()) {
-
-                    addOrUpdateMemberships = true;
-                }
-            }
-            tasks.addAll(!propByResVirAttr.isEmpty() || addOrUpdateMemberships || removeMemberships
-                    ? propagationManager.getUserUpdateTaskIds(updated, false, null)
-                    : Collections.<PropagationTask>emptyList());
-        }
-
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
-                getBean(PropagationReporter.class);
-
-        if (!tasks.isEmpty()) {
-            try {
-                taskExecutor.execute(tasks, propagationReporter);
-            } catch (PropagationException e) {
-                LOG.error("Error propagation primary resource", e);
-                propagationReporter.onPrimaryResourceFailure(tasks);
-            }
-        }
-
-        final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey().getId());
-        updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());*/
         Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(actual,removeMemberships);
 
         final UserTO updatedTO = binder.getUserTO(updated.getKey());
@@ -372,7 +314,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
             throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
         }
 
-        uwfAdapter.requestPasswordReset(user.getId());
+        provisioningManager.requestPasswordReset(user.getId());
     }
 
     @PreAuthorize("isAnonymous() or hasRole(T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
@@ -382,18 +324,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
         if (user == null) {
             throw new NotFoundException("User with token " + token);
         }
-
-        uwfAdapter.confirmPasswordReset(user.getId(), token, password);
-
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(user, null, null);
-        PropagationReporter propReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propReporter.onPrimaryResourceFailure(tasks);
-        }
+        provisioningManager.confirmPasswordReset(user, token, password);
     }
 
     @PreAuthorize("isAuthenticated() "

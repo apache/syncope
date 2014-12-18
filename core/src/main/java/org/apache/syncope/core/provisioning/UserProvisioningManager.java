@@ -47,4 +47,8 @@ public interface UserProvisioningManager extends ProvisioningManager<UserTO, Use
     
     public void innerSuspend(SyncopeUser user, boolean suspend);
     
+    public void requestPasswordReset(final Long id);
+    
+    public void confirmPasswordReset(SyncopeUser user,final String token,final String password);
+    
 }

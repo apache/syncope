@@ -344,4 +344,24 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager{
             }            
     }
 
+    @Override
+    public void requestPasswordReset(Long id) {
+        uwfAdapter.requestPasswordReset(id);
+    }
+
+    @Override
+    public void confirmPasswordReset(SyncopeUser user, String token, String password) {
+            
+        uwfAdapter.confirmPasswordReset(user.getId(), token, password);
+
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(user, null, null);
+        PropagationReporter propReporter =
+                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+        try {
+            taskExecutor.execute(tasks, propReporter);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propReporter.onPrimaryResourceFailure(tasks);
+        }    
+    }
 }

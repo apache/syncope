@@ -18,11 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.camel;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.net.URLDecoder;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,11 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
@@ -46,10 +39,7 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.impl.DefaultMessage;
-import org.apache.camel.model.Constants;
-import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.RoutesDefinition;
-import org.apache.camel.spring.SpringCamelContext;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.PropagationStatus;
@@ -60,15 +50,11 @@ import org.apache.syncope.core.persistence.dao.RouteDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.provisioning.UserProvisioningManager;
 import org.apache.syncope.core.sync.SyncResult;
-import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+
 
 public class CamelUserProvisioningManager implements UserProvisioningManager {
 
@@ -451,6 +437,38 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
             throw (RuntimeException) o.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
+    }
+
+    @Override
+    public void requestPasswordReset(Long id) {
+        String uri = "direct:requestPwdResetPort";
+        PollingConsumer pollingConsumer = getConsumer(uri);
+
+        sendMessage("direct:requestPwdReset", id);
+        Exchange o = pollingConsumer.receive();
+
+        if (o.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
+            throw (RuntimeException) o.getProperty(Exchange.EXCEPTION_CAUGHT);
+        }
+    }
+
+    @Override
+    public void confirmPasswordReset(SyncopeUser user, final String token, final String password) {
+        String uri = "direct:confirmPwdResetPort";
+        PollingConsumer pollingConsumer = getConsumer(uri);
+        
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put("user", user);
+        props.put("userId", user.getId());
+        props.put("token", token);
+        props.put("password", password);
+
+        sendMessage("direct:confirmPwdReset", user, props);
+        Exchange o = pollingConsumer.receive();
+
+        if (o.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
+            throw (RuntimeException) o.getProperty(Exchange.EXCEPTION_CAUGHT);
+        }
     }
 
 }

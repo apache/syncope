@@ -162,6 +162,7 @@ under the License.
     <bean id="defaultUserDeprovisionPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserDeprovisionPropagation"/>    
     <bean id="defaultUserWFSuspendPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserWFSuspendPropagation"/>
     <bean id="defaultUserStatusPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserStatusPropagation"/>
+    <bean id="defaultUserConfirmPwdResetPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserConfirmPwdResetPropagation"/>
     <bean id="defaultRoleCreatePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleCreatePropagation"/>
     <bean id="defaultRoleCreateSyncPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleCreateSyncPropagation"/>
     <bean id="defaultRoleUpdatePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleUpdatePropagation"/>
