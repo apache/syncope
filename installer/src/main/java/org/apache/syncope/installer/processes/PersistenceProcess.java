@@ -22,11 +22,10 @@ import org.apache.syncope.installer.utilities.FileSystemUtils;
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
 import org.apache.syncope.installer.enums.DBs;
-import org.apache.syncope.installer.files.OrmXml;
 import org.apache.syncope.installer.files.PersistenceProperties;
 import org.apache.syncope.installer.utilities.InstallLog;
 
-public class PersistenceProcess {
+public class PersistenceProcess extends BaseProcess {
 
     private String installPath;
 
@@ -56,8 +55,8 @@ public class PersistenceProcess {
         oracleTableSpace = args[7];
 
         final FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
-
         final StringBuilder persistenceProperties = new StringBuilder(PersistenceProperties.HEADER);
+        setSyncopeInstallDir(installPath, artifactId);
 
         handler.logOutput("Configure persistence file according to " + dbSelected + " properties", true);
         InstallLog.getInstance().info("Configure persistence file according to " + dbSelected + " properties");
@@ -80,24 +79,22 @@ public class PersistenceProcess {
                 persistenceProperties.append(String.format(
                         PersistenceProperties.ORACLE, persistenceUrl, persistenceUser, persistencePassword,
                         oracleTableSpace));
-                writeOrmFile(fileSystemUtils, OrmXml.ORACLE_ORM);
+                fileSystemUtils.copyFileFromResources("/META-INF/orm.xml.oracle",
+                        syncopeInstallDir + properties.getProperty("coreMetaInfDirectory")
+                        + "/" + properties.getProperty("ormXmlFile"), handler);
                 break;
             case SQLSERVER:
                 persistenceProperties.append(String.format(
                         PersistenceProperties.SQLSERVER, persistenceUrl, persistenceUser, persistencePassword));
-                writeOrmFile(fileSystemUtils, OrmXml.SQLSERVER_ORM);
+                fileSystemUtils.copyFileFromResources("/META-INF/orm.xml.sqlserver",
+                        syncopeInstallDir
+                        + properties.getProperty("coreMetaInfDirectory")
+                        + "/" + properties.getProperty("ormXmlFile"), handler);
                 break;
         }
 
         fileSystemUtils.writeToFile(new File(
-                installPath + "/" + artifactId + PersistenceProperties.PATH), persistenceProperties.toString());
-
-    }
-
-    private void writeOrmFile(final FileSystemUtils fileSystemUtils, final String content) {
-        fileSystemUtils.createDirectory(
-                installPath + File.separator + artifactId + OrmXml.PATH_DIR);
-        fileSystemUtils.writeToFile(
-                new File(installPath + File.separator + artifactId + OrmXml.PATH_COMPLETE), content);
+                syncopeInstallDir + properties.getProperty("persistencePropertiesFile")),
+                persistenceProperties.toString());
     }
 }

@@ -33,7 +33,7 @@ under the License.
     <javaversion>${targetJdk}</javaversion>
   </info>
   
-  <guiprefs resizable="no" width="800" height="600">
+  <guiprefs resizable="no" width="800" height="600">    
     <modifier key="useButtonIcons" value="yes"/>
     <modifier key="useLabelIcons" value="no"/>
     <modifier key="labelGap" value="2"/>
@@ -55,7 +55,7 @@ under the License.
     <variable name="InstallerFrame.logfilePath" value="Default"/>
     <variable name="WELCOME_TEXT" value="Apache Syncope Installer"/>
     <variable name="WELCOME_VERSION" value="${appversion}"/>
-    <variable name="TargetPanel.dir.unix" value="/tmp/syncope"/>
+    <variable name="TargetPanel.dir.unix" value="/var/tmp/syncope"/>
     <variable name="TargetPanel.dir.windows" value="C:\Program Files"/>
   </variables>
   
@@ -170,6 +170,6 @@ under the License.
     <pack name="Apache Syncope" required="yes">
       <description>Apache Syncope Installer</description>
     </pack>
-  </packs>
+  </packs> 
   
 </izpack:installation>

@@ -18,11 +18,14 @@
  */
 package org.apache.syncope.installer.files;
 
-public class JBossDeploymentStructureXml {
-    
-    public static final String PLACEHOLDER = "<module name=\"org.apache.xalan\"/>";
+public class ConsoleProperties {
 
-    public static final String JBOSSMODULE = "<module name=\"org.apache.xalan\"/>\n"
-            + "<module name=\"%s\"/>";
+    public static final String PLACEHOLDER = "scheme=http\n"
+            + "host=localhost\n"
+            + "port=8080";
+
+    public static final String CONSOLE = "scheme=%s\n"
+            + "host=%s\n"
+            + "port=%s";
 
 }

@@ -29,6 +29,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.URL;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -51,6 +56,21 @@ public class FileSystemUtils {
         final File directory = new File(directoryPath);
         if (!directory.exists()) {
             directory.mkdirs();
+        }
+    }
+
+    public void copyFile(final String sourceFilePath, final String targetFilePath) {
+        try {
+            final CopyOption[] options = new CopyOption[] {
+                StandardCopyOption.REPLACE_EXISTING,
+                StandardCopyOption.COPY_ATTRIBUTES
+            };
+            Files.copy(Paths.get(sourceFilePath), Paths.get(targetFilePath), options);
+        } catch (final IOException ex) {
+            final String errorMessage =
+                    "Error copy file " + sourceFilePath + " to " + targetFilePath;
+            handler.emitError(errorMessage, errorMessage);
+            InstallLog.getInstance().error(errorMessage);
         }
     }
 
@@ -96,6 +116,18 @@ public class FileSystemUtils {
         }
     }
 
+    public String readFile(final File file) {
+        String content = "";
+        try {
+            content = FileUtils.readFileToString(file);
+        } catch (IOException ex) {
+            final String errorMessage = "Error reading file " + file.getAbsolutePath() + ": " + ex.getMessage();
+            handler.emitError(errorMessage, errorMessage);
+            InstallLog.getInstance().error(errorMessage);
+        }
+        return content;
+    }
+
     public void appendToFile(final File file, final String content) {
         try {
             if (!file.exists()) {
@@ -130,5 +162,18 @@ public class FileSystemUtils {
 
     public static void delete(final File file) {
         FileUtils.deleteQuietly(file);
+    }
+
+    public void copyFileFromResources(final String filePath,
+            final String destination, final AbstractUIProcessHandler handler) {
+        try {
+            final URL url = getClass().getResource(filePath);
+            final File dest = new File(destination);
+            FileUtils.copyURLToFile(url, dest);
+        } catch (IOException ex) {
+            final String errorMessage = "Error copy file " + filePath;
+            handler.emitError(errorMessage, errorMessage);
+            InstallLog.getInstance().error(errorMessage);
+        }
     }
 }

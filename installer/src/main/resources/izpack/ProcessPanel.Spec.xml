@@ -64,23 +64,29 @@ under the License.
       <arg>$tomcat.container.port</arg><!-- 6 -->
       <arg>$tomcat.container.user</arg><!-- 7 -->
       <arg>$tomcat.container.pwd</arg><!-- 8 -->
-      <arg>$glassfish.container.dir</arg><!-- 9 -->
-      <arg>$mvn.conf.directory</arg><!-- 10 -->
-      <arg>$mvn.log.directory</arg><!-- 11 -->
-      <arg>$mvn.bundle.directory</arg><!-- 12 -->
-      <arg>$with.datasuorce</arg><!-- 13 -->
-      <arg>$jboss.container.ssl</arg><!-- 14 -->
-      <arg>$jboss.container.host</arg><!-- 15 -->
-      <arg>$jboss.container.port</arg><!-- 16 -->
-      <arg>$jboss.container.jdbc.module</arg><!-- 17 -->
-      <arg>$jboss.container.user</arg><!-- 18 -->
-      <arg>$jboss.container.pwd</arg><!-- 19 -->
-      <arg>$mvn.proxy</arg><!-- 20 -->
-      <arg>$mvn.proxy.host</arg><!-- 21 -->
-      <arg>$mvn.proxy.port</arg><!-- 22 -->
-      <arg>$mvn.proxy.user</arg><!-- 23 -->
-      <arg>$mvn.proxy.pwd</arg><!-- 24 -->
-      <arg>$mvn.proxy.autoconf</arg><!-- 25 -->
+      <arg>$glassfish.container.ssl</arg><!-- 9 -->
+      <arg>$glassfish.container.host</arg><!-- 10 -->
+      <arg>$glassfish.container.port</arg><!--11 -->
+      <arg>$glassfish.container.dir</arg><!-- 12 -->
+      <arg>$mvn.conf.directory</arg><!-- 13 -->
+      <arg>$mvn.log.directory</arg><!-- 14 -->
+      <arg>$mvn.bundle.directory</arg><!-- 15 -->
+      <arg>$with.datasuorce</arg><!-- 16 -->
+      <arg>$jboss.container.ssl</arg><!-- 17 -->
+      <arg>$jboss.container.host</arg><!-- 18 -->
+      <arg>$jboss.container.port</arg><!-- 19 -->
+      <arg>$jboss.container.jdbc.module</arg><!-- 20 -->
+      <arg>$jboss.container.user</arg><!-- 21 -->
+      <arg>$jboss.container.pwd</arg><!-- 22 -->
+      <arg>$jboss.container.management.port</arg><!-- 23 -->
+      <arg>$mvn.proxy</arg><!-- 24 -->
+      <arg>$mvn.proxy.host</arg><!-- 25 -->
+      <arg>$mvn.proxy.port</arg><!-- 26 -->
+      <arg>$mvn.proxy.user</arg><!-- 27 -->
+      <arg>$mvn.proxy.pwd</arg><!-- 28 -->
+      <arg>$mvn.proxy.autoconf</arg><!-- 29 -->
+      <arg>$mvn.proxy.autoconf</arg><!-- 30 -->
+      <arg>$mvn.proxy.autoconf</arg><!-- 31 -->
     </executeclass>
   </job>
   <onFail previous="true" next="false" />
