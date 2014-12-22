@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+   
+  <groupId>org.apache.syncope</groupId>
+  <artifactId>activitiModelerSetup</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+   
+  <properties>
+    <activiti.version>5.16.2</activiti.version>
+    <activiti-modeler.directory>${modeler.directory}</activiti-modeler.directory>
+    <tokenValueMap>${modeler.directory}/oryx.debug.js-tokenValueMap.properties</tokenValueMap>
+     
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+   
+  <dependencies>
+    <dependency>
+      <groupId>org.activiti</groupId>
+      <artifactId>activiti-webapp-explorer2</artifactId>           
+      <version>${activiti.version}</version>
+      <type>war</type>
+      <scope>test</scope>
+    </dependency>   
+  </dependencies>
+   
+  <build>   
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <id>setupActivitiModeler</id>
+            <phase>process-resources</phase>
+            <configuration>
+              <target>
+                <unzip src="${settings.localRepository}/org/activiti/activiti-webapp-explorer2/${activiti.version}/activiti-webapp-explorer2-${activiti.version}.war"
+                       dest="${project.build.directory}/activiti-webapp-explorer2" />
+                 
+                <mkdir dir="${activiti-modeler.directory}" />
+                 
+                <mkdir dir="${activiti-modeler.directory}/editor" />
+                <copy todir="${activiti-modeler.directory}/editor">
+                  <fileset dir="${project.build.directory}/activiti-webapp-explorer2/editor">
+                    <exclude name="oryx.js" />
+                  </fileset>
+                </copy>
+                <copy file="${project.build.directory}/activiti-webapp-explorer2/WEB-INF/classes/plugins.xml"
+                      todir="${activiti-modeler.directory}/editor" />
+                <copy file="${project.build.directory}/activiti-webapp-explorer2/WEB-INF/classes/stencilset.json"
+                      todir="${activiti-modeler.directory}/editor" />
+                 
+                <mkdir dir="${activiti-modeler.directory}/explorer" />
+                <copy todir="${activiti-modeler.directory}/explorer">
+                  <fileset dir="${project.build.directory}/activiti-webapp-explorer2/explorer" />
+                </copy>
+                 
+                <mkdir dir="${activiti-modeler.directory}/libs" />
+                <copy todir="${activiti-modeler.directory}/libs">
+                  <fileset dir="${project.build.directory}/activiti-webapp-explorer2/libs" />
+                </copy>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>replacer</artifactId>
+        <version>1.5.3</version>
+        <executions>
+          <execution>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>                  
+          </execution>
+        </executions>
+        <configuration>
+          <file>${activiti-modeler.directory}/editor/oryx.debug.js</file>
+          <tokenValueMap>${tokenValueMap}</tokenValueMap>
+          <unescape>true</unescape>
+          <regex>false</regex>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

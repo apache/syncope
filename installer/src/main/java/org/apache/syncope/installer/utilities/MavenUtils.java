@@ -65,8 +65,8 @@ public class MavenUtils {
         final InvocationRequest request = new DefaultInvocationRequest();
         request.setGoals(Collections.singletonList("archetype:generate"));
         request.setInteractive(false);
-        final Properties properties
-                = archetypeProperties(archetypeVersion, groupId, artifactId, secretKey, anonymousKey);
+        final Properties properties =
+                archetypeProperties(archetypeVersion, groupId, artifactId, secretKey, anonymousKey);
         request.setProperties(properties);
         if (customSettingsFile != null && FileUtils.sizeOf(customSettingsFile) > 0) {
             request.setUserSettingsFile(customSettingsFile);
@@ -94,24 +94,8 @@ public class MavenUtils {
         return properties;
     }
 
-    public void mvnCleanPackage(final String path, final File customSettingsFile) {
+    public void mvnCleanPackageWithProperties(final String path, final Properties properties, final File customSettingsFile) {
         final InvocationRequest request = new DefaultInvocationRequest();
-        if (customSettingsFile != null && FileUtils.sizeOf(customSettingsFile) > 0) {
-            request.setUserSettingsFile(customSettingsFile);
-        }
-        final List<String> mavenGoals = new ArrayList<String>();
-        mavenGoals.add("clean");
-        mavenGoals.add("package");
-        request.setGoals(mavenGoals);
-        logToHandler(request.getGoals(), new Properties());
-        logToFile(request.getGoals(), new Properties());
-        invoke(request, path);
-    }
-
-    public void mvnCleanPackageWithProperties(final String path, final String confDirectory,
-            final String logDirectory, final String bundlesDirectory, final File customSettingsFile) {
-        final InvocationRequest request = new DefaultInvocationRequest();
-        final Properties properties = packageProperties(confDirectory, logDirectory, bundlesDirectory);
         request.setProperties(properties);
         if (customSettingsFile != null && FileUtils.sizeOf(customSettingsFile) > 0) {
             request.setUserSettingsFile(customSettingsFile);
@@ -147,15 +131,6 @@ public class MavenUtils {
         for (final String propertyName : properties.stringPropertyNames()) {
             InstallLog.getInstance().info("-D " + propertyName + "=" + properties.getProperty(propertyName));
         }
-    }
-
-    private Properties packageProperties(final String confDirectory, final String logDirectory,
-            final String bundlesDirectory) {
-        final Properties properties = new Properties();
-        properties.setProperty("conf.directory", confDirectory);
-        properties.setProperty("log.directory", logDirectory);
-        properties.setProperty("bundles.directory", bundlesDirectory);
-        return properties;
     }
 
     private InvocationResult invoke(final InvocationRequest request, final String path) {
