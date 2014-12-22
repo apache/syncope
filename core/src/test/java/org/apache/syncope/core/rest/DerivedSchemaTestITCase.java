@@ -26,7 +26,6 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
-
 import org.apache.syncope.common.to.DerSchemaTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.EntityViolationType;
@@ -146,8 +145,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidRDerSchema, e.getType());
-
-            assertTrue(e.getElements().iterator().next().toString().contains(EntityViolationType.InvalidName.name()));
+            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
         }
     }
 }
