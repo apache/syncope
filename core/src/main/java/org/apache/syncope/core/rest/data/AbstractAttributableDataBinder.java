@@ -221,7 +221,7 @@ public abstract class AbstractAttributableDataBinder {
                 try {
                     attr.addValue(value, attributableUtil);
                 } catch (InvalidAttrValueException e) {
-                    LOG.error("Invalid value for attribute " + schema.getName() + ": " + value, e);
+                    LOG.warn("Invalid value for attribute " + schema.getName() + ": " + value, e);
 
                     invalidValues.getElements().add(schema.getName() + ": " + value + " - " + e.getMessage());
                 }
