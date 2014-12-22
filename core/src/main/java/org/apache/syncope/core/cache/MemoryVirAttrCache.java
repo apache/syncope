@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.util;
+package org.apache.syncope.core.cache;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -26,26 +26,26 @@ import java.util.Set;
 import org.apache.syncope.common.types.AttributableType;
 
 /**
- * Virtual Attribute Value cache.
+ * In-memory (HashMap) virtual attribute value cache implementation.
  */
-public final class VirAttrCache {
+public class MemoryVirAttrCache implements VirAttrCache {
 
     /**
      * Elapsed time in seconds.
      */
-    private final int ttl;
+    protected int ttl;
 
     /**
      * Max cache size.
      */
-    private final int maxCacheSize;
+    protected int maxCacheSize;
 
     /**
      * Cache entries.
      */
-    private final Map<VirAttrCacheKey, VirAttrCacheValue> cache = new HashMap<VirAttrCacheKey, VirAttrCacheValue>();
+    protected final Map<VirAttrCacheKey, VirAttrCacheValue> cache = new HashMap<VirAttrCacheKey, VirAttrCacheValue>();
 
-    public VirAttrCache(final int ttl, final int maxCacheSize) {
+    public MemoryVirAttrCache(final int ttl, final int maxCacheSize) {
         this.ttl = ttl;
         this.maxCacheSize = maxCacheSize;
     }
@@ -58,6 +58,7 @@ public final class VirAttrCache {
      * @param schemaName virtual attribute name
      * @param value virtual attribute values
      */
+    @Override
     public void put(
             final AttributableType type,
             final Long id,
@@ -82,6 +83,7 @@ public final class VirAttrCache {
      * @param schemaName virtual attribute schema name.
      * @return cached values or null if virtual attribute is not cached.
      */
+    @Override
     public VirAttrCacheValue get(final AttributableType type, final Long id, final String schemaName) {
         return cache.get(new VirAttrCacheKey(type, id, schemaName));
     }
@@ -93,6 +95,7 @@ public final class VirAttrCache {
      * @param id user or role id
      * @param schemaName virtual attribute schema name
      */
+    @Override
     public void expire(final AttributableType type, final Long id, final String schemaName) {
         final VirAttrCacheValue value = cache.get(new VirAttrCacheKey(type, id, schemaName));
         if (isValidEntry(value)) {
@@ -137,6 +140,7 @@ public final class VirAttrCache {
      * @param value cache entry value.
      * @return TRUE if the value is valid; FALSE otherwise.
      */
+    @Override
     public boolean isValidEntry(final VirAttrCacheValue value) {
         final Date expiringDate = new Date(value == null ? 0 : value.getCreationDate().getTime() + ttl * 1000);
         return expiringDate.after(new Date());

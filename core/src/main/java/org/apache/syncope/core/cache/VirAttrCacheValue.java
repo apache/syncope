@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.util;
+package org.apache.syncope.core.cache;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -80,7 +80,7 @@ public class VirAttrCacheValue {
         return lastAccessDate;
     }
 
-    void setLastAccessDate(Date lastAccessDate) {
+    void setLastAccessDate(final Date lastAccessDate) {
         this.lastAccessDate = lastAccessDate;
     }
 }
