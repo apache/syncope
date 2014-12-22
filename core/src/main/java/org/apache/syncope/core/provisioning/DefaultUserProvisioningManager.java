@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.PropagationStatus;
@@ -67,11 +68,11 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager{
 
     @Override
     public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO){
-        return create(userTO, true);
+        return create(userTO, true, false, null, Collections.<String>emptySet());
     }
     
     public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO, boolean storePassword) {
-        WorkflowResult<Map.Entry<Long, Boolean>> created;
+        /*WorkflowResult<Map.Entry<Long, Boolean>> created;
         try {
             created = uwfAdapter.create(userTO,storePassword);
         } catch (RuntimeException e) {
@@ -92,20 +93,21 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager{
 
         Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
                 created.getResult().getKey(), propagationReporter.getStatuses());
-        return result;
+        return result;*/
+        return create(userTO, storePassword, false, null, Collections.<String>emptySet());
     }
     
     @Override
     public Map.Entry<Long, List<PropagationStatus>> create(UserTO userTO, boolean storePassword, boolean disablePwdPolicyCheck, Boolean enabled, Set<String> excludedResources) {
                 WorkflowResult<Map.Entry<Long, Boolean>> created;
         try {
-            created = uwfAdapter.create(userTO,storePassword);
+            created = uwfAdapter.create(userTO, disablePwdPolicyCheck, enabled, storePassword);
         } catch (RuntimeException e) {
             throw e;
         }
 
         List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(
-                created, userTO.getPassword(), userTO.getVirAttrs(), excludedResources, null);
+                created, userTO.getPassword(), userTO.getVirAttrs(), excludedResources, userTO.getMemberships());
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
                 getBean(PropagationReporter.class);
         try {
@@ -135,14 +137,39 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager{
         }
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated);
-
+        if (tasks.isEmpty()) {
+            // SYNCOPE-459: take care of user virtual attributes ...
+            final PropagationByResource propByResVirAttr = binder.fillVirtual(
+                    updated.getResult().getKey().getId(),
+                    userMod.getVirAttrsToRemove(),
+                    userMod.getVirAttrsToUpdate());
+            // SYNCOPE-501: update only virtual attributes (if any of them changed), password propagation is
+            // not required, take care also of membership virtual attributes
+            boolean addOrUpdateMemberships = false;
+            for (MembershipMod membershipMod : userMod.getMembershipsToAdd()) {
+                if (!binder.fillMembershipVirtual(
+                        updated.getResult().getKey().getId(),
+                        membershipMod.getRole(),
+                        null,
+                        membershipMod.getVirAttrsToRemove(),
+                        membershipMod.getVirAttrsToUpdate(),
+                        false).isEmpty()) {
+                    addOrUpdateMemberships = true;
+                }
+            }
+            tasks.addAll(!propByResVirAttr.isEmpty() || addOrUpdateMemberships || removeMemberships
+                    ? propagationManager.getUserUpdateTaskIds(updated, false, null)
+                    : Collections.<PropagationTask>emptyList());
+        }
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
                 getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
+        if (!tasks.isEmpty()) {
+            try {
+                taskExecutor.execute(tasks, propagationReporter);
+            } catch (PropagationException e) {
+                LOG.error("Error propagation primary resource", e);
+                propagationReporter.onPrimaryResourceFailure(tasks);
+            }
         }
 
         Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
@@ -272,7 +299,8 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager{
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> updateInSync(final UserMod userMod,final Long id, final SyncResult result, Boolean enabled, Set<String> excludedResources){
+    public Map.Entry<Long, List<PropagationStatus>> updateInSync(final UserMod userMod,final Long id, 
+                                               final SyncResult result, Boolean enabled, Set<String> excludedResources){
         
         WorkflowResult<Map.Entry<UserMod, Boolean>> updated;
         try {
@@ -313,13 +341,14 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager{
                     getBean(PropagationReporter.class);
 
             List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated,updated.getResult().getKey().getPassword() != null,excludedResources);
-                
+               
             try {
                     taskExecutor.execute(tasks, propagationReporter);
             } catch (PropagationException e) {
                     LOG.error("Error propagation primary resource", e);
                     propagationReporter.onPrimaryResourceFailure(tasks);
             }
+
             
             return new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(updated.getResult().getKey().getId(), propagationReporter.getStatuses());
 

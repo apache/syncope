@@ -70,13 +70,7 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager{
     @Override
     public Map.Entry<Long, List<PropagationStatus>> create(RoleTO subject, Set<String> excludedResources) {
         
-        WorkflowResult<Long> created;
-        try{
-            created = rwfAdapter.create(subject);
-        }
-        catch(RuntimeException e){
-            throw e;
-        }
+        WorkflowResult<Long> created = rwfAdapter.create(subject);
 
         EntitlementUtil.extendAuthContext(created.getResult());
 
@@ -89,6 +83,9 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager{
             LOG.error("Error propagation primary resource", e);
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
+
+        final RoleTO savedTO = binder.getRoleTO(created.getResult());
+        savedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
         
         Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
                 created.getResult(), propagationReporter.getStatuses());
@@ -125,17 +122,10 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager{
     @Override
     public Map.Entry<Long, List<PropagationStatus>> update(RoleMod subjectMod, Set<String> excludedResources) {
                 
-        WorkflowResult<Long> updated;
-        
-        try{
-            updated = rwfAdapter.update(subjectMod);
-        }
-        catch(RuntimeException e){
-            throw e;
-        }
+        WorkflowResult<Long> updated = rwfAdapter.update(subjectMod);
 
         List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
-                subjectMod.getVirAttrsToRemove(), subjectMod.getVirAttrsToUpdate(),excludedResources);
+                subjectMod.getVirAttrsToRemove(), subjectMod.getVirAttrsToUpdate());
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
                 PropagationReporter.class);
         try {
@@ -144,6 +134,7 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager{
             LOG.error("Error propagation primary resource", e);
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
+
         
         Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
                 updated.getResult(), propagationReporter.getStatuses());

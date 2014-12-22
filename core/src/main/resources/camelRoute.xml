@@ -24,445 +24,445 @@ under the License.
                            http://camel.apache.org/schema/spring
                            http://camel.apache.org/schema/spring/camel-spring.xsd">
  
+  <!--
+      The default routes define each task involved in user creation:
+      main operations consist in user workflow creation and its propagation.         
+  -->
+  <routeContext id="defaultRoutes" xmlns="http://camel.apache.org/schema/spring">    
+        
     <!--
-        The default routes define each task involved in user creation:
-        main operations consist in user workflow creation and its propagation.         
+        CREATE USER
+        This is the entry point of the route and is involved in accepting
+        the UserTO. When it arrives, the user workflow is created. If the
+        creation is successfull, the result is sent to propagation, otherwise
+        if an exception was raised, the exception has to be returned to the
+        caller. The property actual allows to store the received UserTO in
+        order to use it later.
     -->
-    <routeContext id="defaultRoutes" xmlns="http://camel.apache.org/schema/spring">    
         
-        <!--
-            CREATE USER
-            This is the entry point of the route and is involved in accepting
-            the UserTO. When it arrives, the user workflow is created. If the
-            creation is successfull, the result is sent to propagation, otherwise
-            if an exception was raised, the exception has to be returned to the
-            caller. The property actual allows to store the received UserTO in
-            order to use it later.
-        -->
-        
-        <route id="createUser">
-          <from uri="direct:createUser"/>
-          <setProperty propertyName="actual">
-            <simple>${body}</simple>
-          </setProperty>
-          <doTry>
-            <bean ref="uwfAdapter" method="create(${body},${property.disablePwdPolicyCheck},
+    <route id="createUser">
+      <from uri="direct:createUser"/>
+      <setProperty propertyName="actual">
+        <simple>${body}</simple>
+      </setProperty>
+      <doTry>
+        <bean ref="uwfAdapter" method="create(${body},${property.disablePwdPolicyCheck},
                                  ${property.enabled},${property.storePassword})"/>
-            <process ref="defaultUserCreatePropagation" />
-            <to uri="direct:createPort"/>
-            <doCatch>        
-                <exception>java.lang.RuntimeException</exception>
-                <handled>
-                    <constant>false</constant>
-                </handled>
-                <to uri="direct:createPort"/>
-            </doCatch>
-          </doTry>
-        </route> 
+        <process ref="defaultUserCreatePropagation" />
+        <to uri="direct:createPort"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:createPort"/>
+        </doCatch>
+      </doTry>
+    </route> 
         
-        <!--
-            The propagation route deals with propagation of created user. In this
-            case we used a custom processor to perform this task: it means that
-            a custom java class contains the propagation strategy.
-        -->
+    <!--
+        The propagation route deals with propagation of created user. In this
+        case we used a custom processor to perform this task: it means that
+        a custom java class contains the propagation strategy.
+    -->
        
-        <!--
-            UPDATE USER
-        -->
-        <route id="updateUser">
-            <from uri="direct:updateUser"/>
-            <setProperty propertyName="actual">
-                <simple>${body}</simple>
-            </setProperty>
-            <doTry>
-              <bean ref="uwfAdapter" method="update(${body})"/>
-              <process ref="defaultUserUpdatePropagation" />
-              <to uri="direct:updatePort"/>
-              <doCatch>        
-                  <exception>java.lang.RuntimeException</exception>
-                  <handled>
-                      <constant>false</constant>
-                  </handled>
-                  <to uri="direct:updatePort"/>
-              </doCatch>
-            </doTry>
-        </route>
+    <!--
+        UPDATE USER
+    -->
+    <route id="updateUser">
+      <from uri="direct:updateUser"/>
+      <setProperty propertyName="actual">
+        <simple>${body}</simple>
+      </setProperty>
+      <doTry>
+        <bean ref="uwfAdapter" method="update(${body})"/>
+        <process ref="defaultUserUpdatePropagation" />
+        <to uri="direct:updatePort"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:updatePort"/>
+        </doCatch>
+      </doTry>
+    </route>
         
 
                 
-        <!--
-            UPDATE SYNC USER
-        -->
-        <route id="updateSyncUser">
-            <from uri="direct:updateSyncUser"/>            
-            <doTry>
-              <bean ref="uwfAdapter" method="update(${body})"/>
-              <to uri="direct:syncUserStatus"/>
-              <doCatch>        
-                  <exception>java.lang.RuntimeException</exception>
-                  <handled>
-                      <constant>false</constant>
-                  </handled>
-                  <to uri="direct:updateSyncPort"/>
-              </doCatch>
-            </doTry>
-        </route>
+    <!--
+        UPDATE SYNC USER
+    -->
+    <route id="updateSyncUser">
+      <from uri="direct:updateSyncUser"/>            
+      <doTry>
+        <bean ref="uwfAdapter" method="update(${body})"/>
+        <to uri="direct:syncUserStatus"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:updateSyncPort"/>
+        </doCatch>
+      </doTry>
+    </route>
         
-        <route id="syncUserStatus">
-            <from uri="direct:syncUserStatus"/>
-                <process ref="userStatusOnSync" />
-                <process ref="defaultUserUpdateSyncPropagation" />
-            <to uri="direct:updateSyncPort"/>
-        </route>
-        <!--
-            DELETE USER
-        -->
-        <route id="deleteUser">
-            <from uri="direct:deleteUser"/>
-            <doTry>
-              <process ref="defaultUserDeletePropagation" />
-              <bean ref="uwfAdapter" method="delete(${body})"/>
-              <setBody>
-                  <simple>${property.statuses}</simple>
-              </setBody>
-              <to uri="direct:deletePort"/>
-              <doCatch>        
-                  <exception>java.lang.RuntimeException</exception>
-                  <handled>
-                      <constant>false</constant>
-                  </handled>
-                  <to uri="direct:deletePort"/>
-              </doCatch>
-            </doTry>
-        </route>
+    <route id="syncUserStatus">
+      <from uri="direct:syncUserStatus"/>
+      <process ref="userStatusOnSync" />
+      <process ref="defaultUserUpdateSyncPropagation" />
+      <to uri="direct:updateSyncPort"/>
+    </route>
+    <!--
+        DELETE USER
+    -->
+    <route id="deleteUser">
+      <from uri="direct:deleteUser"/>
+      <doTry>
+        <process ref="defaultUserDeletePropagation" />
+        <bean ref="uwfAdapter" method="delete(${body})"/>
+        <setBody>
+          <simple>${property.statuses}</simple>
+        </setBody>
+        <to uri="direct:deletePort"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:deletePort"/>
+        </doCatch>
+      </doTry>
+    </route>
         
-        <!-- 
-            UNLINK USER
-        -->
-        <route id="unlinkUser">
-            <from uri="direct:unlinkUser"/>
-            <doTry>
-                <bean ref="uwfAdapter" method="update(${body})"/>
-                <setBody>
-                   <simple>${body.getResult.getKey}</simple>
-                </setBody>
-                <to uri="direct:unlinkPort"/>
-                <doCatch>        
-                    <exception>java.lang.RuntimeException</exception>
-                    <handled>
-                        <constant>false</constant>
-                    </handled>
-                    <to uri="direct:unlinkPort"/>
-                </doCatch>
-            </doTry>            
-        </route>
+    <!-- 
+        UNLINK USER
+    -->
+    <route id="unlinkUser">
+      <from uri="direct:unlinkUser"/>
+      <doTry>
+        <bean ref="uwfAdapter" method="update(${body})"/>
+        <setBody>
+          <simple>${body.getResult.getKey}</simple>
+        </setBody>
+        <to uri="direct:unlinkPort"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:unlinkPort"/>
+        </doCatch>
+      </doTry>            
+    </route>
         
-        <!--
-            LINK USER
-        -->
+    <!--
+        LINK USER
+    -->
         
-        <route id="linkUser">
-            <from uri="direct:linkUser"/>
-            <doTry>
-                <bean ref="uwfAdapter" method="update(${body})"/>
-                <setBody>
-                   <simple>${body.getResult.getKey}</simple>
-                </setBody>
-                <to uri="direct:linkPort"/>
-                <doCatch>        
-                    <exception>java.lang.RuntimeException</exception>
-                    <handled>
-                        <constant>false</constant>
-                    </handled>
-                    <to uri="direct:linkPort"/>
-                </doCatch>
-            </doTry>            
-        </route>
+    <route id="linkUser">
+      <from uri="direct:linkUser"/>
+      <doTry>
+        <bean ref="uwfAdapter" method="update(${body})"/>
+        <setBody>
+          <simple>${body.getResult.getKey}</simple>
+        </setBody>
+        <to uri="direct:linkPort"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:linkPort"/>
+        </doCatch>
+      </doTry>            
+    </route>
         
-        <!-- 
-            ACTIVATE USER
-        -->
-        <route id="activateUser">
-            <from uri="direct:activateUser"/>
-            <doTry>
-                <bean ref="uwfAdapter" method="activate(${body}, ${property.token})"/>
-                <to uri="direct:statusUser"/>
-                <doCatch>        
-                   <exception>java.lang.RuntimeException</exception>
-                   <handled>
-                       <constant>false</constant>
-                   </handled>
-                   <to uri="direct:statusPort"/>
-                </doCatch>
-            </doTry>    
-        </route>
-        <!-- 
-            REACTIVATE USER
-        -->
-        <route id="reactivateUser">
-            <from uri="direct:reactivateUser"/>
-            <doTry>
-                <bean ref="uwfAdapter" method="reactivate(${body})"/>
-                <to uri="direct:statusUser"/>
-                <doCatch>        
-                   <exception>java.lang.RuntimeException</exception>
-                   <handled>
-                       <constant>false</constant>
-                   </handled>
-                   <to uri="direct:statusPort"/>
-                </doCatch>
-            </doTry>    
-        </route>
-        <!-- 
-            SUSPEND USER
-        -->
-        <route id="suspendUser">
-            <from uri="direct:suspendUser"/>
-            <doTry>
-                <bean ref="uwfAdapter" method="suspend(${body})"/>
-                <to uri="direct:statusUser"/>
-                <doCatch>        
-                   <exception>java.lang.RuntimeException</exception>
-                   <handled>
-                       <constant>false</constant>
-                   </handled>
-                   <to uri="direct:statusPort"/>
-                </doCatch>
-            </doTry>  
-        </route>
+    <!-- 
+        ACTIVATE USER
+    -->
+    <route id="activateUser">
+      <from uri="direct:activateUser"/>
+      <doTry>
+        <bean ref="uwfAdapter" method="activate(${body}, ${property.token})"/>
+        <to uri="direct:statusUser"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:statusPort"/>
+        </doCatch>
+      </doTry>    
+    </route>
+    <!-- 
+        REACTIVATE USER
+    -->
+    <route id="reactivateUser">
+      <from uri="direct:reactivateUser"/>
+      <doTry>
+        <bean ref="uwfAdapter" method="reactivate(${body})"/>
+        <to uri="direct:statusUser"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:statusPort"/>
+        </doCatch>
+      </doTry>    
+    </route>
+    <!-- 
+        SUSPEND USER
+    -->
+    <route id="suspendUser">
+      <from uri="direct:suspendUser"/>
+      <doTry>
+        <bean ref="uwfAdapter" method="suspend(${body})"/>
+        <to uri="direct:statusUser"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:statusPort"/>
+        </doCatch>
+      </doTry>  
+    </route>
         
-        <!-- 
-            STATUS PROPAGATION
-        -->
+    <!-- 
+        STATUS PROPAGATION
+    -->
         
-        <route id="statusUser">
-            <from uri="direct:statusUser"/>            
-              <process ref="defaultUserStatusPropagation" />
-            <to uri="direct:statusPort"/>              
-        </route>
+    <route id="statusUser">
+      <from uri="direct:statusUser"/>            
+      <process ref="defaultUserStatusPropagation" />
+      <to uri="direct:statusPort"/>              
+    </route>
         
         
-        <!--
-            DEPROVISION USER
-        -->
-        <route id="deprovisionUser">
-            <from uri="direct:deprovisionUser"/>            
-              <process ref="defaultUserDeprovisionPropagation" />
-              <to uri="direct:deprovisionPort"/>              
-        </route>
+    <!--
+        DEPROVISION USER
+    -->
+    <route id="deprovisionUser">
+      <from uri="direct:deprovisionUser"/>            
+      <process ref="defaultUserDeprovisionPropagation" />
+      <to uri="direct:deprovisionPort"/>              
+    </route>
         
-        <!--
-            CREATE ROLE
-        -->
+    <!--
+        CREATE ROLE
+    -->
         
-        <route id="createRole">
-          <from uri="direct:createRole"/>
-          <setProperty propertyName="subject">
-            <simple>${body}</simple>
-          </setProperty>
-          <doTry>
-            <bean ref="rwfAdapter" method="create(${body})"/>
-            <process ref="defaultRoleCreatePropagation" />
-            <to uri="direct:createRolePort"/>
-            <doCatch>        
-                <exception>java.lang.RuntimeException</exception>
-                <handled>
-                    <constant>false</constant>
-                </handled>
-                <to uri="direct:createRolePort"/>
-            </doCatch>
-          </doTry>
-        </route> 
+    <route id="createRole">
+      <from uri="direct:createRole"/>
+      <setProperty propertyName="subject">
+        <simple>${body}</simple>
+      </setProperty>
+      <doTry>
+        <bean ref="rwfAdapter" method="create(${body})"/>
+        <process ref="defaultRoleCreatePropagation" />
+        <to uri="direct:createRolePort"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:createRolePort"/>
+        </doCatch>
+      </doTry>
+    </route> 
                
-        <!--
-            CREATE ROLE SYNC
-        -->
-        <route id="createRoleSync">
-          <from uri="direct:createRoleSync"/>
-          <setProperty propertyName="subject">
-            <simple>${body}</simple>
-          </setProperty>
-          <doTry>
-            <bean ref="rwfAdapter" method="create(${body})"/>
-            <process ref="defaultRoleCreateSyncPropagation" />
-            <to uri="direct:createRoleSyncPort"/>
-            <doCatch>        
-                <exception>java.lang.RuntimeException</exception>
-                <handled>
-                    <constant>false</constant>
-                </handled>
-                <to uri="direct:createRoleSyncPort"/>
-            </doCatch>
-          </doTry>
-        </route> 
+    <!--
+        CREATE ROLE SYNC
+    -->
+    <route id="createRoleSync">
+      <from uri="direct:createRoleSync"/>
+      <setProperty propertyName="subject">
+        <simple>${body}</simple>
+      </setProperty>
+      <doTry>
+        <bean ref="rwfAdapter" method="create(${body})"/>
+        <process ref="defaultRoleCreateSyncPropagation" />
+        <to uri="direct:createRoleSyncPort"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:createRoleSyncPort"/>
+        </doCatch>
+      </doTry>
+    </route> 
         
          
-        <!--
-            UPDATE ROLE
-        -->
-        <route id="updateRole">
-            <from uri="direct:updateRole"/>
-            <setProperty propertyName="subjectMod">
-                <simple>${body}</simple>
-            </setProperty>
-            <doTry>
-              <bean ref="rwfAdapter" method="update(${body})"/>
-              <process ref="defaultRoleUpdatePropagation" />
-              <to uri="direct:updateRolePort"/>
-              <doCatch>        
-                  <exception>java.lang.RuntimeException</exception>
-                  <handled>
-                      <constant>false</constant>
-                  </handled>
-                  <to uri="direct:updateRolePort"/>
-              </doCatch>
-            </doTry>
-        </route>
+    <!--
+        UPDATE ROLE
+    -->
+    <route id="updateRole">
+      <from uri="direct:updateRole"/>
+      <setProperty propertyName="subjectMod">
+        <simple>${body}</simple>
+      </setProperty>
+      <doTry>
+        <bean ref="rwfAdapter" method="update(${body})"/>
+        <process ref="defaultRoleUpdatePropagation" />
+        <to uri="direct:updateRolePort"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:updateRolePort"/>
+        </doCatch>
+      </doTry>
+    </route>
                
-        <!--
-            DELETE ROLE
-        -->
-        <route id="deleteRole">
-            <from uri="direct:deleteRole"/>
-            <doTry>
-              <process ref="defaultRoleDeletePropagation" />
-              <bean ref="rwfAdapter" method="delete(${body})"/>
-              <setBody>
-                  <simple>${property.statuses}</simple>
-              </setBody>
-              <to uri="direct:deleteRolePort"/>
-              <doCatch>        
-                  <exception>java.lang.RuntimeException</exception>
-                  <handled>
-                      <constant>false</constant>
-                  </handled>
-                  <to uri="direct:deleteRolePort"/>
-              </doCatch>
-            </doTry>
-        </route>
+    <!--
+        DELETE ROLE
+    -->
+    <route id="deleteRole">
+      <from uri="direct:deleteRole"/>
+      <doTry>
+        <process ref="defaultRoleDeletePropagation" />
+        <bean ref="rwfAdapter" method="delete(${body})"/>
+        <setBody>
+          <simple>${property.statuses}</simple>
+        </setBody>
+        <to uri="direct:deleteRolePort"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:deleteRolePort"/>
+        </doCatch>
+      </doTry>
+    </route>
         
-        <!-- 
-            UNLINK USER
-        -->
-        <route id="unlinkRole">
-            <from uri="direct:unlinkRole"/>
-            <doTry>
-                <bean ref="rwfAdapter" method="update(${body})"/>
-                <setBody>
-                   <simple>${body.getResult}</simple>
-                </setBody>
-                <to uri="direct:unlinkRolePort"/>
-                <doCatch>        
-                    <exception>java.lang.RuntimeException</exception>
-                    <handled>
-                        <constant>false</constant>
-                    </handled>
-                    <to uri="direct:unlinkRolePort"/>
-                </doCatch>
-            </doTry>            
-        </route>
+    <!-- 
+        UNLINK USER
+    -->
+    <route id="unlinkRole">
+      <from uri="direct:unlinkRole"/>
+      <doTry>
+        <bean ref="rwfAdapter" method="update(${body})"/>
+        <setBody>
+          <simple>${body.getResult}</simple>
+        </setBody>
+        <to uri="direct:unlinkRolePort"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:unlinkRolePort"/>
+        </doCatch>
+      </doTry>            
+    </route>
         
-        <!--
-            LINK USER
-        -->
+    <!--
+        LINK USER
+    -->
         
-        <route id="linkRole">
-            <from uri="direct:linkRole"/>
-            <doTry>
-                <bean ref="rwfAdapter" method="update(${body})"/>
-                <setBody>
-                   <simple>${body.getResult}</simple>
-                </setBody>
-                <to uri="direct:linkRolePort"/>
-                <doCatch>        
-                    <exception>java.lang.RuntimeException</exception>
-                    <handled>
-                        <constant>false</constant>
-                    </handled>
-                    <to uri="direct:linkRolePort"/>
-                </doCatch>
-            </doTry>            
-        </route>
+    <route id="linkRole">
+      <from uri="direct:linkRole"/>
+      <doTry>
+        <bean ref="rwfAdapter" method="update(${body})"/>
+        <setBody>
+          <simple>${body.getResult}</simple>
+        </setBody>
+        <to uri="direct:linkRolePort"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:linkRolePort"/>
+        </doCatch>
+      </doTry>            
+    </route>
         
-        <!--
-            DEPROVISION ROLE
-        -->
-        <route id="deprovisionRole">
-            <from uri="direct:deprovisionRole"/>            
-              <process ref="defaultRoleDeprovisionPropagation" />
-              <to uri="direct:deprovisionRolePort"/>              
-        </route>
+    <!--
+        DEPROVISION ROLE
+    -->
+    <route id="deprovisionRole">
+      <from uri="direct:deprovisionRole"/>            
+      <process ref="defaultRoleDeprovisionPropagation" />
+      <to uri="direct:deprovisionRolePort"/>              
+    </route>
         
-        <!--
-            SUSPEND USER AFTER POLICY VIOLATION
-        -->
+    <!--
+        SUSPEND USER AFTER POLICY VIOLATION
+    -->
         
-        <route id="suspendUserWF">
-            <from uri="direct:suspendUserWF"/>
-            <doTry>
-                <bean ref="uwfAdapter" method="suspend(${body})"/>
-                <process ref="defaultUserWFSuspendPropagation"/>
-                <to uri="direct:suspendWFPort"/>
-                <doCatch>        
-                   <exception>java.lang.RuntimeException</exception>
-                   <handled>
-                       <constant>false</constant>
-                   </handled>
-                   <to uri="direct:suspendWFPort"/>
-                </doCatch>
-            </doTry>  
-        </route>
+    <route id="suspendUserWF">
+      <from uri="direct:suspendUserWF"/>
+      <doTry>
+        <bean ref="uwfAdapter" method="suspend(${body})"/>
+        <process ref="defaultUserWFSuspendPropagation"/>
+        <to uri="direct:suspendWFPort"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:suspendWFPort"/>
+        </doCatch>
+      </doTry>  
+    </route>
         
-        <!--
-            REQUEST PASSWORD RESET ROUTE
-        -->
+    <!--
+        REQUEST PASSWORD RESET ROUTE
+    -->
         
-        <route id="requestPwdReset">
-            <from uri="direct:requestPwdReset"/>
-            <doTry>
-                <bean ref="uwfAdapter" method="requestPasswordReset(${body})"/>
-                <to uri="direct:requestPwdResetPort"/>
-                <doCatch>        
-                   <exception>java.lang.RuntimeException</exception>
-                   <handled>
-                       <constant>false</constant>
-                   </handled>
-                   <to uri="direct:requestPwdResetPort"/>
-                </doCatch>
-            </doTry>  
-        </route>
-        <!--
-            CONFIRM PASSWORD RESET
-        -->
-        <route id="confirmPwdReset">
-            <from uri="direct:confirmPwdReset"/>
-            <doTry>
-              <bean ref="uwfAdapter" method="confirmPasswordReset(${property.userId},${property.token},${property.password})"/>
-              <process ref="defaultUserConfirmPwdResetPropagation" />
-              <to uri="direct:confirmPwdResetPort"/>
-              <doCatch>        
-                  <exception>java.lang.RuntimeException</exception>
-                  <handled>
-                      <constant>false</constant>
-                  </handled>
-                  <to uri="direct:confirmPwdResetPort"/>
-              </doCatch>
-            </doTry>
-        </route>
+    <route id="requestPwdReset">
+      <from uri="direct:requestPwdReset"/>
+      <doTry>
+        <bean ref="uwfAdapter" method="requestPasswordReset(${body})"/>
+        <to uri="direct:requestPwdResetPort"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:requestPwdResetPort"/>
+        </doCatch>
+      </doTry>  
+    </route>
+    <!--
+        CONFIRM PASSWORD RESET
+    -->
+    <route id="confirmPwdReset">
+      <from uri="direct:confirmPwdReset"/>
+      <doTry>
+        <bean ref="uwfAdapter" method="confirmPasswordReset(${property.userId},${property.token},${property.password})"/>
+        <process ref="defaultUserConfirmPwdResetPropagation" />
+        <to uri="direct:confirmPwdResetPort"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:confirmPwdResetPort"/>
+        </doCatch>
+      </doTry>
+    </route>
         
-    </routeContext>
-    <bean id="defaultUserCreatePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserCreatePropagation"/>
-    <bean id="defaultUserUpdatePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserUpdatePropagation"/>    
-    <bean id="userStatusOnSync" class="org.apache.syncope.core.provisioning.camel.processors.UserStatusOnSync"/>
-    <bean id="defaultUserUpdateSyncPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserUpdateInSyncPropagation"/>
-    <bean id="defaultUserDeletePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserDeletePropagation"/>    
-    <bean id="defaultUserDeprovisionPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserDeprovisionPropagation"/>    
-    <bean id="defaultUserWFSuspendPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserWFSuspendPropagation"/>
-    <bean id="defaultUserStatusPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserStatusPropagation"/>
-    <bean id="defaultUserConfirmPwdResetPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserConfirmPwdResetPropagation"/>
-    <bean id="defaultRoleCreatePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleCreatePropagation"/>
-    <bean id="defaultRoleCreateSyncPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleCreateSyncPropagation"/>
-    <bean id="defaultRoleUpdatePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleUpdatePropagation"/>
-    <bean id="defaultRoleDeletePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleDeletePropagation"/>    
-    <bean id="defaultRoleDeprovisionPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleDeprovisionPropagation"/>            
+  </routeContext>
+  <bean id="defaultUserCreatePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserCreatePropagation"/>
+  <bean id="defaultUserUpdatePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserUpdatePropagation"/>    
+  <bean id="userStatusOnSync" class="org.apache.syncope.core.provisioning.camel.processors.UserStatusOnSync"/>
+  <bean id="defaultUserUpdateSyncPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserUpdateInSyncPropagation"/>
+  <bean id="defaultUserDeletePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserDeletePropagation"/>    
+  <bean id="defaultUserDeprovisionPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserDeprovisionPropagation"/>    
+  <bean id="defaultUserWFSuspendPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserWFSuspendPropagation"/>
+  <bean id="defaultUserStatusPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserStatusPropagation"/>
+  <bean id="defaultUserConfirmPwdResetPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserConfirmPwdResetPropagation"/>
+  <bean id="defaultRoleCreatePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleCreatePropagation"/>
+  <bean id="defaultRoleCreateSyncPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleCreateSyncPropagation"/>
+  <bean id="defaultRoleUpdatePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleUpdatePropagation"/>
+  <bean id="defaultRoleDeletePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleDeletePropagation"/>    
+  <bean id="defaultRoleDeprovisionPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleDeprovisionPropagation"/>            
 </beans>
