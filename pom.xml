@@ -31,7 +31,7 @@ under the License.
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>15</version>
+    <version>16</version>
     <relativePath />
   </parent>
 
@@ -342,9 +342,9 @@ under the License.
 
     <wicket.version>6.18.0</wicket.version>
 
-    <groovy.version>2.3.8</groovy.version>
+    <groovy.version>2.3.9</groovy.version>
 
-    <h2.version>1.4.183</h2.version>
+    <h2.version>1.4.184</h2.version>
 
     <log4j.version>2.1</log4j.version>
     <slf4j.version>1.7.9</slf4j.version>

@@ -96,8 +96,8 @@ public final class JexlUtil {
                 if (evaluated != null) {
                     result = evaluated.toString();
                 }
-            } catch (JexlException e) {
-                LOG.error("Invalid jexl expression: " + expression, e);
+            } catch (Exception e) {
+                LOG.error("Error while evaluating JEXL expression: " + expression, e);
             }
         } else {
             LOG.debug("Expression not provided or invalid context");
