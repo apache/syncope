@@ -117,7 +117,7 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
         doRequestPasswordReset(dataBinder.getUserFromId(userId));
     }
 
-    protected abstract void doConfirmPasswordReset(SyncopeUser user, String token, String password) 
+    protected abstract void doConfirmPasswordReset(SyncopeUser user, String token, String password)
             throws WorkflowException;
 
     @Override

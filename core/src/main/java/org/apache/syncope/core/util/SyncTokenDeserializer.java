@@ -42,19 +42,19 @@ class SyncTokenDeserializer extends JsonDeserializer<SyncToken> {
             value = node.isNull()
                     ? null
                     : node.isBoolean()
-                    ? node.asBoolean()
-                    : node.isDouble()
-                    ? node.asDouble()
-                    : node.isLong()
-                    ? node.asLong()
-                    : node.isInt()
-                    ? node.asInt()
-                    : node.asText();
-            
+                            ? node.asBoolean()
+                            : node.isDouble()
+                                    ? node.asDouble()
+                                    : node.isLong()
+                                            ? node.asLong()
+                                            : node.isInt()
+                                                    ? node.asInt()
+                                                    : node.asText();
+
             if (value instanceof String) {
-                byte[] bytes = ((String)value).getBytes();
+                byte[] bytes = ((String) value).getBytes();
                 if (Base64.isBase64(bytes)) {
-                   value = Base64.decode(bytes);
+                    value = Base64.decode(bytes);
                 }
             }
         }

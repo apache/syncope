@@ -323,7 +323,7 @@ public class ExternalResource extends AbstractSysInfo {
         return StringUtils.isBlank(jsonConf)
                 ? Collections.<ConnConfProperty>emptySet()
                 : new HashSet<ConnConfProperty>(
-                Arrays.asList(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
+                        Arrays.asList(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
     }
 
     public void setConnInstanceConfiguration(final Set<ConnConfProperty> properties) {

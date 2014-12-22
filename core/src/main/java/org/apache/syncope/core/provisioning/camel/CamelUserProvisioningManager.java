@@ -55,7 +55,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-
 public class CamelUserProvisioningManager implements UserProvisioningManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(CamelUserProvisioningManager.class);
@@ -70,7 +69,7 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
 
     @Autowired
     protected RouteDAO routeDAO;
-    
+
     @Autowired
     protected SyncopeCamelContext contextFactory;
 
@@ -90,7 +89,7 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
 
         return content.toString();
     }
-    
+
     public void startContext() throws Exception {
         getContext().start();
     }
@@ -170,15 +169,15 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
 
         return create(userTO, true, false, null, Collections.<String>emptySet());
     }
-    
-    
+
     public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO, boolean storePassword) {
 
         return create(userTO, storePassword, false, null, Collections.<String>emptySet());
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword, boolean disablePwdPolicyCheck, Boolean enabled, Set<String> excludedResources) {
+    public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword,
+            boolean disablePwdPolicyCheck, Boolean enabled, Set<String> excludedResources) {
         String uri = "direct:createPort";
         PollingConsumer pollingConsumer = getConsumer(uri);
 
@@ -209,13 +208,12 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
     public Map.Entry<Long, List<PropagationStatus>> update(final UserMod userMod) {
         return update(userMod, false);
     }
-    
-    
+
     @Override
     public Map.Entry<Long, List<PropagationStatus>> update(UserMod userMod, boolean removeMemberships) {
         String uri = "direct:updatePort";
         PollingConsumer pollingConsumer = getConsumer(uri);
-        
+
         Map<String, Object> props = new HashMap<String, Object>();
         props.put("removeMemberships", removeMemberships);
 
@@ -227,9 +225,8 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
             throw (RuntimeException) o.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return o.getIn().getBody(Map.Entry.class);    
+        return o.getIn().getBody(Map.Entry.class);
     }
-
 
     @Override
     public List<PropagationStatus> delete(final Long userId) {
@@ -286,7 +283,8 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
         if (statusMod.isOnSyncope()) {
             sendMessage("direct:activateUser", user.getId(), props);
         } else {
-            WorkflowResult<Long> updated = new WorkflowResult<Long>(user.getId(), null, statusMod.getType().name().toLowerCase());
+            WorkflowResult<Long> updated = new WorkflowResult<Long>(user.getId(), null, statusMod.getType().name().
+                    toLowerCase());
             sendMessage("direct:statusUser", updated, props);
         }
 
@@ -311,7 +309,8 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
         if (statusMod.isOnSyncope()) {
             sendMessage("direct:reactivateUser", user.getId(), props);
         } else {
-            WorkflowResult<Long> updated = new WorkflowResult<Long>(user.getId(), null, statusMod.getType().name().toLowerCase());
+            WorkflowResult<Long> updated = new WorkflowResult<Long>(user.getId(), null, statusMod.getType().name().
+                    toLowerCase());
             sendMessage("direct:statusUser", updated, props);
         }
 
@@ -337,7 +336,8 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
         if (statusMod.isOnSyncope()) {
             sendMessage("direct:suspendUser", user.getId(), props);
         } else {
-            WorkflowResult<Long> updated = new WorkflowResult<Long>(user.getId(), null, statusMod.getType().name().toLowerCase());
+            WorkflowResult<Long> updated = new WorkflowResult<Long>(user.getId(), null, statusMod.getType().name().
+                    toLowerCase());
             sendMessage("direct:statusUser", updated, props);
         }
 
@@ -389,7 +389,8 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> updateInSync(UserMod userMod, Long id, SyncResult result, Boolean enabled, Set<String> excludedResources) {
+    public Map.Entry<Long, List<PropagationStatus>> updateInSync(UserMod userMod, Long id, SyncResult result,
+            Boolean enabled, Set<String> excludedResources) {
 
         String uri = "direct:updateSyncPort";
         PollingConsumer pollingConsumer = getConsumer(uri);
@@ -456,7 +457,7 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
     public void confirmPasswordReset(SyncopeUser user, final String token, final String password) {
         String uri = "direct:confirmPwdResetPort";
         PollingConsumer pollingConsumer = getConsumer(uri);
-        
+
         Map<String, Object> props = new HashMap<String, Object>();
         props.put("user", user);
         props.put("userId", user.getId());

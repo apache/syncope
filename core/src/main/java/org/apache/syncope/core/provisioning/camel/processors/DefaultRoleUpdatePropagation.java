@@ -40,25 +40,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DefaultRoleUpdatePropagation implements Processor{
+public class DefaultRoleUpdatePropagation implements Processor {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserUpdatePropagation.class);
-    
+
     @Autowired
     protected PropagationManager propagationManager;
+
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
+
     @Autowired
     protected UserDataBinder binder;
-    
+
     @Override
-    public void process(Exchange exchange){
-        WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();            
-        RoleMod subjectMod = exchange.getProperty("subjectMod", RoleMod.class);   
+    public void process(Exchange exchange) {
+        WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
+        RoleMod subjectMod = exchange.getProperty("subjectMod", RoleMod.class);
         Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);
-        
+
         List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
-                subjectMod.getVirAttrsToRemove(), subjectMod.getVirAttrsToUpdate(),excludedResource);
+                subjectMod.getVirAttrsToRemove(), subjectMod.getVirAttrsToUpdate(), excludedResource);
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
                 PropagationReporter.class);
         try {
@@ -67,11 +69,11 @@ public class DefaultRoleUpdatePropagation implements Processor{
             LOG.error("Error propagation primary resource", e);
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
-        
+
         Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
                 updated.getResult(), propagationReporter.getStatuses());
-        
+
         exchange.getOut().setBody(result);
     }
-    
+
 }

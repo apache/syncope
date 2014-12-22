@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.services;
 
 import java.util.List;
@@ -27,20 +26,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RouteServiceImpl extends AbstractServiceImpl implements RouteService{
+public class RouteServiceImpl extends AbstractServiceImpl implements RouteService {
 
     @Autowired
     private RouteController controller;
-    
+
     @Override
     public List<RouteTO> getRoutes() {
-        
-        return  controller.listRoutes();
+
+        return controller.listRoutes();
     }
-    
+
     @Override
-    public RouteTO getRoute(Long id){
-        
+    public RouteTO getRoute(Long id) {
+
         return controller.readRoute(id);
     }
 
@@ -48,5 +47,5 @@ public class RouteServiceImpl extends AbstractServiceImpl implements RouteServic
     public void importRoute(Long id, RouteTO route) {
         controller.updateRoute(route);
     }
-    
+
 }

@@ -85,7 +85,7 @@ public class Notification extends AbstractBaseBean {
     @NotNull
     @Enumerated(EnumType.STRING)
     private TraceLevel traceLevel;
-    
+
     @Column(nullable = false)
     @Basic
     @Min(0)
@@ -168,7 +168,8 @@ public class Notification extends AbstractBaseBean {
     }
 
     public boolean addStaticRecipient(String staticRecipient) {
-        return staticRecipient != null && !staticRecipients.contains(staticRecipient) && staticRecipients.add(staticRecipient);
+        return staticRecipient != null && !staticRecipients.contains(staticRecipient) && staticRecipients.add(
+                staticRecipient);
     }
 
     public boolean removeStaticRecipient(String staticRecipient) {

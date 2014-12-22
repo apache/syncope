@@ -75,7 +75,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                     null,
                     result,
                     reporter instanceof DefaultPropagationReporter
-                    ? ((DefaultPropagationReporter) reporter).getStatuses() : null,
+                            ? ((DefaultPropagationReporter) reporter).getStatuses() : null,
                     tasks);
 
             auditManager.audit(
@@ -85,7 +85,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                     null,
                     result,
                     reporter instanceof DefaultPropagationReporter
-                    ? ((DefaultPropagationReporter) reporter).getStatuses() : null,
+                            ? ((DefaultPropagationReporter) reporter).getStatuses() : null,
                     tasks);
         }
     }
@@ -112,8 +112,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             return prop1 > prop2
                     ? 1
                     : prop1 == prop2
-                    ? 0
-                    : -1;
+                            ? 0
+                            : -1;
         }
     }
 }

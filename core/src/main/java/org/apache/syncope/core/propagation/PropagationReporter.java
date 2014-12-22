@@ -44,7 +44,7 @@ public interface PropagationReporter {
 
     /**
      * Report propagation status after executions in case blocking failure (e.g. on primary resources).
-     * 
+     *
      * @param tasks propagation tasks performed before failure
      */
     void onPrimaryResourceFailure(List<PropagationTask> tasks);

@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning.camel.processors;
 
 import java.util.AbstractMap;
@@ -42,39 +41,44 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DefaultUserUpdateInSyncPropagation implements Processor{
+public class DefaultUserUpdateInSyncPropagation implements Processor {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserUpdateInSyncPropagation.class);
-    
+
     @Autowired
     protected PropagationManager propagationManager;
+
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
+
     @Autowired
     protected UserDataBinder binder;
+
     @Autowired
     protected UserDAO userDAO;
-    
+
     @Override
-    public void process(Exchange exchange){
-                 
-            WorkflowResult<Map.Entry<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();            
+    public void process(Exchange exchange) {
 
-            Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);            
-                              
-            PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
-                    getBean(PropagationReporter.class);
+        WorkflowResult<Map.Entry<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
 
-            List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated,updated.getResult().getKey().getPassword() != null,excludedResource);
-                
-            try {
-                    taskExecutor.execute(tasks, propagationReporter);
-            } catch (PropagationException e) {
-                    LOG.error("Error propagation primary resource", e);
-                    propagationReporter.onPrimaryResourceFailure(tasks);
-            }
-            
-            Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(updated.getResult().getKey().getId(), propagationReporter.getStatuses());
-            exchange.getOut().setBody(result);            
+        Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);
+
+        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
+                getBean(PropagationReporter.class);
+
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated, updated.getResult().getKey().
+                getPassword() != null, excludedResource);
+
+        try {
+            taskExecutor.execute(tasks, propagationReporter);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propagationReporter.onPrimaryResourceFailure(tasks);
+        }
+
+        Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
+                updated.getResult().getKey().getId(), propagationReporter.getStatuses());
+        exchange.getOut().setBody(result);
     }
 }

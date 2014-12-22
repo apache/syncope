@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.syncope.core.provisioning;
 
 import java.util.List;
@@ -27,28 +26,30 @@ import org.apache.syncope.common.to.PropagationStatus;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.sync.SyncResult;
 
-public interface UserProvisioningManager extends ProvisioningManager<UserTO, UserMod>{
-    
+public interface UserProvisioningManager extends ProvisioningManager<UserTO, UserMod> {
+
     public Map.Entry<Long, List<PropagationStatus>> activate(SyncopeUser user, StatusMod statusMod);
 
     public Map.Entry<Long, List<PropagationStatus>> reactivate(SyncopeUser user, StatusMod statusMod);
 
     public Map.Entry<Long, List<PropagationStatus>> suspend(SyncopeUser user, StatusMod statusMod);
-    
-    public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword);
-    
-    public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword, boolean disablePwdPolicyCheck, Boolean enabled,Set<String> excludedResources);
-    
-    public Map.Entry<Long, List<PropagationStatus>> update(final UserMod userMod, final boolean removeMemberships);
-    
-    public Map.Entry<Long, List<PropagationStatus>> updateInSync(final UserMod userMod,final Long id, final SyncResult result, Boolean enabled, Set<String> excludedResources);
 
-    public List<PropagationStatus> delete(Long subjectId, Set<String> excludedResources);    
-    
+    public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword);
+
+    public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword,
+            boolean disablePwdPolicyCheck, Boolean enabled, Set<String> excludedResources);
+
+    public Map.Entry<Long, List<PropagationStatus>> update(final UserMod userMod, final boolean removeMemberships);
+
+    public Map.Entry<Long, List<PropagationStatus>> updateInSync(final UserMod userMod, final Long id,
+            final SyncResult result, Boolean enabled, Set<String> excludedResources);
+
+    public List<PropagationStatus> delete(Long subjectId, Set<String> excludedResources);
+
     public void innerSuspend(SyncopeUser user, boolean suspend);
-    
+
     public void requestPasswordReset(final Long id);
-    
-    public void confirmPasswordReset(SyncopeUser user,final String token,final String password);
-    
+
+    public void confirmPasswordReset(SyncopeUser user, final String token, final String password);
+
 }

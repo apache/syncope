@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning.camel.processors;
 
 import java.util.List;
@@ -35,28 +34,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DefaultUserDeletePropagation implements Processor{
-    
+public class DefaultUserDeletePropagation implements Processor {
+
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserDeletePropagation.class);
+
     @Autowired
     protected PropagationManager propagationManager;
+
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
-    
+
     @Override
     public void process(Exchange exchange) throws Exception {
-        
-        Long userId = (Long) exchange.getIn().getBody();       
+
+        Long userId = (Long) exchange.getIn().getBody();
         LOG.info("UserId {} ", userId);
-        
-        Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);            
-        
+
+        Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);
+
         // Note here that we can only notify about "delete", not any other
         // task defined in workflow process definition: this because this
         // information could only be available after uwfAdapter.delete(), which
         // will also effectively remove user from db, thus making virtually
         // impossible by NotificationManager to fetch required user information
-        List<PropagationTask> tasks = propagationManager.getUserDeleteTaskIds(userId,excludedResource);
+        List<PropagationTask> tasks = propagationManager.getUserDeleteTaskIds(userId, excludedResource);
 
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
                 getBean(PropagationReporter.class);
@@ -66,8 +67,8 @@ public class DefaultUserDeletePropagation implements Processor{
             LOG.error("Error propagation primary resource", e);
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
-        
+
         exchange.setProperty("statuses", propagationReporter.getStatuses());
     }
-    
+
 }

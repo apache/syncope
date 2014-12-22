@@ -157,9 +157,9 @@ under the License.
         </xsl:otherwise>
       </xsl:choose>
       <xsl:if test="string-length(resources) &gt; 0">
-          <xsl:call-template name="resources">
-              <xsl:with-param name="node" select="resources/resource"/>
-          </xsl:call-template>
+        <xsl:call-template name="resources">
+          <xsl:with-param name="node" select="resources/resource"/>
+        </xsl:call-template>
       </xsl:if>
       <hr/>
     </xsl:for-each>

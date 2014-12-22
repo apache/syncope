@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning.camel.processors;
 
 import java.util.AbstractMap;
@@ -45,78 +44,81 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DefaultUserUpdatePropagation implements Processor{
+public class DefaultUserUpdatePropagation implements Processor {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserUpdatePropagation.class);
-    
+
     @Autowired
     protected PropagationManager propagationManager;
+
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
+
     @Autowired
     protected UserDataBinder binder;
-    
+
     @Override
-    public void process(Exchange exchange){
-                 
-            WorkflowResult<Map.Entry<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();            
-            UserMod actual = exchange.getProperty("actual", UserMod.class);
-            boolean removeMemberships = exchange.getProperty("removeMemberships", boolean.class);
-            
-            // SYNCOPE-501: check if there are memberships to be removed with virtual attributes assigned
-            /*for (Long membershipId : actual.getMembershipsToRemove()) {
+    public void process(Exchange exchange) {
+
+        WorkflowResult<Map.Entry<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
+        UserMod actual = exchange.getProperty("actual", UserMod.class);
+        boolean removeMemberships = exchange.getProperty("removeMemberships", boolean.class);
+
+        // SYNCOPE-501: check if there are memberships to be removed with virtual attributes assigned
+            /* for (Long membershipId :
+         * actual.getMembershipsToRemove()) {
+         * if (!binder.fillMembershipVirtual(
+         * null,
+         * null,
+         * membershipId,
+         * Collections.<String>emptySet(),
+         * Collections.<AttributeMod>emptySet(),
+         * true).isEmpty()) {
+         *
+         * removeMemberships = true;
+         * }
+         * } */
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated);
+        if (tasks.isEmpty()) {
+            // SYNCOPE-459: take care of user virtual attributes ...
+            final PropagationByResource propByResVirAttr = binder.fillVirtual(
+                    updated.getResult().getKey().getId(),
+                    actual.getVirAttrsToRemove(),
+                    actual.getVirAttrsToUpdate());
+            // SYNCOPE-501: update only virtual attributes (if any of them changed), password propagation is
+            // not required, take care also of membership virtual attributes
+            boolean addOrUpdateMemberships = false;
+            for (MembershipMod membershipMod : actual.getMembershipsToAdd()) {
                 if (!binder.fillMembershipVirtual(
-                        null,
-                        null,
-                        membershipId,
-                        Collections.<String>emptySet(),
-                        Collections.<AttributeMod>emptySet(),
-                        true).isEmpty()) {
-
-                    removeMemberships = true;
-                }
-            }*/
-            
-            List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated);
-            if (tasks.isEmpty()) {
-                // SYNCOPE-459: take care of user virtual attributes ...
-                final PropagationByResource propByResVirAttr = binder.fillVirtual(
                         updated.getResult().getKey().getId(),
-                        actual.getVirAttrsToRemove(),
-                        actual.getVirAttrsToUpdate());
-                // SYNCOPE-501: update only virtual attributes (if any of them changed), password propagation is
-                // not required, take care also of membership virtual attributes
-                boolean addOrUpdateMemberships = false;
-                for (MembershipMod membershipMod : actual.getMembershipsToAdd()) {
-                    if (!binder.fillMembershipVirtual(
-                            updated.getResult().getKey().getId(),
-                            membershipMod.getRole(),
-                            null,
-                            membershipMod.getVirAttrsToRemove(),
-                            membershipMod.getVirAttrsToUpdate(),
-                            false).isEmpty()) {
+                        membershipMod.getRole(),
+                        null,
+                        membershipMod.getVirAttrsToRemove(),
+                        membershipMod.getVirAttrsToUpdate(),
+                        false).isEmpty()) {
 
-                        addOrUpdateMemberships = true;
-                    }
-                }
-                tasks.addAll(!propByResVirAttr.isEmpty() || addOrUpdateMemberships || removeMemberships
-                        ? propagationManager.getUserUpdateTaskIds(updated, false, null)
-                        : Collections.<PropagationTask>emptyList());
-            }
-
-            PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
-                    getBean(PropagationReporter.class);
-
-            if (!tasks.isEmpty()) {
-                try {
-                    taskExecutor.execute(tasks, propagationReporter);
-                } catch (PropagationException e) {
-                    LOG.error("Error propagation primary resource", e);
-                    propagationReporter.onPrimaryResourceFailure(tasks);
+                    addOrUpdateMemberships = true;
                 }
             }
-            
-            Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(updated.getResult().getKey().getId(), propagationReporter.getStatuses());
-            exchange.getOut().setBody(result);            
+            tasks.addAll(!propByResVirAttr.isEmpty() || addOrUpdateMemberships || removeMemberships
+                    ? propagationManager.getUserUpdateTaskIds(updated, false, null)
+                    : Collections.<PropagationTask>emptyList());
+        }
+
+        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
+                getBean(PropagationReporter.class);
+
+        if (!tasks.isEmpty()) {
+            try {
+                taskExecutor.execute(tasks, propagationReporter);
+            } catch (PropagationException e) {
+                LOG.error("Error propagation primary resource", e);
+                propagationReporter.onPrimaryResourceFailure(tasks);
+            }
+        }
+
+        Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
+                updated.getResult().getKey().getId(), propagationReporter.getStatuses());
+        exchange.getOut().setBody(result);
     }
 }

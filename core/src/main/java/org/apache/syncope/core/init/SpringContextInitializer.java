@@ -49,7 +49,7 @@ public class SpringContextInitializer implements InitializingBean {
 
     @Autowired
     private WorkflowAdapterLoader workflowAdapterLoader;
-    
+
     @Autowired
     private CamelRouteLoader routeLoader;
 
@@ -63,7 +63,7 @@ public class SpringContextInitializer implements InitializingBean {
         classNamesLoader.load();
 
         routeLoader.load();
-        
+
         workflowAdapterLoader.init();
     }
 }

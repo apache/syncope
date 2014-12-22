@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning.camel.processors;
 
 import java.util.AbstractMap;
@@ -41,22 +40,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DefaultRoleCreatePropagation  implements Processor{
+public class DefaultRoleCreatePropagation implements Processor {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultRoleCreatePropagation.class);
-    
+
     @Autowired
     protected PropagationManager propagationManager;
+
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
-    
+
     @Override
-    public void process(Exchange exchange){
-        
+    public void process(Exchange exchange) {
+
         WorkflowResult<Long> created = (WorkflowResult) exchange.getIn().getBody();
         RoleTO subject = exchange.getProperty("subject", RoleTO.class);
-        Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);            
-                
+        Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);
+
         EntitlementUtil.extendAuthContext(created.getResult());
 
         List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created, subject.getVirAttrs());
@@ -68,11 +68,11 @@ public class DefaultRoleCreatePropagation  implements Processor{
             LOG.error("Error propagation primary resource", e);
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
-        
+
         Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
                 created.getResult(), propagationReporter.getStatuses());
-        
+
         exchange.getOut().setBody(result);
     }
-    
+
 }

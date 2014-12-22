@@ -114,7 +114,6 @@ public class ImplementationClassNamesLoader {
                     }
 
                     // TODO: add push correlation rules management
-
                     if (interfaces.contains(PropagationActions.class) && !metadata.isAbstract()) {
                         classNames.get(Type.PROPAGATION_ACTIONS).add(metadata.getClassName());
                     }

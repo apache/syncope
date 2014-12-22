@@ -73,7 +73,7 @@ public abstract class AbstractBaseBean implements Serializable {
             }
         }
 
-        return excludeFields.toArray(new String[]{});
+        return excludeFields.toArray(new String[] {});
     }
 
     @Override

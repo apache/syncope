@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.persistence.beans;
 
 import javax.persistence.Entity;
@@ -26,13 +25,12 @@ import javax.persistence.Lob;
 import javax.persistence.GenerationType;
 import javax.persistence.Column;
 
-
 @Entity
 public class CamelRoute {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="id")
+    @Column(name = "id")
     private Long id;
 
     private String name;

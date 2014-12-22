@@ -885,7 +885,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean storePassword) throws UnauthorizedRoleException, WorkflowException {
+    public WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean storePassword) throws
+            UnauthorizedRoleException, WorkflowException {
         return create(userTO, false, storePassword);
     }
 }

@@ -217,7 +217,7 @@ public class LoggerController extends AbstractTransactionalController<LoggerTO> 
             final String packageSearchPath =
                     ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
                     + ClassUtils.convertClassNameToResourcePath(
-                    SystemPropertyUtils.resolvePlaceholders(this.getClass().getPackage().getName()))
+                            SystemPropertyUtils.resolvePlaceholders(this.getClass().getPackage().getName()))
                     + "/" + "**/*.class";
 
             final Resource[] resources = resourcePatternResolver.getResources(packageSearchPath);
@@ -239,7 +239,7 @@ public class LoggerController extends AbstractTransactionalController<LoggerTO> 
                     }
                 }
             }
-            
+
             //SYNCOPE-608
             final EventCategoryTO authenticationControllerEvents = new EventCategoryTO();
             authenticationControllerEvents.setCategory("AuthenticationController");

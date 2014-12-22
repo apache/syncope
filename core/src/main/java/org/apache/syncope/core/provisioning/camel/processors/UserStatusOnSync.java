@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning.camel.processors;
 
 import java.util.Map;
@@ -33,42 +32,43 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserStatusOnSync implements Processor{
-    
+public class UserStatusOnSync implements Processor {
+
     private static final Logger LOG = LoggerFactory.getLogger(UserStatusOnSync.class);
-    
+
     @Autowired
     protected UserDAO userDAO;
+
     @Autowired
     protected UserWorkflowAdapter uwfAdapter;
-    
+
     @Override
-    public void process(Exchange exchange){
-        
-        WorkflowResult<Map.Entry<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();                    
-          
+    public void process(Exchange exchange) {
+
+        WorkflowResult<Map.Entry<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
+
         Boolean enabled = exchange.getProperty("enabled", Boolean.class);
         Long id = exchange.getProperty("id", Long.class);
-                
+
         if (enabled != null) {
-             SyncopeUser user = userDAO.find(id);
+            SyncopeUser user = userDAO.find(id);
 
-             WorkflowResult<Long> enableUpdate = null;
-             if (user.isSuspended() == null) {
-                 enableUpdate = uwfAdapter.activate(id, null);
-             } else if (enabled && user.isSuspended()) {
-                 enableUpdate = uwfAdapter.reactivate(id);
-             } else if (!enabled && !user.isSuspended()) {
-                 enableUpdate = uwfAdapter.suspend(id);
-             }
+            WorkflowResult<Long> enableUpdate = null;
+            if (user.isSuspended() == null) {
+                enableUpdate = uwfAdapter.activate(id, null);
+            } else if (enabled && user.isSuspended()) {
+                enableUpdate = uwfAdapter.reactivate(id);
+            } else if (!enabled && !user.isSuspended()) {
+                enableUpdate = uwfAdapter.suspend(id);
+            }
 
-             if (enableUpdate != null) {
-                 if (enableUpdate.getPropByRes() != null) {
-                     updated.getPropByRes().merge(enableUpdate.getPropByRes());
-                     updated.getPropByRes().purge();
-                 }
-                 updated.getPerformedTasks().addAll(enableUpdate.getPerformedTasks());
-             }
-       }
+            if (enableUpdate != null) {
+                if (enableUpdate.getPropByRes() != null) {
+                    updated.getPropByRes().merge(enableUpdate.getPropByRes());
+                    updated.getPropByRes().purge();
+                }
+                updated.getPerformedTasks().addAll(enableUpdate.getPerformedTasks());
+            }
+        }
     }
 }

@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning.camel.processors;
 
 import java.util.HashSet;
@@ -38,29 +37,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DefaultRoleDeprovisionPropagation implements Processor{
+public class DefaultRoleDeprovisionPropagation implements Processor {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserDeprovisionPropagation.class);
-    
+
     @Autowired
     protected PropagationManager propagationManager;
+
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
+
     @Autowired
     protected RoleDataBinder binder;
-    
+
     @Override
-    public void process(Exchange exchange){
-        
+    public void process(Exchange exchange) {
+
         Long roleId = exchange.getIn().getBody(Long.class);
         List<String> resources = exchange.getProperty("resources", List.class);
-        
+
         final SyncopeRole role = binder.getRoleFromId(roleId);
-        
+
         final Set<String> noPropResourceName = role.getResourceNames();
         noPropResourceName.removeAll(resources);
-        
-        final List<PropagationTask> tasks = propagationManager.getRoleDeleteTaskIds(roleId, new HashSet<String>(resources), noPropResourceName);
+
+        final List<PropagationTask> tasks = propagationManager.getRoleDeleteTaskIds(roleId, new HashSet<String>(
+                resources), noPropResourceName);
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
                 PropagationReporter.class);
         try {
@@ -69,8 +71,8 @@ public class DefaultRoleDeprovisionPropagation implements Processor{
             LOG.error("Error propagation primary resource", e);
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
-        
+
         exchange.getOut().setBody(propagationReporter.getStatuses());
-    }    
-    
+    }
+
 }

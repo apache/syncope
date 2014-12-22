@@ -106,7 +106,7 @@ public class SyncopeGroupManager implements GroupIdentityManager, SyncopeSession
     public void updateGroup(final Group updatedGroup) {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public boolean isNewGroup(final Group group) {
         throw new UnsupportedOperationException();

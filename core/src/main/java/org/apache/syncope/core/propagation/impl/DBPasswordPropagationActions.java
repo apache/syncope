@@ -46,7 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
  * cipher algorithm property of the DB Connector.
  */
 public class DBPasswordPropagationActions extends DefaultPropagationActions {
-    
+
     private static final String CLEARTEXT = "CLEARTEXT";
 
     @Autowired
@@ -59,12 +59,12 @@ public class DBPasswordPropagationActions extends DefaultPropagationActions {
 
         if (AttributableType.USER == task.getSubjectType()) {
             SyncopeUser user = userDAO.find(task.getSubjectId());
-            
+
             if (user != null && user.getPassword() != null) {
                 Attribute missing = AttributeUtil.find(
                         PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME,
                         task.getAttributes());
-                
+
                 ConnInstance connInstance = task.getResource().getConnector();
                 if (missing != null && missing.getValue() != null && missing.getValue().size() == 1
                         && missing.getValue().get(0).equals(OperationalAttributes.PASSWORD_NAME)
@@ -86,7 +86,7 @@ public class DBPasswordPropagationActions extends DefaultPropagationActions {
             }
         }
     }
-    
+
     private String getCipherAlgorithm(ConnInstance connInstance) {
         String cipherAlgorithm = CLEARTEXT;
         for (Iterator<ConnConfProperty> propertyIterator = connInstance.getConfiguration().iterator();
@@ -101,21 +101,21 @@ public class DBPasswordPropagationActions extends DefaultPropagationActions {
         }
         return cipherAlgorithm;
     }
-    
+
     private boolean cipherAlgorithmMatches(String connectorAlgorithm, CipherAlgorithm userAlgorithm) {
         if (userAlgorithm == null) {
             return false;
         }
-    
+
         if (connectorAlgorithm.equals(userAlgorithm.name())) {
             return true;
         }
-        
+
         // Special check for "SHA" (user sync'd from LDAP)
         if ("SHA1".equals(connectorAlgorithm) && "SHA".equals(userAlgorithm.name())) {
             return true;
         }
-        
+
         return false;
     }
 

@@ -316,7 +316,7 @@ public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends Abst
             } catch (Exception e) {
                 final String msg = String.
                         format("Connector instance bean for resource %s and connInstance %s not found",
-                        syncTask.getResource(), syncTask.getResource().getConnector());
+                                syncTask.getResource(), syncTask.getResource().getConnector());
 
                 throw new JobExecutionException(msg, e);
             }

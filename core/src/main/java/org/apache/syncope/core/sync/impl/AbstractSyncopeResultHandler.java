@@ -43,7 +43,7 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSyncopeResultHandler.class);
-    
+
     /**
      * User data binder.
      */
@@ -102,10 +102,10 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
      * Sync profile.
      */
     protected SyncProfile<T, A> profile;
-    
+
     @Resource(name = "userProvisioningManager")
     protected UserProvisioningManager userProvisioningManager;
-    
+
     @Resource(name = "roleProvisioningManager")
     protected RoleProvisioningManager roleProvisioningManager;
 

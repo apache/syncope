@@ -70,7 +70,7 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
             final boolean includeSpecial) {
 
         connInstanceTO.setId(connInstanceId);
-        
+
         List<String> schemaNames = controller.getSchemaNames(connInstanceTO, includeSpecial);
         List<SchemaTO> result = new ArrayList<SchemaTO>(schemaNames.size());
         for (String name : schemaNames) {

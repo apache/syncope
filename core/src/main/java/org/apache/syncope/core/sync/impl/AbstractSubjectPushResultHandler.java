@@ -114,7 +114,6 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
         String operation = null;
 
         // Try to read remote object (user / group) BEFORE any actual operation
-
         final String accountId = MappingUtil.getAccountIdValue(
                 subject, profile.getSyncTask().getResource(), getMapping().getAccountIdItem());
 

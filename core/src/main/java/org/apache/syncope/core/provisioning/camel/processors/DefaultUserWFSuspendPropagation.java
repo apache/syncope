@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning.camel.processors;
 
 import java.util.AbstractMap.SimpleEntry;
@@ -35,19 +34,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DefaultUserWFSuspendPropagation implements Processor{
+public class DefaultUserWFSuspendPropagation implements Processor {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserWFSuspendPropagation.class);
-    
+
     @Autowired
     protected PropagationManager propagationManager;
+
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
-    
+
     @Override
-    public void process(Exchange exchange){
-                 
-        WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();            
+    public void process(Exchange exchange) {
+
+        WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
         Boolean suspend = exchange.getProperty("suspend", Boolean.class);
 
         if (suspend) {
@@ -62,5 +62,5 @@ public class DefaultUserWFSuspendPropagation implements Processor{
             taskExecutor.execute(tasks);
         }
     }
-    
+
 }

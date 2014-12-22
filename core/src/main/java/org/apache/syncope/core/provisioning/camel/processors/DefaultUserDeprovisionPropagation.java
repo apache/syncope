@@ -37,28 +37,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DefaultUserDeprovisionPropagation implements Processor{
+public class DefaultUserDeprovisionPropagation implements Processor {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserDeprovisionPropagation.class);
-    
+
     @Autowired
     protected PropagationManager propagationManager;
+
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
+
     @Autowired
     protected UserDataBinder binder;
-    
+
     @Override
-    public void process(Exchange exchange){
-        
+    public void process(Exchange exchange) {
+
         Long userId = exchange.getIn().getBody(Long.class);
         List<String> resources = exchange.getProperty("resources", List.class);
-        
-        final SyncopeUser user = binder.getUserFromId(userId);        
-        
+
+        final SyncopeUser user = binder.getUserFromId(userId);
+
         final Set<String> noPropResourceName = user.getResourceNames();
         noPropResourceName.removeAll(resources);
-        
+
         final List<PropagationTask> tasks =
                 propagationManager.getUserDeleteTaskIds(userId, new HashSet<String>(resources), noPropResourceName);
         final PropagationReporter propagationReporter =
@@ -69,8 +71,8 @@ public class DefaultUserDeprovisionPropagation implements Processor{
             LOG.error("Error propagation primary resource", e);
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
-        
+
         exchange.getOut().setBody(propagationReporter.getStatuses());
     }
-    
+
 }

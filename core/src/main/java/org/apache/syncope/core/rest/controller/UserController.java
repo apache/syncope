@@ -96,7 +96,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
 
     @Autowired
     protected AttributableTransformer attrTransformer;
-    
+
     @Resource(name = "userProvisioningManager")
     protected UserProvisioningManager provisioningManager;
 
@@ -212,8 +212,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
         UserTO actual = attrTransformer.transform(userTO);
         LOG.debug("Transformed: {}", actual);
 
-        Map.Entry<Long, List<PropagationStatus>>
-                created = provisioningManager.create(actual,storePassword);
+        Map.Entry<Long, List<PropagationStatus>> created = provisioningManager.create(actual, storePassword);
 
         final UserTO savedTO = binder.getUserTO(created.getKey());
         savedTO.getPropagationStatusTOs().addAll(created.getValue());
@@ -238,7 +237,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
         // AttributableMod transformation (if configured)
         UserMod actual = attrTransformer.transform(userMod);
         LOG.debug("Transformed: {}", actual);
-        
+
         //CAMEL
         // SYNCOPE-501: check if there are memberships to be removed with virtual attributes assigned
         boolean removeMemberships = false;
@@ -254,15 +253,16 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
                 removeMemberships = true;
             }
         }
-        
-        Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(actual,removeMemberships);
+
+        Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(actual, removeMemberships);
 
         final UserTO updatedTO = binder.getUserTO(updated.getKey());
         updatedTO.getPropagationStatusTOs().addAll(updated.getValue());
         return updatedTO;
     }
 
-     protected Map.Entry<Long, List<PropagationStatus>> setStatusOnWfAdapter(final SyncopeUser user, final StatusMod statusMod) {
+    protected Map.Entry<Long, List<PropagationStatus>> setStatusOnWfAdapter(final SyncopeUser user,
+            final StatusMod statusMod) {
         Map.Entry<Long, List<PropagationStatus>> updated;
 
         switch (statusMod.getType()) {
@@ -289,8 +289,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
     public UserTO status(final StatusMod statusMod) {
         SyncopeUser user = binder.getUserFromId(statusMod.getId());
 
-        Map.Entry<Long, List<PropagationStatus>>
-            updated = setStatusOnWfAdapter(user, statusMod);
+        Map.Entry<Long, List<PropagationStatus>> updated = setStatusOnWfAdapter(user, statusMod);
         final UserTO savedTO = binder.getUserTO(updated.getKey());
         savedTO.getPropagationStatusTOs().addAll(updated.getValue());
         return savedTO;
@@ -477,8 +476,8 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO deprovision(final Long userId, final Collection<String> resources) {
-        final SyncopeUser user = binder.getUserFromId(userId);        
-        
+        final SyncopeUser user = binder.getUserFromId(userId);
+
         List<PropagationStatus> statuses = provisioningManager.deprovision(userId, resources);
 
         final UserTO updatedUserTO = binder.getUserTO(user);
@@ -535,18 +534,18 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
 
         throw new UnresolvedReferenceException();
     }
-    
-    public PrintStream getDefinition() throws FileNotFoundException{
-        /*String result = "";
-        if(provisioningManager instanceof CamelUserProvisioningManager){
-            List l = ((CamelUserProvisioningManager)provisioningManager).getRoutes();
-            Iterator<CamelRoute> it = l.iterator();
-            
-            while(it.hasNext()){
-                result += it.next().getRouteContent();
-            }                        
-        }
-        return new PrintStream(result);*/
+
+    public PrintStream getDefinition() throws FileNotFoundException {
+        /* String result = "";
+         * if(provisioningManager instanceof CamelUserProvisioningManager){
+         * List l = ((CamelUserProvisioningManager)provisioningManager).getRoutes();
+         * Iterator<CamelRoute> it = l.iterator();
+         *
+         * while(it.hasNext()){
+         * result += it.next().getRouteContent();
+         * }
+         * }
+         * return new PrintStream(result); */
         return null;
     }
 }

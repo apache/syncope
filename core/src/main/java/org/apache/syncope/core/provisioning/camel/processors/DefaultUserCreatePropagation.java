@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning.camel.processors;
 
 import java.util.AbstractMap;
@@ -40,24 +39,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DefaultUserCreatePropagation implements Processor{
+public class DefaultUserCreatePropagation implements Processor {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserCreatePropagation.class);
-    
+
     @Autowired
     protected PropagationManager propagationManager;
+
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
-    
+
     @Override
-    public void process(Exchange exchange){
-      
-        if((exchange.getIn().getBody() instanceof WorkflowResult)){
-            
-            WorkflowResult<Map.Entry<Long, Boolean>> created = (WorkflowResult) exchange.getIn().getBody();            
+    public void process(Exchange exchange) {
+
+        if ((exchange.getIn().getBody() instanceof WorkflowResult)) {
+
+            WorkflowResult<Map.Entry<Long, Boolean>> created = (WorkflowResult) exchange.getIn().getBody();
             UserTO actual = exchange.getProperty("actual", UserTO.class);
             Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);
-            
+
             List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(
                     created, actual.getPassword(), actual.getVirAttrs(), excludedResource, actual.getMemberships());
             PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
@@ -68,11 +68,12 @@ public class DefaultUserCreatePropagation implements Processor{
                 LOG.error("Error propagation primary resource {}", e);
                 propagationReporter.onPrimaryResourceFailure(tasks);
             }
-            
-            Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(created.getResult().getKey(), propagationReporter.getStatuses());         
+
+            Map.Entry<Long, List<PropagationStatus>> result =
+                    new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(created.getResult().getKey(),
+                            propagationReporter.getStatuses());
             exchange.getOut().setBody(result);
-        }               
+        }
     }
-    
-    
+
 }

@@ -77,8 +77,8 @@ class AttributeDeserializer extends JsonDeserializer<Attribute> {
         return Uid.NAME.equals(name)
                 ? new Uid(values.isEmpty() || values.get(0) == null ? null : values.get(0).toString())
                 : Name.NAME.equals(name)
-                ? new Name(values.isEmpty() || values.get(0) == null ? null : values.get(0).toString())
-                : AttributeBuilder.build(name, values);
+                        ? new Name(values.isEmpty() || values.get(0) == null ? null : values.get(0).toString())
+                        : AttributeBuilder.build(name, values);
     }
 
 }

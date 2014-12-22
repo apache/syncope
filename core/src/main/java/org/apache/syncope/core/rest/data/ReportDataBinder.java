@@ -52,9 +52,9 @@ public class ReportDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(ReportDataBinder.class);
 
-    private static final String[] IGNORE_REPORT_PROPERTIES = {"id", "reportlets", "executions"};
+    private static final String[] IGNORE_REPORT_PROPERTIES = { "id", "reportlets", "executions" };
 
-    private static final String[] IGNORE_REPORT_EXECUTION_PROPERTIES = {"id", "report", "execResult"};
+    private static final String[] IGNORE_REPORT_EXECUTION_PROPERTIES = { "id", "report", "execResult" };
 
     @Autowired
     private ReportExecDAO reportExecDAO;
@@ -65,7 +65,7 @@ public class ReportDataBinder {
     @Autowired
     private ImplementationClassNamesLoader classNamesLoader;
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Set<Class<Reportlet>> getAllReportletClasses() {
         Set<Class<Reportlet>> reportletClasses = new HashSet<Class<Reportlet>>();
 

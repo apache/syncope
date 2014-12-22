@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning.camel;
 
 import java.io.ByteArrayInputStream;
@@ -44,38 +43,39 @@ import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-
 @Component
-public class SyncopeCamelContext{
+public class SyncopeCamelContext {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeCamelContext.class);
 
-    private CamelContext camelContext = null;                   
-    
-    public SyncopeCamelContext() { 
-    }
-    
-    public CamelContext getContext(RouteDAO routeDAO){
+    private CamelContext camelContext = null;
 
-        if(camelContext == null) camelContext = new SpringCamelContext(ApplicationContextProvider.getApplicationContext());              
-        if(camelContext.getRouteDefinitions().isEmpty()){            
-            
+    public SyncopeCamelContext() {
+    }
+
+    public CamelContext getContext(RouteDAO routeDAO) {
+
+        if (camelContext == null) {
+            camelContext = new SpringCamelContext(ApplicationContextProvider.getApplicationContext());
+        }
+        if (camelContext.getRouteDefinitions().isEmpty()) {
+
             List<CamelRoute> crl = routeDAO.findAll();
-            LOG.info("{} route(s) are going to be loaded ", crl.size());                
+            LOG.info("{} route(s) are going to be loaded ", crl.size());
             loadContext(routeDAO, crl);
-                
+
             try {
                 camelContext.start();
             } catch (Exception ex) {
                 LOG.error("Error during staring camel context {}", ex);
             }
         }
-        
+
         return camelContext;
     }
-    
-    public void loadContext(RouteDAO routeDAO, List<CamelRoute> crl){
-        
+
+    public void loadContext(RouteDAO routeDAO, List<CamelRoute> crl) {
+
         try {
             DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             JAXBContext jaxbContext = JAXBContext.newInstance(Constants.JAXB_CONTEXT_PACKAGES);
@@ -84,7 +84,8 @@ public class SyncopeCamelContext{
 
             for (int s = 0; s < crl.size(); s++) {
 
-                InputStream is = new ByteArrayInputStream( URLDecoder.decode(crl.get(s).getRouteContent(), "UTF-8").getBytes());
+                InputStream is = new ByteArrayInputStream(URLDecoder.decode(crl.get(s).getRouteContent(), "UTF-8").
+                        getBytes());
                 Document doc = dBuilder.parse(is);
                 doc.getDocumentElement().normalize();
                 Node routeEl = doc.getElementsByTagName("route").item(0);
@@ -96,42 +97,44 @@ public class SyncopeCamelContext{
         } catch (Exception ex) {
             LOG.error("Error during loading camel context {}", ex);
         }
-    
+
     }
-    
-    public void reloadContext(RouteDAO routeDAO){
-        
+
+    public void reloadContext(RouteDAO routeDAO) {
+
         List<CamelRoute> crl = routeDAO.findAll();
-        if(camelContext == null) getContext(routeDAO);
-        else {            
-            if( ! camelContext.getRouteDefinitions().isEmpty()){                    
-                for (Iterator<RouteDefinition> it = camelContext.getRouteDefinitions().iterator(); it.hasNext(); ) {
+        if (camelContext == null) {
+            getContext(routeDAO);
+        } else {
+            if (!camelContext.getRouteDefinitions().isEmpty()) {
+                for (Iterator<RouteDefinition> it = camelContext.getRouteDefinitions().iterator(); it.hasNext();) {
                     RouteDefinition ard = it.next();
-                    it.remove();                       
-                }                    
+                    it.remove();
+                }
             }
 
             loadContext(routeDAO, crl);
         }
     }
-    
-    public void reloadContext(RouteDAO routeDAO, Long routeId){
-        
-        if(camelContext == null) getContext(routeDAO);
-        else {            
-            if( ! camelContext.getRouteDefinitions().isEmpty()){
-                                
+
+    public void reloadContext(RouteDAO routeDAO, Long routeId) {
+
+        if (camelContext == null) {
+            getContext(routeDAO);
+        } else {
+            if (!camelContext.getRouteDefinitions().isEmpty()) {
+
                 camelContext.getRouteDefinitions().remove(routeId.intValue());
                 List<CamelRoute> crl = new ArrayList<CamelRoute>();
                 crl.add(routeDAO.find(routeId));
                 loadContext(routeDAO, crl);
             }
-                
+
         }
-            
+
     }
-    
-    public List<RouteDefinition> getDefinitions(){
+
+    public List<RouteDefinition> getDefinitions() {
         return camelContext.getRouteDefinitions();
     }
 }

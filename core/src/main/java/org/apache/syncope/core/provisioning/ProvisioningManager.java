@@ -25,7 +25,7 @@ import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.PropagationStatus;
 
-public interface ProvisioningManager<T extends AbstractAttributableTO, M extends AbstractAttributableMod>{
+public interface ProvisioningManager<T extends AbstractAttributableTO, M extends AbstractAttributableMod> {
 
     public Map.Entry<Long, List<PropagationStatus>> create(T subject);
 

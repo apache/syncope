@@ -227,12 +227,12 @@ public class PolicyTestITCase extends AbstractTest {
     public void issueSYNCOPE553() {
         AccountPolicyTO policy = new AccountPolicyTO(false);
         policy.setDescription("SYNCOPE553");
-        
+
         final AccountPolicySpec accountPolicySpec = new AccountPolicySpec();
         accountPolicySpec.setMinLength(3);
         accountPolicySpec.setMaxLength(8);
         policy.setSpecification(accountPolicySpec);
-        
+
         policy = createPolicy(policy);
         assertNotNull(policy);
     }

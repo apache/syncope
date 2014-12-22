@@ -52,7 +52,7 @@ public class PolicyEvaluator {
                 final PasswordPolicySpec ppSpec = policy.getSpecification(PasswordPolicySpec.class);
                 final PasswordPolicySpec evaluatedPPSpec = new PasswordPolicySpec();
 
-                BeanUtils.copyProperties(ppSpec, evaluatedPPSpec, new String[]{"schemasNotPermitted"});
+                BeanUtils.copyProperties(ppSpec, evaluatedPPSpec, new String[] { "schemasNotPermitted" });
 
                 for (String schema : ppSpec.getSchemasNotPermitted()) {
                     AbstractAttr attribute = attributable.getAttr(schema);
@@ -65,7 +65,6 @@ public class PolicyEvaluator {
                 }
 
                 // Password history verification and update
-
                 if (!(attributable instanceof SyncopeUser)) {
                     LOG.error("Cannot check previous passwords. attributable is not a user object: {}",
                             attributable.getClass().getName());
@@ -83,7 +82,7 @@ public class PolicyEvaluator {
                 final AccountPolicySpec spec = policy.getSpecification(AccountPolicySpec.class);
                 final AccountPolicySpec accountPolicy = new AccountPolicySpec();
 
-                BeanUtils.copyProperties(spec, accountPolicy, new String[]{"schemasNotPermitted"});
+                BeanUtils.copyProperties(spec, accountPolicy, new String[] { "schemasNotPermitted" });
 
                 for (String schema : spec.getSchemasNotPermitted()) {
                     AbstractAttr attribute = attributable.getAttr(schema);

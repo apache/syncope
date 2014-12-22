@@ -16,24 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.util;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.core.persistence.beans.CamelRoute;
 
-
 public class RouteManager {
+
     private static List<CamelRoute> routelist;
-    
-    public static void addElement(CamelRoute route){
-        if(routelist == null) routelist= new ArrayList<CamelRoute>();
+
+    public static void addElement(CamelRoute route) {
+        if (routelist == null) {
+            routelist = new ArrayList<CamelRoute>();
+        }
         routelist.add(route);
     }
-    
-    public static List<CamelRoute> getRoutes(){
-        if(routelist == null) routelist= new ArrayList<CamelRoute>();
+
+    public static List<CamelRoute> getRoutes() {
+        if (routelist == null) {
+            routelist = new ArrayList<CamelRoute>();
+        }
         return routelist;
     }
 }

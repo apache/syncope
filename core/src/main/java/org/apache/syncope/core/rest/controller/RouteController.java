@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.rest.controller;
 
 import java.lang.reflect.Method;
@@ -36,57 +35,58 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class RouteController extends AbstractTransactionalController<RouteTO>{
-    
+public class RouteController extends AbstractTransactionalController<RouteTO> {
+
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(RouteDataBinder.class);
-    
+
     @Autowired
     private RouteDAO routeDao;
-    
+
     @Autowired
     private RouteDataBinder binder;
-    
+
     @Autowired
     private SyncopeCamelContext context;
-    
-    
+
     @PreAuthorize("hasRole('ROUTE_LIST')")
     @Transactional(readOnly = true)
-    public List<RouteTO> listRoutes(){
+    public List<RouteTO> listRoutes() {
         List<RouteTO> routes = new ArrayList<RouteTO>();
         Iterator it = routeDao.findAll().iterator();
-        while(it.hasNext()){
+        while (it.hasNext()) {
             routes.add(binder.getRouteTO((CamelRoute) it.next()));
         }
         return routes;
     }
-    
+
     @PreAuthorize("hasRole('ROUTE_READ')")
     @Transactional(readOnly = true)
-    public RouteTO readRoute(Long id){
+    public RouteTO readRoute(Long id) {
         CamelRoute route = routeDao.find(id);
-        if (route==null) 
-            throw new NotFoundException("Route with id="+id);
-        
+        if (route == null) {
+            throw new NotFoundException("Route with id=" + id);
+        }
+
         return binder.getRouteTO(route);
     }
-    
+
     @PreAuthorize("hasRole('ROUTE_UPDATE')")
-    public void updateRoute(RouteTO routeTO){
+    public void updateRoute(RouteTO routeTO) {
 
         CamelRoute route = routeDao.find(routeTO.getId());
-        if (route==null) 
-            throw new NotFoundException("Route with id="+route.getId());
+        if (route == null) {
+            throw new NotFoundException("Route with id=" + route.getId());
+        }
         route.setRouteContent(routeTO.getRouteContent());
-        routeDao.save(route);       
+        routeDao.save(route);
         LOG.info("UPDATING ROUTE WITH ID {} ", routeTO.getId());
         LOG.info("NEW ROUTE CONTENT {} ", routeTO.getRouteContent());
         context.reloadContext(routeDao, routeTO.getId());
-    }   
-    
+    }
+
     @Override
     protected RouteTO resolveReference(Method method, Object... args) throws UnresolvedReferenceException {
         throw new UnresolvedReferenceException();
     }
-    
+
 }

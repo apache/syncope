@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning.camel.processors;
 
 import java.util.AbstractMap;
@@ -42,22 +41,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DefaultUserStatusPropagation implements Processor{
-    
+public class DefaultUserStatusPropagation implements Processor {
+
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserStatusPropagation.class);
+
     @Autowired
     protected PropagationManager propagationManager;
+
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
-    
+
     @Override
-    public void process(Exchange exchange){
-        
+    public void process(Exchange exchange) {
+
         WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
-        
+
         SyncopeUser user = exchange.getProperty("user", SyncopeUser.class);
         StatusMod statusMod = exchange.getProperty("statusMod", StatusMod.class);
-        
+
         Set<String> resourcesToBeExcluded = new HashSet<String>(user.getResourceNames());
         resourcesToBeExcluded.removeAll(statusMod.getResourceNames());
 
@@ -71,8 +72,9 @@ public class DefaultUserStatusPropagation implements Processor{
             LOG.error("Error propagation primary resource", e);
             propReporter.onPrimaryResourceFailure(tasks);
         }
-        
-        Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(updated.getResult(), propReporter.getStatuses());
-        exchange.getOut().setBody(result); 
-    }    
+
+        Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
+                updated.getResult(), propReporter.getStatuses());
+        exchange.getOut().setBody(result);
+    }
 }

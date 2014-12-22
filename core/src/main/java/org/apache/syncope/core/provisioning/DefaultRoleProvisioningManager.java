@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning;
 
 import java.util.AbstractMap;
@@ -48,20 +47,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang3.StringUtils;
 
-public class DefaultRoleProvisioningManager implements RoleProvisioningManager{
+public class DefaultRoleProvisioningManager implements RoleProvisioningManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultRoleProvisioningManager.class);
+
     @Autowired
     protected RoleWorkflowAdapter rwfAdapter;
+
     @Autowired
     protected PropagationManager propagationManager;
+
     @Autowired
-    protected PropagationTaskExecutor taskExecutor;    
+    protected PropagationTaskExecutor taskExecutor;
+
     @Autowired
     protected RoleDAO roleDAO;
+
     @Autowired
     protected RoleDataBinder binder;
-    
+
     @Override
     public Map.Entry<Long, List<PropagationStatus>> create(RoleTO subject) {
         return create(subject, Collections.<String>emptySet());
@@ -69,7 +73,7 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager{
 
     @Override
     public Map.Entry<Long, List<PropagationStatus>> create(RoleTO subject, Set<String> excludedResources) {
-        
+
         WorkflowResult<Long> created = rwfAdapter.create(subject);
 
         EntitlementUtil.extendAuthContext(created.getResult());
@@ -86,15 +90,16 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager{
 
         final RoleTO savedTO = binder.getRoleTO(created.getResult());
         savedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
-        
+
         Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
                 created.getResult(), propagationReporter.getStatuses());
         return result;
     }
-    
+
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> createInSync(RoleTO roleTO, Map<Long, String> roleOwnerMap,Set<String> excludedResources) throws PropagationException{
-        
+    public Map.Entry<Long, List<PropagationStatus>> createInSync(RoleTO roleTO, Map<Long, String> roleOwnerMap,
+            Set<String> excludedResources) throws PropagationException {
+
         WorkflowResult<Long> created = rwfAdapter.create((RoleTO) roleTO);
         AttributeTO roleOwner = roleTO.getAttrMap().get(StringUtils.EMPTY);
         if (roleOwner != null) {
@@ -107,21 +112,21 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager{
                 roleTO.getVirAttrs(), excludedResources);
 
         taskExecutor.execute(tasks);
-        
+
         Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
                 created.getResult(), null);
         return result;
     }
-    
+
     @Override
     public Map.Entry<Long, List<PropagationStatus>> update(RoleMod subjectMod) {
-        
+
         return update(subjectMod, Collections.<String>emptySet());
     }
-    
+
     @Override
     public Map.Entry<Long, List<PropagationStatus>> update(RoleMod subjectMod, Set<String> excludedResources) {
-                
+
         WorkflowResult<Long> updated = rwfAdapter.update(subjectMod);
 
         List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
@@ -135,7 +140,6 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager{
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        
         Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
                 updated.getResult(), propagationReporter.getStatuses());
         return result;
@@ -179,13 +183,12 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager{
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        try{
+        try {
             rwfAdapter.delete(subjectId);
+        } catch (RuntimeException e) {
+            throw e;
         }
-        catch(RuntimeException e){
-            throw  e;
-        }
-        
+
         return propagationReporter.getStatuses();
     }
 
@@ -194,15 +197,16 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager{
         WorkflowResult<Long> updated = rwfAdapter.update(subjectMod);
         return updated.getResult();
     }
-    
+
     @Override
-    public List<PropagationStatus> deprovision(final Long roleId, final Collection<String> resources){
+    public List<PropagationStatus> deprovision(final Long roleId, final Collection<String> resources) {
         final SyncopeRole role = binder.getRoleFromId(roleId);
-        
+
         final Set<String> noPropResourceName = role.getResourceNames();
         noPropResourceName.removeAll(resources);
-        
-        final List<PropagationTask> tasks = propagationManager.getRoleDeleteTaskIds(roleId, new HashSet<String>(resources), noPropResourceName);
+
+        final List<PropagationTask> tasks = propagationManager.getRoleDeleteTaskIds(roleId, new HashSet<String>(
+                resources), noPropResourceName);
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
                 PropagationReporter.class);
         try {
@@ -218,5 +222,5 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager{
     public Long link(RoleMod subjectMod) {
         return rwfAdapter.update(subjectMod).getResult();
     }
-    
+
 }

@@ -82,8 +82,8 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
 
         Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getSyncTask());
         //Delegate User Workflow Creation and its Propagation to provisioning manager
-        Map.Entry<Long, List<PropagationStatus>>
-            created = userProvisioningManager.create(userTO, true, true, enabled,Collections.singleton(profile.getSyncTask().getResource().getName()));                             
+        Map.Entry<Long, List<PropagationStatus>> created = userProvisioningManager.create(userTO, true, true, enabled,
+                Collections.singleton(profile.getSyncTask().getResource().getName()));
 
         userTO = userDataBinder.getUserTO(created.getKey());
 
@@ -121,51 +121,51 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
 
         final UserMod userMod = UserMod.class.cast(subjectMod);
 
-        /*WorkflowResult<Map.Entry<UserMod, Boolean>> updated;
-        try {
-            updated = uwfAdapter.update(userMod);
-        } catch (Exception e) {
-            LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", before.getId(), e);
-
-            result.setStatus(SyncResult.Status.FAILURE);
-            result.setMessage("Update failed, trying to sync status anyway (if configured)\n"
-                    + ExceptionUtils.getRootCauseMessage(e));
-
-            updated = new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                    new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, false),
-                    new PropagationByResource(),
-                    new HashSet<String>());
-        }*/
-
+        /* WorkflowResult<Map.Entry<UserMod, Boolean>> updated;
+         * try {
+         * updated = uwfAdapter.update(userMod);
+         * } catch (Exception e) {
+         * LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", before.getId(), e);
+         *
+         * result.setStatus(SyncResult.Status.FAILURE);
+         * result.setMessage("Update failed, trying to sync status anyway (if configured)\n"
+         * + ExceptionUtils.getRootCauseMessage(e));
+         *
+         * updated = new WorkflowResult<Map.Entry<UserMod, Boolean>>(
+         * new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, false),
+         * new PropagationByResource(),
+         * new HashSet<String>());
+         * } */
         final Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getSyncTask());
-        /*if (enabled != null) {
-            SyncopeUser user = userDAO.find(before.getId());
+        /* if (enabled != null) {
+         * SyncopeUser user = userDAO.find(before.getId());
+         *
+         * WorkflowResult<Long> enableUpdate = null;
+         * if (user.isSuspended() == null) {
+         * enableUpdate = uwfAdapter.activate(before.getId(), null);
+         * } else if (enabled && user.isSuspended()) {
+         * enableUpdate = uwfAdapter.reactivate(before.getId());
+         * } else if (!enabled && !user.isSuspended()) {
+         * enableUpdate = uwfAdapter.suspend(before.getId());
+         * }
+         *
+         * if (enableUpdate != null) {
+         * if (enableUpdate.getPropByRes() != null) {
+         * updated.getPropByRes().merge(enableUpdate.getPropByRes());
+         * updated.getPropByRes().purge();
+         * }
+         * updated.getPerformedTasks().addAll(enableUpdate.getPerformedTasks());
+         * }
+         * }
+         *
+         * final List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
+         * updated, updated.getResult().getKey().getPassword() != null,
+         * Collections.singleton(profile.getSyncTask().getResource().getName()));
+         *
+         * taskExecutor.execute(tasks); */
 
-            WorkflowResult<Long> enableUpdate = null;
-            if (user.isSuspended() == null) {
-                enableUpdate = uwfAdapter.activate(before.getId(), null);
-            } else if (enabled && user.isSuspended()) {
-                enableUpdate = uwfAdapter.reactivate(before.getId());
-            } else if (!enabled && !user.isSuspended()) {
-                enableUpdate = uwfAdapter.suspend(before.getId());
-            }
-
-            if (enableUpdate != null) {
-                if (enableUpdate.getPropByRes() != null) {
-                    updated.getPropByRes().merge(enableUpdate.getPropByRes());
-                    updated.getPropByRes().purge();
-                }
-                updated.getPerformedTasks().addAll(enableUpdate.getPerformedTasks());
-            }
-        }
-
-        final List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
-                updated, updated.getResult().getKey().getPassword() != null,
-                Collections.singleton(profile.getSyncTask().getResource().getName()));
-
-        taskExecutor.execute(tasks);*/
-                 
-        Map.Entry<Long, List<PropagationStatus>> updated = userProvisioningManager.updateInSync(userMod, before.getId(), result,enabled, Collections.singleton(profile.getSyncTask().getResource().getName()));        
+        Map.Entry<Long, List<PropagationStatus>> updated = userProvisioningManager.updateInSync(userMod, before.getId(),
+                result, enabled, Collections.singleton(profile.getSyncTask().getResource().getName()));
 
         return userDataBinder.getUserTO(updated.getKey());
     }
@@ -189,7 +189,7 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
     protected void delete(final Long id) {
         try {
             userProvisioningManager.
-                    delete(id,Collections.<String>singleton(profile.getSyncTask().getResource().getName()));
+                    delete(id, Collections.<String>singleton(profile.getSyncTask().getResource().getName()));
         } catch (Exception e) {
             // A propagation failure doesn't imply a synchronization failure.
             // The propagation exception status will be reported into the propagation task execution.

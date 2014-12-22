@@ -16,9 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.rest.data;
-
 
 import org.apache.syncope.common.to.RouteTO;
 import org.apache.syncope.common.util.BeanUtils;
@@ -28,11 +26,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RouteDataBinder {
-  
+
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(RouteDataBinder.class);
-    
-    public RouteTO getRouteTO(CamelRoute route){        
-              
+
+    public RouteTO getRouteTO(CamelRoute route) {
+
         RouteTO routeTO = new RouteTO();
         BeanUtils.copyProperties(route, routeTO);
         return routeTO;

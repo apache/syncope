@@ -35,17 +35,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DefaultUserConfirmPwdResetPropagation implements Processor{
+public class DefaultUserConfirmPwdResetPropagation implements Processor {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultUserConfirmPwdResetPropagation.class);
-    
+
     @Autowired
     protected PropagationManager propagationManager;
+
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
-    
+
     @Override
-    public void process(Exchange exchange){
+    public void process(Exchange exchange) {
         SyncopeUser user = exchange.getProperty("user", SyncopeUser.class);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(user, null, null);
@@ -56,6 +57,6 @@ public class DefaultUserConfirmPwdResetPropagation implements Processor{
         } catch (PropagationException e) {
             LOG.error("Error propagation primary resource", e);
             propReporter.onPrimaryResourceFailure(tasks);
-        }                
+        }
     }
 }

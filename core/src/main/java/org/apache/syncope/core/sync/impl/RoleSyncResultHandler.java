@@ -86,8 +86,8 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
 
         RoleTO roleTO = RoleTO.class.cast(subjectTO);
 
-        Map.Entry<Long, List<PropagationStatus>> created = roleProvisioningManager.createInSync
-                           (roleTO, roleOwnerMap, Collections.singleton(profile.getSyncTask().getResource().getName()));
+        Map.Entry<Long, List<PropagationStatus>> created = roleProvisioningManager.createInSync(roleTO, roleOwnerMap,
+                Collections.singleton(profile.getSyncTask().getResource().getName()));
 
         roleTO = roleDataBinder.getRoleTO(created.getKey());
 
@@ -127,7 +127,7 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
         RoleMod roleMod = RoleMod.class.cast(subjectMod);
 
         Map.Entry<Long, List<PropagationStatus>> updated = roleProvisioningManager.update(roleMod);
-                
+
         //moved after role provisioning manager
         String roleOwner = null;
         for (AttributeMod attrMod : roleMod.getAttrsToUpdate()) {
@@ -140,7 +140,7 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
         }
 
         final RoleTO after = roleDataBinder.getRoleTO(updated.getKey());
-        
+
         result.setName(getName(after));
 
         return after;
@@ -170,6 +170,6 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
             LOG.error("Could not propagate user " + id, e);
         }
 
-        roleProvisioningManager.delete(id); 
+        roleProvisioningManager.delete(id);
     }
 }

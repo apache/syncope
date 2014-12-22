@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.init;
 
 import java.io.File;
@@ -47,58 +46,59 @@ import org.w3c.dom.NodeList;
 
 @Component
 public class CamelRouteLoader {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(CamelRouteLoader.class);
-    
+
     @Autowired
     private RouteDAO routeDAO;
-    
+
     @Autowired
     private DataSource dataSource;
-    
+
     @Transactional
-    public void load(){
-        
+    public void load() {
+
         //if(routeDAO.findAll().isEmpty()){
-            URL url = getClass().getResource("/camelRoute.xml");                                   
+        URL url = getClass().getResource("/camelRoute.xml");
 
-            File file = new File(url.getPath());
-            String query= "INSERT INTO CamelRoute(ID, NAME, ROUTECONTENT) VALUES (?, ?, ?)";
-            try{
-                
-                DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                Document doc = dBuilder.parse(file);
-                doc.getDocumentElement().normalize();
+        File file = new File(url.getPath());
+        String query = "INSERT INTO CamelRoute(ID, NAME, ROUTECONTENT) VALUES (?, ?, ?)";
+        try {
 
-                JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+            DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document doc = dBuilder.parse(file);
+            doc.getDocumentElement().normalize();
 
-                NodeList listOfRoutes = doc.getElementsByTagName("route");
-                for(int s=0; s<listOfRoutes.getLength(); s++){
-                    //getting the route node element
-                    Node routeEl = listOfRoutes.item(s);
-                    //crate an instance of CamelRoute Entity
-                    CamelRoute route = new CamelRoute();                                 
-                    route.setName(((Element)routeEl).getAttribute("id"));        
-                    route.setRouteContent(nodeToString(listOfRoutes.item(s)));
-                    
-                    jdbcTemplate.update(query, new Object[]{s+1,((Element)routeEl).getAttribute("id"),  nodeToString(listOfRoutes.item(s))});
-                    LOG.info("Route Registration Successed");
-                }
-            } catch (DataAccessException e) {
-                LOG.error("While trying to perform {}", query, e);
-            } catch (Exception e) {
-                LOG.error("Route Registration failed {}",e.getMessage());
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+            NodeList listOfRoutes = doc.getElementsByTagName("route");
+            for (int s = 0; s < listOfRoutes.getLength(); s++) {
+                //getting the route node element
+                Node routeEl = listOfRoutes.item(s);
+                //crate an instance of CamelRoute Entity
+                CamelRoute route = new CamelRoute();
+                route.setName(((Element) routeEl).getAttribute("id"));
+                route.setRouteContent(nodeToString(listOfRoutes.item(s)));
+
+                jdbcTemplate.update(query, new Object[] { s + 1, ((Element) routeEl).getAttribute("id"), nodeToString(
+                    listOfRoutes.item(s)) });
+                LOG.info("Route Registration Successed");
             }
+        } catch (DataAccessException e) {
+            LOG.error("While trying to perform {}", query, e);
+        } catch (Exception e) {
+            LOG.error("Route Registration failed {}", e.getMessage());
+        }
         //}
     }
-    
-  private String nodeToString(Node node) {
+
+    private String nodeToString(Node node) {
         StringWriter sw = new StringWriter();
-        try{
+        try {
             Transformer t = TransformerFactory.newInstance().newTransformer();
             t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             t.transform(new DOMSource(node), new StreamResult(sw));
-        }catch (TransformerException te) {
+        } catch (TransformerException te) {
             System.out.println("nodeToString Transformer Exception");
         }
         return sw.toString();

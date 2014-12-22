@@ -134,8 +134,8 @@ public final class JexlUtil {
                         context.set(fieldName, fieldValue == null
                                 ? ""
                                 : (type.equals(Date.class)
-                                ? DataFormat.format((Date) fieldValue, false)
-                                : fieldValue));
+                                        ? DataFormat.format((Date) fieldValue, false)
+                                        : fieldValue));
 
                         LOG.debug("Add field {} with value {}", fieldName, fieldValue);
 

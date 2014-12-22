@@ -388,8 +388,8 @@ public class PropagationManager {
         PropagationByResource localPropByRes = binder.fillVirtual(subject, vAttrsToBeRemoved == null
                 ? Collections.<String>emptySet()
                 : vAttrsToBeRemoved, vAttrsToBeUpdated == null
-                ? Collections.<AttributeMod>emptySet()
-                : vAttrsToBeUpdated, AttributableUtil.getInstance(subject));
+                        ? Collections.<AttributeMod>emptySet()
+                        : vAttrsToBeUpdated, AttributableUtil.getInstance(subject));
 
         // SYNCOPE-458 fill membership virtual attributes
         if (subject instanceof SyncopeUser) {
@@ -402,8 +402,8 @@ public class PropagationManager {
                                 ? Collections.<String>emptySet()
                                 : membershipMod.getVirAttrsToRemove(),
                                 membershipMod.getVirAttrsToUpdate() == null ? Collections.<AttributeMod>emptySet()
-                                : membershipMod.getVirAttrsToUpdate(), AttributableUtil.getInstance(
-                                AttributableType.MEMBERSHIP));
+                                        : membershipMod.getVirAttrsToUpdate(), AttributableUtil.getInstance(
+                                        AttributableType.MEMBERSHIP));
                     }
                 }
             }

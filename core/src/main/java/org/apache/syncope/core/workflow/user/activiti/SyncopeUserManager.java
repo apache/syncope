@@ -121,7 +121,7 @@ public class SyncopeUserManager implements UserIdentityManager, SyncopeSession {
     public void updateUser(final User updatedUser) {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public Picture getUserPicture(final String string) {
         throw new UnsupportedOperationException();

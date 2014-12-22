@@ -95,7 +95,7 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
 
     @Resource(name = "anonymousUser")
     private String anonymousUser;
-    
+
     @Resource(name = "roleProvisioningManager")
     protected RoleProvisioningManager provisioningManager;
 
@@ -259,7 +259,7 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
         LOG.debug("Transformed: {}", actual);
 
         Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(roleMod);
-        
+
         final RoleTO updatedTO = binder.getRoleTO(updated.getKey());
         updatedTO.getPropagationStatusTOs().addAll(updated.getValue());
         return updatedTO;
@@ -281,7 +281,7 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
         }
 
         List<PropagationStatus> statuses = provisioningManager.delete(roleId);
-        
+
         RoleTO roleTO = new RoleTO();
         roleTO.setId(roleId);
 
@@ -318,7 +318,7 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
         roleMod.setId(roleId);
         roleMod.getResourcesToRemove().addAll(resources);
         final Long updatedResult = provisioningManager.unlink(roleMod);
- 
+
         return binder.getRoleTO(updatedResult);
     }
 

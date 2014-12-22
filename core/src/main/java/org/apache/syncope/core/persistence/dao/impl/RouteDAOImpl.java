@@ -37,7 +37,8 @@ public class RouteDAOImpl extends AbstractDAOImpl implements RouteDAO {
     @Transactional(readOnly = true)
     @Override
     public List<CamelRoute> findAll() {
-        TypedQuery<CamelRoute> query = entityManager.createQuery("SELECT e FROM " + CamelRoute.class.getSimpleName() + " e", CamelRoute.class);
+        TypedQuery<CamelRoute> query = entityManager.createQuery("SELECT e FROM " + CamelRoute.class.getSimpleName()
+                + " e", CamelRoute.class);
         return query.getResultList();
     }
 

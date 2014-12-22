@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning.camel.processors;
 
 import java.util.ArrayList;
@@ -40,25 +39,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DefaultRoleDeletePropagation implements Processor{
+public class DefaultRoleDeletePropagation implements Processor {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultRoleDeletePropagation.class);
+
     @Autowired
     protected RoleWorkflowAdapter rwfAdapter;
+
     @Autowired
     protected PropagationManager propagationManager;
+
     @Autowired
-    protected PropagationTaskExecutor taskExecutor;    
+    protected PropagationTaskExecutor taskExecutor;
+
     @Autowired
     protected RoleDAO roleDAO;
+
     @Autowired
     protected RoleDataBinder binder;
-    
+
     @Override
     public void process(Exchange exchange) throws Exception {
-        
+
         Long subjectId = exchange.getIn().getBody(Long.class);
-        
+
         final List<SyncopeRole> toBeDeprovisioned = new ArrayList<SyncopeRole>();
 
         final SyncopeRole syncopeRole = roleDAO.find(subjectId);
@@ -92,11 +96,9 @@ public class DefaultRoleDeletePropagation implements Processor{
         } catch (PropagationException e) {
             LOG.error("Error propagation primary resource", e);
             propagationReporter.onPrimaryResourceFailure(tasks);
-        }      
-        
+        }
+
         exchange.setProperty("statuses", propagationReporter.getStatuses());
     }
-    
-    
-    
+
 }
