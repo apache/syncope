@@ -111,7 +111,7 @@ under the License.
     <route id="syncUserStatus">
       <from uri="direct:syncUserStatus"/>
       <process ref="userStatusOnSync" />
-      <process ref="defaultUserUpdateSyncPropagation" />
+      <process ref="defaultUserUpdateInSyncPropagation" />
       <to uri="direct:updateSyncPort"/>
     </route>
     <!--
@@ -454,7 +454,7 @@ under the License.
   <bean id="defaultUserCreatePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserCreatePropagation"/>
   <bean id="defaultUserUpdatePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserUpdatePropagation"/>    
   <bean id="userStatusOnSync" class="org.apache.syncope.core.provisioning.camel.processors.UserStatusOnSync"/>
-  <bean id="defaultUserUpdateSyncPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserUpdateInSyncPropagation"/>
+  <bean id="defaultUserUpdateInSyncPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserUpdateInSyncPropagation"/>
   <bean id="defaultUserDeletePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserDeletePropagation"/>    
   <bean id="defaultUserDeprovisionPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserDeprovisionPropagation"/>    
   <bean id="defaultUserWFSuspendPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserWFSuspendPropagation"/>

@@ -40,7 +40,7 @@ public class WorkflowUserSuspender implements UserSuspender {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorkflowUserSuspender.class);
 
-    @Resource(name = "defaultUserProvisioningManager")
+    @Resource(name = "userProvisioningManager")
     protected UserProvisioningManager provisioningManager;
 
     @Override

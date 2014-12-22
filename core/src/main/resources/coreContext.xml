@@ -43,6 +43,7 @@ under the License.
         <value>file:${conf.directory}/connid.properties</value>
         <value>file:${conf.directory}/workflow.properties</value>
         <value>file:${conf.directory}/mail.properties</value>
+        <value>file:${conf.directory}/provisioning.properties</value>
       </list>
     </property>
   </bean>
@@ -55,6 +56,7 @@ under the License.
         <value>classpath:connid.properties</value>
         <value>classpath:workflow.properties</value>
         <value>classpath:mail.properties</value>
+        <value>classpath:provisioning.properties</value>
       </list>
     </property>
   </bean>
@@ -75,9 +77,7 @@ under the License.
   <context:component-scan base-package="org.apache.syncope.core.workflow">
     <context:exclude-filter type="regex" expression=".*\.activiti\..*"/>
   </context:component-scan>
-  
-  <bean id="defaultUserProvisioningManager" class="org.apache.syncope.core.provisioning.DefaultUserProvisioningManager"/>
-  <bean id="defaultRoleProvisioningManager" class="org.apache.syncope.core.provisioning.DefaultRoleProvisioningManager"/>
+  <context:component-scan base-package="org.apache.syncope.core.provisioning"/>
 
   <bean id="nonJPAdbInitializer" class="org.springframework.jdbc.datasource.init.DataSourceInitializer">
     <property name="dataSource" ref="dataSource"/>
@@ -151,23 +151,8 @@ under the License.
     <constructor-arg value="60"/>
     <constructor-arg value="5000"/>
   </bean>
-  <!-- Camel Context Definition -->
-  <bean id="syncopeCamelContextFactory" class="org.apache.syncope.core.provisioning.camel.SyncopeCamelContext"/>
-    
-    <bean id="defaultUserCreatePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserCreatePropagation"/>
-    <bean id="defaultUserUpdatePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserUpdatePropagation"/>    
-    <bean id="userStatusOnSync" class="org.apache.syncope.core.provisioning.camel.processors.UserStatusOnSync"/>
-    <bean id="defaultUserUpdateSyncPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserUpdateInSyncPropagation"/>
-    <bean id="defaultUserDeletePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserDeletePropagation"/>    
-    <bean id="defaultUserDeprovisionPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserDeprovisionPropagation"/>    
-    <bean id="defaultUserWFSuspendPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserWFSuspendPropagation"/>
-    <bean id="defaultUserStatusPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserStatusPropagation"/>
-    <bean id="defaultUserConfirmPwdResetPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultUserConfirmPwdResetPropagation"/>
-    <bean id="defaultRoleCreatePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleCreatePropagation"/>
-    <bean id="defaultRoleCreateSyncPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleCreateSyncPropagation"/>
-    <bean id="defaultRoleUpdatePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleUpdatePropagation"/>
-    <bean id="defaultRoleDeletePropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleDeletePropagation"/>    
-    <bean id="defaultRoleDeprovisionPropagation" class="org.apache.syncope.core.provisioning.camel.processors.DefaultRoleDeprovisionPropagation"/>    
-
-    <bean id="routeController" class="org.apache.syncope.core.rest.controller.RouteController"/>
+  <!-- Camel Context Beans Definition -->   
+  <bean id="userProvisioningManager" class="${userProvisioningManager}"/>
+  <bean id="roleProvisioningManager" class="${roleProvisioningManager}"/>
+  <bean id="routeController" class="org.apache.syncope.core.rest.controller.RouteController"/>
 </beans>

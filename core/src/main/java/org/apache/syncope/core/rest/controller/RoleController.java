@@ -96,7 +96,7 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
     @Resource(name = "anonymousUser")
     private String anonymousUser;
     
-    @Resource(name = "defaultRoleProvisioningManager")
+    @Resource(name = "roleProvisioningManager")
     protected RoleProvisioningManager provisioningManager;
 
     @PreAuthorize("hasAnyRole('ROLE_READ', T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")

@@ -103,10 +103,10 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
      */
     protected SyncProfile<T, A> profile;
     
-    @Resource(name = "defaultUserProvisioningManager")
+    @Resource(name = "userProvisioningManager")
     protected UserProvisioningManager userProvisioningManager;
     
-    @Resource(name = "defaultRoleProvisioningManager")
+    @Resource(name = "roleProvisioningManager")
     protected RoleProvisioningManager roleProvisioningManager;
 
     public void setProfile(final SyncProfile<T, A> profile) {

@@ -97,7 +97,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
     @Autowired
     protected AttributableTransformer attrTransformer;
     
-    @Resource(name = "defaultUserProvisioningManager")
+    @Resource(name = "userProvisioningManager")
     protected UserProvisioningManager provisioningManager;
 
     @Transactional(readOnly = true)
