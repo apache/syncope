@@ -35,6 +35,7 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.MappingPurpose;
+import org.apache.syncope.core.cache.VirAttrCache;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.connid.PasswordGenerator;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
@@ -208,7 +209,7 @@ public final class MappingUtil {
             }
         }
 
-        final Attribute accountIdExtAttr = 
+        final Attribute accountIdExtAttr =
                 AttributeUtil.find(attrUtil.getAccountIdItem(resource).getExtAttrName(), attributes);
         if (accountIdExtAttr != null) {
             attributes.remove(accountIdExtAttr);
@@ -377,8 +378,8 @@ public final class MappingUtil {
                 } else {
                     result = new AbstractMap.SimpleEntry<String, Attribute>(
                             null, objValues.isEmpty()
-                            ? AttributeBuilder.build(extAttrName)
-                            : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
+                                    ? AttributeBuilder.build(extAttrName)
+                                    : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
                 }
             }
         }
