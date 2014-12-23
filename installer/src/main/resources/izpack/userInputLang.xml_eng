@@ -52,6 +52,9 @@ under the License.
   <str id="tomcat.container.pwd.id" txt="Tomcat password:"/>
   
   <str id="glassfish.container.dir.id" txt="Glassfish home directory:"/>
+  <str id="glassfish.container.ssl.id" txt="Https"/>
+  <str id="glassfish.container.host.id" txt="Glassfish host:"/>
+  <str id="glassfish.container.port.id" txt="Glassfish port:"/>
   
   <str id="jboss.container.ssl.id" txt="Https"/>
   <str id="jboss.container.host.id" txt="Jboss host:"/>
@@ -59,4 +62,5 @@ under the License.
   <str id="jboss.container.jdbc.module.id" txt="Jboss JDBC module name:"/>
   <str id="jboss.container.user.id" txt="Jboss admin username:"/>
   <str id="jboss.container.pwd.id" txt="Jboss admin password:"/>
+  <str id='jboss.container.management.port.id' txt="Jboss management port"/>
 </langpack>

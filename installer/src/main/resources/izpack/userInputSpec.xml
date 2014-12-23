@@ -131,7 +131,7 @@ under the License.
       <spec id="persistence.jdbc.url" size="20" set="jdbc:oracle:thin:@localhost:1521:orcl"/>
     </field>
     <field type="text" variable="persistence.url" conditionid="sqlserver.choice">
-      <spec id="persistence.jdbc.url" size="20" set="jdbc:sqlserver://localhost:1344;database=syncope;selectMethod=cursor;sendStringParametersAsUnicode=false"/>
+      <spec id="persistence.jdbc.url" size="20" set="jdbc:sqlserver://localhost:1433;database=syncope;selectMethod=cursor;sendStringParametersAsUnicode=false"/>
     </field>
     <field type="space"/>
     <field type="text" variable="persistence.dbuser">
@@ -200,6 +200,18 @@ under the License.
       <spec id="tomcat.container.pwd.id" size="20" set="s3cret"/>
     </field>
     
+    <field type="check" variable="glassfish.container.ssl" conditionid="glassfish.choice">
+      <spec id="glassfish.container.ssl.id" true="true" false="false" set="false"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="glassfish.container.host" conditionid="glassfish.choice">
+      <spec id="glassfish.container.host.id" size="20" set="localhost"/>
+    </field>
+    <field type="space"/>
+    <field type="text" variable="glassfish.container.port" conditionid="glassfish.choice">
+      <spec id="glassfish.container.port.id" size="20" set="8080"/>
+    </field>
+    <field type="space"/>
     <field type="text" variable="glassfish.container.dir" conditionid="glassfish.choice">
       <spec id="glassfish.container.dir.id" size="20" set="/opt/glassfish4/"/>
     </field>
@@ -213,7 +225,7 @@ under the License.
     </field>
     <field type="space"/>
     <field type="text" variable="jboss.container.port" conditionid="jboss.choice">
-      <spec id="jboss.container.port.id" size="20" set="9990"/>
+      <spec id="jboss.container.port.id" size="20" set="8080"/>
     </field>
     <field type="space"/>
     <field type="text" variable="jboss.container.jdbc.module" conditionid="jboss.choice">
@@ -227,5 +239,9 @@ under the License.
     <field type="text" variable="jboss.container.pwd" conditionid="jboss.choice">
       <spec id="jboss.container.pwd.id" size="20" set="password"/>
     </field>
+    <field type="space"/>
+    <field type="text" variable="jboss.container.management.port" conditionid="jboss.choice">
+      <spec id="jboss.container.management.port.id" size="20" set="9990"/>
+    </field> 
   </panel>
 </userInput>

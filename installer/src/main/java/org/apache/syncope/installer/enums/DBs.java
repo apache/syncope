@@ -43,7 +43,10 @@ public enum DBs {
             db = MYSQL;
         } else if (ORACLE.getName().equalsIgnoreCase(containerName)) {
             db = ORACLE;
+        } else {
+            db = SQLSERVER;
         }
+
         return db;
     }
 }
