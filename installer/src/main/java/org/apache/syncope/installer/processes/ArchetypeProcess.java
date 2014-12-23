@@ -22,16 +22,15 @@ import org.apache.syncope.installer.utilities.FileSystemUtils;
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-import org.apache.syncope.installer.files.ModelerPom;
-import org.apache.syncope.installer.files.ModelerTokenValueMap;
 import org.apache.syncope.installer.files.ParentPom;
 import org.apache.syncope.installer.utilities.InstallLog;
 import org.apache.syncope.installer.utilities.MavenUtils;
 import org.xml.sax.SAXException;
 
-public class ArchetypeProcess {
+public class ArchetypeProcess extends BaseProcess {
 
     public void run(final AbstractUIProcessHandler handler, final String[] args) {
         final String installPath = args[0];
@@ -52,6 +51,8 @@ public class ArchetypeProcess {
         final String proxyUser = args[15];
         final String proxyPwd = args[16];
         final boolean mavenProxyAutoconf = Boolean.valueOf(args[17]);
+        
+        setSyncopeInstallDir(installPath, artifactId);
 
         final FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
         fileSystemUtils.createDirectory(installPath);
@@ -97,21 +98,37 @@ public class ArchetypeProcess {
         handler.logOutput("########################## IMPORTANT ##########################", true);
         mavenUtils.archetypeGenerate(
                 syncopeVersion, groupId, artifactId, secretKey, anonymousKey, installPath, customMavenProxySettings);
-        
+
         if (syncopeVersion.contains("SNAPSHOT")) {
-            fileSystemUtils.writeToFile(new File(installPath + "/" + artifactId + ParentPom.PATH),
-                    String.format(ParentPom.FILE, syncopeVersion, syncopeVersion, groupId, artifactId));
+            final File pomFile =
+                    new File(syncopeInstallDir + properties.getProperty("pomFile"));
+            String contentPomFile = fileSystemUtils.readFile(pomFile);
+            fileSystemUtils.writeToFile(pomFile, contentPomFile.replace(ParentPom.PLACEHOLDER, ParentPom.REPOSITORY));
         }
-        
+
         fileSystemUtils.createDirectory(confDirectory);
         fileSystemUtils.createDirectory(logsDirectory);
         fileSystemUtils.createDirectory(bundlesDirectory);
         fileSystemUtils.createDirectory(modelerDirectory);
-        fileSystemUtils.writeToFile(new File(modelerDirectory + ModelerPom.PATH),
-                String.format(ModelerPom.FILE, modelerDirectory, modelerDirectory));
-        fileSystemUtils.writeToFile(new File(modelerDirectory + ModelerTokenValueMap.PATH), ModelerTokenValueMap.FILE);
-        mavenUtils.mvnCleanPackage(modelerDirectory, customMavenProxySettings);
+        
+        fileSystemUtils.copyFileFromResources("/" + properties.getProperty("modelerPomFile"),
+                modelerDirectory + "/" + properties.getProperty("pomFile"), handler);
+
+        fileSystemUtils.copyFile(
+                syncopeInstallDir
+                + properties.getProperty("consoleResDirectory")
+                + "/" + properties.getProperty("tokenValueMapFile"),
+                modelerDirectory + "/" + properties.getProperty("tokenValueMapFile"));
+
+        final Properties modelerProperties = new Properties();
+        modelerProperties.setProperty("modeler.directory", modelerDirectory);
+        mavenUtils.mvnCleanPackageWithProperties(modelerDirectory, modelerProperties, customMavenProxySettings);
+
+        final Properties syncopeProperties = new Properties();
+        syncopeProperties.setProperty("conf.directory", confDirectory);
+        syncopeProperties.setProperty("log.directory", logsDirectory);
+        syncopeProperties.setProperty("bundles.directory", bundlesDirectory);
         mavenUtils.mvnCleanPackageWithProperties(
-                installPath + "/" + artifactId, confDirectory, logsDirectory, bundlesDirectory, customMavenProxySettings);
+                installPath + "/" + artifactId, syncopeProperties, customMavenProxySettings);
     }
 }
