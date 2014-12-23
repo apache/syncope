@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <name>Apache Syncope</name>
+  <description>Apache Syncope parent POM</description>
+
+  <groupId>org.apache.syncope</groupId>
+  <artifactId>syncope</artifactId>
+  <version>2.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <parent>
+    <groupId>org.apache</groupId>
+    <artifactId>apache</artifactId>
+    <version>16</version>
+    <relativePath />
+  </parent>
+
+  <url>http://syncope.apache.org/</url>
+
+  <inceptionYear>2010</inceptionYear>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:https://git-wip-us.apache.org/repos/asf/syncope.git</connection>
+    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/syncope.git</developerConnection>
+    <url>https://git-wip-us.apache.org/repos/asf?p=syncope.git</url>
+  </scm>
+
+  <issueManagement>
+    <system>jira</system>
+    <url>https://issues.apache.org/jira/browse/SYNCOPE</url>
+  </issueManagement>
+
+  <ciManagement>
+    <system>Jenkins</system>
+    <url>https://builds.apache.org/view/S-Z/view/Syncope/</url>
+  </ciManagement>
+
+  <distributionManagement>
+    <site>
+      <id>syncope.website</id>
+      <name>Apache Syncope website</name>
+      <url>${site.deploymentBaseUrl}</url>
+    </site>
+  </distributionManagement>
+
+  <mailingLists>
+    <mailingList>
+      <name>Syncope User List</name>
+      <subscribe>user-subscribe@syncope.apache.org</subscribe>
+      <unsubscribe>user-unsubscribe@syncope.apache.org</unsubscribe>
+      <post>user@syncope.apache.org</post>
+      <archive>http://mail-archives.apache.org/mod_mbox/syncope-user/</archive>
+      <otherArchives>
+        <otherArchive>http://syncope.markmail.org/</otherArchive>
+        <otherArchive>http://syncope-user.1051894.n5.nabble.com/</otherArchive>
+        <otherArchive>http://www.mail-archive.com/user@syncope.apache.org/</otherArchive>
+      </otherArchives>
+    </mailingList>
+    <mailingList>
+      <name>Syncope Developer List</name>
+      <subscribe>dev-subscribe@syncope.apache.org</subscribe>
+      <unsubscribe>dev-unsubscribe@syncope.apache.org</unsubscribe>
+      <post>dev@syncope.apache.org</post>
+      <archive>http://mail-archives.apache.org/mod_mbox/syncope-dev/</archive>
+      <otherArchives>
+        <otherArchive>http://syncope.markmail.org/</otherArchive>
+        <otherArchive>http://syncope-dev.1063484.n5.nabble.com/</otherArchive>
+        <otherArchive>http://www.mail-archive.com/dev@syncope.apache.org/</otherArchive>
+      </otherArchives>
+    </mailingList>
+    <mailingList>
+      <name>Syncope Commits List</name>
+      <subscribe>commits-subscribe@syncope.apache.org</subscribe>
+      <unsubscribe>commits-unsubscribe@syncope.apache.org</unsubscribe>
+      <post>commits@syncope.apache.org</post>
+      <archive>http://mail-archives.apache.org/mod_mbox/syncope-commits/</archive>
+      <otherArchives>
+        <otherArchive>http://syncope.markmail.org/</otherArchive>
+        <otherArchive>http://www.mail-archive.com/commits@syncope.apache.org/</otherArchive>
+      </otherArchives>
+    </mailingList>
+  </mailingLists>
+
+  <developers>
+    <developer>
+      <id>ilgrosso</id>
+      <email>ilgrosso@apache.org</email>
+      <name>Francesco Chicchiriccò</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>ASF member</role>
+        <role>PMC chair</role>
+      </roles>
+      <url>http://people.apache.org/~ilgrosso/</url>
+    </developer>
+    <developer>
+      <id>fmartelli</id>
+      <name>Fabio Martelli</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>PMC member</role>
+      </roles>
+      <url>http://people.apache.org/~fmartelli/</url>
+    </developer>
+    <developer>
+      <id>mdisabatino</id>
+      <name>Marco Di Sabatino Di Diodoro</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>PMC member</role>
+      </roles>
+      <url>http://people.apache.org/~mdisabatino/</url>
+    </developer>
+    <developer>
+      <id>massi</id>
+      <name>Massimiliano Perrone</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>PMC member</role>
+      </roles>
+      <url>http://people.apache.org/~massi/</url>
+    </developer>    
+    <developer>
+      <id>rene</id>
+      <name>René Mulder</name>
+      <organization>Everett</organization>
+      <organizationUrl>http://www.everett.nl/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <url>http://people.apache.org/~rene/</url>
+    </developer>
+    <developer>
+      <id>simonetripodi</id>
+      <name>Simone Tripodi</name>
+      <organization>The Apache Software Foundation</organization>
+      <organizationUrl>http://www.apache.org/</organizationUrl>
+      <roles>
+        <role>ASF member</role>
+        <role>PMC member</role>
+      </roles>
+      <url>http://people.apache.org/~simonetripodi/</url>
+    </developer>
+    <developer>
+      <id>elecharny</id>
+      <name>Emmanuel Lecharny</name>
+      <organization>The Apache Software Foundation</organization>
+      <organizationUrl>http://www.apache.org/</organizationUrl>
+      <roles>
+        <role>ASF member</role>
+        <role>PMC member</role>
+      </roles>
+      <url>http://people.apache.org/~elecharny/</url>
+    </developer>
+    <developer>
+      <id>anzelld</id>
+      <name>Dino Anzellotti</name>
+      <organization>Everett Italia</organization>
+      <organizationUrl>http://www.everett.it/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <url>http://people.apache.org/~anzelld/</url>
+    </developer>
+    <developer>
+      <id>coheigea</id>
+      <name>Colm O hEigeartaigh</name>
+      <organization>Talend</organization>
+      <organizationUrl>http://www.talend.com/</organizationUrl>
+      <roles>
+        <role>ASF member</role>
+        <role>PMC member</role>
+      </roles>
+      <url>http://people.apache.org/~coheigea/</url>
+    </developer>
+    <developer>
+      <id>jbonofre</id>
+      <name>Jean-Baptiste Onofré</name>
+      <organization>Talend</organization>
+      <organizationUrl>http://www.talend.com/</organizationUrl>
+      <roles>
+        <role>ASF member</role>
+        <role>PMC member</role>
+      </roles>
+      <url>http://people.apache.org/~jbonofre/</url>
+    </developer>
+    <developer>
+      <id>jbernhardt</id>
+      <name>Jan Bernhardt</name>
+      <organization>Talend</organization>
+      <organizationUrl>http://www.talend.com/</organizationUrl>
+      <roles>
+        <role>PMC member</role>
+      </roles>
+      <url>http://people.apache.org/~jbernhardt/</url>
+    </developer>
+    <developer>
+      <id>ashakirin</id>
+      <name>Andrei Shakirin</name>
+      <organization>Talend</organization>
+      <organizationUrl>http://www.talend.com/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <url>http://ashakirin.blogspot.de/</url>
+    </developer>
+    <developer>
+      <id>cschneider</id>
+      <name>Christian Schneider</name>
+      <organization>Talend</organization>
+      <organizationUrl>http://www.talend.com/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <url>http://www.liquid-reality.de/</url>
+      <email>chris@die-schneider.net</email>
+    </developer>
+    <developer>
+      <id>gwimmel</id>
+      <name>Guido Wimmel</name>
+      <organization>Stadtwerke München Services GmbH</organization>
+      <organizationUrl>http://www.swm.de/</organizationUrl>
+      <roles>
+        <role>PMC member</role>
+      </roles>
+      <url>http://people.apache.org/~gwimmel/</url>
+      <email>gwimmel@apache.org</email>
+    </developer>
+    <developer>
+      <id>andreapatricelli</id>
+      <name>Andrea Patricelli</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <url>http://people.apache.org/~andreapatricelli/</url>
+      <email>andreapatricelli@apache.org</email>
+    </developer>
+  </developers>
+
+  <contributors>
+    <contributor>
+      <name>Denis Signoretto</name>
+      <email>denis.signoretto@intesys.it</email>
+      <organization>Intesys</organization>
+      <organizationUrl>http://www.intesys.it/</organizationUrl>
+    </contributor>
+    <contributor>
+      <name>Bob Lannoy</name>
+      <email>bob.lannoy@smals.be</email>
+      <organization>Smals</organization>
+      <organizationUrl>http://www.smals.be/</organizationUrl>
+      <url>http://blogresearch.smalsrech.be/</url>
+    </contributor>
+    <contributor>
+      <name>Bruno Rogério de Moura</name>
+      <email>brunormoura@gmail.com</email>
+      <organization>Exprivia</organization>
+      <organizationUrl>http://www.exprivia.it/home</organizationUrl>
+      <url>http://br.linkedin.com/pub/bruno-moura/1b/2a/806</url>
+    </contributor>
+  </contributors>
+
+  <prerequisites>
+    <maven>[3.0.3,)</maven>
+  </prerequisites>
+
+  <properties>
+    <syncope.version>${project.version}</syncope.version>
+
+    <connid.version>1.4.0.0</connid.version>
+
+    <jackson.version>2.4.4</jackson.version>
+
+    <log4j.version>2.1</log4j.version>
+
+    <commons-lang.version>3.3.2</commons-lang.version>
+
+    <targetJdk>1.7</targetJdk>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencyManagement>
+
+    <dependencies>
+      <dependency>
+        <groupId>javax.validation</groupId>
+        <artifactId>validation-api</artifactId>
+        <version>1.1.0.Final</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${commons-lang.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>net.tirasa.connid</groupId>
+        <artifactId>connector-framework</artifactId>
+        <version>${connid.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+    </dependencies>
+
+  </dependencyManagement>
+
+  <repositories>
+    <repository>
+      <id>sonatype</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>apache.snapshots</id>
+      <url>http://repository.apache.org/snapshots</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <build>
+    <defaultGoal>clean verify</defaultGoal>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.2</version> 
+          <configuration>
+            <source>${targetJdk}</source>
+            <target>${targetJdk}</target>
+            <showWarnings>true</showWarnings>
+            <showDeprecation>true</showDeprecation>
+            <!--<compilerArgument>-Xlint:unchecked</compilerArgument>-->
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+    </plugins>
+  </build>
+
+  <modules>
+    <module>common</module>
+    <module>server</module>
+  </modules>
+</project>
