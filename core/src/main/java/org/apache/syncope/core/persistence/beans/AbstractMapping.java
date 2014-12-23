@@ -18,17 +18,10 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import javax.persistence.Cacheable;
 import javax.persistence.MappedSuperclass;
 import org.apache.syncope.common.types.IntMappingType;
-import org.apache.syncope.common.util.BeanUtils;
-import org.apache.syncope.core.persistence.beans.role.RMappingItem;
-import org.apache.syncope.core.persistence.beans.user.UMapping;
-import org.apache.syncope.core.persistence.beans.user.UMappingItem;
-import org.identityconnectors.framework.common.objects.Uid;
 
 @MappedSuperclass
 @Cacheable
