@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 public class SyncopeConstants {
 
-    public static final String NAMESPACE = "http://syncope.apache.org/1.2";
+    public static final String NAMESPACE = "http://syncope.apache.org/2.0";
 
     public static final String UNAUTHENTICATED = "unauthenticated";
 
