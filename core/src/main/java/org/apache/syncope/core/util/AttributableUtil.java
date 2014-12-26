@@ -164,6 +164,7 @@ public final class AttributableUtil {
 
             case CONFIGURATION:
                 result = SyncopeConf.class;
+                break;
 
             case USER:
             default:
@@ -293,13 +294,16 @@ public final class AttributableUtil {
 
     @SuppressWarnings("unchecked")
     public <T extends AbstractMappingItem> List<T> getUidToMappingItems(
-            final ExternalResource resource, final MappingPurpose purpose, final AttributableType type) {
-        final List<T> items = getMappingItems(resource, MappingPurpose.SYNCHRONIZATION);
-        final AbstractMappingItem uidItem = type == AttributableType.USER ? new UMappingItem() : new RMappingItem();
+            final ExternalResource resource, final MappingPurpose purpose) {
+
+        List<T> items = getMappingItems(resource, purpose);
+
+        AbstractMappingItem uidItem = type == AttributableType.USER ? new UMappingItem() : new RMappingItem();
         BeanUtils.copyProperties(getAccountIdItem(resource), uidItem);
         uidItem.setExtAttrName(Uid.NAME);
         uidItem.setAccountid(false);
         items.add((T) uidItem);
+
         return items;
     }
 
@@ -315,6 +319,7 @@ public final class AttributableUtil {
                 break;
             case MEMBERSHIP:
                 result = AbstractMappingItem.class;
+                break;
             case CONFIGURATION:
             default:
         }
