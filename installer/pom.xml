@@ -173,12 +173,32 @@ under the License.
 
     <resources>
       <resource>
+        <directory>${basedir}/../core/src/main/resources/</directory>
+        <includes>
+          <include>**/orm*</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/../core/src/test/resources/</directory>
+        <includes>
+          <include>**/persistenceContextEMFactory.xml</include>
+        </includes>
+      </resource>
+      <resource>
         <directory>${basedir}</directory>
         <targetPath>META-INF</targetPath>
         <includes>
           <include>LICENSE</include>
           <include>NOTICE</include>
         </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>**/configuration.properties</include>
+          <include>**/modelerPom.xml</include>
+        </includes>
+        <filtering>true</filtering>
       </resource>
     </resources>
   </build>
