@@ -52,6 +52,7 @@ import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.ta
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.console.wicket.markup.html.link.VeilPopupSettings;
+import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -278,7 +279,8 @@ public class Configuration extends BasePage {
         add(new LayoutsPanel("selfMembershipLayoutPanel", AttrLayoutType.SELF_MEMBERSHIP, feedbackPanel));
         
         //Route Management
-        add(editRouteWin = new ModalWindow("editRouteWin"));
+        editRouteWin = new ModalWindow("editRouteWin");
+        add(editRouteWin);
         setupRoutes();
     }
 
@@ -828,7 +830,18 @@ public class Configuration extends BasePage {
         WebMarkupContainer routeContainer = new WebMarkupContainer("routesContainer");
         routeContainer.add(routeTable);
         routeContainer.setOutputMarkupId(true);
+        
+        ListItem<Object> li = new ListItem<Object>("routeTab", 0);
+        if (routeRestClient.isCamelEnabledForUsers() == false) {
+            li.setVisible(false);
+            routeContainer.setVisible(false);   
+        }
+        else{
+            li.setVisible(true);
+            routeContainer.setVisible(true); 
+        }
 
+        add(li);
         add(routeContainer);
 
         editRouteWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);

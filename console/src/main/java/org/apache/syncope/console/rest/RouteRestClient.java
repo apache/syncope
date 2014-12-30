@@ -19,8 +19,11 @@
 package org.apache.syncope.console.rest;
 
 import java.util.List;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.services.RouteService;
 import org.apache.syncope.common.to.RouteTO;
+import org.apache.syncope.common.types.SubjectType;
+import org.apache.syncope.console.SyncopeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -31,17 +34,30 @@ public class RouteRestClient extends BaseRestClient{
     protected static final Logger LOG = LoggerFactory.getLogger(RouteRestClient.class);
     
     public List<RouteTO> readRoutes(){
-        return getService(RouteService.class).getRoutes();
+        return getService(RouteService.class).getRoutes(SubjectType.USER);
     }
     
     public RouteTO readRoute(Long id){
-        return getService(RouteService.class).getRoute(id);
+        return getService(RouteService.class).getRoute(SubjectType.USER, id);
     }
     
     public void updateRoute(Long id, String definition){
         RouteTO routeTO = readRoute(id);        
         routeTO.setRouteContent(definition);     
-        getService(RouteService.class).importRoute(routeTO.getId(), routeTO);
+        getService(RouteService.class).importRoute(SubjectType.USER, routeTO.getId(), routeTO);
+    }
+    
+    public boolean isCamelEnabledForUsers() {
+        Boolean result = null;
+        try {
+            result = SyncopeSession.get().isCamelEnabledFor(SubjectType.USER);
+        } catch (SyncopeClientException e) {
+            LOG.error("While seeking if Camel is enabled for users", e);
+        }
+
+        return result == null
+                ? false
+                : result.booleanValue();
     }
     
 }

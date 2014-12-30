@@ -26,6 +26,7 @@ import org.apache.syncope.client.rest.RestClientFactoryBean;
 import org.apache.syncope.common.search.OrderByClauseBuilder;
 import org.apache.syncope.common.search.RoleFiqlSearchConditionBuilder;
 import org.apache.syncope.common.search.UserFiqlSearchConditionBuilder;
+import org.apache.syncope.common.services.RouteService;
 import org.apache.syncope.common.services.UserSelfService;
 import org.apache.syncope.common.services.WorkflowService;
 import org.apache.syncope.common.types.Preference;
@@ -260,6 +261,31 @@ public class SyncopeClient {
             case USER:
             default:
                 result = Boolean.valueOf(options.getHeaderString(RESTHeaders.ACTIVITI_USER_ENABLED));
+                break;
+        }
+
+        return result;
+    }
+    
+    /**
+     * Checks whether Camel is enabled for users / roles, by calling <tt>RouteService</tt>'s options.
+     *
+     * @param subjectType user / role
+     * @return whether Camel Provisioning is enabled for given attributable type
+     * @see RouteService#getOptions(org.apache.syncope.common.types.SubjectType)
+     */
+    public boolean isCamelEnabledFor(final SubjectType subjectType) {
+        Response options = getService(RouteService.class).getOptions(subjectType);
+
+        boolean result;
+        switch (subjectType) {
+            case ROLE:
+                result = Boolean.valueOf(options.getHeaderString(RESTHeaders.CAMEL_ROLE_PROVISIONING_MANAGER));
+                break;
+
+            case USER:
+            default:
+                result = Boolean.valueOf(options.getHeaderString(RESTHeaders.CAMEL_USER_PROVISIONING_MANAGER));
                 break;
         }
 

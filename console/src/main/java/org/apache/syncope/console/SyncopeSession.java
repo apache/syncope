@@ -114,6 +114,13 @@ public class SyncopeSession extends WebSession {
                 : clients.values().iterator().next();
         return client.isActivitiEnabledFor(type);
     }
+    
+    public boolean isCamelEnabledFor(final SubjectType type) {
+        SyncopeClient client = clients.isEmpty()
+                ? clientFactory.createAnonymous()
+                : clients.values().iterator().next();
+        return client.isCamelEnabledFor(type);
+    }
 
     public <T> T getService(final Class<T> service) {
         return getService(service, this.username, this.password);
