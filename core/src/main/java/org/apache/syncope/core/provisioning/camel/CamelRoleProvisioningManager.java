@@ -68,7 +68,7 @@ public class CamelRoleProvisioningManager implements RoleProvisioningManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(CamelRoleProvisioningManager.class);
 
-    private DefaultCamelContext camelContext;
+    private SpringCamelContext camelContext;
 
     private RoutesDefinition routes;
 
@@ -95,7 +95,7 @@ public class CamelRoleProvisioningManager implements RoleProvisioningManager {
         camelContext.stop();
     }
 
-    public CamelContext getContext() {
+    public SpringCamelContext getContext() {
         //ApplicationContext context = ApplicationContextProvider.getApplicationContext();
         //return context.getBean("camel-context", DefaultCamelContext.class);        
         return contextFactory.getContext(routeDAO);

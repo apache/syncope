@@ -40,6 +40,7 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.impl.DefaultMessage;
 import org.apache.camel.model.RoutesDefinition;
+import org.apache.camel.spring.SpringCamelContext;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.PropagationStatus;
@@ -59,7 +60,7 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(CamelUserProvisioningManager.class);
 
-    private DefaultCamelContext camelContext;
+    private SpringCamelContext camelContext;
 
     private RoutesDefinition routes;
 
@@ -98,7 +99,7 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
         camelContext.stop();
     }
 
-    public CamelContext getContext() {
+    public SpringCamelContext getContext() {
         //ApplicationContext context = ApplicationContextProvider.getApplicationContext();
         //return context.getBean("camel-context", DefaultCamelContext.class);                    
         return contextFactory.getContext(routeDAO);

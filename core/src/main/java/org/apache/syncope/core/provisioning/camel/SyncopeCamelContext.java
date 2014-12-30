@@ -48,15 +48,15 @@ public class SyncopeCamelContext {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeCamelContext.class);
 
-    private CamelContext camelContext = null;
+    private SpringCamelContext camelContext = null;
 
     public SyncopeCamelContext() {
     }
 
-    public CamelContext getContext(RouteDAO routeDAO) {
+    public SpringCamelContext getContext(RouteDAO routeDAO) {
 
         if (camelContext == null) {
-            camelContext = new SpringCamelContext(ApplicationContextProvider.getApplicationContext());
+            camelContext = new  SpringCamelContext(ApplicationContextProvider.getApplicationContext());
         }
         if (camelContext.getRouteDefinitions().isEmpty()) {
 
