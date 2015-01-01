@@ -19,11 +19,12 @@
 package org.apache.syncope.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.persistence.api.dao.validation.InvalidEntityException;
+import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.persistence.api.entity.task.Task;
 import org.apache.syncope.persistence.api.entity.task.TaskExec;
 
-public interface TaskExecDAO extends DAO<TaskExec> {
+public interface TaskExecDAO extends DAO<TaskExec, Long> {
 
     TaskExec find(Long key);
 
@@ -31,7 +32,7 @@ public interface TaskExecDAO extends DAO<TaskExec> {
 
     <T extends Task> TaskExec findLatestEnded(T task);
 
-    <T extends Task> List<TaskExec> findAll(Class<T> reference);
+    List<TaskExec> findAll(TaskType type);
 
     TaskExec save(TaskExec execution) throws InvalidEntityException;
 

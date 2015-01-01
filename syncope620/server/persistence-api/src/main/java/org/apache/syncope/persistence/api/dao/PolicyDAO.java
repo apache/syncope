@@ -26,7 +26,7 @@ import org.apache.syncope.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.persistence.api.entity.Policy;
 import org.apache.syncope.persistence.api.entity.SyncPolicy;
 
-public interface PolicyDAO extends DAO<Policy> {
+public interface PolicyDAO extends DAO<Policy, Long> {
 
     <T extends Policy> T find(Long key);
 

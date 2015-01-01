@@ -18,18 +18,18 @@
  */
 package org.apache.syncope.persistence.api.dao;
 
-import org.apache.syncope.persistence.api.entity.conf.CNormAttr;
+import org.apache.syncope.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.persistence.api.entity.conf.Conf;
 
-public interface ConfDAO extends DAO<Conf> {
+public interface ConfDAO extends DAO<Conf, Long> {
 
-    CNormAttr find(String key);
+    CPlainAttr find(String key);
 
-    CNormAttr find(String key, String defaultValue);
+    CPlainAttr find(String key, String defaultValue);
 
     Conf get();
 
-    Conf save(CNormAttr attr);
+    Conf save(CPlainAttr attr);
 
     Conf delete(String key);
 }

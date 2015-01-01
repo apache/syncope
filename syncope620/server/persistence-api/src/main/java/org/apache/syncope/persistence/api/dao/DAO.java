@@ -20,11 +20,11 @@ package org.apache.syncope.persistence.api.dao;
 
 import org.apache.syncope.persistence.api.entity.Entity;
 
-public interface DAO<T extends Entity> {
+public interface DAO<E extends Entity<KEY>, KEY> {
 
-    void refresh(T entity);
+    void refresh(E entity);
 
-    void detach(T entity);
+    void detach(E entity);
 
     void flush();
 

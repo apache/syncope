@@ -27,6 +27,4 @@ public interface VirAttr extends Attr<VirSchema> {
     boolean addValue(String value);
 
     boolean removeValue(String value);
-
-    void setValues(List<String> values);
 }

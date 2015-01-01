@@ -31,7 +31,7 @@ public interface MappingItem extends Entity<Long> {
 
     String getMandatoryCondition();
 
-    <T extends MappingItem> Mapping<T> getMapping();
+    Mapping<?> getMapping();
 
     MappingPurpose getPurpose();
 
@@ -49,7 +49,7 @@ public interface MappingItem extends Entity<Long> {
 
     void setMandatoryCondition(String condition);
 
-    void setMapping(Mapping mapping);
+    void setMapping(Mapping<?> mapping);
 
     void setPassword(boolean password);
 

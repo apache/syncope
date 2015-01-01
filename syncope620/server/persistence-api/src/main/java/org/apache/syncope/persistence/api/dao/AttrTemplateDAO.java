@@ -20,9 +20,9 @@ package org.apache.syncope.persistence.api.dao;
 
 import java.util.List;
 import org.apache.syncope.persistence.api.entity.AttrTemplate;
-import org.apache.syncope.persistence.api.entity.NormSchema;
+import org.apache.syncope.persistence.api.entity.Schema;
 
-public interface AttrTemplateDAO<K extends NormSchema> extends DAO<AttrTemplate<K>> {
+public interface AttrTemplateDAO<K extends Schema> extends DAO<AttrTemplate<K>, Long> {
 
     <T extends AttrTemplate<K>> T find(Long key, Class<T> reference);
 

@@ -19,8 +19,7 @@
 package org.apache.syncope.persistence.api.entity.membership;
 
 import org.apache.syncope.persistence.api.entity.AttrTemplate;
-import org.apache.syncope.persistence.api.entity.DerSchema;
 
-public interface MDerAttrTemplate extends AttrTemplate<DerSchema> {
+public interface MDerAttrTemplate extends AttrTemplate<MDerSchema> {
 
 }

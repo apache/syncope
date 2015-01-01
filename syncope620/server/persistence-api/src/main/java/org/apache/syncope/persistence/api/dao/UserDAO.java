@@ -21,16 +21,16 @@ package org.apache.syncope.persistence.api.dao;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.persistence.api.dao.validation.InvalidEntityException;
+import org.apache.syncope.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.persistence.api.entity.ExternalResource;
 import org.apache.syncope.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.persistence.api.entity.user.UDerAttr;
-import org.apache.syncope.persistence.api.entity.user.UNormAttr;
-import org.apache.syncope.persistence.api.entity.user.UNormAttrValue;
+import org.apache.syncope.persistence.api.entity.user.UPlainAttr;
+import org.apache.syncope.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.persistence.api.entity.user.User;
 
-public interface UserDAO extends SubjectDAO<UNormAttr, UDerAttr, UVirAttr> {
+public interface UserDAO extends SubjectDAO<UPlainAttr, UDerAttr, UVirAttr> {
 
     User find(Long key);
 
@@ -44,9 +44,9 @@ public interface UserDAO extends SubjectDAO<UNormAttr, UDerAttr, UVirAttr> {
 
     List<User> findByDerAttrValue(String schemaName, String value);
 
-    List<User> findByAttrValue(String schemaName, UNormAttrValue attrValue);
+    List<User> findByAttrValue(String schemaName, UPlainAttrValue attrValue);
 
-    User findByAttrUniqueValue(String schemaName, UNormAttrValue attrUniqueValue);
+    User findByAttrUniqueValue(String schemaName, UPlainAttrValue attrUniqueValue);
 
     List<User> findByResource(ExternalResource resource);
 

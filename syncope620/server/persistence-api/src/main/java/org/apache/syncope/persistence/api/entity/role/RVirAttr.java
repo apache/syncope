@@ -22,6 +22,12 @@ import org.apache.syncope.persistence.api.entity.VirAttr;
 
 public interface RVirAttr extends VirAttr {
 
+    @Override
+    Role getOwner();
+
+    @Override
+    RVirSchema getSchema();
+
     RVirAttrTemplate getTemplate();
 
     void setTemplate(RVirAttrTemplate template);

@@ -20,7 +20,7 @@ package org.apache.syncope.persistence.api.entity;
 
 import java.util.Collection;
 
-public interface DerAttr<N extends NormAttr> extends Attr<DerSchema> {
+public interface DerAttr extends Attr<DerSchema> {
 
-    String getValue(Collection<N> attrs);
+    String getValue(Collection<? extends PlainAttr> attrs);
 }

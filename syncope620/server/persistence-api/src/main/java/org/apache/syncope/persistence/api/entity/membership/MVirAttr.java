@@ -22,6 +22,12 @@ import org.apache.syncope.persistence.api.entity.VirAttr;
 
 public interface MVirAttr extends VirAttr {
 
+    @Override
+    Membership getOwner();
+
+    @Override
+    MVirSchema getSchema();
+
     MVirAttrTemplate getTemplate();
 
     void setTemplate(MVirAttrTemplate template);

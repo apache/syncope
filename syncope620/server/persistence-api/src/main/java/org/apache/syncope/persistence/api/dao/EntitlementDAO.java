@@ -19,11 +19,11 @@
 package org.apache.syncope.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.persistence.api.dao.validation.InvalidEntityException;
+import org.apache.syncope.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.persistence.api.entity.Entitlement;
 import org.apache.syncope.persistence.api.entity.role.Role;
 
-public interface EntitlementDAO extends DAO<Entitlement> {
+public interface EntitlementDAO extends DAO<Entitlement, String> {
 
     Entitlement find(String key);
 
@@ -31,7 +31,7 @@ public interface EntitlementDAO extends DAO<Entitlement> {
 
     Entitlement save(Entitlement entitlement) throws InvalidEntityException;
 
-    Entitlement saveEntitlementRole(Role role);
+    Entitlement saveRoleEntitlement(Role role);
 
     void delete(String key);
 

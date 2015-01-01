@@ -20,10 +20,10 @@ package org.apache.syncope.persistence.api.dao;
 
 import java.util.List;
 import org.apache.syncope.common.lib.types.LoggerType;
-import org.apache.syncope.persistence.api.dao.validation.InvalidEntityException;
+import org.apache.syncope.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.persistence.api.entity.Logger;
 
-public interface LoggerDAO extends DAO<Logger> {
+public interface LoggerDAO extends DAO<Logger, String> {
 
     Logger find(String key);
 

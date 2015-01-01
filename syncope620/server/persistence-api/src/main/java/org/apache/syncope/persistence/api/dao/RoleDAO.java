@@ -21,18 +21,18 @@ package org.apache.syncope.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.persistence.api.dao.validation.InvalidEntityException;
+import org.apache.syncope.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.persistence.api.entity.Entitlement;
 import org.apache.syncope.persistence.api.entity.ExternalResource;
 import org.apache.syncope.persistence.api.entity.Policy;
 import org.apache.syncope.persistence.api.entity.membership.Membership;
 import org.apache.syncope.persistence.api.entity.role.RDerAttr;
-import org.apache.syncope.persistence.api.entity.role.RNormAttr;
-import org.apache.syncope.persistence.api.entity.role.RNormAttrValue;
+import org.apache.syncope.persistence.api.entity.role.RPlainAttr;
+import org.apache.syncope.persistence.api.entity.role.RPlainAttrValue;
 import org.apache.syncope.persistence.api.entity.role.RVirAttr;
 import org.apache.syncope.persistence.api.entity.role.Role;
 
-public interface RoleDAO extends SubjectDAO<RNormAttr, RDerAttr, RVirAttr> {
+public interface RoleDAO extends SubjectDAO<RPlainAttr, RDerAttr, RVirAttr> {
 
     Role find(Long key);
 
@@ -58,9 +58,9 @@ public interface RoleDAO extends SubjectDAO<RNormAttr, RDerAttr, RVirAttr> {
 
     List<Role> findByDerAttrValue(String schemaName, String value);
 
-    List<Role> findByAttrValue(String schemaName, RNormAttrValue attrValue);
+    List<Role> findByAttrValue(String schemaName, RPlainAttrValue attrValue);
 
-    Role findByAttrUniqueValue(String schemaName, RNormAttrValue attrUniqueValue);
+    Role findByAttrUniqueValue(String schemaName, RPlainAttrValue attrUniqueValue);
 
     List<Role> findByResource(ExternalResource resource);
 

@@ -19,19 +19,18 @@
 package org.apache.syncope.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.persistence.api.dao.validation.InvalidEntityException;
+import org.apache.syncope.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.persistence.api.entity.AttributableUtil;
 import org.apache.syncope.persistence.api.entity.DerAttr;
 import org.apache.syncope.persistence.api.entity.DerSchema;
-import org.apache.syncope.persistence.api.entity.NormAttr;
 
-public interface DerSchemaDAO extends DAO<DerSchema> {
+public interface DerSchemaDAO extends DAO<DerSchema, String> {
 
     <T extends DerSchema> T find(String name, Class<T> reference);
 
     <T extends DerSchema> List<T> findAll(Class<T> reference);
 
-    <T extends DerAttr<K>, K extends NormAttr> List<T> findAttrs(DerSchema schema, Class<T> reference);
+    <T extends DerAttr> List<T> findAttrs(DerSchema schema, Class<T> reference);
 
     <T extends DerSchema> T save(T derSchema) throws InvalidEntityException;
 

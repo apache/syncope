@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <comment>Additional indexes (in respect to JPA's)</comment>
+
+  <entry key="UPlainAttrValue_stringvalueIndex">CREATE INDEX UAttrValue_stringvalueIndex ON UPlainAttrValue(stringvalue)</entry>
+  <entry key="UPlainAttrValue_datevalueIndex">CREATE INDEX UAttrValue_datevalueIndex ON UPlainAttrValue(datevalue)</entry>
+  <entry key="UPlainAttrValue_longvalueIndex">CREATE INDEX UAttrValue_longvalueIndex ON UPlainAttrValue(longvalue)</entry>
+  <entry key="UPlainAttrValue_doublevalueIndex">CREATE INDEX UAttrValue_doublevalueIndex ON UPlainAttrValue(doublevalue)</entry>
+  <entry key="UPlainAttrValue_booleanvalueIndex">CREATE INDEX UAttrValue_booleanvalueIndex ON UPlainAttrValue(booleanvalue)</entry>
+  <entry key="MPlainAttrValue_stringvalueIndex">CREATE INDEX MAttrValue_stringvalueIndex ON MPlainAttrValue(stringvalue)</entry>
+  <entry key="MPlainAttrValue_datevalueIndex">CREATE INDEX MAttrValue_datevalueIndex ON MPlainAttrValue(datevalue)</entry>
+  <entry key="MPlainAttrValue_longvalueIndex">CREATE INDEX MAttrValue_longvalueIndex ON MPlainAttrValue(longvalue)</entry>
+  <entry key="MPlainAttrValue_doublevalueIndex">CREATE INDEX MAttrValue_doublevalueIndex ON MPlainAttrValue(doublevalue)</entry>
+  <entry key="MPlainAttrValue_booleanvalueIndex">CREATE INDEX MAttrValue_booleanvalueIndex ON MPlainAttrValue(booleanvalue)</entry>
+  <entry key="RPlainAttrValue_stringvalueIndex">CREATE INDEX RAttrValue_stringvalueIndex ON RPlainAttrValue(stringvalue)</entry>
+  <entry key="RPlainAttrValue_datevalueIndex">CREATE INDEX RAttrValue_datevalueIndex ON RPlainAttrValue(datevalue)</entry>
+  <entry key="RPlainAttrValue_longvalueIndex">CREATE INDEX RAttrValue_longvalueIndex ON RPlainAttrValue(longvalue)</entry>
+  <entry key="RPlainAttrValue_doublevalueIndex">CREATE INDEX RAttrValue_doublevalueIndex ON RPlainAttrValue(doublevalue)</entry>
+  <entry key="RPlainAttrValue_booleanvalueIndex">CREATE INDEX RAttrValue_booleanvalueIndex ON RPlainAttrValue(booleanvalue)</entry>
+  <entry key="Task_executedIndex">CREATE INDEX Task_executedIndex ON Task(executed)</entry>
+</properties>

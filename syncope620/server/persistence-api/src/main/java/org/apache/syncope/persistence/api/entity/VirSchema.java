@@ -20,4 +20,5 @@ package org.apache.syncope.persistence.api.entity;
 
 public interface VirSchema extends Schema {
 
+    void setReadonly(boolean readonly);
 }

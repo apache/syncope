@@ -20,7 +20,13 @@ package org.apache.syncope.persistence.api.entity.membership;
 
 import org.apache.syncope.persistence.api.entity.DerAttr;
 
-public interface MDerAttr extends DerAttr<MNormAttr> {
+public interface MDerAttr extends DerAttr {
+
+    @Override
+    Membership getOwner();
+
+    @Override
+    MDerSchema getSchema();
 
     MDerAttrTemplate getTemplate();
 

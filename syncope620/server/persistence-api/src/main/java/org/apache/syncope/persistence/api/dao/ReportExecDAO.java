@@ -19,11 +19,11 @@
 package org.apache.syncope.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.persistence.api.dao.validation.InvalidEntityException;
+import org.apache.syncope.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.persistence.api.entity.Report;
 import org.apache.syncope.persistence.api.entity.ReportExec;
 
-public interface ReportExecDAO extends DAO<ReportExec> {
+public interface ReportExecDAO extends DAO<ReportExec, Long> {
 
     ReportExec find(Long key);
 

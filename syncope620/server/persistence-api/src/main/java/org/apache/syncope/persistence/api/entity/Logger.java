@@ -23,7 +23,7 @@ import org.apache.syncope.common.lib.types.LoggerType;
 
 public interface Logger extends Entity<String> {
 
-    void setName(String name);
+    void setKey(String name);
 
     LoggerLevel getLevel();
 

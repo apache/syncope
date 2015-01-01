@@ -45,7 +45,7 @@ public interface ConnInstance extends Entity<Long> {
 
     ConnPoolConf getPoolConf();
 
-    List<ExternalResource> getResources();
+    List<? extends ExternalResource> getResources();
 
     String getVersion();
 
@@ -55,11 +55,9 @@ public interface ConnInstance extends Entity<Long> {
 
     void setBundleName(String bundleName);
 
-    void setCapabilities(Set<ConnectorCapability> capabilities);
-
     void setConfiguration(Set<ConnConfProperty> configuration);
 
-    void setConnRequestTimeout(Integer connRequestTimeout);
+    void setConnRequestTimeout(Integer timeout);
 
     void setConnectorName(String connectorName);
 
@@ -68,8 +66,6 @@ public interface ConnInstance extends Entity<Long> {
     void setLocation(String location);
 
     void setPoolConf(ConnPoolConf poolConf);
-
-    void setResources(List<ExternalResource> resources);
 
     void setVersion(String version);
 }

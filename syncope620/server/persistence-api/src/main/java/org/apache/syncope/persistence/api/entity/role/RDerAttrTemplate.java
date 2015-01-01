@@ -19,8 +19,7 @@
 package org.apache.syncope.persistence.api.entity.role;
 
 import org.apache.syncope.persistence.api.entity.AttrTemplate;
-import org.apache.syncope.persistence.api.entity.DerSchema;
 
-public interface RDerAttrTemplate extends AttrTemplate<DerSchema> {
+public interface RDerAttrTemplate extends AttrTemplate<RDerSchema> {
 
 }

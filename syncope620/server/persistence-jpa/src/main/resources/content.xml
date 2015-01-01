@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<dataset>
+  <SyncopeConf id="1" 
+               creator="admin" lastModifier="admin"
+               creationDate="2014-06-20 11:00:00" lastChangeDate="2014-06-20 11:00:00"/>
+
+  <CSchema name="password.cipher.algorithm" type="String"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="1" owner_id="1" schema_name="password.cipher.algorithm"/>
+  <CAttrValue id="1" attribute_id="1" stringValue="SHA1"/>
+
+  <!-- notificationjob.cronExpression:
+  + not existing: NotificationJob runs according to Notification.DEFAULT_CRON_EXP
+  + provided as empty string: NotificationJob disabled
+  + provided as non-empty string: NotificationJob runs according to the given value -->
+  <CSchema name="notificationjob.cronExpression" type="String"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="2" owner_id="1" schema_name="notificationjob.cronExpression"/>
+  <CAttrValue id="2" attribute_id="2" stringValue=""/>
+
+  <CSchema name="notification.maxRetries" type="Long"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="3" owner_id="1" schema_name="notification.maxRetries"/>
+  <CAttrValue id="3" attribute_id="3" longValue="0"/>
+
+  <CSchema name="token.length" type="Long"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="4" owner_id="1" schema_name="token.length"/>
+  <CAttrValue id="4" attribute_id="4" longValue="256"/>
+
+  <CSchema name="token.expireTime" type="Long"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="5" owner_id="1" schema_name="token.expireTime"/>
+  <CAttrValue id="5" attribute_id="5" longValue="60"/>
+
+  <CSchema name="selfRegistration.allowed" type="Boolean"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="6" owner_id="1" schema_name="selfRegistration.allowed"/>
+  <CAttrValue id="6" attribute_id="6" booleanValue="1"/>
+
+  <CSchema name="passwordReset.allowed" type="Boolean"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="7" owner_id="1" schema_name="passwordReset.allowed"/>
+  <CAttrValue id="7" attribute_id="7" booleanValue="1"/>
+
+  <CSchema name="passwordReset.securityQuestion" type="Boolean"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="8" owner_id="1" schema_name="passwordReset.securityQuestion"/>
+  <CAttrValue id="8" attribute_id="8" booleanValue="1"/>
+
+  <CSchema name="authentication.statuses" type="String"
+           mandatoryCondition="true" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="9" owner_id="1" schema_name="authentication.statuses"/>
+  <CAttrValue id="9" attribute_id="9" stringValue="created"/>
+  <CAttrValue id="10" attribute_id="9" stringValue="active"/>
+
+  <!-- Save user login date upon successful authentication -->
+  <CSchema name="log.lastlogindate" type="Boolean"
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="11" owner_id="1" schema_name="log.lastlogindate"/>
+  <CAttrValue id="11" attribute_id="11" booleanValue="1"/>
+
+  <!-- For usage with admin console -->
+  <CSchema name="admin.user.layout" type="String"
+           mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CSchema name="self.user.layout" type="String"
+           mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CSchema name="admin.role.layout" type="String"
+           mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CSchema name="self.role.layout" type="String"
+           mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CSchema name="admin.membership.layout" type="String"
+           mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CSchema name="self.membership.layout" type="String"
+           mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+        
+  <!-- User pre-defined schemas -->
+  <USchema name="email" type="String"
+           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+           validatorClass="org.apache.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>  
+  
+  <!-- Password reset notifications -->
+  <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserSchema" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset request" template="requestPasswordReset" 
+                traceLevel="FAILURES" userAbout="token!=$null"/> 
+  <Notification_events Notification_id="1" events="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
+  
+  <Notification id="2" active="1" recipientAttrName="email" recipientAttrType="UserSchema" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset successful" template="confirmPasswordReset" 
+                traceLevel="FAILURES" userAbout="token!=$null"/> 
+  <Notification_events Notification_id="2" events="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>  
+  
+  <!-- Authentication and authorization -->
+  <Entitlement name="SCHEMA_LIST"/>
+  <Entitlement name="SCHEMA_CREATE"/>
+  <Entitlement name="SCHEMA_READ"/>
+  <Entitlement name="SCHEMA_UPDATE"/>
+  <Entitlement name="SCHEMA_DELETE"/>
+  <Entitlement name="USER_LIST"/>
+  <Entitlement name="USER_CREATE"/>
+  <Entitlement name="USER_READ"/>
+  <Entitlement name="USER_UPDATE"/>
+  <Entitlement name="USER_DELETE"/>
+  <Entitlement name="USER_VIEW"/>
+  <Entitlement name="ROLE_LIST"/>
+  <Entitlement name="ROLE_CREATE"/>
+  <Entitlement name="ROLE_READ"/>
+  <Entitlement name="ROLE_UPDATE"/>
+  <Entitlement name="ROLE_DELETE"/>
+  <Entitlement name="RESOURCE_LIST"/>
+  <Entitlement name="RESOURCE_CREATE"/>
+  <Entitlement name="RESOURCE_READ"/>
+  <Entitlement name="RESOURCE_UPDATE"/>
+  <Entitlement name="RESOURCE_DELETE"/>
+  <Entitlement name="RESOURCE_GETCONNECTOROBJECT"/>
+  <Entitlement name="CONNECTOR_LIST"/>
+  <Entitlement name="CONNECTOR_CREATE"/>
+  <Entitlement name="CONNECTOR_READ"/>
+  <Entitlement name="CONNECTOR_UPDATE"/>
+  <Entitlement name="CONNECTOR_DELETE"/>
+  <Entitlement name="CONNECTOR_RELOAD"/>
+  <Entitlement name="CONFIGURATION_EXPORT"/>
+  <Entitlement name="CONFIGURATION_LIST"/>
+  <Entitlement name="CONFIGURATION_SET"/>
+  <Entitlement name="CONFIGURATION_DELETE"/>
+  <Entitlement name="TASK_LIST"/>
+  <Entitlement name="TASK_CREATE"/>
+  <Entitlement name="TASK_READ"/>
+  <Entitlement name="TASK_UPDATE"/>
+  <Entitlement name="TASK_DELETE"/>
+  <Entitlement name="TASK_EXECUTE"/>
+  <Entitlement name="POLICY_LIST"/>
+  <Entitlement name="POLICY_CREATE"/>
+  <Entitlement name="POLICY_READ"/>
+  <Entitlement name="POLICY_UPDATE"/>
+  <Entitlement name="POLICY_DELETE"/>
+  <Entitlement name="WORKFLOW_DEF_READ"/>
+  <Entitlement name="WORKFLOW_DEF_UPDATE"/>
+  <Entitlement name="WORKFLOW_TASK_LIST"/> 
+  <Entitlement name="WORKFLOW_FORM_LIST"/>
+  <Entitlement name="WORKFLOW_FORM_READ"/>
+  <Entitlement name="WORKFLOW_FORM_CLAIM"/>
+  <Entitlement name="WORKFLOW_FORM_SUBMIT"/>
+  <Entitlement name="NOTIFICATION_LIST"/>
+  <Entitlement name="NOTIFICATION_CREATE"/>
+  <Entitlement name="NOTIFICATION_READ"/>
+  <Entitlement name="NOTIFICATION_UPDATE"/>
+  <Entitlement name="NOTIFICATION_DELETE"/>
+  <Entitlement name="REPORT_LIST"/>
+  <Entitlement name="REPORT_READ"/>
+  <Entitlement name="REPORT_CREATE"/>
+  <Entitlement name="REPORT_UPDATE"/>
+  <Entitlement name="REPORT_DELETE"/>
+  <Entitlement name="REPORT_EXECUTE"/>
+  <Entitlement name="LOG_LIST"/>
+  <Entitlement name="LOG_SET_LEVEL"/>
+  <Entitlement name="LOG_DELETE"/>
+  <Entitlement name="AUDIT_LIST"/>
+  <Entitlement name="AUDIT_ENABLE"/>
+  <Entitlement name="AUDIT_DISABLE"/>
+  <Entitlement name="SECURITY_QUESTION_CREATE"/>
+  <Entitlement name="SECURITY_QUESTION_UPDATE"/>
+  <Entitlement name="SECURITY_QUESTION_DELETE"/>
+
+</dataset>

@@ -22,4 +22,10 @@ import org.apache.syncope.persistence.api.entity.VirAttr;
 
 public interface UVirAttr extends VirAttr {
 
+    @Override
+    User getOwner();
+
+    @Override
+    UVirSchema getSchema();
+
 }

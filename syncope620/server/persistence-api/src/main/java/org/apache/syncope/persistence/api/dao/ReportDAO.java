@@ -20,10 +20,10 @@ package org.apache.syncope.persistence.api.dao;
 
 import java.util.List;
 import org.apache.syncope.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.persistence.api.dao.validation.InvalidEntityException;
+import org.apache.syncope.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.persistence.api.entity.Report;
 
-public interface ReportDAO extends DAO<Report> {
+public interface ReportDAO extends DAO<Report, Long> {
 
     Report find(Long key);
 

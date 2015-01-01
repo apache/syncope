@@ -34,8 +34,12 @@ under the License.
   <packaging>pom</packaging>
 
   <modules>
+    <module>provisioning-api</module>
     <module>persistence-api</module>
-    <!--<module>persistence-jpa</module>-->
+    <module>persistence-jpa</module>
+    <module>spring</module>
+    <module>security</module>
+    <module>utils</module>
   </modules>
 
 </project>

@@ -25,6 +25,6 @@ public interface Attr<S extends Schema> extends Entity<Long> {
     void setOwner(Attributable<?, ?, ?> owner);
 
     S getSchema();
-    
+
     void setSchema(S schema);
 }

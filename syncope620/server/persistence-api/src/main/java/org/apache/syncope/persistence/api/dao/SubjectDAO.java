@@ -22,21 +22,23 @@ import java.util.List;
 import org.apache.syncope.persistence.api.entity.AttributableUtil;
 import org.apache.syncope.persistence.api.entity.DerAttr;
 import org.apache.syncope.persistence.api.entity.ExternalResource;
-import org.apache.syncope.persistence.api.entity.NormAttr;
-import org.apache.syncope.persistence.api.entity.NormAttrValue;
+import org.apache.syncope.persistence.api.entity.PlainAttr;
+import org.apache.syncope.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.persistence.api.entity.Subject;
 import org.apache.syncope.persistence.api.entity.VirAttr;
 
-public interface SubjectDAO<N extends NormAttr, D extends DerAttr<N>, V extends VirAttr> extends DAO<Subject<N, D, V>> {
+public interface SubjectDAO<P extends PlainAttr, D extends DerAttr, V extends VirAttr>
+        extends DAO<Subject<P, D, V>, Long> {
 
-    <T extends Subject<N, D, V>> List<T> findByAttrValue(String schemaName,
-            NormAttrValue attrValue, AttributableUtil attrUtil);
+    List<? extends Subject<P, D, V>> findByAttrValue(
+            String schemaName, PlainAttrValue attrValue, AttributableUtil attrUtil);
 
-    <T extends Subject<N, D, V>> T findByAttrUniqueValue(String schemaName,
-            NormAttrValue attrUniqueValue, AttributableUtil attrUtil);
+    Subject<P, D, V> findByAttrUniqueValue(
+            String schemaName, PlainAttrValue attrUniqueValue, AttributableUtil attrUtil);
 
-    <T extends Subject<N, D, V>> List<T> findByDerAttrValue(
+    List<? extends Subject<P, D, V>> findByDerAttrValue(
             String schemaName, String value, AttributableUtil attrUtil);
 
-    <T extends Subject<N, D, V>> List<T> findByResource(ExternalResource resource, Class<T> reference);
+    List<? extends Subject<P, D, V>> findByResource(
+            ExternalResource resource, AttributableUtil attrUtil);
 }

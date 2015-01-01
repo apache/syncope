@@ -19,10 +19,10 @@
 package org.apache.syncope.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.persistence.api.dao.validation.InvalidEntityException;
+import org.apache.syncope.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.persistence.api.entity.user.SecurityQuestion;
 
-public interface SecurityQuestionDAO extends DAO<SecurityQuestion> {
+public interface SecurityQuestionDAO extends DAO<SecurityQuestion, Long> {
 
     SecurityQuestion find(Long key);
 

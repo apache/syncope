@@ -32,16 +32,6 @@ public interface Schema extends Entity<String> {
 
     boolean isUniqueConstraint();
 
-    void setName(String name);
-
-    void setType(AttrSchemaType type);
-
-    void setMandatoryCondition(String condition);
-
-    void setMultivalue(boolean multivalue);
-
-    void setReadonly(boolean readonly);
-
-    void setUniqueConstraint(boolean uniquevalue);
+    void setKey(String name);
 
 }

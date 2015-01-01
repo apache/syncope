@@ -28,7 +28,7 @@ import org.apache.syncope.persistence.api.entity.Schema;
 import org.apache.syncope.persistence.api.entity.Subject;
 import org.apache.syncope.persistence.api.entity.user.User;
 
-public interface Role extends Subject<RNormAttr, RDerAttr, RVirAttr> {
+public interface Role extends Subject<RPlainAttr, RDerAttr, RVirAttr> {
 
     String getName();
 
@@ -43,21 +43,21 @@ public interface Role extends Subject<RNormAttr, RDerAttr, RVirAttr> {
      *
      * @return a list of inherited and only inherited attributes.
      */
-    List<RNormAttr> findLastInheritedAncestorNormAttrs();
+    List<? extends RPlainAttr> findLastInheritedAncestorPlainAttrs();
 
     /**
      * Get all inherited derived attributes from the ancestors.
      *
      * @return a list of inherited and only inherited attributes.
      */
-    List<RDerAttr> findLastInheritedAncestorDerAttrs();
+    List<? extends RDerAttr> findLastInheritedAncestorDerAttrs();
 
     /**
      * Get all inherited virtual attributes from the ancestors.
      *
      * @return a list of inherited and only inherited attributes.
      */
-    List<RVirAttr> findLastInheritedAncestorVirAttrs();
+    List<? extends RVirAttr> findLastInheritedAncestorVirAttrs();
 
     /**
      * Get first valid account policy.
@@ -74,9 +74,9 @@ public interface Role extends Subject<RNormAttr, RDerAttr, RVirAttr> {
 
     <T extends AttrTemplate<K>, K extends Schema> List<K> getAttrTemplateSchemas(Class<T> reference);
 
-    <T extends AttrTemplate<Schema>> List<T> getAttrTemplates(Class<T> reference);
+    <T extends AttrTemplate<K>, K extends Schema> List<T> getAttrTemplates(Class<T> reference);
 
-    Set<Entitlement> getEntitlements();
+    Set<? extends Entitlement> getEntitlements();
 
     /**
      * Get first valid password policy.
@@ -106,8 +106,6 @@ public interface Role extends Subject<RNormAttr, RDerAttr, RVirAttr> {
 
     void setAccountPolicy(AccountPolicy accountPolicy);
 
-    void setEntitlements(List<Entitlement> entitlements);
-
     void setInheritAccountPolicy(boolean condition);
 
     void setInheritAttrs(boolean inheritAttrs);
@@ -133,7 +131,7 @@ public interface Role extends Subject<RNormAttr, RDerAttr, RVirAttr> {
     void setUserOwner(User userOwner);
 
     @Override
-    boolean addNormAttr(RNormAttr attr);
+    boolean addPlainAttr(RPlainAttr attr);
 
     @Override
     boolean addDerAttr(RDerAttr attr);
@@ -142,25 +140,25 @@ public interface Role extends Subject<RNormAttr, RDerAttr, RVirAttr> {
     boolean addVirAttr(RVirAttr attr);
 
     @Override
-    RNormAttr getNormAttr(String normSchemaName);
+    RPlainAttr getPlainAttr(String plainSchemaName);
 
     @Override
-    List<RNormAttr> getNormAttrs();
+    List<? extends RPlainAttr> getPlainAttrs();
 
     @Override
     RDerAttr getDerAttr(String derSchemaName);
 
     @Override
-    List<RDerAttr> getDerAttrs();
+    List<? extends RDerAttr> getDerAttrs();
 
     @Override
     RVirAttr getVirAttr(String virSchemaName);
 
     @Override
-    List<RVirAttr> getVirAttrs();
+    List<? extends RVirAttr> getVirAttrs();
 
     @Override
-    boolean removeNormAttr(RNormAttr attr);
+    boolean removePlainAttr(RPlainAttr attr);
 
     @Override
     boolean removeDerAttr(RDerAttr derAttr);

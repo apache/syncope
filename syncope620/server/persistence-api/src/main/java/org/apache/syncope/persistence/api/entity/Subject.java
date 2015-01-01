@@ -20,7 +20,7 @@ package org.apache.syncope.persistence.api.entity;
 
 import java.util.Set;
 
-public interface Subject<N extends NormAttr, D extends DerAttr<N>, V extends VirAttr> extends Attributable<N, D, V> {
+public interface Subject<N extends PlainAttr, D extends DerAttr, V extends VirAttr> extends Attributable<N, D, V> {
 
     boolean addResource(ExternalResource resource);
 
@@ -28,7 +28,5 @@ public interface Subject<N extends NormAttr, D extends DerAttr<N>, V extends Vir
 
     Set<String> getResourceNames();
 
-    Set<ExternalResource> getResources();
-
-    void setResources(Set<ExternalResource> resources);
+    Set<? extends ExternalResource> getResources();
 }

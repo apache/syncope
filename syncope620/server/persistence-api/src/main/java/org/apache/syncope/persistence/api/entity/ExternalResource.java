@@ -99,10 +99,6 @@ public interface ExternalResource extends Entity<String> {
 
     void setRmapping(RMapping rmapping);
 
-    void setSerializedUSyncToken(String token);
-
-    void setSerializedRSyncToken(String token);
-
     void setEnforceMandatoryCondition(boolean enforce);
 
     void setPropagationPrimary(boolean condition);

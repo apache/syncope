@@ -30,7 +30,7 @@ under the License.
   <name>Apache Syncope Common Lib</name>
   <description>Apache Syncope Common Lib</description>
   <groupId>org.apache.syncope.common</groupId>
-  <artifactId>syncope-lib</artifactId>
+  <artifactId>syncope-common-lib</artifactId>
   <packaging>jar</packaging>
 
   <dependencies>
@@ -44,6 +44,10 @@ under the License.
       <artifactId>commons-lang3</artifactId>
     </dependency>
     
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>

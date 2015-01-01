@@ -23,7 +23,7 @@ import org.apache.syncope.persistence.api.entity.Attributable;
 import org.apache.syncope.persistence.api.entity.role.Role;
 import org.apache.syncope.persistence.api.entity.user.User;
 
-public interface Membership extends Attributable<MNormAttr, MDerAttr, MVirAttr> {
+public interface Membership extends Attributable<MPlainAttr, MDerAttr, MVirAttr> {
 
     Role getRole();
 
@@ -34,38 +34,20 @@ public interface Membership extends Attributable<MNormAttr, MDerAttr, MVirAttr> 
     void setUser(User user);
 
     @Override
-    boolean addNormAttr(MNormAttr attr);
+    MPlainAttr getPlainAttr(String plainSchemaName);
 
     @Override
-    boolean addDerAttr(MDerAttr attr);
-
-    @Override
-    boolean addVirAttr(MVirAttr attr);
-
-    @Override
-    MNormAttr getNormAttr(String normSchemaName);
-
-    @Override
-    List<MNormAttr> getNormAttrs();
+    List<? extends MPlainAttr> getPlainAttrs();
 
     @Override
     MDerAttr getDerAttr(String derSchemaName);
 
     @Override
-    List<MDerAttr> getDerAttrs();
+    List<? extends MDerAttr> getDerAttrs();
 
     @Override
     MVirAttr getVirAttr(String virSchemaName);
 
     @Override
-    List<MVirAttr> getVirAttrs();
-
-    @Override
-    boolean removeNormAttr(MNormAttr attr);
-
-    @Override
-    boolean removeDerAttr(MDerAttr derAttr);
-
-    @Override
-    boolean removeVirAttr(MVirAttr virAttr);
+    List<? extends MVirAttr> getVirAttrs();
 }

@@ -20,7 +20,13 @@ package org.apache.syncope.persistence.api.entity.role;
 
 import org.apache.syncope.persistence.api.entity.DerAttr;
 
-public interface RDerAttr extends DerAttr<RNormAttr> {
+public interface RDerAttr extends DerAttr {
+
+    @Override
+    Role getOwner();
+
+    @Override
+    RDerSchema getSchema();
 
     RDerAttrTemplate getTemplate();
 

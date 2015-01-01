@@ -18,18 +18,15 @@
  */
 package org.apache.syncope.persistence.api.entity;
 
-import java.util.Collection;
 import java.util.Set;
 
 public interface AccountPolicy extends Policy {
-
-    Set<String> getResourceNames();
-
-    Set<ExternalResource> getResources();
 
     boolean addResource(ExternalResource resource);
 
     boolean removeResource(ExternalResource resource);
 
-    void setResources(Collection<ExternalResource> resources);
+    Set<String> getResourceNames();
+
+    Set<? extends ExternalResource> getResources();
 }

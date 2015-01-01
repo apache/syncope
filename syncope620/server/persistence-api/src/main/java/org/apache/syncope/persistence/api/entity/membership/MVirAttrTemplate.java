@@ -19,8 +19,7 @@
 package org.apache.syncope.persistence.api.entity.membership;
 
 import org.apache.syncope.persistence.api.entity.AttrTemplate;
-import org.apache.syncope.persistence.api.entity.VirSchema;
 
-public interface MVirAttrTemplate extends AttrTemplate<VirSchema> {
+public interface MVirAttrTemplate extends AttrTemplate<MVirSchema> {
 
 }

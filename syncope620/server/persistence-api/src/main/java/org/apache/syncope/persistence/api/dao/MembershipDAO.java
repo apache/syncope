@@ -19,12 +19,12 @@
 package org.apache.syncope.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.persistence.api.dao.validation.InvalidEntityException;
+import org.apache.syncope.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.persistence.api.entity.membership.Membership;
 import org.apache.syncope.persistence.api.entity.role.Role;
 import org.apache.syncope.persistence.api.entity.user.User;
 
-public interface MembershipDAO extends DAO<Membership> {
+public interface MembershipDAO extends DAO<Membership, Long> {
 
     Membership find(Long key);
 

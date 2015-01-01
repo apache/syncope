@@ -18,17 +18,20 @@
  */
 package org.apache.syncope.persistence.api.entity.task;
 
+import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.UserTO;
+
 public interface SyncTask extends ProvisioningTask {
 
-    String getRoleTemplate();
+    RoleTO getRoleTemplate();
 
-    String getUserTemplate();
+    UserTO getUserTemplate();
 
     boolean isFullReconciliation();
 
     void setFullReconciliation(boolean condition);
 
-    void setRoleTemplate(String roleTemplate);
+    void setRoleTemplate(RoleTO roleTemplate);
 
-    void setUserTemplate(String userTemplate);
+    void setUserTemplate(UserTO userTemplate);
 }

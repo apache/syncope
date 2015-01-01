@@ -31,9 +31,9 @@ public interface Report extends Entity<Long> {
 
     String getCronExpression();
 
-    List<ReportExec> getExecs();
+    List<? extends ReportExec> getExecs();
 
-    List<ReportletConf> getReportletConfs();
+    List<? extends ReportletConf> getReportletConfs();
 
     boolean removeExec(ReportExec exec);
 
@@ -41,9 +41,5 @@ public interface Report extends Entity<Long> {
 
     void setCronExpression(String cronExpression);
 
-    void setExecs(List<ReportExec> executions);
-
     void setName(String name);
-
-    void setReportletConfs(List<ReportletConf> reportletConfs);
 }

@@ -27,7 +27,7 @@ import org.apache.syncope.persistence.api.entity.Subject;
 import org.apache.syncope.persistence.api.entity.membership.Membership;
 import org.apache.syncope.persistence.api.entity.role.Role;
 
-public interface User extends Subject<UNormAttr, UDerAttr, UVirAttr> {
+public interface User extends Subject<UPlainAttr, UDerAttr, UVirAttr> {
 
     boolean addMembership(Membership membership);
 
@@ -49,9 +49,9 @@ public interface User extends Subject<UNormAttr, UDerAttr, UVirAttr> {
 
     Membership getMembership(Long syncopeRoleId);
 
-    List<Membership> getMemberships();
+    List<? extends Membership> getMemberships();
 
-    Set<ExternalResource> getOwnResources();
+    Set<? extends ExternalResource> getOwnResources();
 
     String getPassword();
 
@@ -95,8 +95,6 @@ public interface User extends Subject<UNormAttr, UDerAttr, UVirAttr> {
 
     void setLastLoginDate(Date lastLoginDate);
 
-    void setMemberships(List<Membership> memberships);
-
     void setPassword(String password, CipherAlgorithm cipherAlgoritm);
 
     void setSecurityAnswer(String securityAnswer);
@@ -114,39 +112,39 @@ public interface User extends Subject<UNormAttr, UDerAttr, UVirAttr> {
     boolean verifyPasswordHistory(String password, int size);
 
     @Override
-    boolean addNormAttr(UNormAttr attr);
+    boolean addPlainAttr(UPlainAttr attr);
+
+    @Override
+    boolean removePlainAttr(UPlainAttr attr);
 
     @Override
     boolean addDerAttr(UDerAttr attr);
 
     @Override
+    boolean removeDerAttr(UDerAttr derAttr);
+
+    @Override
     boolean addVirAttr(UVirAttr attr);
 
     @Override
-    UNormAttr getNormAttr(String normSchemaName);
+    boolean removeVirAttr(UVirAttr virAttr);
 
     @Override
-    List<UNormAttr> getNormAttrs();
+    UPlainAttr getPlainAttr(String plainSchemaName);
+
+    @Override
+    List<? extends UPlainAttr> getPlainAttrs();
 
     @Override
     UDerAttr getDerAttr(String derSchemaName);
 
     @Override
-    List<UDerAttr> getDerAttrs();
+    List<? extends UDerAttr> getDerAttrs();
 
     @Override
     UVirAttr getVirAttr(String virSchemaName);
 
     @Override
-    List<UVirAttr> getVirAttrs();
-
-    @Override
-    boolean removeNormAttr(UNormAttr attr);
-
-    @Override
-    boolean removeDerAttr(UDerAttr derAttr);
-
-    @Override
-    boolean removeVirAttr(UVirAttr virAttr);
+    List<? extends UVirAttr> getVirAttrs();
 
 }

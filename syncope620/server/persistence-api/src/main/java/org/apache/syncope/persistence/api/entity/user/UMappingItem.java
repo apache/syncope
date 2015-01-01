@@ -18,8 +18,12 @@
  */
 package org.apache.syncope.persistence.api.entity.user;
 
+import org.apache.syncope.persistence.api.entity.Mapping;
 import org.apache.syncope.persistence.api.entity.MappingItem;
 
 public interface UMappingItem extends MappingItem {
+
+    @Override
+    Mapping<UMappingItem> getMapping();
 
 }

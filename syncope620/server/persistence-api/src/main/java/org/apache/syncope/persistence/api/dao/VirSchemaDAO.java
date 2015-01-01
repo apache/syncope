@@ -19,17 +19,18 @@
 package org.apache.syncope.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.persistence.api.dao.validation.InvalidEntityException;
+import org.apache.syncope.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.persistence.api.entity.VirAttr;
 import org.apache.syncope.persistence.api.entity.VirSchema;
 
-public interface VirSchemaDAO extends DAO<VirSchema> {
+public interface VirSchemaDAO extends DAO<VirSchema, String> {
 
     <T extends VirSchema> T find(String key, Class<T> reference);
 
     <T extends VirSchema> List<T> findAll(Class<T> reference);
 
-    <T extends VirSchema> List<T> findAttrs(VirSchema virSchema, Class<T> reference);
+    <T extends VirAttr> List<T> findAttrs(VirSchema virSchema, Class<T> reference);
 
     <T extends VirSchema> T save(T virSchema) throws InvalidEntityException;
 

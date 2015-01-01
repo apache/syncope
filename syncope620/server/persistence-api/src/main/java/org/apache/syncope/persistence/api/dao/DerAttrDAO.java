@@ -19,19 +19,18 @@
 package org.apache.syncope.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.persistence.api.dao.validation.InvalidEntityException;
+import org.apache.syncope.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.persistence.api.entity.DerAttr;
-import org.apache.syncope.persistence.api.entity.NormAttr;
 
-public interface DerAttrDAO<K extends NormAttr> extends DAO<DerAttr<K>> {
+public interface DerAttrDAO extends DAO<DerAttr, Long> {
 
-    <T extends DerAttr<K>> T find(Long key, Class<T> reference);
+    <T extends DerAttr> T find(Long key, Class<T> reference);
 
-    <T extends DerAttr<K>> List<T> findAll(Class<T> reference);
+    <T extends DerAttr> List<T> findAll(Class<T> reference);
 
-    <T extends DerAttr<K>> T save(T derAttr) throws InvalidEntityException;
+    <T extends DerAttr> T save(T derAttr) throws InvalidEntityException;
 
-    <T extends DerAttr<K>> void delete(Long key, Class<T> reference);
+    <T extends DerAttr> void delete(Long key, Class<T> reference);
 
-    <T extends DerAttr<K>> void delete(T derAttr);
+    <T extends DerAttr> void delete(T derAttr);
 }

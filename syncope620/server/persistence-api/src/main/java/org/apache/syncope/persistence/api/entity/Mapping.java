@@ -26,7 +26,7 @@ public interface Mapping<T extends MappingItem> extends Entity<Long> {
 
     String getAccountLink();
 
-    List<T> getItems();
+    List<? extends T> getItems();
 
     ExternalResource getResource();
 
@@ -37,8 +37,6 @@ public interface Mapping<T extends MappingItem> extends Entity<Long> {
     void setAccountIdItem(T item);
 
     void setAccountLink(String accountLink);
-
-    void setItems(List<T> items);
 
     void setResource(ExternalResource resource);
 }

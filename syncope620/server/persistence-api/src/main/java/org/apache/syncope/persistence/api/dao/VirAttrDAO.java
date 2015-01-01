@@ -19,10 +19,10 @@
 package org.apache.syncope.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.persistence.api.dao.validation.InvalidEntityException;
+import org.apache.syncope.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.persistence.api.entity.VirAttr;
 
-public interface VirAttrDAO extends DAO<VirAttr> {
+public interface VirAttrDAO extends DAO<VirAttr, Long> {
 
     <T extends VirAttr> T find(Long key, Class<T> reference);
 

@@ -30,8 +30,6 @@ public interface Notification extends Entity<Long> {
 
     List<String> getEvents();
 
-    Long getId();
-
     String getRecipientAttrName();
 
     IntMappingType getRecipientAttrType();
@@ -62,8 +60,6 @@ public interface Notification extends Entity<Long> {
 
     void setActive(boolean active);
 
-    void setEvents(List<String> events);
-
     void setRecipientAttrName(String recipientAttrName);
 
     void setRecipientAttrType(IntMappingType recipientAttrType);
@@ -75,8 +71,6 @@ public interface Notification extends Entity<Long> {
     void setSelfAsRecipient(boolean selfAsRecipient);
 
     void setSender(String sender);
-
-    void setStaticRecipients(List<String> staticRecipients);
 
     void setSubject(String subject);
 

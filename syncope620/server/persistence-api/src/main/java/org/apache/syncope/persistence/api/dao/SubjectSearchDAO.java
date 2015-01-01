@@ -23,9 +23,12 @@ import java.util.Set;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.persistence.api.entity.DerAttr;
+import org.apache.syncope.persistence.api.entity.PlainAttr;
 import org.apache.syncope.persistence.api.entity.Subject;
+import org.apache.syncope.persistence.api.entity.VirAttr;
 
-public interface SubjectSearchDAO extends DAO<Subject<?, ?, ?>> {
+public interface SubjectSearchDAO extends DAO<Subject<?, ?, ?>, Long> {
 
     /**
      * @param adminRoles the set of admin roles owned by the caller
@@ -42,7 +45,8 @@ public interface SubjectSearchDAO extends DAO<Subject<?, ?, ?>> {
      * @param <T> user/role
      * @return the list of users/roles matching the given search condition
      */
-    <T extends Subject<?, ?, ?>> List<T> search(Set<Long> adminRoles, SearchCond searchCondition, SubjectType type);
+    <T extends Subject<?, ?, ?>> List<T> search(
+            Set<Long> adminRoles, SearchCond searchCondition, SubjectType type);
 
     /**
      * @param adminRoles the set of admin roles owned by the caller
@@ -52,8 +56,8 @@ public interface SubjectSearchDAO extends DAO<Subject<?, ?, ?>> {
      * @param <T> user/role
      * @return the list of users/roles matching the given search condition
      */
-    <T extends Subject<?, ?, ?>> List<T> search(Set<Long> adminRoles, SearchCond searchCondition,
-            List<OrderByClause> orderBy, SubjectType type);
+    <T extends Subject<?, ?, ?>> List<T> search(
+            Set<Long> adminRoles, SearchCond searchCondition, List<OrderByClause> orderBy, SubjectType type);
 
     /**
      * @param adminRoles the set of admin roles owned by the caller
@@ -65,8 +69,9 @@ public interface SubjectSearchDAO extends DAO<Subject<?, ?, ?>> {
      * @param <T> user/role
      * @return the list of users/roles matching the given search condition (in the given page)
      */
-    <T extends Subject<?, ?, ?>> List<T> search(Set<Long> adminRoles, SearchCond searchCondition,
-            int page, int itemsPerPage, List<OrderByClause> orderBy, SubjectType type);
+    <T extends Subject<?, ?, ?>> List<T> search(
+            Set<Long> adminRoles, SearchCond searchCondition, int page, int itemsPerPage,
+            List<OrderByClause> orderBy, SubjectType type);
 
     /**
      * Verify if user/role matches the given search condition.

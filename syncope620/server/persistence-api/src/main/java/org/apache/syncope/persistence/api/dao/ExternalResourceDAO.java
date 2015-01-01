@@ -21,12 +21,12 @@ package org.apache.syncope.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.persistence.api.dao.validation.InvalidEntityException;
+import org.apache.syncope.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.persistence.api.entity.ExternalResource;
 import org.apache.syncope.persistence.api.entity.MappingItem;
 import org.apache.syncope.persistence.api.entity.Policy;
 
-public interface ExternalResourceDAO extends DAO<ExternalResource> {
+public interface ExternalResourceDAO extends DAO<ExternalResource, String> {
 
     ExternalResource find(String key);
 

@@ -20,29 +20,29 @@ package org.apache.syncope.persistence.api.entity;
 
 import java.util.List;
 
-public interface Attributable<N extends NormAttr, D extends DerAttr, V extends VirAttr> extends AnnotatedEntity<Long> {
+public interface Attributable<P extends PlainAttr, D extends DerAttr, V extends VirAttr> extends AnnotatedEntity<Long> {
 
-    boolean addNormAttr(N attr);
+    boolean addPlainAttr(P attr);
 
-    boolean addDerAttr(D attr);
+    boolean addDerAttr(D derAttr);
 
-    boolean addVirAttr(V attr);
+    boolean addVirAttr(V virAttr);
 
-    N getNormAttr(String normSchemaName);
-
-    List<N> getNormAttrs();
-
-    D getDerAttr(String derSchemaName);
-
-    List<D> getDerAttrs();
-
-    V getVirAttr(String virSchemaName);
-
-    List<V> getVirAttrs();
-
-    boolean removeNormAttr(N attr);
+    boolean removePlainAttr(P attr);
 
     boolean removeDerAttr(D derAttr);
 
     boolean removeVirAttr(V virAttr);
+
+    P getPlainAttr(String plainSchemaName);
+
+    List<? extends P> getPlainAttrs();
+
+    D getDerAttr(String derSchemaName);
+
+    List<? extends D> getDerAttrs();
+
+    V getVirAttr(String virSchemaName);
+
+    List<? extends V> getVirAttrs();
 }

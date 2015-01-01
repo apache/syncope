@@ -19,31 +19,34 @@
 package org.apache.syncope.persistence.api.dao;
 
 import java.util.List;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.persistence.api.dao.validation.InvalidEntityException;
+import org.apache.syncope.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.persistence.api.entity.ExternalResource;
 import org.apache.syncope.persistence.api.entity.task.Task;
 
-public interface TaskDAO extends DAO<Task> {
+public interface TaskDAO extends DAO<Task, Long> {
+
+    Class<? extends Task> getEntityReference(TaskType type);
 
     <T extends Task> T find(Long key);
 
-    <T extends Task> List<T> findToExec(Class<T> reference);
+    <T extends Task> List<T> findToExec(TaskType type);
 
-    <T extends Task> List<T> findAll(ExternalResource resource, Class<T> reference);
+    <T extends Task> List<T> findAll(ExternalResource resource, TaskType type);
 
-    <T extends Task> List<T> findAll(Class<T> reference);
+    <T extends Task> List<T> findAll(TaskType type);
 
     <T extends Task> List<T> findAll(
-            int page, int itemsPerPage, List<OrderByClause> orderByClauses, Class<T> reference);
+            int page, int itemsPerPage, List<OrderByClause> orderByClauses, TaskType type);
 
-    <T extends Task> int count(Class<T> reference);
+    int count(TaskType type);
 
     <T extends Task> T save(T task) throws InvalidEntityException;
 
-    <T extends Task> void delete(Long key);
+    void delete(Long key);
 
-    <T extends Task> void delete(T task);
+    void delete(Task task);
 
-    <T extends Task> void deleteAll(ExternalResource resource, Class<T> reference);
+    void deleteAll(ExternalResource resource, TaskType type);
 }

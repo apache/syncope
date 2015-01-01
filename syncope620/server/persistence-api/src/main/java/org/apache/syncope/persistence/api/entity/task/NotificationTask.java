@@ -45,8 +45,6 @@ public interface NotificationTask extends Task {
 
     boolean removeRecipient(String recipient);
 
-    void setRecipients(Set<String> recipients);
-
     void setSender(String sender);
 
     void setSubject(String subject);

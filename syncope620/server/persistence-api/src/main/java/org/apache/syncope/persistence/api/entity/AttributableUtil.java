@@ -27,23 +27,25 @@ public interface AttributableUtil {
 
     AttributableType getType();
 
-    <T extends Attributable> Class<T> attributableClass();
+    <T extends Attributable<?, ?, ?>> Class<T> attributableClass();
 
-    <T extends NormSchema> Class<T> normSchemaClass();
+    <T extends PlainSchema> Class<T> plainSchemaClass();
 
-    <T extends NormAttr> Class<T> normAttrClass();
+    <T extends PlainSchema> T newPlainSchema();
 
-    <T extends NormAttr> T newNormAttr();
+    <T extends PlainAttr> Class<T> plainAttrClass();
 
-    <T extends NormAttrValue> Class<T> attrUniqueValueClass();
+    <T extends PlainAttr> T newPlainAttr();
 
-    <T extends NormAttrValue> T newNormAttrUniqueValue();
+    <T extends PlainAttrValue> Class<T> plainAttrValueClass();
 
-    <T extends NormAttrValue> Class<T> attrValueClass();
+    <T extends PlainAttrValue> T newPlainAttrValue();
 
-    <T extends NormAttrValue> T newNormAttrValue();
+    <T extends AttrTemplate<PlainSchema>> Class<T> plainAttrTemplateClass();
 
-    <T extends AttrTemplate<NormSchema>> Class<T> normAttrTemplateClass();
+    <T extends PlainAttrValue> Class<T> plainAttrUniqueValueClass();
+
+    <T extends PlainAttrValue> T newPlainAttrUniqueValue();
 
     <T extends DerSchema> Class<T> derSchemaClass();
 
@@ -71,8 +73,7 @@ public interface AttributableUtil {
 
     <T extends MappingItem> List<T> getMappingItems(ExternalResource resource, MappingPurpose purpose);
 
-    <T extends MappingItem> List<T> getUidToMappingItems(
-            ExternalResource resource, MappingPurpose purpose, AttributableType type);
+    <T extends MappingItem> List<T> getUidToMappingItems(ExternalResource resource, MappingPurpose purpose);
 
     IntMappingType intMappingType();
 

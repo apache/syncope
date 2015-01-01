@@ -19,8 +19,7 @@
 package org.apache.syncope.persistence.api.entity.role;
 
 import org.apache.syncope.persistence.api.entity.AttrTemplate;
-import org.apache.syncope.persistence.api.entity.VirSchema;
 
-public interface RVirAttrTemplate extends AttrTemplate<VirSchema> {
+public interface RVirAttrTemplate extends AttrTemplate<RVirSchema> {
 
 }

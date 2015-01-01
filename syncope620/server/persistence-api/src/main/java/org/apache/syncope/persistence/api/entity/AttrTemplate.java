@@ -20,13 +20,13 @@ package org.apache.syncope.persistence.api.entity;
 
 import org.apache.syncope.persistence.api.entity.role.Role;
 
-public interface AttrTemplate<T extends Schema> extends Entity<Long> {
+public interface AttrTemplate<S extends Schema> extends Entity<Long> {
 
     Role getOwner();
 
     void setOwner(Role role);
 
-    T getSchema();
+    S getSchema();
 
-    void setSchema(T schema);
+    void setSchema(S schema);
 }

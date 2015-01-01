@@ -23,17 +23,17 @@ import org.apache.syncope.persistence.api.entity.Attributable;
 import org.apache.syncope.persistence.api.entity.DerAttr;
 import org.apache.syncope.persistence.api.entity.VirAttr;
 
-public interface Conf extends Attributable<CNormAttr, DerAttr<CNormAttr>, VirAttr> {
+public interface Conf extends Attributable<CPlainAttr, DerAttr, VirAttr> {
+
+    void setKey(Long key);
 
     @Override
-    boolean addNormAttr(CNormAttr attr);
+    boolean addPlainAttr(CPlainAttr attr);
 
     @Override
-    CNormAttr getNormAttr(String normSchemaName);
+    boolean removePlainAttr(CPlainAttr attr);
 
     @Override
-    List<CNormAttr> getNormAttrs();
+    List<? extends CPlainAttr> getPlainAttrs();
 
-    @Override
-    boolean removeNormAttr(CNormAttr attr);
 }
